@@ -1,5 +1,5 @@
 {
-  "name": "@growly/widget",
+  "name": "@growly/ui",
   "author": "Growly Foundation",
   "private": false,
   "version": "0.0.1",
@@ -11,7 +11,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/growly-official/smartlet/packages/widget"
+    "url": "https://github.com/growly-official/smartlet/packages/ui"
   },
   "sideEffects": [
     "**/*.css"
@@ -20,13 +20,25 @@
     "dev": "vite",
     "build": "tsc --p ./tsconfig-build.json && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "peerDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@chromatic-com/storybook": "^3.2.3",
+    "@storybook/addon-essentials": "^8.4.7",
+    "@storybook/addon-interactions": "^8.4.7",
+    "@storybook/addon-links": "^8.4.7",
+    "@storybook/addon-onboarding": "^8.4.7",
+    "@storybook/blocks": "^8.4.7",
+    "@storybook/react": "^8.4.7",
+    "@storybook/react-vite": "^8.4.7",
+    "@storybook/test": "^8.4.7",
+    "storybook": "^8.4.7",
     "@types/node": "^20.11.30",
     "@types/react": "^18.2.71",
     "@types/react-dom": "^18.2.22",
