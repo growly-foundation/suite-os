@@ -11,13 +11,11 @@ import SwapWidgetModal from './SwapWidgetModal/SwapWidgetModal';
 import SwapButton from './SwapButton/SwapButton';
 import AnalyzeTokenModal from './AnalyzeTokenModal/AnalyzeTokenModal';
 import AnalyzeTokenButton from './AnalyzeTokenButton/AnlyzeTokenButton';
-import AiChatModal from './AiChatModal/AiChatModal';
 import YieldFarmingModal from './YieldFarmingModal/YieldFarmingModal';
 import YieldFarmingButton from './YieldFarmingButton/YieldFarmingButton';
 import InvestmentObjectiveModal from './InvestmentObjectiveModal/InvestmentObjectiveModal';
 
 export {
-  AiChatModal,
   ChainListModal,
   ChainListItem,
   ChainList,
