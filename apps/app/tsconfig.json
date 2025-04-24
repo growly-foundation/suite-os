@@ -7,8 +7,6 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "paths": {
-      "@/utils": ["./lib/utils/index.ts"],
-      "@/eliza": ["./lib/eliza/index.ts"],
       "@/ui": ["./lib/ui/index.ts"],
       "@/core": ["./lib/core/index.ts"]
     },
