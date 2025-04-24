@@ -4,7 +4,7 @@
   "workspaces": {
     "packages": [
       "packages/*",
-      "apps/*"
+      "packages/*"
     ]
   },
   "scripts": {
@@ -13,9 +13,9 @@
     "format": "bunx prettier --config .prettierrc.cjs '**/*.{js,jsx,ts,tsx}' --write",
     "check": "bunx prettier --config .prettierrc.cjs '**/*.{js,jsx,ts,tsx}' --check && eslint '**/*.{js,jsx,ts,tsx}'",
     "build": "bun run --filter '*' build",
-    "start:app": "cd apps/app && bun dev",
-    "start:server": "cd apps/server && bun start",
-    "start:agent": "cd apps/agent && bun start"
+    "start:app": "cd packages/app && bun dev",
+    "start:server": "cd packages/server && bun start",
+    "start:agent": "cd packages/agent && bun start"
   },
   "precommit.silent": true,
   "pre-commit": [

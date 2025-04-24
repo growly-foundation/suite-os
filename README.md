@@ -24,6 +24,7 @@ Future Enhancements:
 -Weekly portfolio performance reports delivered via email or Telegram for better tracking and insights.
 
 ## Architecture
+
 ![image](https://github.com/user-attachments/assets/e995c994-7bf8-419c-8228-47938737103b)
 
 ## Local Setup
@@ -162,7 +163,7 @@ VITE_AGENT_SERVER_URL=
 
 The two `agent` and `server` will be bundled as docker image and push to registry (currently using DigitalOcean platform)
 
-Please see more details on `apps/server/Dockerfile` and `apps/agent/Dockerfile`
+Please see more details on `packages/server/Dockerfile` and `packages/agent/Dockerfile`
 
 Make sure you installed and setup `doctl` ([docs](https://docs.digitalocean.com/reference/doctl/how-to/install/)) on your local machine.
 

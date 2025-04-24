@@ -1,16 +1,16 @@
 build-agent:
-	cd apps/agent && docker buildx build --platform linux/amd64 -t cream-agent:amd64 .
+	cd packages/agent && docker buildx build --platform linux/amd64 -t growly-agent:amd64 .
 
 build-server:
-	cd apps/server && docker buildx build --platform linux/amd64 -t cream-server:amd64 .
+	cd packages/server && docker buildx build --platform linux/amd64 -t growly-server:amd64 .
 
 push-server:
-	docker tag cream-server:amd64 registry.digitalocean.com/growly/cream-server
-	docker push registry.digitalocean.com/growly/cream-server
+	docker tag growly-server:amd64 registry.digitalocean.com/growly/growly-server
+	docker push registry.digitalocean.com/growly/growly-server
 
 push-agent:
-	docker tag cream-agent:amd64 registry.digitalocean.com/growly/cream-agent
-	docker push registry.digitalocean.com/growly/cream-agent
+	docker tag growly-agent:amd64 registry.digitalocean.com/growly/growly-agent
+	docker push registry.digitalocean.com/growly/growly-agent
 
 up:
 	docker compose -f docker-compose.yaml up -d
