@@ -5,15 +5,7 @@ import ChainIcon from './ChainIcon/ChainIcon';
 import WalletAddress from './WalletAddress/WalletAddress';
 import MultichainTokenPortfolioTable from './PortfolioTable/MultichainTokenPorfolioTable';
 import NativeTokenPortfolioTable from './PortfolioTable/NativeTokenPortfolioTable';
-import TokenRiskBadge from './TokenRiskBadge/TokenRisktBadge';
 import SelectNetworkButton from './SelectNetworkButton/SelectNetworkButton';
-import SwapWidgetModal from './SwapWidgetModal/SwapWidgetModal';
-import SwapButton from './SwapButton/SwapButton';
-import AnalyzeTokenModal from './AnalyzeTokenModal/AnalyzeTokenModal';
-import AnalyzeTokenButton from './AnalyzeTokenButton/AnlyzeTokenButton';
-import YieldFarmingModal from './YieldFarmingModal/YieldFarmingModal';
-import YieldFarmingButton from './YieldFarmingButton/YieldFarmingButton';
-import InvestmentObjectiveModal from './InvestmentObjectiveModal/InvestmentObjectiveModal';
 
 export {
   ChainListModal,
@@ -24,12 +16,4 @@ export {
   SelectNetworkButton,
   MultichainTokenPortfolioTable,
   NativeTokenPortfolioTable,
-  TokenRiskBadge,
-  SwapWidgetModal,
-  SwapButton,
-  YieldFarmingModal,
-  YieldFarmingButton,
-  InvestmentObjectiveModal,
-  AnalyzeTokenModal,
-  AnalyzeTokenButton,
 };

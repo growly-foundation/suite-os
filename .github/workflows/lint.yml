@@ -1,4 +1,4 @@
-name: Cream Lint
+name: Smartlet Lint
 on:
   push:
     branches: ['main']

@@ -1,5 +1,5 @@
 {
-  "name": "cream",
+  "name": "growly-smartlet",
   "private": true,
   "workspaces": {
     "packages": [

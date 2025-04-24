@@ -1,4 +1,4 @@
-name: Cream Check
+name: Smartlet Check
 on:
   push:
     branches: ['main']

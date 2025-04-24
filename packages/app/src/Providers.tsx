@@ -3,17 +3,18 @@ import React from 'react';
 import { WagmiProvider } from 'wagmi';
 import { MultichainMagicProvider, NativeMagicProvider } from '@/core';
 import { getDefaultConfig, lightTheme, RainbowKitProvider } from '@rainbow-me/rainbowkit';
-import { sonic } from 'viem/chains';
+import { base } from 'viem/chains';
 import { CustomRainbowAvatar } from './components';
 
 const queryClient = new QueryClient();
 
 const config = getDefaultConfig({
-  appName: 'Cream',
+  appName: 'Growly',
   projectId: import.meta.env.VITE_RAINBOW_PROJECT_ID,
-  chains: [sonic],
+  chains: [base],
   appIcon: '/logo.png',
-  appDescription: 'Manage your sonic onchain portfolio smarter with AI!',
+  appDescription:
+    'Streamline on-chain and off-chain data to your Web3.0 applications with a few lines of code.',
   ssr: true,
 });
 
@@ -30,7 +31,7 @@ const Providers: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             fontStack: 'system',
           })}
           showRecentTransactions
-          initialChain={sonic}>
+          initialChain={base}>
           <MultichainMagicProvider>
             <NativeMagicProvider>{children}</NativeMagicProvider>
           </MultichainMagicProvider>

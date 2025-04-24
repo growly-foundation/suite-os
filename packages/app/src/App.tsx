@@ -6,7 +6,6 @@ import './index.css';
 import { Theme } from '@radix-ui/themes';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import Providers from './Providers';
-import { GettingStarted, Chat } from './screens';
 import { AnimatedBackground } from './components/AnimatedBackground';
 import FetchingStatusOverlay from './components/FetchingStatusOverlay';
 import { AppBar } from './components/AppBar';
@@ -24,8 +23,7 @@ function App() {
             <div className="h-full relative flex flex-col items-center">
               <BrowserRouter>
                 <Routes>
-                  <Route path="/" element={<GettingStarted />} />
-                  <Route path="chat/:agentId" element={<Chat />} />
+                  <Route path="/" element={<>Hello World</>} />
                 </Routes>
               </BrowserRouter>
             </div>

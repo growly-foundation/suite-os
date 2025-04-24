@@ -1,4 +1,4 @@
-name: Cream Build
+name: Smartlet Build
 on:
   push:
     branches: ['main']

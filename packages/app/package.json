@@ -1,5 +1,5 @@
 {
-  "name": "@cream/app",
+  "name": "@growly/app",
   "private": true,
   "type": "module",
   "scripts": {

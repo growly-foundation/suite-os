@@ -1,4 +1,4 @@
-export const CREAM_COLORS = {
+export const COMMON_COLORS = {
   LIGHT_CREAM_FUR: '#FFE6BE',
   ORANGE_FUR: '#f79825',
   EYES_AND_NOSE: '#8D5929',
