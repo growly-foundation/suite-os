@@ -1,5 +1,6 @@
 'use client';
 import DashboardLayout from '@/components/layout';
+import WidgetStudioLayout from '@/components/layout/widgetStudio';
 import { User } from '@supabase/supabase-js';
 
 interface Props {
@@ -13,7 +14,9 @@ export default function WidgetStudio(props: Props) {
       userDetails={props.userDetails}
       title="AI Generator"
       description="AI Generator">
-      <div>Widget Studio</div>
+      <WidgetStudioLayout>
+        <div className="flex justify-center items-center flex-col w-full">Hello</div>
+      </WidgetStudioLayout>
     </DashboardLayout>
   );
 }
