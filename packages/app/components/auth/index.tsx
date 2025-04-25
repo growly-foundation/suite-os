@@ -37,20 +37,7 @@ export default function DefaultAuthLayout(props: DefaultAuthLayoutProps) {
         <div className="absolute right-0 hidden h-full min-h-[100vh] xl:block xl:w-[50vw] 2xl:w-[44vw]">
           <div className="absolute flex h-full w-full flex-col items-end justify-center bg-zinc-950 dark:bg-zinc-900">
             <div className={`mb-[160px] mt-8 flex w-full items-center justify-center `}>
-              <div className="me-2 flex h-[76px] w-[76px] items-center justify-center rounded-md bg-white text-zinc-950 dark:text-zinc-900">
-                <HiBolt className="h-9 w-9" />
-              </div>
-              <h5 className="text-4xl font-bold leading-5 text-white">Horizon AI</h5>
-            </div>
-            <div
-              className={`flex w-full flex-col items-center justify-center text-2xl font-bold text-white`}>
-              <h4 className="mb-5 flex w-[600px] items-center justify-center rounded-md text-center text-2xl font-bold">
-                “This library has saved me countless hours of work and helped me deliver stunning
-                designs to my clients faster than ever before.”
-              </h4>
-              <h5 className="text-xl font-medium leading-5 text-zinc-300">
-                Sofia Davis - CTO Horizon AI
-              </h5>
+              <h5 className="text-4xl font-bold leading-5 text-white">Growly</h5>
             </div>
           </div>
         </div>

@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "private": true,
   "scripts": {
-    "init": "bun install && npx shadcn@latest add --all",
-    "dev": "next dev",
+    "init": "bun install && bunx --bun shadcn@latest add --all && bunx --bun shadcn@latest add toast",
+    "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -56,7 +56,7 @@
     "@radix-ui/react-slot": "^1.2.0",
     "@radix-ui/react-switch": "^1.2.2",
     "@radix-ui/react-tabs": "^1.1.9",
-    "@radix-ui/react-toast": "^1.2.5",
+    "@radix-ui/react-toast": "^1.2.11",
     "@radix-ui/react-toggle": "^1.1.6",
     "@radix-ui/react-toggle-group": "^1.1.7",
     "@radix-ui/react-tooltip": "^1.2.4",
@@ -96,7 +96,7 @@
     "react-github-btn": "^1.4.0",
     "react-github-button": "^0.1.11",
     "react-hook-form": "^7.56.1",
-    "react-icons": "^5.2.1",
+    "react-icons": "5.3.0",
     "react-is": "^18.3.1",
     "react-markdown": "^9.0.1",
     "react-merge-refs": "^2.1.1",
@@ -139,6 +139,5 @@
     "typescript": "5.4.5",
     "@types/bun": "latest"
   },
-  "module": "index.ts",
-  "type": "module"
+  "module": "index.ts"
 }

@@ -5,7 +5,7 @@
 
 :root {
   --radius: 10px;
-  --chart: #0F172A;
+  --chart: #0f172a;
   --background: 0 0% 100%;
   --foreground: 240, 10%, 4%;
   --muted: 210 40% 96.1%;
@@ -16,7 +16,7 @@
   --popover-foreground: 0, 0%, 100%;
   --border: 214.3 31.8% 91.4%;
   --input: 214.3 31.8% 91.4%;
-  --primary: 140 30% 55%; 
+  --primary: 140 30% 55%;
   /* ^ this is green */
   --primary-foreground: 210 40% 98%;
   --secondary: 210 40% 96.1%;
@@ -27,7 +27,7 @@
   --destructive-foreground: 210 40% 98%;
   --ring: transparent;
   --chart-1: #52525b;
-  --chart-2: #D4D4D8;
+  --chart-2: #d4d4d8;
   --chart-3: #030712;
   --chart-4: #71717a;
   --chart-5: #a1a1aa;
@@ -55,7 +55,7 @@
   --destructive-foreground: 210 40% 98%;
   --ring: 0 0% 0%;
   --chart-1: #ffffff;
-  --chart-2: #71717A;
+  --chart-2: #71717a;
   --chart-3: #030712;
   --chart-4: #71717a;
   --chart-5: #a1a1aa;
@@ -106,12 +106,12 @@ img {
 ::-moz-selection {
   /* Code for Firefox */
   color: white;
-  background: #09090B;
+  background: #09090b;
 }
 
 ::selection {
   color: white;
-  background: #09090B;
+  background: #09090b;
 }
 
 input.defaultCheckbox {
@@ -130,7 +130,7 @@ input.defaultCheckbox::before {
   transform: translate(-50%, 0px);
 }
 
-input.defaultCheckbox::before path {
+input.defaultCheckbox path::before {
   fill: currentColor;
 }
 
@@ -150,7 +150,7 @@ input:checked.defaultCheckbox::before {
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-      }
+  }
   .dark {
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
