@@ -1,9 +1,8 @@
 {
-  "name": "growly-smartlet",
+  "name": "growly",
   "private": true,
   "workspaces": {
     "packages": [
-      "packages/*",
       "packages/*"
     ]
   },
