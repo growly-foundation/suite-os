@@ -1,9 +1,10 @@
-import Main from '@/components/dashboard/main';
+import { getUser, getUserDetails } from '@/utils/supabase/queries';
+
+import WidgetStudio from '@/components/dashboard/widget-studio';
 import { redirect } from 'next/navigation';
-import { getUserDetails, getUser } from '@/utils/supabase/queries';
 import { createClient } from '@/utils/supabase/server';
 
-export default async function AccountPage() {
+export default async function WidgetStudioPage() {
   const supabase = await createClient();
   const [user, userDetails] = await Promise.all([getUser(supabase), getUserDetails(supabase)]);
 
@@ -11,5 +12,5 @@ export default async function AccountPage() {
     return redirect('/dashboard/signin');
   }
 
-  return <Main user={user} userDetails={userDetails} />;
+  return <WidgetStudio user={user} userDetails={userDetails} />;
 }

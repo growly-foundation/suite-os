@@ -1,10 +1,10 @@
 import { getUserDetails, getUser } from '@/utils/supabase/queries';
 
-import Chat from '@/components/dashboard/ai-chat';
+import Chat from '@/components/dashboard/agent-playground';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
 
-export default async function AiChat() {
+export default async function AgentPlayground() {
   const supabase = await createClient();
   const [user, userDetails] = await Promise.all([getUser(supabase), getUserDetails(supabase)]);
 

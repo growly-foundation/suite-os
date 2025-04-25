@@ -24,7 +24,7 @@ interface Props {
   userDetails: { [x: string]: any } | null;
 }
 export default function Chat(props: Props) {
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   // *** If you use .env.local variable for your API key, method which we recommend, use the apiKey variable commented below
   // Input States
   const [inputOnSubmit, setInputOnSubmit] = useState<string>('');
@@ -34,7 +34,7 @@ export default function Chat(props: Props) {
   // ChatGPT model
   const [model, setModel] = useState<OpenAIModel>('gpt-3.5-turbo');
   // Loading state
-  const [loading, setLoading] = useState<boolean>(false);
+  const [_, setLoading] = useState<boolean>(false);
 
   // API Key
   const handleTranslate = async () => {
