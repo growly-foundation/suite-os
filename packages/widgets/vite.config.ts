@@ -1,4 +1,6 @@
 import { defineConfig } from 'vite';
+import path from 'path';
+import tailwindcss from '@tailwindcss/vite';
 import { extname, relative, resolve } from 'path';
 import { fileURLToPath } from 'node:url';
 import { glob } from 'glob';
@@ -9,7 +11,18 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), libInjectCss(), tsconfigPaths(), dts({ include: ['lib'] })],
+  plugins: [
+    react(),
+    tailwindcss() as any,
+    libInjectCss(),
+    tsconfigPaths(),
+    dts({ include: ['lib'] }),
+  ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
   build: {
     copyPublicDir: false,
     lib: {
