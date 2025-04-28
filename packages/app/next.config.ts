@@ -1,3 +1,5 @@
+const withTM = require('next-transpile-modules')(['@growly/widget']);
+
 const nextConfig = {
   reactStrictMode: false, // changed this to false
   images: {
