@@ -1,7 +1,7 @@
 import { Card } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 import { ChatMessage, ChatRole, MessageId } from 'lib/types';
 import { motion } from 'framer-motion';
+import AgentAvatar from '../AgentAvatar';
 
 const AgentResponse = ({ message, id }: { message: ChatMessage; id: MessageId }) => {
   return (
@@ -10,12 +10,9 @@ const AgentResponse = ({ message, id }: { message: ChatMessage; id: MessageId })
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="flex items-center space-x-2"
+      className="flex space-x-2"
       style={{ marginBottom: 10 }}>
-      <Avatar className="h-8 w-8">
-        <AvatarImage src="/support-avatar.png" />
-        <AvatarFallback>🤖</AvatarFallback>
-      </Avatar>
+      <AgentAvatar width={30} height={30} />
       <Card className="p-3 max-w-[75%] bg-muted">
         <p className="text-sm">{message.content}</p>
       </Card>
@@ -32,7 +29,7 @@ const UserResponse = ({ message, id }: { message: ChatMessage; id: MessageId }) 
       transition={{ duration: 0.3 }}
       className="flex"
       style={{ marginBottom: 10, justifyContent: 'flex-end' }}>
-      <Card className="p-3 max-w-[75%] bg-primary text-primary-foreground">
+      <Card className="p-3 max-w-[75%] bg-secondary text-primary-foreground">
         <p className="text-sm">{message.content}</p>
       </Card>
     </motion.div>
