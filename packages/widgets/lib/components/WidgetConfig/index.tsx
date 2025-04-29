@@ -3,9 +3,13 @@ import React, { useState } from 'react';
 export interface WidgetConfig {
   theme?: Partial<{
     primary: string;
+    secondary: string;
+    background: string;
+    backgroundForeground: string;
+    headerBackground: string;
+    headerText: string;
     text: string;
     textForeground: string;
-    secondary: string;
   }>;
   agent?: Partial<{
     avatar?: string;
@@ -36,7 +40,5 @@ export const useWidget = () => {
   if (!context) {
     throw new Error('useWidget must be used within a WidgetConfigProvider');
   }
-  return {
-    config: context.config,
-  };
+  return context;
 };
