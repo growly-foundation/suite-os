@@ -2,8 +2,8 @@
 import { AppContext } from '@/components/AppProvider';
 import { AppStackComponent } from '@/types/appstack';
 import { useContext, useEffect, useState } from 'react';
-import ChatWidgetDemo from './demo/ChatWidget';
-import DemoChatWidgetDemo from './demo/DemoChatWidget';
+import ChatWidgetDemo from './demo/ChatWidgetDemo';
+import DemoChatWidgetDemo from './demo/DemoChatWidgetDemo';
 import { cn } from '@/lib/utils';
 import DemoOptions from './DemoOptions';
 

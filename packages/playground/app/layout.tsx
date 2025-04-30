@@ -6,7 +6,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'OnchainKit Playground',
+  title: 'Growly AppStack Playground',
 };
 
 export default function RootLayout({

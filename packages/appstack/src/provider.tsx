@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export interface WidgetConfig {
+export interface AppStackConfig {
   theme?: Partial<{
     primary: string;
     secondary: string;
@@ -17,28 +17,28 @@ export interface WidgetConfig {
   }>;
 }
 
-export const WidgetConfigContext = React.createContext<{
-  config?: WidgetConfig;
-  setConfig: (config: WidgetConfig) => void;
+export const AppStackContext = React.createContext<{
+  config?: AppStackConfig;
+  setConfig: (config: AppStackConfig) => void;
 } | null>(null);
 
-export const WidgetConfigProvider: React.FC<{
+export const AppStackProvider: React.FC<{
   children: React.ReactNode;
-  config?: WidgetConfig;
+  config?: AppStackConfig;
 }> = ({ children, config }) => {
   const [configState, setConfigState] = useState(config);
 
   return (
-    <WidgetConfigContext.Provider value={{ config: configState, setConfig: setConfigState }}>
+    <AppStackContext.Provider value={{ config: configState, setConfig: setConfigState }}>
       {children}
-    </WidgetConfigContext.Provider>
+    </AppStackContext.Provider>
   );
 };
 
-export const useWidget = () => {
-  const context = React.useContext(WidgetConfigContext);
+export const useAppStack = () => {
+  const context = React.useContext(AppStackContext);
   if (!context) {
-    throw new Error('useWidget must be used within a WidgetConfigProvider');
+    throw new Error('useAppStack must be used within a AppStackProvider');
   }
   return context;
 };

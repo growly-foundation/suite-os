@@ -1,17 +1,11 @@
 'use client';
 import React from 'react';
-import {
-  PanelContainer,
-  DemoChatWidget,
-  StaticWidget,
-  WidgetConfigProvider,
-  Theme,
-} from '@growly/widget';
+import { ChatPanel, AppStackProvider, DemoChatWidget, StaticWidget, Theme } from '@growly/appstack';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 const WidgetContainer = () => {
   return (
-    <WidgetConfigProvider
+    <AppStackProvider
       config={{
         agent: {
           name: 'Test Agent',
@@ -26,7 +20,7 @@ const WidgetContainer = () => {
             <TabsTrigger value="demo-chat-widget">Demo Chat Widget</TabsTrigger>
             <TabsTrigger value="static-widget">Static Widget</TabsTrigger>
             <TabsContent value="chat-widget">
-              <PanelContainer onClose={() => {}} onSend={() => {}} messages={[]} open={true} />
+              <ChatPanel onClose={() => {}} onSend={() => {}} messages={[]} />
             </TabsContent>
             <TabsContent value="demo-chat-widget">
               <DemoChatWidget defaultOpen={true} />
@@ -37,7 +31,7 @@ const WidgetContainer = () => {
           </TabsList>
         </Tabs>
       </div>
-    </WidgetConfigProvider>
+    </AppStackProvider>
   );
 };
 

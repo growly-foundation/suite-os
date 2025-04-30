@@ -36,6 +36,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# onchainkit playground
-onchainkit/esm
-onchainkit/src
+# appstack playground
+appstack/esm
+appstack/src

@@ -1,11 +1,18 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { base } from 'viem/chains';
 import { AppContext } from '../AppProvider';
-import { ChatWidget, WidgetConfigProvider } from '@growly/appstack';
+import { DemoChatWidget, AppStackProvider, useAppStack } from '@growly/appstack';
 import { Theme } from '@growly/appstack';
 
-function ChatWidgetComponent() {
-  const { chainId } = useContext(AppContext);
+function DemoChatWidgetComponent() {
+  const { config, setConfig } = useAppStack();
+  const { componentTheme, chainId } = useContext(AppContext);
+  useEffect(() => {
+    setConfig({
+      ...config,
+      theme: componentTheme ? Theme[componentTheme] : Theme.monoTheme,
+    });
+  }, [componentTheme, setConfig]);
   return (
     <div className="relative mb-[50%] flex h-full w-full flex-col items-center">
       {chainId !== base.id ? (
@@ -17,21 +24,21 @@ function ChatWidgetComponent() {
           </div>
         </div>
       ) : (
-        <ChatWidget defaultOpen />
+        <DemoChatWidget defaultOpen />
       )}
     </div>
   );
 }
-export default function ChatWidgetDemo() {
+export default function DemoChatWidgetDemo() {
   return (
-    <WidgetConfigProvider
+    <AppStackProvider
       config={{
         agent: {
           name: 'Test Agent',
         },
         theme: Theme.monoTheme,
       }}>
-      <ChatWidgetComponent />
-    </WidgetConfigProvider>
+      <DemoChatWidgetComponent />
+    </AppStackProvider>
   );
 }

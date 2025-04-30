@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { FloatingButton } from './FloatingButton';
-import { PanelContainer } from './PanelContainer';
+import { ChatPanelContainer, ChatPanel } from './ChatPanel';
 import { ChatMessage } from '../../types';
 
-export function ChatWidgetContainer({
+function ChatWidgetContainer({
   messages,
   onMessageSend,
   open,
@@ -19,7 +19,7 @@ export function ChatWidgetContainer({
   return (
     <div>
       <FloatingButton onClick={() => setOpen(true)} {...buttonProps} />
-      <PanelContainer
+      <ChatPanelContainer
         messages={messages}
         onSend={onMessageSend}
         open={open}
@@ -29,7 +29,7 @@ export function ChatWidgetContainer({
   );
 }
 
-export function ChatWidget(
+function ChatWidget(
   props: { defaultOpen?: boolean } & React.ButtonHTMLAttributes<HTMLButtonElement>
 ) {
   const { defaultOpen = false } = props;
@@ -47,3 +47,5 @@ export function ChatWidget(
     />
   );
 }
+
+export { ChatPanel, ChatWidgetContainer, ChatWidget };

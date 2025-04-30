@@ -124,6 +124,7 @@
     "./styles.css": "./dist/styles.css",
     "./tailwind.css": "./dist/tailwind.css",
     "./theme": "./dist/styles/theme.js",
+    "./provider": "./dist/styles/provider.js",
     ".": {
       "types": "./dist/index.d.ts",
       "module": "./dist/index.js",

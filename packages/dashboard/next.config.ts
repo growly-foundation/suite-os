@@ -1,4 +1,4 @@
-const withTM = require('next-transpile-modules')(['@growly/widget']);
+const withTM = require('next-transpile-modules')(['@growly/appstack']);
 
 const nextConfig = {
   reactStrictMode: false, // changed this to false

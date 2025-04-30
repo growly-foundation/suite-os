@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useWidget } from '../WidgetConfigProvider';
+import { useAppStack } from '@/provider';
 import { BRAND_LOGO_URL, BRAND_NAME_CAPITALIZED } from '@/constants';
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -10,11 +10,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 export function FloatingButton(
   props: React.ButtonHTMLAttributes<HTMLButtonElement> & { iconLoading?: boolean }
 ) {
-  const { config } = useWidget();
+  const { config } = useAppStack();
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999]">
+    <div className="fixed bottom-6 right-6 z-[9990]">
       <TooltipProvider>
         <Tooltip open={isHovered} delayDuration={1}>
           <motion.div

@@ -1,6 +1,6 @@
-import { WidgetConfig } from './components/WidgetConfigProvider';
+import { AppStackConfig } from '.';
 
-export const defaultTheme: WidgetConfig['theme'] = {
+export const defaultTheme: AppStackConfig['theme'] = {
   primary: '#0052ff',
   headerBackground: '#0052ff',
   headerText: 'white',
@@ -11,7 +11,7 @@ export const defaultTheme: WidgetConfig['theme'] = {
   backgroundForeground: 'white',
 };
 
-export const monoTheme: WidgetConfig['theme'] = {
+export const monoTheme: AppStackConfig['theme'] = {
   primary: '#0052ff',
   headerBackground: 'white',
   headerText: 'black',
@@ -22,7 +22,7 @@ export const monoTheme: WidgetConfig['theme'] = {
   backgroundForeground: 'white',
 };
 
-export const defaultDarkTheme: WidgetConfig['theme'] = {
+export const defaultDarkTheme: AppStackConfig['theme'] = {
   primary: '#0052ff',
   headerBackground: 'black',
   headerText: 'white',
