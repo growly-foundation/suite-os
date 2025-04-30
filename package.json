@@ -1,37 +1,28 @@
 {
-  "name": "growly",
-  "private": true,
-  "workspaces": {
-    "packages": [
-      "packages/*"
-    ]
-  },
+  "name": "growly-monorepo",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint --debug --fix '**/*.{js,jsx,ts,tsx}'",
     "format": "bunx prettier --config .prettierrc.cjs '**/*.{js,jsx,ts,tsx}' --write",
     "check": "bunx prettier --config .prettierrc.cjs '**/*.{js,jsx,ts,tsx}' --check && eslint '**/*.{js,jsx,ts,tsx}'",
-    "build": "bun run --filter '*' build",
-    "start:app": "cd packages/app && bun dev",
-    "start:server": "cd packages/server && bun start",
-    "start:agent": "cd packages/agent && bun start"
+    "build": "pnpm -r run build",
+    "clean:node_modules": "rm -rf node_modules packages/*/node_modules",
+    "f:dashboard": "pnpm --filter @growly/dashboard",
+    "f:gas": "pnpm --filter @growly/appstack",
+    "f:play": "pnpm --filter playground",
+    "changeset": "changeset",
+    "release:check": "changeset status --verbose --since=origin/main",
+    "release:publish": "changeset publish"
   },
   "precommit.silent": true,
   "pre-commit": [
     "format",
     "lint"
   ],
-  "dependencies": {
-    "ajv": "^8.12.0",
-    "moment": "^2.29.4",
-    "prettier": "^3.4.2",
-    "react-icons": "^4.10.1",
-    "tsyringe": "^4.8.0",
-    "typescript": "~5.6.2"
-  },
+  "license": "MIT",
   "devDependencies": {
-    "@parcel/transformer-typescript-types": "^2.8.3",
-    "@types/lodash": "^4.14.202",
+    "@changesets/cli": "^2.27.10",
+    "@eslint/js": "^9.22.0",
     "@typescript-eslint/eslint-plugin": "^5.30.6",
     "@typescript-eslint/parser": "^5.30.6",
     "@typescript-eslint/typescript-estree": "^8.23.0",
@@ -42,13 +33,11 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
     "eslint-plugin-storybook": "^0.8.0",
-    "fs-extra": "^9.0.1",
-    "globby": "^11.0.2",
-    "pre-commit": "^1.2.2",
-    "ts-node": "^10.9.2"
+    "globals": "^16.0.0",
+    "prettier": "^3.5.3",
+    "typescript": "~5.4.0",
+    "typescript-eslint": "^8.26.1",
+    "pre-commit": "^1.2.2"
   },
-  "resolutions": {
-    "minimist": "1.2.6"
-  },
-  "packageManager": "pnpm@8.15.5+sha1.a58c038faac410c947dbdb93eb30994037d0fce2"
+  "packageManager": "pnpm@10.6.3"
 }
