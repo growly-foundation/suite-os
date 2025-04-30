@@ -2,21 +2,21 @@
 import { AppContext } from '@/components/AppProvider';
 import { AppStackComponent } from '@/types/appstack';
 import { useContext, useEffect, useState } from 'react';
-import DemoOptions from './DemoOptions';
 import ChatWidgetDemo from './demo/ChatWidget';
+import DemoChatWidgetDemo from './demo/DemoChatWidget';
 import { cn } from '@/lib/utils';
+import DemoOptions from './DemoOptions';
 
 const activeComponentMapping: Record<AppStackComponent, React.FC> = {
   [AppStackComponent.ChatWidget]: ChatWidgetDemo,
-  [AppStackComponent.DemoChatWidget]: ChatWidgetDemo,
+  [AppStackComponent.DemoChatWidget]: DemoChatWidgetDemo,
   [AppStackComponent.StaticWidget]: ChatWidgetDemo,
 };
 
 export default function Demo() {
   const { activeComponent } = useContext(AppContext);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [sideBarVisible, setSideBarVisible] = useState(true);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     console.log('Playground.activeComponent:', activeComponent);
@@ -87,6 +87,11 @@ export default function Demo() {
               Growly AppStack↗
             </a>
           </div>
+        </div>
+      </div>
+      <div className="linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] flex flex-1 flex-col bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px), bg-[size:6rem_4rem]">
+        <div className={'flex h-full w-full flex-col items-center'}>
+          {ActiveComponent && <ActiveComponent />}
         </div>
       </div>
     </>

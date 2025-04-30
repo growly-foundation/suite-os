@@ -10,7 +10,7 @@ import { ChatMessage, ChatRole } from '@/components/widgets/types';
 import ChatResponse from './ChatResponse';
 import { getNextMessageId } from '@/components/widgets/utils/message';
 import AgentAvatar from '../AgentAvatar';
-import { useWidget } from '../../WidgetConfig';
+import { useWidget } from '../WidgetConfigProvider';
 import { BRAND_NAME_CAPITALIZED } from '@/constants';
 
 interface PanelProps {

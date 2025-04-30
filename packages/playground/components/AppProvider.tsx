@@ -16,9 +16,9 @@ type State = {
 };
 
 export const defaultState: State = {
-  activeComponent: AppStackComponent.ChatWidget,
+  activeComponent: AppStackComponent.DemoChatWidget,
   chainId: base.id,
-  componentTheme: 'default',
+  componentTheme: 'monoTheme',
   setComponentTheme: () => {},
   componentMode: 'auto',
   setComponentMode: () => {},

@@ -1,4 +1,4 @@
-import { WidgetConfig } from './main';
+import { WidgetConfig } from './components/WidgetConfigProvider';
 
 export const defaultTheme: WidgetConfig['theme'] = {
   primary: '#0052ff',

@@ -1,12 +1,11 @@
 'use client';
 
-import animationData from '@/assets/animation/loading.json';
-import Lottie from 'react-lottie';
 import { motion } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useWidget } from '../../WidgetConfig';
-import { BRAND_NAME_CAPITALIZED } from '@/constants';
+import { useWidget } from '../WidgetConfigProvider';
+import { BRAND_LOGO_URL, BRAND_NAME_CAPITALIZED } from '@/constants';
 import { useState } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export function FloatingButton(
   props: React.ButtonHTMLAttributes<HTMLButtonElement> & { iconLoading?: boolean }
@@ -27,25 +26,15 @@ export function FloatingButton(
               {...props}
               style={{
                 cursor: 'pointer',
-                width: 90,
-                height: 90,
+                width: 50,
+                height: 50,
                 position: 'relative',
               }}
-              className="border border-primary/10 rounded-full bg-white aspect-square shadow-2xl text-white hover:bg-white/90">
-              <Lottie
-                options={{
-                  loop: true,
-                  autoplay: false,
-                  animationData,
-                  rendererSettings: {
-                    preserveAspectRatio: 'xMidYMid slice',
-                  },
-                }}
-                isStopped={!isHovered}
-                height={90}
-                width={90}
-                speed={2}
-              />
+              className="border border-primary/10 rounded-full bg-white aspect-square shadow-3xl text-white hover:bg-white/90">
+              <Avatar style={{ width: 50, height: 50 }}>
+                <AvatarImage src={BRAND_LOGO_URL} />
+                <AvatarFallback>🤖</AvatarFallback>
+              </Avatar>
             </TooltipTrigger>
           </motion.div>
           <TooltipContent>

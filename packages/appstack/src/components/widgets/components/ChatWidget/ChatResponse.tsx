@@ -2,7 +2,7 @@ import { Card } from '@/components/ui/card';
 import { ChatMessage, ChatRole, MessageId } from '@/components/widgets/types';
 import { motion } from 'framer-motion';
 import AgentAvatar from '../AgentAvatar';
-import { useWidget } from '../../WidgetConfig';
+import { useWidget } from '../WidgetConfigProvider';
 
 const AgentResponse = ({ message, id }: { message: ChatMessage; id: MessageId }) => {
   const { config } = useWidget();

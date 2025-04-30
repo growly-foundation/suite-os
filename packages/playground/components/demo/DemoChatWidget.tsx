@@ -1,10 +1,10 @@
 import { useContext } from 'react';
 import { base } from 'viem/chains';
 import { AppContext } from '../AppProvider';
-import { ChatWidget, WidgetConfigProvider } from '@growly/appstack';
+import { DemoChatWidget, WidgetConfigProvider } from '@growly/appstack';
 import { Theme } from '@growly/appstack';
 
-function ChatWidgetComponent() {
+function DemoChatWidgetComponent() {
   const { chainId } = useContext(AppContext);
   return (
     <div className="relative mb-[50%] flex h-full w-full flex-col items-center">
@@ -17,12 +17,12 @@ function ChatWidgetComponent() {
           </div>
         </div>
       ) : (
-        <ChatWidget defaultOpen />
+        <DemoChatWidget defaultOpen />
       )}
     </div>
   );
 }
-export default function ChatWidgetDemo() {
+export default function DemoChatWidgetDemo() {
   return (
     <WidgetConfigProvider
       config={{
@@ -31,7 +31,7 @@ export default function ChatWidgetDemo() {
         },
         theme: Theme.monoTheme,
       }}>
-      <ChatWidgetComponent />
+      <DemoChatWidgetComponent />
     </WidgetConfigProvider>
   );
 }
