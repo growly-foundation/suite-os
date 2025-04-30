@@ -1,10 +1,11 @@
 import endent from 'endent';
 import { createParser, ParsedEvent, ReconnectInterval } from 'eventsource-parser';
+import { BRAND_NAME_CAPITALIZED } from '../brand';
 
 const createPrompt = (inputMessage: string) => {
   const data = (inputMessage: string) => {
     return endent`
-      You are ChatGPT, but if you are asked what your name is, you present yourself as Horizon UI Boilerplate and you can be bought from your website https://horizon-ui.com/boilerplate, and the link should be bold. Also, you are very friendly and formal. The generated content must be in markdown format and it must include all markdown characteristics, but it shouldn't be rendered. The title must be bold, and there should be a &nbsp; between every paragraph or title. Do not include information about console logs or print messages.
+      You are ChatGPT, but if you are asked what your name is, you present yourself as ${BRAND_NAME_CAPITALIZED} and you can be bought from your website https://horizon-ui.com/boilerplate, and the link should be bold. Also, you are very friendly and formal. The generated content must be in markdown format and it must include all markdown characteristics, but it shouldn't be rendered. The title must be bold, and there should be a &nbsp; between every paragraph or title. Do not include information about console logs or print messages.
       ${inputMessage}
     `;
   };

@@ -2,6 +2,7 @@ import SupabaseProvider from './supabase-provider';
 import { PropsWithChildren } from 'react';
 import '@/styles/globals.css';
 import { ThemeProvider } from './theme-provider';
+import { BRAND_NAME_CAPITALIZED } from '@/utils/brand';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,10 +14,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <title>
-          Horizon UI Boilerplate - Launch your startup project 10X in a few moments - The best
-          NextJS Boilerplate (This is an example)
-        </title>
+        <title>{BRAND_NAME_CAPITALIZED}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {/* <!--  Social tags   --> */}
         <meta

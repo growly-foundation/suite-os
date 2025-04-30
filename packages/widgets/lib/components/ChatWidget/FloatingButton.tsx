@@ -2,18 +2,18 @@
 
 import animationData from '@/assets/animation/loading.json';
 import { Button } from '@/components/ui/button';
-import React from 'react';
 import Lottie from 'react-lottie';
 import { motion } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useWidget } from '../WidgetConfig';
 import { BRAND_NAME_CAPITALIZED } from 'lib/constants';
+import { useState } from 'react';
 
 export function FloatingButton(
   props: React.ButtonHTMLAttributes<HTMLButtonElement> & { iconLoading?: boolean }
 ) {
   const { config } = useWidget();
-  const [isHovered, setIsHovered] = React.useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <TooltipProvider>

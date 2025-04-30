@@ -12,7 +12,7 @@ export const stripe = new Stripe(
     appInfo: {
       name: 'Growly',
       version: '1.1.0',
-      url: 'https://github.com/horizon-ui/shadcn-nextjs-boilerplate',
+      url: 'https://github.com/growly-official/smartlet',
     },
   }
 );
