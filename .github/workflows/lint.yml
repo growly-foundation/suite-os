@@ -1,4 +1,4 @@
-name: Smartlet Lint
+name: AppStack Lint
 on:
   push:
     branches: ['main']

@@ -1,4 +1,4 @@
-import { AppStackConfig } from '.';
+import { AppStackConfig } from '@/provider';
 
 export const defaultTheme: AppStackConfig['theme'] = {
   primary: '#0052ff',

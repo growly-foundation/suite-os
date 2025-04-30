@@ -1,6 +1,17 @@
 import React, { useState } from 'react';
+import { OnchainKitProvider, OnchainKitProviderReact } from '@coinbase/onchainkit';
 
+/**
+ * Configuration for the Growly AppStack.
+ */
 export interface AppStackConfig {
+  /**
+   * Configuration for the OnchainKit feature.
+   */
+  onchainKit?: Omit<OnchainKitProviderReact, 'children' | 'address'> & { enabled: boolean };
+  /**
+   * Widget theme configuration.
+   */
   theme?: Partial<{
     primary: string;
     secondary: string;
@@ -11,9 +22,15 @@ export interface AppStackConfig {
     text: string;
     textForeground: string;
   }>;
+  /**
+   * Agent configuration.
+   */
   agent?: Partial<{
     avatar?: string;
     name?: string;
+  }>;
+  session?: Partial<{
+    walletAddress: `0x${string}`;
   }>;
 }
 
@@ -28,11 +45,23 @@ export const AppStackProvider: React.FC<{
 }> = ({ children, config }) => {
   const [configState, setConfigState] = useState(config);
 
-  return (
+  const baseComponent = (
     <AppStackContext.Provider value={{ config: configState, setConfig: setConfigState }}>
       {children}
     </AppStackContext.Provider>
   );
+
+  if (config?.onchainKit?.enabled) {
+    /// No need to enable the onchainKit feature if application already uses onchainKit.
+    /// Requires `import '@coinbase/onchainkit/styles.css';`.
+    return (
+      <OnchainKitProvider {...config.onchainKit} address={config.session?.walletAddress}>
+        {baseComponent}
+      </OnchainKitProvider>
+    );
+  }
+
+  return baseComponent;
 };
 
 export const useAppStack = () => {

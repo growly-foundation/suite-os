@@ -9,9 +9,10 @@ import React, { useLayoutEffect } from 'react';
 import { ChatMessage, ChatRole } from '@/components/widgets/types';
 import ChatResponse from './ChatResponse';
 import { getNextMessageId } from '@/components/widgets/utils/message';
-import AgentAvatar from '../AgentAvatar';
+import AgentAvatar from '../../../agent/components/AgentAvatar';
 import { useAppStack } from '@/provider';
 import { BRAND_NAME_CAPITALIZED } from '@/constants';
+import { Avatar, Identity, Name, Badge, Address } from '@coinbase/onchainkit/identity';
 
 interface PanelProps {
   open: boolean;
@@ -74,6 +75,15 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
           </Button>
         </div>
       </div>
+      {config?.session?.walletAddress && config.onchainKit?.enabled && (
+        <Identity address={config.session.walletAddress} hasCopyAddressOnClick={false}>
+          <Avatar />
+          <Name>
+            <Badge tooltip={false} />
+          </Name>
+          <Address />
+        </Identity>
+      )}
       {/* No messages yet */}
       <ScrollArea className="flex-1 max-h-[500px]" style={{ padding: '0px 15px' }}>
         {messages.length > 0 ? (
@@ -81,12 +91,14 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
             {messages.map((message, index) => (
               <div key={message.id}>
                 {index === 0 && (
-                  <div
-                    className="text-gray-500 text-xs text-center"
-                    style={{ padding: '20px 0px 30px 0px' }}>
-                    You are chatting with{' '}
-                    {config?.agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
-                  </div>
+                  <React.Fragment>
+                    <div
+                      className="text-gray-500 text-xs text-center"
+                      style={{ padding: '20px 0px 30px 0px' }}>
+                      You are chatting with{' '}
+                      {config?.agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
+                    </div>
+                  </React.Fragment>
                 )}
                 <ChatResponse id={message.id} message={message} />
               </div>

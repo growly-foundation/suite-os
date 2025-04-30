@@ -1,4 +1,4 @@
-name: Smartlet Security Scan
+name: AppStack Security Scan
 
 on: [pull_request, push]
 

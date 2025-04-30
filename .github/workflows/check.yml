@@ -1,4 +1,4 @@
-name: Smartlet Check
+name: AppStack Check
 on:
   push:
     branches: ['main']

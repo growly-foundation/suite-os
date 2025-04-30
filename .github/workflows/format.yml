@@ -1,4 +1,4 @@
-name: Smartlet Format
+name: AppStack Format
 on:
   push:
     branches: ['main']

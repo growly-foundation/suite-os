@@ -1,4 +1,4 @@
-name: Smartlet Build
+name: AppStack Build
 on:
   push:
     branches: ['main']

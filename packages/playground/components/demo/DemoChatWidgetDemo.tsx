@@ -33,10 +33,25 @@ export default function DemoChatWidgetDemo() {
   return (
     <AppStackProvider
       config={{
+        onchainKit: {
+          chain: base,
+          projectId: process.env.NEXT_PUBLIC_APPSTACK_ONCHAINKIT_PROJECT_ID,
+          apiKey: process.env.NEXT_PUBLIC_APPSTACK_ONCHAINKIT_CLIENT_KEY,
+          enabled: true,
+          config: {
+            appearance: {
+              theme: 'base',
+              mode: 'light',
+            },
+          },
+        },
         agent: {
-          name: 'Test Agent',
+          name: 'Growly Agent',
         },
         theme: Theme.monoTheme,
+        session: {
+          walletAddress: '0x849151d7D0bF1F34b70d5caD5149D28CC2308bf1',
+        },
       }}>
       <DemoChatWidgetComponent />
     </AppStackProvider>
