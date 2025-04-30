@@ -4,7 +4,7 @@ import animationData from '@/assets/animation/loading.json';
 import Lottie from 'react-lottie';
 import { motion } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useWidget } from '../WidgetConfig';
+import { useWidget } from '../../WidgetConfig';
 import { BRAND_NAME_CAPITALIZED } from '@/constants';
 import { useState } from 'react';
 

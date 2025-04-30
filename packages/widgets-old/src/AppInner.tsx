@@ -1,11 +1,11 @@
 'use client';
-import { ChatWidget, DemoChatWidget, StaticWidget, WidgetConfigProvider } from 'lib/main';
+import { ChatWidget, DemoChatWidget, StaticWidget, WidgetConfigProvider } from '@/main';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { useState } from 'react';
 import { Switch } from './components/ui/switch';
 import { Label } from './components/ui/label';
 import { Controls } from './Controls';
-import 'lib/index.css';
+import '@/index.css';
 
 export function AppInner() {
   const [defaultOpen, setDefaultOpen] = useState(true);

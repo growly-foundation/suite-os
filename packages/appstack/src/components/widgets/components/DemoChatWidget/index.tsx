@@ -1,4 +1,4 @@
-import { ChatMessage, ChatRole } from '@/types';
+import { ChatMessage, ChatRole } from '@/components/widgets/types';
 import { ChatWidgetContainer } from '../ChatWidget';
 import { useState } from 'react';
 

@@ -1,11 +1,10 @@
 'use client';
 import { AppContext } from '@/components/AppProvider';
-import { getShareableUrl } from '@/lib/url-params';
-import { cn } from '@/lib/utils';
 import { AppStackComponent } from '@/types/appstack';
 import { useContext, useEffect, useState } from 'react';
 import DemoOptions from './DemoOptions';
 import ChatWidgetDemo from './demo/ChatWidget';
+import { cn } from '@/lib/utils';
 
 const activeComponentMapping: Record<AppStackComponent, React.FC> = {
   [AppStackComponent.ChatWidget]: ChatWidgetDemo,
@@ -18,13 +17,6 @@ export default function Demo() {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [sideBarVisible, setSideBarVisible] = useState(true);
   const [copied, setCopied] = useState(false);
-
-  const copyShareableLink = () => {
-    const url = getShareableUrl(activeComponent);
-    navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   useEffect(() => {
     console.log('Playground.activeComponent:', activeComponent);
@@ -95,13 +87,6 @@ export default function Demo() {
               Growly AppStack↗
             </a>
           </div>
-
-          <button
-            type="button"
-            onClick={copyShareableLink}
-            className="opacity-100 transition-opacity duration-200 hover:opacity-70">
-            {copied ? 'Copied!' : 'Share ↗'}
-          </button>
         </div>
       </div>
     </>

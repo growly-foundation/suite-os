@@ -6,11 +6,11 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import React, { useLayoutEffect } from 'react';
-import { ChatMessage, ChatRole } from '@/types';
+import { ChatMessage, ChatRole } from '@/components/widgets/types';
 import ChatResponse from './ChatResponse';
-import { getNextMessageId } from '@/utils/message';
+import { getNextMessageId } from '@/components/widgets/utils/message';
 import AgentAvatar from '../AgentAvatar';
-import { useWidget } from '../WidgetConfig';
+import { useWidget } from '../../WidgetConfig';
 import { BRAND_NAME_CAPITALIZED } from '@/constants';
 
 interface PanelProps {

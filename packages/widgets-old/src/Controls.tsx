@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Input } from './components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from './components/ui/tabs';
-import { Theme, useWidget } from 'lib/main';
+import { Theme, useWidget } from '@/main';
 
 export function Controls() {
   const { setConfig } = useWidget();

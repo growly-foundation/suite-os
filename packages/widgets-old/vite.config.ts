@@ -28,7 +28,7 @@ export default defineConfig({
     copyPublicDir: false,
     lib: {
       name: '@growly/widget',
-      entry: resolve(__dirname, 'lib/main.ts'),
+      entry: resolve(__dirname, '@/main.ts'),
       formats: ['es'],
     },
     rollupOptions: {
@@ -36,8 +36,8 @@ export default defineConfig({
       input: Object.fromEntries(
         // https://rollupjs.org/configuration-options/#input
         glob
-          .sync('lib/**/*.{ts,tsx}', {
-            ignore: ['lib/**/*.d.ts'],
+          .sync('@/**/*.{ts,tsx}', {
+            ignore: ['@/**/*.d.ts'],
           })
           .map(file => [
             // 1. The name of the entry point

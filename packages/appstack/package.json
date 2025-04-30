@@ -31,24 +31,59 @@
     "react-dom": "^18 || ^19"
   },
   "dependencies": {
-    "@farcaster/frame-sdk": "^0.0.28",
-    "@farcaster/frame-wagmi-connector": "^0.0.16",
+    "@hookform/resolvers": "^5.0.1",
+    "@radix-ui/react-accordion": "^1.2.8",
+    "@radix-ui/react-alert-dialog": "^1.1.11",
+    "@radix-ui/react-aspect-ratio": "^1.1.4",
+    "@radix-ui/react-avatar": "^1.1.7",
+    "@radix-ui/react-checkbox": "^1.2.3",
+    "@radix-ui/react-collapsible": "^1.1.8",
+    "@radix-ui/react-context-menu": "^2.2.12",
+    "@radix-ui/react-dialog": "^1.1.11",
+    "@radix-ui/react-dropdown-menu": "^2.1.12",
+    "@radix-ui/react-hover-card": "^1.1.11",
+    "@radix-ui/react-label": "^2.1.4",
+    "@radix-ui/react-menubar": "^1.1.12",
+    "@radix-ui/react-navigation-menu": "^1.2.10",
+    "@radix-ui/react-popover": "^1.1.11",
+    "@radix-ui/react-progress": "^1.1.4",
+    "@radix-ui/react-radio-group": "^1.3.4",
+    "@radix-ui/react-scroll-area": "^1.2.6",
+    "@radix-ui/react-select": "^2.2.2",
+    "@radix-ui/react-separator": "^1.1.4",
+    "@radix-ui/react-slider": "^1.3.2",
+    "@radix-ui/react-slot": "^1.2.0",
+    "@radix-ui/react-switch": "^1.2.2",
+    "@radix-ui/react-tabs": "^1.1.9",
+    "@radix-ui/react-toggle": "^1.1.6",
+    "@radix-ui/react-toggle-group": "^1.1.7",
+    "@radix-ui/react-tooltip": "^1.2.4",
+    "@tailwindcss/postcss": "^4.1.4",
     "@tanstack/react-query": "^5",
-    "@wagmi/core": "^2.16.7",
+    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "graphql": "^14 || ^15 || ^16",
-    "graphql-request": "^6.1.0",
-    "qrcode": "^1.5.4",
-    "tailwind-merge": "^2.3.0",
-    "viem": "^2.27.2",
-    "wagmi": "^2.14.11"
+    "cmdk": "^1.1.1",
+    "date-fns": "^4.1.0",
+    "embla-carousel-react": "^8.6.0",
+    "framer-motion": "^12.9.2",
+    "input-otp": "^1.4.2",
+    "lucide-react": "^0.503.0",
+    "next-themes": "^0.4.6",
+    "react-day-picker": "8.10.1",
+    "react-hook-form": "^7.56.1",
+    "react-lottie": "^1.2.10",
+    "react-resizable-panels": "^2.1.8",
+    "recharts": "^2.15.3",
+    "sonner": "^2.0.3",
+    "tailwind-merge": "^2.6.0",
+    "vaul": "^1.1.2",
+    "zod": "^3.24.3"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "6.4.7",
     "@testing-library/react": "^14.2.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/node": "^22.13.10",
-    "@types/qrcode": "^1",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@vitejs/plugin-react": "^4.3.4",
@@ -61,10 +96,7 @@
     "esbuild-plugin-babel": "^0.2.3",
     "glob": "^11.0.1",
     "globals": "^15.15.0",
-    "graphql": "^14",
-    "graphql-request": "^6.1.0",
     "jsdom": "^24.1.0",
-    "packemon": "3.3.1",
     "react": "^18",
     "react-dom": "^18",
     "rimraf": "^5.0.5",
@@ -78,14 +110,6 @@
     "vite-plugin-dts": "^4.5.3",
     "vite-plugin-externalize-deps": "^0.9.0",
     "vitest": "^3.0.5"
-  },
-  "overrides": {
-    "wagmi": {
-      "viem": "$viem"
-    },
-    "@wagmi/core": {
-      "viem": "$viem"
-    }
   },
   "files": [
     "dist/**/*",
@@ -105,101 +129,11 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
-    "./api": {
-      "types": "./dist/api/index.d.ts",
-      "module": "./dist/api/index.js",
-      "import": "./dist/api/index.js",
-      "default": "./dist/api/index.js"
-    },
-    "./appchain": {
-      "types": "./dist/appchain/index.d.ts",
-      "module": "./dist/appchain/index.js",
-      "import": "./dist/appchain/index.js",
-      "default": "./dist/appchain/index.js"
-    },
-    "./buy": {
-      "types": "./dist/buy/index.d.ts",
-      "module": "./dist/buy/index.js",
-      "import": "./dist/buy/index.js",
-      "default": "./dist/buy/index.js"
-    },
-    "./checkout": {
-      "types": "./dist/checkout/index.d.ts",
-      "module": "./dist/checkout/index.js",
-      "import": "./dist/checkout/index.js",
-      "default": "./dist/checkout/index.js"
-    },
-    "./earn": {
-      "types": "./dist/earn/index.d.ts",
-      "module": "./dist/earn/index.js",
-      "import": "./dist/earn/index.js",
-      "default": "./dist/earn/index.js"
-    },
-    "./fund": {
-      "types": "./dist/fund/index.d.ts",
-      "module": "./dist/fund/index.js",
-      "import": "./dist/fund/index.js",
-      "default": "./dist/fund/index.js"
-    },
-    "./identity": {
-      "types": "./dist/identity/index.d.ts",
-      "module": "./dist/identity/index.js",
-      "import": "./dist/identity/index.js",
-      "default": "./dist/identity/index.js"
-    },
-    "./minikit": {
-      "types": "./dist/minikit/index.d.ts",
-      "module": "./dist/minikit/index.js",
-      "import": "./dist/minikit/index.js",
-      "default": "./dist/minikit/index.js"
-    },
-    "./nft": {
-      "types": "./dist/nft/index.d.ts",
-      "module": "./dist/nft/index.js",
-      "import": "./dist/nft/index.js",
-      "default": "./dist/nft/index.js"
-    },
-    "./nft/view": {
-      "types": "./dist/nft/components/view/index.d.ts",
-      "module": "./dist/nft/components/view/index.js",
-      "import": "./dist/nft/components/view/index.js",
-      "default": "./dist/nft/components/view/index.js"
-    },
-    "./nft/mint": {
-      "types": "./dist/nft/components/mint/index.d.ts",
-      "module": "./dist/nft/components/mint/index.js",
-      "import": "./dist/nft/components/mint/index.js",
-      "default": "./dist/nft/components/mint/index.js"
-    },
-    "./signature": {
-      "types": "./dist/signature/index.d.ts",
-      "module": "./dist/signature/index.js",
-      "import": "./dist/signature/index.js",
-      "default": "./dist/signature/index.js"
-    },
-    "./swap": {
-      "types": "./dist/swap/index.d.ts",
-      "module": "./dist/swap/index.js",
-      "import": "./dist/swap/index.js",
-      "default": "./dist/swap/index.js"
-    },
-    "./token": {
-      "types": "./dist/token/index.d.ts",
-      "module": "./dist/token/index.js",
-      "import": "./dist/token/index.js",
-      "default": "./dist/token/index.js"
-    },
-    "./transaction": {
-      "types": "./dist/transaction/index.d.ts",
-      "module": "./dist/transaction/index.js",
-      "import": "./dist/transaction/index.js",
-      "default": "./dist/transaction/index.js"
-    },
-    "./wallet": {
-      "types": "./dist/wallet/index.d.ts",
-      "module": "./dist/wallet/index.js",
-      "import": "./dist/wallet/index.js",
-      "default": "./dist/wallet/index.js"
+    "./widgets": {
+      "types": "./dist/widgets/index.d.ts",
+      "module": "./dist/widgets/index.js",
+      "import": "./dist/widgets/index.js",
+      "default": "./dist/widgets/index.js"
     }
   },
   "packageManager": "pnpm@10.6.3"

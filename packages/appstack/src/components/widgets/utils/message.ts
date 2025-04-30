@@ -1,4 +1,4 @@
-import { MessageId } from '@/types';
+import { MessageId } from '@/components/widgets/types';
 
 /// Returns the next message id based on the current message id.
 export const getNextMessageId = (currentMessageId: MessageId): MessageId => {
