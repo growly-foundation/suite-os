@@ -31,7 +31,10 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
       const lastestMessage = messages[messages.length - 1];
       const newMessage: ChatMessage = {
         id: lastestMessage ? getNextMessageId(lastestMessage.id) : 'message-0',
-        content: inputValue,
+        message: {
+          type: 'text',
+          content: inputValue,
+        },
         from: ChatRole.User,
         timestamp: new Date(),
       };

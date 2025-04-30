@@ -2,9 +2,19 @@ export type MessageId = `message-${number}`;
 
 export interface ChatMessage {
   id: MessageId;
-  content: string;
+  message: TextMessage | OnchainKitMessage;
   from: ChatRole;
   timestamp: Date;
+}
+
+interface TextMessage {
+  type: 'text';
+  content: string;
+}
+
+interface OnchainKitMessage {
+  type: 'onchainkit:swap' | 'onchainkit:token' | 'onchainkit:identity';
+  content: React.ReactNode;
 }
 
 export enum ChatRole {

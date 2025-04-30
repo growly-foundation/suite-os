@@ -3,6 +3,21 @@ import { ChatMessage, ChatRole, MessageId } from '@/components/widgets/types';
 import { motion } from 'framer-motion';
 import AgentAvatar from '../../../agent/components/AgentAvatar';
 import { useAppStack } from '@/provider';
+import { cn } from '@/lib/utils';
+
+const MessageContent = ({ message }: { message: ChatMessage['message'] }) => {
+  if (message.type === 'text') {
+    return <p className="text-sm">{message.content}</p>;
+  }
+  if (
+    message.type === 'onchainkit:swap' ||
+    message.type === 'onchainkit:token' ||
+    message.type === 'onchainkit:identity'
+  ) {
+    return message.content;
+  }
+  return null;
+};
 
 const AgentResponse = ({ message, id }: { message: ChatMessage; id: MessageId }) => {
   const { config } = useAppStack();
@@ -16,12 +31,15 @@ const AgentResponse = ({ message, id }: { message: ChatMessage; id: MessageId })
       style={{ marginBottom: 10 }}>
       <AgentAvatar width={30} height={30} />
       <Card
-        className="p-3 max-w-[75%] bg-muted"
+        className={cn(
+          'p-3 bg-muted',
+          message.message.type === 'onchainkit:swap' ? 'w-full' : 'max-w-[75%]'
+        )}
         style={{
           backgroundColor: config?.theme?.backgroundForeground,
           color: config?.theme?.textForeground,
         }}>
-        <p className="text-sm">{message.content}</p>
+        <MessageContent message={message.message} />
       </Card>
     </motion.div>
   );
@@ -40,7 +58,7 @@ const UserResponse = ({ message, id }: { message: ChatMessage; id: MessageId }) 
       <Card
         className="p-3 max-w-[75%]"
         style={{ backgroundColor: config?.theme?.secondary, color: config?.theme?.text }}>
-        <p className="text-sm">{message.content}</p>
+        <MessageContent message={message.message} />
       </Card>
     </motion.div>
   );
