@@ -8,16 +8,17 @@ import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
 import { libInjectCss } from 'vite-plugin-lib-inject-css';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import tailwindpostcss from '@tailwindcss/postcss';
+import autoprefixer from 'autoprefixer';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss() as any,
-    libInjectCss(),
-    tsconfigPaths(),
-    dts({ include: ['lib'] }),
-  ],
+  plugins: [react(), tailwindcss(), libInjectCss(), tsconfigPaths(), dts({ include: ['lib'] })],
+  css: {
+    postcss: {
+      plugins: [tailwindpostcss, autoprefixer],
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -26,11 +27,12 @@ export default defineConfig({
   build: {
     copyPublicDir: false,
     lib: {
+      name: '@growly/widget',
       entry: resolve(__dirname, 'lib/main.ts'),
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['react', /^react\/.*/, 'react-dom', /react-dom\/.*/],
+      external: ['react', 'react-dom', 'react/jsx-runtime', 'tailwindcss'],
       input: Object.fromEntries(
         // https://rollupjs.org/configuration-options/#input
         glob

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Switch } from './components/ui/switch';
 import { Label } from './components/ui/label';
 import { Controls } from './Controls';
+import 'lib/index.css';
 
 export function AppInner() {
   const [defaultOpen, setDefaultOpen] = useState(true);

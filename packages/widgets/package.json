@@ -22,10 +22,6 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
-  "peerDependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
-  },
   "devDependencies": {
     "@types/node": "^22.15.3",
     "@types/react": "^18.2.71",
@@ -56,11 +52,14 @@
     "@radix-ui/react-tabs": "^1.1.9",
     "@radix-ui/react-toggle": "^1.1.6",
     "@radix-ui/react-tooltip": "^1.2.4",
+    "@tailwindcss/postcss": "^4.1.4",
     "@tailwindcss/vite": "^4.1.4",
+    "autoprefixer": "^10.4.19",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.9.2",
     "lucide-react": "^0.503.0",
+    "postcss": "^8.4.38",
     "react-lottie": "^1.2.10",
     "tailwind-merge": "^3.2.0",
     "tailwindcss": "^4.1.4"

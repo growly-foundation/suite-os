@@ -35,17 +35,17 @@
     "@typescript-eslint/eslint-plugin": "^5.30.6",
     "@typescript-eslint/parser": "^5.30.6",
     "@typescript-eslint/typescript-estree": "^8.23.0",
-    "eslint-config-react-app": "^7.0.1",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
+    "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
     "eslint-plugin-storybook": "^0.8.0",
-    "pre-commit": "^1.2.2",
-    "ts-node": "^10.9.2",
     "fs-extra": "^9.0.1",
-    "globby": "^11.0.2"
+    "globby": "^11.0.2",
+    "pre-commit": "^1.2.2",
+    "ts-node": "^10.9.2"
   },
   "resolutions": {
     "minimist": "1.2.6"

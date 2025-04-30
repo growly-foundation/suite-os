@@ -1,4 +1,3 @@
-import './index.css';
 import { AppInner } from './AppInner';
 
 function App() {

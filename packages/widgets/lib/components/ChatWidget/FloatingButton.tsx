@@ -1,7 +1,6 @@
 'use client';
 
 import animationData from '@/assets/animation/loading.json';
-import { Button } from '@/components/ui/button';
 import Lottie from 'react-lottie';
 import { motion } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -16,48 +15,46 @@ export function FloatingButton(
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <TooltipProvider>
-      <div className="fixed bottom-6 right-6 z-50">
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}>
-          <Tooltip open={isHovered} delayDuration={1}>
-            <TooltipTrigger>
-              <Button
-                {...props}
-                style={{
-                  cursor: 'pointer',
-                  width: 80,
-                  height: 80,
-                  position: 'relative',
+    <div className="fixed bottom-6 right-6 z-[9999]">
+      <TooltipProvider>
+        <Tooltip open={isHovered} delayDuration={1}>
+          <motion.div
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}>
+            <TooltipTrigger
+              {...props}
+              style={{
+                cursor: 'pointer',
+                width: 90,
+                height: 90,
+                position: 'relative',
+              }}
+              className="border border-primary/10 rounded-full bg-white aspect-square shadow-2xl text-white hover:bg-white/90">
+              <Lottie
+                options={{
+                  loop: true,
+                  autoplay: false,
+                  animationData,
+                  rendererSettings: {
+                    preserveAspectRatio: 'xMidYMid slice',
+                  },
                 }}
-                className="border border-primary/10 rounded-full bg-white aspect-square shadow-2xl text-white hover:bg-white/90">
-                <Lottie
-                  options={{
-                    loop: true,
-                    autoplay: false,
-                    animationData,
-                    rendererSettings: {
-                      preserveAspectRatio: 'xMidYMid slice',
-                    },
-                  }}
-                  isStopped={!isHovered}
-                  height={90}
-                  width={90}
-                  speed={2}
-                />
-              </Button>
+                isStopped={!isHovered}
+                height={90}
+                width={90}
+                speed={2}
+              />
             </TooltipTrigger>
-            <TooltipContent>
-              <p>
-                Needs help? Chat with {config?.agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </motion.button>
-      </div>
-    </TooltipProvider>
+          </motion.div>
+          <TooltipContent>
+            <p>
+              Needs help? Chat with {config?.agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    </div>
   );
 }

@@ -58,7 +58,7 @@ export function PanelContainer({ open, onClose, messages, onSend }: PanelProps) 
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: '100%', opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed bottom-0 right-0 w-full sm:w-[400px] h-[650px] shadow-2xl rounded-t-lg sm:rounded-l-lg sm:rounded-t-none z-50 flex flex-col overflow-hidden"
+          className="fixed bottom-0 right-0 w-full max-w-[500px] sm:w-[400px] h-[650px] shadow-2xl rounded-t-lg sm:rounded-l-lg sm:rounded-t-none z-[9999] flex flex-col overflow-hidden"
           style={{
             backgroundColor: config?.theme?.background,
           }}>
@@ -114,8 +114,8 @@ export function PanelContainer({ open, onClose, messages, onSend }: PanelProps) 
                 placeholder="Send a message..."
                 className="flex-1"
               />
-              <Button onClick={sendMessageHandler} size="icon">
-                <Send className="h-4 w-4" />
+              <Button color={config?.theme?.primary} onClick={sendMessageHandler}>
+                Send <Send className="h-4 w-4" />
               </Button>
             </div>
           </div>

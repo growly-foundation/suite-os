@@ -1,4 +1,6 @@
-export { ChatWidget } from './components/ChatWidget';
+export { ChatWidget, ChatWidgetContainer } from './components/ChatWidget';
+export { FloatingButton } from './components/ChatWidget/FloatingButton';
+export { PanelContainer } from './components/ChatWidget/PanelContainer';
 export { DemoChatWidget } from './components/DemoChatWidget';
 export { StaticWidget } from './components/StaticWidget';
 export {

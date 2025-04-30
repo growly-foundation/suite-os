@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FloatingButton } from './FloatingButton';
 import { PanelContainer } from './PanelContainer';
-import { ChatMessage } from 'lib/types';
+import { ChatMessage } from '../../types';
 
 export function ChatWidgetContainer({
   messages,
