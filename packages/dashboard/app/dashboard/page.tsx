@@ -1,14 +1,13 @@
-import { getUser } from '@/utils/supabase/queries';
-import { redirect } from 'next/navigation';
-import { createClient } from '@/utils/supabase/server';
+import { ChartAreaInteractive } from '@/components/chart-area-interactive';
+import { SectionCards } from '@/components/section-cards';
 
-export default async function Dashboard() {
-  const supabase = await createClient();
-  const [user] = await Promise.all([getUser(supabase)]);
-
-  if (!user) {
-    return redirect('/dashboard/signin');
-  } else {
-    redirect('/dashboard/main');
-  }
+export default function Page() {
+  return (
+    <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+      <SectionCards />
+      <div className="px-4 lg:px-6">
+        <ChartAreaInteractive />
+      </div>
+    </div>
+  );
 }

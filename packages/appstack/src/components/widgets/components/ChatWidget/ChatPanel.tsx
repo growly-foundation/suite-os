@@ -13,6 +13,7 @@ import AgentAvatar from '../../../agent/components/AgentAvatar';
 import { useAppStack } from '@/provider';
 import { BRAND_NAME_CAPITALIZED } from '@/constants';
 import { Avatar, Identity, Name, Badge, Address } from '@coinbase/onchainkit/identity';
+import { border, cn, pressable } from '@/styles/theme';
 
 interface PanelProps {
   open: boolean;
@@ -58,7 +59,7 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
     <React.Fragment>
       {/* Header */}
       <div
-        className="p-4 border-b"
+        className={cn('p-4 shadow-md border-b', border.lineDefault)}
         style={{
           backgroundColor: config?.theme?.headerBackground,
           color: config?.theme?.headerText,
@@ -120,18 +121,25 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
       </ScrollArea>
 
       {/* Input Area */}
-      <div className="p-4 border-t" style={{ backgroundColor: config?.theme?.background }}>
+      <div
+        className={cn('p-4 border-t', border.lineDefault)}
+        style={{ backgroundColor: config?.theme?.background }}>
         <div className="flex space-x-2">
           <Input
             value={inputValue}
             onChange={e => setInputValue(e.target.value)}
             required
             placeholder="Send a message..."
-            className="flex-1"
+            style={{
+              border: 'none',
+            }}
+            className={cn('flex-1', border.lineDefault)}
           />
           <Button
+            className={cn(border.defaultActive, pressable.inverse)}
             style={{
               backgroundColor: config?.theme?.primary,
+              color: config?.theme?.text,
             }}
             onClick={sendMessageHandler}>
             Send <Send className="h-4 w-4" />
@@ -153,7 +161,10 @@ export function ChatPanelContainer({ open, ...props }: PanelProps) {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: '100%', opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed rounded-t-lg bottom-0 right-0 w-full max-w-[400px] sm:w-[400px] h-[650px] shadow-2xl z-[9999] flex flex-col overflow-hidden"
+          className={cn(
+            'fixed rounded-t-lg bottom-0 right-0 w-full max-w-[400px] sm:w-[400px] h-[650px] shadow-2xl z-[9999] flex flex-col overflow-hidden',
+            border.lineDefault
+          )}
           style={{
             backgroundColor: config?.theme?.background,
           }}>

@@ -3,7 +3,12 @@
 # dependencies
 /node_modules
 /.pnp
-.pnp.js
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
 # testing
 /coverage
@@ -18,9 +23,6 @@
 # misc
 .DS_Store
 *.pem
-.supabase/seed.sql
-supabase/seed.sql
-supabase/migrations 
 
 # debug
 npm-debug.log*
@@ -28,12 +30,8 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# local env files
+# env files (can opt-in for committing if needed)
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
 # vercel
 .vercel
@@ -41,15 +39,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-package-lock.json
-.env.local.production
-.env.local.new
-.env.local.non-docker
-
-components/ui
-
-yarn.lock
-
-# editors
-.vscode 

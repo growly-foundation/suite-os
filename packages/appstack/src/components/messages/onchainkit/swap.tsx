@@ -7,35 +7,26 @@ import {
   SwapToast,
   SwapToggleButton,
 } from '@coinbase/onchainkit/swap';
-import { ChatMessage } from '@/components/widgets/types';
+import { OnchainKitSwapMessage } from '@/components/widgets/types';
 
-export const buildOnchainKitSwapMessage = (
-  swappableTokens: Token[],
-  fromToken: Token,
-  toToken: Token
-): ChatMessage['message'] => {
-  return {
-    type: 'onchainkit:swap',
-    content: (
-      <Swap className="w-full" headerLeftContent={''} title={''}>
-        {' '}
-        <SwapAmountInput
-          label="Sell"
-          swappableTokens={swappableTokens}
-          token={fromToken}
-          type="from"
-        />{' '}
-        <SwapToggleButton />
-        <SwapAmountInput
-          label="Buy"
-          swappableTokens={swappableTokens}
-          token={toToken}
-          type="to"
-        />{' '}
-        <SwapButton />
-        <SwapMessage />
-        <SwapToast />
-      </Swap>
-    ),
-  };
+export const buildOnchainKitSwapMessage = ({
+  fromToken,
+  swappableTokens,
+  toToken,
+}: OnchainKitSwapMessage['content']) => {
+  return (
+    <Swap className="w-full" headerLeftContent={''} title={''}>
+      <SwapAmountInput
+        label="Sell"
+        swappableTokens={swappableTokens}
+        token={fromToken}
+        type="from"
+      />
+      <SwapToggleButton />
+      <SwapAmountInput label="Buy" swappableTokens={swappableTokens} token={toToken} type="to" />
+      <SwapButton />
+      <SwapMessage />
+      <SwapToast />
+    </Swap>
+  );
 };

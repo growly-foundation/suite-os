@@ -4,19 +4,32 @@ import { motion } from 'framer-motion';
 import AgentAvatar from '../../../agent/components/AgentAvatar';
 import { useAppStack } from '@/provider';
 import { cn } from '@/lib/utils';
+import {
+  buildOnchainKitSwapMessage,
+  buildOnchainKitTokenChipMessage,
+} from '@/components/messages/onchainkit';
+import { border } from '@/styles/theme';
 
 const MessageContent = ({ message }: { message: ChatMessage['message'] }) => {
+  const { config } = useAppStack();
+  const onchainKitEnabled = config?.onchainKit?.enabled;
   if (message.type === 'text') {
     return <p className="text-sm">{message.content}</p>;
   }
-  if (
-    message.type === 'onchainkit:swap' ||
-    message.type === 'onchainkit:token' ||
-    message.type === 'onchainkit:identity'
-  ) {
-    return message.content;
+  if (!onchainKitEnabled) {
+    return (
+      <span className="text-sm text-gray-500">
+        OnchainKit feature must be enabled to display this message.
+      </span>
+    );
   }
-  return null;
+  if (message.type === 'onchainkit:swap') {
+    return buildOnchainKitSwapMessage(message.content);
+  }
+  if (message.type === 'onchainkit:token') {
+    return buildOnchainKitTokenChipMessage(message.content);
+  }
+  return <></>;
 };
 
 const AgentResponse = ({ message, id }: { message: ChatMessage; id: MessageId }) => {
@@ -33,7 +46,8 @@ const AgentResponse = ({ message, id }: { message: ChatMessage; id: MessageId })
       <Card
         className={cn(
           'p-3 bg-muted',
-          message.message.type === 'onchainkit:swap' ? 'w-full' : 'max-w-[75%]'
+          message.message.type === 'onchainkit:swap' ? 'w-full' : 'max-w-[75%]',
+          border.lineDefault
         )}
         style={{
           backgroundColor: config?.theme?.backgroundForeground,
@@ -56,7 +70,7 @@ const UserResponse = ({ message, id }: { message: ChatMessage; id: MessageId }) 
       className="flex"
       style={{ marginBottom: 10, justifyContent: 'flex-end' }}>
       <Card
-        className="p-3 max-w-[75%]"
+        className={cn('p-3 max-w-[75%]', border.lineDefault)}
         style={{ backgroundColor: config?.theme?.secondary, color: config?.theme?.text }}>
         <MessageContent message={message.message} />
       </Card>

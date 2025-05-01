@@ -1,20 +1,33 @@
+import { Token } from '@coinbase/onchainkit/token';
+
 export type MessageId = `message-${number}`;
 
 export interface ChatMessage {
   id: MessageId;
-  message: TextMessage | OnchainKitMessage;
+  message: TextMessage | OnchainKitSwapMessage | OnchainKitTokenMessage;
   from: ChatRole;
   timestamp: Date;
 }
 
-interface TextMessage {
+export interface TextMessage {
   type: 'text';
   content: string;
 }
 
-interface OnchainKitMessage {
-  type: 'onchainkit:swap' | 'onchainkit:token' | 'onchainkit:identity';
-  content: React.ReactNode;
+export interface OnchainKitSwapMessage {
+  type: 'onchainkit:swap';
+  content: {
+    fromToken: Token;
+    toToken: Token;
+    swappableTokens: Token[];
+  };
+}
+
+export interface OnchainKitTokenMessage {
+  type: 'onchainkit:token';
+  content: {
+    token: Token;
+  };
 }
 
 export enum ChatRole {

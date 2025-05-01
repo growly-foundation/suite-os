@@ -103,7 +103,14 @@ const mockMessages: ChatMessage[] = [
   },
   {
     id: 'message-11',
-    message: buildOnchainKitSwapMessage([ETHToken, USDCToken], ETHToken, USDCToken),
+    message: {
+      type: 'onchainkit:swap',
+      content: {
+        swappableTokens: [ETHToken, USDCToken],
+        fromToken: ETHToken,
+        toToken: USDCToken,
+      },
+    },
     from: ChatRole.Agent,
     timestamp: new Date(),
   },
@@ -128,7 +135,12 @@ const mockMessages: ChatMessage[] = [
   },
   {
     id: 'message-14',
-    message: buildOnchainKitTokenChipMessage(ETHToken),
+    message: {
+      type: 'onchainkit:token',
+      content: {
+        token: ETHToken,
+      },
+    },
     from: ChatRole.Agent,
     timestamp: new Date(),
   },
