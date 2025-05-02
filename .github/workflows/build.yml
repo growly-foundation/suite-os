@@ -18,10 +18,13 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
+      - name: Enable pnpm
+        run: corepack enable pnpm
+
       - name: Template Install dependencies
-        run: bun install
+        run: pnpm install
 
       - name: Template Test Build
         # When fails, please check your build
         run: |
-          bun run build
+          pnpm run build
