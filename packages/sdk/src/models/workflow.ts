@@ -24,7 +24,7 @@ export type UserDefinedStep = {
     /** Workflow ID. (e.g. `workflow-123`) */
     workflow: WorkflowId;
     /** Conditions for the step to be triggered. Conditions will be checked in order. */
-    triggerConditions?: Condition[];
+    conditions?: Condition[];
   };
 };
 
@@ -37,11 +37,13 @@ export interface Workflow {
   /** Workflow name. */
   name: string;
   /** Workflow description. */
-  descriptions: string;
+  description: string;
   /** Workflow steps. */
   steps: Step[];
   /** Workflow status. */
   status: Status;
+  /** Workflow created at. */
+  created_at: Date;
 }
 
 /**
@@ -51,12 +53,16 @@ export interface Step {
   id: StepId;
   /** Step name. */
   name: string;
+  /** Step description. */
+  description: string;
   /** Conditions for the step to be triggered. Conditions will be checked in order. */
-  triggerConditions?: Condition[];
+  conditions: Condition[];
   /** Action to be performed when the step is triggered. */
   action: Action[];
   /** Step status. */
   status: Status;
+  /** Step created at. */
+  created_at: Date;
 }
 
 export enum Status {

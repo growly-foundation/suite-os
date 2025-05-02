@@ -13,7 +13,8 @@
     "bundle:dev": "NODE_ENV=development vite build --watch",
     "bundle:prod": "vite build",
     "clean": "rm -rf dist esm",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "gen:db": "npx supabase gen types typescript --project-id $PROJECT_ID --schema public > src/database.types.ts"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
@@ -41,5 +42,8 @@
       "default": "./dist/index.js"
     }
   },
-  "packageManager": "pnpm@10.6.3"
+  "packageManager": "pnpm@10.6.3",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.4"
+  }
 }

@@ -1,5 +1,4 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
 import { externalizeDeps } from 'vite-plugin-externalize-deps';
 import preserveUseClientDirective from 'rollup-plugin-preserve-use-client';
@@ -39,7 +38,6 @@ export default defineConfig({
   plugins: [
     externalizeDeps(),
     preserveUseClientDirective(),
-    react(),
     dts({
       tsconfigPath: './tsconfig.json',
       include: ['src'],
