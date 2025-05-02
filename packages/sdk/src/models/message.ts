@@ -2,13 +2,6 @@ import { Token } from '@coinbase/onchainkit/token';
 
 export type MessageId = `message-${number}`;
 
-export interface ChatMessage {
-  id: MessageId;
-  message: TextMessage | OnchainKitSwapMessage | OnchainKitTokenMessage;
-  from: ChatRole;
-  timestamp: Date;
-}
-
 export interface TextMessage {
   type: 'text';
   content: string;
@@ -28,6 +21,15 @@ export interface OnchainKitTokenMessage {
   content: {
     token: Token;
   };
+}
+
+export type Message = TextMessage | OnchainKitSwapMessage | OnchainKitTokenMessage;
+
+export interface ChatMessage {
+  id: MessageId;
+  message: Message;
+  from: ChatRole;
+  timestamp: Date;
 }
 
 export enum ChatRole {

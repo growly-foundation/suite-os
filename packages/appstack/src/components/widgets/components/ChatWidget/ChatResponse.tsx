@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui/card';
-import { ChatMessage, ChatRole, MessageId } from '@/components/widgets/types';
+import { ChatMessage, MessageId, ChatRole } from '@growly/sdk';
 import { motion } from 'framer-motion';
 import AgentAvatar from '../../../agent/components/AgentAvatar';
 import { useAppStack } from '@/provider';

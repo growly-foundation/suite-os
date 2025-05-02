@@ -65,6 +65,9 @@ importers:
       '@coinbase/onchainkit':
         specifier: ^0.38.9
         version: 0.38.9(@tanstack/query-core@5.74.9)(@types/react@18.3.20)(bufferutil@4.0.9)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.2)(use-sync-external-store@1.5.0(react@19.1.0))(utf-8-validate@5.0.10)(zod@3.24.3)
+      '@growly/sdk':
+        specifier: workspace:*
+        version: link:../sdk
       '@hookform/resolvers':
         specifier: ^5.0.1
         version: 5.0.1(react-hook-form@7.56.1(react@19.1.0))
@@ -554,6 +557,40 @@ importers:
       tailwindcss:
         specifier: ^3.4.1
         version: 3.4.17(ts-node@10.9.2(@swc/core@1.11.24(@swc/helpers@0.5.17))(@types/node@20.17.32)(typescript@5.8.2))
+
+  packages/sdk:
+    dependencies:
+      react:
+        specifier: ^18 || ^19
+        version: 19.1.0
+      react-dom:
+        specifier: ^18 || ^19
+        version: 19.1.0(react@19.1.0)
+    devDependencies:
+      concurrently:
+        specifier: ^8.2.2
+        version: 8.2.2
+      glob:
+        specifier: ^11.0.2
+        version: 11.0.2
+      rimraf:
+        specifier: ^5.0.10
+        version: 5.0.10
+      rollup-plugin-preserve-use-client:
+        specifier: ^3.0.1
+        version: 3.0.1(rollup@4.40.1)
+      tsup:
+        specifier: ^8.4.0
+        version: 8.4.0(@microsoft/api-extractor@7.52.5(@types/node@22.15.3))(@swc/core@1.11.24(@swc/helpers@0.5.17))(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.2)(yaml@2.7.1)
+      vite:
+        specifier: ^5.4.19
+        version: 5.4.19(@types/node@22.15.3)(lightningcss@1.29.2)(terser@5.39.0)
+      vite-plugin-dts:
+        specifier: ^4.5.3
+        version: 4.5.3(@types/node@22.15.3)(rollup@4.40.1)(typescript@5.8.2)(vite@5.4.19(@types/node@22.15.3)(lightningcss@1.29.2)(terser@5.39.0))
+      vite-plugin-externalize-deps:
+        specifier: ^0.9.0
+        version: 0.9.0(vite@5.4.19(@types/node@22.15.3)(lightningcss@1.29.2)(terser@5.39.0))
 
 packages:
 

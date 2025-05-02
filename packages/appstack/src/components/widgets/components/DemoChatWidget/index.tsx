@@ -1,9 +1,7 @@
-import { ChatMessage, ChatRole } from '@/components/widgets/types';
+import { ChatMessage, ChatRole } from '@growly/sdk';
 import { ChatWidgetContainer } from '../ChatWidget';
 import { useState } from 'react';
-import { buildOnchainKitSwapMessage } from '@/components/messages/onchainkit';
 import { ETHToken, USDCToken } from './tokens';
-import { buildOnchainKitTokenChipMessage } from '@/components/messages/onchainkit/token';
 
 const mockMessages: ChatMessage[] = [
   {
