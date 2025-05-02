@@ -13,13 +13,7 @@
     "bundle:dev": "NODE_ENV=development vite build --watch",
     "bundle:prod": "vite build",
     "clean": "rm -rf dist esm",
-    "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
-    "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write ."
-  },
-  "peerDependencies": {
-    "react": "^18 || ^19",
-    "react-dom": "^18 || ^19"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

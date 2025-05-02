@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  IconCurrencyEthereum,
-  IconDiamond,
-  IconInnerShadowTop,
-  IconPigMoney,
-  IconSlideshow,
-  IconTimeline,
-} from '@tabler/icons-react';
+import { IconInnerShadowTop, IconPigMoney, IconSlideshow } from '@tabler/icons-react';
 import * as React from 'react';
 
 import { NavMain } from '@/components/nav-main';
