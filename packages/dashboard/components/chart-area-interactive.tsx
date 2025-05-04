@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { border, cn } from '@/styles/theme';
 
 export const description = 'An interactive area chart';
 
@@ -162,7 +163,7 @@ export function ChartAreaInteractive() {
   });
 
   return (
-    <Card className="@container/card">
+    <Card className={cn(border.lineDefault)}>
       <CardHeader>
         <CardTitle>Total Visitors</CardTitle>
         <CardDescription>

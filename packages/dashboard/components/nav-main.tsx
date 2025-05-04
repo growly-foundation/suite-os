@@ -1,8 +1,6 @@
 'use client';
 
-import { IconCirclePlusFilled, IconMail, type Icon } from '@tabler/icons-react';
-
-import { Button } from '@/components/ui/button';
+import { IconCirclePlusFilled, type Icon } from '@tabler/icons-react';
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -13,6 +11,7 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { background, pressable, text } from '@/styles/theme';
 
 export function NavMain({
   items,
@@ -25,6 +24,8 @@ export function NavMain({
 }) {
   const pathname = usePathname();
 
+  console.log(pathname);
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -32,31 +33,27 @@ export function NavMain({
           <SidebarMenuItem className="flex items-center gap-2">
             <SidebarMenuButton
               tooltip="Create new workflow"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear">
+              className={cn(
+                pressable.coinbaseBranding,
+                text.headline,
+                'text-white hover:text-white'
+              )}>
               <IconCirclePlusFilled />
-              <span>Create new workflow</span>
+              <span>Create a new workflow</span>
             </SidebarMenuButton>
-            <Button
-              size="icon"
-              className="size-8 group-data-[collapsible=icon]:opacity-0"
-              variant="outline">
-              <IconMail />
-              <span className="sr-only">Inbox</span>
-            </Button>
           </SidebarMenuItem>
         </SidebarMenu>
         <SidebarMenu>
           {items.map(item => (
             <SidebarMenuItem key={item.title}>
-              <Link
-                href={item.url}
-                className={cn(
-                  '',
-                  pathname.startsWith(item.url) &&
-                    'data-[state=active]:bg-primary data-[state=active]:text-primary-foreground'
-                )}
-                passHref>
-                <SidebarMenuButton tooltip={item.title}>
+              <Link href={item.url} passHref>
+                <SidebarMenuButton
+                  className={cn(
+                    pressable.default,
+                    text.base,
+                    pathname == item.url && background.secondary
+                  )}
+                  tooltip={item.title}>
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
                 </SidebarMenuButton>

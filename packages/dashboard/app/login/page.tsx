@@ -25,6 +25,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/
 import useSupabaseClient from '@/utils/supabase/client';
 import { Provider } from '@supabase/supabase-js';
 import { z } from 'zod';
+import { text } from '@/styles/theme';
 
 const LoginSchema = z.object({
   email: z
@@ -111,9 +112,9 @@ export default function LoginPage() {
                         <div className="flex size-8 items-center justify-center rounded-md">
                           <GalleryVerticalEnd className="size-6" />
                         </div>
-                        <span className="sr-only">Growly</span>
+                        <span className={text.headline}>Growly</span>
                       </a>
-                      <h1 className="text-xl font-bold">Welcome to Growly</h1>
+                      <h1 className={text.headline}>Welcome to Growly</h1>
                     </div>
                     <div className="flex flex-col gap-6">
                       <FormField

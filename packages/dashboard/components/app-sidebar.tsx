@@ -1,6 +1,12 @@
 'use client';
 
-import { IconInnerShadowTop, IconPigMoney, IconSlideshow } from '@tabler/icons-react';
+import {
+  IconInnerShadowTop,
+  IconHome,
+  IconWaveSine,
+  IconAi,
+  IconSlideshow,
+} from '@tabler/icons-react';
 import * as React from 'react';
 
 import { NavMain } from '@/components/nav-main';
@@ -14,6 +20,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { text } from '@/styles/theme';
 
 const data = {
   user: {
@@ -25,17 +32,17 @@ const data = {
     {
       title: 'Dashboard',
       url: '/dashboard',
-      icon: IconPigMoney,
+      icon: IconHome,
     },
     {
       title: 'Workflows',
       url: '/dashboard/workflows',
-      icon: IconPigMoney,
+      icon: IconWaveSine,
     },
     {
       title: 'Playground',
       url: '/dashboard/playground',
-      icon: IconPigMoney,
+      icon: IconAi,
     },
     {
       title: 'Resources',
@@ -54,7 +61,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
               <a href="#">
                 <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Growly</span>
+                <span className={text.title3}>Growly</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
