@@ -4,7 +4,7 @@ import { LangchainService } from './langchain/langchain.service';
 import { ChatController } from './chat/chat.controller';
 
 @Module({
-  imports: [ConfigModule.forRoot()],
+  imports: [ConfigModule.forRoot({ isGlobal: true })],
 })
 @Module({
   controllers: [ChatController],
