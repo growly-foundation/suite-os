@@ -12,7 +12,7 @@ import AgentAvatar from '../../../agent/components/AgentAvatar';
 import { useAppStack } from '@/provider';
 import { BRAND_NAME_CAPITALIZED } from '@/constants';
 import { Avatar, Identity, Name, Badge, Address } from '@coinbase/onchainkit/identity';
-import { border, cn, pressable } from '@/styles/theme';
+import { border, cn, pressable, text } from '@/styles/theme';
 
 interface PanelProps {
   open: boolean;
@@ -67,10 +67,12 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
           <div className="flex items-center space-x-3">
             <AgentAvatar />
             <div>
-              <h2 className="font-semibold">
+              <h2 className={cn('font-semibold', text.headline)}>
                 {config?.agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
               </h2>
-              <p className="text-sm opacity-90">Typically replies in a few minutes</p>
+              <p className={cn('text-sm opacity-90', text.base)}>
+                Typically replies in a few minutes
+              </p>
             </div>
           </div>
           <Button variant="ghost" size="icon" onClick={onClose} style={{ cursor: 'pointer' }}>
@@ -96,7 +98,7 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
                 {index === 0 && (
                   <React.Fragment>
                     <div
-                      className="text-gray-500 text-xs text-center"
+                      className={cn('text-gray-500 text-xs text-center', text.base)}
                       style={{ padding: '20px 0px 30px 0px' }}>
                       You are chatting with{' '}
                       {config?.agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
@@ -108,11 +110,11 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
             ))}
           </React.Fragment>
         ) : (
-          <div className="p-[50px] text-gray-500">
+          <div className={cn('p-[50px] text-gray-500', text.body)}>
             <div style={{ marginBottom: '10px' }}>
               <Pencil className="h-6 w-6 mr-2" />
             </div>
-            <div className="mt-2">
+            <div className={cn('mt-2', text.body)}>
               This conversation just started. Send a message to get started.
             </div>
           </div>
@@ -123,7 +125,7 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
       <div
         className={cn('p-4 border-t', border.lineDefault)}
         style={{ backgroundColor: config?.theme?.background }}>
-        <div className="flex space-x-2">
+        <div className={cn('flex space-x-2', text.body)}>
           <Input
             value={inputValue}
             onChange={e => setInputValue(e.target.value)}
@@ -132,13 +134,13 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
             style={{
               border: 'none',
             }}
-            className={cn('flex-1', border.lineDefault)}
+            className={cn('flex-1', border.lineDefault, text.body)}
           />
           <Button
-            className={cn(border.defaultActive, pressable.inverse)}
+            className={cn(border.defaultActive, pressable.inverse, text.headline)}
             style={{
               backgroundColor: config?.theme?.primary,
-              color: config?.theme?.text,
+              color: config?.theme?.textForeground,
             }}
             onClick={sendMessageHandler}>
             Send <Send className="h-4 w-4" />
@@ -162,7 +164,7 @@ export function ChatPanelContainer({ open, ...props }: PanelProps) {
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           className={cn(
             'fixed rounded-t-lg bottom-0 right-0 w-full max-w-[400px] sm:w-[400px] h-[650px] shadow-2xl z-[9999] flex flex-col overflow-hidden',
-            border.lineDefault
+            border.default
           )}
           style={{
             backgroundColor: config?.theme?.background,

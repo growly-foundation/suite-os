@@ -6,6 +6,8 @@ import { useAppStack } from '@/provider';
 import { BRAND_LOGO_URL, BRAND_NAME_CAPITALIZED } from '@/constants';
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
+import { background, border, pressable, text } from '@/styles/theme';
 
 export function FloatingButton(
   props: React.ButtonHTMLAttributes<HTMLButtonElement> & { iconLoading?: boolean }
@@ -30,14 +32,17 @@ export function FloatingButton(
                 height: 50,
                 position: 'relative',
               }}
-              className="border border-primary/10 rounded-full bg-white aspect-square shadow-3xl text-white hover:bg-white/90">
-              <Avatar style={{ width: 50, height: 50 }}>
+              className={cn(
+                'border border-primary/10 rounded-full aspect-square shadow-3xl text-white',
+                pressable.coinbaseBranding
+              )}>
+              <Avatar style={{ width: 50, height: 50 }} className={border.linePrimary}>
                 <AvatarImage src={BRAND_LOGO_URL} />
                 <AvatarFallback>🤖</AvatarFallback>
               </Avatar>
             </TooltipTrigger>
           </motion.div>
-          <TooltipContent>
+          <TooltipContent className={cn(text.base, background.default)}>
             <p>
               Needs help? Chat with {config?.agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
             </p>

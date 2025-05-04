@@ -13,7 +13,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             agent: {
               name: 'Growly Internal',
             },
-            theme: Theme.monoTheme,
+            theme: Theme.defaultDarkTheme,
           }}>
           {children}
           <DemoChatWidget />

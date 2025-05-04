@@ -7,7 +7,7 @@ const Step = ({
   children,
   ...stepProps
 }: { children: React.ReactNode } & UserDefinedStep['payload']) => {
-  return <div data-growly-step={payload({ type: 'step', payload: stepProps })}>{children}</div>;
+  return <div data-growly={payload({ type: 'step', payload: stepProps })}>{children}</div>;
 };
 
 export const GrowlyComponent = {

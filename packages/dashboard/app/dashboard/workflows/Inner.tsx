@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogTrigger, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Status, StepTable, WorkflowTable } from '@growly/sdk';
 import { stepService, workflowService } from '@/utils/supabase/client';
 import { background, border, cn, pressable, text } from '@/styles/theme';
@@ -67,17 +67,23 @@ export default function WorkflowPageInner() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className={cn(text.title2)}>
+        <h1 className={cn(text.title2, 'flex items-center gap-2')}>
           <IconWaveSine /> Workflows
         </h1>
         <Dialog>
           <DialogTrigger asChild>
             <Button className={cn(pressable.coinbaseBranding)}>Create a new workflow</Button>
           </DialogTrigger>
-          <DialogContent className={cn(background.default, border.default, 'absolute mx-auto')}>
-            <h2 className={cn(text.title3)}>
+          <DialogContent
+            className={cn(
+              background.default,
+              border.lineDefault,
+              'absolute mx-auto shadow-3xl',
+              'sm:max-w-[425px]'
+            )}>
+            <DialogTitle className={cn(text.title3, 'flex items-center gap-2')}>
               <IconWaveSine /> New Workflow
-            </h2>
+            </DialogTitle>
             <p className={cn(text.body)}>
               A workflow is a collection of steps that are executed in order by the agents when the
               conditions are met.

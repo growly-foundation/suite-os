@@ -1,4 +1,4 @@
-import './types/index.d';
+import './types.d';
 
 export * from './components/html';
 export * from './components/widgets';

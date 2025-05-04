@@ -14,7 +14,8 @@ export const text = {
   label2: 'gas-font-family text-sm',
   legal: 'gas-font-family text-xs',
   title1: 'gas-font-family font-semibold text-2xl',
-  title3: 'gas-font-family font-semibold text-xl',
+  title2: 'gas-font-family font-semibold text-xl',
+  title3: 'gas-font-family font-semibold text-lg',
 } as const;
 
 export const pressable = {

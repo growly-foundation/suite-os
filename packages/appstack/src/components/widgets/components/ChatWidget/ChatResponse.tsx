@@ -8,7 +8,7 @@ import {
   buildOnchainKitSwapMessage,
   buildOnchainKitTokenChipMessage,
 } from '@/components/messages/onchainkit';
-import { border } from '@/styles/theme';
+import { border, text } from '@/styles/theme';
 
 const MessageContent = ({ message }: { message: ChatMessage['message'] }) => {
   const { config } = useAppStack();
@@ -18,8 +18,8 @@ const MessageContent = ({ message }: { message: ChatMessage['message'] }) => {
   }
   if (!onchainKitEnabled) {
     return (
-      <span className="text-sm text-gray-500">
-        OnchainKit feature must be enabled to display this message.
+      <span className="text-sm text-white font-semibold">
+        ⚠️ OnchainKit feature must be enabled to display this message.
       </span>
     );
   }
@@ -47,7 +47,8 @@ const AgentResponse = ({ message, id }: { message: ChatMessage; id: MessageId })
         className={cn(
           'p-3 bg-muted',
           message.message.type === 'onchainkit:swap' ? 'w-full' : 'max-w-[75%]',
-          border.lineDefault
+          text.body,
+          border.default
         )}
         style={{
           backgroundColor: config?.theme?.backgroundForeground,
@@ -70,8 +71,11 @@ const UserResponse = ({ message, id }: { message: ChatMessage; id: MessageId }) 
       className="flex"
       style={{ marginBottom: 10, justifyContent: 'flex-end' }}>
       <Card
-        className={cn('p-3 max-w-[75%]', border.lineDefault)}
-        style={{ backgroundColor: config?.theme?.secondary, color: config?.theme?.text }}>
+        className={cn('p-3 max-w-[75%]', text.body, border.default)}
+        style={{
+          backgroundColor: config?.theme?.secondary,
+          color: config?.theme?.text,
+        }}>
         <MessageContent message={message.message} />
       </Card>
     </motion.div>
