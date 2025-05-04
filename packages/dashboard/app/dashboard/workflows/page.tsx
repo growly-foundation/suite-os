@@ -1,3 +1,5 @@
-export default function WorkflowsPage() {
-  return <div>Workflows</div>;
+import WorkflowPageInner from './Inner';
+
+export default function WorkflowPage() {
+  return <WorkflowPageInner />;
 }

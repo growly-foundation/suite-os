@@ -1,15 +1,16 @@
 import { Database } from '@/database.types';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Tables, TablesInsert, TablesUpdate } from '../database.types';
+import { v4 as uuidv4 } from 'uuid';
 
-type Workflow = Tables<'workflows'>;
-type WorkflowInsert = TablesInsert<'workflows'>;
-type WorkflowUpdate = TablesUpdate<'workflows'>;
+export type WorkflowTable = Tables<'workflows'>;
+export type WorkflowInsert = TablesInsert<'workflows'>;
+export type WorkflowUpdate = TablesUpdate<'workflows'>;
 
 export class WorkflowService {
   constructor(private supabase: SupabaseClient<Database>) {}
 
-  async getAll(): Promise<Workflow[]> {
+  async getAll(): Promise<WorkflowTable[]> {
     const { data, error } = await this.supabase
       .from('workflows')
       .select('*')
@@ -18,19 +19,26 @@ export class WorkflowService {
     return data;
   }
 
-  async getById(id: string): Promise<Workflow | null> {
+  async getById(id: string): Promise<WorkflowTable | null> {
     const { data, error } = await this.supabase.from('workflows').select('*').eq('id', id).single();
     if (error) throw error;
     return data;
   }
 
-  async create(payload: WorkflowInsert): Promise<Workflow> {
-    const { data, error } = await this.supabase.from('workflows').insert(payload).select().single();
+  async create(payload: Omit<WorkflowInsert, 'id'>): Promise<WorkflowTable> {
+    const { data, error } = await this.supabase
+      .from('workflows')
+      .insert({
+        id: `workflow-${uuidv4()}`,
+        ...payload,
+      })
+      .select()
+      .single();
     if (error) throw error;
     return data;
   }
 
-  async update(id: string, updates: WorkflowUpdate): Promise<Workflow> {
+  async update(id: string, updates: WorkflowUpdate): Promise<WorkflowTable> {
     const { data, error } = await this.supabase
       .from('workflows')
       .update(updates)

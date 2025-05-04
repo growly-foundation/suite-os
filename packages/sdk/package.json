@@ -44,6 +44,7 @@
   },
   "packageManager": "pnpm@10.6.3",
   "dependencies": {
-    "@supabase/supabase-js": "^2.49.4"
+    "@supabase/supabase-js": "^2.49.4",
+    "uuid": "^11.1.0"
   }
 }

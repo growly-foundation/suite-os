@@ -1,11 +1,11 @@
 import { createBrowserClient } from '@supabase/ssr';
-import type { Database } from '@/utils/database.types';
 import type { TypedSupabaseClient } from '@/utils/types';
 import { useMemo } from 'react';
+import { Database, StepService, WorkflowService } from '@growly/sdk';
 
 let client: TypedSupabaseClient | undefined;
 
-function getSupabaseBrowserClient() {
+export function getSupabaseBrowserClient() {
   if (client) {
     return client;
   }
@@ -17,6 +17,10 @@ function getSupabaseBrowserClient() {
 
   return client;
 }
+
+// @growly/sdk
+export const workflowService = new WorkflowService(getSupabaseBrowserClient());
+export const stepService = new StepService(getSupabaseBrowserClient());
 
 function useSupabaseBrowser() {
   return useMemo(getSupabaseBrowserClient, []);
