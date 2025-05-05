@@ -6,4 +6,3 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900&display=swap');
 @import url('./index.css');
 @import url('./tailwind-base.css');
-@import url('@coinbase/onchainkit/styles.css');

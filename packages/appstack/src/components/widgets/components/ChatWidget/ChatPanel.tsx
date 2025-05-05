@@ -140,7 +140,7 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
             className={cn(border.defaultActive, pressable.inverse, text.headline)}
             style={{
               backgroundColor: config?.theme?.primary,
-              color: config?.theme?.textForeground,
+              color: config?.theme?.text,
             }}
             onClick={sendMessageHandler}>
             Send <Send className="h-4 w-4" />

@@ -16,7 +16,6 @@ const activeComponentMapping: Record<AppStackComponent, React.FC> = {
 export default function Demo() {
   const { activeComponent } = useContext(AppContext);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [sideBarVisible, setSideBarVisible] = useState(true);
 
   useEffect(() => {
     console.log('Playground.activeComponent:', activeComponent);
@@ -28,10 +27,6 @@ export default function Demo() {
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
-  };
-
-  const toggleSidebar = () => {
-    setSideBarVisible(visible => !visible);
   };
 
   const buttonStyles = `rounded border px-3 py-2 transition-colors ${
@@ -46,21 +41,10 @@ export default function Demo() {
     <>
       <div
         className={cn(
-          'absolute top-0 right-0 bottom-0 left-0 z-20 flex w-full min-w-80 flex-col border-r bg-background p-6 transition-[height] sm:static sm:z-0 sm:w-1/4',
-          sideBarVisible ? 'h-full min-h-screen' : 'h-20 overflow-hidden'
+          'absolute top-0 right-0 bottom-0 left-0 z-20 flex w-full min-w-80 max-w-[500px] flex-col border-r bg-background p-6 transition-[height] sm:static sm:z-0 sm:w-1/4'
         )}>
-        <div className="mb-12 flex justify-between">
+        <div className="flex justify-between" style={{ marginBottom: 30 }}>
           <div className="self-center font-semibold text-xl">Growly AppStack Playground</div>
-          <button
-            type="button"
-            onClick={toggleSidebar}
-            className={cn(
-              buttonStyles,
-              'px-1 transition-transform sm:hidden',
-              sideBarVisible ? '-rotate-90' : 'rotate-90'
-            )}>
-            <span className="pl-2">&rang;</span>
-          </button>
         </div>
         <button type="button" onClick={toggleDarkMode} className={buttonStyles}>
           {isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
