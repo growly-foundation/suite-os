@@ -11,13 +11,12 @@ export type WorkflowManagerStore = {
 export const useWorkflowManagerStore = create<WorkflowManagerStore>((set, get) => ({
   workflows: [],
   fetchWorkflows: async () => {
-    const aggregatedWorkflows: AggregatedWorkflow[] = await growlySdk
-      .workflow()
-      .getAggregatedWorkflows();
+    const aggregatedWorkflows: AggregatedWorkflow[] =
+      await growlySdk.workflow.getAggregatedWorkflows();
     set({ workflows: aggregatedWorkflows });
   },
   fetchSteps: async (workflowId: string) => {
-    const steps = await growlySdk.db().step.getAll(workflowId);
+    const steps = await growlySdk.db.step.getAll(workflowId);
     set(state => ({
       workflows: state.workflows.map(workflow =>
         workflow.id === workflowId ? { ...workflow, steps } : workflow

@@ -18,7 +18,7 @@ const MessageContent = ({ message }: { message: ChatMessage['message'] }) => {
   }
   if (!onchainKitEnabled) {
     return (
-      <span className="text-sm text-white font-semibold">
+      <span className="text-sm font-semibold">
         ⚠️ OnchainKit feature must be enabled to display this message.
       </span>
     );

@@ -35,7 +35,7 @@ export default function WorkflowManager() {
   async function fetchWorkflows() {
     setIsLoading(true);
     try {
-      const result = await growlySdk.db().workflow.getAll();
+      const result = await growlySdk.db.workflow.getAll();
       setWorkflows(result);
     } catch (error) {
       console.error('Failed to fetch workflows:', error);
@@ -48,7 +48,7 @@ export default function WorkflowManager() {
     if (!newWorkflowName) return;
     setIsLoading(true);
     try {
-      await growlySdk.db().workflow.create({
+      await growlySdk.db.workflow.create({
         name: newWorkflowName,
         description: newWorkflowDesc,
         status: 'active',

@@ -3,6 +3,8 @@
 import { Suspense, useEffect } from 'react';
 import { useWorkflowManagerStore } from '@/hooks/use-workflow-manager';
 import { ThemeProvider } from './theme-provider';
+import { AppStackProvider, DemoChatWidget, Theme } from '@growly/appstack';
+import '@growly/appstack/styles.css';
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   const { fetchWorkflows } = useWorkflowManagerStore();
@@ -15,7 +17,18 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      <Suspense>{children}</Suspense>
+      <AppStackProvider
+        config={{
+          agent: {
+            name: 'Growly Customer Support',
+          },
+          theme: Theme.monoTheme,
+        }}>
+        <Suspense>
+          {children}
+          <DemoChatWidget />
+        </Suspense>
+      </AppStackProvider>
     </ThemeProvider>
   );
 };

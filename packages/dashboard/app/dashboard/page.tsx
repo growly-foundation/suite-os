@@ -13,7 +13,7 @@ export default function DashboardPage() {
       <div className="bg-white rounded-xl shadow-sm p-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Welcome back, John!</h1>
+            <h1 className="text-2xl font-bold">Welcome back, Tin!</h1>
             <p className="text-muted-foreground mt-1">
               Here's what's happening with your workflows today.
             </p>

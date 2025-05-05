@@ -20,7 +20,7 @@ const WorkflowStepManager = ({ selectedWorkflowId }: Props) => {
     if (!selectedWorkflowId || !newStepName) return;
     setIsLoading(true);
     try {
-      await growlySdk.db().step.create(selectedWorkflowId, {
+      await growlySdk.db.step.create(selectedWorkflowId, {
         name: newStepName,
         description: newStepDesc,
         workflow_id: selectedWorkflowId,
@@ -42,7 +42,7 @@ const WorkflowStepManager = ({ selectedWorkflowId }: Props) => {
   async function fetchSteps(workflowId: string) {
     setIsLoading(true);
     try {
-      const result = await growlySdk.db().step.getAll(workflowId);
+      const result = await growlySdk.db.step.getAll(workflowId);
       setSteps(result);
     } catch (error) {
       console.error('Failed to fetch steps:', error);
