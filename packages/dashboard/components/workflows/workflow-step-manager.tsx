@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { stepService, StepTable } from './workflow-manager';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { StepTable } from '@growly/sdk';
+import { growlySdk } from '@/core/growly-services';
 
 type Props = {
   selectedWorkflowId: string;
@@ -19,7 +20,7 @@ const WorkflowStepManager = ({ selectedWorkflowId }: Props) => {
     if (!selectedWorkflowId || !newStepName) return;
     setIsLoading(true);
     try {
-      await stepService.create({
+      await growlySdk.db().step.create(selectedWorkflowId, {
         name: newStepName,
         description: newStepDesc,
         workflow_id: selectedWorkflowId,
@@ -41,7 +42,7 @@ const WorkflowStepManager = ({ selectedWorkflowId }: Props) => {
   async function fetchSteps(workflowId: string) {
     setIsLoading(true);
     try {
-      const result = await stepService.getAll(workflowId);
+      const result = await growlySdk.db().step.getAll(workflowId);
       setSteps(result);
     } catch (error) {
       console.error('Failed to fetch steps:', error);

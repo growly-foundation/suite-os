@@ -17,113 +17,8 @@ import { Badge } from '@/components/ui/badge';
 import { PlusCircle, Workflow } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import WorkflowStepManager from './workflow-step-manager';
-
-// Mock types based on the provided code
-export type Status = 'active' | 'inactive' | 'draft';
-
-export interface WorkflowTable {
-  id: string;
-  name: string;
-  description: string;
-  status: Status;
-  created_at: string;
-}
-
-export interface StepTable {
-  id: string;
-  name: string;
-  description: string;
-  workflow_id: string;
-  status: Status;
-  conditions: any[];
-  action: any[];
-  created_at: string;
-}
-
-// Mock services
-export const workflowService = {
-  getAll: async (): Promise<WorkflowTable[]> => {
-    // This would be replaced with actual API calls
-    return [
-      {
-        id: '1',
-        name: 'Customer Onboarding',
-        description: 'Process for new customer registration and setup',
-        status: 'active',
-        created_at: new Date().toISOString(),
-      },
-      {
-        id: '2',
-        name: 'Support Ticket Handling',
-        description: 'Automated workflow for managing support requests',
-        status: 'active',
-        created_at: new Date().toISOString(),
-      },
-      {
-        id: '3',
-        name: 'Lead Qualification',
-        description: 'Process to qualify and route new leads',
-        status: 'draft',
-        created_at: new Date().toISOString(),
-      },
-    ];
-  },
-  create: async (workflow: Omit<WorkflowTable, 'id'>): Promise<WorkflowTable> => {
-    // This would be replaced with actual API calls
-    return {
-      ...workflow,
-      id: Math.random().toString(36).substring(7),
-    };
-  },
-};
-
-export const stepService = {
-  getAll: async (workflowId: string): Promise<StepTable[]> => {
-    // This would be replaced with actual API calls
-    if (workflowId === '1') {
-      return [
-        {
-          id: '101',
-          name: 'Verify Email',
-          description: 'Send verification email to new customer',
-          workflow_id: workflowId,
-          status: 'active',
-          conditions: [],
-          action: [],
-          created_at: new Date().toISOString(),
-        },
-        {
-          id: '102',
-          name: 'Create Account',
-          description: 'Set up customer account in the system',
-          workflow_id: workflowId,
-          status: 'active',
-          conditions: [],
-          action: [],
-          created_at: new Date().toISOString(),
-        },
-        {
-          id: '103',
-          name: 'Send Welcome Email',
-          description: 'Send welcome email with getting started guide',
-          workflow_id: workflowId,
-          status: 'active',
-          conditions: [],
-          action: [],
-          created_at: new Date().toISOString(),
-        },
-      ];
-    }
-    return [];
-  },
-  create: async (step: Omit<StepTable, 'id'>): Promise<StepTable> => {
-    // This would be replaced with actual API calls
-    return {
-      ...step,
-      id: Math.random().toString(36).substring(7),
-    };
-  },
-};
+import { WorkflowTable } from '@growly/sdk';
+import { growlySdk } from '@/core/growly-services';
 
 export default function WorkflowManager() {
   const [workflows, setWorkflows] = useState<WorkflowTable[]>([]);
@@ -140,7 +35,7 @@ export default function WorkflowManager() {
   async function fetchWorkflows() {
     setIsLoading(true);
     try {
-      const result = await workflowService.getAll();
+      const result = await growlySdk.db().workflow.getAll();
       setWorkflows(result);
     } catch (error) {
       console.error('Failed to fetch workflows:', error);
@@ -153,7 +48,7 @@ export default function WorkflowManager() {
     if (!newWorkflowName) return;
     setIsLoading(true);
     try {
-      await workflowService.create({
+      await growlySdk.db().workflow.create({
         name: newWorkflowName,
         description: newWorkflowDesc,
         status: 'active',
