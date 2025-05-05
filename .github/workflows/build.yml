@@ -1,4 +1,4 @@
-name: AppStack Build
+name: Suite Build
 on:
   push:
     branches: ['main']

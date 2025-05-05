@@ -1,4 +1,4 @@
-name: AppStack Format
+name: Suite Format
 on:
   push:
     branches: ['main']

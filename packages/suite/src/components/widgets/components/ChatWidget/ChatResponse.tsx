@@ -2,7 +2,7 @@ import { Card } from '@/components/ui/card';
 import { ChatMessage, MessageId, ChatRole } from '@growly/sdk';
 import { motion } from 'framer-motion';
 import AgentAvatar from '../../../agent/components/AgentAvatar';
-import { useAppStack } from '@/provider';
+import { useSuite } from '@/provider';
 import { cn } from '@/lib/utils';
 import {
   buildOnchainKitSwapMessage,
@@ -11,7 +11,7 @@ import {
 import { border, text } from '@/styles/theme';
 
 const MessageContent = ({ message }: { message: ChatMessage['message'] }) => {
-  const { config } = useAppStack();
+  const { config } = useSuite();
   const onchainKitEnabled = config?.onchainKit?.enabled;
   if (message.type === 'text') {
     return <p className="text-sm">{message.content}</p>;
@@ -33,7 +33,7 @@ const MessageContent = ({ message }: { message: ChatMessage['message'] }) => {
 };
 
 const AgentResponse = ({ message, id }: { message: ChatMessage; id: MessageId }) => {
-  const { config } = useAppStack();
+  const { config } = useSuite();
   return (
     <motion.div
       id={id}
@@ -61,7 +61,7 @@ const AgentResponse = ({ message, id }: { message: ChatMessage; id: MessageId })
 };
 
 const UserResponse = ({ message, id }: { message: ChatMessage; id: MessageId }) => {
-  const { config } = useAppStack();
+  const { config } = useSuite();
   return (
     <motion.div
       id={id}

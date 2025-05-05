@@ -1,4 +1,4 @@
-name: AppStack Security Scan
+name: Suite Security Scan
 
 on: [pull_request, push]
 

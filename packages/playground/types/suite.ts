@@ -1,4 +1,4 @@
-export enum AppStackComponent {
+export enum SuiteComponent {
   ChatWidget = 'chat-widget',
   DemoChatWidget = 'demo-chat-widget',
   StaticWidget = 'static-widget',

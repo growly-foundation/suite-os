@@ -1,8 +1,8 @@
 {
-  "name": "@growly/appstack",
+  "name": "@growly/suite",
   "version": "0.1.0",
   "type": "module",
-  "repository": "https://github.com/growly-official/appstack.git",
+  "repository": "https://github.com/growly-official/suite.git",
   "license": "MIT",
   "publishConfig": {
     "access": "public"

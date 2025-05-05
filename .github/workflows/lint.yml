@@ -1,4 +1,4 @@
-name: AppStack Lint
+name: Suite Lint
 on:
   push:
     branches: ['main']

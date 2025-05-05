@@ -2,7 +2,7 @@
   "name": "@growly/sdk",
   "version": "0.1.0",
   "type": "module",
-  "repository": "https://github.com/growly-official/appstack.git",
+  "repository": "https://github.com/growly-official/suite.git",
   "license": "MIT",
   "publishConfig": {
     "access": "public"

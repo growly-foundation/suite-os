@@ -5,7 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { stripVTControlCharacters } from 'util';
 
-const packageName = '@growly/appstack';
+const packageName = '@growly/suite';
 const widgetsPath = 'packages/widgets';
 
 function getNextVersion() {

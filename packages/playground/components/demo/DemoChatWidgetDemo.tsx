@@ -1,11 +1,11 @@
 import { useContext, useEffect } from 'react';
 import { base } from 'viem/chains';
 import { AppContext } from '../AppProvider';
-import { DemoChatWidget, AppStackProvider, useAppStack } from '@growly/appstack';
-import { Theme } from '@growly/appstack';
+import { DemoChatWidget, SuiteProvider, useSuite } from '../../../suite/dist';
+import { Theme } from '../../../suite/dist';
 
 function DemoChatWidgetComponent() {
-  const { config, setConfig } = useAppStack();
+  const { config, setConfig } = useSuite();
   const { componentTheme, chainId } = useContext(AppContext);
   useEffect(() => {
     setConfig({
@@ -31,12 +31,12 @@ function DemoChatWidgetComponent() {
 }
 export default function DemoChatWidgetDemo() {
   return (
-    <AppStackProvider
+    <SuiteProvider
       config={{
         onchainKit: {
           chain: base,
-          projectId: process.env.NEXT_PUBLIC_APPSTACK_ONCHAINKIT_PROJECT_ID,
-          apiKey: process.env.NEXT_PUBLIC_APPSTACK_ONCHAINKIT_CLIENT_KEY,
+          projectId: process.env.NEXT_PUBLIC_SUITE_ONCHAINKIT_PROJECT_ID,
+          apiKey: process.env.NEXT_PUBLIC_SUITE_ONCHAINKIT_CLIENT_KEY,
           enabled: true,
           config: {
             appearance: {
@@ -54,6 +54,6 @@ export default function DemoChatWidgetDemo() {
         },
       }}>
       <DemoChatWidgetComponent />
-    </AppStackProvider>
+    </SuiteProvider>
   );
 }

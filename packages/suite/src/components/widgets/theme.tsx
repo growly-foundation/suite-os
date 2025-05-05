@@ -1,6 +1,6 @@
-import { AppStackConfig } from '@/provider';
+import { SuiteConfig } from '@/provider';
 
-export const defaultTheme: AppStackConfig['theme'] = {
+export const defaultTheme: SuiteConfig['theme'] = {
   primary: '#0052ff',
   headerBackground: '#0052ff',
   headerText: 'white',
@@ -11,7 +11,7 @@ export const defaultTheme: AppStackConfig['theme'] = {
   backgroundForeground: 'white',
 };
 
-export const monoTheme: AppStackConfig['theme'] = {
+export const monoTheme: SuiteConfig['theme'] = {
   primary: '#0052ff',
   headerBackground: 'white',
   headerText: 'black',
@@ -22,7 +22,7 @@ export const monoTheme: AppStackConfig['theme'] = {
   backgroundForeground: 'white',
 };
 
-export const defaultDarkTheme: AppStackConfig['theme'] = {
+export const defaultDarkTheme: SuiteConfig['theme'] = {
   primary: '#0052ff',
   headerBackground: 'black',
   headerText: 'white',

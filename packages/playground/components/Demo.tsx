@@ -1,16 +1,16 @@
 'use client';
 import { AppContext } from '@/components/AppProvider';
-import { AppStackComponent } from '@/types/appstack';
+import { SuiteComponent } from '@/types/suite';
 import { useContext, useEffect, useState } from 'react';
 import ChatWidgetDemo from './demo/ChatWidgetDemo';
 import DemoChatWidgetDemo from './demo/DemoChatWidgetDemo';
 import { cn } from '@/lib/utils';
 import DemoOptions from './DemoOptions';
 
-const activeComponentMapping: Record<AppStackComponent, React.FC> = {
-  [AppStackComponent.ChatWidget]: ChatWidgetDemo,
-  [AppStackComponent.DemoChatWidget]: DemoChatWidgetDemo,
-  [AppStackComponent.StaticWidget]: ChatWidgetDemo,
+const activeComponentMapping: Record<SuiteComponent, React.FC> = {
+  [SuiteComponent.ChatWidget]: ChatWidgetDemo,
+  [SuiteComponent.DemoChatWidget]: DemoChatWidgetDemo,
+  [SuiteComponent.StaticWidget]: ChatWidgetDemo,
 };
 
 export default function Demo() {
@@ -44,7 +44,7 @@ export default function Demo() {
           'absolute top-0 right-0 bottom-0 left-0 z-20 flex w-full min-w-80 max-w-[500px] flex-col border-r bg-background p-6 transition-[height] sm:static sm:z-0 sm:w-1/4'
         )}>
         <div className="flex justify-between" style={{ marginBottom: 30 }}>
-          <div className="self-center font-semibold text-xl">Growly AppStack Playground</div>
+          <div className="self-center font-semibold text-xl">Growly Suite Playground</div>
         </div>
         <button type="button" onClick={toggleDarkMode} className={buttonStyles}>
           {isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
@@ -56,10 +56,10 @@ export default function Demo() {
           <div>
             <a
               className="opacity-100 transition-opacity duration-200 hover:opacity-70"
-              href="https://github.com/growly-official/appstack"
+              href="https://github.com/growly-official/suite"
               rel="noreferrer"
               target="_blank"
-              title="View AppStack on GitHub">
+              title="View Suite on GitHub">
               Github ↗
             </a>
             <a
@@ -67,8 +67,8 @@ export default function Demo() {
               href="https://getgrowly.xyz"
               rel="noreferrer"
               target="_blank"
-              title="View Growly AppStack">
-              Growly AppStack↗
+              title="View Growly Suite">
+              Growly Suite↗
             </a>
           </div>
         </div>

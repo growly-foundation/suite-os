@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { OnchainKitProvider, OnchainKitProviderReact } from '@coinbase/onchainkit';
 
 /**
- * Configuration for the Growly AppStack.
+ * Configuration for the Growly Suite.
  */
-export interface AppStackConfig {
+export interface SuiteConfig {
   /**
    * Configuration for the OnchainKit feature.
    */
@@ -34,21 +34,21 @@ export interface AppStackConfig {
   }>;
 }
 
-export const AppStackContext = React.createContext<{
-  config?: AppStackConfig;
-  setConfig: (config: AppStackConfig) => void;
+export const SuiteContext = React.createContext<{
+  config?: SuiteConfig;
+  setConfig: (config: SuiteConfig) => void;
 } | null>(null);
 
-export const AppStackProvider: React.FC<{
+export const SuiteProvider: React.FC<{
   children: React.ReactNode;
-  config?: AppStackConfig;
+  config?: SuiteConfig;
 }> = ({ children, config }) => {
   const [configState, setConfigState] = useState(config);
 
   const baseComponent = (
-    <AppStackContext.Provider value={{ config: configState, setConfig: setConfigState }}>
+    <SuiteContext.Provider value={{ config: configState, setConfig: setConfigState }}>
       {children}
-    </AppStackContext.Provider>
+    </SuiteContext.Provider>
   );
 
   if (config?.onchainKit?.enabled) {
@@ -64,10 +64,10 @@ export const AppStackProvider: React.FC<{
   return baseComponent;
 };
 
-export const useAppStack = () => {
-  const context = React.useContext(AppStackContext);
+export const useSuite = () => {
+  const context = React.useContext(SuiteContext);
   if (!context) {
-    throw new Error('useAppStack must be used within a AppStackProvider');
+    throw new Error('useSuite must be used within a SuiteProvider');
   }
   return context;
 };

@@ -9,7 +9,7 @@ import React, { useLayoutEffect } from 'react';
 import { ChatMessage, ChatRole, getNextMessageId } from '@growly/sdk';
 import ChatResponse from './ChatResponse';
 import AgentAvatar from '../../../agent/components/AgentAvatar';
-import { useAppStack } from '@/provider';
+import { useSuite } from '@/provider';
 import { BRAND_NAME_CAPITALIZED } from '@/constants';
 import { Avatar, Identity, Name, Badge, Address } from '@coinbase/onchainkit/identity';
 import { border, cn, pressable, text } from '@/styles/theme';
@@ -22,7 +22,7 @@ interface PanelProps {
 }
 
 export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'>) {
-  const { config } = useAppStack();
+  const { config } = useSuite();
   const [refreshing, setRefreshing] = React.useState(+new Date());
   const [inputValue, setInputValue] = React.useState('');
 
@@ -152,7 +152,7 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
 }
 
 export function ChatPanelContainer({ open, ...props }: PanelProps) {
-  const { config } = useAppStack();
+  const { config } = useSuite();
 
   return (
     <AnimatePresence>

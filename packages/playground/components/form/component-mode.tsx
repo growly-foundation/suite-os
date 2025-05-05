@@ -6,7 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { ComponentMode as ComponentModeReact } from '@/types/appstack';
+import type { ComponentMode as ComponentModeReact } from '@/types/suite';
 import { useContext } from 'react';
 import { AppContext } from '../AppProvider';
 

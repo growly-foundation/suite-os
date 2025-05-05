@@ -8,7 +8,7 @@
     "build": "pnpm -r run build",
     "clean:node_modules": "rm -rf node_modules packages/*/node_modules",
     "f:dashboard": "pnpm --filter @growly/dashboard",
-    "f:gas": "pnpm --filter @growly/appstack",
+    "f:gas": "pnpm --filter @growly/suite",
     "f:play": "pnpm --filter playground",
     "changeset": "changeset",
     "release:check": "changeset status --verbose --since=origin/main",

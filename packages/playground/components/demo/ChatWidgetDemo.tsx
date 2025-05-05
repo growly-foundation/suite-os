@@ -1,12 +1,11 @@
 import { useContext, useEffect } from 'react';
 import { base } from 'viem/chains';
 import { AppContext } from '../AppProvider';
-import { ChatWidget } from '@growly/appstack';
-import { useAppStack, AppStackProvider } from '@growly/appstack';
-import { Theme } from '@growly/appstack';
+import { ChatWidget, Theme } from '@growly/suite';
+import { useSuite, SuiteProvider } from '@growly/suite';
 
 function ChatWidgetComponent() {
-  const { config, setConfig } = useAppStack();
+  const { config, setConfig } = useSuite();
   const { componentTheme, chainId } = useContext(AppContext);
   useEffect(() => {
     setConfig({
@@ -32,7 +31,7 @@ function ChatWidgetComponent() {
 }
 export default function ChatWidgetDemo() {
   return (
-    <AppStackProvider
+    <SuiteProvider
       config={{
         agent: {
           name: 'Test Agent',
@@ -40,6 +39,6 @@ export default function ChatWidgetDemo() {
         theme: Theme.monoTheme,
       }}>
       <ChatWidgetComponent />
-    </AppStackProvider>
+    </SuiteProvider>
   );
 }

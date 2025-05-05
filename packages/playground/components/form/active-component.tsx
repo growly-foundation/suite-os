@@ -6,7 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { AppStackComponent } from '@/types/appstack';
+import { SuiteComponent } from '@/types/suite';
 import { useContext } from 'react';
 import { AppContext } from '../AppProvider';
 
@@ -18,16 +18,16 @@ export function ActiveComponent() {
       <Label htmlFor="chain">Component</Label>
       <Select
         value={activeComponent}
-        onValueChange={(value: AppStackComponent) =>
-          value ? setActiveComponent?.(value as AppStackComponent) : value
+        onValueChange={(value: SuiteComponent) =>
+          value ? setActiveComponent?.(value as SuiteComponent) : value
         }>
         <SelectTrigger>
           <SelectValue placeholder="Select component" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value={AppStackComponent.ChatWidget}>Chat Widget</SelectItem>
-          <SelectItem value={AppStackComponent.DemoChatWidget}>Demo Chat Widget</SelectItem>
-          <SelectItem value={AppStackComponent.StaticWidget}>Static Widget</SelectItem>
+          <SelectItem value={SuiteComponent.ChatWidget}>Chat Widget</SelectItem>
+          <SelectItem value={SuiteComponent.DemoChatWidget}>Demo Chat Widget</SelectItem>
+          <SelectItem value={SuiteComponent.StaticWidget}>Static Widget</SelectItem>
         </SelectContent>
       </Select>
     </div>

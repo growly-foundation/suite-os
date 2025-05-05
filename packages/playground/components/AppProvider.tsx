@@ -1,12 +1,12 @@
 // AppContext.js
-import { type ComponentMode, type ComponentTheme, AppStackComponent } from '@/types/appstack';
+import { type ComponentMode, type ComponentTheme, SuiteComponent } from '@/types/suite';
 import type React from 'react';
 import { createContext, useState } from 'react';
 import { base } from 'wagmi/chains';
 
 type State = {
-  activeComponent?: AppStackComponent | undefined;
-  setActiveComponent?: (component: AppStackComponent | undefined) => void;
+  activeComponent?: SuiteComponent | undefined;
+  setActiveComponent?: (component: SuiteComponent | undefined) => void;
   chainId?: number;
   setChainId?: (chainId: number) => void;
   componentTheme?: ComponentTheme | undefined;
@@ -16,7 +16,7 @@ type State = {
 };
 
 export const defaultState: State = {
-  activeComponent: AppStackComponent.DemoChatWidget,
+  activeComponent: SuiteComponent.DemoChatWidget,
   chainId: base.id,
   componentTheme: 'monoTheme',
   setComponentTheme: () => {},
@@ -27,7 +27,7 @@ export const defaultState: State = {
 export const AppContext = createContext(defaultState);
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
-  const [activeComponent, setActiveComponent] = useState<AppStackComponent | undefined>(
+  const [activeComponent, setActiveComponent] = useState<SuiteComponent | undefined>(
     defaultState.activeComponent
   );
 

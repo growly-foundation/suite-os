@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useAppStack } from '@/provider';
+import { useSuite } from '@/provider';
 import { BRAND_LOGO_URL, BRAND_NAME_CAPITALIZED } from '@/constants';
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -12,7 +12,7 @@ import { background, border, pressable, text } from '@/styles/theme';
 export function FloatingButton(
   props: React.ButtonHTMLAttributes<HTMLButtonElement> & { iconLoading?: boolean }
 ) {
-  const { config } = useAppStack();
+  const { config } = useSuite();
   const [isHovered, setIsHovered] = useState(false);
 
   return (

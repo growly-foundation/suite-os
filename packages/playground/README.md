@@ -8,6 +8,6 @@ To run the development server, run the following command:
 pnpm dev:watch
 ```
 
-This will start the Next.js dev server, watch for changes in the `src` directory, and rebuild the `@growly/appstack` package.
+This will start the Next.js dev server, watch for changes in the `src` directory, and rebuild the `@growly/suite` package.
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
