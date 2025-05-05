@@ -1,24 +1,180 @@
-import { AppSidebar } from '@/components/app-sidebar';
+'use client';
 
-import { SiteHeader } from '@/components/site-header';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import type React from 'react';
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+import { useState, useEffect, Suspense } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Bell, Home, Search, Settings } from 'lucide-react';
+
+// Mock icons for navigation
+const IconHome = Home;
+const IconWaveSine = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round">
+    <path d="M2 12h2a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2" />
+    <path d="M2 4h4a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6a2 2 0 0 1 2-2h2" />
+  </svg>
+);
+const IconAi = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round">
+    <path d="M12 2v8" />
+    <path d="m4.93 10.93 1.41 1.41" />
+    <path d="M2 18h2" />
+    <path d="M20 18h2" />
+    <path d="m19.07 10.93-1.41 1.41" />
+    <path d="M22 22H2" />
+    <path d="m16 6-4 4-4-4" />
+    <path d="M16 18a4 4 0 0 0-8 0" />
+  </svg>
+);
+const IconSlideshow = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round">
+    <path d="M8 2h8" />
+    <path d="M9 2v2.5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5V2" />
+    <rect width="18" height="14" x="3" y="8" rx="2" />
+    <path d="M12 19v3" />
+    <path d="M9 22h6" />
+  </svg>
+);
+
+const navigation = [
+  {
+    title: 'Dashboard',
+    url: '/dashboard',
+    icon: IconHome,
+  },
+  {
+    title: 'Workflows',
+    url: '/dashboard/workflows',
+    icon: IconWaveSine,
+  },
+  {
+    title: 'Playground',
+    url: '/dashboard/playground',
+    icon: IconAi,
+  },
+  {
+    title: 'Resources',
+    url: '/dashboard/resources',
+    icon: IconSlideshow,
+  },
+];
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkIfMobile();
+    window.addEventListener('resize', checkIfMobile);
+
+    return () => {
+      window.removeEventListener('resize', checkIfMobile);
+    };
+  }, []);
+
   return (
-    <SidebarProvider
-      style={
-        {
-          '--sidebar-width': 'calc(var(--spacing) * 72)',
-          '--header-height': 'calc(var(--spacing) * 12)',
-        } as React.CSSProperties
-      }>
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">{children}</div>
+    <div className="min-h-screen flex flex-col bg-white">
+      {/* Top Header */}
+      <header className="sticky top-0 z-50 border-b shadow-md p-4 md:px-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/dashboard" className="font-bold text-xl flex items-center">
+              Growly Dashboard
+            </Link>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon">
+              <Bell className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon">
+              <Settings className="h-5 w-5" />
+            </Button>
+            <Avatar className="h-8 w-8 border-2 border-white/20">
+              <AvatarImage src="/placeholder.svg?height=32&width=32" alt="@user" />
+              <AvatarFallback className="bg-white/10 text-white">JD</AvatarFallback>
+            </Avatar>
+          </div>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </header>
+      <div className="flex flex-1">
+        {/* Sidebar Navigation (Desktop) */}
+        <aside className="hidden md:block w-64 bg-white border-r p-4">
+          <nav className="space-y-1 mt-6">
+            {navigation.map(item => {
+              const isActive = pathname === item.url || pathname === `${item.url}/`;
+              return (
+                <Link
+                  key={item.url}
+                  href={item.url}
+                  className={cn('growly-nav-item', isActive && 'active')}>
+                  <item.icon className="h-5 w-5" />
+                  <span>{item.title}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </aside>
+        {/* Main Content */}
+        <main className="flex-1 p-4 md:p-6 overflow-auto bg-white">
+          <div className="max-w-7xl mx-auto">
+            <Suspense>{children}</Suspense>
+          </div>
+        </main>
+      </div>
+
+      {/* Bottom Navigation (Mobile) */}
+      {isMobile && (
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around items-center p-2 z-50">
+          {navigation.map(item => {
+            const isActive = pathname === item.url || pathname.startsWith(`${item.url}/`);
+            return (
+              <Link
+                key={item.url}
+                href={item.url}
+                className={cn('growly-mobile-nav-item', isActive && 'active')}>
+                <item.icon className="h-6 w-6" />
+                <span>{item.title}</span>
+              </Link>
+            );
+          })}
+        </nav>
+      )}
+    </div>
   );
 }
