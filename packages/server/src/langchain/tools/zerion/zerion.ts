@@ -1,4 +1,6 @@
 import { DynamicStructuredTool } from '@langchain/core/tools';
+import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
 import { isAddress } from 'viem';
 import { z } from 'zod';
 import { ZERION_V1_BASE_URL } from './constants';
@@ -7,7 +9,13 @@ import {
   ZerionPortfolioResponse,
 } from './types';
 import { formatPortfolioData, formatPositionsData } from './utils';
-import { ConfigService } from '@nestjs/config';
+
+const axiosInstance = axios.create({
+  baseURL: ZERION_V1_BASE_URL,
+  headers: {
+    Accept: 'application/json',
+  },
+});
 
 // Factory function to get encoded key using ConfigService
 export function getEncodedKey(configService: ConfigService): string {
@@ -48,19 +56,17 @@ Output:
         return `Invalid wallet address: ${walletAddress}`;
       }
       try {
-        const response = await fetch(
-          `${ZERION_V1_BASE_URL}/wallets/${walletAddress}/portfolio?filter[positions]=no_filter&currency=usd`,
+        const response = await axiosInstance.get<ZerionPortfolioResponse>(
+          `/wallets/${walletAddress}/portfolio?filter[positions]=no_filter&currency=usd`,
           {
-            method: 'GET',
             headers: {
-              accept: 'application/json',
-              authorization: `Basic ${encodedKey}`,
+              Authorization: `Basic ${encodedKey}`,
             },
           },
         );
-        const { data }: ZerionPortfolioResponse = await response.json();
+        const { data } = response.data;
         return formatPortfolioData(data);
-      } catch (error) {
+      } catch (error: unknown) {
         if (error instanceof Error) {
           return `Failed to fetch portfolio: ${error.message}`;
         }
@@ -96,19 +102,18 @@ Output:
         return `Invalid wallet address: ${walletAddress}`;
       }
       try {
-        const response = await fetch(
-          `${ZERION_V1_BASE_URL}/wallets/${walletAddress}/positions?filter[positions]=no_filter&currency=usd&filter[trash]=only_non_trash&sort=value`,
-          {
-            method: 'GET',
-            headers: {
-              accept: 'application/json',
-              authorization: `Basic ${encodedKey}`,
+        const response =
+          await axiosInstance.get<ZerionFungiblePositionsResponse>(
+            `/wallets/${walletAddress}/positions?filter[positions]=no_filter&currency=usd&filter[trash]=only_non_trash&sort=value`,
+            {
+              headers: {
+                Authorization: `Basic ${encodedKey}`,
+              },
             },
-          },
-        );
-        const { data }: ZerionFungiblePositionsResponse = await response.json();
+          );
+        const { data } = response.data;
         return formatPositionsData(data);
-      } catch (error) {
+      } catch (error: unknown) {
         if (error instanceof Error) {
           return `Failed to fetch token holdings data: ${error.message}`;
         }
