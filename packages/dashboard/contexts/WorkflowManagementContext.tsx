@@ -2,46 +2,43 @@
 import { WorkflowTable } from '@growly/sdk';
 import React, { useEffect, useState } from 'react';
 import { growlySdk } from '@/core/growly-services';
+import { useAppStore } from '@/hooks/use-app-store';
 
-const CreateWorkflowContext = React.createContext<{
+const WorkflowManagementContext = React.createContext<{
+  // Workflows
   workflows: WorkflowTable[];
   selectedWorkflowId: string | null;
+
+  // States
   isLoading: boolean;
-  newWorkflowName: string;
-  newWorkflowDesc: string;
   isCreateWorkflowOpen: boolean;
   setIsLoading: (loading: boolean) => void;
   setSelectedWorkflowId: (id: string | null) => void;
-  fetchWorkflows: () => Promise<void>;
-  createWorkflow: () => Promise<void>;
-  updateWorkflow: () => Promise<void>;
-  deleteWorkflow: (workflowId: string) => Promise<void>;
-  setNewWorkflowName: (name: string) => void;
-  setNewWorkflowDesc: (desc: string) => void;
   setIsCreateWorkflowOpen: (open: boolean) => void;
+
+  // Workflow Actions
+  fetchWorkflows: () => Promise<void>;
+  createWorkflow: (name: string, description: string) => Promise<void>;
+  updateWorkflow: (name: string, description: string) => Promise<void>;
+  deleteWorkflow: (workflowId: string) => Promise<void>;
 }>({
   workflows: [],
   selectedWorkflowId: null,
   isLoading: false,
-  newWorkflowName: '',
-  newWorkflowDesc: '',
   isCreateWorkflowOpen: false,
   setIsLoading: () => {},
   setSelectedWorkflowId: () => {},
   fetchWorkflows: async () => {},
-  createWorkflow: async () => {},
-  updateWorkflow: async () => {},
+  createWorkflow: async (_name: string, _description: string) => {},
+  updateWorkflow: async (_name: string, _description: string) => {},
   deleteWorkflow: async () => {},
-  setNewWorkflowName: () => {},
-  setNewWorkflowDesc: () => {},
   setIsCreateWorkflowOpen: () => {},
 });
 
-export const CreateWorkflowContextProvider = ({ children }: { children: React.ReactNode }) => {
+export const WorkflowManagementContextProvider = ({ children }: { children: React.ReactNode }) => {
+  const { selectedOrganization } = useAppStore();
   const [workflows, setWorkflows] = useState<WorkflowTable[]>([]);
   const [selectedWorkflowId, setSelectedWorkflowId] = useState<string | null>(null);
-  const [newWorkflowName, setNewWorkflowName] = useState('');
-  const [newWorkflowDesc, setNewWorkflowDesc] = useState('');
   const [isCreateWorkflowOpen, setIsCreateWorkflowOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -61,18 +58,16 @@ export const CreateWorkflowContextProvider = ({ children }: { children: React.Re
     }
   }
 
-  async function createWorkflow() {
-    if (!newWorkflowName || !newWorkflowDesc) return;
+  async function createWorkflow(name: string, description: string) {
+    if (!selectedOrganization) throw new Error('No organization selected');
     setIsLoading(true);
     try {
       await growlySdk.db.workflow.create({
-        name: newWorkflowName,
-        description: newWorkflowDesc,
+        name,
+        description,
         status: 'active',
-        created_at: new Date().toISOString(),
+        organization_id: selectedOrganization.id,
       });
-      setNewWorkflowName('');
-      setNewWorkflowDesc('');
       setIsCreateWorkflowOpen(false);
       await fetchWorkflows();
     } catch (error) {
@@ -82,16 +77,13 @@ export const CreateWorkflowContextProvider = ({ children }: { children: React.Re
     }
   }
 
-  async function updateWorkflow() {
-    if (!newWorkflowName || !newWorkflowDesc) return;
+  async function updateWorkflow(name: string, description: string) {
     setIsLoading(true);
     try {
       await growlySdk.db.workflow.update(selectedWorkflowId!, {
-        name: newWorkflowName,
-        description: newWorkflowDesc,
+        name,
+        description,
       });
-      setNewWorkflowName('');
-      setNewWorkflowDesc('');
       setIsCreateWorkflowOpen(false);
       await fetchWorkflows();
     } catch (error) {
@@ -114,31 +106,32 @@ export const CreateWorkflowContextProvider = ({ children }: { children: React.Re
   }
 
   return (
-    <CreateWorkflowContext.Provider
+    <WorkflowManagementContext.Provider
       value={{
+        // Workflows
         workflows,
         selectedWorkflowId,
+
+        // States
         isLoading,
-        newWorkflowName,
-        newWorkflowDesc,
         isCreateWorkflowOpen,
         setIsLoading,
         setSelectedWorkflowId,
+        setIsCreateWorkflowOpen,
+
+        // Workflow Actions
         fetchWorkflows,
         createWorkflow,
         updateWorkflow,
         deleteWorkflow,
-        setNewWorkflowName,
-        setNewWorkflowDesc,
-        setIsCreateWorkflowOpen,
       }}>
       {children}
-    </CreateWorkflowContext.Provider>
+    </WorkflowManagementContext.Provider>
   );
 };
 
 export const useCreateWorkflowContext = () => {
-  const context = React.useContext(CreateWorkflowContext);
+  const context = React.useContext(WorkflowManagementContext);
   if (!context) {
     throw new Error('useCreateWorkflowContext must be used within a CreateWorkflowContextProvider');
   }

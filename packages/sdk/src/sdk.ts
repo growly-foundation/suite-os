@@ -1,5 +1,5 @@
-import { StepDatabaseService, WorkflowService } from './services';
-import { WorkflowDatabaseService } from './services/workflow-database.service';
+import { PublicDatabaseService, AuthDatabaseService, WorkflowService } from './services';
+import { OrganizationService } from './services/organization.service';
 import { SupabaseClientService } from './services/supabase-client.service';
 
 /**
@@ -9,14 +9,30 @@ import { SupabaseClientService } from './services/supabase-client.service';
  */
 export const createGrowlySdk = (supabaseUrl: string, supabaseKey: string) => {
   const supabaseClientService = new SupabaseClientService(supabaseUrl, supabaseKey);
-  const workflowDatabaseService = new WorkflowDatabaseService(supabaseClientService);
-  const stepDatabaseService = new StepDatabaseService(supabaseClientService);
+
+  // Database services.
+  const workflowDatabaseService = new PublicDatabaseService<'workflows'>(
+    supabaseClientService,
+    'workflows'
+  );
+  const stepDatabaseService = new PublicDatabaseService<'steps'>(supabaseClientService, 'steps');
+  const organizationDatabaseService = new PublicDatabaseService<'organizations'>(
+    supabaseClientService,
+    'organizations'
+  );
+  const userDatabaseService = new AuthDatabaseService<'users'>(supabaseClientService, 'users');
+
+  // Custom services.
   const workflowService = new WorkflowService(workflowDatabaseService, stepDatabaseService);
+  const organizationService = new OrganizationService(organizationDatabaseService, workflowService);
   return {
     db: {
       workflow: workflowDatabaseService,
       step: stepDatabaseService,
+      organization: organizationDatabaseService,
+      user: userDatabaseService,
     },
+    organization: organizationService,
     workflow: workflowService,
   };
 };

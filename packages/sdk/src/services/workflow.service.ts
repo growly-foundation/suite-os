@@ -1,18 +1,20 @@
 import { AggregatedWorkflow } from '@/types/workflow.types';
-import { StepDatabaseService } from './step-database.service';
-import { WorkflowDatabaseService } from './workflow-database.service';
+import { PublicDatabaseService } from './database.service';
 
 export class WorkflowService {
   constructor(
-    private workflowDatabaseService: WorkflowDatabaseService,
-    private stepDatabaseService: StepDatabaseService
+    private workflowDatabaseService: PublicDatabaseService<'workflows'>,
+    private stepDatabaseService: PublicDatabaseService<'steps'>
   ) {}
 
-  async getAggregatedWorkflows(): Promise<AggregatedWorkflow[]> {
-    const workflows = await this.workflowDatabaseService.getAll();
+  async getWorkflowsByOrganizationId(organizationId: string): Promise<AggregatedWorkflow[]> {
+    const workflows = await this.workflowDatabaseService.getAllById(
+      'organization_id',
+      organizationId
+    );
     const aggregatedWorkflows: AggregatedWorkflow[] = [];
     for (const workflow of workflows) {
-      const steps = await this.stepDatabaseService.getAll(workflow.id);
+      const steps = await this.stepDatabaseService.getAllById('workflow_id', workflow.id);
       aggregatedWorkflows.push({ ...workflow, steps });
     }
     return aggregatedWorkflows;

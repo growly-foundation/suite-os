@@ -1,2 +1,2 @@
-export * from './message';
-export * from './workflow';
+export * from './messages';
+export * from './workflows';

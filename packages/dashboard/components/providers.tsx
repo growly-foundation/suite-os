@@ -1,18 +1,18 @@
 'use client';
 
 import { Suspense, useEffect } from 'react';
-import { useWorkflowManagerStore } from '@/hooks/use-workflow-manager';
 import { ThemeProvider } from './theme-provider';
 import { SuiteProvider, DemoChatWidget, Theme } from '@growly/suite';
 import '@growly/suite/styles.css';
-import { CreateWorkflowContextProvider } from '@/contexts/CreateWorkflowContext';
+import { WorkflowManagementContextProvider } from '@/contexts/WorkflowManagementContext';
+import { useAppStore } from '@/hooks/use-app-store';
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
-  const { fetchWorkflows } = useWorkflowManagerStore();
+  const { fetchWorkflows } = useAppStore();
 
   useEffect(() => {
     fetchWorkflows();
-    const unsubscribe = useWorkflowManagerStore.subscribe(state => state.workflows);
+    const unsubscribe = useAppStore.subscribe(state => state.workflows);
     return () => unsubscribe();
   }, []);
 
@@ -26,7 +26,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           theme: Theme.monoTheme,
         }}>
         <Suspense>
-          <CreateWorkflowContextProvider>{children}</CreateWorkflowContextProvider>
+          <WorkflowManagementContextProvider>{children}</WorkflowManagementContextProvider>
           <DemoChatWidget />
         </Suspense>
       </SuiteProvider>

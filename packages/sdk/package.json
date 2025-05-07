@@ -14,7 +14,7 @@
     "bundle:prod": "vite build",
     "clean": "rm -rf dist esm",
     "format": "prettier --write .",
-    "gen:db": "npx supabase gen types typescript --project-id $PROJECT_ID --schema public > src/database.types.ts"
+    "gen:db": "npx supabase gen types typescript --project-id $PROJECT_ID --schema next_auth,public > src/types/database.types.ts"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

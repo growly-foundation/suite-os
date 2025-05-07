@@ -2,13 +2,12 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Workflow } from 'lucide-react';
+import { Workflow } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import WorkflowStepManager from './workflow-step-manager';
 import AnimatedBeamContainer from '../animated-beam/animated-beam-container';
-import { useCreateWorkflowContext } from '@/contexts/CreateWorkflowContext';
+import { useCreateWorkflowContext } from '@/contexts/WorkflowManagementContext';
 import { CreateWorkflowDialog } from './create-workflow-dialog';
-import { Button } from '@/components/ui/button';
 import CreateWorkflowForm from './create-workflow-form';
 
 export default function WorkflowManager() {

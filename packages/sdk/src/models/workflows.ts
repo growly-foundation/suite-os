@@ -1,15 +1,4 @@
-/**
- * A workflow ID. (e.g. `workflow-123`)
- */
-export type WorkflowId = `workflow-${string}`;
-/**
- * A step ID. (e.g. `step-123`)
- */
-export type StepId = `step-${string}`;
-/**
- * An agent ID. (e.g. `agent-123`)
- */
-export type AgentId = `agent-${string}`;
+import { OrganizationId, AgentId, StepId, WorkflowId } from './ids';
 
 export type UserDefinedPayload = UserDefinedStep;
 
@@ -34,6 +23,8 @@ export type UserDefinedStep = {
 export interface Workflow {
   /** Workflow ID. (e.g. `workflow-123`) */
   id: WorkflowId;
+  /** Organization ID. (e.g. `organization-123`) */
+  organization: OrganizationId;
   /** Workflow name. */
   name: string;
   /** Workflow description. */

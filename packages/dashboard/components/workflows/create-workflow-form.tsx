@@ -4,23 +4,22 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { useCreateWorkflowContext } from '../../contexts/CreateWorkflowContext';
+import { useCreateWorkflowContext } from '../../contexts/WorkflowManagementContext';
 import { useEffect } from 'react';
 import { growlySdk } from '@/core/growly-services';
 import { Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
 export default function CreateWorkflowForm({ isEdit }: { isEdit?: boolean }) {
+  const [newWorkflowName, setNewWorkflowName] = useState('');
+  const [newWorkflowDesc, setNewWorkflowDesc] = useState('');
   const {
-    newWorkflowName,
-    newWorkflowDesc,
     isLoading,
     selectedWorkflowId,
     isCreateWorkflowOpen,
     createWorkflow,
     updateWorkflow,
     deleteWorkflow,
-    setNewWorkflowName,
-    setNewWorkflowDesc,
     setIsLoading,
   } = useCreateWorkflowContext();
 
@@ -72,7 +71,11 @@ export default function CreateWorkflowForm({ isEdit }: { isEdit?: boolean }) {
       <div className="pt-4 flex gap-3 justify-end">
         <Button
           className="bg-primary hover:bg-primary/90 text-white"
-          onClick={isEdit ? updateWorkflow : createWorkflow}
+          onClick={
+            isEdit
+              ? () => updateWorkflow(newWorkflowName, newWorkflowDesc)
+              : () => createWorkflow(newWorkflowName, newWorkflowDesc)
+          }
           disabled={isLoading || !newWorkflowName || !newWorkflowDesc}>
           {isLoading ? 'Creating...' : isEdit ? 'Update Workflow' : 'Create Workflow'}
         </Button>

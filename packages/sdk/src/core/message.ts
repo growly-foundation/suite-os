@@ -1,4 +1,4 @@
-import { MessageId } from '@/models/message';
+import { MessageId } from '@/models/messages';
 
 /// Returns the next message id based on the current message id.
 export const getNextMessageId = (currentMessageId: MessageId): MessageId => {

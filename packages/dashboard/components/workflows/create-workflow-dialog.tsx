@@ -3,7 +3,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from 
 import { Button } from '../ui/button';
 import { PlusCircle } from 'lucide-react';
 import { Workflow } from 'lucide-react';
-import { useCreateWorkflowContext } from '../../contexts/CreateWorkflowContext';
+import { useCreateWorkflowContext } from '../../contexts/WorkflowManagementContext';
 import CreateWorkflowForm from './create-workflow-form';
 
 export const CreateWorkflowDialog = ({ title, isEdit }: { title: string; isEdit?: boolean }) => {
