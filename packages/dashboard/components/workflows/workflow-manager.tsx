@@ -13,7 +13,7 @@ import { useDashboardState } from '@/hooks/use-dashboard';
 import { useEffect } from 'react';
 
 export default function WorkflowManager() {
-  const { workflows, fetchWorkflows } = useDashboardState();
+  const { workflows, fetchWorkflows, getWorkflow } = useDashboardState();
   const { selectedWorkflowId, setSelectedWorkflowId } = useCreateWorkflowContext();
 
   useEffect(() => {
@@ -61,11 +61,14 @@ export default function WorkflowManager() {
           <p className="text-muted-foreground">Create a workflow to get started.</p>
         </div>
       )}
-      {selectedWorkflowId && (
+      {selectedWorkflowId && getWorkflow(selectedWorkflowId) && (
         <div className="mt-6">
           <CreateWorkflowForm isEdit />
           <div className="flex items-center justify-between"></div>
-          <WorkflowStepManager selectedWorkflowId={selectedWorkflowId} />
+          <WorkflowStepManager
+            steps={getWorkflow(selectedWorkflowId)!.steps || []}
+            selectedWorkflowId={selectedWorkflowId}
+          />
         </div>
       )}
     </div>

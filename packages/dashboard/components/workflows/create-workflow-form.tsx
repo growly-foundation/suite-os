@@ -27,7 +27,7 @@ export default function CreateWorkflowForm({ isEdit }: { isEdit?: boolean }) {
     async function fetchWorkflow() {
       if (isEdit && selectedWorkflowId) {
         setIsLoading(true);
-        const workflow = await growlySuiteSdk.db.workflow.getById(selectedWorkflowId);
+        const workflow = await growlySuiteSdk.db.workflows.getById(selectedWorkflowId);
         if (workflow) {
           setNewWorkflowName(workflow.name);
           setNewWorkflowDesc(workflow.description || '');

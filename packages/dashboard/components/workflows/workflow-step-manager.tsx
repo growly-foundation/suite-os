@@ -5,13 +5,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { StepTable } from '@growly/sdk';
 import { growlySuiteSdk } from '@/core/sdk';
+import { useDashboardState } from '@/hooks/use-dashboard';
 
 type Props = {
   selectedWorkflowId: string;
+  steps: StepTable[];
 };
 
-const WorkflowStepManager = ({ selectedWorkflowId }: Props) => {
-  const [steps, setSteps] = useState<StepTable[]>([]);
+const WorkflowStepManager = ({ selectedWorkflowId, steps }: Props) => {
+  const { fetchSteps } = useDashboardState();
   const [newStepName, setNewStepName] = useState('');
   const [newStepDesc, setNewStepDesc] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -20,32 +22,20 @@ const WorkflowStepManager = ({ selectedWorkflowId }: Props) => {
     if (!selectedWorkflowId || !newStepName) return;
     setIsLoading(true);
     try {
-      await growlySuiteSdk.db.step.create(selectedWorkflowId, {
+      await growlySuiteSdk.db.steps.create({
         name: newStepName,
         description: newStepDesc,
         workflow_id: selectedWorkflowId,
         status: 'active',
         conditions: [],
         action: [],
-        created_at: new Date().toISOString(),
+        index: steps.length,
       });
       setNewStepName('');
       setNewStepDesc('');
       await fetchSteps(selectedWorkflowId);
     } catch (error) {
       console.error('Failed to create step:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function fetchSteps(workflowId: string) {
-    setIsLoading(true);
-    try {
-      const result = await growlySuiteSdk.db.step.getAll(workflowId);
-      setSteps(result);
-    } catch (error) {
-      console.error('Failed to fetch steps:', error);
     } finally {
       setIsLoading(false);
     }

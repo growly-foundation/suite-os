@@ -1,4 +1,3 @@
-'use client';
 import { growlySuiteSdk } from '@/core/sdk';
 import { usePrivy } from '@privy-io/react-auth';
 import React, { useEffect } from 'react';
@@ -6,8 +5,7 @@ import { useDashboardState } from '../../hooks/use-dashboard';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { delay } from '@/lib/utils';
-import Lottie from 'react-lottie';
-import animationData from '@/assets/animation/loading.json';
+import { AnimatedLoading } from '../animated-loading';
 
 const ProtectedAuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { setUser: setAuthUser } = useDashboardState();
@@ -16,9 +14,9 @@ const ProtectedAuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
   const fetchCurrentUser = async (email: string) => {
-    let userExists = await growlySuiteSdk.db.user.getByField('email', email);
+    let userExists = await growlySuiteSdk.db.users.getByField('email', email);
     if (!userExists) {
-      userExists = await growlySuiteSdk.db.user.create({
+      userExists = await growlySuiteSdk.db.users.create({
         name: `user-${user?.id}`,
         email: email,
       });
@@ -46,29 +44,7 @@ const ProtectedAuthProvider = ({ children }: { children: React.ReactNode }) => {
     createUserIfNotExists();
   }, [authenticated, user, ready]);
 
-  return (
-    <React.Fragment>
-      {isLoading ? (
-        <div className="flex items-center justify-center h-screen">
-          <Lottie
-            options={{
-              loop: true,
-              autoplay: true,
-              animationData: animationData,
-              rendererSettings: {
-                preserveAspectRatio: 'xMidYMid slice',
-              },
-            }}
-            speed={2}
-            height={300}
-            width={300}
-          />
-        </div>
-      ) : (
-        children
-      )}
-    </React.Fragment>
-  );
+  return <React.Fragment>{isLoading ? <AnimatedLoading /> : children}</React.Fragment>;
 };
 
 export default ProtectedAuthProvider;

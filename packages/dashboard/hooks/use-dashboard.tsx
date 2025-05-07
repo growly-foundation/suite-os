@@ -22,6 +22,7 @@ export type DashboardAppState = {
 
   // Workflows
   workflows: AggregatedWorkflow[];
+  getWorkflow: (workflowId: string) => AggregatedWorkflow | undefined;
   setWorkflows: (workflows: AggregatedWorkflow[]) => void;
   fetchWorkflows: () => Promise<void>;
 
@@ -43,7 +44,7 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
   fetchOrganizations: async () => {
     const user = get().user;
     if (!user) throw new Error('No user selected');
-    const organizations = await growlySuiteSdk.organization.getOrganizationsByUserId(user.id);
+    const organizations = await growlySuiteSdk.organizations.getOrganizationsByUserId(user.id);
     set({ organizations });
   },
 
@@ -54,19 +55,20 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
 
   // Workflows
   workflows: [],
+  getWorkflow: (workflowId: string) => get().workflows.find(workflow => workflow.id === workflowId),
   setWorkflows: (workflows: AggregatedWorkflow[]) => set({ workflows }),
   fetchWorkflows: async () => {
     const selectedOrganization = get().selectedOrganization;
     if (!selectedOrganization) throw new Error('No organization selected');
 
     const aggregatedWorkflows: AggregatedWorkflow[] =
-      await growlySuiteSdk.workflow.getWorkflowsByOrganizationId(selectedOrganization.id);
+      await growlySuiteSdk.workflows.getWorkflowsByOrganizationId(selectedOrganization.id);
     set({ workflows: aggregatedWorkflows });
   },
 
   // Steps
   fetchSteps: async (workflowId: string) => {
-    const steps = await growlySuiteSdk.db.step.getAllByField('workflow_id', workflowId);
+    const steps = await growlySuiteSdk.db.steps.getAllByField('workflow_id', workflowId);
     set(state => ({
       workflows: state.workflows.map(workflow =>
         workflow.id === workflowId ? { ...workflow, steps } : workflow
