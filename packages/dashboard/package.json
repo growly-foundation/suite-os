@@ -9,8 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@growly/suite": "workspace:*",
     "@growly/sdk": "workspace:*",
+    "@growly/suite": "workspace:*",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
@@ -48,6 +48,7 @@
     "embla-carousel-react": "8.5.1",
     "input-otp": "1.4.1",
     "lucide-react": "^0.454.0",
+    "motion": "^12.10.0",
     "next": "15.2.4",
     "next-themes": "latest",
     "react": "^19",

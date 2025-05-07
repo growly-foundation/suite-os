@@ -5,6 +5,7 @@ import { useWorkflowManagerStore } from '@/hooks/use-workflow-manager';
 import { ThemeProvider } from './theme-provider';
 import { SuiteProvider, DemoChatWidget, Theme } from '@growly/suite';
 import '@growly/suite/styles.css';
+import { CreateWorkflowContextProvider } from '@/contexts/CreateWorkflowContext';
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   const { fetchWorkflows } = useWorkflowManagerStore();
@@ -25,7 +26,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           theme: Theme.monoTheme,
         }}>
         <Suspense>
-          {children}
+          <CreateWorkflowContextProvider>{children}</CreateWorkflowContextProvider>
           <DemoChatWidget />
         </Suspense>
       </SuiteProvider>

@@ -7,7 +7,7 @@ import { Providers } from '@/components/providers';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Growly Dashboard',
+  title: 'Growly Suite',
   description: 'Customize AI agents with powerful workflows.',
   authors: [{ name: 'Growly Foundation' }],
 };

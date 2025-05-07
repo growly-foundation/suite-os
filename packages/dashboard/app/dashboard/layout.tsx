@@ -111,11 +111,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen flex flex-col bg-white">
       {/* Top Header */}
-      <header className="sticky top-0 z-50 border-b shadow-md p-4 md:px-6">
+      <header className="sticky top-0 z-50 border-b shadow-md p-4 md:px-6 bg-white">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="font-bold text-xl flex items-center">
-              Growly Dashboard
+              Growly Suite
             </Link>
           </div>
           <div className="flex items-center gap-2">
