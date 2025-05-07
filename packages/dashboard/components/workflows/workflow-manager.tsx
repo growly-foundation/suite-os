@@ -6,12 +6,19 @@ import { Workflow } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import WorkflowStepManager from './workflow-step-manager';
 import AnimatedBeamContainer from '../animated-beam/animated-beam-container';
-import { useCreateWorkflowContext } from '@/contexts/WorkflowManagementContext';
+import { useCreateWorkflowContext } from '@/hooks/use-workflow-context';
 import { CreateWorkflowDialog } from './create-workflow-dialog';
 import CreateWorkflowForm from './create-workflow-form';
+import { useDashboardState } from '@/hooks/use-dashboard';
+import { useEffect } from 'react';
 
 export default function WorkflowManager() {
-  const { workflows, selectedWorkflowId, setSelectedWorkflowId } = useCreateWorkflowContext();
+  const { workflows, fetchWorkflows } = useDashboardState();
+  const { selectedWorkflowId, setSelectedWorkflowId } = useCreateWorkflowContext();
+
+  useEffect(() => {
+    fetchWorkflows();
+  }, []);
 
   return (
     <div className="p-6 space-y-6">

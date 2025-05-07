@@ -22,11 +22,14 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
     return data!;
   }
 
-  async getAllById(field: string, id: string): Promise<Database['public']['Tables'][T]['Row'][]> {
+  async getAllByField(
+    field: string,
+    value: string
+  ): Promise<Database['public']['Tables'][T]['Row'][]> {
     const { data, error } = await this.getClient()
       .from(this.table as string)
       .select('*')
-      .eq(field, id);
+      .eq(field, value);
 
     if (error) throw error;
     return data!;
@@ -36,6 +39,7 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
     const { data, error } = await this.getClient()
       .from(this.table as string)
       .select('*')
+      .limit(1)
       .eq('id', id)
       .single();
 
@@ -43,19 +47,27 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
     return data;
   }
 
-  async create(
-    payload: Omit<Database['public']['Tables'][T]['Row'], 'id' | 'created_at' | 'updated_at'>
-  ): Promise<Database['public']['Tables'][T]['Row']> {
-    const insertPayload = {
-      id: `${String(this.table)}-${uuidv4()}`,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      ...payload,
-    };
-
+  async getByField(
+    field: string,
+    value: string
+  ): Promise<Database['public']['Tables'][T]['Row'] | null> {
     const { data, error } = await this.getClient()
       .from(this.table as string)
-      .insert(insertPayload)
+      .select('*')
+      .limit(1)
+      .eq(field, value)
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async create(
+    payload: Omit<Database['public']['Tables'][T]['Row'], 'id' | 'created_at'>
+  ): Promise<Database['public']['Tables'][T]['Row']> {
+    const { data, error } = await this.getClient()
+      .from(this.table as string)
+      .insert(payload)
       .select()
       .single();
 

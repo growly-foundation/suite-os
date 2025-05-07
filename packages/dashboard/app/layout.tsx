@@ -1,10 +1,21 @@
 import type React from 'react';
 import '@/app/globals.css';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import { Providers } from '@/components/providers';
+import { Geist, Geist_Mono, Inter } from 'next/font/google';
+import { Providers } from '@/components/providers/providers';
+import { cn } from '@/lib/utils';
 
 const inter = Inter({ subsets: ['latin'] });
+
+const geistSans = Geist({
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
+});
+
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+});
 
 export const metadata: Metadata = {
   title: 'Growly Suite',
@@ -19,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={cn(inter.className, geistSans.variable, geistMono.variable)}>
         <Providers>{children}</Providers>
       </body>
     </html>

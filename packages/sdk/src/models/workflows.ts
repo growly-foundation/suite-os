@@ -8,9 +8,9 @@ export type UserDefinedPayload = UserDefinedStep;
 export type UserDefinedStep = {
   type: 'step';
   payload: {
-    /** Step ID. (e.g. `step-123`) */
+    /** Step ID. */
     id: StepId;
-    /** Workflow ID. (e.g. `workflow-123`) */
+    /** Workflow ID. */
     workflow: WorkflowId;
     /** Conditions for the step to be triggered. Conditions will be checked in order. */
     conditions?: Condition[];
@@ -21,9 +21,9 @@ export type UserDefinedStep = {
  * A workflow is a collection of steps.
  */
 export interface Workflow {
-  /** Workflow ID. (e.g. `workflow-123`) */
+  /** Workflow ID. */
   id: WorkflowId;
-  /** Organization ID. (e.g. `organization-123`) */
+  /** Organization ID. */
   organization: OrganizationId;
   /** Workflow name. */
   name: string;

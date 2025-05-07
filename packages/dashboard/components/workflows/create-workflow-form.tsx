@@ -4,9 +4,9 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { useCreateWorkflowContext } from '../../contexts/WorkflowManagementContext';
+import { useCreateWorkflowContext } from '../../hooks/use-workflow-context';
 import { useEffect } from 'react';
-import { growlySdk } from '@/core/growly-services';
+import { growlySuiteSdk } from '@/core/sdk';
 import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -27,7 +27,7 @@ export default function CreateWorkflowForm({ isEdit }: { isEdit?: boolean }) {
     async function fetchWorkflow() {
       if (isEdit && selectedWorkflowId) {
         setIsLoading(true);
-        const workflow = await growlySdk.db.workflow.getById(selectedWorkflowId);
+        const workflow = await growlySuiteSdk.db.workflow.getById(selectedWorkflowId);
         if (workflow) {
           setNewWorkflowName(workflow.name);
           setNewWorkflowDesc(workflow.description || '');

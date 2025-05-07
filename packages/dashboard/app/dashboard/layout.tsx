@@ -7,9 +7,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Bell, Home, Search, Settings } from 'lucide-react';
+import { Bell, Home, Settings } from 'lucide-react';
+import { useDashboardState } from '@/hooks/use-dashboard';
+import { UserButton } from '@/components/auth/user-button';
 
 // Mock icons for navigation
 const IconHome = Home;
@@ -93,6 +93,7 @@ const navigation = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user } = useDashboardState();
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -125,10 +126,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Button variant="ghost" size="icon">
               <Settings className="h-5 w-5" />
             </Button>
-            <Avatar className="h-8 w-8 border-2 border-white/20">
-              <AvatarImage src="/placeholder.svg?height=32&width=32" alt="@user" />
-              <AvatarFallback className="bg-white/10 text-white">JD</AvatarFallback>
-            </Avatar>
+            <UserButton />
           </div>
         </div>
       </header>

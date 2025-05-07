@@ -10,7 +10,7 @@ export class OrganizationService {
 
   async getOrganizationsByUserId(userId: string): Promise<AggregatedOrganization[]> {
     const aggregatedOrganizations: AggregatedOrganization[] = [];
-    const organizations = await this.organizationDatabaseService.getAllById('user_id', userId);
+    const organizations = await this.organizationDatabaseService.getAllByField('user_id', userId);
     for (const organization of organizations) {
       const workflows = await this.workflowService.getWorkflowsByOrganizationId(organization.id);
       aggregatedOrganizations.push({ ...organization, workflows });

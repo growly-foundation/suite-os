@@ -8,13 +8,13 @@ export class WorkflowService {
   ) {}
 
   async getWorkflowsByOrganizationId(organizationId: string): Promise<AggregatedWorkflow[]> {
-    const workflows = await this.workflowDatabaseService.getAllById(
+    const workflows = await this.workflowDatabaseService.getAllByField(
       'organization_id',
       organizationId
     );
     const aggregatedWorkflows: AggregatedWorkflow[] = [];
     for (const workflow of workflows) {
-      const steps = await this.stepDatabaseService.getAllById('workflow_id', workflow.id);
+      const steps = await this.stepDatabaseService.getAllByField('workflow_id', workflow.id);
       aggregatedWorkflows.push({ ...workflow, steps });
     }
     return aggregatedWorkflows;

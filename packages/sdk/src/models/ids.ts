@@ -1,16 +1,16 @@
 /**
- * A workflow ID. (e.g. `workflow-123`)
+ * A workflow ID.
  */
-export type WorkflowId = `workflow-${string}`;
+export type WorkflowId = string;
 /**
- * An organization ID. (e.g. `organization-123`)
+ * An organization ID.
  */
-export type OrganizationId = `organization-${string}`;
+export type OrganizationId = string;
 /**
- * A step ID. (e.g. `step-123`)
+ * A step ID.
  */
-export type StepId = `step-${string}`;
+export type StepId = string;
 /**
- * An agent ID. (e.g. `agent-123`)
+ * An agent ID.
  */
-export type AgentId = `agent-${string}`;
+export type AgentId = string;

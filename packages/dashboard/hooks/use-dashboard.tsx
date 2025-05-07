@@ -1,9 +1,12 @@
-import { growlySdk } from '@/core/growly-services';
+import { growlySuiteSdk } from '@/core/sdk';
 import { AggregatedWorkflow } from '@growly/sdk';
 import { create } from 'zustand';
 import { OrganizationTable, UserTable } from '@growly/sdk';
 
-export type AppStore = {
+/**
+ * State storage for managing application state.
+ */
+export type DashboardAppState = {
   // Authentication
   user: UserTable | null;
   setUser: (user: UserTable | null) => void;
@@ -26,7 +29,10 @@ export type AppStore = {
   fetchSteps: (workflowId: string) => Promise<void>;
 };
 
-export const useAppStore = create<AppStore>((set, get) => ({
+/**
+ * Hook for managing application state.
+ */
+export const useDashboardState = create<DashboardAppState>((set, get) => ({
   // Authentication
   user: null,
   setUser: (user: UserTable | null) => set({ user }),
@@ -37,7 +43,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   fetchOrganizations: async () => {
     const user = get().user;
     if (!user) throw new Error('No user selected');
-    const organizations = await growlySdk.organization.getOrganizationsByUserId(user.id);
+    const organizations = await growlySuiteSdk.organization.getOrganizationsByUserId(user.id);
     set({ organizations });
   },
 
@@ -54,13 +60,13 @@ export const useAppStore = create<AppStore>((set, get) => ({
     if (!selectedOrganization) throw new Error('No organization selected');
 
     const aggregatedWorkflows: AggregatedWorkflow[] =
-      await growlySdk.workflow.getWorkflowsByOrganizationId(selectedOrganization.id);
+      await growlySuiteSdk.workflow.getWorkflowsByOrganizationId(selectedOrganization.id);
     set({ workflows: aggregatedWorkflows });
   },
 
   // Steps
   fetchSteps: async (workflowId: string) => {
-    const steps = await growlySdk.db.step.getAllById('workflow_id', workflowId);
+    const steps = await growlySuiteSdk.db.step.getAllByField('workflow_id', workflowId);
     set(state => ({
       workflows: state.workflows.map(workflow =>
         workflow.id === workflowId ? { ...workflow, steps } : workflow
