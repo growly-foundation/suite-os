@@ -44,6 +44,7 @@
   },
   "packageManager": "pnpm@10.6.3",
   "dependencies": {
+    "@coinbase/onchainkit": "^0.38.9",
     "@supabase/supabase-js": "^2.49.4",
     "reflect-metadata": "^0.2.2",
     "tsyringe": "^4.10.0",
