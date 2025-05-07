@@ -1,52 +1,13 @@
+'use client';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { PlusCircle } from 'lucide-react';
 import { Workflow } from 'lucide-react';
-import { Label } from '../ui/label';
-import { Input } from '../ui/input';
-import { Textarea } from '../ui/textarea';
 import { useCreateWorkflowContext } from '../../contexts/CreateWorkflowContext';
-import { useEffect, useState } from 'react';
-import { growlySdk } from '@/core/growly-services';
-import { Skeleton } from '../ui/skeleton';
 import CreateWorkflowForm from './create-workflow-form';
 
-export const CreateWorkflowDialog = ({
-  title,
-  isEdit,
-  selectedWorkflowId,
-}: {
-  title: string;
-  isEdit?: boolean;
-  selectedWorkflowId?: string;
-}) => {
-  const [isFetchingWorkflow, setIsFetchingWorkflow] = useState(false);
-  const {
-    isCreateWorkflowOpen,
-    setIsCreateWorkflowOpen,
-    newWorkflowName,
-    newWorkflowDesc,
-    isLoading,
-    createWorkflow,
-    updateWorkflow,
-    setNewWorkflowName,
-    setNewWorkflowDesc,
-  } = useCreateWorkflowContext();
-
-  useEffect(() => {
-    async function fetchWorkflow() {
-      if (isEdit && selectedWorkflowId) {
-        setIsFetchingWorkflow(true);
-        const workflow = await growlySdk.db.workflow.getById(selectedWorkflowId);
-        if (workflow) {
-          setNewWorkflowName(workflow.name);
-          setNewWorkflowDesc(workflow.description || '');
-        }
-        setIsFetchingWorkflow(false);
-      }
-    }
-    fetchWorkflow();
-  }, [isEdit, selectedWorkflowId, isCreateWorkflowOpen, setNewWorkflowName, setNewWorkflowDesc]);
+export const CreateWorkflowDialog = ({ title, isEdit }: { title: string; isEdit?: boolean }) => {
+  const { isCreateWorkflowOpen, setIsCreateWorkflowOpen } = useCreateWorkflowContext();
 
   return (
     <Dialog open={isCreateWorkflowOpen} onOpenChange={setIsCreateWorkflowOpen}>

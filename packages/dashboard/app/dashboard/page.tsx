@@ -1,10 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, ArrowUpRight, BarChart3, TrendingUp, Users, Settings } from 'lucide-react';
-import Link from 'next/link';
-
-// Import the icons
 import { IconAi, IconSlideshow, IconWaveSine } from '@/components/icons';
+import { CreateWorkflowDialog } from '@/components/workflows/create-workflow-dialog';
+import Link from 'next/link';
 
 export default function DashboardPage() {
   return (
@@ -19,7 +18,7 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="flex gap-3">
-            <Button className="bg-primary hover:bg-primary/90 text-white">Create Workflow</Button>
+            <CreateWorkflowDialog title="Create Workflow" />
             <Button variant="outline">View Analytics</Button>
           </div>
         </div>

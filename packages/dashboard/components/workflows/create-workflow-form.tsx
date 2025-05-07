@@ -1,3 +1,4 @@
+'use client';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -6,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useCreateWorkflowContext } from '../../contexts/CreateWorkflowContext';
 import { useEffect } from 'react';
 import { growlySdk } from '@/core/growly-services';
+import { Trash2 } from 'lucide-react';
 
 export default function CreateWorkflowForm({ isEdit }: { isEdit?: boolean }) {
   const {
@@ -16,6 +18,7 @@ export default function CreateWorkflowForm({ isEdit }: { isEdit?: boolean }) {
     isCreateWorkflowOpen,
     createWorkflow,
     updateWorkflow,
+    deleteWorkflow,
     setNewWorkflowName,
     setNewWorkflowDesc,
     setIsLoading,
@@ -66,13 +69,22 @@ export default function CreateWorkflowForm({ isEdit }: { isEdit?: boolean }) {
           />
         )}
       </div>
-      <div className="pt-4 flex justify-end">
+      <div className="pt-4 flex gap-3 justify-end">
         <Button
           className="bg-primary hover:bg-primary/90 text-white"
           onClick={isEdit ? updateWorkflow : createWorkflow}
           disabled={isLoading || !newWorkflowName || !newWorkflowDesc}>
           {isLoading ? 'Creating...' : isEdit ? 'Update Workflow' : 'Create Workflow'}
         </Button>
+        {isEdit && (
+          <Button
+            variant="destructive"
+            onClick={() => {
+              deleteWorkflow(selectedWorkflowId!);
+            }}>
+            <Trash2 /> Delete Workflow
+          </Button>
+        )}
       </div>
     </div>
   );

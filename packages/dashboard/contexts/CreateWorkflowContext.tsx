@@ -1,3 +1,4 @@
+'use client';
 import { WorkflowTable } from '@growly/sdk';
 import React, { useEffect, useState } from 'react';
 import { growlySdk } from '@/core/growly-services';

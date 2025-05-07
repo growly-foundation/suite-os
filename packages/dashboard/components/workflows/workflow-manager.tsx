@@ -58,11 +58,7 @@ export default function WorkflowManager() {
       {selectedWorkflowId && (
         <div className="mt-6">
           <CreateWorkflowForm isEdit />
-          <div className="flex items-center justify-between">
-            <Button variant="destructive">
-              <Trash2 /> Delete Workflow
-            </Button>
-          </div>
+          <div className="flex items-center justify-between"></div>
           <WorkflowStepManager selectedWorkflowId={selectedWorkflowId} />
         </div>
       )}
