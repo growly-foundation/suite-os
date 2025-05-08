@@ -1,4 +1,4 @@
-import { Message } from '../entities/message.entity';
+import { Message } from '@growly/sdk';
 
 export interface MessageRepositoryInterface {
   /**
@@ -9,7 +9,7 @@ export interface MessageRepositoryInterface {
     threadId: string,
     agentId: string,
     role: string,
-    embedding?: number[],
+    embedding?: number[]
   ): Promise<Message>;
 
   /**
@@ -24,7 +24,7 @@ export interface MessageRepositoryInterface {
     query: string,
     threadId: string,
     agentId: string,
-    limit?: number,
+    limit?: number
   ): Promise<Message[]>;
 
   /**

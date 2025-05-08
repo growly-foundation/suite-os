@@ -1,13 +1,40 @@
 import { Token } from '@coinbase/onchainkit/token';
+import { Tables, TablesInsert, TablesUpdate } from '@/types/database.types';
 
-export type MessageId = `message-${number}`;
+export type Message = Tables<'messages'>;
+export type MessageInsert = TablesInsert<'messages'>;
+export type MessageUpdate = TablesUpdate<'messages'>;
+export type ParsedMessage = Tables<'messages'> & MessageContent;
 
-export interface TextMessage {
+/**
+ * Role of the participant in the conversation.
+ */
+export enum ConversationRole {
+  User = 'user',
+  Agent = 'assistant',
+  System = 'system',
+}
+
+/**
+ * Content of the message.
+ */
+export type MessageContent =
+  | TextMessageContent
+  | OnchainKitSwapMessageContent
+  | OnchainKitTokenMessageContent;
+
+/**
+ * Text message content.
+ */
+export interface TextMessageContent {
   type: 'text';
   content: string;
 }
 
-export interface OnchainKitSwapMessage {
+/**
+ * OnchainKit swap message content.
+ */
+export interface OnchainKitSwapMessageContent {
   type: 'onchainkit:swap';
   content: {
     fromToken: Token;
@@ -16,24 +43,12 @@ export interface OnchainKitSwapMessage {
   };
 }
 
-export interface OnchainKitTokenMessage {
+/**
+ * OnchainKit token message content.
+ */
+export interface OnchainKitTokenMessageContent {
   type: 'onchainkit:token';
   content: {
     token: Token;
   };
-}
-
-export type Message = TextMessage | OnchainKitSwapMessage | OnchainKitTokenMessage;
-
-export interface ChatMessage {
-  id: MessageId;
-  message: Message;
-  from: ChatRole;
-  timestamp: Date;
-}
-
-export enum ChatRole {
-  User = 'user',
-  Agent = 'agent',
-  System = 'system',
 }

@@ -17,7 +17,7 @@ interface AgentChatRequest {
 export class AgentService {
   constructor(
     private readonly configService: ConfigService,
-    private readonly messageService: MessageService,
+    private readonly messageService: MessageService
   ) {}
 
   // Use Langchain PromptTemplate for dynamic prompt construction
@@ -25,11 +25,7 @@ export class AgentService {
     return (await agentPromptTemplate.invoke({ walletAddress })).toString();
   }
 
-  async chat({
-    message,
-    threadId,
-    agentId,
-  }: AgentChatRequest): Promise<string> {
+  async chat({ message, threadId, agentId }: AgentChatRequest): Promise<string> {
     // Store the user message in Supabase
     await this.messageService.storeMessage(message, threadId, agentId, 'user');
 
@@ -40,7 +36,7 @@ export class AgentService {
 
     const stream = await agent.stream(
       { messages: [{ content: message, role: 'user' }] },
-      { configurable: { thread_id: threadId } },
+      { configurable: { thread_id: threadId } }
     );
 
     let agentResponse = '';
@@ -52,12 +48,7 @@ export class AgentService {
     }
 
     // Store the assistant response in Supabase
-    await this.messageService.storeMessage(
-      agentResponse,
-      threadId,
-      agentId,
-      'assistant',
-    );
+    await this.messageService.storeMessage(agentResponse, threadId, agentId, 'assistant');
 
     return agentResponse;
   }

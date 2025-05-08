@@ -1,16 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { SupabaseProvider } from './supabase.provider';
-import { SupabaseService } from './supabase.service';
 import { OpenAIModule } from '../openai/openai.module';
 import { SupabaseMessageRepository } from './repositories/supabase-message.repository';
 import { MessageService } from './services/message.service';
+import { SuiteCoreProvider } from './suite.provider';
 
 @Module({
   imports: [ConfigModule, OpenAIModule],
   providers: [
-    SupabaseProvider,
-    SupabaseService,
+    SuiteCoreProvider,
     SupabaseMessageRepository,
     {
       provide: 'MessageRepository',
@@ -18,6 +16,6 @@ import { MessageService } from './services/message.service';
     },
     MessageService,
   ],
-  exports: [SupabaseProvider, SupabaseService, MessageService],
+  exports: [SuiteCoreProvider, MessageService],
 })
 export class SupabaseModule {}

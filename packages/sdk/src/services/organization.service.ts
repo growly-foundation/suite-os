@@ -1,4 +1,4 @@
-import { AggregatedOrganization } from '@/types/organization.types';
+import { AggregatedOrganization } from '@/models/organizations';
 import { PublicDatabaseService } from './database.service';
 import { WorkflowService } from './workflow.service';
 

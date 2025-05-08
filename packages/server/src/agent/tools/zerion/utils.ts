@@ -16,9 +16,7 @@ export const formatPortfolioData = (data: ZerionPortfolio) => {
     .join(', ');
 
   // Positions by chain that more than 1$
-  const topChains = Object.entries(
-    data.attributes.positions_distribution_by_chain,
-  )
+  const topChains = Object.entries(data.attributes.positions_distribution_by_chain)
     .sort(([, a], [, b]) => b - a)
     .filter(([_, value]) => value > 1)
     .map(([chain, value]) => `${chain}: $${value.toFixed(2)}`)
@@ -33,34 +31,27 @@ export const formatPortfolioData = (data: ZerionPortfolio) => {
 };
 
 export const formatPositionsData = (data: ZerionFungiblePosition[]) => {
-  const filtered = data.filter(
-    (pos) => pos.attributes.value !== null && pos.attributes.value > 1,
-  );
+  const filtered = data.filter(pos => pos.attributes.value !== null && pos.attributes.value > 1);
 
   // Sort by value (descending)
-  const sorted = filtered.sort(
-    (a, b) => b.attributes.value! - a.attributes.value!,
-  );
+  const sorted = filtered.sort((a, b) => b.attributes.value! - a.attributes.value!);
 
   const lines: string[] = [];
   let totalValue = 0;
 
   for (const pos of sorted) {
-    const { value, position_type, fungible_info, application_metadata } =
-      pos.attributes;
+    const { value, position_type, fungible_info, application_metadata } = pos.attributes;
 
     const chain = pos.relationships.chain.data.id;
 
-    const protocolLine = application_metadata?.name
-      ? `via ${application_metadata.name}`
-      : '';
+    const protocolLine = application_metadata?.name ? `via ${application_metadata.name}` : '';
 
     lines.push(
       `- ${fungible_info.symbol} (${
         fungible_info.name
       }) on ${chain} — $${value!.toFixed(2)} [${position_type}${
         protocolLine ? ' ' + protocolLine : ''
-      }]`,
+      }]`
     );
 
     totalValue += value!;

@@ -5,11 +5,6 @@ import { OpenAIModule } from './openai/openai.module';
 import { SupabaseModule } from './supabase/supabase.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    OpenAIModule,
-    SupabaseModule,
-    ChatModule,
-  ],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), OpenAIModule, SupabaseModule, ChatModule],
 })
 export class AppModule {}

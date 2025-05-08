@@ -1,12 +1,7 @@
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  organizations: Organization[];
-}
+import { Tables, TablesInsert, TablesUpdate } from '@/types/database.types';
+import { AggregatedOrganization } from './organizations';
 
-export interface Organization {
-  id: string;
-  name: string;
-  created_at: Date;
-}
+export type User = Tables<'users'>;
+export type UserInsert = TablesInsert<'users'>;
+export type UserUpdate = TablesUpdate<'users'>;
+export type AggregatedUser = User & { organizations: AggregatedOrganization[] };

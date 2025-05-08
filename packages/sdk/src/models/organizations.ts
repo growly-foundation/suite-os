@@ -1,7 +1,7 @@
 import { Tables, TablesInsert, TablesUpdate } from '@/types/database.types';
-import { AggregatedWorkflow } from './workflow.types';
+import { AggregatedWorkflow } from './workflows';
 
-export type OrganizationTable = Tables<'organizations'>;
+export type Organization = Tables<'organizations'>;
 export type OrganizationInsert = TablesInsert<'organizations'>;
 export type OrganizationUpdate = TablesUpdate<'organizations'>;
-export type AggregatedOrganization = OrganizationTable & { workflows: AggregatedWorkflow[] };
+export type AggregatedOrganization = Organization & { workflows: AggregatedWorkflow[] };

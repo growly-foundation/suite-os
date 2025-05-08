@@ -1,28 +1,15 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { SupabaseClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
-import { Message } from '../entities/message.entity';
 import { MessageRepositoryInterface } from './message-repository.interface';
-
-// Define the shape of data returned from Supabase
-interface MessageRecord {
-  id: string;
-  content: string;
-  thread_id: string;
-  agent_id: string;
-  role: string;
-  embedding?: number[];
-  created_at: string;
-  similarity?: number;
-}
+import { Message, SuiteDatabaseCore } from '@growly/sdk';
 
 @Injectable()
 export class SupabaseMessageRepository implements MessageRepositoryInterface {
   private readonly logger = new Logger(SupabaseMessageRepository.name);
 
   constructor(
-    @Inject('SUPABASE_CLIENT') private readonly supabase: SupabaseClient,
-    @Inject('OPENAI_CLIENT') private readonly openai: OpenAI,
+    @Inject('GROWLY_SUITE_CORE') private readonly suiteCore: SuiteDatabaseCore,
+    @Inject('OPENAI_CLIENT') private readonly openai: OpenAI
   ) {}
 
   async storeMessageWithEmbedding(
@@ -30,46 +17,28 @@ export class SupabaseMessageRepository implements MessageRepositoryInterface {
     threadId: string,
     agentId: string,
     role: string,
-    existingEmbedding?: number[],
+    existingEmbedding?: number[]
   ): Promise<Message> {
     try {
       // Generate embedding if not provided
-      const embedding =
-        existingEmbedding || (await this.createEmbedding(message));
+      const embedding = existingEmbedding || (await this.createEmbedding(message));
 
       // Store the message with its embedding
-      const { data, error } = await this.supabase
-        .from('messages')
-        .insert({
-          content: message,
-          thread_id: threadId,
-          agent_id: agentId,
-          role,
-          embedding,
-        })
-        .select()
-        .single();
+      const data = await this.suiteCore.db.messages.getOne();
 
-      if (error) {
-        this.logger.error(
-          `Error storing message: ${error.message}`,
-          error.stack,
-        );
-        throw error;
+      if (!data) {
+        throw new Error('No message found');
       }
 
       // Convert to Message entity
-      return this.mapToMessageEntity(data as MessageRecord);
+      return data;
     } catch (error) {
       this.logger.error('Failed to store message with embedding', error);
       throw error;
     }
   }
 
-  async getConversationHistory(
-    threadId: string,
-    agentId: string,
-  ): Promise<Message[]> {
+  async getConversationHistory(threadId: string, agentId: string): Promise<Message[]> {
     try {
       const { data, error } = await this.supabase
         .from('messages')
@@ -79,17 +48,12 @@ export class SupabaseMessageRepository implements MessageRepositoryInterface {
         .order('created_at', { ascending: true });
 
       if (error) {
-        this.logger.error(
-          `Error retrieving conversation history: ${error.message}`,
-          error.stack,
-        );
+        this.logger.error(`Error retrieving conversation history: ${error.message}`, error.stack);
         throw error;
       }
 
       // Convert to Message entities with proper typing
-      return (data as MessageRecord[]).map((item) =>
-        this.mapToMessageEntity(item),
-      );
+      return data;
     } catch (error) {
       this.logger.error('Failed to retrieve conversation history', error);
       throw error;
@@ -100,7 +64,7 @@ export class SupabaseMessageRepository implements MessageRepositoryInterface {
     query: string,
     threadId: string,
     agentId: string,
-    limit: number = 5,
+    limit = 5
   ): Promise<Message[]> {
     try {
       // Generate embedding for the query
@@ -116,17 +80,12 @@ export class SupabaseMessageRepository implements MessageRepositoryInterface {
       });
 
       if (error) {
-        this.logger.error(
-          `Error searching similar messages: ${error.message}`,
-          error.stack,
-        );
+        this.logger.error(`Error searching similar messages: ${error.message}`, error.stack);
         throw error;
       }
 
       // Convert to Message entities with proper typing
-      return (data as MessageRecord[]).map((item) =>
-        this.mapToMessageEntity(item),
-      );
+      return data;
     } catch (error) {
       this.logger.error('Failed to search similar messages', error);
       throw error;
@@ -145,17 +104,5 @@ export class SupabaseMessageRepository implements MessageRepositoryInterface {
       this.logger.error('Failed to create embedding', error);
       throw error;
     }
-  }
-
-  private mapToMessageEntity(data: MessageRecord): Message {
-    const message = new Message();
-    message.id = data.id;
-    message.content = data.content;
-    message.thread_id = data.thread_id;
-    message.agent_id = data.agent_id;
-    message.role = data.role;
-    message.embedding = data.embedding || [];
-    message.created_at = new Date(data.created_at);
-    return message;
   }
 }
