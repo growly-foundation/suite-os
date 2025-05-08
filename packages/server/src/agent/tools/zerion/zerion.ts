@@ -78,7 +78,8 @@ Output:
   const getFungiblePositionsTool = new DynamicStructuredTool({
     name: 'get_fungible_positions',
     description: `
-Fetches and summarizes a crypto wallet's fungible token holdings in USD. 
+Fetches and summarizes a crypto wallet's token holdings in USD. 
+It also includes DeFi positions if the user has any.
 Returns a summary of top tokens and their values.
 
 Input:

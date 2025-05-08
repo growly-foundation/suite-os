@@ -4,6 +4,8 @@ import { Injectable } from '@nestjs/common';
 import { createAgent } from './utils/agent.factory';
 import { ChatProvider } from './utils/model.factory';
 import { ConfigService } from '@nestjs/config';
+import { agentPromptTemplate } from './prompt';
+import { MessageService } from '../supabase/services/message.service';
 
 interface AgentChatRequest {
   message: string;
@@ -13,25 +15,27 @@ interface AgentChatRequest {
 
 @Injectable()
 export class AgentService {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly messageService: MessageService,
+  ) {}
 
-  // Mock: Load system prompt for agentId
-  private getSystemPrompt(agentId: string): string {
-    // In production, fetch from DB or config
-    const prompts: Record<string, string> = {
-      default: `You are a helpful agent that is an expert in Web3 and Crypto, especially DeFi protocol.\n\nYou can retrieve information from the blockchain about 3 main things with tools:\n- Portfolio and token holdings of a wallet address.\n- DeFi protocol information and total value locked (implementing soon).\n- Token details with its sentiment (implementing soon).\n\nIf there is a 5XX (internal) HTTP error code, ask the user to try again later. If someone asks you to do something you can't do with your currently available tools, you must say so.\n\nBe concise and helpful with your responses. Refrain from restating your tools' descriptions unless it is explicitly requested.`,
-    };
-    return prompts[agentId] || prompts['default'];
+  // Use Langchain PromptTemplate for dynamic prompt construction
+  private async getSystemPrompt(walletAddress: string): Promise<string> {
+    return (await agentPromptTemplate.invoke({ walletAddress })).toString();
   }
 
   async chat({
     message,
-    agentId,
     threadId,
+    agentId,
   }: AgentChatRequest): Promise<string> {
+    // Store the user message in Supabase
+    await this.messageService.storeMessage(message, threadId, agentId, 'user');
+
     const provider: ChatProvider =
       (this.configService.get('MODEL_PROVIDER') as ChatProvider) || 'openai';
-    const systemPrompt = this.getSystemPrompt(agentId);
+    const systemPrompt = await this.getSystemPrompt(threadId);
     const agent = createAgent(provider, this.configService, systemPrompt);
 
     const stream = await agent.stream(
@@ -46,6 +50,15 @@ export class AgentService {
         agentResponse += chunk.agent.messages[0].content;
       }
     }
+
+    // Store the assistant response in Supabase
+    await this.messageService.storeMessage(
+      agentResponse,
+      threadId,
+      agentId,
+      'assistant',
+    );
+
     return agentResponse;
   }
 }

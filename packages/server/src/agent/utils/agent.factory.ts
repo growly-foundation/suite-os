@@ -1,7 +1,6 @@
 // src/langchain/agent/agent.factory.ts
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
 import { ChatModelFactory, ChatProvider } from './model.factory';
-import { MemorySaver } from '@langchain/langgraph';
 import { makeZerionTools } from '../tools/zerion/zerion';
 import { ConfigService } from '@nestjs/config';
 
@@ -25,14 +24,12 @@ export function createAgent(
       makeZerionTools(configService);
 
     const tools = [getPortfolioOverviewTool, getFungiblePositionsTool];
-    const memory = new MemorySaver();
 
-    // Initialize Agent
+    // Initialize Agent without checkpointer
     return createReactAgent({
       llm,
       tools,
-      checkpointSaver: memory,
-      messageModifier: systemPrompt,
+      prompt: systemPrompt,
     });
   } catch (error) {
     console.error('Error initializing agent:', error);

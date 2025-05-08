@@ -15,12 +15,12 @@ export const formatPortfolioData = (data: ZerionPortfolio) => {
     .map(([type, value]) => `${type}: $${value.toFixed(2)}`)
     .join(', ');
 
-  // Positions by chain (top 5 by value)
+  // Positions by chain that more than 1$
   const topChains = Object.entries(
     data.attributes.positions_distribution_by_chain,
   )
     .sort(([, a], [, b]) => b - a)
-    .slice(0, 5)
+    .filter(([_, value]) => value > 1)
     .map(([chain, value]) => `${chain}: $${value.toFixed(2)}`)
     .join(', ');
 

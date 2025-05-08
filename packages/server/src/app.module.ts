@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { DatabaseModule } from './database/database.module';
 import { ChatModule } from './chat/chat.module';
+import { OpenAIModule } from './openai/openai.module';
+import { SupabaseModule } from './supabase/supabase.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    DatabaseModule,
+    OpenAIModule,
+    SupabaseModule,
     ChatModule,
   ],
 })
