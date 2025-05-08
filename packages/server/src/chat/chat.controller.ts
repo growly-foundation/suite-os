@@ -1,14 +1,18 @@
 // src/chat/chat.controller.ts
 import { Controller, Post, Body } from '@nestjs/common';
-import { LangchainService } from '../langchain/langchain.service';
+import { ChatService } from './chat.service';
 
 @Controller('chat')
 export class ChatController {
-  constructor(private readonly langchainService: LangchainService) {}
+  constructor(private readonly chatService: ChatService) {}
 
   @Post()
-  async chat(@Body('message') message: string) {
-    const reply = await this.langchainService.chat(message);
+  async chat(
+    @Body('message') message: string,
+    @Body('agentId') agentId: string,
+    @Body('threadId') threadId: string,
+  ) {
+    const reply = await this.chatService.chat({ message, agentId, threadId });
     return { reply };
   }
 }

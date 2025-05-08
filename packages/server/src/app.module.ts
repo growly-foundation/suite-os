@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { LangchainService } from './langchain/langchain.service';
-import { ChatController } from './chat/chat.controller';
+import { DatabaseModule } from './database/database.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true })],
-})
-@Module({
-  controllers: [ChatController],
-  providers: [LangchainService],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    DatabaseModule,
+    ChatModule,
+  ],
 })
 export class AppModule {}

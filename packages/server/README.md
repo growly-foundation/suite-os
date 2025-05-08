@@ -31,6 +31,56 @@
 $ pnpm install
 ```
 
+## Environment Variables
+
+Create a `.env` file in the root of the project with the following variables:
+
+```
+# Database Configuration
+DATABASE_HOST=db.supabase.co
+DATABASE_PORT=5432
+DATABASE_USERNAME=postgres
+DATABASE_PASSWORD=your_password_here
+DATABASE_NAME=postgres
+DATABASE_SSL=true
+
+# Supabase Configuration
+SUPABASE_URL=your_supabase_url_here
+SUPABASE_KEY=your_supabase_key_here
+
+# Application Configuration
+NODE_ENV=development
+PORT=3000
+```
+
+You can get these values from your Supabase project settings.
+
+## Database Setup
+
+This project uses TypeORM with PostgreSQL to connect to a Supabase database. The database connection is configured in the `DatabaseModule`.
+
+To use the database in your services:
+
+1. Import the `DatabaseModule` in your feature module
+2. Inject the `UserRepository` or other repositories into your services
+3. Use the repository methods to interact with the database
+
+Example:
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { UserRepository } from '../database/repositories/user.repository';
+
+@Injectable()
+export class UserService {
+  constructor(private readonly userRepository: UserRepository) {}
+
+  async findAll() {
+    return this.userRepository.findAll();
+  }
+}
+```
+
 ## Compile and run the project
 
 ```bash
