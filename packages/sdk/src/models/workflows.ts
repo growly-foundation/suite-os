@@ -3,6 +3,26 @@ import { OrganizationId, AgentId, StepId, WorkflowId } from './ids';
 export type UserDefinedPayload = UserDefinedStep;
 
 /**
+ * An agent is an AI agent that can perform actions.
+ */
+export interface Agent {
+  /** Agent ID. */
+  id: AgentId;
+  /** Agent name. */
+  name: string;
+  /** Organization ID. */
+  organization: OrganizationId;
+  /** Agent resources. */
+  resources: string[];
+  /** Agent workflows. */
+  workflows: WorkflowId[];
+  /** Agent status. */
+  status: Status;
+  /** Agent created at. */
+  created_at: Date;
+}
+
+/**
  * A user defined step.
  */
 export type UserDefinedStep = {
@@ -133,7 +153,10 @@ export interface AgentAction {
   type: 'agent';
   args: {
     agentId: AgentId;
+    organizationId: OrganizationId;
+    /** Example: "gpt-4o" */
     model: string;
+    /** Example: "Analyze the following portfolio?" */
     prompt: string;
   };
   return: Action;
