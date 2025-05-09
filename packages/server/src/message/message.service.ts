@@ -8,34 +8,34 @@ export class MessageService {
 
   async storeMessage(
     message: string,
-    threadId: string,
+    userId: string,
     agentId: string,
     role: string,
   ): Promise<Message> {
     return this.messageRepository.storeMessageWithEmbedding(
       message,
-      threadId,
+      userId,
       agentId,
       role as ConversationRole,
     );
   }
 
   async getConversationHistory(
-    threadId: string,
+    userId: string,
     agentId: string,
   ): Promise<Message[]> {
-    return this.messageRepository.getConversationHistory(threadId, agentId);
+    return this.messageRepository.getConversationHistory(userId, agentId);
   }
 
   async findSimilarMessages(
     query: string,
-    threadId: string,
+    userId: string,
     agentId: string,
     limit?: number,
   ): Promise<FnReturnType<'match_messages'>> {
     return this.messageRepository.searchSimilarMessages(
       query,
-      threadId,
+      userId,
       agentId,
       limit,
     );
