@@ -20,8 +20,8 @@ export class AgentService {
   }
 
   async chat({ message, userId, agentId }: AgentChatRequest): Promise<string> {
-    // Store the user message in Supabase
-    await this.messageService.storeMessage(message, userId, agentId, 'user');
+    // TODO: Get agent from database
+    console.log('agentId', agentId);
 
     const provider: ChatProvider =
       (this.configService.get('MODEL_PROVIDER') as ChatProvider) || 'openai';
@@ -40,14 +40,6 @@ export class AgentService {
         agentResponse += chunk.agent.messages[0].content;
       }
     }
-
-    // Store the assistant response in Supabase
-    await this.messageService.storeMessage(
-      agentResponse,
-      userId,
-      agentId,
-      'assistant',
-    );
 
     return agentResponse;
   }
