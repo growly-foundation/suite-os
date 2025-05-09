@@ -1,7 +1,7 @@
 'use client';
 import { WorkflowTable } from '@growly/core';
 import React, { useEffect, useState } from 'react';
-import { growlySuiteSdk } from '@/core/sdk';
+import { growlySuiteCore } from '@/core/sdk';
 import { useDashboardState } from '@/hooks/use-dashboard';
 
 const WorkflowManagementContext = React.createContext<{
@@ -46,7 +46,7 @@ export const WorkflowManagementContextProvider = ({ children }: { children: Reac
   async function fetchWorkflows() {
     setIsLoading(true);
     try {
-      const result = await growlySuiteSdk.db.workflows.getAll();
+      const result = await growlySuiteCore.db.workflows.getAll();
       setWorkflows(result);
     } catch (error) {
       console.error('Failed to fetch workflows:', error);
@@ -59,7 +59,7 @@ export const WorkflowManagementContextProvider = ({ children }: { children: Reac
     if (!selectedOrganization) throw new Error('No organization selected');
     setIsLoading(true);
     try {
-      await growlySuiteSdk.db.workflows.create({
+      await growlySuiteCore.db.workflows.create({
         name,
         description,
         status: 'active',
@@ -77,7 +77,7 @@ export const WorkflowManagementContextProvider = ({ children }: { children: Reac
   async function updateWorkflow(name: string, description: string) {
     setIsLoading(true);
     try {
-      await growlySuiteSdk.db.workflows.update(selectedWorkflowId!, {
+      await growlySuiteCore.db.workflows.update(selectedWorkflowId!, {
         name,
         description,
       });
@@ -93,7 +93,7 @@ export const WorkflowManagementContextProvider = ({ children }: { children: Reac
   async function deleteWorkflow(workflowId: string) {
     setIsLoading(true);
     try {
-      await growlySuiteSdk.db.workflows.delete(workflowId);
+      await growlySuiteCore.db.workflows.delete(workflowId);
       await fetchWorkflows();
     } catch (error) {
       console.error('Failed to delete workflow:', error);

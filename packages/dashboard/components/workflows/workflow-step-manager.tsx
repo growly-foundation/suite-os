@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { StepTable } from '@growly/core';
-import { growlySuiteSdk } from '@/core/sdk';
+import { growlySuiteCore } from '@/core/sdk';
 import { useDashboardState } from '@/hooks/use-dashboard';
 
 type Props = {
@@ -22,7 +22,7 @@ const WorkflowStepManager = ({ selectedWorkflowId, steps }: Props) => {
     if (!selectedWorkflowId || !newStepName) return;
     setIsLoading(true);
     try {
-      await growlySuiteSdk.db.steps.create({
+      await growlySuiteCore.db.steps.create({
         name: newStepName,
         description: newStepDesc,
         workflow_id: selectedWorkflowId,

@@ -1,8 +1,51 @@
-<div align="center">
-  <h1 style="font-size: 3em; margin-bottom: 20px;">
-    Growly SDK
-  </h1>
+# Growly Suite Core
 
-  <p style="font-size: 1.2em; max-width: 600px; margin: 0 auto 20px;">
-    Manage your workflows and steps with ease.
-  </p>
+The library should be used for internal purposes only. Main goal of the library is to handle database operations and provide a simple interface for the server and dashboard to interact with the database.
+
+## Installation
+
+To install the library in a monorepo, add the dependency to the sibling packages `package.json`:
+
+```json
+{
+  "dependencies": {
+    "@growly/core": "workspace:*"
+  }
+}
+```
+
+And run `pnpm install` in the sibling packages.
+
+## Usage
+
+### Interact with the services
+
+```typescript
+import { createSuiteDatabaseCore } from '@growly/core';
+
+/**
+ * SDK for interacting with the Growly Suite API.
+ */
+export const growlySuiteCore = createSuiteDatabaseCore(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_ANON_KEY!
+);
+```
+
+### Reset the database
+
+Provides credentials for Postgres connection following the `.env.example`:
+
+```bash
+PGHOST=
+PGPORT=
+PGDATABASE=
+PGUSER=
+PGPASSWORD=
+```
+
+And run the following command:
+
+```bash
+pnpm db:reset
+```

@@ -10,7 +10,7 @@ import { SupabaseClientService } from './services/supabase-client.service';
  *
  * @example
  * ```typescript
- * const sdk = createSuiteSdk('https://your-supabase-url.supabase.co', 'your-supabase-key');
+ * const suiteCore = createSuiteCore('https://your-supabase-url.supabase.co', 'your-supabase-key');
  * ```
  */
 export interface SuiteDatabaseCore {

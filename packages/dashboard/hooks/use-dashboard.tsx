@@ -1,4 +1,4 @@
-import { growlySuiteSdk } from '@/core/sdk';
+import { growlySuiteCore } from '@/core/sdk';
 import { AggregatedWorkflow } from '@growly/core';
 import { create } from 'zustand';
 import { OrganizationTable, UserTable } from '@growly/core';
@@ -44,7 +44,7 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
   fetchOrganizations: async () => {
     const user = get().user;
     if (!user) throw new Error('No user selected');
-    const organizations = await growlySuiteSdk.organizations.getOrganizationsByUserId(user.id);
+    const organizations = await growlySuiteCore.organizations.getOrganizationsByUserId(user.id);
     set({ organizations });
   },
 
@@ -62,13 +62,13 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
     if (!selectedOrganization) throw new Error('No organization selected');
 
     const aggregatedWorkflows: AggregatedWorkflow[] =
-      await growlySuiteSdk.workflows.getWorkflowsByOrganizationId(selectedOrganization.id);
+      await growlySuiteCore.workflows.getWorkflowsByOrganizationId(selectedOrganization.id);
     set({ workflows: aggregatedWorkflows });
   },
 
   // Steps
   fetchSteps: async (workflowId: string) => {
-    const steps = await growlySuiteSdk.db.steps.getAllByField('workflow_id', workflowId);
+    const steps = await growlySuiteCore.db.steps.getAllByField('workflow_id', workflowId);
     set(state => ({
       workflows: state.workflows.map(workflow =>
         workflow.id === workflowId ? { ...workflow, steps } : workflow

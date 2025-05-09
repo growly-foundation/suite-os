@@ -1,4 +1,4 @@
-import { growlySuiteSdk } from '@/core/sdk';
+import { growlySuiteCore } from '@/core/sdk';
 import { usePrivy } from '@privy-io/react-auth';
 import React, { useEffect } from 'react';
 import { useDashboardState } from '../../hooks/use-dashboard';
@@ -14,9 +14,9 @@ const ProtectedAuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
   const fetchCurrentUser = async (email: string) => {
-    let userExists = await growlySuiteSdk.db.users.getByField('email', email);
+    let userExists = await growlySuiteCore.db.users.getByField('email', email);
     if (!userExists) {
-      userExists = await growlySuiteSdk.db.users.create({
+      userExists = await growlySuiteCore.db.users.create({
         name: `user-${user?.id}`,
         email: email,
       });
