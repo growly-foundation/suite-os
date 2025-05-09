@@ -1,5 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { PublicDatabaseService, WorkflowService } from './services';
+import { FunctionService, PublicDatabaseService, WorkflowService } from './services';
 import { OrganizationService } from './services/organization.service';
 import { SupabaseClientService } from './services/supabase-client.service';
 
@@ -23,6 +23,7 @@ export interface SuiteDatabaseCore {
     messages: PublicDatabaseService<'messages'>;
     agents: PublicDatabaseService<'agents'>;
   };
+  fn: FunctionService;
   organizations: OrganizationService;
   workflows: WorkflowService;
 }
@@ -58,7 +59,12 @@ export const createSuiteDatabaseCore = (
   // Custom services.
   const workflowService = new WorkflowService(workflowDatabaseService, stepDatabaseService);
   const organizationService = new OrganizationService(organizationDatabaseService, workflowService);
+
+  // Edge functions.
+  const functionService = new FunctionService(supabaseClientService);
+
   return {
+    fn: functionService,
     db: {
       client: supabaseClientService.getClient(),
       users: userDatabaseService,

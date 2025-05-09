@@ -1,4 +1,4 @@
-import { Message } from '@growly/sdk';
+import { FnReturnType, Message } from '@growly/sdk';
 
 export interface MessageRepositoryInterface {
   /**
@@ -7,7 +7,7 @@ export interface MessageRepositoryInterface {
   storeMessageWithEmbedding(
     message: string,
     threadId: string,
-    agentId: string,
+    userId: string,
     role: string,
     embedding?: number[]
   ): Promise<Message>;
@@ -15,17 +15,17 @@ export interface MessageRepositoryInterface {
   /**
    * Get conversation history for a thread and agent
    */
-  getConversationHistory(threadId: string, agentId: string): Promise<Message[]>;
+  getConversationHistory(threadId: string, userId: string): Promise<Message[]>;
 
   /**
    * Search for similar messages
    */
   searchSimilarMessages(
     query: string,
-    threadId: string,
+    userId: string,
     agentId: string,
     limit?: number
-  ): Promise<Message[]>;
+  ): Promise<FnReturnType<'match_messages'>>;
 
   /**
    * Create an embedding for text

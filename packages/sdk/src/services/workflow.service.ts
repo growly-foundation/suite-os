@@ -8,14 +8,15 @@ export class WorkflowService {
     private stepDatabaseService: PublicDatabaseService<'steps'>
   ) {}
 
-  async getWorkflowsByOrganizationId(organizationId: string): Promise<AggregatedWorkflow[]> {
-    const workflows = await this.workflowDatabaseService.getAllByField(
-      'organization_id',
-      organizationId
-    );
+  async getWorkflowsByOrganizationId(organization_id: string): Promise<AggregatedWorkflow[]> {
+    const workflows = await this.workflowDatabaseService.getAllByFields({
+      organization_id,
+    });
     const aggregatedWorkflows: AggregatedWorkflow[] = [];
     for (const workflow of workflows) {
-      const steps = await this.stepDatabaseService.getAllByField('workflow_id', workflow.id);
+      const steps = await this.stepDatabaseService.getAllByFields({
+        workflow_id: workflow.id,
+      });
       aggregatedWorkflows.push({
         ...workflow,
         steps: steps.map(step => ({

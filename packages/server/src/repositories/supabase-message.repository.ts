@@ -1,11 +1,11 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import OpenAI from 'openai';
 import { MessageRepositoryInterface } from './message-repository.interface';
-import { Message, SuiteDatabaseCore } from '@growly/sdk';
+import { ConversationRole, FnReturnType, Message, SuiteDatabaseCore } from '@growly/sdk';
 
 @Injectable()
-export class SupabaseMessageRepository implements MessageRepositoryInterface {
-  private readonly logger = new Logger(SupabaseMessageRepository.name);
+export class MessageDatabaseRepository implements MessageRepositoryInterface {
+  private readonly logger = new Logger(MessageDatabaseRepository.name);
 
   constructor(
     @Inject('GROWLY_SUITE_CORE') private readonly suiteCore: SuiteDatabaseCore,
@@ -14,9 +14,9 @@ export class SupabaseMessageRepository implements MessageRepositoryInterface {
 
   async storeMessageWithEmbedding(
     message: string,
-    threadId: string,
+    userId: string,
     agentId: string,
-    role: string,
+    sender: ConversationRole,
     existingEmbedding?: number[]
   ): Promise<Message> {
     try {
@@ -24,7 +24,13 @@ export class SupabaseMessageRepository implements MessageRepositoryInterface {
       const embedding = existingEmbedding || (await this.createEmbedding(message));
 
       // Store the message with its embedding
-      const data = await this.suiteCore.db.messages.getOne();
+      const data = await this.suiteCore.db.messages.create({
+        content: message,
+        user_id: userId,
+        agent_id: agentId,
+        sender,
+        embedding: embedding.join(','),
+      });
 
       if (!data) {
         throw new Error('No message found');
@@ -38,18 +44,15 @@ export class SupabaseMessageRepository implements MessageRepositoryInterface {
     }
   }
 
-  async getConversationHistory(threadId: string, agentId: string): Promise<Message[]> {
+  async getConversationHistory(userId: string, agentId: string): Promise<Message[]> {
     try {
-      const { data, error } = await this.supabase
-        .from('messages')
-        .select('*')
-        .eq('thread_id', threadId)
-        .eq('agent_id', agentId)
-        .order('created_at', { ascending: true });
+      const data = await this.suiteCore.db.messages.getAllByFields({
+        user_id: userId,
+        agent_id: agentId,
+      });
 
-      if (error) {
-        this.logger.error(`Error retrieving conversation history: ${error.message}`, error.stack);
-        throw error;
+      if (!data) {
+        throw new Error('No message found');
       }
 
       // Convert to Message entities with proper typing
@@ -62,27 +65,22 @@ export class SupabaseMessageRepository implements MessageRepositoryInterface {
 
   async searchSimilarMessages(
     query: string,
-    threadId: string,
+    userId: string,
     agentId: string,
     limit = 5
-  ): Promise<Message[]> {
+  ): Promise<FnReturnType<'match_messages'>> {
     try {
       // Generate embedding for the query
       const embedding = await this.createEmbedding(query);
 
       // Search for similar messages
-      const { data, error } = await this.supabase.rpc('match_messages', {
-        query_embedding: embedding,
+      const data = await this.suiteCore.fn.invoke('match_messages', {
+        query_embedding: embedding.join(','),
         match_threshold: 0.7,
         match_count: limit,
-        thread_id: threadId,
-        agent_id: agentId,
+        in_user_id: userId,
+        in_agent_id: agentId,
       });
-
-      if (error) {
-        this.logger.error(`Error searching similar messages: ${error.message}`, error.stack);
-        throw error;
-      }
 
       // Convert to Message entities with proper typing
       return data;

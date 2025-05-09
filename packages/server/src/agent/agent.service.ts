@@ -5,7 +5,7 @@ import { createAgent } from './utils/agent.factory';
 import { ChatProvider } from './utils/model.factory';
 import { ConfigService } from '@nestjs/config';
 import { agentPromptTemplate } from './prompt';
-import { MessageService } from '../supabase/services/message.service';
+import { MessageService } from '../services/message.service';
 
 interface AgentChatRequest {
   message: string;

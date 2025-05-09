@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { MessageRepositoryInterface } from '../repositories/message-repository.interface';
-import { Message } from '@growly/sdk';
+import { FnReturnType, Message } from '@growly/sdk';
 
 @Injectable()
 export class MessageService {
@@ -27,7 +27,7 @@ export class MessageService {
     threadId: string,
     agentId: string,
     limit?: number
-  ): Promise<Message[]> {
+  ): Promise<FnReturnType<'match_messages'>> {
     return this.messageRepository.searchSimilarMessages(query, threadId, agentId, limit);
   }
 

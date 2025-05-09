@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AgentService } from '../agent/agent.service';
-import { MessageService } from '../supabase/services/message.service';
+import { MessageService } from '../services/message.service';
 
 interface ChatRequest {
   message: string;
