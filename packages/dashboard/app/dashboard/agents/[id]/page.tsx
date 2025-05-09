@@ -15,9 +15,11 @@ export default function AgentPage({ params }: { params: { id: string } }) {
   const [agent, setAgent] = useState<AggregatedAgent | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const isNewAgent = params.id === 'new';
+
   useEffect(() => {
     // In a real app, you would fetch the agent data from your API
-    if (params.id === 'new') {
+    if (isNewAgent) {
       // Create a new agent template
       setAgent({
         id: '',
@@ -64,17 +66,19 @@ export default function AgentPage({ params }: { params: { id: string } }) {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="text-2xl font-bold">
-          {params.id === 'new' ? 'Create Agent' : `Edit Agent: ${agent.name}`}
+          {isNewAgent ? 'Create Agent' : `Edit Agent: ${agent.name}`}
         </h1>
       </div>
 
       <Tabs defaultValue="details" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="details">Details</TabsTrigger>
-          <TabsTrigger value="resources">Resources</TabsTrigger>
-          <TabsTrigger value="workflows">Workflows</TabsTrigger>
-          <TabsTrigger value="logs">Logs</TabsTrigger>
-        </TabsList>
+        {!isNewAgent && (
+          <TabsList>
+            <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="resources">Resources</TabsTrigger>
+            <TabsTrigger value="workflows">Workflows</TabsTrigger>
+            <TabsTrigger value="logs">Logs</TabsTrigger>
+          </TabsList>
+        )}
         <TabsContent value="details">
           <Card>
             <CardHeader>

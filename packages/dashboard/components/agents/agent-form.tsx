@@ -129,7 +129,7 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
                 {availableModels.map(model => (
                   <SelectItem key={model.id} value={model.id}>
                     <div className="flex flex-col">
-                      <span>{model.name}</span>
+                      <span className="font-medium">{model.name}</span>
                       <span className="text-xs text-muted-foreground">{model.description}</span>
                     </div>
                   </SelectItem>

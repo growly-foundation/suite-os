@@ -21,6 +21,7 @@ export default function CreateWorkflowForm({ isEdit }: { isEdit?: boolean }) {
     updateWorkflow,
     deleteWorkflow,
     setIsLoading,
+    fetchWorkflows,
   } = useCreateWorkflowContext();
 
   useEffect(() => {
@@ -33,6 +34,7 @@ export default function CreateWorkflowForm({ isEdit }: { isEdit?: boolean }) {
           setNewWorkflowDesc(workflow.description || '');
         }
         setIsLoading(false);
+        await fetchWorkflows();
       }
     }
     fetchWorkflow();

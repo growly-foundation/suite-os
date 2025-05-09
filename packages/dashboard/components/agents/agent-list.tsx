@@ -38,10 +38,9 @@ export function AgentsList() {
   const [organizationAgents] = useState(agents.filter(agent => agent.organization_id === '1'));
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
       {organizationAgents.map(agent => {
         const { color, icon } = getModelInfo(agent.model);
-
         return (
           <Card key={agent.id} className="overflow-hidden transition-all hover:shadow-md">
             <div className={`h-2 bg-gradient-to-r ${color}`} />
@@ -107,7 +106,7 @@ export function AgentsList() {
               </div>
             </CardContent>
             <CardFooter className="p-0">
-              <Link href={`/agents/${agent.id}`} className="w-full">
+              <Link href={`/dashboard/agents/${agent.id}`} className="w-full">
                 <Button
                   variant="ghost"
                   className="w-full rounded-none h-10 justify-between border-t">

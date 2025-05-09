@@ -3,13 +3,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Step } from '@growly/core';
+import { ParsedStep } from '@growly/core';
 import { suiteCore } from '@/core/suite';
 import { useDashboardState } from '@/hooks/use-dashboard';
 
 type Props = {
   selectedWorkflowId: string;
-  steps: Step[];
+  steps: ParsedStep[];
 };
 
 const WorkflowStepManager = ({ selectedWorkflowId, steps }: Props) => {

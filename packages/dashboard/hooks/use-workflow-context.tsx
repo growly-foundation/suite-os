@@ -1,5 +1,4 @@
 'use client';
-import { Workflow } from '@growly/core';
 import React, { useEffect, useState } from 'react';
 import { suiteCore } from '@/core/suite';
 import { useDashboardState } from '@/hooks/use-dashboard';
@@ -33,8 +32,7 @@ const WorkflowManagementContext = React.createContext<{
 });
 
 export const WorkflowManagementContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const { selectedOrganization } = useDashboardState();
-  const [workflows, setWorkflows] = useState<Workflow[]>([]);
+  const { selectedOrganization, fetchWorkflows } = useDashboardState();
   const [selectedWorkflowId, setSelectedWorkflowId] = useState<string | null>(null);
   const [isCreateWorkflowOpen, setIsCreateWorkflowOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -42,18 +40,6 @@ export const WorkflowManagementContextProvider = ({ children }: { children: Reac
   useEffect(() => {
     fetchWorkflows();
   }, []);
-
-  async function fetchWorkflows() {
-    setIsLoading(true);
-    try {
-      const result = await suiteCore.db.workflows.getAll();
-      setWorkflows(result);
-    } catch (error) {
-      console.error('Failed to fetch workflows:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   async function createWorkflow(name: string, description: string) {
     if (!selectedOrganization) throw new Error('No organization selected');
