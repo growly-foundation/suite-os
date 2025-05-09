@@ -9,13 +9,13 @@
   },
   "scripts": {
     "build": "pnpm clean && pnpm bundle:prod",
-    "dev": "concurrently \"pnpm bundle:dev\"",
+    "dev": "pnpm run db:sync && pnpm run bundle:dev",
     "bundle:dev": "NODE_ENV=development vite build --watch",
     "bundle:prod": "vite build",
     "clean": "rm -rf dist esm",
     "format": "prettier --write .",
     "db:sync": "npx supabase gen types typescript --project-id $PROJECT_ID --schema next_auth,public > src/types/database.types.ts",
-    "db:reset": "sudo ./src/sql/reset.sh"
+    "db:reset": "sudo ./src/sql/reset.sh & pnpm run db:sync & pnpm run build"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

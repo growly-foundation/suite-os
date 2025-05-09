@@ -14,3 +14,7 @@ export type StepId = string;
  * An agent ID.
  */
 export type AgentId = string;
+/**
+ * A message ID.
+ */
+export type MessageId = string;

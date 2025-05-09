@@ -3,6 +3,36 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      admin_organizations: {
+        Row: {
+          admin_id: string;
+          organization_id: string;
+        };
+        Insert: {
+          admin_id: string;
+          organization_id: string;
+        };
+        Update: {
+          admin_id?: string;
+          organization_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'admin_organizations_admin_id_fkey';
+            columns: ['admin_id'];
+            isOneToOne: false;
+            referencedRelation: 'admins';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'admin_organizations_organization_id_fkey';
+            columns: ['organization_id'];
+            isOneToOne: false;
+            referencedRelation: 'organizations';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       admins: {
         Row: {
           created_at: string;
@@ -142,32 +172,24 @@ export type Database = {
       };
       organizations: {
         Row: {
-          admin_id: string | null;
           created_at: string;
+          description: string | null;
           id: string;
           name: string;
         };
         Insert: {
-          admin_id?: string | null;
           created_at?: string;
+          description?: string | null;
           id?: string;
           name: string;
         };
         Update: {
-          admin_id?: string | null;
           created_at?: string;
+          description?: string | null;
           id?: string;
           name?: string;
         };
-        Relationships: [
-          {
-            foreignKeyName: 'organizations_admin_id_fkey';
-            columns: ['admin_id'];
-            isOneToOne: false;
-            referencedRelation: 'admins';
-            referencedColumns: ['id'];
-          },
-        ];
+        Relationships: [];
       };
       steps: {
         Row: {
@@ -274,6 +296,51 @@ export type Database = {
       binary_quantize: {
         Args: { '': string } | { '': unknown };
         Returns: unknown;
+      };
+      get_admin_aggregated_organizations: {
+        Args: { p_admin_id: string };
+        Returns: {
+          organization_id: string;
+          organization_name: string;
+          agents: Json;
+        }[];
+      };
+      get_admin_organization_with_agents_and_workflows: {
+        Args: { p_admin_id: string };
+        Returns: {
+          organization_id: string;
+          organization_name: string;
+          agents: Json;
+        }[];
+      };
+      get_admin_organizations: {
+        Args: { p_admin_id: string };
+        Returns: {
+          admin_id: string;
+          organization_id: string;
+        }[];
+      };
+      get_agents_with_workflows: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          agent_id: string;
+          organization_id: string;
+          name: string;
+          description: string;
+          model: string;
+          resources: string[];
+          status: Database['public']['Enums']['status'];
+          created_at: string;
+          workflows: string[];
+        }[];
+      };
+      get_organizations_with_agents_and_workflows: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          organization_id: string;
+          organization_name: string;
+          agents: Json;
+        }[];
       };
       get_recent_messages: {
         Args: { p_user_id: string; p_agent_id: string; p_limit?: number };

@@ -6,13 +6,13 @@ import {
   SwapToast,
   SwapToggleButton,
 } from '@coinbase/onchainkit/swap';
-import { OnchainKitSwapMessage } from '@growly/core';
+import { OnchainKitSwapMessageContent } from '@growly/core';
 
 export const buildOnchainKitSwapMessage = ({
   fromToken,
   swappableTokens,
   toToken,
-}: OnchainKitSwapMessage['content']) => {
+}: OnchainKitSwapMessageContent['content']) => {
   return (
     <Swap className="w-full" headerLeftContent={''} title={''}>
       <div data-growly-workflow=""></div>

@@ -1,6 +1,10 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { FunctionService, PublicDatabaseService, WorkflowService } from './services';
-import { OrganizationService } from './services/organization.service';
+import {
+  FunctionService,
+  OrganizationService,
+  PublicDatabaseService,
+  WorkflowService,
+} from './services';
 import { SupabaseClientService } from './services/supabase-client.service';
 
 /**
@@ -16,6 +20,7 @@ import { SupabaseClientService } from './services/supabase-client.service';
 export interface SuiteDatabaseCore {
   db: {
     client: SupabaseClient;
+    admins: PublicDatabaseService<'admins'>;
     users: PublicDatabaseService<'users'>;
     workflows: PublicDatabaseService<'workflows'>;
     steps: PublicDatabaseService<'steps'>;
@@ -24,8 +29,8 @@ export interface SuiteDatabaseCore {
     agents: PublicDatabaseService<'agents'>;
   };
   fn: FunctionService;
-  organizations: OrganizationService;
   workflows: WorkflowService;
+  organizations: OrganizationService;
 }
 
 /**
@@ -40,6 +45,7 @@ export const createSuiteDatabaseCore = (
   const supabaseClientService = new SupabaseClientService(supabaseUrl, supabaseKey);
 
   // Database services.
+  const adminDatabaseService = new PublicDatabaseService<'admins'>(supabaseClientService, 'admins');
   const userDatabaseService = new PublicDatabaseService<'users'>(supabaseClientService, 'users');
   const workflowDatabaseService = new PublicDatabaseService<'workflows'>(
     supabaseClientService,
@@ -56,17 +62,23 @@ export const createSuiteDatabaseCore = (
   );
   const agentDatabaseService = new PublicDatabaseService<'agents'>(supabaseClientService, 'agents');
 
-  // Custom services.
-  const workflowService = new WorkflowService(workflowDatabaseService, stepDatabaseService);
-  const organizationService = new OrganizationService(organizationDatabaseService, workflowService);
-
   // Edge functions.
   const functionService = new FunctionService(supabaseClientService);
+
+  // Custom services.
+  const workflowService = new WorkflowService(workflowDatabaseService, stepDatabaseService);
+  const organizationService = new OrganizationService(
+    organizationDatabaseService,
+    agentDatabaseService,
+    workflowService,
+    functionService
+  );
 
   return {
     fn: functionService,
     db: {
       client: supabaseClientService.getClient(),
+      admins: adminDatabaseService,
       users: userDatabaseService,
       workflows: workflowDatabaseService,
       steps: stepDatabaseService,
@@ -74,7 +86,7 @@ export const createSuiteDatabaseCore = (
       messages: messageDatabaseService,
       agents: agentDatabaseService,
     },
-    organizations: organizationService,
     workflows: workflowService,
+    organizations: organizationService,
   };
 };

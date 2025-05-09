@@ -1,9 +1,7 @@
-import { Tables, TablesInsert, TablesUpdate } from '@/types/database.types';
+import { Tables } from '@/types/database.types';
 import { AgentId, OrganizationId, StepId, WorkflowId } from './ids';
 
 export type Step = Tables<'steps'>;
-export type StepInsert = TablesInsert<'steps'>;
-export type StepUpdate = TablesUpdate<'steps'>;
 
 /**
  * A step is an action to be performed when a condition or multiple conditions is met.
