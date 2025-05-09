@@ -1,13 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { MessageRepository } from './message.repository';
 import { FnReturnType, Message, ConversationRole } from '@growly/core';
 
 @Injectable()
 export class MessageService {
-  constructor(
-    @Inject('MessageRepository')
-    private readonly messageRepository: MessageRepository,
-  ) {}
+  constructor(private readonly messageRepository: MessageRepository) {}
 
   async storeMessage(
     message: string,
