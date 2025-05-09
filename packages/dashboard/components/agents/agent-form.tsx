@@ -40,7 +40,10 @@ interface AgentFormProps {
 }
 
 export function AgentForm({ agent, onSave }: AgentFormProps) {
-  const [formData, setFormData] = useState<AggregatedAgent>({ ...agent });
+  const [formData, setFormData] = useState<AggregatedAgent>({
+    ...agent,
+    model: agent.model || availableModels[0].id,
+  });
   const [newResource, setNewResource] = useState('');
 
   // Filter workflows to only show those from the agent's organization
@@ -128,8 +131,12 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
               <SelectContent>
                 {availableModels.map(model => (
                   <SelectItem key={model.id} value={model.id}>
-                    <div className="flex flex-col">
-                      <span className="font-medium">{model.name}</span>
+                    <div className="flex justify-between w-full items-center">
+                      <span
+                        className="font-medium bg-primary text-primary-foreground px-2 py-1 rounded-sm"
+                        style={{ marginRight: 10 }}>
+                        {model.name}
+                      </span>
                       <span className="text-xs text-muted-foreground">{model.description}</span>
                     </div>
                   </SelectItem>
@@ -141,6 +148,9 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
 
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
+          <p className="text-sm text-muted-foreground">
+            The description should provide a brief overview of the agent's purpose and capabilities.
+          </p>
           <Textarea
             id="description"
             name="description"

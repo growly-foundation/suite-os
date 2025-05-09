@@ -9,6 +9,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import type { AggregatedWorkflow } from '@growly/core';
+import { suiteCore } from '@/core/suite';
+import { toast } from 'sonner';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Status } from '@growly/core';
 
 interface WorkflowSettingsProps {
   workflow: AggregatedWorkflow;
@@ -16,13 +21,31 @@ interface WorkflowSettingsProps {
 }
 
 export function WorkflowSettings({ workflow, setWorkflow }: WorkflowSettingsProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setWorkflow({ ...workflow, [name]: value });
   };
 
   const handleStatusChange = (checked: boolean) => {
-    setWorkflow({ ...workflow, status: checked ? 'active' : 'inactive' });
+    setWorkflow({ ...workflow, status: checked ? Status.Active : Status.Inactive });
+  };
+
+  const handleDeleteWorkflow = async () => {
+    setIsLoading(true);
+    try {
+      await suiteCore.db.workflows.delete(workflow.id);
+      toast.success('Workflow deleted successfully');
+      router.push('/dashboard/workflows');
+    } catch (error) {
+      toast.error('Failed to delete workflow', {
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -44,7 +67,7 @@ export function WorkflowSettings({ workflow, setWorkflow }: WorkflowSettingsProp
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="description">Description (optional)</Label>
           <Textarea
             id="description"
             name="description"
@@ -58,12 +81,14 @@ export function WorkflowSettings({ workflow, setWorkflow }: WorkflowSettingsProp
         <div className="flex items-center space-x-2">
           <Switch
             id="status"
-            checked={workflow.status === 'active'}
+            checked={workflow.status === Status.Active}
             onCheckedChange={handleStatusChange}
           />
-          <Label htmlFor="status">{workflow.status === 'active' ? 'Active' : 'Inactive'}</Label>
+          <Label htmlFor="status">
+            {workflow.status === Status.Active ? 'Active' : 'Inactive'}
+          </Label>
           <span className="text-sm text-muted-foreground ml-2">
-            {workflow.status === 'active'
+            {workflow.status === Status.Active
               ? 'Workflow is currently active and processing'
               : 'Workflow is inactive and not processing'}
           </span>
@@ -71,7 +96,9 @@ export function WorkflowSettings({ workflow, setWorkflow }: WorkflowSettingsProp
 
         <div className="pt-4 border-t">
           <h3 className="text-sm font-medium mb-2">Danger Zone</h3>
-          <Button variant="destructive">Delete Workflow</Button>
+          <Button variant="destructive" onClick={handleDeleteWorkflow} disabled={isLoading}>
+            {isLoading ? 'Deleting...' : 'Delete Workflow'}
+          </Button>
         </div>
       </CardContent>
     </Card>

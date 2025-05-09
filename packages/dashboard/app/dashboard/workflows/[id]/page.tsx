@@ -7,14 +7,18 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WorkflowCanvas } from '@/components/workflows/workflow-canvas';
 import { WorkflowSettings } from '@/components/workflows/workflow-settings';
-import { AggregatedWorkflow } from '@growly/core';
+import { AggregatedWorkflow, Status } from '@growly/core';
 import { AddStepDialog } from '@/components/steps/add-step-dialog';
 import { IntegrationGuideDialog } from '@/components/steps/integration-guide-dialog';
 import { useDashboardState } from '@/hooks/use-dashboard';
+import { suiteCore } from '@/core/suite';
+import { toast } from 'sonner';
+import { generateId } from '@/lib/utils';
+import AnimatedBeamContainer from '@/components/animated-beam/animated-beam-container';
 
 export default function WorkflowDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const { fetchOrganizationWorkflowById } = useDashboardState();
+  const { fetchOrganizationWorkflowById, selectedOrganization } = useDashboardState();
   const [workflow, setWorkflow] = useState<AggregatedWorkflow | null>(null);
   const [isAddStepOpen, setIsAddStepOpen] = useState(false);
   const [isIntegrationGuideOpen, setIsIntegrationGuideOpen] = useState(false);
@@ -22,15 +26,19 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
 
   useEffect(() => {
     async function fetchWorkflow() {
-      // In a real app, you would fetch the workflow data from your API
+      if (!selectedOrganization) {
+        router.push('/organizations');
+        toast.error('Please select an organization');
+        return;
+      }
       if (params.id === 'new') {
         // Create a new workflow template
         setWorkflow({
           id: '',
-          name: 'New Workflow',
+          name: `Workflow-${generateId()}`,
           description: '',
-          organization_id: 'org-1',
-          status: 'inactive',
+          organization_id: selectedOrganization.id,
+          status: Status.Inactive,
           created_at: new Date().toISOString(),
           steps: [],
         });
@@ -46,11 +54,21 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
       setLoading(false);
     }
     fetchWorkflow();
-  }, [params.id, router]);
+  }, [params.id, router, selectedOrganization]);
 
-  const handleSave = () => {
-    // In a real app, you would save the workflow data to your API
-    console.log('Saving workflow:', workflow);
+  const handleSave = async () => {
+    if (!workflow || !selectedOrganization) {
+      toast.error('Please select an organization');
+      router.push('/organizations');
+      return;
+    }
+    if (params.id === 'new') {
+      await suiteCore.db.workflows.create(workflow);
+      toast.success('Workflow created successfully');
+    } else {
+      await suiteCore.db.workflows.update(workflow.id, workflow);
+      toast.success('Workflow updated successfully');
+    }
     // Redirect to the workflows page after saving
     if (params.id === 'new') {
       router.push('/dashboard/workflows');
@@ -59,12 +77,10 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
 
   const handleAddStep = (step: any) => {
     if (!workflow) return;
-
     setWorkflow({
       ...workflow,
       steps: [...(workflow.steps || []), step],
     });
-
     setIsAddStepOpen(false);
   };
 
@@ -83,7 +99,9 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
           <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard/workflows')}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-2xl font-bold">{workflow.name}</h1>
+          <h1 className="text-2xl font-bold">
+            {params.id === 'new' ? 'New Workflow' : `Edit: ${workflow.name}`}
+          </h1>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={() => setIsAddStepOpen(true)}>
@@ -110,7 +128,13 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
           </TabsTrigger>
         </TabsList>
         <TabsContent value="canvas" className="p-0">
-          <WorkflowCanvas workflow={workflow} setWorkflow={setWorkflow} />
+          {workflow?.steps?.length > 0 ? (
+            <WorkflowCanvas workflow={workflow} setWorkflow={setWorkflow} />
+          ) : (
+            <div className="flex flex-col items-center justify-center">
+              <p className="text-muted-foreground">No steps added yet. Add steps to get started.</p>
+            </div>
+          )}
         </TabsContent>
         <TabsContent value="settings">
           <WorkflowSettings workflow={workflow} setWorkflow={setWorkflow} />

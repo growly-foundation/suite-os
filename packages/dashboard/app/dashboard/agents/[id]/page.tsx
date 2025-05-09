@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,8 +11,14 @@ import { Agent, AggregatedAgent, Status } from '@growly/core';
 import { AgentForm } from '@/components/agents/agent-form';
 import { AgentWorkflows } from '@/components/agents/agent-workflows';
 import { AgentResources } from '@/components/agents/agent-resources';
+import { useDashboardState } from '@/hooks/use-dashboard';
+import { suiteCore } from '@/core/suite';
+import { toast } from 'sonner';
+
+const DEFAULT_MODEL = 'gpt-4';
 
 export default function AgentPage({ params }: { params: { id: string } }) {
+  const { selectedOrganization } = useDashboardState();
   const router = useRouter();
   const [agent, setAgent] = useState<AggregatedAgent | null>(null);
   const [loading, setLoading] = useState(true);
@@ -20,18 +26,17 @@ export default function AgentPage({ params }: { params: { id: string } }) {
   const isNewAgent = params.id === 'new';
 
   useEffect(() => {
-    // In a real app, you would fetch the agent data from your API
+    if (!selectedOrganization) return;
     if (isNewAgent) {
-      // Create a new agent template
       setAgent({
         id: '',
         name: '',
-        model: '',
+        model: DEFAULT_MODEL,
         description: '',
-        organization_id: '1', // Default to the first organization
+        organization_id: selectedOrganization.id,
         resources: [],
         workflows: [],
-        status: Status.Inactive,
+        status: Status.Active,
         created_at: new Date().toISOString(),
       });
     } else {
@@ -46,19 +51,37 @@ export default function AgentPage({ params }: { params: { id: string } }) {
     setLoading(false);
   }, [params.id, router]);
 
-  const handleSave = (updatedAgent: Agent) => {
-    // In a real app, you would save the agent data to your API
-    console.log('Saving agent:', updatedAgent);
-    // Redirect to the dashboard after saving
-    router.push('/dashboard');
+  const handleAgentUpdate = async (updatedAgent: Agent) => {
+    try {
+      if (!selectedOrganization) return;
+      if (isNewAgent) {
+        updatedAgent.organization_id = selectedOrganization.id;
+        await suiteCore.db.agents.create(updatedAgent);
+        toast.success('Agent created successfully');
+      } else {
+        await suiteCore.db.agents.update(updatedAgent.id, updatedAgent);
+        toast.success('Agent updated successfully');
+      }
+      router.push('/dashboard/agents');
+    } catch (error) {
+      toast.error('Failed to update agent', {
+        description: `Error: ${error}`,
+      });
+    }
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center h-full">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader className="animate-spin" />
+      </div>
+    );
   }
 
   if (!agent) {
-    return <div className="flex items-center justify-center h-full">Agent not found</div>;
+    toast.error('Agent not found');
+    router.push('/dashboard/agents');
+    return <></>;
   }
 
   return (
@@ -88,15 +111,15 @@ export default function AgentPage({ params }: { params: { id: string } }) {
               <CardDescription>Manage your agent's basic information and settings</CardDescription>
             </CardHeader>
             <CardContent>
-              <AgentForm agent={agent} onSave={handleSave} />
+              <AgentForm agent={agent} onSave={handleAgentUpdate} />
             </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="workflows">
-          <AgentWorkflows agent={agent} onUpdate={handleSave} />
+          <AgentWorkflows agent={agent} onUpdate={handleAgentUpdate} />
         </TabsContent>
         <TabsContent value="resources">
-          <AgentResources agent={agent} onUpdate={handleSave} />
+          <AgentResources agent={agent} onUpdate={handleAgentUpdate} />
         </TabsContent>
         <TabsContent value="logs">
           <Card>
