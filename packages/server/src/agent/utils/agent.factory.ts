@@ -1,8 +1,9 @@
 // src/langchain/agent/agent.factory.ts
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
-import { ChatModelFactory, ChatProvider } from './model.factory';
-import { makeZerionTools } from '../tools/zerion/zerion';
 import { ConfigService } from '@nestjs/config';
+import { getProtocolTool } from '../tools/defillama/defillama';
+import { makeZerionTools } from '../tools/zerion/zerion';
+import { ChatModelFactory, ChatProvider } from './model.factory';
 
 /**
  * Initializes and returns an instance of the AI agent with a dynamic system prompt.
@@ -23,7 +24,11 @@ export function createAgent(
     const { getPortfolioOverviewTool, getFungiblePositionsTool } =
       makeZerionTools(configService);
 
-    const tools = [getPortfolioOverviewTool, getFungiblePositionsTool];
+    const tools = [
+      getPortfolioOverviewTool,
+      getFungiblePositionsTool,
+      getProtocolTool,
+    ];
 
     // Initialize Agent without checkpointer
     return createReactAgent({
