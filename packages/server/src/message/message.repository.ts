@@ -35,7 +35,7 @@ export class MessageRepository implements MessageInterface {
         user_id: userId,
         agent_id: agentId,
         sender,
-        embedding: embedding.join(','),
+        embedding: JSON.stringify(embedding),
       });
 
       if (!data) {

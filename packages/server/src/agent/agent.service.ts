@@ -8,7 +8,7 @@ import { RunnableSequence } from '@langchain/core/runnables';
 import { DynamicStructuredTool } from '@langchain/core/tools';
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
 // import { ChatOpenAI } from '@langchain/openai';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { agentPromptTemplate } from './prompt';
 import { getProtocolTool } from './tools/defillama/defillama';
@@ -17,6 +17,7 @@ import { makeZerionTools } from './tools/zerion/zerion';
 import { createAgent } from './utils/agent.factory';
 import { ChatProvider } from './utils/model.factory';
 import { ChatBedrockConverse } from '@langchain/aws';
+import { SuiteDatabaseCore } from '@growly/core';
 
 interface AgentChatRequest {
   message: string;
@@ -36,7 +37,10 @@ interface SupervisorChatRequest {
 export class AgentService {
   private readonly logger = new Logger(AgentService.name);
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    @Inject('GROWLY_SUITE_CORE') private readonly suiteCore: SuiteDatabaseCore,
+  ) {}
 
   // Use Langchain PromptTemplate for dynamic prompt construction
   private async getSystemPrompt(walletAddress: string): Promise<string> {
@@ -59,11 +63,13 @@ export class AgentService {
     if (useReactAgent) {
       return this.reactAgentChat({ message, userId, agentId, history: [] });
     }
+    const user = await this.suiteCore.db.users.getById(userId);
+    const walletAddress = user?.entities?.['walletAddress'] || '';
 
     // Original agent implementation
     const provider: ChatProvider =
       (this.configService.get('MODEL_PROVIDER') as ChatProvider) || 'openai';
-    const systemPrompt = await this.getSystemPrompt(userId);
+    const systemPrompt = await this.getSystemPrompt(walletAddress);
     const agent = createAgent(provider, this.configService, systemPrompt);
 
     const stream = await agent.stream(

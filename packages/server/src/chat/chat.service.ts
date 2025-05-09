@@ -34,11 +34,17 @@ export class ChatService {
 
       // 3. Process with supervisor agent from AgentService
       this.logger.log('Processing with multi-agent supervisor...');
-      const reply = await this.agentService.reactAgentChat({
+      // const reply = await this.agentService.reactAgentChat({
+      //   message,
+      //   userId,
+      //   agentId,
+      //   history,
+      // });
+
+      const reply = await this.agentService.chat({
         message,
         userId,
         agentId,
-        history,
       });
 
       // 4. Store the assistant's response
