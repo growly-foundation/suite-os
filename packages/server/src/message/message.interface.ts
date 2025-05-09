@@ -1,6 +1,6 @@
 import { FnReturnType, Message } from '@growly/core';
 
-export interface MessageRepositoryInterface {
+export interface MessageInterface {
   /**
    * Store a message with its embedding
    */
@@ -9,7 +9,7 @@ export interface MessageRepositoryInterface {
     threadId: string,
     userId: string,
     role: string,
-    embedding?: number[]
+    embedding?: number[],
   ): Promise<Message>;
 
   /**
@@ -24,7 +24,7 @@ export interface MessageRepositoryInterface {
     query: string,
     userId: string,
     agentId: string,
-    limit?: number
+    limit?: number,
   ): Promise<FnReturnType<'match_messages'>>;
 
   /**
