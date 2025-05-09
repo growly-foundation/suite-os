@@ -1,4 +1,4 @@
-import { growlySuiteCore } from '@/core/sdk';
+import { suiteCore } from '@/core/suite';
 import { usePrivy } from '@privy-io/react-auth';
 import React, { useEffect } from 'react';
 import { useDashboardState } from '../../hooks/use-dashboard';
@@ -8,20 +8,20 @@ import { delay } from '@/lib/utils';
 import { AnimatedLoading } from '../animated-loading';
 
 const ProtectedAuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { setUser: setAuthUser } = useDashboardState();
+  const { setAdmin: setAuthUser } = useDashboardState();
   const { user, authenticated, ready } = usePrivy();
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  const fetchCurrentUser = async (email: string) => {
-    let userExists = await growlySuiteCore.db.users.getByField('email', email);
-    if (!userExists) {
-      userExists = await growlySuiteCore.db.users.create({
+  const fetchCurrentAdmin = async (email: string) => {
+    let adminExists = await suiteCore.db.admins.getOneByFields({ email });
+    if (!adminExists) {
+      adminExists = await suiteCore.db.admins.create({
         name: `user-${user?.id}`,
         email: email,
       });
     }
-    setAuthUser(userExists);
+    setAuthUser(adminExists);
   };
 
   useEffect(() => {
@@ -30,7 +30,7 @@ const ProtectedAuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!ready) return;
       if (authenticated && user?.email) {
         try {
-          await fetchCurrentUser(user.email.address);
+          await fetchCurrentAdmin(user.email.address);
           setIsLoading(false);
           router.push('/dashboard');
         } catch (error) {

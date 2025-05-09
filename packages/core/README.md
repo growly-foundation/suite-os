@@ -26,7 +26,7 @@ import { createSuiteDatabaseCore } from '@growly/core';
 /**
  * SDK for interacting with the Growly Suite API.
  */
-export const growlySuiteCore = createSuiteDatabaseCore(
+export const suiteCore = createSuiteDatabaseCore(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_ANON_KEY!
 );

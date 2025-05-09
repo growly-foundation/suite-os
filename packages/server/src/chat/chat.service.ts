@@ -4,7 +4,7 @@ import { MessageService } from '../message/message.service';
 
 interface ChatRequest {
   message: string;
-  threadId: string;
+  userId: string;
   agentId?: string;
 }
 
@@ -17,37 +17,32 @@ export class ChatService {
     private readonly messageService: MessageService,
   ) {}
 
-  async chat({ message, threadId, agentId = 'test' }: ChatRequest) {
+  async chat({ message, userId, agentId = 'test' }: ChatRequest) {
     try {
       // 1. Store the user message
-      await this.messageService.storeMessage(
-        message,
-        threadId,
-        agentId,
-        'user',
-      );
+      await this.messageService.storeMessage(message, userId, agentId, 'user');
 
       // 2. Load conversation history
       const history = await this.messageService.getConversationHistory(
-        threadId,
+        userId,
         agentId,
       );
 
       this.logger.log(
-        `Loaded ${history.length} messages from conversation history for thread ${threadId}`,
+        `Loaded ${history.length} messages from conversation history for thread ${userId}`,
       );
 
       // 3. Process with agent (the agent has its own memory via checkpointer)
       const reply = await this.agentService.chat({
         message,
-        threadId,
+        userId,
         agentId,
       });
 
       // 4. Store the assistant's response
       await this.messageService.storeMessage(
         reply,
-        threadId,
+        userId,
         agentId,
         'assistant',
       );

@@ -1,6 +1,7 @@
 import { AggregatedWorkflow } from '@/models/workflows';
 import { Condition, Action } from '@/models/steps';
 import { PublicDatabaseService } from './database.service';
+import { OrganizationId, WorkflowId } from '@/models';
 
 export class WorkflowService {
   constructor(
@@ -8,7 +9,25 @@ export class WorkflowService {
     private stepDatabaseService: PublicDatabaseService<'steps'>
   ) {}
 
-  async getWorkflowsByOrganizationId(organization_id: string): Promise<AggregatedWorkflow[]> {
+  async getWorkflowWithSteps(workflowId: WorkflowId) {
+    const workflow = await this.workflowDatabaseService.getOneByFields({ id: workflowId });
+    const steps = await this.stepDatabaseService.getAllByFields({
+      workflow_id: workflow.id,
+    });
+    return {
+      ...workflow,
+      steps: steps.map(step => ({
+        ...step,
+        // Expect an array of conditions and actions.
+        conditions: step.conditions as any as Condition[],
+        action: step.action as any as Action[],
+      })),
+    };
+  }
+
+  async getWorkflowsByOrganizationId(
+    organization_id: OrganizationId
+  ): Promise<AggregatedWorkflow[]> {
     const workflows = await this.workflowDatabaseService.getAllByFields({
       organization_id,
     });

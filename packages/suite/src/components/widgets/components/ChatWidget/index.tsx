@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FloatingButton } from './FloatingButton';
 import { ChatPanelContainer, ChatPanel } from './ChatPanel';
-import { ChatMessage } from '@growly/core';
+import { ParsedMessage } from '@growly/core';
 
 function ChatWidgetContainer({
   messages,
@@ -10,8 +10,8 @@ function ChatWidgetContainer({
   setOpen,
   buttonProps,
 }: {
-  messages: ChatMessage[];
-  onMessageSend: (message: ChatMessage) => void;
+  messages: ParsedMessage[];
+  onMessageSend: (message: ParsedMessage) => void;
   open: boolean;
   setOpen: (open: boolean) => void;
   buttonProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
@@ -33,7 +33,7 @@ function ChatWidget(
   props: { defaultOpen?: boolean } & React.ButtonHTMLAttributes<HTMLButtonElement>
 ) {
   const { defaultOpen = false } = props;
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ParsedMessage[]>([]);
   const [open, setOpen] = useState(defaultOpen);
 
   return (

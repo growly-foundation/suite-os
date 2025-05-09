@@ -13,7 +13,7 @@ import { redirect } from 'next/navigation';
 
 export const UserButton = () => {
   const { logout } = usePrivy();
-  const { user } = useDashboardState();
+  const { admin: user } = useDashboardState();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

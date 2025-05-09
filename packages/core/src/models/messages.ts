@@ -1,10 +1,8 @@
 import { Token } from '@coinbase/onchainkit/token';
-import { Tables, TablesInsert, TablesUpdate } from '@/types/database.types';
+import { Tables } from '@/types/database.types';
 
 export type Message = Tables<'messages'>;
-export type MessageInsert = TablesInsert<'messages'>;
-export type MessageUpdate = TablesUpdate<'messages'>;
-export type ParsedMessage = Tables<'messages'> & MessageContent;
+export type ParsedMessage = Omit<Message, 'content'> & MessageContent;
 
 /**
  * Role of the participant in the conversation.

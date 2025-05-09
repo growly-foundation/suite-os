@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import React, { useLayoutEffect } from 'react';
-import { ChatMessage, ChatRole, getNextMessageId } from '@growly/core';
+import { ConversationRole, ParsedMessage } from '@growly/core';
 import ChatResponse from './ChatResponse';
 import AgentAvatar from '../../../agent/components/AgentAvatar';
 import { useSuite } from '@/provider';
@@ -17,8 +17,8 @@ import { border, cn, pressable, text } from '@/styles/theme';
 interface PanelProps {
   open: boolean;
   onClose: () => void;
-  messages: ChatMessage[];
-  onSend: (message: ChatMessage) => void;
+  messages: ParsedMessage[];
+  onSend: (message: ParsedMessage) => void;
 }
 
 export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'>) {
@@ -28,15 +28,15 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
 
   const sendMessageHandler = () => {
     if (inputValue.trim().length > 0) {
-      const lastestMessage = messages[messages.length - 1];
-      const newMessage: ChatMessage = {
-        id: lastestMessage ? getNextMessageId(lastestMessage.id) : 'message-0',
-        message: {
-          type: 'text',
-          content: inputValue,
-        },
-        from: ChatRole.User,
-        timestamp: new Date(),
+      const newMessage: ParsedMessage = {
+        id: '123',
+        type: 'text',
+        agent_id: '1',
+        embedding: null,
+        user_id: '1',
+        content: inputValue,
+        sender: ConversationRole.User,
+        created_at: new Date().toISOString(),
       };
       onSend(newMessage);
       setRefreshing(+new Date());

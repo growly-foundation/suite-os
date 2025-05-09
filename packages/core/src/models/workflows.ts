@@ -1,10 +1,8 @@
 import { StepId, WorkflowId } from './ids';
-import { Tables, TablesInsert, TablesUpdate } from '@/types/database.types';
+import { Tables } from '@/types/database.types';
 import { Condition, ParsedStep } from './steps';
 
 export type Workflow = Tables<'workflows'>;
-export type WorkflowInsert = TablesInsert<'workflows'>;
-export type WorkflowUpdate = TablesUpdate<'workflows'>;
 export type AggregatedWorkflow = Workflow & { steps: ParsedStep[] };
 
 export type UserDefinedPayload = UserDefinedStep;

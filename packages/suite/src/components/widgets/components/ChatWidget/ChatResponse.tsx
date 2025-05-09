@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui/card';
-import { ChatMessage, MessageId, ChatRole } from '@growly/core';
+import { ConversationRole, Message, MessageId, ParsedMessage } from '@growly/core';
 import { motion } from 'framer-motion';
 import AgentAvatar from '../../../agent/components/AgentAvatar';
 import { useSuite } from '@/provider';
@@ -10,7 +10,7 @@ import {
 } from '@/components/messages/onchainkit';
 import { border, text } from '@/styles/theme';
 
-const MessageContent = ({ message }: { message: ChatMessage['message'] }) => {
+const MessageContent = ({ message }: { message: ParsedMessage }) => {
   const { config } = useSuite();
   const onchainKitEnabled = config?.onchainKit?.enabled;
   if (message.type === 'text') {
@@ -32,7 +32,7 @@ const MessageContent = ({ message }: { message: ChatMessage['message'] }) => {
   return <></>;
 };
 
-const AgentResponse = ({ message, id }: { message: ChatMessage; id: MessageId }) => {
+const AgentResponse = ({ message, id }: { message: ParsedMessage; id: MessageId }) => {
   const { config } = useSuite();
   return (
     <motion.div
@@ -46,7 +46,7 @@ const AgentResponse = ({ message, id }: { message: ChatMessage; id: MessageId })
       <Card
         className={cn(
           'p-3 bg-muted',
-          message.message.type === 'onchainkit:swap' ? 'w-full' : 'max-w-[75%]',
+          message.type === 'onchainkit:swap' ? 'w-full' : 'max-w-[75%]',
           text.body,
           border.default
         )}
@@ -54,13 +54,13 @@ const AgentResponse = ({ message, id }: { message: ChatMessage; id: MessageId })
           backgroundColor: config?.theme?.backgroundForeground,
           color: config?.theme?.textForeground,
         }}>
-        <MessageContent message={message.message} />
+        <MessageContent message={message} />
       </Card>
     </motion.div>
   );
 };
 
-const UserResponse = ({ message, id }: { message: ChatMessage; id: MessageId }) => {
+const UserResponse = ({ message, id }: { message: ParsedMessage; id: MessageId }) => {
   const { config } = useSuite();
   return (
     <motion.div
@@ -76,7 +76,7 @@ const UserResponse = ({ message, id }: { message: ChatMessage; id: MessageId }) 
           backgroundColor: config?.theme?.secondary,
           color: config?.theme?.text,
         }}>
-        <MessageContent message={message.message} />
+        <MessageContent message={message} />
       </Card>
     </motion.div>
   );
@@ -87,12 +87,12 @@ const ChatResponse = ({
   id,
   ref,
 }: {
-  message: ChatMessage;
+  message: ParsedMessage;
   id: MessageId;
   ref?: React.RefObject<HTMLDivElement> | null;
 }) => {
   const innerResponse =
-    message.from === ChatRole.User ? (
+    message.sender === ConversationRole.User ? (
       <UserResponse id={id} key={id} message={message} />
     ) : (
       <AgentResponse id={id} key={id} message={message} />

@@ -93,7 +93,7 @@ const navigation = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { user } = useDashboardState();
+  const { admin: user } = useDashboardState();
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {

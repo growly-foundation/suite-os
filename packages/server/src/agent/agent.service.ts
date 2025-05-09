@@ -7,7 +7,7 @@ import { agentPromptTemplate } from './prompt';
 interface AgentChatRequest {
   message: string;
   agentId: string;
-  threadId: string;
+  userId: string;
 }
 
 @Injectable()
@@ -19,22 +19,18 @@ export class AgentService {
     return (await agentPromptTemplate.invoke({ walletAddress })).toString();
   }
 
-  async chat({
-    message,
-    threadId,
-    agentId,
-  }: AgentChatRequest): Promise<string> {
-    // TODO: Get agent from database
-    console.log('agentId', agentId);
+  async chat({ message, userId, agentId }: AgentChatRequest): Promise<string> {
+    // Store the user message in Supabase
+    await this.messageService.storeMessage(message, userId, agentId, 'user');
 
     const provider: ChatProvider =
       (this.configService.get('MODEL_PROVIDER') as ChatProvider) || 'openai';
-    const systemPrompt = await this.getSystemPrompt(threadId);
+    const systemPrompt = await this.getSystemPrompt(userId);
     const agent = createAgent(provider, this.configService, systemPrompt);
 
     const stream = await agent.stream(
       { messages: [{ content: message, role: 'user' }] },
-      { configurable: { thread_id: threadId } },
+      { configurable: { thread_id: userId } },
     );
 
     let agentResponse = '';
@@ -44,6 +40,14 @@ export class AgentService {
         agentResponse += chunk.agent.messages[0].content;
       }
     }
+
+    // Store the assistant response in Supabase
+    await this.messageService.storeMessage(
+      agentResponse,
+      userId,
+      agentId,
+      'assistant',
+    );
 
     return agentResponse;
   }
