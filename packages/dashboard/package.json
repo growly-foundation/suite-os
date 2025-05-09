@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@auth/supabase-adapter": "^1.9.0",
-    "@growly/sdk": "workspace:*",
+    "@growly/core": "workspace:*",
     "@growly/suite": "workspace:*",
     "@hookform/resolvers": "^3.9.1",
     "@privy-io/react-auth": "^2.13.0",

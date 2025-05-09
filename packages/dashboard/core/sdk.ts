@@ -1,4 +1,4 @@
-import { createSuiteSdk } from '@growly/sdk';
+import { createSuiteSdk } from '@growly/core';
 import { ENV_VARIABLES } from '@/constants/env';
 
 /**

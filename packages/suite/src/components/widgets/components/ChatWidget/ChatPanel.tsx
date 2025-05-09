@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import React, { useLayoutEffect } from 'react';
-import { ChatMessage, ChatRole, getNextMessageId } from '@growly/sdk';
+import { ChatMessage, ChatRole, getNextMessageId } from '@growly/core';
 import ChatResponse from './ChatResponse';
 import AgentAvatar from '../../../agent/components/AgentAvatar';
 import { useSuite } from '@/provider';

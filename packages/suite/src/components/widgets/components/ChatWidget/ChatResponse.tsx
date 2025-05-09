@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui/card';
-import { ChatMessage, MessageId, ChatRole } from '@growly/sdk';
+import { ChatMessage, MessageId, ChatRole } from '@growly/core';
 import { motion } from 'framer-motion';
 import AgentAvatar from '../../../agent/components/AgentAvatar';
 import { useSuite } from '@/provider';

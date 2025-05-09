@@ -1,6 +1,6 @@
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createSuiteDatabaseCore, SuiteDatabaseCore } from '@growly/sdk';
+import { createSuiteDatabaseCore, SuiteDatabaseCore } from '@growly/core';
 
 export const SuiteCoreProvider: Provider = {
   provide: 'GROWLY_SUITE_CORE',

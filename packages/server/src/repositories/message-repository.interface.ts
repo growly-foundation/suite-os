@@ -1,4 +1,4 @@
-import { FnReturnType, Message } from '@growly/sdk';
+import { FnReturnType, Message } from '@growly/core';
 
 export interface MessageRepositoryInterface {
   /**

@@ -1,5 +1,5 @@
 'use client';
-import { WorkflowTable } from '@growly/sdk';
+import { WorkflowTable } from '@growly/core';
 import React, { useEffect, useState } from 'react';
 import { growlySuiteSdk } from '@/core/sdk';
 import { useDashboardState } from '@/hooks/use-dashboard';

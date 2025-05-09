@@ -6,7 +6,7 @@ import {
   SwapToast,
   SwapToggleButton,
 } from '@coinbase/onchainkit/swap';
-import { OnchainKitSwapMessage } from '@growly/sdk';
+import { OnchainKitSwapMessage } from '@growly/core';
 
 export const buildOnchainKitSwapMessage = ({
   fromToken,

@@ -1,7 +1,7 @@
 import { growlySuiteSdk } from '@/core/sdk';
-import { AggregatedWorkflow } from '@growly/sdk';
+import { AggregatedWorkflow } from '@growly/core';
 import { create } from 'zustand';
-import { OrganizationTable, UserTable } from '@growly/sdk';
+import { OrganizationTable, UserTable } from '@growly/core';
 
 /**
  * State storage for managing application state.

@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { StepTable } from '@growly/sdk';
+import { StepTable } from '@growly/core';
 import { growlySuiteSdk } from '@/core/sdk';
 import { useDashboardState } from '@/hooks/use-dashboard';
 

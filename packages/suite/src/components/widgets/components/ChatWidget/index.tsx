@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FloatingButton } from './FloatingButton';
 import { ChatPanelContainer, ChatPanel } from './ChatPanel';
-import { ChatMessage } from '@growly/sdk';
+import { ChatMessage } from '@growly/core';
 
 function ChatWidgetContainer({
   messages,

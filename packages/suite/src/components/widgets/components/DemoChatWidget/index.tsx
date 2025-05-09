@@ -1,4 +1,4 @@
-import { ChatMessage, ChatRole } from '@growly/sdk';
+import { ChatMessage, ChatRole } from '@growly/core';
 import { ChatWidgetContainer } from '../ChatWidget';
 import { useState } from 'react';
 import { ETHToken, USDCToken } from './tokens';

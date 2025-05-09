@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { MessageRepositoryInterface } from '../repositories/message-repository.interface';
-import { FnReturnType, Message } from '@growly/sdk';
+import { FnReturnType, Message } from '@growly/core';
 
 @Injectable()
 export class MessageService {
