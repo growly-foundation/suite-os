@@ -71,7 +71,9 @@ export function AgentWorkflows({ agent, onUpdate }: AgentWorkflowsProps) {
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle>Assigned Workflows</CardTitle>
-          <CardDescription>Manage the workflows this agent can execute</CardDescription>
+          <CardDescription className="mt-1">
+            Manage the workflows this agent can execute
+          </CardDescription>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>

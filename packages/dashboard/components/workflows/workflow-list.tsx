@@ -21,13 +21,17 @@ export function WorkflowsList({ workflows }: { workflows: AggregatedWorkflow[] }
   return (
     <div className="space-y-4">
       {workflows.map(workflow => (
-        <Card key={workflow.id} className="overflow-hidden">
+        <Card
+          key={workflow.id}
+          className="overflow-hidden hover:shadow-lg transition-all duration-200 border-0 bg-gradient-to-r from-white to-blue-50/30">
           <CardContent className="p-6">
             <div className="flex justify-between items-start">
               <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-lg">{workflow.name}</h3>
-                  <Badge variant={workflow.status === 'active' ? 'default' : 'secondary'}>
+                <div className="flex items-center gap-3">
+                  <h3 className="font-medium text-lg tracking-tight">{workflow.name}</h3>
+                  <Badge
+                    variant={workflow.status === 'active' ? 'default' : 'secondary'}
+                    className="px-2 py-0.5 rounded-md font-medium uppercase text-[10px] tracking-wider">
                     {workflow.status}
                   </Badge>
                 </div>
@@ -60,11 +64,11 @@ export function WorkflowsList({ workflows }: { workflows: AggregatedWorkflow[] }
               <div>{workflow.steps?.length || 0} steps</div>
             </div>
           </CardContent>
-          <CardFooter className="bg-muted/50 px-6 py-3 flex justify-between">
+          <CardFooter className="bg-gradient-to-b from-transparent to-muted/20 px-6 py-3 flex justify-between">
             <Button
               variant="ghost"
               size="sm"
-              className="text-muted-foreground"
+              className="text-muted-foreground hover:text-primary hover:bg-blue-50/50 transition-colors"
               onClick={() => toggleWorkflowStatus(workflow.id)}>
               {workflow.status === 'active' ? (
                 <>
@@ -79,7 +83,10 @@ export function WorkflowsList({ workflows }: { workflows: AggregatedWorkflow[] }
               )}
             </Button>
             <Link href={`/dashboard/workflows/${workflow.id}`}>
-              <Button variant="ghost" size="sm">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hover:bg-blue-50/50 hover:text-primary transition-colors">
                 Edit Workflow
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
