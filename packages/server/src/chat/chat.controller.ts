@@ -10,7 +10,7 @@ export class ChatController {
   async chat(
     @Body('message') message: string,
     @Body('threadId') threadId: string,
-    @Body('agentId') agentId?: string,
+    @Body('agentId') agentId?: string
   ) {
     const reply = await this.chatService.chat({ message, threadId, agentId });
     return { reply };

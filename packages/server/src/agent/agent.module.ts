@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AgentService } from './agent.service';
 import { ConfigModule } from '@nestjs/config';
-import { SupabaseModule } from '../supabase/supabase.module';
+import { DatabaseModule } from '../databases/database.module';
 
 @Module({
-  imports: [ConfigModule, SupabaseModule],
+  imports: [ConfigModule, DatabaseModule],
   providers: [AgentService],
   exports: [AgentService],
 })

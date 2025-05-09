@@ -1,6 +1,5 @@
 import { SupabaseClientService } from './supabase-client.service';
-import { v4 as uuidv4 } from 'uuid';
-import { Database } from '@/types';
+import { Database } from '@/types/database.types';
 
 export class PublicDatabaseService<T extends keyof Database['public']['Tables']> {
   constructor(
@@ -22,17 +21,31 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
     return data!;
   }
 
-  async getAllByField(
-    field: string,
-    value: string
+  async getAllByFields(
+    fields: Partial<Record<keyof Database['public']['Tables'][T]['Row'], string>>
   ): Promise<Database['public']['Tables'][T]['Row'][]> {
-    const { data, error } = await this.getClient()
+    const queryBuilder = this.getClient()
       .from(this.table as string)
-      .select('*')
-      .eq(field, value);
+      .select('*');
+
+    for (const [field, value] of Object.entries(fields)) {
+      queryBuilder.eq(field, value);
+    }
+    const { data, error } = await queryBuilder.order('created_at', { ascending: true });
 
     if (error) throw error;
     return data!;
+  }
+
+  async getOne(): Promise<Database['public']['Tables'][T]['Row'] | null> {
+    const { data, error } = await this.getClient()
+      .from(this.table as string)
+      .select('*')
+      .limit(1)
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 
   async getById(id: string): Promise<Database['public']['Tables'][T]['Row'] | null> {
