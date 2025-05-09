@@ -21,7 +21,7 @@ export class WorkflowService {
         steps: steps.map(step => ({
           ...step,
           // Expect an array of conditions and actions.
-          conditions: step.conditions as any as Condition[],
+          conditions: step.conditions as any as Condition,
           action: step.action as any as Action[],
         })),
       };
@@ -47,7 +47,7 @@ export class WorkflowService {
         steps: steps.map(step => ({
           ...step,
           // Expect an array of conditions and actions.
-          conditions: step.conditions as any as Condition[],
+          conditions: step.conditions as any as Condition,
           action: step.action as any as Action[],
         })),
       });

@@ -32,7 +32,7 @@ const WorkflowManagementContext = React.createContext<{
 });
 
 export const WorkflowManagementContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const { selectedOrganization, fetchWorkflows } = useDashboardState();
+  const { selectedOrganization, fetchOrganizationWorkflows: fetchWorkflows } = useDashboardState();
   const [selectedWorkflowId, setSelectedWorkflowId] = useState<string | null>(null);
   const [isCreateWorkflowOpen, setIsCreateWorkflowOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

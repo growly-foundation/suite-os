@@ -9,6 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getAgentById } from '@/lib/data/mock';
 import { Agent, AggregatedAgent, Status } from '@growly/core';
 import { AgentForm } from '@/components/agents/agent-form';
+import { AgentWorkflows } from '@/components/agents/agent-workflows';
+import { AgentResources } from '@/components/agents/agent-resources';
 
 export default function AgentPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -90,31 +92,11 @@ export default function AgentPage({ params }: { params: { id: string } }) {
             </CardContent>
           </Card>
         </TabsContent>
-        <TabsContent value="resources">
-          <Card>
-            <CardHeader>
-              <CardTitle>Resources</CardTitle>
-              <CardDescription>Manage resources that this agent can access</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Resource management will be available soon.
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
         <TabsContent value="workflows">
-          <Card>
-            <CardHeader>
-              <CardTitle>Workflows</CardTitle>
-              <CardDescription>Manage workflows assigned to this agent</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Workflow management will be available soon.
-              </p>
-            </CardContent>
-          </Card>
+          <AgentWorkflows agent={agent} onUpdate={handleSave} />
+        </TabsContent>
+        <TabsContent value="resources">
+          <AgentResources agent={agent} onUpdate={handleSave} />
         </TabsContent>
         <TabsContent value="logs">
           <Card>

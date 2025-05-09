@@ -25,11 +25,11 @@ export type DashboardAppState = {
   createOrganization: (name: string, description: string) => Promise<AggregatedOrganization>;
 
   // Workflows
-  workflows: AggregatedWorkflow[];
-  getWorkflow: (workflowId: WorkflowId) => AggregatedWorkflow | undefined;
-  setWorkflows: (workflows: AggregatedWorkflow[]) => void;
-  fetchWorkflows: () => Promise<void>;
-  fetchWorkflowById: (workflowId: WorkflowId) => Promise<void>;
+  organizationWorkflows: AggregatedWorkflow[];
+  getOrganizationWorkflows: (workflowId: WorkflowId) => AggregatedWorkflow | undefined;
+  setOrganizationWorkflows: (workflows: AggregatedWorkflow[]) => void;
+  fetchOrganizationWorkflows: () => Promise<AggregatedWorkflow[]>;
+  fetchOrganizationWorkflowById: (workflowId: WorkflowId) => Promise<AggregatedWorkflow | null>;
 };
 
 /**
@@ -72,24 +72,30 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
   },
 
   // Workflows
-  workflows: [],
-  getWorkflow: (workflowId: string) => get().workflows.find(workflow => workflow.id === workflowId),
-  setWorkflows: (workflows: AggregatedWorkflow[]) => set({ workflows }),
-  fetchWorkflows: async () => {
+  organizationWorkflows: [],
+  getOrganizationWorkflows: (workflowId: string) =>
+    get().organizationWorkflows.find(workflow => workflow.id === workflowId),
+  setOrganizationWorkflows: (workflows: AggregatedWorkflow[]) =>
+    set({ organizationWorkflows: workflows }),
+  fetchOrganizationWorkflows: async () => {
     const selectedOrganization = get().selectedOrganization;
     if (!selectedOrganization) throw new Error('No organization selected');
 
     const aggregatedWorkflows: AggregatedWorkflow[] =
       await suiteCore.workflows.getWorkflowsByOrganizationId(selectedOrganization.id);
-    set({ workflows: aggregatedWorkflows });
+    set({ organizationWorkflows: aggregatedWorkflows });
+    return aggregatedWorkflows;
   },
 
   // Steps
-  fetchWorkflowById: async (workflowId: string) => {
+  fetchOrganizationWorkflowById: async (workflowId: string) => {
     const workflow = await suiteCore.workflows.getWorkflowWithSteps(workflowId);
     if (!workflow) throw new Error('Workflow not found');
     set(state => ({
-      workflows: state.workflows.map(w => (workflow.id === workflowId ? workflow : w)),
+      organizationWorkflows: state.organizationWorkflows.map(w =>
+        workflow.id === workflowId ? workflow : w
+      ),
     }));
+    return workflow;
   },
 }));

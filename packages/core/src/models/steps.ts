@@ -8,7 +8,7 @@ export type Step = Tables<'steps'>;
  */
 export type ParsedStep = Omit<Step, 'conditions' | 'action'> & {
   /** Conditions for the step to be triggered. Conditions will be checked in order. */
-  conditions: Condition[];
+  conditions: Condition;
   /** Action to be performed when the step is triggered. */
   action: Action[];
 };
