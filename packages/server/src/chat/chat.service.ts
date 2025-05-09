@@ -32,7 +32,15 @@ export class ChatService {
         `Loaded ${history.length} messages from conversation history for thread ${userId}`,
       );
 
-      // 3. Process with agent (the agent has its own memory via checkpointer)
+      // 3. Process with supervisor agent from AgentService
+      this.logger.log('Processing with multi-agent supervisor...');
+      // const reply = await this.agentService.reactAgentChat({
+      //   message,
+      //   userId,
+      //   agentId,
+      //   history,
+      // });
+
       const reply = await this.agentService.chat({
         message,
         userId,
