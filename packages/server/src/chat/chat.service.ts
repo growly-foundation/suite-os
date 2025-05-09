@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AgentService } from '../agent/agent.service';
-import { MessageService } from '../services/message.service';
+import { MessageService } from '../message/message.service';
 
 interface ChatRequest {
   message: string;
@@ -14,19 +14,27 @@ export class ChatService {
 
   constructor(
     private readonly agentService: AgentService,
-    private readonly messageService: MessageService
+    private readonly messageService: MessageService,
   ) {}
 
   async chat({ message, threadId, agentId = 'test' }: ChatRequest) {
     try {
       // 1. Store the user message
-      await this.messageService.storeMessage(message, threadId, agentId, 'user');
+      await this.messageService.storeMessage(
+        message,
+        threadId,
+        agentId,
+        'user',
+      );
 
       // 2. Load conversation history
-      const history = await this.messageService.getConversationHistory(threadId, agentId);
+      const history = await this.messageService.getConversationHistory(
+        threadId,
+        agentId,
+      );
 
       this.logger.log(
-        `Loaded ${history.length} messages from conversation history for thread ${threadId}`
+        `Loaded ${history.length} messages from conversation history for thread ${threadId}`,
       );
 
       // 3. Process with agent (the agent has its own memory via checkpointer)
@@ -37,12 +45,20 @@ export class ChatService {
       });
 
       // 4. Store the assistant's response
-      await this.messageService.storeMessage(reply, threadId, agentId, 'assistant');
+      await this.messageService.storeMessage(
+        reply,
+        threadId,
+        agentId,
+        'assistant',
+      );
 
       // Return the response
       return reply;
     } catch (error) {
-      this.logger.error(`Error in chat processing: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error in chat processing: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }

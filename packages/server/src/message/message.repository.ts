@@ -1,15 +1,20 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import OpenAI from 'openai';
-import { MessageRepositoryInterface } from './message-repository.interface';
-import { ConversationRole, FnReturnType, Message, SuiteDatabaseCore } from '@growly/core';
+import { MessageInterface } from './message.interface';
+import {
+  ConversationRole,
+  FnReturnType,
+  Message,
+  SuiteDatabaseCore,
+} from '@growly/core';
 
 @Injectable()
-export class MessageDatabaseRepository implements MessageRepositoryInterface {
-  private readonly logger = new Logger(MessageDatabaseRepository.name);
+export class MessageRepository implements MessageInterface {
+  private readonly logger = new Logger(MessageRepository.name);
 
   constructor(
     @Inject('GROWLY_SUITE_CORE') private readonly suiteCore: SuiteDatabaseCore,
-    @Inject('OPENAI_CLIENT') private readonly openai: OpenAI
+    @Inject('OPENAI_CLIENT') private readonly openai: OpenAI,
   ) {}
 
   async storeMessageWithEmbedding(
@@ -17,11 +22,12 @@ export class MessageDatabaseRepository implements MessageRepositoryInterface {
     userId: string,
     agentId: string,
     sender: ConversationRole,
-    existingEmbedding?: number[]
+    existingEmbedding?: number[],
   ): Promise<Message> {
     try {
       // Generate embedding if not provided
-      const embedding = existingEmbedding || (await this.createEmbedding(message));
+      const embedding =
+        existingEmbedding || (await this.createEmbedding(message));
 
       // Store the message with its embedding
       const data = await this.suiteCore.db.messages.create({
@@ -44,7 +50,10 @@ export class MessageDatabaseRepository implements MessageRepositoryInterface {
     }
   }
 
-  async getConversationHistory(userId: string, agentId: string): Promise<Message[]> {
+  async getConversationHistory(
+    userId: string,
+    agentId: string,
+  ): Promise<Message[]> {
     try {
       const data = await this.suiteCore.db.messages.getAllByFields({
         user_id: userId,
@@ -67,7 +76,7 @@ export class MessageDatabaseRepository implements MessageRepositoryInterface {
     query: string,
     userId: string,
     agentId: string,
-    limit = 5
+    limit = 5,
   ): Promise<FnReturnType<'match_messages'>> {
     try {
       // Generate embedding for the query
