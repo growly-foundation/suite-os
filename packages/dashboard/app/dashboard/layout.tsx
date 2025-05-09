@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Bell, Home, Settings } from 'lucide-react';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { UserButton } from '@/components/auth/user-button';
+import { OrganizationSwitcher } from '@/components/organizations/organization-switcher';
 
 // Mock icons for navigation
 const IconHome = Home;
@@ -118,6 +119,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Link href="/dashboard" className="font-bold text-xl flex items-center">
               Growly Suite
             </Link>
+            <OrganizationSwitcher />
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon">

@@ -1,4 +1,4 @@
-import { Agent, AggregatedAgent, Organization, Status, Workflow } from '@growly/core';
+import { AggregatedAgent, Organization, Status, Workflow } from '@growly/core';
 
 // Mock data for organizations
 export const organizations: Organization[] = [

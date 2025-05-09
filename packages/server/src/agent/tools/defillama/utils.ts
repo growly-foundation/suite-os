@@ -15,21 +15,13 @@ interface TimeSeriesDataPoint {
  * @param maxEntries - Maximum number of entries to keep
  * @returns The processed array (sorted and limited)
  */
-const processTimeSeriesArray = (
-  array: unknown[],
-  maxEntries: number,
-): unknown[] => {
+const processTimeSeriesArray = (array: unknown[], maxEntries: number): unknown[] => {
   if (array.length <= maxEntries) {
     return array;
   }
 
   // Sort by date if array items have date property
-  if (
-    array.length > 0 &&
-    typeof array[0] === 'object' &&
-    array[0] !== null &&
-    'date' in array[0]
-  ) {
+  if (array.length > 0 && typeof array[0] === 'object' && array[0] !== null && 'date' in array[0]) {
     array.sort((a, b) => {
       if (
         a &&
@@ -41,9 +33,7 @@ const processTimeSeriesArray = (
         typeof (a as TimeSeriesDataPoint).date === 'number' &&
         typeof (b as TimeSeriesDataPoint).date === 'number'
       ) {
-        return (
-          (b as TimeSeriesDataPoint).date - (a as TimeSeriesDataPoint).date
-        );
+        return (b as TimeSeriesDataPoint).date - (a as TimeSeriesDataPoint).date;
       }
       return 0;
     });
@@ -62,7 +52,7 @@ const processTimeSeriesArray = (
  */
 export const pruneGetProtocolResponse = (
   data: ProtocolResponse | null,
-  maxEntries = 5,
+  maxEntries = 5
 ): PrunedProtocolResponse | null => {
   if (!data) {
     return null;
@@ -79,7 +69,7 @@ export const pruneGetProtocolResponse = (
 
     if (Array.isArray(obj)) {
       const isTimeSeriesArray = timeSeriesArrayPaths.some(
-        (path) => currentPath === path || currentPath.endsWith(`.${path}`),
+        path => currentPath === path || currentPath.endsWith(`.${path}`)
       );
 
       if (isTimeSeriesArray) {
@@ -111,14 +101,8 @@ export const pruneGetProtocolResponse = (
       const chainData = result.chainTvls[chain];
 
       for (const timeSeriesKey of timeSeriesArrayPaths) {
-        if (
-          chainData[timeSeriesKey] &&
-          Array.isArray(chainData[timeSeriesKey])
-        ) {
-          chainData[timeSeriesKey] = processTimeSeriesArray(
-            chainData[timeSeriesKey],
-            maxEntries,
-          );
+        if (chainData[timeSeriesKey] && Array.isArray(chainData[timeSeriesKey])) {
+          chainData[timeSeriesKey] = processTimeSeriesArray(chainData[timeSeriesKey], maxEntries);
         }
       }
     }

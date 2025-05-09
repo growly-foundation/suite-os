@@ -13,11 +13,11 @@ import {
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { organizations } from '@/lib/data/mock';
+import { useDashboardState } from '@/hooks/use-dashboard';
 
 export function OrganizationSwitcher() {
+  const { selectedOrganization, organizations, setSelectedOrganization } = useDashboardState();
   const [open, setOpen] = useState(false);
-  const [selectedOrg, setSelectedOrg] = useState(organizations[0]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -26,17 +26,19 @@ export function OrganizationSwitcher() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between">
+          className="w-[300px] justify-between">
           <div className="flex items-center gap-2 truncate">
             <div className="flex h-5 w-5 items-center justify-center rounded-md bg-primary/10">
-              <span className="text-xs font-bold text-primary">{selectedOrg.name.charAt(0)}</span>
+              <span className="text-xs font-bold text-primary">
+                {selectedOrganization?.name.charAt(0)}
+              </span>
             </div>
-            <span className="truncate">{selectedOrg.name}</span>
+            <span className="truncate">{selectedOrganization?.name}</span>
           </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-[300px] p-0">
         <Command>
           <CommandInput placeholder="Search organization..." />
           <CommandList>
@@ -47,7 +49,7 @@ export function OrganizationSwitcher() {
                   key={org.id}
                   value={org.name}
                   onSelect={() => {
-                    setSelectedOrg(org);
+                    setSelectedOrganization(org);
                     setOpen(false);
                   }}>
                   <div className="flex h-5 w-5 items-center justify-center rounded-md bg-primary/10 mr-2">
@@ -57,7 +59,7 @@ export function OrganizationSwitcher() {
                   <Check
                     className={cn(
                       'ml-auto h-4 w-4',
-                      selectedOrg.id === org.id ? 'opacity-100' : 'opacity-0'
+                      selectedOrganization?.id === org.id ? 'opacity-100' : 'opacity-0'
                     )}
                   />
                 </CommandItem>

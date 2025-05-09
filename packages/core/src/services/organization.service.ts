@@ -6,6 +6,7 @@ import { FunctionService } from './function.service';
 export class OrganizationService {
   constructor(
     private organizationDatabaseService: PublicDatabaseService<'organizations'>,
+    private adminOrganizationDatabaseService: PublicDatabaseService<'admin_organizations'>,
     private agentDatabaseService: PublicDatabaseService<'agents'>,
     private workflowService: WorkflowService,
     private functionService: FunctionService
@@ -26,5 +27,25 @@ export class OrganizationService {
       aggregatedOrganizations.push({ ...organization, workflows, agents });
     }
     return aggregatedOrganizations;
+  }
+
+  async createOrganization(
+    name: string,
+    description: string,
+    admin_id: string
+  ): Promise<AggregatedOrganization> {
+    const organization = await this.organizationDatabaseService.create({
+      name,
+      description,
+    });
+    await this.adminOrganizationDatabaseService.create({
+      admin_id,
+      organization_id: organization.id,
+    });
+    return {
+      ...organization,
+      workflows: [],
+      agents: [],
+    };
   }
 }

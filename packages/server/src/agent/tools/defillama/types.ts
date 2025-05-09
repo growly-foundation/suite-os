@@ -33,13 +33,7 @@ export interface TokenTimeSeriesDataPoint {
 /**
  * Type for representing generic metadata values that can be returned by DefiLlama API
  */
-export type MetadataValue =
-  | string
-  | number
-  | boolean
-  | null
-  | Record<string, unknown>
-  | unknown[];
+export type MetadataValue = string | number | boolean | null | Record<string, unknown> | unknown[];
 
 /**
  * Interface representing DefiLlama protocol response

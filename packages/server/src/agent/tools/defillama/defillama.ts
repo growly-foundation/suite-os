@@ -35,9 +35,7 @@ Important notes:
     .strict(),
   func: async ({ protocolId }) => {
     try {
-      const response = await axiosInstance.get<ProtocolResponse>(
-        `/protocols/${protocolId}`,
-      );
+      const response = await axiosInstance.get<ProtocolResponse>(`/protocols/${protocolId}`);
       const protocol = response.data;
       const prunedData = pruneGetProtocolResponse(protocol);
 

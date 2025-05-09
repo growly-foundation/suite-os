@@ -10,19 +10,25 @@ export class WorkflowService {
   ) {}
 
   async getWorkflowWithSteps(workflowId: WorkflowId) {
-    const workflow = await this.workflowDatabaseService.getOneByFields({ id: workflowId });
-    const steps = await this.stepDatabaseService.getAllByFields({
-      workflow_id: workflow.id,
-    });
-    return {
-      ...workflow,
-      steps: steps.map(step => ({
-        ...step,
-        // Expect an array of conditions and actions.
-        conditions: step.conditions as any as Condition[],
-        action: step.action as any as Action[],
-      })),
-    };
+    try {
+      const workflow = await this.workflowDatabaseService.getOneByFields({ id: workflowId });
+      if (!workflow) throw new Error('Workflow not found');
+      const steps = await this.stepDatabaseService.getAllByFields({
+        workflow_id: workflow.id,
+      });
+      return {
+        ...workflow,
+        steps: steps.map(step => ({
+          ...step,
+          // Expect an array of conditions and actions.
+          conditions: step.conditions as any as Condition[],
+          action: step.action as any as Action[],
+        })),
+      };
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
   }
 
   async getWorkflowsByOrganizationId(

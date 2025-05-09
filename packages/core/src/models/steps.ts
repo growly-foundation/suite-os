@@ -25,7 +25,12 @@ export type Condition = ScalarCondition | OrCondition | AndCondition;
  * - `WorkflowId`: The workflow with the given ID is completed.
  * - `UIEventCondition`: The event condition is met.
  */
-export type ScalarCondition = boolean | StepId | WorkflowId | UIEventCondition;
+export type ScalarCondition =
+  | boolean
+  | StepId
+  | WorkflowId
+  | UIEventCondition
+  | JudgedByAgentCondition;
 
 /**
  * A condition is fulfilled if any of the conditions are true.
@@ -57,6 +62,22 @@ export enum UIEventCondition {
   OnClicked = 'onClicked',
   /** The condition is true when the element is hovered. */
   OnHovered = 'onHovered',
+}
+
+/**
+ * A condition is fulfilled if the agent judges the step as true.
+ * The agent will be asked to judge the step.
+ */
+export interface JudgedByAgentCondition {
+  type: 'judgedByAgent';
+  args: {
+    /** The step ID to be judged. */
+    stepId: StepId;
+    /** The agent ID to judge the step. */
+    agentId: AgentId;
+    /** The prompt to be sent to the agent. */
+    prompt: string;
+  };
 }
 
 /**

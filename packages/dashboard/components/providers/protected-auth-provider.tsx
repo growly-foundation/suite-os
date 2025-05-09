@@ -1,19 +1,21 @@
 import { suiteCore } from '@/core/suite';
 import { usePrivy } from '@privy-io/react-auth';
 import React, { useEffect } from 'react';
-import { useDashboardState } from '../../hooks/use-dashboard';
+import { STORAGE_KEY_SELECTED_ORGANIZATION_ID, useDashboardState } from '../../hooks/use-dashboard';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { delay } from '@/lib/utils';
 import { AnimatedLoading } from '../animated-loading';
+import { Admin } from '@growly/core';
 
 const ProtectedAuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { setAdmin: setAuthUser } = useDashboardState();
+  const { setAdmin, setSelectedOrganization, fetchOrganizations } = useDashboardState();
   const { user, authenticated, ready } = usePrivy();
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
-  const fetchCurrentAdmin = async (email: string) => {
+  const fetchCurrentAdmin = async (email: string): Promise<Admin> => {
     let adminExists = await suiteCore.db.admins.getOneByFields({ email });
     if (!adminExists) {
       adminExists = await suiteCore.db.admins.create({
@@ -21,7 +23,33 @@ const ProtectedAuthProvider = ({ children }: { children: React.ReactNode }) => {
         email: email,
       });
     }
-    setAuthUser(adminExists);
+    setAdmin(adminExists);
+    return adminExists;
+  };
+
+  const redirectToCreateOrganization = async (userId: string, redirectedPath: string) => {
+    const organizations = await fetchOrganizations();
+    if (organizations.length === 0) {
+      return router.push('/organizations');
+    } else {
+      // Check local storage if there is a selected organization
+      const selectedOrganizationId = localStorage.getItem(
+        STORAGE_KEY_SELECTED_ORGANIZATION_ID(userId)
+      );
+      if (!selectedOrganizationId) {
+        return router.push('/organizations');
+      }
+      // If there is a selected organization, select it.
+      const selectedOrganization = organizations.find(
+        organization => organization.id === selectedOrganizationId
+      );
+      // If there is no selected organization, select the first organization.
+      if (!selectedOrganization) {
+        return router.push('/organizations');
+      }
+      setSelectedOrganization(organizations[0]);
+      return router.push(redirectedPath);
+    }
   };
 
   useEffect(() => {
@@ -30,9 +58,13 @@ const ProtectedAuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!ready) return;
       if (authenticated && user?.email) {
         try {
-          await fetchCurrentAdmin(user.email.address);
+          const admin = await fetchCurrentAdmin(user.email.address);
+          // If current route is auth, redirect to organization if user does not have any organization. Otherwise, redirect to dashboard.
+          await redirectToCreateOrganization(
+            admin.id,
+            pathname === '/auth' ? '/dashboard' : pathname
+          );
           setIsLoading(false);
-          router.push('/dashboard');
         } catch (error) {
           setIsLoading(false);
         }

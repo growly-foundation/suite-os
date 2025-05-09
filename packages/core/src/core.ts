@@ -25,6 +25,7 @@ export interface SuiteDatabaseCore {
     workflows: PublicDatabaseService<'workflows'>;
     steps: PublicDatabaseService<'steps'>;
     organizations: PublicDatabaseService<'organizations'>;
+    admin_organizations: PublicDatabaseService<'admin_organizations'>;
     messages: PublicDatabaseService<'messages'>;
     agents: PublicDatabaseService<'agents'>;
   };
@@ -61,6 +62,10 @@ export const createSuiteDatabaseCore = (
     'messages'
   );
   const agentDatabaseService = new PublicDatabaseService<'agents'>(supabaseClientService, 'agents');
+  const adminOrganizationDatabaseService = new PublicDatabaseService<'admin_organizations'>(
+    supabaseClientService,
+    'admin_organizations'
+  );
 
   // Edge functions.
   const functionService = new FunctionService(supabaseClientService);
@@ -69,6 +74,7 @@ export const createSuiteDatabaseCore = (
   const workflowService = new WorkflowService(workflowDatabaseService, stepDatabaseService);
   const organizationService = new OrganizationService(
     organizationDatabaseService,
+    adminOrganizationDatabaseService,
     agentDatabaseService,
     workflowService,
     functionService
@@ -83,6 +89,7 @@ export const createSuiteDatabaseCore = (
       workflows: workflowDatabaseService,
       steps: stepDatabaseService,
       organizations: organizationDatabaseService,
+      admin_organizations: adminOrganizationDatabaseService,
       messages: messageDatabaseService,
       agents: agentDatabaseService,
     },

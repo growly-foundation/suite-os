@@ -62,7 +62,7 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
 
   async getOneByFields(
     fields: Partial<Record<keyof Database['public']['Tables'][T]['Row'], string>>
-  ): Promise<Database['public']['Tables'][T]['Row']> {
+  ): Promise<Database['public']['Tables'][T]['Row'] | null> {
     const queryBuilder = this.getClient()
       .from(this.table as string)
       .select('*');
@@ -72,7 +72,10 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
     }
     const { data, error } = await queryBuilder.order('created_at', { ascending: true }).single();
 
-    if (error) throw error;
+    if (error) {
+      console.error(error);
+      return null;
+    }
     return data!;
   }
 
