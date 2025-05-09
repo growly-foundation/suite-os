@@ -10,3 +10,5 @@ BEGIN
         EXECUTE format('DROP TABLE IF EXISTS public.%I CASCADE', tbl.tablename);
     END LOOP;
 END $$;
+
+

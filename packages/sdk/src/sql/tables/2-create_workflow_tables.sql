@@ -7,41 +7,6 @@ BEGIN
 END
 $$;
 
--- Admin table
-CREATE TABLE IF NOT EXISTS admins (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE,
-    created_at TIMESTAMP NOT NULL DEFAULT now()
-);
-comment on table public.admins is 'Admins for the application.';
-
-GRANT ALL ON TABLE admins TO postgres;
-GRANT ALL ON TABLE admins TO service_role;
-
--- Organization table
-CREATE TABLE IF NOT EXISTS organizations (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    admin_id uuid REFERENCES admins(id) ON DELETE CASCADE,
-    name TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT now()
-);
-comment on table public.organizations is 'Organizations for each admin.';
-
-GRANT ALL ON TABLE organizations TO postgres;
-GRANT ALL ON TABLE organizations TO service_role;
-
--- Users table
-CREATE TABLE IF NOT EXISTS users (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    entities JSONB NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT now()
-);
-comment on table public.users is 'Users for the application.';
-
-GRANT ALL ON TABLE users TO postgres;
-GRANT ALL ON TABLE users TO service_role;
-
 -- Workflow table
 CREATE TABLE IF NOT EXISTS workflows (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

@@ -1,3 +1,22 @@
+-- Function to get admin organizations
+
+CREATE OR REPLACE FUNCTION get_admin_organizations()
+RETURNS TABLE (
+    admin_id uuid,
+    organization_id uuid
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        ao.admin_id,
+        ao.organization_id
+    FROM admin_organizations ao;
+END;
+$$ LANGUAGE plpgsql STABLE;
+
+
+-- Function to get organizations with their agents and workflows
+
 CREATE OR REPLACE FUNCTION get_organizations_with_agents_and_workflows()
 RETURNS TABLE (
     organization_id uuid,
@@ -42,3 +61,5 @@ BEGIN
     GROUP BY o.id;
 END;
 $$ LANGUAGE plpgsql STABLE;
+
+
