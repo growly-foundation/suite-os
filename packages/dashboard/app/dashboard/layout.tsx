@@ -7,8 +7,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Bell, Home, Settings } from 'lucide-react';
-import { useDashboardState } from '@/hooks/use-dashboard';
+import { Bell, Home, Settings, SquareStack } from 'lucide-react';
 import { UserButton } from '@/components/auth/user-button';
 import { OrganizationSwitcher } from '@/components/organizations/organization-switcher';
 
@@ -76,14 +75,14 @@ const navigation = [
     icon: IconHome,
   },
   {
+    title: 'Agents',
+    url: '/dashboard/agents',
+    icon: IconAi,
+  },
+  {
     title: 'Workflows',
     url: '/dashboard/workflows',
     icon: IconWaveSine,
-  },
-  {
-    title: 'Playground',
-    url: '/dashboard/playground',
-    icon: IconAi,
   },
   {
     title: 'Resources',
@@ -94,7 +93,6 @@ const navigation = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { admin: user } = useDashboardState();
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -117,7 +115,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="font-bold text-xl flex items-center">
-              Growly Suite
+              <SquareStack className="h-5 w-5 text-primary" style={{ marginRight: 10 }} /> Suite
+              Dashboard
             </Link>
             <OrganizationSwitcher />
           </div>
@@ -136,8 +135,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Sidebar Navigation (Desktop) */}
         <aside className="hidden md:block w-64 bg-white border-r p-4">
           <nav className="space-y-1 mt-6">
-            {navigation.map(item => {
-              const isActive = pathname === item.url || pathname === `${item.url}/`;
+            {navigation.map((item, index) => {
+              const isActive =
+                index === 0 ? pathname === item.url : pathname.includes(`${item.url}`);
               return (
                 <Link
                   key={item.url}
@@ -162,7 +162,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {isMobile && (
         <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around items-center p-2 z-50">
           {navigation.map(item => {
-            const isActive = pathname === item.url || pathname.startsWith(`${item.url}/`);
+            const isActive = pathname === item.url || pathname.includes(`${item.url}`);
             return (
               <Link
                 key={item.url}

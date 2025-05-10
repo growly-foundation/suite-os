@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS admins (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
-    created_at TIMESTAMP NOT NULL DEFAULT now()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 comment on table public.admins is 'Admins for the application.';
 
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS organizations (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
     description TEXT,
-    created_at TIMESTAMP NOT NULL DEFAULT now()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 comment on table public.organizations is 'Organizations for each admin.';
 
@@ -27,6 +27,7 @@ GRANT ALL ON TABLE organizations TO service_role;
 CREATE TABLE IF NOT EXISTS admin_organizations (
     admin_id uuid REFERENCES admins(id) ON DELETE CASCADE,
     organization_id uuid REFERENCES organizations(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     PRIMARY KEY (admin_id, organization_id)
 );
 comment on table public.admin_organizations is 'Associates admins with their referenced organizations.';
@@ -38,7 +39,7 @@ GRANT ALL ON TABLE admin_organizations TO service_role;
 CREATE TABLE IF NOT EXISTS users (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     entities JSONB NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT now()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 comment on table public.users is 'Users for the application.';
 

@@ -2,8 +2,8 @@
 
 import type React from 'react';
 
-import { useState } from 'react';
-import { PlusCircle, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Loader, PlusCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,8 +17,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Agent, AggregatedAgent, Status, Workflow } from '@growly/core';
-import { workflows } from '@/lib/data/mock';
+import { AggregatedAgent, Status, Workflow } from '@growly/core';
+import { toast } from 'react-toastify';
+import router from 'next/router';
+import { useDashboardState } from '@/hooks/use-dashboard';
 
 // Available models for the agent
 const availableModels = [
@@ -36,17 +38,17 @@ const availableModels = [
 
 interface AgentFormProps {
   agent: AggregatedAgent;
-  onSave: (agent: Agent) => void;
+  onSave: (agent: AggregatedAgent) => Promise<void>;
 }
 
 export function AgentForm({ agent, onSave }: AgentFormProps) {
-  const [formData, setFormData] = useState<AggregatedAgent>({ ...agent });
+  const { organizationWorkflows, fetchOrganizationWorkflows } = useDashboardState();
+  const [isSaving, setIsSaving] = useState(false);
+  const [formData, setFormData] = useState<AggregatedAgent>({
+    ...agent,
+    model: agent.model || availableModels[0].id,
+  });
   const [newResource, setNewResource] = useState('');
-
-  // Filter workflows to only show those from the agent's organization
-  const organizationWorkflows = workflows.filter(
-    workflow => workflow.organization_id === formData.organization_id
-  );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -81,26 +83,39 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
     }));
   };
 
-  const toggleWorkflow = (workflowId: string) => {
+  const toggleWorkflow = (workflow: Workflow) => {
     setFormData(prev => {
-      if (prev.workflows.includes(workflowId)) {
+      if (prev.workflows.some(w => w.id === workflow.id)) {
         return {
           ...prev,
-          workflows: prev.workflows.filter(id => id !== workflowId),
+          workflows: prev.workflows.filter(w => w.id !== workflow.id),
         };
       } else {
         return {
           ...prev,
-          workflows: [...prev.workflows, workflowId],
+          workflows: [...prev.workflows, workflow],
         };
       }
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave(formData);
+  const handleSubmit = async (e: React.FormEvent) => {
+    try {
+      setIsSaving(true);
+      e.preventDefault();
+      await onSave(formData);
+      toast.success('Agent saved successfully');
+      router.push('/dashboard/agents');
+    } catch (error) {
+      toast.error('Failed to save agent');
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  useEffect(() => {
+    fetchOrganizationWorkflows();
+  }, []);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -128,8 +143,12 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
               <SelectContent>
                 {availableModels.map(model => (
                   <SelectItem key={model.id} value={model.id}>
-                    <div className="flex flex-col">
-                      <span className="font-medium">{model.name}</span>
+                    <div className="flex justify-between w-full items-center">
+                      <span
+                        className="font-medium bg-primary text-primary-foreground px-2 py-1 rounded-sm"
+                        style={{ marginRight: 10 }}>
+                        {model.name}
+                      </span>
                       <span className="text-xs text-muted-foreground">{model.description}</span>
                     </div>
                   </SelectItem>
@@ -141,6 +160,9 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
 
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
+          <p className="text-sm text-muted-foreground">
+            The description should provide a brief overview of the agent's purpose and capabilities.
+          </p>
           <Textarea
             id="description"
             name="description"
@@ -215,7 +237,7 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
 
         <div>
           <Label className="text-base">Workflows</Label>
-          <p className="text-sm text-muted-foreground mb-2">Assign workflows to this agent</p>
+          <p className="text-sm text-muted-foreground mb-2"></p>
 
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {organizationWorkflows.length === 0 ? (
@@ -225,11 +247,11 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
                 <div
                   key={workflow.id}
                   className={`p-3 rounded-md border cursor-pointer transition-all ${
-                    formData.workflows.includes(workflow.id)
+                    formData.workflows.some(w => w.id === workflow.id)
                       ? 'border-primary bg-primary/5 dark:bg-primary/10'
                       : 'border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900'
                   }`}
-                  onClick={() => toggleWorkflow(workflow.id)}>
+                  onClick={() => toggleWorkflow(workflow)}>
                   <div className="font-medium">{workflow.name}</div>
                   {workflow.description && (
                     <div className="text-xs text-muted-foreground mt-1">{workflow.description}</div>
@@ -245,7 +267,10 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
         <Button type="button" variant="outline" onClick={() => window.history.back()}>
           Cancel
         </Button>
-        <Button type="submit">Save Agent</Button>
+        <Button type="submit" onClick={handleSubmit} disabled={isSaving || !formData.name}>
+          {isSaving ? 'Saving...' : 'Save Agent'}
+          {isSaving && <Loader className="ml-2 h-4 w-4 animate-spin" />}
+        </Button>
       </div>
     </form>
   );

@@ -1,5 +1,6 @@
 import type React from 'react';
-import '@/app/globals.css';
+import './globals.css';
+import { coinbaseFont } from './fonts';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Inter } from 'next/font/google';
 import { cn } from '@/lib/utils';
@@ -30,7 +31,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={cn(inter.className, geistSans.variable, geistMono.variable)}>
+      <body
+        className={cn(
+          'min-h-screen bg-background antialiased',
+          coinbaseFont.variable,
+          geistSans.variable,
+          geistMono.variable
+        )}>
         <Providers>{children}</Providers>
       </body>
     </html>

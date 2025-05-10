@@ -1,20 +1,17 @@
 'use client';
 
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Workflow } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import WorkflowStepManager from './workflow-step-manager';
+import { PlusCircle, Workflow } from 'lucide-react';
 import AnimatedBeamContainer from '../animated-beam/animated-beam-container';
-import { useCreateWorkflowContext } from '@/hooks/use-workflow-context';
-import { CreateWorkflowDialog } from './create-workflow-dialog';
-import CreateWorkflowForm from './create-workflow-form';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { useEffect } from 'react';
+import { WorkflowsList } from './workflow-list';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import Link from 'next/link';
 
 export default function WorkflowManager() {
-  const { workflows, fetchWorkflows, getWorkflow } = useDashboardState();
-  const { selectedWorkflowId, setSelectedWorkflowId } = useCreateWorkflowContext();
+  const { organizationWorkflows: workflows, fetchOrganizationWorkflows: fetchWorkflows } =
+    useDashboardState();
 
   useEffect(() => {
     fetchWorkflows();
@@ -26,49 +23,21 @@ export default function WorkflowManager() {
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Workflow className="h-6 w-6 text-primary" /> Workflows
         </h1>
-        <CreateWorkflowDialog title="Create Workflow" />
+        <Link href="/dashboard/workflows/new">
+          <Button className="bg-primary hover:bg-primary/90 text-white">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            New Workflow
+          </Button>
+        </Link>
       </div>
       {workflows.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {workflows.map(workflow => (
-            <Card key={workflow.id} className="border shadow-sm">
-              <CardContent className="p-4 space-y-2">
-                <div className="flex items-center justify-between">
-                  <h2
-                    className="text-lg font-semibold cursor-pointer hover:underline"
-                    onClick={() => setSelectedWorkflowId(workflow.id)}>
-                    {workflow.name}
-                  </h2>
-                  <Badge
-                    variant={workflow.status === 'active' ? 'default' : 'outline'}
-                    className={cn(
-                      'capitalize',
-                      workflow.status === 'active' && 'bg-green-600 text-white'
-                    )}>
-                    {workflow.status}
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">{workflow.description}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <WorkflowsList workflows={workflows} />
       ) : (
         <div className="flex flex-col items-center justify-center">
           <AnimatedBeamContainer />
           <br />
           <h1 className="text-2xl font-bold">No workflows found</h1>
           <p className="text-muted-foreground">Create a workflow to get started.</p>
-        </div>
-      )}
-      {selectedWorkflowId && getWorkflow(selectedWorkflowId) && (
-        <div className="mt-6">
-          <CreateWorkflowForm isEdit />
-          <div className="flex items-center justify-between"></div>
-          <WorkflowStepManager
-            steps={getWorkflow(selectedWorkflowId)!.steps || []}
-            selectedWorkflowId={selectedWorkflowId}
-          />
         </div>
       )}
     </div>

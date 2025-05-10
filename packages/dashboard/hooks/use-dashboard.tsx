@@ -1,5 +1,10 @@
 import { suiteCore } from '@/core/suite';
-import { AggregatedOrganization, AggregatedWorkflow, WorkflowId } from '@growly/core';
+import {
+  AggregatedAgent,
+  AggregatedOrganization,
+  AggregatedWorkflow,
+  WorkflowId,
+} from '@growly/core';
 import { create } from 'zustand';
 import { Admin } from '@growly/core';
 
@@ -25,11 +30,16 @@ export type DashboardAppState = {
   createOrganization: (name: string, description: string) => Promise<AggregatedOrganization>;
 
   // Workflows
-  workflows: AggregatedWorkflow[];
-  getWorkflow: (workflowId: WorkflowId) => AggregatedWorkflow | undefined;
-  setWorkflows: (workflows: AggregatedWorkflow[]) => void;
-  fetchWorkflows: () => Promise<void>;
-  fetchWorkflowById: (workflowId: WorkflowId) => Promise<void>;
+  organizationWorkflows: AggregatedWorkflow[];
+  getOrganizationWorkflows: (workflowId: WorkflowId) => AggregatedWorkflow | undefined;
+  setOrganizationWorkflows: (workflows: AggregatedWorkflow[]) => void;
+  fetchOrganizationWorkflows: () => Promise<AggregatedWorkflow[]>;
+  fetchOrganizationWorkflowById: (workflowId: WorkflowId) => Promise<AggregatedWorkflow | null>;
+
+  // Agents
+  organizationAgents: AggregatedAgent[];
+  fetchOrganizationAgents: () => Promise<AggregatedAgent[]>;
+  fetchOrganizationAgentById: (agentId: string) => Promise<AggregatedAgent | null>;
 };
 
 /**
@@ -47,6 +57,32 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
     if (!admin?.id) throw new Error('No admin authenticated');
     localStorage.setItem(STORAGE_KEY_SELECTED_ORGANIZATION_ID(admin.id), organization.id);
     set({ selectedOrganization: organization });
+  },
+
+  // Agents
+  organizationAgents: [],
+  fetchOrganizationAgents: async () => {
+    const selectedOrganization = get().selectedOrganization;
+    if (!selectedOrganization) throw new Error('No organization selected');
+
+    const agents = await suiteCore.agents.getAggregatedAgentsByOrganizationId(
+      selectedOrganization.id
+    );
+    set({
+      organizationAgents: agents,
+    });
+    return agents;
+  },
+  fetchOrganizationAgentById: async (agentId: string) => {
+    const selectedOrganization = get().selectedOrganization;
+    if (!selectedOrganization) throw new Error('No organization selected');
+
+    const agent = await suiteCore.agents.getAggregatedAgent(agentId);
+    if (!agent) throw new Error('Agent not found');
+    set(state => ({
+      organizationAgents: state.organizationAgents.map(a => (a.id === agentId ? agent : a)),
+    }));
+    return agent;
   },
 
   // Organizations
@@ -72,24 +108,33 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
   },
 
   // Workflows
-  workflows: [],
-  getWorkflow: (workflowId: string) => get().workflows.find(workflow => workflow.id === workflowId),
-  setWorkflows: (workflows: AggregatedWorkflow[]) => set({ workflows }),
-  fetchWorkflows: async () => {
+  organizationWorkflows: [],
+  getOrganizationWorkflows: (workflowId: string) =>
+    get().organizationWorkflows.find(workflow => workflow.id === workflowId),
+  setOrganizationWorkflows: (workflows: AggregatedWorkflow[]) =>
+    set({ organizationWorkflows: workflows }),
+  fetchOrganizationWorkflows: async () => {
     const selectedOrganization = get().selectedOrganization;
     if (!selectedOrganization) throw new Error('No organization selected');
 
     const aggregatedWorkflows: AggregatedWorkflow[] =
       await suiteCore.workflows.getWorkflowsByOrganizationId(selectedOrganization.id);
-    set({ workflows: aggregatedWorkflows });
+    set({ organizationWorkflows: aggregatedWorkflows });
+    return aggregatedWorkflows;
   },
 
   // Steps
-  fetchWorkflowById: async (workflowId: string) => {
+  fetchOrganizationWorkflowById: async (workflowId: string) => {
+    const selectedOrganization = get().selectedOrganization;
+    if (!selectedOrganization) throw new Error('No organization selected');
+
     const workflow = await suiteCore.workflows.getWorkflowWithSteps(workflowId);
     if (!workflow) throw new Error('Workflow not found');
     set(state => ({
-      workflows: state.workflows.map(w => (workflow.id === workflowId ? workflow : w)),
+      organizationWorkflows: state.organizationWorkflows.map(w =>
+        w.id === workflowId ? workflow : w
+      ),
     }));
+    return workflow;
   },
 }));

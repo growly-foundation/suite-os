@@ -7,6 +7,7 @@ import { WorkflowManagementContextProvider } from '@/hooks/use-workflow-context'
 import '@growly/suite/styles.css';
 import { PrivyProvider } from '@privy-io/react-auth';
 import ProtectedAuthProvider from '@/components/providers/protected-auth-provider';
+import { ToastContainer } from 'react-toastify';
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -36,6 +37,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
               <Suspense>
                 {children}
                 <DemoChatWidget />
+                <ToastContainer />
               </Suspense>
             </WorkflowManagementContextProvider>
           </ProtectedAuthProvider>

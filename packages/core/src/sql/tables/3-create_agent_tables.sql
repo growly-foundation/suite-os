@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS agents (
     description TEXT,
     model TEXT NOT NULL,
     resources TEXT[] NOT NULL,
-    status status NOT NULL,
+    status status NOT NULL DEFAULT 'active',
     created_at TIMESTAMP NOT NULL DEFAULT now()
 );
 comment on table public.agents is 'Agents for each organization.';
@@ -20,6 +20,8 @@ GRANT ALL ON TABLE agents TO service_role;
 CREATE TABLE IF NOT EXISTS agent_workflows (
     agent_id uuid REFERENCES agents(id) ON DELETE CASCADE,
     workflow_id uuid REFERENCES workflows(id) ON DELETE CASCADE,
+    status status NOT NULL DEFAULT 'active',
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
     PRIMARY KEY (agent_id, workflow_id)
 );
 comment on table public.agent_workflows is 'Associates agents with their referenced workflows.';

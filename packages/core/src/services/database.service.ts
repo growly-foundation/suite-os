@@ -115,4 +115,19 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
 
     if (error) throw error;
   }
+
+  async deleteByFields(
+    fields: Partial<Record<keyof Database['public']['Tables'][T]['Row'], string>>
+  ): Promise<void> {
+    const queryBuilder = this.getClient()
+      .from(this.table as string)
+      .delete();
+
+    for (const [field, value] of Object.entries(fields)) {
+      queryBuilder.eq(field, value);
+    }
+    const { error } = await queryBuilder;
+
+    if (error) throw error;
+  }
 }
