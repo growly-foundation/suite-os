@@ -114,7 +114,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <header className="sticky top-0 z-50 border-b shadow-md p-4 md:px-6 bg-white">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="font-bold text-xl flex items-center">
+            <Link href="/dashboard" className="font-bold text-lg flex items-center">
               <SquareStack className="h-5 w-5 text-primary" style={{ marginRight: 10 }} /> Suite
               Dashboard
             </Link>

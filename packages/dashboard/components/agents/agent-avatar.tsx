@@ -1,32 +1,19 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Agent } from '@growly/core';
-
-const calculateAvatarNumber = (str: string, max: number): number => {
-  const num =
-    (str
-      .split('')
-      .map(v => v.charCodeAt(0))
-      .reduce((p, c) => p + c, 0) %
-      max) +
-    1;
-  return num;
-};
+import { getNumberFromStr } from '@/lib/utils';
 
 export const AgentAvatar = ({
-  agent,
+  value,
   width = 40,
   height = 40,
 }: {
-  agent: Agent;
+  value: string;
   width?: number;
   height?: number;
 }) => {
   return (
     <Avatar style={{ width, height }}>
-      <AvatarImage
-        src={`/agent-avatars/agent-avatar-${calculateAvatarNumber(agent.name, 7)}.webp`}
-      />
-      <AvatarFallback>{agent.name}</AvatarFallback>
+      <AvatarImage src={`/agent-avatars/agent-avatar-${getNumberFromStr(value, 7)}.webp`} />
+      <AvatarFallback>{value}</AvatarFallback>
     </Avatar>
   );
 };

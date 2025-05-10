@@ -1,4 +1,4 @@
-import { AggregatedWorkflow } from '@growly/core';
+import { AggregatedWorkflow, Status } from '@growly/core';
 import Link from 'next/link';
 import { Calendar, ChevronRight, MoreHorizontal, Play, Square } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -17,7 +17,7 @@ import { useDashboardState } from '@/hooks/use-dashboard';
 
 export const WorkflowCard = ({ workflow }: { workflow: AggregatedWorkflow }) => {
   const [loading, setLoading] = useState(false);
-  const { fetchOrganizationWorkflowById } = useDashboardState();
+  const { fetchOrganizationWorkflowById, fetchOrganizationWorkflows } = useDashboardState();
 
   const toggleWorkflowStatus = async () => {
     try {
@@ -27,19 +27,39 @@ export const WorkflowCard = ({ workflow }: { workflow: AggregatedWorkflow }) => 
       });
       await fetchOrganizationWorkflowById(workflow.id);
       setLoading(false);
+      toast.success('Workflow status updated successfully');
     } catch (error) {
       toast.error('Failed to update workflow status');
     }
   };
 
   const handleDeleteWorkflow = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       await suiteCore.db.workflows.delete(workflow.id);
-      await fetchOrganizationWorkflowById(workflow.id);
-      setLoading(false);
+      await fetchOrganizationWorkflows();
+      toast.success('Workflow deleted successfully');
     } catch (error) {
       toast.error('Failed to delete workflow');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDuplicateWorkflow = async () => {
+    try {
+      setLoading(true);
+      await suiteCore.db.workflows.create({
+        name: `${workflow.name} (Copy)`,
+        description: workflow.description,
+        status: Status.Inactive,
+        organization_id: workflow.organization_id,
+      });
+      await fetchOrganizationWorkflows();
+      setLoading(false);
+      toast.success('Workflow duplicated successfully');
+    } catch (error) {
+      toast.error('Failed to duplicate workflow');
     }
   };
 
@@ -73,7 +93,7 @@ export const WorkflowCard = ({ workflow }: { workflow: AggregatedWorkflow }) => 
               <DropdownMenuItem onClick={toggleWorkflowStatus}>
                 {workflow.status === 'active' ? 'Deactivate' : 'Activate'}
               </DropdownMenuItem>
-              <DropdownMenuItem>Duplicate</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleDuplicateWorkflow}>Duplicate</DropdownMenuItem>
               <DropdownMenuItem onClick={handleDeleteWorkflow}>Delete</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

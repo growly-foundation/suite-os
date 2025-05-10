@@ -16,7 +16,6 @@ import { useEffect, useState } from 'react';
 import { suiteCore } from '@/core/suite';
 import { Skeleton } from '../ui/skeleton';
 import moment from 'moment';
-import { AgentAvatar } from './agent-avatar';
 
 export const AgentCard = ({ agent }: { agent: Agent }) => {
   const { icon } = getModelInfo(agent.model);
@@ -44,7 +43,6 @@ export const AgentCard = ({ agent }: { agent: Agent }) => {
         <CardContent className="p-6 pt-3">
           <div className="flex justify-between items-start mb-4">
             <div className="flex items-center gap-3">
-              <AgentAvatar agent={agent} />
               <div>
                 <h3 className="font-semibold h-[40px] flex items-center overflow-hidden">
                   {agent.name}

@@ -65,7 +65,7 @@ export default function Layout({ children }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px]">
+      <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>Integration Guide</DialogTitle>
           <DialogDescription>

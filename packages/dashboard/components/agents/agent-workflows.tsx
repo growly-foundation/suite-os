@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Plus, Trash } from 'lucide-react';
+import { Loader2, Plus, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -56,20 +56,6 @@ export function AgentWorkflows({ agent, onUpdate }: AgentWorkflowsProps) {
       toast.error('Failed to update agent workflows');
     }
     setIsDialogOpen(false);
-    setIsSaving(false);
-  };
-
-  const handleRemoveWorkflow = async (workflowId: string) => {
-    setIsSaving(true);
-    try {
-      const updatedAgent = {
-        ...agent,
-        workflows: agent.workflows.filter(workflow => workflow.id !== workflowId),
-      };
-      await onUpdate(updatedAgent);
-    } catch (error) {
-      toast.error('Failed to remove agent workflow');
-    }
     setIsSaving(false);
   };
 
@@ -162,7 +148,10 @@ export function AgentWorkflows({ agent, onUpdate }: AgentWorkflowsProps) {
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleSaveWorkflows}>Save</Button>
+              <Button onClick={handleSaveWorkflows} disabled={isSaving}>
+                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isSaving ? 'Saving...' : 'Save'}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

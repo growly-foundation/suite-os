@@ -12,3 +12,14 @@ export function delay(ms: number) {
 export function generateId() {
   return `id-${Math.random().toString(36).substring(2, 9)}`;
 }
+
+export const getNumberFromStr = (str: string, max: number): number => {
+  const num =
+    (str
+      .split('')
+      .map(v => v.charCodeAt(0))
+      .reduce((p, c) => p + c, 0) %
+      max) +
+    1;
+  return num;
+};

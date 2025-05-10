@@ -10,6 +10,7 @@ import { LogOut } from 'lucide-react';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { usePrivy } from '@privy-io/react-auth';
 import { redirect } from 'next/navigation';
+import { getNumberFromStr } from '@/lib/utils';
 
 export const UserButton = () => {
   const { logout } = usePrivy();
@@ -17,11 +18,11 @@ export const UserButton = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar className="h-8 w-8 border-2 border-white/20 cursor-pointer">
-          <AvatarImage src="/placeholder.svg?height=32&width=32" alt={user?.name || ''} />
-          <AvatarFallback className="bg-white/10 text-white">
-            {user?.name?.split(' ')[0].charAt(0)}
-          </AvatarFallback>
+        <Avatar className="h-10 w-10 border-2 border-white/20 cursor-pointer">
+          <AvatarImage
+            src={`/agent-avatars/agent-avatar-${getNumberFromStr(user?.name || '', 7)}.webp`}
+          />
+          <AvatarFallback>{user?.name}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent>

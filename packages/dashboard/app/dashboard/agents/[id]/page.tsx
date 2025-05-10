@@ -13,7 +13,6 @@ import { AgentResources } from '@/components/agents/agent-resources';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { suiteCore } from '@/core/suite';
 import { toast } from 'react-toastify';
-import { AgentAvatar } from '@/components/agents/agent-avatar';
 
 const DEFAULT_MODEL = 'gpt-4';
 
@@ -118,7 +117,6 @@ export default function AgentPage({ params }: { params: { id: string } }) {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-5">
-                {!isNewAgent && <AgentAvatar agent={agent} width={60} height={60} />}
                 <div>
                   <CardTitle>Agent Details</CardTitle>
                   <CardDescription>

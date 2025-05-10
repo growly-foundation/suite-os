@@ -3,7 +3,6 @@
 import { Suspense } from 'react';
 import { ThemeProvider } from '../theme-provider';
 import { SuiteProvider, DemoChatWidget, Theme } from '@growly/suite';
-import { WorkflowManagementContextProvider } from '@/hooks/use-workflow-context';
 import '@growly/suite/styles.css';
 import { PrivyProvider } from '@privy-io/react-auth';
 import ProtectedAuthProvider from '@/components/providers/protected-auth-provider';
@@ -33,13 +32,11 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           enableSystem
           disableTransitionOnChange>
           <ProtectedAuthProvider>
-            <WorkflowManagementContextProvider>
-              <Suspense>
-                {children}
-                <DemoChatWidget />
-                <ToastContainer />
-              </Suspense>
-            </WorkflowManagementContextProvider>
+            <Suspense>
+              {children}
+              <DemoChatWidget />
+              <ToastContainer />
+            </Suspense>
           </ProtectedAuthProvider>
         </ThemeProvider>
       </SuiteProvider>
