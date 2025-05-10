@@ -4,8 +4,16 @@ import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { AgentsList } from '@/components/agents/agent-list';
+import { useEffect } from 'react';
+import { useDashboardState } from '@/hooks/use-dashboard';
 
 export default function AgentsPage() {
+  const { fetchOrganizationAgents, organizationAgents } = useDashboardState();
+
+  useEffect(() => {
+    fetchOrganizationAgents();
+  }, [fetchOrganizationAgents]);
+
   return (
     <div className="flex flex-col gap-6 p-6 md:gap-8 md:p-8">
       <div className="flex items-center justify-between">
@@ -22,7 +30,7 @@ export default function AgentsPage() {
           </Button>
         </Link>
       </div>
-      <AgentsList />
+      <AgentsList agents={organizationAgents} />
     </div>
   );
 }

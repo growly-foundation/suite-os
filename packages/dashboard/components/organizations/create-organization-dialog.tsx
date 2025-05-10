@@ -19,7 +19,7 @@ import { toast } from 'sonner';
 
 export const CreateOrganizationDialog = () => {
   const router = useRouter();
-  const { createOrganization } = useDashboardState();
+  const { createOrganization, setSelectedOrganization } = useDashboardState();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newOrgName, setNewOrgName] = useState('');
   const [newOrgDescription, setNewOrgDescription] = useState('');
@@ -28,11 +28,12 @@ export const CreateOrganizationDialog = () => {
   const handleCreateOrg = async () => {
     try {
       setLoading(true);
-      await createOrganization(newOrgName, newOrgDescription);
+      const organization = await createOrganization(newOrgName, newOrgDescription);
+      setSelectedOrganization(organization);
       setLoading(false);
       setIsDialogOpen(false);
       toast.success('Organization created successfully');
-      router.push('/dashboard');
+      router.push(`/dashboard/${organization.id}`);
     } catch (error) {
       console.error(error);
       toast.error('Failed to create organization', {
@@ -71,7 +72,7 @@ export const CreateOrganizationDialog = () => {
             <Label htmlFor="org-name">Organization name</Label>
             <Input
               id="org-name"
-              placeholder="Acme Inc."
+              placeholder="Example: DeFi Lover"
               value={newOrgName}
               onChange={e => setNewOrgName(e.target.value)}
             />
@@ -80,7 +81,7 @@ export const CreateOrganizationDialog = () => {
             <Label htmlFor="org-description">Organization description</Label>
             <Input
               id="org-description"
-              placeholder="Description"
+              placeholder="Example: Group of people who are interested in DeFi"
               value={newOrgDescription}
               onChange={e => setNewOrgDescription(e.target.value)}
             />

@@ -2,8 +2,8 @@
 
 import type React from 'react';
 
-import { useState } from 'react';
-import { PlusCircle, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Loader, PlusCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,7 +18,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Agent, AggregatedAgent, Status, Workflow } from '@growly/core';
-import { workflows } from '@/lib/data/mock';
+import { toast } from 'sonner';
+import router from 'next/router';
+import { useDashboardState } from '@/hooks/use-dashboard';
 
 // Available models for the agent
 const availableModels = [
@@ -36,20 +38,17 @@ const availableModels = [
 
 interface AgentFormProps {
   agent: AggregatedAgent;
-  onSave: (agent: Agent) => void;
+  onSave: (agent: AggregatedAgent) => Promise<void>;
 }
 
 export function AgentForm({ agent, onSave }: AgentFormProps) {
+  const { organizationWorkflows, fetchOrganizationWorkflows } = useDashboardState();
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState<AggregatedAgent>({
     ...agent,
     model: agent.model || availableModels[0].id,
   });
   const [newResource, setNewResource] = useState('');
-
-  // Filter workflows to only show those from the agent's organization
-  const organizationWorkflows = workflows.filter(
-    workflow => workflow.organization_id === formData.organization_id
-  );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -84,26 +83,41 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
     }));
   };
 
-  const toggleWorkflow = (workflowId: string) => {
+  const toggleWorkflow = (workflow: Workflow) => {
     setFormData(prev => {
-      if (prev.workflows.includes(workflowId)) {
+      if (prev.workflows.some(workflow => workflow.id === workflow.id)) {
         return {
           ...prev,
-          workflows: prev.workflows.filter(id => id !== workflowId),
+          workflows: prev.workflows.filter(workflow => workflow.id !== workflow.id),
         };
       } else {
         return {
           ...prev,
-          workflows: [...prev.workflows, workflowId],
+          workflows: [...prev.workflows, workflow],
         };
       }
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave(formData);
+  const handleSubmit = async (e: React.FormEvent) => {
+    try {
+      setIsSaving(true);
+      e.preventDefault();
+      await onSave(formData);
+      toast.success('Agent saved successfully');
+      router.push('/dashboard/agents');
+    } catch (error) {
+      toast.error('Failed to save agent', {
+        description: `Error: ${error}`,
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  useEffect(() => {
+    fetchOrganizationWorkflows();
+  }, []);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -235,11 +249,11 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
                 <div
                   key={workflow.id}
                   className={`p-3 rounded-md border cursor-pointer transition-all ${
-                    formData.workflows.includes(workflow.id)
+                    formData.workflows.some(workflow => workflow.id === workflow.id)
                       ? 'border-primary bg-primary/5 dark:bg-primary/10'
                       : 'border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900'
                   }`}
-                  onClick={() => toggleWorkflow(workflow.id)}>
+                  onClick={() => toggleWorkflow(workflow)}>
                   <div className="font-medium">{workflow.name}</div>
                   {workflow.description && (
                     <div className="text-xs text-muted-foreground mt-1">{workflow.description}</div>
@@ -255,7 +269,10 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
         <Button type="button" variant="outline" onClick={() => window.history.back()}>
           Cancel
         </Button>
-        <Button type="submit">Save Agent</Button>
+        <Button type="submit" onClick={handleSubmit} disabled={isSaving || !formData.name}>
+          {isSaving ? 'Saving...' : 'Save Agent'}
+          {isSaving && <Loader className="ml-2 h-4 w-4 animate-spin" />}
+        </Button>
       </div>
     </form>
   );

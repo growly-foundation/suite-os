@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS workflows (
     organization_id uuid REFERENCES organizations(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     description TEXT,
-    status status NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT now()
+    status status NOT NULL DEFAULT 'active',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 comment on table public.workflows is 'Workflows for each organization.';
 
@@ -29,9 +29,9 @@ CREATE TABLE IF NOT EXISTS steps (
     description TEXT,
     conditions JSONB NOT NULL,
     action JSONB NOT NULL,
-    status status NOT NULL,
+    status status NOT NULL DEFAULT 'active',
     index INT NOT NULL DEFAULT 0,
-    created_at TIMESTAMP NOT NULL DEFAULT now()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 comment on table public.steps is 'Steps for each workflow.';
 

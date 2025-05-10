@@ -14,7 +14,6 @@ import { useDashboardState } from '@/hooks/use-dashboard';
 import { suiteCore } from '@/core/suite';
 import { toast } from 'sonner';
 import { generateId } from '@/lib/utils';
-import AnimatedBeamContainer from '@/components/animated-beam/animated-beam-container';
 
 export default function WorkflowDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -128,13 +127,7 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
           </TabsTrigger>
         </TabsList>
         <TabsContent value="canvas" className="p-0">
-          {workflow?.steps?.length > 0 ? (
-            <WorkflowCanvas workflow={workflow} setWorkflow={setWorkflow} />
-          ) : (
-            <div className="flex flex-col items-center justify-center">
-              <p className="text-muted-foreground">No steps added yet. Add steps to get started.</p>
-            </div>
-          )}
+          <WorkflowCanvas workflow={workflow} setWorkflow={setWorkflow} />
         </TabsContent>
         <TabsContent value="settings">
           <WorkflowSettings workflow={workflow} setWorkflow={setWorkflow} />

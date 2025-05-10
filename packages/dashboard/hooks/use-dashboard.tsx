@@ -1,5 +1,10 @@
 import { suiteCore } from '@/core/suite';
-import { AggregatedOrganization, AggregatedWorkflow, WorkflowId } from '@growly/core';
+import {
+  AggregatedAgent,
+  AggregatedOrganization,
+  AggregatedWorkflow,
+  WorkflowId,
+} from '@growly/core';
 import { create } from 'zustand';
 import { Admin } from '@growly/core';
 
@@ -30,6 +35,10 @@ export type DashboardAppState = {
   setOrganizationWorkflows: (workflows: AggregatedWorkflow[]) => void;
   fetchOrganizationWorkflows: () => Promise<AggregatedWorkflow[]>;
   fetchOrganizationWorkflowById: (workflowId: WorkflowId) => Promise<AggregatedWorkflow | null>;
+
+  // Agents
+  organizationAgents: AggregatedAgent[];
+  fetchOrganizationAgents: () => Promise<AggregatedAgent[]>;
 };
 
 /**
@@ -47,6 +56,20 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
     if (!admin?.id) throw new Error('No admin authenticated');
     localStorage.setItem(STORAGE_KEY_SELECTED_ORGANIZATION_ID(admin.id), organization.id);
     set({ selectedOrganization: organization });
+  },
+
+  // Agents
+  organizationAgents: [],
+  fetchOrganizationAgents: async () => {
+    const selectedOrganization = get().selectedOrganization;
+    if (!selectedOrganization) throw new Error('No organization selected');
+    const agents = await suiteCore.agents.getAggregatedAgentsByOrganizationId(
+      selectedOrganization.id
+    );
+    set({
+      organizationAgents: agents,
+    });
+    return agents;
   },
 
   // Organizations

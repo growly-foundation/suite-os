@@ -6,8 +6,7 @@ import { ArrowLeft, Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getAgentById } from '@/lib/data/mock';
-import { Agent, AggregatedAgent, Status } from '@growly/core';
+import { AggregatedAgent, Status } from '@growly/core';
 import { AgentForm } from '@/components/agents/agent-form';
 import { AgentWorkflows } from '@/components/agents/agent-workflows';
 import { AgentResources } from '@/components/agents/agent-resources';
@@ -26,42 +25,45 @@ export default function AgentPage({ params }: { params: { id: string } }) {
   const isNewAgent = params.id === 'new';
 
   useEffect(() => {
-    if (!selectedOrganization) return;
-    if (isNewAgent) {
-      setAgent({
-        id: '',
-        name: '',
-        model: DEFAULT_MODEL,
-        description: '',
-        organization_id: selectedOrganization.id,
-        resources: [],
-        workflows: [],
-        status: Status.Active,
-        created_at: new Date().toISOString(),
-      });
-    } else {
-      const fetchedAgent = getAgentById(params.id);
-      if (fetchedAgent) {
-        setAgent(fetchedAgent);
-      } else {
-        // Handle agent not found
-        router.push('/dashboard');
-      }
-    }
-    setLoading(false);
-  }, [params.id, router]);
-
-  const handleAgentUpdate = async (updatedAgent: Agent) => {
-    try {
+    const fetchAgent = async () => {
+      setLoading(true);
       if (!selectedOrganization) return;
       if (isNewAgent) {
-        updatedAgent.organization_id = selectedOrganization.id;
-        await suiteCore.db.agents.create(updatedAgent);
-        toast.success('Agent created successfully');
+        setAgent({
+          id: '',
+          name: '',
+          model: DEFAULT_MODEL,
+          description: '',
+          organization_id: selectedOrganization.id,
+          resources: [],
+          workflows: [],
+          status: Status.Active,
+          created_at: new Date().toISOString(),
+        });
       } else {
-        await suiteCore.db.agents.update(updatedAgent.id, updatedAgent);
-        toast.success('Agent updated successfully');
+        try {
+          const fetchedAgent = await suiteCore.agents.getAggregatedAgent(params.id);
+          if (fetchedAgent) {
+            setAgent(fetchedAgent);
+          } else {
+            // Handle agent not found
+            router.push('/dashboard/agents');
+          }
+        } catch (error) {
+          toast.error('Failed to fetch agent');
+          router.push('/dashboard/agents');
+        }
       }
+      setLoading(false);
+    };
+    fetchAgent();
+  }, [selectedOrganization, isNewAgent]);
+
+  const handleAgentUpdate = async (updatedAgent: AggregatedAgent) => {
+    try {
+      if (!selectedOrganization) return;
+      await suiteCore.agents.createOrUpdate(selectedOrganization.id, updatedAgent, isNewAgent);
+      toast.success(isNewAgent ? 'Agent created successfully' : 'Agent updated successfully');
       router.push('/dashboard/agents');
     } catch (error) {
       toast.error('Failed to update agent', {
@@ -87,7 +89,7 @@ export default function AgentPage({ params }: { params: { id: string } }) {
   return (
     <div className="flex flex-col gap-6 p-6 md:gap-8 md:p-8">
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard')}>
+        <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard/agents')}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="text-2xl font-bold">

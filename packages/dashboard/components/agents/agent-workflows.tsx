@@ -14,22 +14,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
-import { Agent, AggregatedAgent } from '@growly/core';
+import { AggregatedAgent, Workflow } from '@growly/core';
 import { useDashboardState } from '@/hooks/use-dashboard';
 
 interface AgentWorkflowsProps {
   agent: AggregatedAgent;
-  onUpdate: (agent: Agent) => void;
+  onUpdate: (agent: AggregatedAgent) => void;
 }
 
 export function AgentWorkflows({ agent, onUpdate }: AgentWorkflowsProps) {
   const { organizationWorkflows: workflows } = useDashboardState();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedWorkflows, setSelectedWorkflows] = useState<string[]>([...agent.workflows]);
+  const [selectedWorkflows] = useState<Workflow[]>([...agent.workflows]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Filter workflows by organization and search query
@@ -39,12 +38,6 @@ export function AgentWorkflows({ agent, onUpdate }: AgentWorkflowsProps) {
       (workflow.description &&
         workflow.description.toLowerCase().includes(searchQuery.toLowerCase()))
   );
-
-  const handleToggleWorkflow = (workflowId: string) => {
-    setSelectedWorkflows(prev =>
-      prev.includes(workflowId) ? prev.filter(id => id !== workflowId) : [...prev, workflowId]
-    );
-  };
 
   const handleSaveWorkflows = () => {
     const updatedAgent = {
@@ -58,13 +51,15 @@ export function AgentWorkflows({ agent, onUpdate }: AgentWorkflowsProps) {
   const handleRemoveWorkflow = (workflowId: string) => {
     const updatedAgent = {
       ...agent,
-      workflows: agent.workflows.filter(id => id !== workflowId),
+      workflows: agent.workflows.filter(workflow => workflow.id !== workflowId),
     };
     onUpdate(updatedAgent);
   };
 
   // Get assigned workflows
-  const assignedWorkflows = workflows.filter(workflow => agent.workflows.includes(workflow.id));
+  const assignedWorkflows = workflows.filter(workflow =>
+    agent.workflows.some(workflow => workflow.id === workflow.id)
+  );
 
   return (
     <Card>
@@ -108,11 +103,6 @@ export function AgentWorkflows({ agent, onUpdate }: AgentWorkflowsProps) {
                   <div className="space-y-4">
                     {filteredWorkflows.map(workflow => (
                       <div key={workflow.id} className="flex items-start space-x-3 py-2">
-                        <Checkbox
-                          id={`workflow-${workflow.id}`}
-                          checked={selectedWorkflows.includes(workflow.id)}
-                          onCheckedChange={() => handleToggleWorkflow(workflow.id)}
-                        />
                         <div className="grid gap-1.5">
                           <Label
                             htmlFor={`workflow-${workflow.id}`}
