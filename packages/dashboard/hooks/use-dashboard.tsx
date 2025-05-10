@@ -11,11 +11,14 @@ import { Admin } from '@growly/core';
 export const STORAGE_KEY_SELECTED_ORGANIZATION_ID = (userId: string) =>
   `SUITE_SELECTED_ORGANIZATION_ID_${userId}`;
 
+export type StateStatus = 'idle' | 'loading';
+
 /**
  * State storage for managing application state.
  */
 export type DashboardAppState = {
   // Authentication
+  authStatus: StateStatus;
   admin: Admin | null;
   setAdmin: (user: Admin | null) => void;
 
@@ -24,12 +27,14 @@ export type DashboardAppState = {
   setSelectedOrganization: (organization: AggregatedOrganization) => void;
 
   // Organizations
+  organizationStatus: StateStatus;
   fetchOrganizations: () => Promise<AggregatedOrganization[]>;
   organizations: AggregatedOrganization[];
   setOrganizations: (organizations: AggregatedOrganization[]) => void;
   createOrganization: (name: string, description: string) => Promise<AggregatedOrganization>;
 
   // Workflows
+  workflowStatus: StateStatus;
   organizationWorkflows: AggregatedWorkflow[];
   getOrganizationWorkflows: (workflowId: WorkflowId) => AggregatedWorkflow | undefined;
   setOrganizationWorkflows: (workflows: AggregatedWorkflow[]) => void;
@@ -37,6 +42,7 @@ export type DashboardAppState = {
   fetchOrganizationWorkflowById: (workflowId: WorkflowId) => Promise<AggregatedWorkflow | null>;
 
   // Agents
+  agentStatus: StateStatus;
   organizationAgents: AggregatedAgent[];
   fetchOrganizationAgents: () => Promise<AggregatedAgent[]>;
   fetchOrganizationAgentById: (agentId: string) => Promise<AggregatedAgent | null>;
@@ -47,10 +53,12 @@ export type DashboardAppState = {
  */
 export const useDashboardState = create<DashboardAppState>((set, get) => ({
   // Authentication
+  authStatus: 'idle',
   admin: null,
   setAdmin: (admin: Admin | null) => set({ admin }),
 
   // Selected Organization
+  organizationStatus: 'idle',
   selectedOrganization: null,
   setSelectedOrganization: (organization: AggregatedOrganization) => {
     const admin = get().admin;
@@ -60,8 +68,10 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
   },
 
   // Agents
+  agentStatus: 'idle',
   organizationAgents: [],
   fetchOrganizationAgents: async () => {
+    set({ agentStatus: 'loading' });
     const selectedOrganization = get().selectedOrganization;
     if (!selectedOrganization) throw new Error('No organization selected');
 
@@ -70,10 +80,12 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
     );
     set({
       organizationAgents: agents,
+      agentStatus: 'idle',
     });
     return agents;
   },
   fetchOrganizationAgentById: async (agentId: string) => {
+    set({ agentStatus: 'loading' });
     const selectedOrganization = get().selectedOrganization;
     if (!selectedOrganization) throw new Error('No organization selected');
 
@@ -81,6 +93,7 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
     if (!agent) throw new Error('Agent not found');
     set(state => ({
       organizationAgents: state.organizationAgents.map(a => (a.id === agentId ? agent : a)),
+      agentStatus: 'idle',
     }));
     return agent;
   },
@@ -89,13 +102,15 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
   organizations: [],
   setOrganizations: (organizations: AggregatedOrganization[]) => set({ organizations }),
   fetchOrganizations: async () => {
+    set({ organizationStatus: 'loading' });
     const admin = get().admin;
     if (!admin) throw new Error('No admin authenticated');
     const organizations = await suiteCore.organizations.getOrganizationsByAdminId(admin.id);
-    set({ organizations });
+    set({ organizations, organizationStatus: 'idle' });
     return organizations;
   },
   createOrganization: async (name: string, description: string) => {
+    set({ organizationStatus: 'loading' });
     const admin = get().admin;
     if (!admin) throw new Error('No admin authenticated');
     const organization = await suiteCore.organizations.createOrganization(
@@ -103,28 +118,31 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
       description,
       admin.id
     );
-    set({ organizations: [...get().organizations, organization] });
+    set({ organizations: [...get().organizations, organization], organizationStatus: 'idle' });
     return organization;
   },
 
   // Workflows
+  workflowStatus: 'idle',
   organizationWorkflows: [],
   getOrganizationWorkflows: (workflowId: string) =>
     get().organizationWorkflows.find(workflow => workflow.id === workflowId),
   setOrganizationWorkflows: (workflows: AggregatedWorkflow[]) =>
     set({ organizationWorkflows: workflows }),
   fetchOrganizationWorkflows: async () => {
+    set({ workflowStatus: 'loading' });
     const selectedOrganization = get().selectedOrganization;
     if (!selectedOrganization) throw new Error('No organization selected');
 
     const aggregatedWorkflows: AggregatedWorkflow[] =
       await suiteCore.workflows.getWorkflowsByOrganizationId(selectedOrganization.id);
-    set({ organizationWorkflows: aggregatedWorkflows });
+    set({ organizationWorkflows: aggregatedWorkflows, workflowStatus: 'idle' });
     return aggregatedWorkflows;
   },
 
   // Steps
   fetchOrganizationWorkflowById: async (workflowId: string) => {
+    set({ workflowStatus: 'loading' });
     const selectedOrganization = get().selectedOrganization;
     if (!selectedOrganization) throw new Error('No organization selected');
 
@@ -134,6 +152,7 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
       organizationWorkflows: state.organizationWorkflows.map(w =>
         w.id === workflowId ? workflow : w
       ),
+      workflowStatus: 'idle',
     }));
     return workflow;
   },

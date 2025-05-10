@@ -234,7 +234,6 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
             )}
           </div>
         </div>
-
         <div>
           <Label className="text-base">Workflows</Label>
           <p className="text-sm text-muted-foreground mb-2"></p>

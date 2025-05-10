@@ -5,7 +5,7 @@ import { STORAGE_KEY_SELECTED_ORGANIZATION_ID, useDashboardState } from '../../h
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { delay } from '@/lib/utils';
-import { AnimatedLoading } from '../animated-loading';
+import { AnimatedLoading } from '../animated-components/animated-loading';
 import { Admin } from '@growly/core';
 
 const ProtectedAuthProvider = ({ children }: { children: React.ReactNode }) => {

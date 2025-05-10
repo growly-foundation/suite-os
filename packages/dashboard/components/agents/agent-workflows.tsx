@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Plus, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +21,8 @@ import { AggregatedAgent, Workflow } from '@growly/core';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { cn } from '@/lib/utils';
 import { toast } from 'react-toastify';
+import { NewWorkflowButton } from '../buttons/new-workflow-button';
+import { WorkflowCard } from '../workflows/workflow-card';
 
 interface AgentWorkflowsProps {
   agent: AggregatedAgent;
@@ -113,9 +115,12 @@ export function AgentWorkflows({ agent, onUpdate }: AgentWorkflowsProps) {
               />
               <ScrollArea className="h-[300px] pr-4">
                 {filteredWorkflows.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    No workflows found
-                  </p>
+                  <div className="flex flex-col items-center justify-center">
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      No workflows found
+                    </p>
+                    <NewWorkflowButton />
+                  </div>
                 ) : (
                   <div className="space-y-4">
                     {filteredWorkflows.map(workflow => (
@@ -174,28 +179,7 @@ export function AgentWorkflows({ agent, onUpdate }: AgentWorkflowsProps) {
         ) : (
           <div className="space-y-4">
             {assignedWorkflows.map(workflow => (
-              <div
-                key={workflow.id}
-                className="flex items-start justify-between p-4 border rounded-lg">
-                <div className="space-y-1">
-                  <div className="font-medium">{workflow.name}</div>
-                  {workflow.description && (
-                    <p className="text-sm text-muted-foreground">{workflow.description}</p>
-                  )}
-                  <Badge
-                    variant={workflow.status === 'active' ? 'default' : 'secondary'}
-                    className="mt-1">
-                    {workflow.status}
-                  </Badge>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleRemoveWorkflow(workflow.id)}
-                  className="text-muted-foreground hover:text-destructive">
-                  <Trash className="h-4 w-4" />
-                </Button>
-              </div>
+              <WorkflowCard workflow={workflow} key={workflow.id} />
             ))}
           </div>
         )}

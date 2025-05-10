@@ -49,7 +49,9 @@ export const AgentCard = ({ agent }: { agent: Agent }) => {
                 {icon}
               </div>
               <div>
-                <h3 className="font-semibold">{agent.name}</h3>
+                <h3 className="font-semibold h-[50px] flex items-center overflow-hidden">
+                  {agent.name}
+                </h3>
                 <p className="text-xs text-muted-foreground">
                   {agentDetails?.created_at ? moment(agentDetails.created_at).fromNow() : ''}
                 </p>
@@ -69,7 +71,7 @@ export const AgentCard = ({ agent }: { agent: Agent }) => {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-4 h-[50px]">
             {agent.description || 'No description provided'}
           </p>
           <div className="grid grid-cols-3 gap-2 mb-4">
