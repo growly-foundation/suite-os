@@ -7,7 +7,7 @@ import { PlusCircle } from 'lucide-react';
 export const NewWorkflowButton = () => {
   return (
     <Link href="/dashboard/workflows/new">
-      <Button className="bg-primary hover:bg-primary/90 text-white">
+      <Button variant="outline" className="w-full justify-start">
         <PlusCircle className="mr-2 h-4 w-4" />
         New Workflow
       </Button>
