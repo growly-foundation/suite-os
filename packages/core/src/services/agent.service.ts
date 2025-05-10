@@ -29,7 +29,7 @@ export class AgentService {
     }
 
     // Update associations and track visited workflows.
-    let visited: Record<string, boolean> = {};
+    const visited: Record<string, boolean> = {};
     for (const workflow of agent.workflows) {
       try {
         await this.agentWorkflowsDatabaseService.create({
