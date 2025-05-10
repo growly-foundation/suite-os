@@ -14,6 +14,8 @@ import { useDashboardState } from '@/hooks/use-dashboard';
 import { suiteCore } from '@/core/suite';
 import { toast } from 'react-toastify';
 import { generateId } from '@/lib/utils';
+import { AnimatedLoading } from '@/components/animated-components/animated-loading';
+import { AnimatedLoadingSmall } from '@/components/animated-components/animated-loading-small';
 
 export default function WorkflowDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -127,7 +129,7 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
   };
 
   if (loading) {
-    return <div className="container mx-auto py-6">Loading...</div>;
+    return <AnimatedLoadingSmall />;
   }
 
   if (!workflow) {

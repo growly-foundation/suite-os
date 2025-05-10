@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { AgentsList } from '@/components/agents/agent-list';
 import { useEffect } from 'react';
 import { useDashboardState } from '@/hooks/use-dashboard';
+import { AnimatedLoadingSmall } from '@/components/animated-components/animated-loading-small';
 
 export default function AgentsPage() {
-  const { fetchOrganizationAgents, organizationAgents } = useDashboardState();
+  const { agentStatus, fetchOrganizationAgents, organizationAgents } = useDashboardState();
 
   useEffect(() => {
     fetchOrganizationAgents();
@@ -30,7 +31,11 @@ export default function AgentsPage() {
           </Button>
         </Link>
       </div>
-      <AgentsList agents={organizationAgents} />
+      {agentStatus === 'loading' ? (
+        <AnimatedLoadingSmall />
+      ) : (
+        <AgentsList agents={organizationAgents} />
+      )}
     </div>
   );
 }

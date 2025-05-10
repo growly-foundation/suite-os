@@ -9,6 +9,8 @@ import { useEffect, useState } from 'react';
 import { suiteCore } from '@/core/suite';
 import { Status } from '@growly/core';
 import { formatDistanceToNow } from 'date-fns';
+import { NewWorkflowButton } from '@/components/buttons/new-workflow-button';
+import { NewAgentButton } from '@/components/buttons/new-agent-button';
 
 export default function DashboardInner() {
   const { selectedOrganization } = useDashboardState();
@@ -187,18 +189,8 @@ export default function DashboardInner() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2">
-              <Link href="/dashboard/agents/new">
-                <Button variant="outline" className="w-full justify-start">
-                  <Bot className="mr-2 h-4 w-4" />
-                  New Agent
-                </Button>
-              </Link>
-              <Link href="/dashboard/workflows/new">
-                <Button variant="outline" className="w-full justify-start">
-                  <FileText className="mr-2 h-4 w-4" />
-                  New Workflow
-                </Button>
-              </Link>
+              <NewAgentButton />
+              <NewWorkflowButton />
               <Link href="/dashboard/resources">
                 <Button variant="outline" className="w-full justify-start">
                   <Settings2 className="mr-2 h-4 w-4" />

@@ -3,15 +3,18 @@
 import { PlusCircle, Workflow } from 'lucide-react';
 import AnimatedBeamContainer from '../animated-beam/animated-beam-container';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { WorkflowsList } from './workflow-list';
 import { Button } from '../ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import Link from 'next/link';
+import { AnimatedLoadingSmall } from '../animated-components/animated-loading-small';
 
 export default function WorkflowManager() {
-  const { organizationWorkflows: workflows, fetchOrganizationWorkflows: fetchWorkflows } =
-    useDashboardState();
+  const {
+    workflowStatus,
+    organizationWorkflows: workflows,
+    fetchOrganizationWorkflows: fetchWorkflows,
+  } = useDashboardState();
 
   useEffect(() => {
     fetchWorkflows();
@@ -30,15 +33,21 @@ export default function WorkflowManager() {
           </Button>
         </Link>
       </div>
-      {workflows.length > 0 ? (
-        <WorkflowsList workflows={workflows} />
+      {workflowStatus === 'loading' ? (
+        <AnimatedLoadingSmall />
       ) : (
-        <div className="flex flex-col items-center justify-center">
-          <AnimatedBeamContainer />
-          <br />
-          <h1 className="text-2xl font-bold">No workflows found</h1>
-          <p className="text-muted-foreground">Create a workflow to get started.</p>
-        </div>
+        <React.Fragment>
+          {workflows.length > 0 ? (
+            <WorkflowsList workflows={workflows} />
+          ) : (
+            <div className="flex flex-col items-center justify-center">
+              <AnimatedBeamContainer />
+              <br />
+              <h1 className="text-2xl font-bold">No workflows found</h1>
+              <p className="text-muted-foreground">Create a workflow to get started.</p>
+            </div>
+          )}
+        </React.Fragment>
       )}
     </div>
   );
