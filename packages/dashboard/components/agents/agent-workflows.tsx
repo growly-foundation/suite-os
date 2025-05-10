@@ -19,47 +19,65 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { AggregatedAgent, Workflow } from '@growly/core';
 import { useDashboardState } from '@/hooks/use-dashboard';
+import { cn } from '@/lib/utils';
+import { toast } from 'react-toastify';
 
 interface AgentWorkflowsProps {
   agent: AggregatedAgent;
-  onUpdate: (agent: AggregatedAgent) => void;
+  onUpdate: (agent: AggregatedAgent) => Promise<void>;
 }
 
 export function AgentWorkflows({ agent, onUpdate }: AgentWorkflowsProps) {
-  const { organizationWorkflows: workflows } = useDashboardState();
+  const { organizationWorkflows } = useDashboardState();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedWorkflows] = useState<Workflow[]>([...agent.workflows]);
+  const [selectedWorkflows, setSelectedWorkflows] = useState<Workflow[]>([...agent.workflows]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Filter workflows by organization and search query
-  const filteredWorkflows = workflows.filter(
+  // Filter workflows by organization and search query.
+  const filteredWorkflows = organizationWorkflows.filter(
     workflow =>
       workflow.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (workflow.description &&
         workflow.description.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const handleSaveWorkflows = () => {
-    const updatedAgent = {
-      ...agent,
-      workflows: selectedWorkflows,
-    };
-    onUpdate(updatedAgent);
+  const handleSaveWorkflows = async () => {
+    setIsSaving(true);
+    try {
+      const updatedAgent = {
+        ...agent,
+        workflows: selectedWorkflows,
+      };
+      await onUpdate(updatedAgent);
+    } catch (error) {
+      toast.error('Failed to update agent workflows');
+    }
     setIsDialogOpen(false);
+    setIsSaving(false);
   };
 
-  const handleRemoveWorkflow = (workflowId: string) => {
-    const updatedAgent = {
-      ...agent,
-      workflows: agent.workflows.filter(workflow => workflow.id !== workflowId),
-    };
-    onUpdate(updatedAgent);
+  const handleRemoveWorkflow = async (workflowId: string) => {
+    setIsSaving(true);
+    try {
+      const updatedAgent = {
+        ...agent,
+        workflows: agent.workflows.filter(workflow => workflow.id !== workflowId),
+      };
+      await onUpdate(updatedAgent);
+    } catch (error) {
+      toast.error('Failed to remove agent workflow');
+    }
+    setIsSaving(false);
   };
 
-  // Get assigned workflows
-  const assignedWorkflows = workflows.filter(workflow =>
-    agent.workflows.some(workflow => workflow.id === workflow.id)
+  // Get assigned workflows.
+  const assignedWorkflows = organizationWorkflows.filter(w =>
+    agent.workflows.some(workflow => w.id === workflow.id)
   );
+
+  const isWorkflowAssigned = (workflowId: string) =>
+    selectedWorkflows.some(w => w.id === workflowId);
 
   return (
     <Card>
@@ -72,7 +90,7 @@ export function AgentWorkflows({ agent, onUpdate }: AgentWorkflowsProps) {
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button disabled={isSaving}>
               <Plus className="mr-2 h-4 w-4" />
               Assign Workflows
             </Button>
@@ -93,7 +111,6 @@ export function AgentWorkflows({ agent, onUpdate }: AgentWorkflowsProps) {
                 onChange={e => setSearchQuery(e.target.value)}
                 className="mb-4"
               />
-
               <ScrollArea className="h-[300px] pr-4">
                 {filteredWorkflows.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
@@ -102,17 +119,31 @@ export function AgentWorkflows({ agent, onUpdate }: AgentWorkflowsProps) {
                 ) : (
                   <div className="space-y-4">
                     {filteredWorkflows.map(workflow => (
-                      <div key={workflow.id} className="flex items-start space-x-3 py-2">
+                      <div
+                        onClick={() => {
+                          let updatedWorkflows = selectedWorkflows;
+                          if (isWorkflowAssigned(workflow.id)) {
+                            updatedWorkflows = selectedWorkflows.filter(w => w.id !== workflow.id);
+                          } else {
+                            updatedWorkflows = [...selectedWorkflows, workflow];
+                          }
+                          setSelectedWorkflows(updatedWorkflows);
+                        }}
+                        key={workflow.id}
+                        className={cn(
+                          'flex items-start space-x-3 py-2 cursor-pointer border rounded-lg p-4',
+                          isWorkflowAssigned(workflow.id) ? 'bg-muted' : ''
+                        )}>
                         <div className="grid gap-1.5">
                           <Label
                             htmlFor={`workflow-${workflow.id}`}
                             className="font-medium cursor-pointer">
                             {workflow.name}
                           </Label>
-                          {workflow.description && (
-                            <p className="text-sm text-muted-foreground">{workflow.description}</p>
-                          )}
-                          <Badge variant="outline" className="w-fit">
+                          <p className="text-sm text-muted-foreground">{workflow.description}</p>
+                          <Badge
+                            variant={workflow.status === 'active' ? 'default' : 'outline'}
+                            className="w-fit">
                             {workflow.status}
                           </Badge>
                         </div>
@@ -122,7 +153,6 @@ export function AgentWorkflows({ agent, onUpdate }: AgentWorkflowsProps) {
                 )}
               </ScrollArea>
             </div>
-
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancel

@@ -15,7 +15,7 @@ import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 
 export const CreateOrganizationDialog = () => {
   const router = useRouter();
@@ -36,9 +36,7 @@ export const CreateOrganizationDialog = () => {
       router.push(`/dashboard/${organization.id}`);
     } catch (error) {
       console.error(error);
-      toast.error('Failed to create organization', {
-        description: `Error: ${error}`,
-      });
+      toast.error('Failed to create organization');
       setLoading(false);
     }
   };

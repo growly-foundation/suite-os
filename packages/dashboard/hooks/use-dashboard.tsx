@@ -39,6 +39,7 @@ export type DashboardAppState = {
   // Agents
   organizationAgents: AggregatedAgent[];
   fetchOrganizationAgents: () => Promise<AggregatedAgent[]>;
+  fetchOrganizationAgentById: (agentId: string) => Promise<AggregatedAgent | null>;
 };
 
 /**
@@ -63,6 +64,7 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
   fetchOrganizationAgents: async () => {
     const selectedOrganization = get().selectedOrganization;
     if (!selectedOrganization) throw new Error('No organization selected');
+
     const agents = await suiteCore.agents.getAggregatedAgentsByOrganizationId(
       selectedOrganization.id
     );
@@ -70,6 +72,17 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
       organizationAgents: agents,
     });
     return agents;
+  },
+  fetchOrganizationAgentById: async (agentId: string) => {
+    const selectedOrganization = get().selectedOrganization;
+    if (!selectedOrganization) throw new Error('No organization selected');
+
+    const agent = await suiteCore.agents.getAggregatedAgent(agentId);
+    if (!agent) throw new Error('Agent not found');
+    set(state => ({
+      organizationAgents: state.organizationAgents.map(a => (a.id === agentId ? agent : a)),
+    }));
+    return agent;
   },
 
   // Organizations
@@ -112,11 +125,14 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
 
   // Steps
   fetchOrganizationWorkflowById: async (workflowId: string) => {
+    const selectedOrganization = get().selectedOrganization;
+    if (!selectedOrganization) throw new Error('No organization selected');
+
     const workflow = await suiteCore.workflows.getWorkflowWithSteps(workflowId);
     if (!workflow) throw new Error('Workflow not found');
     set(state => ({
       organizationWorkflows: state.organizationWorkflows.map(w =>
-        workflow.id === workflowId ? workflow : w
+        w.id === workflowId ? workflow : w
       ),
     }));
     return workflow;

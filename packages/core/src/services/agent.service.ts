@@ -13,7 +13,7 @@ export class AgentService {
     organization_id: string,
     agent: AggregatedAgent,
     isNewAgent: boolean
-  ): Promise<void> {
+  ): Promise<AggregatedAgent> {
     const payload = {
       description: agent.description,
       name: agent.name,
@@ -27,19 +27,34 @@ export class AgentService {
     } else {
       await this.agentDatabaseService.update(agent.id, payload);
     }
+
+    // Update associations and track visited workflows.
+    let visited: Record<string, boolean> = {};
     for (const workflow of agent.workflows) {
-      const existingAssociation = await this.agentWorkflowsDatabaseService.getOneByFields({
-        agent_id: agent.id,
-        workflow_id: workflow.id,
-      });
-      if (!existingAssociation) {
+      try {
         await this.agentWorkflowsDatabaseService.create({
           agent_id: agent.id,
           workflow_id: workflow.id,
           status: Status.Active,
         });
+        visited[workflow.id] = true;
+      } catch (error) {
+        continue;
       }
     }
+
+    // Remove associations that are no longer in the list
+    const existingWorkflows = await this.agentWorkflowsDatabaseService.getAllByFields({
+      agent_id: agent.id,
+    });
+    for (const workflow of existingWorkflows) {
+      if (visited[workflow.workflow_id]) continue;
+      await this.agentWorkflowsDatabaseService.deleteByFields({
+        agent_id: agent.id,
+        workflow_id: workflow.workflow_id,
+      });
+    }
+    return agent;
   }
 
   async getAggregatedAgentsByOrganizationId(organization_id: string): Promise<AggregatedAgent[]> {

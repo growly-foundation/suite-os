@@ -17,8 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Agent, AggregatedAgent, Status, Workflow } from '@growly/core';
-import { toast } from 'sonner';
+import { AggregatedAgent, Status, Workflow } from '@growly/core';
+import { toast } from 'react-toastify';
 import router from 'next/router';
 import { useDashboardState } from '@/hooks/use-dashboard';
 
@@ -85,10 +85,10 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
 
   const toggleWorkflow = (workflow: Workflow) => {
     setFormData(prev => {
-      if (prev.workflows.some(workflow => workflow.id === workflow.id)) {
+      if (prev.workflows.some(w => w.id === workflow.id)) {
         return {
           ...prev,
-          workflows: prev.workflows.filter(workflow => workflow.id !== workflow.id),
+          workflows: prev.workflows.filter(w => w.id !== workflow.id),
         };
       } else {
         return {
@@ -107,9 +107,7 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
       toast.success('Agent saved successfully');
       router.push('/dashboard/agents');
     } catch (error) {
-      toast.error('Failed to save agent', {
-        description: `Error: ${error}`,
-      });
+      toast.error('Failed to save agent');
     } finally {
       setIsSaving(false);
     }
@@ -239,7 +237,7 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
 
         <div>
           <Label className="text-base">Workflows</Label>
-          <p className="text-sm text-muted-foreground mb-2">Assign workflows to this agent</p>
+          <p className="text-sm text-muted-foreground mb-2"></p>
 
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {organizationWorkflows.length === 0 ? (
@@ -249,7 +247,7 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
                 <div
                   key={workflow.id}
                   className={`p-3 rounded-md border cursor-pointer transition-all ${
-                    formData.workflows.some(workflow => workflow.id === workflow.id)
+                    formData.workflows.some(w => w.id === workflow.id)
                       ? 'border-primary bg-primary/5 dark:bg-primary/10'
                       : 'border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900'
                   }`}

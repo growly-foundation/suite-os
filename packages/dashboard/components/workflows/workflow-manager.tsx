@@ -19,32 +19,6 @@ export default function WorkflowManager() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Total Workflows</CardTitle>
-          </CardHeader>
-          <CardContent className="pb-2">
-            <div className="text-2xl font-bold">12</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Active Workflows</CardTitle>
-          </CardHeader>
-          <CardContent className="pb-2">
-            <div className="text-2xl font-bold">8</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Total Steps</CardTitle>
-          </CardHeader>
-          <CardContent className="pb-2">
-            <div className="text-2xl font-bold">47</div>
-          </CardContent>
-        </Card>
-      </div>
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Workflow className="h-6 w-6 text-primary" /> Workflows

@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import type { AggregatedWorkflow } from '@growly/core';
 import { suiteCore } from '@/core/suite';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Status } from '@growly/core';
@@ -40,9 +40,7 @@ export function WorkflowSettings({ workflow, setWorkflow }: WorkflowSettingsProp
       toast.success('Workflow deleted successfully');
       router.push('/dashboard/workflows');
     } catch (error) {
-      toast.error('Failed to delete workflow', {
-        description: error instanceof Error ? error.message : 'Unknown error',
-      });
+      toast.error('Failed to delete workflow');
     } finally {
       setIsLoading(false);
     }

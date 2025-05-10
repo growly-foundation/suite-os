@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Code, Plus, Save, Settings } from 'lucide-react';
+import { ArrowLeft, Code, Loader2, Plus, Save, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WorkflowCanvas } from '@/components/workflows/workflow-canvas';
@@ -12,7 +12,7 @@ import { AddStepDialog } from '@/components/steps/add-step-dialog';
 import { IntegrationGuideDialog } from '@/components/steps/integration-guide-dialog';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { suiteCore } from '@/core/suite';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 import { generateId } from '@/lib/utils';
 
 export default function WorkflowDetailPage({ params }: { params: { id: string } }) {
@@ -22,6 +22,9 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
   const [isAddStepOpen, setIsAddStepOpen] = useState(false);
   const [isIntegrationGuideOpen, setIsIntegrationGuideOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const isNewWorkflow = params.id === 'new';
 
   useEffect(() => {
     async function fetchWorkflow() {
@@ -30,14 +33,14 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
         toast.error('Please select an organization');
         return;
       }
-      if (params.id === 'new') {
+      if (isNewWorkflow) {
         // Create a new workflow template
         setWorkflow({
           id: '',
           name: `Workflow-${generateId()}`,
           description: '',
           organization_id: selectedOrganization.id,
-          status: Status.Inactive,
+          status: Status.Active,
           created_at: new Date().toISOString(),
           steps: [],
         });
@@ -61,16 +64,56 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
       router.push('/organizations');
       return;
     }
-    if (params.id === 'new') {
-      await suiteCore.db.workflows.create(workflow);
-      toast.success('Workflow created successfully');
-    } else {
-      await suiteCore.db.workflows.update(workflow.id, workflow);
-      toast.success('Workflow updated successfully');
-    }
-    // Redirect to the workflows page after saving
-    if (params.id === 'new') {
-      router.push('/dashboard/workflows');
+    try {
+      setSaving(true);
+      const workflowPayload = {
+        description: workflow.description,
+        name: workflow.name,
+        organization_id: selectedOrganization.id,
+        status: workflow.status,
+      };
+      if (isNewWorkflow) {
+        await suiteCore.db.workflows.create(workflowPayload);
+        toast.success('Workflow created successfully');
+      } else {
+        await suiteCore.db.workflows.update(workflow.id, workflowPayload);
+        toast.success('Workflow updated successfully');
+      }
+      let index = 0;
+      for (const step of workflow.steps) {
+        const stepExists = await suiteCore.db.steps.getOneByFields({
+          workflow_id: workflow.id,
+          id: step.id,
+        });
+        if (stepExists) {
+          await suiteCore.db.steps.update(stepExists.id, {
+            action: JSON.stringify(step.action),
+            conditions: JSON.stringify(step.conditions),
+            description: step.description,
+            name: step.name,
+            status: step.status,
+          });
+        } else {
+          await suiteCore.db.steps.create({
+            workflow_id: workflow.id,
+            action: JSON.stringify(step.action),
+            conditions: JSON.stringify(step.conditions),
+            description: step.description,
+            index,
+            name: step.name,
+            status: step.status,
+          });
+        }
+        index++;
+      }
+      // Redirect to the workflows page after saving
+      if (isNewWorkflow) {
+        router.push('/dashboard/workflows');
+      }
+    } catch (error) {
+      toast.error('Failed to save workflow');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -99,7 +142,7 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-2xl font-bold">
-            {params.id === 'new' ? 'New Workflow' : `Edit: ${workflow.name}`}
+            {isNewWorkflow ? 'New Workflow' : `Edit: ${workflow.name}`}
           </h1>
         </div>
         <div className="flex items-center gap-2">
@@ -111,9 +154,13 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
             <Code className="mr-2 h-4 w-4" />
             Integration Guide
           </Button>
-          <Button onClick={handleSave}>
-            <Save className="mr-2 h-4 w-4" />
-            Save
+          <Button onClick={handleSave} disabled={saving}>
+            {saving ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="mr-2 h-4 w-4" />
+            )}
+            {saving ? 'Saving...' : 'Save'}
           </Button>
         </div>
       </div>

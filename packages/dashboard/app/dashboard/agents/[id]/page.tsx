@@ -12,7 +12,7 @@ import { AgentWorkflows } from '@/components/agents/agent-workflows';
 import { AgentResources } from '@/components/agents/agent-resources';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { suiteCore } from '@/core/suite';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 
 const DEFAULT_MODEL = 'gpt-4';
 
@@ -62,13 +62,20 @@ export default function AgentPage({ params }: { params: { id: string } }) {
   const handleAgentUpdate = async (updatedAgent: AggregatedAgent) => {
     try {
       if (!selectedOrganization) return;
-      await suiteCore.agents.createOrUpdate(selectedOrganization.id, updatedAgent, isNewAgent);
+      const agent = await suiteCore.agents.createOrUpdate(
+        selectedOrganization.id,
+        updatedAgent,
+        isNewAgent
+      );
+      setAgent(agent);
       toast.success(isNewAgent ? 'Agent created successfully' : 'Agent updated successfully');
-      router.push('/dashboard/agents');
+      if (!isNewAgent) {
+        router.push(`/dashboard/agents/${updatedAgent.id}`);
+      } else {
+        router.push('/dashboard/agents');
+      }
     } catch (error) {
-      toast.error('Failed to update agent', {
-        description: `Error: ${error}`,
-      });
+      toast.error('Failed to update agent');
     }
   };
 
