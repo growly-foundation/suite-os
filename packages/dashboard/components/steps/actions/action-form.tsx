@@ -44,12 +44,7 @@ export function ActionForm({ actions, setActions }: ActionFormProps) {
       {actions.length > 0 && (
         <div className="space-y-2">
           {actions.map(action => (
-            <ActionItem
-              key={action.id}
-              action={action}
-              onRemove={removeAction}
-              disableRemove={actions.length === 1}
-            />
+            <ActionItem key={action.id} action={action} onRemove={removeAction} />
           ))}
         </div>
       )}

@@ -21,19 +21,31 @@ export function UIEventCondition({ onAdd }: UIEventConditionProps) {
         <RadioGroup value={uiEvent} onValueChange={(value: any) => setUiEvent(value)}>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value={UIEventConditionEnum.OnPageLoad} id="onPageLoad" />
-            <Label htmlFor="onPageLoad">On Page Load</Label>
+            <div className="flex justify-between items-center w-full">
+              <Label htmlFor="onPageLoad">On Page Load</Label>
+              <p className="text-sm text-muted-foreground">When the page is loaded</p>
+            </div>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value={UIEventConditionEnum.OnVisited} id="onVisited" />
-            <Label htmlFor="onVisited">On Visited</Label>
+            <div className="flex justify-between items-center w-full">
+              <Label htmlFor="onVisited">On Visited</Label>
+              <p className="text-sm text-muted-foreground">When the element is visited</p>
+            </div>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value={UIEventConditionEnum.OnClicked} id="onClicked" />
-            <Label htmlFor="onClicked">On Clicked</Label>
+            <div className="flex justify-between items-center w-full">
+              <Label htmlFor="onClicked">On Clicked</Label>
+              <p className="text-sm text-muted-foreground">When the element is clicked</p>
+            </div>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value={UIEventConditionEnum.OnHovered} id="onHovered" />
-            <Label htmlFor="onHovered">On Hovered</Label>
+            <div className="flex justify-between items-center w-full">
+              <Label htmlFor="onHovered">On Hovered</Label>
+              <p className="text-sm text-muted-foreground">When the element is hovered</p>
+            </div>
           </div>
         </RadioGroup>
       </div>

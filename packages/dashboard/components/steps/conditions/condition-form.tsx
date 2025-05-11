@@ -63,7 +63,6 @@ export function ConditionForm({ conditions, setConditions, existingSteps }: Cond
               condition={condition}
               onRemove={removeCondition}
               existingSteps={existingSteps}
-              disableRemove={conditions.length === 1}
             />
           ))}
         </div>

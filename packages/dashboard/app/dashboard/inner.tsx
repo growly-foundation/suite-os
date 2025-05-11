@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Bot, FileText, Users, Activity, Settings2 } from 'lucide-react';
+import { Bot, FileText, Users, Activity, Settings2, Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useDashboardState } from '@/hooks/use-dashboard';
@@ -13,13 +13,15 @@ import { NewAgentButton } from '@/components/buttons/new-agent-button';
 import moment from 'moment';
 import { AnimatedLoadingSmall } from '@/components/animated-components/animated-loading-small';
 import React from 'react';
+import { toast } from 'react-toastify';
 
 const MAX_RECENT_ACTIVITY = 10;
 
 export default function DashboardInner() {
-  const { selectedOrganization } = useDashboardState();
+  const { selectedOrganization, setSelectedOrganization } = useDashboardState();
   const [showAllActivity, setShowAllActivity] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingDelete, setLoadingDelete] = useState(false);
   const [metrics, setMetrics] = useState({
     totalAgents: 0,
     activeAgents: 0,
@@ -85,15 +87,49 @@ export default function DashboardInner() {
     fetchDashboardData();
   }, [selectedOrganization]);
 
+  const handleDeleteOrganization = async () => {
+    if (!selectedOrganization) return;
+    setLoadingDelete(true);
+    try {
+      const isConfirmed = window.confirm(
+        `Are you sure you want to delete organization ${selectedOrganization.name}?`
+      );
+      if (isConfirmed) {
+        await suiteCore.db.organizations.delete(selectedOrganization.id);
+        setSelectedOrganization(undefined);
+        toast.success('Organization deleted successfully');
+      }
+    } catch (error) {
+      console.error('Error deleting organization:', error);
+      toast.error('Failed to delete organization');
+    } finally {
+      setLoadingDelete(false);
+    }
+  };
+
   return (
     <React.Fragment>
       {loading ? (
         <AnimatedLoadingSmall />
       ) : (
         <div className="flex flex-col gap-6 p-6 md:gap-8 md:p-8">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-3xl font-bold tracking-tight">{selectedOrganization?.name}</h1>
-            <p className="text-muted-foreground">{selectedOrganization?.description}</p>
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-2">
+              <h1 className="text-3xl font-bold tracking-tight">{selectedOrganization?.name}</h1>
+              <p className="text-muted-foreground">{selectedOrganization?.description}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Link href="/dashboard/organizations">
+                <Button variant="outline">Switch Organization</Button>
+              </Link>
+              <Button
+                disabled={loadingDelete}
+                variant="destructive"
+                onClick={handleDeleteOrganization}>
+                {loadingDelete ? <Loader className="mr-2 h-4 w-4 animate-spin" /> : null}
+                {loadingDelete ? 'Deleting...' : 'Delete Organization'}
+              </Button>
+            </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">

@@ -24,7 +24,7 @@ export type DashboardAppState = {
 
   // Selected Organization
   selectedOrganization: AggregatedOrganization | null;
-  setSelectedOrganization: (organization: AggregatedOrganization) => void;
+  setSelectedOrganization: (organization: AggregatedOrganization | undefined) => void;
 
   // Organizations
   organizationStatus: StateStatus;
@@ -60,10 +60,14 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
   // Selected Organization
   organizationStatus: 'idle',
   selectedOrganization: null,
-  setSelectedOrganization: (organization: AggregatedOrganization) => {
+  setSelectedOrganization: (organization: AggregatedOrganization | undefined) => {
     const admin = get().admin;
     if (!admin?.id) throw new Error('No admin authenticated');
-    localStorage.setItem(STORAGE_KEY_SELECTED_ORGANIZATION_ID(admin.id), organization.id);
+    if (organization) {
+      localStorage.setItem(STORAGE_KEY_SELECTED_ORGANIZATION_ID(admin.id), organization.id);
+    } else {
+      localStorage.removeItem(STORAGE_KEY_SELECTED_ORGANIZATION_ID(admin.id));
+    }
     set({ selectedOrganization: organization });
   },
 

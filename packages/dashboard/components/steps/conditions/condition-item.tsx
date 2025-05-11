@@ -2,12 +2,12 @@
 
 import { Button } from '@/components/ui/button';
 import { Trash } from 'lucide-react';
-import { ConditionType, UIEventCondition } from '@growly/core';
+import { ConditionType, Step, StepId, UIEventCondition } from '@growly/core';
 
 interface ConditionItemProps {
   condition: any;
-  onRemove: (id: string) => void;
-  existingSteps: any[];
+  onRemove: (id: StepId) => void;
+  existingSteps: Step[];
   disableRemove?: boolean;
 }
 
@@ -38,20 +38,20 @@ export function ConditionItem({
   const getUIEventLabel = (eventType: UIEventCondition) => {
     switch (eventType) {
       case UIEventCondition.OnPageLoad:
-        return 'On Page Load';
+        return 'When the page is loaded';
       case UIEventCondition.OnVisited:
-        return 'On Visited';
+        return 'When a specified element is visited';
       case UIEventCondition.OnClicked:
-        return 'On Clicked';
+        return 'When a specified element is clicked';
       case UIEventCondition.OnHovered:
-        return 'On Hovered';
+        return 'When a specified element is hovered';
       default:
         return eventType;
     }
   };
 
   return (
-    <div className="flex items-center justify-between p-2 border rounded-md">
+    <div className="flex items-center justify-between p-2 px-4 border rounded-md">
       <span className="text-sm">{getConditionLabel(condition)}</span>
       <Button
         variant="ghost"

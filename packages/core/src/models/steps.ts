@@ -121,8 +121,6 @@ export interface AgentAction {
   args: {
     agentId: AgentId;
     organizationId: OrganizationId;
-    /** Example: "gpt-4o" */
-    model: string;
     /** Example: "Analyze the following portfolio?" */
     prompt: string;
   };

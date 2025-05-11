@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,13 +16,14 @@ import { toast } from 'react-toastify';
 
 const DEFAULT_MODEL = 'gpt-4';
 
-export default function AgentPage({ params }: { params: { id: string } }) {
+export default function AgentPage({ params }: { params: Promise<{ id: string }> }) {
   const { selectedOrganization } = useDashboardState();
   const router = useRouter();
   const [agent, setAgent] = useState<AggregatedAgent | null>(null);
   const [loading, setLoading] = useState(true);
+  const paramsValue = React.use(params);
 
-  const isNewAgent = params.id === 'new';
+  const isNewAgent = paramsValue.id === 'new';
 
   useEffect(() => {
     const fetchAgent = async () => {
@@ -42,7 +43,7 @@ export default function AgentPage({ params }: { params: { id: string } }) {
         });
       } else {
         try {
-          const fetchedAgent = await suiteCore.agents.getAggregatedAgent(params.id);
+          const fetchedAgent = await suiteCore.agents.getAggregatedAgent(paramsValue.id);
           if (fetchedAgent) {
             setAgent(fetchedAgent);
           } else {
@@ -57,7 +58,7 @@ export default function AgentPage({ params }: { params: { id: string } }) {
       setLoading(false);
     };
     fetchAgent();
-  }, [selectedOrganization, isNewAgent]);
+  }, [selectedOrganization, isNewAgent, paramsValue.id]);
 
   const handleAgentUpdate = async (updatedAgent: AggregatedAgent) => {
     try {
@@ -75,6 +76,7 @@ export default function AgentPage({ params }: { params: { id: string } }) {
         router.push('/dashboard/agents');
       }
     } catch (error) {
+      console.log(error);
       toast.error('Failed to update agent');
     }
   };

@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
@@ -13,14 +12,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
+import { JudgedByAgentCondition as JudgedByAgentConditionType, Step } from '@growly/core';
+import { generateId } from '@/lib/utils';
 
 interface JudgedByAgentConditionProps {
-  onAdd: (data: any) => void;
-  existingSteps: any[];
+  onAdd: (data: JudgedByAgentConditionType) => void;
+  existingSteps: Step[];
 }
 
 export function JudgedByAgentCondition({ onAdd, existingSteps }: JudgedByAgentConditionProps) {
-  const [judgeAgentId, setJudgeAgentId] = useState('');
   const [judgeStepId, setJudgeStepId] = useState('');
   const [judgePrompt, setJudgePrompt] = useState('');
 
@@ -28,16 +28,16 @@ export function JudgedByAgentCondition({ onAdd, existingSteps }: JudgedByAgentCo
     onAdd({
       type: 'judgedByAgent',
       args: {
+        agentId: generateId(),
         stepId: judgeStepId,
-        agentId: judgeAgentId,
         prompt: judgePrompt,
-      },
+      } as JudgedByAgentConditionType['args'],
     });
   };
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
+      {/* <div className="space-y-2">
         <Label htmlFor="judgeAgentId">Agent ID</Label>
         <Input
           id="judgeAgentId"
@@ -45,7 +45,7 @@ export function JudgedByAgentCondition({ onAdd, existingSteps }: JudgedByAgentCo
           onChange={e => setJudgeAgentId(e.target.value)}
           placeholder="Enter agent ID"
         />
-      </div>
+      </div> */}
       <div className="space-y-2">
         <Label htmlFor="judgeStepId">Step ID to Judge</Label>
         <Select value={judgeStepId} onValueChange={setJudgeStepId}>
@@ -71,10 +71,7 @@ export function JudgedByAgentCondition({ onAdd, existingSteps }: JudgedByAgentCo
           rows={2}
         />
       </div>
-      <Button
-        type="button"
-        onClick={handleAdd}
-        disabled={!judgeAgentId || !judgeStepId || !judgePrompt}>
+      <Button type="button" onClick={handleAdd} disabled={!judgeStepId || !judgePrompt}>
         <Plus className="mr-2 h-4 w-4" />
         Add Agent Judgment Condition
       </Button>

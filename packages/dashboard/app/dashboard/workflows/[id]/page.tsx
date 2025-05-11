@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Code, Loader2, Plus, Save, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,10 +14,9 @@ import { useDashboardState } from '@/hooks/use-dashboard';
 import { suiteCore } from '@/core/suite';
 import { toast } from 'react-toastify';
 import { generateId } from '@/lib/utils';
-import { AnimatedLoading } from '@/components/animated-components/animated-loading';
 import { AnimatedLoadingSmall } from '@/components/animated-components/animated-loading-small';
 
-export default function WorkflowDetailPage({ params }: { params: { id: string } }) {
+export default function WorkflowDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { fetchOrganizationWorkflowById, selectedOrganization } = useDashboardState();
   const [workflow, setWorkflow] = useState<AggregatedWorkflow | null>(null);
@@ -25,8 +24,9 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
   const [isIntegrationGuideOpen, setIsIntegrationGuideOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const paramsValue = React.use(params);
 
-  const isNewWorkflow = params.id === 'new';
+  const isNewWorkflow = paramsValue.id === 'new';
 
   useEffect(() => {
     async function fetchWorkflow() {
@@ -47,7 +47,7 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
           steps: [],
         });
       } else {
-        const fetchedWorkflow = await fetchOrganizationWorkflowById(params.id);
+        const fetchedWorkflow = await fetchOrganizationWorkflowById(paramsValue.id);
         if (fetchedWorkflow) {
           setWorkflow(fetchedWorkflow);
         } else {
@@ -58,7 +58,7 @@ export default function WorkflowDetailPage({ params }: { params: { id: string } 
       setLoading(false);
     }
     fetchWorkflow();
-  }, [params.id, router, selectedOrganization]);
+  }, [paramsValue.id, router, selectedOrganization]);
 
   const handleSave = async () => {
     if (!workflow || !selectedOrganization) {

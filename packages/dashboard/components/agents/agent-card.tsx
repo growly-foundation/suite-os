@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ChevronRight, Cpu, FileText, MoreHorizontal, Power } from 'lucide-react';
+import { ChevronRight, Cpu, FileText, Loader, MoreHorizontal, Power } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -10,17 +10,22 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { AggregatedAgent, Status } from '@growly/core';
-import { getModelInfo } from '@/lib/agent.utils';
 import { Agent } from '@growly/core';
 import { useEffect, useState } from 'react';
 import { suiteCore } from '@/core/suite';
 import { Skeleton } from '../ui/skeleton';
 import moment from 'moment';
+import { useDashboardState } from '@/hooks/use-dashboard';
+import { toast } from 'react-toastify';
 
 export const AgentCard = ({ agent }: { agent: Agent }) => {
-  const { icon } = getModelInfo(agent.model);
   const [loading, setLoading] = useState(true);
+  const [loadingDelete, setLoadingDelete] = useState(false);
+  const [loadingDuplicate, setLoadingDuplicate] = useState(false);
   const [agentDetails, setAgentDetails] = useState<AggregatedAgent | null>(null);
+
+  const { selectedOrganization, fetchOrganizationAgents, fetchOrganizationAgentById } =
+    useDashboardState();
 
   useEffect(() => {
     const fetchAgentDetails = async () => {
@@ -36,6 +41,37 @@ export const AgentCard = ({ agent }: { agent: Agent }) => {
     };
     fetchAgentDetails();
   }, [agent.id]);
+
+  const handleDelete = async () => {
+    try {
+      setLoadingDelete(true);
+      await suiteCore.db.agents.delete(agent.id);
+      toast.success('Agent deleted successfully');
+      await fetchOrganizationAgents();
+    } catch (error) {
+      console.error('Failed to delete agent:', error);
+      toast.error('Failed to delete agent');
+    } finally {
+      setLoadingDelete(false);
+    }
+  };
+
+  const handleDuplicate = async () => {
+    try {
+      if (!selectedOrganization) throw new Error('Organization not found');
+      setLoadingDuplicate(true);
+      const agentWithWorkflows = await fetchOrganizationAgentById(agent.id);
+      if (!agentWithWorkflows) throw new Error('Agent not found');
+      await suiteCore.agents.createOrUpdate(selectedOrganization.id, agentWithWorkflows, true);
+      toast.success('Agent duplicated successfully');
+      await fetchOrganizationAgents();
+    } catch (error) {
+      console.error('Failed to duplicate agent:', error);
+      toast.error('Failed to duplicate agent');
+    } finally {
+      setLoadingDuplicate(false);
+    }
+  };
 
   return (
     <Card key={agent.id} className="overflow-hidden transition-all hover:shadow-md">
@@ -60,9 +96,19 @@ export const AgentCard = ({ agent }: { agent: Agent }) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>Edit</DropdownMenuItem>
-                <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                <DropdownMenuItem>Delete</DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link href={`/dashboard/agents/${agent.id}`}>Edit</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDuplicate} disabled={loadingDuplicate}>
+                  {loadingDuplicate ? (
+                    <Loader className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    'Duplicate'
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDelete} disabled={loadingDelete}>
+                  {loadingDelete ? <Loader className="mr-2 h-4 w-4 animate-spin" /> : 'Delete'}
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

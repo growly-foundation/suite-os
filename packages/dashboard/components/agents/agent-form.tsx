@@ -19,12 +19,11 @@ import {
 } from '@/components/ui/select';
 import { AggregatedAgent, Status, Workflow } from '@growly/core';
 import { toast } from 'react-toastify';
-import router from 'next/router';
 import { useDashboardState } from '@/hooks/use-dashboard';
 
 // Available models for the agent
 const availableModels = [
-  { id: 'gpt-4o', name: 'GPT-4', description: "OpenAI's most advanced model" },
+  { id: 'gpt-4', name: 'GPT-4', description: "OpenAI's most advanced model" },
   { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', description: 'Fast and efficient for most tasks' },
   {
     id: 'claude-3',
@@ -104,10 +103,9 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
       setIsSaving(true);
       e.preventDefault();
       await onSave(formData);
-      toast.success('Agent saved successfully');
-      router.push('/dashboard/agents');
-    } catch (error) {
-      toast.error('Failed to save agent');
+    } catch (error: any) {
+      console.log(error);
+      toast.error(`Failed to save agent: ${error.message}`);
     } finally {
       setIsSaving(false);
     }
@@ -118,7 +116,7 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
   }, []);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <div>
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-2">
@@ -261,7 +259,7 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
           </div>
         </div>
       </div>
-
+      <br />
       <div className="flex justify-end space-x-2">
         <Button type="button" variant="outline" onClick={() => window.history.back()}>
           Cancel
@@ -271,6 +269,6 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
           {isSaving && <Loader className="ml-2 h-4 w-4 animate-spin" />}
         </Button>
       </div>
-    </form>
+    </div>
   );
 }

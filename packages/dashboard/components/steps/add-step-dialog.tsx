@@ -28,12 +28,8 @@ interface AddStepDialogProps {
 export function AddStepDialog({ open, onOpenChange, onAdd, existingSteps }: AddStepDialogProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [conditions, setConditions] = useState<any[]>([
-    { id: generateId(), type: ConditionType.Always, data: true },
-  ]);
-  const [actions, setActions] = useState<any[]>([
-    { id: generateId(), type: 'text', data: { text: '' } },
-  ]);
+  const [conditions, setConditions] = useState<any[]>([]);
+  const [actions, setActions] = useState<any[]>([]);
 
   const handleAdd = () => {
     // Convert condition items to the format expected by the API
@@ -87,8 +83,8 @@ export function AddStepDialog({ open, onOpenChange, onAdd, existingSteps }: AddS
   const resetForm = () => {
     setName('');
     setDescription('');
-    setConditions([{ id: generateId(), type: ConditionType.Always, data: true }]);
-    setActions([{ id: generateId(), type: 'text', data: { text: '' } }]);
+    setConditions([]);
+    setActions([]);
   };
 
   return (
