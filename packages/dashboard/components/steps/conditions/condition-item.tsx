@@ -2,12 +2,12 @@
 
 import { Button } from '@/components/ui/button';
 import { Trash } from 'lucide-react';
-import { ConditionType, Step, StepId, UIEventCondition } from '@growly/core';
+import { Condition, ConditionType, ParsedStep, StepId, UIEventCondition } from '@growly/core';
 
 interface ConditionItemProps {
-  condition: any;
+  condition: Condition;
   onRemove: (id: StepId) => void;
-  existingSteps: Step[];
+  existingSteps: ParsedStep[];
   disableRemove?: boolean;
 }
 
@@ -17,7 +17,7 @@ export function ConditionItem({
   existingSteps,
   disableRemove = false,
 }: ConditionItemProps) {
-  const getConditionLabel = (condition: any) => {
+  const getConditionLabel = (condition: Condition) => {
     switch (condition.type) {
       case ConditionType.Always:
         return 'Always';

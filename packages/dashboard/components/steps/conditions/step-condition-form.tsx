@@ -11,14 +11,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
+import { ConditionType, ParsedStep, ScalarStepCondition, Step, StepId } from '@growly/core';
+import { generateId } from '@/lib/utils';
 
 interface StepConditionProps {
-  onAdd: (data: any) => void;
-  existingSteps: any[];
+  onAdd: (data: ScalarStepCondition) => void;
+  existingSteps: ParsedStep[];
 }
 
 export function StepCondition({ onAdd, existingSteps }: StepConditionProps) {
-  const [dependsOn, setDependsOn] = useState<string | null>(null);
+  const [dependsOn, setDependsOn] = useState<StepId | null>(null);
 
   return (
     <div className="space-y-4">
@@ -39,7 +41,13 @@ export function StepCondition({ onAdd, existingSteps }: StepConditionProps) {
               </SelectContent>
             </Select>
           </div>
-          <Button type="button" onClick={() => onAdd(dependsOn)} disabled={!dependsOn}>
+          <Button
+            type="button"
+            onClick={() => {
+              if (!dependsOn) return;
+              onAdd({ type: ConditionType.Step, data: dependsOn, id: generateId() });
+            }}
+            disabled={!dependsOn}>
             <Plus className="mr-2 h-4 w-4" />
             Add Step Dependency
           </Button>

@@ -11,19 +11,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ConditionType } from '@growly/core';
-import { generateId } from '@/lib/utils';
+import { Condition, ConditionType, ParsedStep, ScalarCondition, Step } from '@growly/core';
 import { AlwaysCondition } from './always-condition-form';
 import { StepCondition } from './step-condition-form';
 import { WorkflowCondition } from './workflow-condition-form';
-import { UIEventCondition } from './ui-event-condition-form';
-import { JudgedByAgentCondition } from './judged-by-agent-condition-form';
+import { UIEventConditionForm } from './ui-event-condition-form';
 import { ConditionItem } from './condition-item';
+import { JudgedByAgentConditionForm } from './judged-by-agent-condition-form';
 
 interface ConditionFormProps {
-  conditions: any[];
-  setConditions: (conditions: any[]) => void;
-  existingSteps: any[];
+  conditions: Condition[];
+  setConditions: (conditions: Condition[]) => void;
+  existingSteps: ParsedStep[];
 }
 
 export function ConditionForm({ conditions, setConditions, existingSteps }: ConditionFormProps) {
@@ -31,15 +30,8 @@ export function ConditionForm({ conditions, setConditions, existingSteps }: Cond
     ConditionType.Always
   );
 
-  const addCondition = (conditionData: any) => {
-    setConditions([
-      ...conditions,
-      {
-        id: generateId(),
-        type: currentConditionType,
-        data: conditionData,
-      },
-    ]);
+  const addCondition = (conditionData: ScalarCondition & { id: string }) => {
+    setConditions([...conditions, conditionData]);
   };
 
   const removeCondition = (id: string) => {
@@ -59,7 +51,6 @@ export function ConditionForm({ conditions, setConditions, existingSteps }: Cond
         <div className="space-y-2">
           {conditions.map(condition => (
             <ConditionItem
-              key={condition.id}
               condition={condition}
               onRemove={removeCondition}
               existingSteps={existingSteps}
@@ -105,11 +96,11 @@ export function ConditionForm({ conditions, setConditions, existingSteps }: Cond
           )}
 
           {currentConditionType === ConditionType.UIEvent && (
-            <UIEventCondition onAdd={addCondition} />
+            <UIEventConditionForm onAdd={addCondition} />
           )}
 
           {currentConditionType === ConditionType.JudgedByAgent && (
-            <JudgedByAgentCondition onAdd={addCondition} existingSteps={existingSteps} />
+            <JudgedByAgentConditionForm onAdd={addCondition} existingSteps={existingSteps} />
           )}
         </CardContent>
       </Card>

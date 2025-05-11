@@ -15,68 +15,38 @@ import { Label } from '@/components/ui/label';
 import { ConditionForm } from '@/components/steps/conditions/condition-form';
 import { ActionForm } from '@/components/steps/actions/action-form';
 import { Separator } from '@/components/ui/separator';
-import { generateId } from '@/lib/utils';
-import { Action, Condition, ConditionType, ParsedStep } from '@growly/core';
+import { Action, Condition, ParsedStep, ParsedStepInsert, Status, WorkflowId } from '@growly/core';
 
 interface AddStepDialogProps {
+  workflowId: WorkflowId;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAdd: (step: ParsedStep) => void;
+  onAdd: (step: ParsedStepInsert) => void;
   existingSteps: ParsedStep[];
 }
 
-export function AddStepDialog({ open, onOpenChange, onAdd, existingSteps }: AddStepDialogProps) {
+export function AddStepDialog({
+  workflowId,
+  open,
+  onOpenChange,
+  onAdd,
+  existingSteps,
+}: AddStepDialogProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [conditions, setConditions] = useState<any[]>([]);
-  const [actions, setActions] = useState<any[]>([]);
+  const [conditions, setConditions] = useState<Condition[]>([]);
+  const [actions, setActions] = useState<Action[]>([]);
 
   const handleAdd = () => {
-    // Convert condition items to the format expected by the API
-    const conditionsList: Condition[] = conditions.map(c => c.data);
-
-    // Convert action items to the format expected by the API
-    const actionsList: Action[] = actions.map(a => {
-      if (a.type === 'text') {
-        return {
-          type: 'text',
-          return: {
-            text: a.data.text,
-          },
-        };
-      } else {
-        return {
-          type: 'agent',
-          args: {
-            agentId: a.data.agentId,
-            organizationId: a.data.organizationId,
-            model: a.data.model,
-            prompt: a.data.prompt,
-          },
-          return: { type: 'text', return: { text: '' } },
-        };
-      }
-    });
-
-    const newStep: ParsedStep = {
-      id: generateId(),
+    onAdd({
       name,
       description,
       index: existingSteps.length,
-      status: 'active',
-      workflow_id: null,
-      created_at: new Date().toISOString(),
-      conditions:
-        conditions.length === 1
-          ? conditions[0].data
-          : {
-              type: 'and',
-              conditions: conditionsList,
-            },
-      action: actionsList,
-    };
-
-    onAdd(newStep);
+      status: Status.Active,
+      workflow_id: workflowId,
+      conditions: conditions,
+      action: actions,
+    });
     resetForm();
   };
 
@@ -101,7 +71,6 @@ export function AddStepDialog({ open, onOpenChange, onAdd, existingSteps }: AddS
             Create a new step for your workflow. Steps can perform actions when conditions are met.
           </DialogDescription>
         </DialogHeader>
-
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -113,7 +82,6 @@ export function AddStepDialog({ open, onOpenChange, onAdd, existingSteps }: AddS
                 placeholder="Enter step name"
               />
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="description">Description (Optional)</Label>
               <Input
@@ -124,20 +92,16 @@ export function AddStepDialog({ open, onOpenChange, onAdd, existingSteps }: AddS
               />
             </div>
           </div>
-
           {/* Conditions Section */}
           <ConditionForm
             conditions={conditions}
             setConditions={setConditions}
             existingSteps={existingSteps}
           />
-
           <Separator />
-
           {/* Actions Section */}
           <ActionForm actions={actions} setActions={setActions} />
         </div>
-
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel

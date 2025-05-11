@@ -5,13 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Plus } from 'lucide-react';
-import { UIEventCondition as UIEventConditionEnum } from '@growly/core';
+import {
+  ConditionType,
+  ScalarUIEventCondition,
+  UIEventCondition as UIEventConditionEnum,
+} from '@growly/core';
+import { generateId } from '@/lib/utils';
 
 interface UIEventConditionProps {
-  onAdd: (data: any) => void;
+  onAdd: (data: ScalarUIEventCondition) => void;
 }
 
-export function UIEventCondition({ onAdd }: UIEventConditionProps) {
+export function UIEventConditionForm({ onAdd }: UIEventConditionProps) {
   const [uiEvent, setUiEvent] = useState<UIEventConditionEnum>(UIEventConditionEnum.OnPageLoad);
 
   return (
@@ -49,7 +54,9 @@ export function UIEventCondition({ onAdd }: UIEventConditionProps) {
           </div>
         </RadioGroup>
       </div>
-      <Button type="button" onClick={() => onAdd(uiEvent)}>
+      <Button
+        type="button"
+        onClick={() => onAdd({ type: ConditionType.UIEvent, data: uiEvent, id: generateId() })}>
         <Plus className="mr-2 h-4 w-4" />
         Add UI Event Condition
       </Button>

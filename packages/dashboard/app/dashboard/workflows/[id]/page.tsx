@@ -183,6 +183,7 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
         </TabsContent>
       </Tabs>
       <AddStepDialog
+        workflowId={workflow.id}
         open={isAddStepOpen}
         onOpenChange={setIsAddStepOpen}
         onAdd={handleAddStep}

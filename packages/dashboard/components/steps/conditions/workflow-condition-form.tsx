@@ -5,13 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Plus } from 'lucide-react';
+import { ConditionType, ScalarWorkflowCondition, WorkflowId } from '@growly/core';
+import { generateId } from '@/lib/utils';
 
 interface WorkflowConditionProps {
-  onAdd: (data: any) => void;
+  onAdd: (data: ScalarWorkflowCondition) => void;
 }
 
 export function WorkflowCondition({ onAdd }: WorkflowConditionProps) {
-  const [workflowId, setWorkflowId] = useState('');
+  const [workflowId, setWorkflowId] = useState<string | undefined>(undefined);
 
   return (
     <div className="space-y-4">
@@ -24,7 +26,13 @@ export function WorkflowCondition({ onAdd }: WorkflowConditionProps) {
           placeholder="Enter workflow ID"
         />
       </div>
-      <Button type="button" onClick={() => onAdd(workflowId)} disabled={!workflowId}>
+      <Button
+        type="button"
+        onClick={() => {
+          if (!workflowId) return;
+          onAdd({ type: ConditionType.Workflow, data: workflowId, id: generateId() });
+        }}
+        disabled={!workflowId}>
         <Plus className="mr-2 h-4 w-4" />
         Add Workflow Dependency
       </Button>

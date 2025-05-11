@@ -12,26 +12,27 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
-import { JudgedByAgentCondition as JudgedByAgentConditionType, Step } from '@growly/core';
+import { ConditionType, ScalarJudgedByAgentCondition, ParsedStep } from '@growly/core';
 import { generateId } from '@/lib/utils';
 
 interface JudgedByAgentConditionProps {
-  onAdd: (data: JudgedByAgentConditionType) => void;
-  existingSteps: Step[];
+  onAdd: (data: ScalarJudgedByAgentCondition) => void;
+  existingSteps: ParsedStep[];
 }
 
-export function JudgedByAgentCondition({ onAdd, existingSteps }: JudgedByAgentConditionProps) {
+export function JudgedByAgentConditionForm({ onAdd, existingSteps }: JudgedByAgentConditionProps) {
   const [judgeStepId, setJudgeStepId] = useState('');
   const [judgePrompt, setJudgePrompt] = useState('');
 
   const handleAdd = () => {
     onAdd({
-      type: 'judgedByAgent',
-      args: {
-        agentId: generateId(),
+      type: ConditionType.JudgedByAgent,
+      data: {
+        agentId: undefined,
         stepId: judgeStepId,
         prompt: judgePrompt,
-      } as JudgedByAgentConditionType['args'],
+      },
+      id: generateId(),
     });
   };
 
