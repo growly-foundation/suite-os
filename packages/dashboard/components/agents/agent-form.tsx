@@ -24,7 +24,7 @@ import { useDashboardState } from '@/hooks/use-dashboard';
 
 // Available models for the agent
 const availableModels = [
-  { id: 'gpt-4', name: 'GPT-4', description: "OpenAI's most advanced model" },
+  { id: 'gpt-4o', name: 'GPT-4', description: "OpenAI's most advanced model" },
   { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', description: 'Fast and efficient for most tasks' },
   {
     id: 'claude-3',

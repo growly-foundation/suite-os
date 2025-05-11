@@ -60,6 +60,16 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
     return data;
   }
 
+  async getManyByIds(ids: string[]): Promise<Database['public']['Tables'][T]['Row'][]> {
+    const { data, error } = await this.getClient()
+      .from(this.table as string)
+      .select('*')
+      .in('id', ids);
+
+    if (error) throw error;
+    return data;
+  }
+
   async getOneByFields(
     fields: Partial<Record<keyof Database['public']['Tables'][T]['Row'], string>>
   ): Promise<Database['public']['Tables'][T]['Row'] | null> {

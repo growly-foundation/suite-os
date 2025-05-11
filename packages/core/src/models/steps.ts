@@ -8,12 +8,25 @@ export type Step = Tables<'steps'>;
  */
 export type ParsedStep = Omit<Step, 'conditions' | 'action'> & {
   /** Conditions for the step to be triggered. Conditions will be checked in order. */
-  conditions: Condition;
+  conditions: Condition[];
   /** Action to be performed when the step is triggered. */
   action: Action[];
 };
 
-export type Condition = ScalarCondition | OrCondition | AndCondition;
+export type Condition = ScalarCondition | BranchingCondition;
+
+export type BranchingCondition = OrCondition | AndCondition;
+
+export enum ConditionType {
+  Always = 'always',
+  Step = 'step',
+  Workflow = 'workflow',
+  UIEvent = 'uievent',
+  JudgedByAgent = 'judgedByAgent',
+  // Branching conditions
+  Or = 'or',
+  And = 'and',
+}
 
 /**
  * A single condition for a step to be triggered.
@@ -26,10 +39,15 @@ export type Condition = ScalarCondition | OrCondition | AndCondition;
  * - `UIEventCondition`: The event condition is met.
  */
 export type ScalarCondition =
+  // Condition type = Always
   | boolean
+  // Condition type = Step
   | StepId
+  // Condition type = Workflow
   | WorkflowId
+  // Condition type = UIEvent
   | UIEventCondition
+  // Condition type = JudgedByAgent
   | JudgedByAgentCondition;
 
 /**
@@ -52,8 +70,6 @@ export type AndCondition = {
  * An event condition for a step to be triggered.
  */
 export enum UIEventCondition {
-  /** The condition is always true. */
-  Always = 'always',
   /** The condition is true when the page is loaded. */
   OnPageLoad = 'onPageLoad',
   /** The condition is true when the element is visited. */

@@ -1,6 +1,6 @@
-import { AggregatedWorkflow, Status } from '@growly/core';
+import { Agent, AggregatedWorkflow, Status } from '@growly/core';
 import Link from 'next/link';
-import { Calendar, ChevronRight, MoreHorizontal, Play, Square } from 'lucide-react';
+import { Calendar, ChevronRight, Loader2, MoreHorizontal, Play, Square } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -11,13 +11,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { suiteCore } from '@/core/suite';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useDashboardState } from '@/hooks/use-dashboard';
 
 export const WorkflowCard = ({ workflow }: { workflow: AggregatedWorkflow }) => {
   const [loading, setLoading] = useState(false);
+  const [loadingAgents, setLoadingAgents] = useState(false);
   const { fetchOrganizationWorkflowById, fetchOrganizationWorkflows } = useDashboardState();
+  const [usedByAgents, setUsedByAgents] = useState<Agent[]>([]);
 
   const toggleWorkflowStatus = async () => {
     try {
@@ -63,6 +65,24 @@ export const WorkflowCard = ({ workflow }: { workflow: AggregatedWorkflow }) => 
     }
   };
 
+  useEffect(() => {
+    const fetchUsedByAgents = async () => {
+      try {
+        setLoadingAgents(true);
+        const agentIds = await suiteCore.db.agent_workflows.getAllByFields({
+          workflow_id: workflow.id,
+        });
+        const agents = await suiteCore.db.agents.getManyByIds(agentIds.map(id => id.agent_id));
+        setUsedByAgents(agents);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoadingAgents(false);
+      }
+    };
+    fetchUsedByAgents();
+  }, [workflow.id]);
+
   return (
     <Card
       key={workflow.id}
@@ -81,6 +101,30 @@ export const WorkflowCard = ({ workflow }: { workflow: AggregatedWorkflow }) => 
             <p className="text-sm text-muted-foreground">
               {workflow.description || 'No description provided'}
             </p>
+            {loadingAgents ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading agents...
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                {usedByAgents.length === 0 ? (
+                  <span className="text-sm text-muted-foreground">Not used by any agents</span>
+                ) : (
+                  <span className="text-sm text-muted-foreground">Used by agents:</span>
+                )}
+                {usedByAgents.map(agent => (
+                  <Link
+                    key={agent.id}
+                    href={`/dashboard/agents/${agent.id}`}
+                    className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground hover:underline">
+                      {agent.name}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
