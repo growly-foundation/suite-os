@@ -12,9 +12,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { EditStepDialog } from '@/components/steps/edit-step-dialog';
 import { getConditionDescription } from '@/lib/workflow.utils';
 import type { ParsedStep } from '@growly/core';
+import { AddStepDialog } from './add-step-dialog';
 
 export function StepNode({ data }: NodeProps) {
   const { step } = data as { step: ParsedStep };
@@ -161,7 +161,12 @@ export function StepNode({ data }: NodeProps) {
       </Card>
       <Handle type="source" position={Position.Right} />
 
-      <EditStepDialog open={isEditOpen} onOpenChange={setIsEditOpen} step={step} />
+      <AddStepDialog
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        existingSteps={[]}
+        onAdd={() => {}}
+      />
     </>
   );
 }
