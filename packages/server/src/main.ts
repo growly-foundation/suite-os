@@ -21,7 +21,7 @@ async function bootstrap() {
       payTo,
       {
         // Route configurations for protected endpoints
-        'POST /chat/growly': {
+        'POST /growly': {
           // USDC amount in dollars
           price: '$0.001',
           network,
