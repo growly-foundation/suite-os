@@ -11,6 +11,7 @@ import { Bell, Home, Settings, SquareStack } from 'lucide-react';
 import { UserButton } from '@/components/auth/user-button';
 import { OrganizationSwitcher } from '@/components/organizations/organization-switcher';
 import dynamic from 'next/dynamic';
+import ProtectedAuthProvider from '@/components/providers/protected-auth-provider';
 
 const AnimatedLoading = dynamic(
   () =>
@@ -162,7 +163,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Main Content */}
         <main className="flex-1 p-4 md:p-6 overflow-auto bg-white">
           <div className="max-w-7xl mx-auto">
-            <Suspense fallback={<AnimatedLoading />}>{children}</Suspense>
+            <Suspense fallback={<AnimatedLoading />}>
+              <ProtectedAuthProvider>{children}</ProtectedAuthProvider>
+            </Suspense>
           </div>
         </main>
       </div>

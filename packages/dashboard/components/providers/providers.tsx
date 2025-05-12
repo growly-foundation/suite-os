@@ -4,12 +4,11 @@ import { Suspense } from 'react';
 import { ThemeProvider } from '../theme-provider';
 import { SuiteProvider, Theme } from '@growly/suite';
 import { PrivyProvider } from '@privy-io/react-auth';
-import ProtectedAuthProvider from '@/components/providers/protected-auth-provider';
 import { ToastContainer } from 'react-toastify';
 import '@growly/suite/styles.css';
 import dynamic from 'next/dynamic';
 
-const ChatWidget = dynamic(() => import('@growly/suite').then(suite => suite.ChatWidget), {
+const ChatWidget = dynamic(() => import('@growly/suite').then(suite => suite.DemoChatWidget), {
   ssr: false,
 });
 
@@ -44,13 +43,11 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange>
-          <ProtectedAuthProvider>
-            <Suspense fallback={<AnimatedLoading />}>
-              {children}
-              <ChatWidget />
-              <ToastContainer />
-            </Suspense>
-          </ProtectedAuthProvider>
+          <Suspense fallback={<AnimatedLoading />}>
+            {children}
+            <ChatWidget />
+            <ToastContainer />
+          </Suspense>
         </ThemeProvider>
       </SuiteProvider>
     </PrivyProvider>
