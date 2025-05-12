@@ -1,9 +1,4 @@
-import {
-  AIMessage,
-  BaseMessage,
-  HumanMessage,
-  SystemMessage,
-} from '@langchain/core/messages';
+import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { RunnableSequence } from '@langchain/core/runnables';
 import { DynamicStructuredTool } from '@langchain/core/tools';
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
@@ -39,7 +34,7 @@ export class AgentService {
 
   constructor(
     private readonly configService: ConfigService,
-    @Inject('GROWLY_SUITE_CORE') private readonly suiteCore: SuiteDatabaseCore,
+    @Inject('GROWLY_SUITE_CORE') private readonly suiteCore: SuiteDatabaseCore
   ) {}
 
   // Use Langchain PromptTemplate for dynamic prompt construction
@@ -56,9 +51,7 @@ export class AgentService {
     agentId,
     useReactAgent = false,
   }: AgentChatRequest): Promise<string> {
-    this.logger.log(
-      `Processing chat request for agent ${agentId} and user ${userId}`,
-    );
+    this.logger.log(`Processing chat request for agent ${agentId} and user ${userId}`);
 
     if (useReactAgent) {
       return this.reactAgentChat({ message, userId, agentId, history: [] });
@@ -74,7 +67,7 @@ export class AgentService {
 
     const stream = await agent.stream(
       { messages: [{ content: message, role: 'user' }] },
-      { configurable: { thread_id: userId } },
+      { configurable: { thread_id: userId } }
     );
 
     let agentResponse = '';
@@ -97,9 +90,7 @@ export class AgentService {
     agentId,
     history = [],
   }: SupervisorChatRequest): Promise<string> {
-    this.logger.log(
-      `Processing supervisor chat request for agent ${agentId} and user ${userId}`,
-    );
+    this.logger.log(`Processing supervisor chat request for agent ${agentId} and user ${userId}`);
 
     try {
       // Create supervisor graph
@@ -119,10 +110,7 @@ export class AgentService {
         return "I'm sorry, I couldn't process your request at this time.";
       }
     } catch (error) {
-      this.logger.error(
-        `Error in supervisor chat: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error(`Error in supervisor chat: ${error.message}`, error.stack);
       return "I'm sorry, there was an error processing your request.";
     }
   }
@@ -147,15 +135,14 @@ export class AgentService {
       region: this.configService.get('BEDROCK_AWS_REGION') || 'us-east-1',
       credentials: {
         accessKeyId: this.configService.get('BEDROCK_AWS_ACCESS_KEY_ID')!,
-        secretAccessKey: this.configService.get(
-          'BEDROCK_AWS_SECRET_ACCESS_KEY',
-        )!,
+        secretAccessKey: this.configService.get('BEDROCK_AWS_SECRET_ACCESS_KEY')!,
       },
     });
 
     // Initialize tools
-    const { getPortfolioOverviewTool, getFungiblePositionsTool } =
-      makeZerionTools(this.configService);
+    const { getPortfolioOverviewTool, getFungiblePositionsTool } = makeZerionTools(
+      this.configService
+    );
 
     // Define routing tools to sub-agents
     const walletPortfolioTool = new DynamicStructuredTool({
@@ -235,7 +222,7 @@ Always maintain a helpful, informative tone and acknowledge any limitations.
     // Add conversation history
     if (history && history.length > 0) {
       // Transform history to BaseMessage format
-      history.forEach((msg) => {
+      history.forEach(msg => {
         if (msg.sender === 'user') {
           messages.push(new HumanMessage(msg.content));
         } else if (msg.sender === 'assistant') {
@@ -260,8 +247,7 @@ Always maintain a helpful, informative tone and acknowledge any limitations.
             messages: [...messages, input],
           }),
           agent,
-          (output: any) =>
-            new AIMessage(output.messages[output.messages.length - 1].content),
+          (output: any) => new AIMessage(output.messages[output.messages.length - 1].content),
         ]);
 
         // Run the chain
@@ -269,9 +255,7 @@ Always maintain a helpful, informative tone and acknowledge any limitations.
           return await chain.invoke(message);
         } catch (error) {
           this.logger.error('Error in agent:', error);
-          return new AIMessage(
-            'I encountered an error processing your request. Please try again.',
-          );
+          return new AIMessage('I encountered an error processing your request. Please try again.');
         }
       },
     };

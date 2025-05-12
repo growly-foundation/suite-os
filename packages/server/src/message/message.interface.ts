@@ -9,7 +9,7 @@ export interface MessageInterface {
     threadId: string,
     userId: string,
     role: string,
-    embedding?: number[],
+    embedding?: number[]
   ): Promise<Message>;
 
   /**
@@ -24,7 +24,7 @@ export interface MessageInterface {
     query: string,
     userId: string,
     agentId: string,
-    limit?: number,
+    limit?: number
   ): Promise<FnReturnType<'match_messages'>>;
 
   /**

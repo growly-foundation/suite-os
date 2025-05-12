@@ -1,18 +1,18 @@
 'use client';
 
-import { Pencil, Send, X } from 'lucide-react';
+import { Loader2, Pencil, Send, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Input } from '@/components/ui/input';
 import React, { useLayoutEffect } from 'react';
 import { ConversationRole, ParsedMessage } from '@growly/core';
 import ChatResponse from './ChatResponse';
-import AgentAvatar from '../../../agent/components/AgentAvatar';
 import { useSuite } from '@/provider';
 import { BRAND_NAME_CAPITALIZED } from '@/constants';
 import { Avatar, Identity, Name, Badge, Address } from '@coinbase/onchainkit/identity';
 import { border, cn, pressable, text } from '@/styles/theme';
+import { AnimatedBuster, BusterState } from '@/components/agent/components/AnimatedBuster';
+import { Textarea } from '@/components/ui/textarea';
 
 interface PanelProps {
   open: boolean;
@@ -23,11 +23,19 @@ interface PanelProps {
 
 export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'>) {
   const { config } = useSuite();
+  const [busterState, setBusterState] = React.useState<BusterState>('idle');
   const [refreshing, setRefreshing] = React.useState(+new Date());
   const [inputValue, setInputValue] = React.useState('');
+  const [isSending, setIsSending] = React.useState(false);
 
-  const sendMessageHandler = () => {
+  const sendMessageHandler = async () => {
     if (inputValue.trim().length > 0) {
+      setBusterState('writing');
+      setIsSending(true);
+      setInputValue('');
+
+      // Main logic to send message is here.
+      await new Promise(resolve => setTimeout(resolve, 2000));
       const newMessage: ParsedMessage = {
         id: '123',
         type: 'text',
@@ -39,8 +47,10 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
         created_at: new Date().toISOString(),
       };
       onSend(newMessage);
+
       setRefreshing(+new Date());
-      setInputValue('');
+      setIsSending(false);
+      setBusterState('idle');
     }
   };
 
@@ -65,7 +75,7 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
         }}>
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-3">
-            <AgentAvatar />
+            {/* <AgentAvatar /> */}
             <div>
               <h2 className={cn('font-semibold', text.headline)}>
                 {config?.agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
@@ -90,7 +100,9 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
         </Identity>
       )}
       {/* No messages yet */}
-      <ScrollArea className="flex-1 max-h-[500px]" style={{ padding: '0px 15px' }}>
+      <ScrollArea
+        className={cn('flex-1', config?.display === 'fullView' ? 'max-h-[90vh]' : 'max-h-[500px]')}
+        style={{ padding: '0px 20px' }}>
         {messages.length > 0 ? (
           <React.Fragment>
             {messages.map((message, index) => (
@@ -126,7 +138,8 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
         className={cn('p-4 border-t', border.lineDefault)}
         style={{ backgroundColor: config?.theme?.background }}>
         <div className={cn('flex space-x-2', text.body)}>
-          <Input
+          <AnimatedBuster state={busterState} setState={setBusterState} width={40} height={40} />
+          <Textarea
             value={inputValue}
             onChange={e => setInputValue(e.target.value)}
             required
@@ -134,16 +147,27 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
             style={{
               border: 'none',
             }}
-            className={cn('flex-1', border.lineDefault, text.body)}
+            className={cn(
+              'flex-1',
+              border.lineDefault,
+              'placeholder:text-gray-500 text-xs placeholder:text-xs focus:outline-none focus:ring-0'
+            )}
           />
           <Button
             className={cn(border.defaultActive, pressable.inverse, text.headline)}
             style={{
               backgroundColor: config?.theme?.primary,
               color: config?.theme?.text,
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
             }}
             onClick={sendMessageHandler}>
-            Send <Send className="h-4 w-4" />
+            {isSending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
           </Button>
         </div>
       </div>
@@ -163,8 +187,9 @@ export function ChatPanelContainer({ open, ...props }: PanelProps) {
           exit={{ y: '100%', opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           className={cn(
-            'fixed rounded-t-lg bottom-0 right-0 w-full max-w-[400px] sm:w-[400px] h-[650px] shadow-2xl z-[9999] flex flex-col overflow-hidden',
-            border.default
+            'fixed rounded-t-lg bottom-0 right-0 w-full max-w-[450px] sm:w-[450px] shadow-2xl z-[9999] flex flex-col overflow-hidden',
+            border.default,
+            config?.display === 'fullView' ? 'h-[100vh]' : 'h-[650px]'
           )}
           style={{
             backgroundColor: config?.theme?.background,

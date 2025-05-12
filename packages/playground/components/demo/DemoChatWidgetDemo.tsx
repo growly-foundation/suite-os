@@ -1,18 +1,19 @@
 import { useContext, useEffect } from 'react';
 import { base } from 'viem/chains';
 import { AppContext } from '../AppProvider';
-import { DemoChatWidget, SuiteProvider, useSuite } from '../../../suite/dist';
-import { Theme } from '../../../suite/dist';
+import { DemoChatWidget, SuiteProvider, useSuite } from '@growly/suite';
+import { Theme } from '@growly/suite';
 
 function DemoChatWidgetComponent() {
   const { config, setConfig } = useSuite();
-  const { componentTheme, chainId } = useContext(AppContext);
+  const { componentTheme, chainId, displayMode } = useContext(AppContext);
   useEffect(() => {
     setConfig({
       ...config,
       theme: componentTheme ? Theme[componentTheme] : Theme.monoTheme,
+      display: displayMode,
     });
-  }, [componentTheme, setConfig]);
+  }, [componentTheme, setConfig, displayMode]);
   return (
     <div className="relative mb-[50%] flex h-full w-full flex-col items-center">
       {chainId !== base.id ? (

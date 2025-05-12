@@ -6,13 +6,14 @@ import { useSuite, SuiteProvider } from '@growly/suite';
 
 function ChatWidgetComponent() {
   const { config, setConfig } = useSuite();
-  const { componentTheme, chainId } = useContext(AppContext);
+  const { componentTheme, chainId, displayMode } = useContext(AppContext);
   useEffect(() => {
     setConfig({
       ...config,
       theme: componentTheme ? Theme[componentTheme] : Theme.monoTheme,
+      display: displayMode,
     });
-  }, [componentTheme, setConfig]);
+  }, [componentTheme, setConfig, displayMode]);
   return (
     <div className="relative mb-[50%] flex h-full w-full flex-col items-center">
       {chainId !== base.id ? (

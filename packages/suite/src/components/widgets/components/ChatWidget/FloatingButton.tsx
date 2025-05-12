@@ -3,11 +3,11 @@
 import { motion } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useSuite } from '@/provider';
-import { BRAND_LOGO_URL, BRAND_NAME_CAPITALIZED } from '@/constants';
+import { BRAND_NAME_CAPITALIZED } from '@/constants';
 import { useState } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { background, border, pressable, text } from '@/styles/theme';
+import { background, pressable, text } from '@/styles/theme';
+import { AnimatedBuster } from '@/components/agent/components/AnimatedBuster';
 
 export function FloatingButton(
   props: React.ButtonHTMLAttributes<HTMLButtonElement> & { iconLoading?: boolean }
@@ -36,10 +36,7 @@ export function FloatingButton(
                 'border border-primary/10 rounded-full aspect-square shadow-3xl text-white',
                 pressable.coinbaseBranding
               )}>
-              <Avatar style={{ width: 50, height: 50 }} className={border.linePrimary}>
-                <AvatarImage src={BRAND_LOGO_URL} />
-                <AvatarFallback>🤖</AvatarFallback>
-              </Avatar>
+              <AnimatedBuster />
             </TooltipTrigger>
           </motion.div>
           <TooltipContent className={cn(text.base, background.default)}>

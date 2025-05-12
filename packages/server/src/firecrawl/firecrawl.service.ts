@@ -36,7 +36,7 @@ type FirecrawlCrawlOptions = {
 export class FirecrawlService {
   constructor(
     @Inject('FIRECRAWL_CLIENT')
-    private readonly app: FirecrawlApp,
+    private readonly app: FirecrawlApp
   ) {}
 
   async crawlUrl(url: string, options?: FirecrawlCrawlOptions) {

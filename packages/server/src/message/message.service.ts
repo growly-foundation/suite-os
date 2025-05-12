@@ -10,20 +10,17 @@ export class MessageService {
     message: string,
     userId: string,
     agentId: string,
-    role: string,
+    role: string
   ): Promise<Message> {
     return this.messageRepository.storeMessageWithEmbedding(
       message,
       userId,
       agentId,
-      role as ConversationRole,
+      role as ConversationRole
     );
   }
 
-  async getConversationHistory(
-    userId: string,
-    agentId: string,
-  ): Promise<Message[]> {
+  async getConversationHistory(userId: string, agentId: string): Promise<Message[]> {
     return this.messageRepository.getConversationHistory(userId, agentId);
   }
 
@@ -31,14 +28,9 @@ export class MessageService {
     query: string,
     userId: string,
     agentId: string,
-    limit?: number,
+    limit?: number
   ): Promise<FnReturnType<'match_messages'>> {
-    return this.messageRepository.searchSimilarMessages(
-      query,
-      userId,
-      agentId,
-      limit,
-    );
+    return this.messageRepository.searchSimilarMessages(query, userId, agentId, limit);
   }
 
   async createEmbedding(text: string): Promise<number[]> {

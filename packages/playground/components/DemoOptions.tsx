@@ -3,12 +3,13 @@ import { ComponentTheme } from '@/components/form/component-theme';
 import { SuiteComponent } from '@/types/suite';
 import { ActiveComponent } from './form/active-component';
 import { Chain } from './form/chain';
+import { DisplayMode } from './form/display-mode';
 
 const COMMON_OPTIONS = [ActiveComponent, ComponentMode, ComponentTheme];
 
 const COMPONENT_CONFIG: Partial<Record<SuiteComponent, (() => React.JSX.Element)[]>> = {
-  [SuiteComponent.ChatWidget]: [Chain],
-  [SuiteComponent.DemoChatWidget]: [Chain],
+  [SuiteComponent.ChatWidget]: [Chain, DisplayMode],
+  [SuiteComponent.DemoChatWidget]: [Chain, DisplayMode],
 };
 
 export default function DemoOptions({ component }: { component?: SuiteComponent }) {

@@ -1,5 +1,6 @@
 // AppContext.js
 import { type ComponentMode, type ComponentTheme, SuiteComponent } from '@/types/suite';
+import { SuiteConfig } from '@growly/suite';
 import type React from 'react';
 import { createContext, useState } from 'react';
 import { base } from 'wagmi/chains';
@@ -13,6 +14,8 @@ type State = {
   setComponentTheme?: (theme: ComponentTheme | undefined) => void;
   componentMode: ComponentMode | undefined;
   setComponentMode: (mode: ComponentMode | undefined) => void;
+  displayMode: SuiteConfig['display'];
+  setDisplayMode: (mode: SuiteConfig['display']) => void;
 };
 
 export const defaultState: State = {
@@ -22,6 +25,8 @@ export const defaultState: State = {
   setComponentTheme: () => {},
   componentMode: 'auto',
   setComponentMode: () => {},
+  displayMode: 'panel',
+  setDisplayMode: () => {},
 };
 
 export const AppContext = createContext(defaultState);
@@ -41,6 +46,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [chainId, setChainId] = useState<number | undefined>(defaultState.chainId);
 
+  const [displayMode, setDisplayMode] = useState<SuiteConfig['display']>(defaultState.displayMode);
+
   return (
     <AppContext.Provider
       value={{
@@ -52,6 +59,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         setComponentTheme,
         componentMode,
         setComponentMode,
+        displayMode,
+        setDisplayMode,
       }}>
       {children}
     </AppContext.Provider>

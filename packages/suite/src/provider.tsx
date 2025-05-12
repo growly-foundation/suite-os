@@ -23,6 +23,10 @@ export interface SuiteConfig {
     textForeground: string;
   }>;
   /**
+   * Display mode for the widget.
+   */
+  display?: 'fullView' | 'panel';
+  /**
    * Agent configuration.
    */
   agent?: Partial<{

@@ -369,7 +369,7 @@ importers:
         specifier: ^14.2.26
         version: 14.2.28(@babel/core@7.26.10)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react:
-        specifier: ^19.1.0
+        specifier: ^19
         version: 19.1.0
       react-dom:
         specifier: ^19.1.0
@@ -416,31 +416,31 @@ importers:
         version: 0.7.1(@zerodev/webauthn-key@5.4.4(viem@2.28.1(bufferutil@4.0.9)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.24.3)))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.2)(utf-8-validate@5.0.10)
       '@coinbase/agentkit-langchain':
         specifier: ^0.3.0
-        version: 0.3.0(@coinbase/agentkit@0.7.1(@zerodev/webauthn-key@5.4.4(viem@2.28.1(bufferutil@4.0.9)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.24.3)))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.2)(utf-8-validate@5.0.10))(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
+        version: 0.3.0(@coinbase/agentkit@0.7.1(@zerodev/webauthn-key@5.4.4(viem@2.28.1(bufferutil@4.0.9)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.24.3)))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.2)(utf-8-validate@5.0.10))(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
       '@growly/core':
         specifier: workspace:*
         version: link:../core
       '@langchain/anthropic':
         specifier: ^0.3.20
-        version: 0.3.20(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(encoding@0.1.13)
+        version: 0.3.20(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(encoding@0.1.13)
       '@langchain/aws':
         specifier: ^0.1.9
-        version: 0.1.9(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))
+        version: 0.1.9(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))
       '@langchain/core':
         specifier: ^0.3.51
-        version: 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
+        version: 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
       '@langchain/langgraph':
         specifier: ^0.2.67
-        version: 0.2.68(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(react@19.1.0)(zod-to-json-schema@3.24.5(zod@3.24.3))
+        version: 0.2.68(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(react@19.1.0)(zod-to-json-schema@3.24.5(zod@3.24.3))
       '@langchain/langgraph-checkpoint-postgres':
         specifier: ^0.0.5
-        version: 0.0.5(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(@langchain/langgraph-checkpoint@0.0.17(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))))
+        version: 0.0.5(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(@langchain/langgraph-checkpoint@0.0.17(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))))
       '@langchain/openai':
         specifier: ^0.5.10
-        version: 0.5.10(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+        version: 0.5.10(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@langchain/tavily':
         specifier: ^0.1.1
-        version: 0.1.1(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))
+        version: 0.1.1(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))
       '@mendable/firecrawl-js':
         specifier: ^1.24.0
         version: 1.24.0
@@ -467,7 +467,7 @@ importers:
         version: 1.9.0
       openai:
         specifier: ^4.97.0
-        version: 4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)
+        version: 4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)
       pg:
         specifier: ^8.15.6
         version: 8.15.6
@@ -569,14 +569,17 @@ importers:
   packages/suite:
     dependencies:
       '@coinbase/onchainkit':
-        specifier: ^0.38.9
-        version: 0.38.9(@tanstack/query-core@5.74.9)(@types/react@19.1.2)(bufferutil@4.0.9)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(use-sync-external-store@1.5.0(react@19.1.0))(utf-8-validate@5.0.10)(zod@3.24.3)
+        specifier: ^0.38.13
+        version: 0.38.13(@tanstack/query-core@5.74.9)(@types/react@19.1.2)(bufferutil@4.0.9)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(use-sync-external-store@1.5.0(react@19.1.0))(utf-8-validate@5.0.10)(zod@3.24.3)
       '@growly/core':
         specifier: workspace:*
         version: link:../core
       '@hookform/resolvers':
         specifier: ^5.0.1
         version: 5.0.1(react-hook-form@7.56.1(react@19.1.0))
+      '@lottiefiles/dotlottie-react':
+        specifier: ^0.13.5
+        version: 0.13.5(react@19.1.0)
       '@radix-ui/react-accordion':
         specifier: ^1.2.8
         version: 1.2.8(@types/react-dom@19.1.3(@types/react@19.1.2))(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -682,15 +685,27 @@ importers:
       input-otp:
         specifier: ^1.4.2
         version: 1.4.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      lottie-react:
+        specifier: ^2.4.1
+        version: 2.4.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       lucide-react:
         specifier: ^0.503.0
         version: 0.503.0(react@19.1.0)
+      moment:
+        specifier: ^2.30.1
+        version: 2.30.1
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react:
+        specifier: ^19.1.0
+        version: 19.1.0
       react-day-picker:
         specifier: 8.10.1
         version: 8.10.1(date-fns@4.1.0)(react@19.1.0)
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.1.0(react@19.1.0)
       react-hook-form:
         specifier: ^7.56.1
         version: 7.56.1(react@19.1.0)
@@ -770,12 +785,6 @@ importers:
       jsdom:
         specifier: ^24.1.3
         version: 24.1.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      react:
-        specifier: ^19.1.0
-        version: 19.1.0
-      react-dom:
-        specifier: ^19.1.0
-        version: 19.1.0(react@19.1.0)
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
@@ -1887,6 +1896,12 @@ packages:
   '@coinbase/coinbase-sdk@0.20.0':
     resolution: {integrity: sha512-OoMMktKbjmeEwtwQCK3kIIoX5M+hNelxAGX5Llymvw6bmyrMDaEBZ/Myga9kaLJ+7Hi5Y4jPDy4Cy2MGxxXg6w==}
 
+  '@coinbase/onchainkit@0.38.13':
+    resolution: {integrity: sha512-TfRKX13nAZ1DTCtHG4TFRrkW+ACyAPNJA0YudImrdnrNM/eXNEqk9yBbMBfycKMscRzypvnX2hc2eQdo2Calxw==}
+    peerDependencies:
+      react: ^18 || ^19
+      react-dom: ^18 || ^19
+
   '@coinbase/onchainkit@0.38.9':
     resolution: {integrity: sha512-aOKHCn5qUO1CtNaoDapR0vX3kwoFgHohkDp1UBrqJQd9LH/t1QD1AMRdeEBHA20wohkhn2rnaFtnE6ho0dRB0g==}
     peerDependencies:
@@ -2893,6 +2908,14 @@ packages:
 
   '@lit/reactive-element@2.1.0':
     resolution: {integrity: sha512-L2qyoZSQClcBmq0qajBVbhYEcG6iK0XfLn66ifLe/RfC0/ihpc+pl0Wdn8bJ8o+hj38cG0fGXRgSS20MuXn7qA==}
+
+  '@lottiefiles/dotlottie-react@0.13.5':
+    resolution: {integrity: sha512-4U5okwjRqDPkjB572hfZtLXJ/LGfCo6vDwUB2KIPEUoSgqbIlw+UrbnaqVp3GS+dRvhMD27F2JObpHpYRlpF0Q==}
+    peerDependencies:
+      react: ^17 || ^18 || ^19
+
+  '@lottiefiles/dotlottie-web@0.44.0':
+    resolution: {integrity: sha512-IUWKVciDJI/BMWDWnh7j0Ngd0N8q9ySRAwm84aDqIE07qpmdZ7x1rkIpBaU1yHSNqNYHeh1Rxsl+LC3CY4f0KA==}
 
   '@lukeed/csprng@1.1.0':
     resolution: {integrity: sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==}
@@ -9834,6 +9857,12 @@ packages:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
     hasBin: true
 
+  lottie-react@2.4.1:
+    resolution: {integrity: sha512-LQrH7jlkigIIv++wIyrOYFLHSKQpEY4zehPicL9bQsrt1rnoKRYCYgpCUe5maqylNtacy58/sQDZTkwMcTRxZw==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
   lottie-web@5.12.2:
     resolution: {integrity: sha512-uvhvYPC8kGPjXT3MyKMrL3JitEAmDMp30lVkuq/590Mw9ok6pWcFCwXJveo0t5uqYw1UREQHofD+jVpdjBv8wg==}
 
@@ -14888,10 +14917,10 @@ snapshots:
       human-id: 4.1.1
       prettier: 2.8.8
 
-  '@coinbase/agentkit-langchain@0.3.0(@coinbase/agentkit@0.7.1(@zerodev/webauthn-key@5.4.4(viem@2.28.1(bufferutil@4.0.9)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.24.3)))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.2)(utf-8-validate@5.0.10))(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))':
+  '@coinbase/agentkit-langchain@0.3.0(@coinbase/agentkit@0.7.1(@zerodev/webauthn-key@5.4.4(viem@2.28.1(bufferutil@4.0.9)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.24.3)))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.2)(utf-8-validate@5.0.10))(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))':
     dependencies:
       '@coinbase/agentkit': 0.7.1(@zerodev/webauthn-key@5.4.4(viem@2.28.1(bufferutil@4.0.9)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.24.3)))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.2)(utf-8-validate@5.0.10)
-      '@langchain/core': 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
+      '@langchain/core': 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
       zod: 3.24.3
     transitivePeerDependencies:
       - openai
@@ -14968,7 +14997,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@coinbase/onchainkit@0.38.9(@tanstack/query-core@5.74.9)(@types/react@19.1.2)(bufferutil@4.0.9)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(use-sync-external-store@1.5.0(react@19.1.0))(utf-8-validate@5.0.10)(zod@3.24.3)':
+  '@coinbase/onchainkit@0.38.13(@tanstack/query-core@5.74.9)(@types/react@19.1.2)(bufferutil@4.0.9)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(use-sync-external-store@1.5.0(react@19.1.0))(utf-8-validate@5.0.10)(zod@3.24.3)':
     dependencies:
       '@farcaster/frame-sdk': 0.0.28(typescript@5.8.3)(zod@3.24.3)
       '@farcaster/frame-wagmi-connector': 0.0.16(@farcaster/frame-sdk@0.0.28(typescript@5.8.3)(zod@3.24.3))(@wagmi/core@2.17.0(@tanstack/query-core@5.74.9)(@types/react@19.1.2)(react@19.1.0)(typescript@5.8.3)(use-sync-external-store@1.5.0(react@19.1.0))(viem@2.28.1(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.3)))(viem@2.28.1(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.3))
@@ -16118,36 +16147,36 @@ snapshots:
 
   '@jup-ag/api@6.0.41': {}
 
-  '@langchain/anthropic@0.3.20(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(encoding@0.1.13)':
+  '@langchain/anthropic@0.3.20(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(encoding@0.1.13)':
     dependencies:
       '@anthropic-ai/sdk': 0.39.0(encoding@0.1.13)
-      '@langchain/core': 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
+      '@langchain/core': 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
       fast-xml-parser: 4.5.3
       zod: 3.24.3
       zod-to-json-schema: 3.24.5(zod@3.24.3)
     transitivePeerDependencies:
       - encoding
 
-  '@langchain/aws@0.1.9(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))':
+  '@langchain/aws@0.1.9(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))':
     dependencies:
       '@aws-sdk/client-bedrock-agent-runtime': 3.804.0
       '@aws-sdk/client-bedrock-runtime': 3.804.0
       '@aws-sdk/client-kendra': 3.804.0
       '@aws-sdk/credential-provider-node': 3.804.0
-      '@langchain/core': 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
+      '@langchain/core': 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
       zod: 3.24.3
       zod-to-json-schema: 3.24.5(zod@3.24.3)
     transitivePeerDependencies:
       - aws-crt
 
-  '@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))':
+  '@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))':
     dependencies:
       '@cfworker/json-schema': 4.1.1
       ansi-styles: 5.2.0
       camelcase: 6.3.0
       decamelize: 1.2.0
       js-tiktoken: 1.0.20
-      langsmith: 0.3.26(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
+      langsmith: 0.3.26(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
       mustache: 4.2.0
       p-queue: 6.6.2
       p-retry: 4.6.2
@@ -16157,34 +16186,34 @@ snapshots:
     transitivePeerDependencies:
       - openai
 
-  '@langchain/langgraph-checkpoint-postgres@0.0.5(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(@langchain/langgraph-checkpoint@0.0.17(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))))':
+  '@langchain/langgraph-checkpoint-postgres@0.0.5(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(@langchain/langgraph-checkpoint@0.0.17(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))))':
     dependencies:
-      '@langchain/core': 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
-      '@langchain/langgraph-checkpoint': 0.0.17(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))
+      '@langchain/core': 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
+      '@langchain/langgraph-checkpoint': 0.0.17(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))
       pg: 8.15.6
     transitivePeerDependencies:
       - pg-native
 
-  '@langchain/langgraph-checkpoint@0.0.17(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))':
+  '@langchain/langgraph-checkpoint@0.0.17(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))':
     dependencies:
-      '@langchain/core': 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
+      '@langchain/core': 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
       uuid: 10.0.0
 
-  '@langchain/langgraph-sdk@0.0.74(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(react@19.1.0)':
+  '@langchain/langgraph-sdk@0.0.74(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(react@19.1.0)':
     dependencies:
       '@types/json-schema': 7.0.15
       p-queue: 6.6.2
       p-retry: 4.6.2
       uuid: 9.0.1
     optionalDependencies:
-      '@langchain/core': 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
+      '@langchain/core': 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
       react: 19.1.0
 
-  '@langchain/langgraph@0.2.68(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(react@19.1.0)(zod-to-json-schema@3.24.5(zod@3.24.3))':
+  '@langchain/langgraph@0.2.68(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(react@19.1.0)(zod-to-json-schema@3.24.5(zod@3.24.3))':
     dependencies:
-      '@langchain/core': 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
-      '@langchain/langgraph-checkpoint': 0.0.17(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))
-      '@langchain/langgraph-sdk': 0.0.74(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(react@19.1.0)
+      '@langchain/core': 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
+      '@langchain/langgraph-checkpoint': 0.0.17(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))
+      '@langchain/langgraph-sdk': 0.0.74(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(react@19.1.0)
       uuid: 10.0.0
       zod: 3.24.3
     optionalDependencies:
@@ -16192,20 +16221,20 @@ snapshots:
     transitivePeerDependencies:
       - react
 
-  '@langchain/openai@0.5.10(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
+  '@langchain/openai@0.5.10(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
     dependencies:
-      '@langchain/core': 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
+      '@langchain/core': 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
       js-tiktoken: 1.0.20
-      openai: 4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)
+      openai: 4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)
       zod: 3.24.3
       zod-to-json-schema: 3.24.5(zod@3.24.3)
     transitivePeerDependencies:
       - encoding
       - ws
 
-  '@langchain/tavily@0.1.1(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))':
+  '@langchain/tavily@0.1.1(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))':
     dependencies:
-      '@langchain/core': 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
+      '@langchain/core': 0.3.55(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3))
       zod: 3.24.3
 
   '@lit-labs/ssr-dom-shim@1.3.0': {}
@@ -16217,6 +16246,13 @@ snapshots:
   '@lit/reactive-element@2.1.0':
     dependencies:
       '@lit-labs/ssr-dom-shim': 1.3.0
+
+  '@lottiefiles/dotlottie-react@0.13.5(react@19.1.0)':
+    dependencies:
+      '@lottiefiles/dotlottie-web': 0.44.0
+      react: 19.1.0
+
+  '@lottiefiles/dotlottie-web@0.44.0': {}
 
   '@lukeed/csprng@1.1.0': {}
 
@@ -26677,7 +26713,7 @@ snapshots:
 
   konva@9.3.20: {}
 
-  langsmith@0.3.26(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)):
+  langsmith@0.3.26(openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)):
     dependencies:
       '@types/uuid': 10.0.0
       chalk: 4.1.2
@@ -26687,7 +26723,7 @@ snapshots:
       semver: 7.7.1
       uuid: 10.0.0
     optionalDependencies:
-      openai: 4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)
+      openai: 4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)
 
   language-subtag-registry@0.3.23: {}
 
@@ -26841,6 +26877,12 @@ snapshots:
   loose-envify@1.4.0:
     dependencies:
       js-tokens: 4.0.0
+
+  lottie-react@2.4.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+    dependencies:
+      lottie-web: 5.12.2
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   lottie-web@5.12.2: {}
 
@@ -27556,7 +27598,7 @@ snapshots:
       is-docker: 2.2.1
       is-wsl: 2.2.0
 
-  openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3):
+  openai@4.97.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3):
     dependencies:
       '@types/node': 18.19.100
       '@types/node-fetch': 2.6.12
@@ -27566,7 +27608,7 @@ snapshots:
       formdata-node: 4.4.1
       node-fetch: 2.7.0(encoding@0.1.13)
     optionalDependencies:
-      ws: 8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      ws: 7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       zod: 3.24.3
     transitivePeerDependencies:
       - encoding
