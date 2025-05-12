@@ -1,9 +1,13 @@
 // AppContext.js
 import { type ComponentMode, type ComponentTheme, SuiteComponent } from '@/types/suite';
 import { SuiteConfig } from '@growly/suite';
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type React from 'react';
 import { createContext, useState } from 'react';
+import { WagmiProvider } from 'wagmi';
 import { base } from 'wagmi/chains';
+import { useWagmiConfig } from '../app/wagmi';
 
 type State = {
   activeComponent?: SuiteComponent | undefined;
@@ -32,6 +36,9 @@ export const defaultState: State = {
 export const AppContext = createContext(defaultState);
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
+  const wagmiConfig = useWagmiConfig();
+  const queryClient = new QueryClient();
+
   const [activeComponent, setActiveComponent] = useState<SuiteComponent | undefined>(
     defaultState.activeComponent
   );
@@ -49,20 +56,26 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [displayMode, setDisplayMode] = useState<SuiteConfig['display']>(defaultState.displayMode);
 
   return (
-    <AppContext.Provider
-      value={{
-        activeComponent,
-        setActiveComponent,
-        chainId,
-        setChainId,
-        componentTheme,
-        setComponentTheme,
-        componentMode,
-        setComponentMode,
-        displayMode,
-        setDisplayMode,
-      }}>
-      {children}
-    </AppContext.Provider>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>
+          <AppContext.Provider
+            value={{
+              activeComponent,
+              setActiveComponent,
+              chainId,
+              setChainId,
+              componentTheme,
+              setComponentTheme,
+              componentMode,
+              setComponentMode,
+              displayMode,
+              setDisplayMode,
+            }}>
+            {children}
+          </AppContext.Provider>
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 };

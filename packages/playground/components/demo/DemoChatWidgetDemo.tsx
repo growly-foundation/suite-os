@@ -4,6 +4,7 @@ import { AppContext } from '../AppProvider';
 import { SuiteProvider, useSuite } from '@growly/suite';
 import { Theme } from '@growly/suite';
 import dynamic from 'next/dynamic';
+import { useAccount } from 'wagmi';
 
 const DemoChatWidget = dynamic(() => import('@growly/suite').then(suite => suite.DemoChatWidget), {
   ssr: false,
@@ -36,6 +37,8 @@ function DemoChatWidgetComponent() {
   );
 }
 export default function DemoChatWidgetDemo() {
+  const { address } = useAccount();
+
   return (
     <SuiteProvider
       config={{
@@ -56,7 +59,7 @@ export default function DemoChatWidgetDemo() {
         },
         theme: Theme.monoTheme,
         session: {
-          walletAddress: '0x849151d7D0bF1F34b70d5caD5149D28CC2308bf1',
+          walletAddress: address,
         },
       }}>
       <DemoChatWidgetComponent />
