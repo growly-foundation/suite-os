@@ -5,7 +5,7 @@ import { MessageService } from '../message/message.service';
 interface ChatRequest {
   message: string;
   userId: string;
-  agentId?: string;
+  agentId: string;
 }
 
 @Injectable()
@@ -17,7 +17,7 @@ export class ChatService {
     private readonly messageService: MessageService
   ) {}
 
-  async chat({ message, userId, agentId = 'test' }: ChatRequest) {
+  async chat({ message, userId, agentId }: ChatRequest) {
     try {
       // 1. Store the user message
       await this.messageService.storeMessage(message, userId, agentId, 'user');
@@ -31,6 +31,7 @@ export class ChatService {
 
       // 3. Process with supervisor agent from AgentService
       this.logger.log('Processing with multi-agent supervisor...');
+
       // const reply = await this.agentService.reactAgentChat({
       //   message,
       //   userId,

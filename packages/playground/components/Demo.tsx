@@ -6,6 +6,7 @@ import ChatWidgetDemo from './demo/ChatWidgetDemo';
 import DemoChatWidgetDemo from './demo/DemoChatWidgetDemo';
 import { cn } from '@/lib/utils';
 import DemoOptions from './DemoOptions';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const activeComponentMapping: Record<SuiteComponent, React.FC> = {
   [SuiteComponent.ChatWidget]: ChatWidgetDemo,
@@ -55,6 +56,9 @@ export default function Demo() {
           <DemoOptions component={activeComponent} />
         </form>
         <div className="mt-auto flex items-center justify-between pt-6 text-sm">
+          <ConnectButton />
+        </div>
+        <div className="mt-auto flex items-center justify-between pt-6 text-sm">
           <div>
             <a
               className="opacity-100 transition-opacity duration-200 hover:opacity-70"
@@ -75,6 +79,7 @@ export default function Demo() {
           </div>
         </div>
       </div>
+
       <div className="linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] flex flex-1 flex-col bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px), bg-[size:6rem_4rem]">
         <div className={'flex h-full w-full flex-col items-center'}>
           {ActiveComponent && <ActiveComponent />}

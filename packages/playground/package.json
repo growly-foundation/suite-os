@@ -18,9 +18,10 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-switch": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.0",
+    "@rainbow-me/rainbowkit": "^2.2.4",
     "@reservoir0x/reservoir-sdk": "^2.4.25",
     "@tailwindcss/postcss": "^4.1.5",
-    "@tanstack/react-query": "^5.51.11",
+    "@tanstack/react-query": "^5.74.11",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "graphql": "^14 || ^15 || ^16",
@@ -31,8 +32,8 @@
     "react-dom": "^19.1.0",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
-    "viem": "^2.27.2",
-    "wagmi": "^2.14.15"
+    "viem": "^2.28.1",
+    "wagmi": "^2.15.1"
   },
   "devDependencies": {
     "@types/node": "^20",
