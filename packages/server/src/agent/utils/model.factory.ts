@@ -34,7 +34,7 @@ export class ChatModelFactory {
 
       case 'bedrock':
         return new ChatBedrockConverse({
-          model: 'us.meta.llama3-3-70b-instruct-v1:0',
+          model: modelName ?? 'us.meta.llama3-3-70b-instruct-v1:0',
           region: process.env.BEDROCK_AWS_REGION || 'us-east-1',
           credentials: {
             accessKeyId: process.env.BEDROCK_AWS_ACCESS_KEY_ID!,

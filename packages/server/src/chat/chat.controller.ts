@@ -10,9 +10,24 @@ export class ChatController {
   async chat(
     @Body('message') message: string,
     @Body('userId') userId: string,
-    @Body('agentId') agentId?: string
+    @Body('agentId') agentId: string,
   ) {
     const reply = await this.chatService.chat({ message, userId, agentId });
     return { reply };
+  }
+
+  @Post('growly')
+  growlyChat(
+    @Body('message') message: string,
+    @Body('userId') userId: string,
+    @Body('agentId') agentId: string,
+  ) {
+    // TODO: Implement growly chat
+    // const reply = await this.chatService.chat({ message, userId, agentId });
+    return {
+      agentId,
+      userId,
+      message: 'You were charged $0.001 USDC on base-sepolia',
+    };
   }
 }

@@ -16,14 +16,19 @@ import { ChatModelFactory, ChatProvider } from './model.factory';
 export function createAgent(
   provider: ChatProvider = 'openai',
   configService: ConfigService,
-  systemPrompt: string
+  systemPrompt: string,
 ): ReturnType<typeof createReactAgent> {
   try {
     const llm = ChatModelFactory.create({ provider });
     // Use ConfigService for tool creation
-    const { getPortfolioOverviewTool, getFungiblePositionsTool } = makeZerionTools(configService);
+    const { getPortfolioOverviewTool, getFungiblePositionsTool } =
+      makeZerionTools(configService);
 
-    const tools = [getPortfolioOverviewTool, getFungiblePositionsTool, getProtocolTool];
+    const tools = [
+      getPortfolioOverviewTool,
+      getFungiblePositionsTool,
+      getProtocolTool,
+    ];
 
     // Initialize Agent without checkpointer
     return createReactAgent({
