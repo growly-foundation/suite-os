@@ -1,14 +1,22 @@
 import { suiteCore } from '@/core/suite';
 import { usePrivy } from '@privy-io/react-auth';
 import React, { useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { STORAGE_KEY_SELECTED_ORGANIZATION_ID, useDashboardState } from '../../hooks/use-dashboard';
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { delay } from '@/lib/utils';
-import { AnimatedLoading } from '../animated-components/animated-loading';
 import { Admin } from '@growly/core';
 
-const ProtectedAuthProvider = ({ children }: { children: React.ReactNode }) => {
+const AnimatedLoading = dynamic(
+  () =>
+    import('@/components/animated-components/animated-loading').then(
+      module => module.AnimatedLoading
+    ),
+  { ssr: false }
+);
+
+export const useAuth = () => {
   const { setAdmin, setSelectedOrganization, fetchOrganizations } = useDashboardState();
   const { user, authenticated, ready } = usePrivy();
   const [isLoading, setIsLoading] = useState(true);
@@ -52,29 +60,42 @@ const ProtectedAuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  useEffect(() => {
-    async function createUserIfNotExists() {
-      await delay(2000);
-      if (!ready) return;
-      if (authenticated && user?.email) {
-        try {
-          const admin = await fetchCurrentAdmin(user.email.address);
-          // If current route is auth, redirect to organization if user does not have any organization. Otherwise, redirect to dashboard.
-          await redirectToCreateOrganization(
-            admin.id,
-            pathname === '/auth' ? '/dashboard' : pathname
-          );
-          setIsLoading(false);
-        } catch (error) {
-          setIsLoading(false);
-        }
-      } else {
+  async function createUserIfNotExists() {
+    await delay(2000);
+    if (!ready) return;
+    if (authenticated && user?.email) {
+      try {
+        const admin = await fetchCurrentAdmin(user.email.address);
+        // If current route is auth, redirect to organization if user does not have any organization. Otherwise, redirect to dashboard.
+        await redirectToCreateOrganization(
+          admin.id,
+          pathname === '/auth' ? '/dashboard' : pathname
+        );
         setIsLoading(false);
-        router.push('/auth');
+      } catch (error) {
+        setIsLoading(false);
       }
+    } else {
+      setIsLoading(false);
+      router.push('/auth');
     }
+  }
+
+  return {
+    createUserIfNotExists,
+    redirectToCreateOrganization,
+    fetchCurrentAdmin,
+    isLoading,
+  };
+};
+
+const ProtectedAuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const { user, authenticated, ready } = usePrivy();
+  const { createUserIfNotExists, isLoading } = useAuth();
+
+  useEffect(() => {
     createUserIfNotExists();
-  }, [authenticated, user, ready]);
+  }, [user, authenticated, ready]);
 
   return <React.Fragment>{isLoading ? <AnimatedLoading /> : children}</React.Fragment>;
 };

@@ -3,8 +3,11 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { usePrivy } from '@privy-io/react-auth';
+import { useAuth } from '../providers/protected-auth-provider';
+import { Loader2 } from 'lucide-react';
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
+  const { createUserIfNotExists, isLoading } = useAuth();
   const { login } = usePrivy();
 
   return (
@@ -16,8 +19,15 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
               <h1 className="text-2xl font-bold">Welcome to Growly!</h1>
               <p className="text-balance text-muted-foreground">Sign in to Suite your account.</p>
             </div>
-            <Button onClick={() => login({})} className="w-full">
-              Sign in
+            <Button
+              onClick={async () => {
+                login({});
+                await createUserIfNotExists();
+              }}
+              className="w-full"
+              disabled={isLoading}>
+              {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ''}
+              {isLoading ? 'Signing in...' : 'Sign in'}
             </Button>
           </div>
           <div className="relative hidden bg-muted md:block">

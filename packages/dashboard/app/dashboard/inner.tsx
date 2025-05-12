@@ -11,9 +11,17 @@ import { Status } from '@growly/core';
 import { NewWorkflowButton } from '@/components/buttons/new-workflow-button';
 import { NewAgentButton } from '@/components/buttons/new-agent-button';
 import moment from 'moment';
-import { AnimatedLoadingSmall } from '@/components/animated-components/animated-loading-small';
 import React from 'react';
 import { toast } from 'react-toastify';
+import dynamic from 'next/dynamic';
+
+const AnimatedLoadingSmall = dynamic(
+  () =>
+    import('@/components/animated-components/animated-loading-small').then(
+      module => module.AnimatedLoadingSmall
+    ),
+  { ssr: false }
+);
 
 const MAX_RECENT_ACTIVITY = 10;
 
@@ -119,7 +127,7 @@ export default function DashboardInner() {
               <p className="text-muted-foreground">{selectedOrganization?.description}</p>
             </div>
             <div className="flex items-center gap-2">
-              <Link href="/dashboard/organizations">
+              <Link href="/organizations">
                 <Button variant="outline">Switch Organization</Button>
               </Link>
               <Button

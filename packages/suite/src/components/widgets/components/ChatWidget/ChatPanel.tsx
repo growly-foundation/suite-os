@@ -56,7 +56,7 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
 
   useLayoutEffect(() => {
     const lastestMessage = messages[messages.length - 1];
-    if (lastestMessage) {
+    if (lastestMessage && typeof document !== 'undefined') {
       const element = document.getElementById(lastestMessage.id);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });

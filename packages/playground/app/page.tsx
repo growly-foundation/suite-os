@@ -1,7 +1,14 @@
 'use client';
 
-import { AppProvider } from '@/components/AppProvider';
-import Demo from '@/components/Demo';
+import dynamic from 'next/dynamic';
+
+const AppProvider = dynamic(async () => (await import('@/components/AppProvider')).AppProvider, {
+  ssr: false,
+});
+
+const Demo = dynamic(async () => await import('@/components/Demo'), {
+  ssr: false,
+});
 
 export default function Home() {
   return (

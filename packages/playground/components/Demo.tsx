@@ -22,7 +22,9 @@ export default function Demo() {
   }, [activeComponent]);
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', isDarkMode);
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.toggle('dark', isDarkMode);
+    }
   }, [isDarkMode]);
 
   const toggleDarkMode = () => {

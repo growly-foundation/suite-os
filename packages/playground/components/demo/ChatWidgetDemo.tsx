@@ -1,8 +1,13 @@
 import { useContext, useEffect } from 'react';
 import { base } from 'viem/chains';
 import { AppContext } from '../AppProvider';
-import { ChatWidget, Theme } from '@growly/suite';
+import { Theme } from '@growly/suite';
 import { useSuite, SuiteProvider } from '@growly/suite';
+import dynamic from 'next/dynamic';
+
+const ChatWidget = dynamic(() => import('@growly/suite').then(suite => suite.ChatWidget), {
+  ssr: false,
+});
 
 function ChatWidgetComponent() {
   const { config, setConfig } = useSuite();

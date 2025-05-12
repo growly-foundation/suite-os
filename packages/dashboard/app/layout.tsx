@@ -2,11 +2,9 @@ import type React from 'react';
 import './globals.css';
 import { coinbaseFont } from './fonts';
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono, Inter } from 'next/font/google';
+import { Geist, Geist_Mono } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { Providers } from '@/components/providers/providers';
-
-const inter = Inter({ subsets: ['latin'] });
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

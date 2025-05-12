@@ -14,7 +14,15 @@ import { useDashboardState } from '@/hooks/use-dashboard';
 import { suiteCore } from '@/core/suite';
 import { toast } from 'react-toastify';
 import { generateId } from '@/lib/utils';
-import { AnimatedLoadingSmall } from '@/components/animated-components/animated-loading-small';
+import dynamic from 'next/dynamic';
+
+const AnimatedLoadingSmall = dynamic(
+  () =>
+    import('@/components/animated-components/animated-loading-small').then(
+      module => module.AnimatedLoadingSmall
+    ),
+  { ssr: false }
+);
 
 export default function WorkflowDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();

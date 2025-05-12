@@ -2,11 +2,24 @@
 
 import { Suspense } from 'react';
 import { ThemeProvider } from '../theme-provider';
-import { SuiteProvider, DemoChatWidget, Theme } from '@growly/suite';
-import '@growly/suite/styles.css';
+import { SuiteProvider, Theme } from '@growly/suite';
 import { PrivyProvider } from '@privy-io/react-auth';
 import ProtectedAuthProvider from '@/components/providers/protected-auth-provider';
 import { ToastContainer } from 'react-toastify';
+import '@growly/suite/styles.css';
+import dynamic from 'next/dynamic';
+
+const ChatWidget = dynamic(() => import('@growly/suite').then(suite => suite.ChatWidget), {
+  ssr: false,
+});
+
+const AnimatedLoading = dynamic(
+  () =>
+    import('@/components/animated-components/animated-loading').then(
+      module => module.AnimatedLoading
+    ),
+  { ssr: false }
+);
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -32,9 +45,9 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           enableSystem
           disableTransitionOnChange>
           <ProtectedAuthProvider>
-            <Suspense>
+            <Suspense fallback={<AnimatedLoading />}>
               {children}
-              <DemoChatWidget />
+              <ChatWidget />
               <ToastContainer />
             </Suspense>
           </ProtectedAuthProvider>

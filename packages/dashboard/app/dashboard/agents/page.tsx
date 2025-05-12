@@ -6,7 +6,15 @@ import { Button } from '@/components/ui/button';
 import { AgentsList } from '@/components/agents/agent-list';
 import { useEffect } from 'react';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { AnimatedLoadingSmall } from '@/components/animated-components/animated-loading-small';
+import dynamic from 'next/dynamic';
+
+const AnimatedLoadingSmall = dynamic(
+  () =>
+    import('@/components/animated-components/animated-loading-small').then(
+      module => module.AnimatedLoadingSmall
+    ),
+  { ssr: false }
+);
 
 export default function AgentsPage() {
   const { agentStatus, fetchOrganizationAgents, organizationAgents } = useDashboardState();

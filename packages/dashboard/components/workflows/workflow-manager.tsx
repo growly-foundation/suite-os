@@ -7,7 +7,15 @@ import React, { useEffect } from 'react';
 import { WorkflowsList } from './workflow-list';
 import { Button } from '../ui/button';
 import Link from 'next/link';
-import { AnimatedLoadingSmall } from '../animated-components/animated-loading-small';
+import dynamic from 'next/dynamic';
+
+const AnimatedLoadingSmall = dynamic(
+  () =>
+    import('@/components/animated-components/animated-loading-small').then(
+      module => module.AnimatedLoadingSmall
+    ),
+  { ssr: false }
+);
 
 export default function WorkflowManager() {
   const {
