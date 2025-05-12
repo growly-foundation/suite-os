@@ -4,10 +4,7 @@ import axios from 'axios';
 import { isAddress } from 'viem';
 import { z } from 'zod';
 import { ZERION_V1_BASE_URL } from './constants';
-import {
-  ZerionFungiblePositionsResponse,
-  ZerionPortfolioResponse,
-} from './types';
+import { ZerionFungiblePositionsResponse, ZerionPortfolioResponse } from './types';
 import { formatPortfolioData, formatPositionsData } from './utils';
 
 const axiosInstance = axios.create({
@@ -46,7 +43,7 @@ Output:
         walletAddress: z
           .string()
           .describe(
-            'The wallet address to fetch portfolio for (defaults to connected wallet if not provided)',
+            'The wallet address to fetch portfolio for (defaults to connected wallet if not provided)'
           ),
       })
       .strip()
@@ -62,7 +59,7 @@ Output:
             headers: {
               Authorization: `Basic ${encodedKey}`,
             },
-          },
+          }
         );
         const { data } = response.data;
         return formatPortfolioData(data);
@@ -93,7 +90,7 @@ Output:
         walletAddress: z
           .string()
           .describe(
-            'The wallet address to fetch fungible positions for (defaults to connected wallet if not provided)',
+            'The wallet address to fetch fungible positions for (defaults to connected wallet if not provided)'
           ),
       })
       .strip()
@@ -103,15 +100,14 @@ Output:
         return `Invalid wallet address: ${walletAddress}`;
       }
       try {
-        const response =
-          await axiosInstance.get<ZerionFungiblePositionsResponse>(
-            `/wallets/${walletAddress}/positions?filter[positions]=no_filter&currency=usd&filter[trash]=only_non_trash&sort=value`,
-            {
-              headers: {
-                Authorization: `Basic ${encodedKey}`,
-              },
+        const response = await axiosInstance.get<ZerionFungiblePositionsResponse>(
+          `/wallets/${walletAddress}/positions?filter[positions]=no_filter&currency=usd&filter[trash]=only_non_trash&sort=value`,
+          {
+            headers: {
+              Authorization: `Basic ${encodedKey}`,
             },
-          );
+          }
+        );
         const { data } = response.data;
         return formatPositionsData(data);
       } catch (error: unknown) {

@@ -29,13 +29,13 @@ async function bootstrap() {
       },
       {
         url: facilitatorUrl,
-      },
-    ),
+      }
+    )
   );
 
   await app.listen(process.env.PORT ?? 3000);
 }
 
-bootstrap().catch((err) => {
+bootstrap().catch(err => {
   console.error(err);
 });
