@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Growly Suite | Secure AI Solutions for Business & Government',
+  title: 'Growly Suite | Empower DeFi Adoption with AI-powered Engine',
   description:
     'Enterprise-grade AI platform with LLM conversations, customizable agents, secure knowledge base, and MCP server support for businesses and government agencies.',
   keywords:
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://getgrowly.app',
-    title: 'Growly Suite | Secure AI Solutions',
+    title: 'Growly Suite | Empower DeFi Adoption with AI-powered Engine',
     description:
       'Enterprise-grade AI platform with advanced security, customization, and control for businesses and government agencies.',
     siteName: 'Growly Suite',
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Growly Suite | Secure AI Solutions',
+    title: 'Growly Suite | Empower DeFi Adoption with AI-powered Engine',
     description: 'Enterprise-grade AI platform with advanced security, customization, and control.',
     images: ['https://getgrowly.app/twitter-image.jpg'],
   },
