@@ -31,43 +31,36 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
   const [workflow, setWorkflow] = useState<AggregatedWorkflow | null>(null);
   const [isAddStepOpen, setIsAddStepOpen] = useState(false);
   const [isIntegrationGuideOpen, setIsIntegrationGuideOpen] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const paramsValue = React.use(params);
 
   const isNewWorkflow = paramsValue.id === 'new';
 
-  useEffect(() => {
-    async function fetchWorkflow() {
-      if (!selectedOrganization) {
-        router.push('/organizations');
-        toast.error('Please select an organization');
-        return;
-      }
-      if (isNewWorkflow) {
-        // Create a new workflow template
-        setWorkflow({
-          id: '',
-          name: `Workflow-${generateId()}`,
-          description: '',
-          organization_id: selectedOrganization.id,
-          status: Status.Active,
-          created_at: new Date().toISOString(),
-          steps: [],
-        });
+  const fetchWorkflow = async () => {
+    if (!selectedOrganization) return;
+    if (isNewWorkflow) {
+      // Create a new workflow template
+      return {
+        id: '',
+        name: `Workflow ${generateId().toUpperCase()}`,
+        description: '',
+        organization_id: selectedOrganization.id,
+        status: Status.Active,
+        created_at: new Date().toISOString(),
+        steps: [],
+      };
+    } else {
+      const fetchedWorkflow = await fetchOrganizationWorkflowById(paramsValue.id);
+      if (fetchedWorkflow) {
+        return fetchedWorkflow;
       } else {
-        const fetchedWorkflow = await fetchOrganizationWorkflowById(paramsValue.id);
-        if (fetchedWorkflow) {
-          setWorkflow(fetchedWorkflow);
-        } else {
-          // Handle workflow not found
-          router.push('/dashboard/workflows');
-        }
+        // Handle workflow not found
+        router.push('/dashboard/workflows');
       }
-      setLoading(false);
     }
-    fetchWorkflow();
-  }, [paramsValue.id, router, selectedOrganization]);
+  };
 
   const handleSave = async () => {
     if (!workflow || !selectedOrganization) {
@@ -148,6 +141,36 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
     setIsAddStepOpen(false);
   };
 
+  const handleReset = async () => {
+    try {
+      setIsResetting(true);
+      const workflow = await fetchWorkflow();
+      if (!workflow) return;
+      setWorkflow(workflow);
+    } catch (error) {
+      toast.error('Failed to reset workflow');
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
+  useEffect(() => {
+    async function init() {
+      if (!selectedOrganization) {
+        router.push('/organizations');
+        toast.error('Please select an organization');
+        return;
+      }
+
+      const fetchedWorkflow = await fetchWorkflow();
+      if (fetchedWorkflow) {
+        setWorkflow(fetchedWorkflow);
+      }
+      setLoading(false);
+    }
+    init();
+  }, [paramsValue.id, router, selectedOrganization]);
+
   if (loading) {
     return <AnimatedLoadingSmall />;
   }
@@ -196,16 +219,22 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
               Settings
             </TabsTrigger>
           </TabsList>
-          <Button
-            variant="outline"
-            onClick={() =>
-              setWorkflow({
-                ...workflow,
-                steps: mockSteps,
-              })
-            }>
-            View Demo Steps
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button disabled={isResetting} variant="outline" size={'sm'} onClick={handleReset}>
+              {isResetting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Reset'}
+            </Button>
+            <Button
+              variant="outline"
+              size={'sm'}
+              onClick={() =>
+                setWorkflow({
+                  ...workflow,
+                  steps: mockSteps,
+                })
+              }>
+              View Demo Steps
+            </Button>
+          </div>
         </div>
         <TabsContent value="canvas" className="p-0">
           <WorkflowCanvas workflow={workflow} setWorkflow={setWorkflow} />

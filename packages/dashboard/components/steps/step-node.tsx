@@ -2,18 +2,12 @@
 
 import React, { useState } from 'react';
 import { Handle, Position, type NodeProps } from 'reactflow';
-import { Bot, Edit, FileText, MoreHorizontal, Trash, Zap } from 'lucide-react';
+import { Bot, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { getConditionDescription } from '@/lib/workflow.utils';
-import type { ParsedStep, WorkflowId } from '@growly/core';
+import type { Action, ParsedStep, WorkflowId } from '@growly/core';
 import { AddStepDialog } from './add-step-dialog';
 
 export function StepNode({ workflowId, data }: NodeProps & { workflowId: WorkflowId }) {
@@ -21,7 +15,7 @@ export function StepNode({ workflowId, data }: NodeProps & { workflowId: Workflo
   const [isEditOpen, setIsEditOpen] = useState(false);
 
   // Determine the icon based on the action type
-  const getActionIcon = (action: any) => {
+  const getActionIcon = (action: Action) => {
     if (!action) return <Zap className="h-4 w-4" />;
 
     if (typeof action === 'object' && 'type' in action) {
@@ -111,33 +105,18 @@ export function StepNode({ workflowId, data }: NodeProps & { workflowId: Workflo
           </div>
         </CardContent>
         <CardFooter className="p-2 flex justify-end border-t">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreHorizontal className="h-4 w-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Trash className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button variant="outline" onClick={() => setIsEditOpen(true)}>
+            Edit
+          </Button>
         </CardFooter>
       </Card>
       <Handle type="source" position={Position.Right} />
       <AddStepDialog
         open={isEditOpen}
         onOpenChange={setIsEditOpen}
-        existingSteps={[]}
         onAdd={() => {}}
         workflowId={workflowId}
+        defaultStep={step}
       />
     </React.Fragment>
   );

@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Trash } from 'lucide-react';
 import { Condition, ConditionType, ParsedStep, StepId, UIEventCondition } from '@growly/core';
+import { ConditionTreeView } from './condition-tree-view';
 
 interface ConditionItemProps {
   condition: Condition;
@@ -11,31 +12,76 @@ interface ConditionItemProps {
   disableRemove?: boolean;
 }
 
+export type ConditionItemNode = {
+  title: string;
+  desc?: string;
+  status: 'success' | 'error' | 'pending';
+  children?: ConditionItemNode[];
+};
+
 export function ConditionItem({
   condition,
   onRemove,
   existingSteps,
   disableRemove = false,
 }: ConditionItemProps) {
-  const getConditionLabel = (condition: Condition) => {
+  const getConditionLabel = (condition: Condition): ConditionItemNode[] => {
     switch (condition.type) {
       case ConditionType.Always:
-        return 'Always';
+        return [{ title: 'Always', desc: 'Step is always executed', status: 'success' }];
       case ConditionType.Step:
         const step = existingSteps.find(s => s.id === condition.data);
-        return step ? `After step: ${step.name}` : `After step: ${condition.data}`;
+        return step
+          ? [
+              {
+                title: 'After step',
+                desc: `Step ${step.name} must be completed`,
+                status: 'success',
+              },
+            ]
+          : [
+              {
+                title: 'After step',
+                desc: `No step with id ${condition.data}`,
+                status: 'error',
+              },
+            ];
       case ConditionType.Workflow:
-        return `After workflow: ${condition.data}`;
+        return [
+          {
+            title: 'After workflow',
+            desc: `Workflow ${condition.data} must be completed`,
+            status: 'pending',
+          },
+        ];
       case ConditionType.UIEvent:
-        return `UI Event: ${getUIEventLabel(condition.data)}`;
+        return [{ title: 'UI Event', desc: getUIEventLabel(condition.data), status: 'pending' }];
       case ConditionType.JudgedByAgent:
-        return 'Judged by Agent';
+        return [{ title: 'Judged by Agent', desc: 'Agent must judge the step', status: 'pending' }];
+      case ConditionType.Or:
+        return [
+          {
+            title: 'Or',
+            desc: 'Any of the following conditions are true',
+            children: condition.data.map(getConditionLabel).flat(),
+            status: 'pending',
+          },
+        ];
+      case ConditionType.And:
+        return [
+          {
+            title: 'And',
+            desc: 'All of the following conditions are true',
+            children: condition.data.map(getConditionLabel).flat(),
+            status: 'pending',
+          },
+        ];
       default:
-        return 'Unknown condition';
+        return [{ title: 'Unknown condition', status: 'error' }];
     }
   };
 
-  const getUIEventLabel = (eventType: UIEventCondition) => {
+  const getUIEventLabel = (eventType: UIEventCondition): string => {
     switch (eventType) {
       case UIEventCondition.OnPageLoad:
         return 'When the page is loaded';
@@ -52,7 +98,7 @@ export function ConditionItem({
 
   return (
     <div className="flex items-center justify-between p-2 px-4 border rounded-md">
-      <span className="text-sm">{getConditionLabel(condition)}</span>
+      <ConditionTreeView nodes={getConditionLabel(condition)} />
       <Button
         variant="ghost"
         size="icon"

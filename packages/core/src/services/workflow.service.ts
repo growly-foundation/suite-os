@@ -21,8 +21,8 @@ export class WorkflowService {
         steps: steps.map(step => ({
           ...step,
           // Expect an array of conditions and actions.
-          conditions: step.conditions as any as Condition[],
-          action: step.action as any as Action[],
+          conditions: step.conditions ? (JSON.parse(step.conditions as any) as Condition[]) : [],
+          action: step.action ? (JSON.parse(step.action as any) as Action[]) : [],
         })),
       };
     } catch (error) {
@@ -47,8 +47,8 @@ export class WorkflowService {
         steps: steps.map(step => ({
           ...step,
           // Expect an array of conditions and actions.
-          conditions: step.conditions as any as Condition[],
-          action: step.action as any as Action[],
+          conditions: step.conditions ? (JSON.parse(step.conditions as any) as Condition[]) : [],
+          action: step.action ? (JSON.parse(step.action as any) as Action[]) : [],
         })),
       });
     }

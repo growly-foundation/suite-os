@@ -38,6 +38,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
             name: 'Growly Customer Support',
           },
           theme: Theme.monoTheme,
+          display: 'fullView',
         }}>
         <ThemeProvider
           attribute="class"

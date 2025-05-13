@@ -1,10 +1,10 @@
 import { ParsedStep, ConditionType, UIEventCondition, Status } from '@growly/core';
-import { generateId } from '../utils';
+import { v4 as uuid } from 'uuid';
 
-const stepId1 = 'step-1';
-const stepId2 = 'step-2';
-const stepId3 = 'step-3';
-const stepId4 = 'step-4';
+const stepId1 = uuid();
+const stepId2 = uuid();
+const stepId3 = uuid();
+const stepId4 = uuid();
 
 export const mockSteps: ParsedStep[] = [
   // Independent root step - always trigger
@@ -13,14 +13,14 @@ export const mockSteps: ParsedStep[] = [
     name: 'Welcome to DeFi Portal',
     conditions: [
       {
-        id: generateId(),
+        id: uuid(),
         type: ConditionType.Always,
         data: true,
       },
     ],
     action: [
       {
-        id: generateId(),
+        id: uuid(),
         type: 'text',
         return: { text: 'Welcome to DeFi Swap! Let’s get you started.' },
       },
@@ -38,14 +38,14 @@ export const mockSteps: ParsedStep[] = [
     name: 'Connect Wallet Prompt',
     conditions: [
       {
-        id: generateId(),
+        id: uuid(),
         type: ConditionType.Step,
         data: stepId1,
       },
     ],
     action: [
       {
-        id: generateId(),
+        id: uuid(),
         type: 'text',
         return: { text: 'Please connect your wallet to start trading.' },
       },
@@ -63,16 +63,16 @@ export const mockSteps: ParsedStep[] = [
     name: 'Offer Yield Opportunity',
     conditions: [
       {
-        id: generateId(),
+        id: uuid(),
         type: ConditionType.And,
         data: [
           {
-            id: generateId(),
+            id: uuid(),
             type: ConditionType.Step,
             data: stepId2,
           },
           {
-            id: generateId(),
+            id: uuid(),
             type: ConditionType.UIEvent,
             data: UIEventCondition.OnClicked,
           },
@@ -81,7 +81,7 @@ export const mockSteps: ParsedStep[] = [
     ],
     action: [
       {
-        id: generateId(),
+        id: uuid(),
         type: 'text',
         return: { text: 'Discover high-yield farming pools now available!' },
       },
@@ -100,16 +100,16 @@ export const mockSteps: ParsedStep[] = [
     name: 'Request Feedback on Swap Experience',
     conditions: [
       {
-        id: generateId(),
+        id: uuid(),
         type: ConditionType.Or,
         data: [
           {
-            id: generateId(),
+            id: uuid(),
             type: ConditionType.Step,
             data: stepId2,
           },
           {
-            id: generateId(),
+            id: uuid(),
             type: ConditionType.JudgedByAgent,
             data: {
               stepId: stepId4,
@@ -122,16 +122,13 @@ export const mockSteps: ParsedStep[] = [
     ],
     action: [
       {
-        id: generateId(),
+        id: uuid(),
         type: 'agent',
         args: {
           prompt: 'Collect feedback on the swap process and user interface.',
-          agentId: 'agent-1',
-          organizationId: 'org-1',
-          stepId: stepId4,
         },
         return: {
-          id: generateId(),
+          id: uuid(),
           type: 'text',
           return: { text: 'Thank you for helping us improve!' },
         },

@@ -1,22 +1,21 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Action } from '@growly/core';
 import { Trash } from 'lucide-react';
 
 interface ActionItemProps {
-  action: any;
+  action: Action;
   onRemove: (id: string) => void;
   disableRemove?: boolean;
 }
 
 export function ActionItem({ action, onRemove, disableRemove = false }: ActionItemProps) {
-  const getActionLabel = (action: any) => {
+  const getActionLabel = (action: Action) => {
     if (action.type === 'text') {
-      return `Text: ${action.data.text.substring(0, 20)}${action.data.text.length > 20 ? '...' : ''}`;
+      return `Text: ${action.return?.text.substring(0, 20)}${action.return?.text.length > 20 ? '...' : ''}`;
     } else {
-      return `Agent: ${action.data.agentId} - ${action.data.prompt.substring(0, 20)}${
-        action.data.prompt.length > 20 ? '...' : ''
-      }`;
+      return `Agent: ${action.args?.prompt.substring(0, 20)}${action.args?.prompt.length > 20 ? '...' : ''}`;
     }
   };
 
