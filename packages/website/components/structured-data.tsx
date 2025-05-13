@@ -2,7 +2,7 @@ export default function StructuredData() {
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'Enterprise AI Platform',
+    name: 'Growly Suite',
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web',
     offers: {
@@ -14,21 +14,13 @@ export default function StructuredData() {
         .toISOString()
         .split('T')[0],
     },
-    description:
-      'Enterprise-grade AI platform with LLM conversations, customizable agents, secure knowledge base, and MCP server support.',
+    description: 'Customize AI agents with powerful workflows.',
     aggregateRating: {
       '@type': 'AggregateRating',
       ratingValue: '4.8',
       ratingCount: '127',
     },
-    featureList: [
-      'Advanced LLM Conversations',
-      'Customizable Agents',
-      'Enterprise Knowledge Base',
-      'Prompt Templates',
-      'MCP Server Support',
-      'Enterprise Security',
-    ],
+    featureList: ['Customizable Agents', 'Enterprise Knowledge Base', 'Prompt Templates'],
   };
 
   return (

@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 220 85% 54%;
+    --primary: #0052ff;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -45,7 +45,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 220 85% 54%;
+    --primary: #0052ff;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -77,24 +77,34 @@
 
 /* Light mode grid background */
 .grid-background {
-  background-image: linear-gradient(to right, rgba(36, 101, 237, 0.2) 0.5px, transparent 0.5px),
+  background-image:
+    linear-gradient(to right, rgba(36, 101, 237, 0.2) 0.5px, transparent 0.5px),
     linear-gradient(to bottom, rgba(36, 101, 237, 0.2) 0.5px, transparent 0.5px) !important;
   background-size: 80px 80px !important;
 }
 
 .grid-gradient {
-  background: radial-gradient(70% 70% at 50% 50%, transparent 0%, rgba(36, 101, 237, 0.05) 100%) !important;
+  background: radial-gradient(
+    70% 70% at 50% 50%,
+    transparent 0%,
+    rgba(36, 101, 237, 0.05) 100%
+  ) !important;
 }
 
 /* Dark mode adjustments for the grid background */
 .dark .grid-background {
-  background-image: linear-gradient(to right, rgba(36, 101, 237, 0.2) 0.5px, transparent 0.5px),
+  background-image:
+    linear-gradient(to right, rgba(36, 101, 237, 0.2) 0.5px, transparent 0.5px),
     linear-gradient(to bottom, rgba(36, 101, 237, 0.2) 0.5px, transparent 0.5px) !important;
   background-size: 80px 80px !important;
 }
 
 .dark .grid-gradient {
-  background: radial-gradient(70% 70% at 50% 50%, transparent 0%, rgba(36, 101, 237, 0.05) 100%) !important;
+  background: radial-gradient(
+    70% 70% at 50% 50%,
+    transparent 0%,
+    rgba(36, 101, 237, 0.05) 100%
+  ) !important;
 }
 
 /* Card styling improvements for dark mode */

@@ -39,7 +39,7 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
   useEffect(() => {
     async function fetchWorkflow() {
       if (!selectedOrganization) {
-        router.push('/dashboard/organizations');
+        router.push('/organizations');
         toast.error('Please select an organization');
         return;
       }
@@ -71,7 +71,7 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
   const handleSave = async () => {
     if (!workflow || !selectedOrganization) {
       toast.error('Please select an organization');
-      router.push('/dashboard/organizations');
+      router.push('/organizations');
       return;
     }
     try {

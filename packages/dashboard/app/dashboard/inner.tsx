@@ -127,7 +127,7 @@ export default function DashboardInner() {
               <p className="text-muted-foreground">{selectedOrganization?.description}</p>
             </div>
             <div className="flex items-center gap-2">
-              <Link href="/dashboard/organizations">
+              <Link href="/organizations">
                 <Button variant="outline">Switch Organization</Button>
               </Link>
               <Button

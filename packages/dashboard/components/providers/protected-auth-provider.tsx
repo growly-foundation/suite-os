@@ -40,14 +40,14 @@ export const useAuth = () => {
   const redirectToCreateOrganization = async (userId: string, redirectedPath: string) => {
     const organizations = await fetchOrganizations();
     if (organizations.length === 0) {
-      return router.push('/dashboard/organizations');
+      return router.push('/organizations');
     } else {
       // Check local storage if there is a selected organization
       const selectedOrganizationId = localStorage.getItem(
         STORAGE_KEY_SELECTED_ORGANIZATION_ID(userId)
       );
       if (!selectedOrganizationId) {
-        return router.push('/dashboard/organizations');
+        return router.push('/organizations');
       }
       // If there is a selected organization, select it.
       const selectedOrganization = organizations.find(
@@ -55,7 +55,7 @@ export const useAuth = () => {
       );
       // If there is no selected organization, select the first organization.
       if (!selectedOrganization) {
-        return router.push('/dashboard/organizations');
+        return router.push('/organizations');
       }
       setSelectedOrganization(organizations[0]);
       return router.push(redirectedPath);
