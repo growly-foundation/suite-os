@@ -1,298 +1,147 @@
-import { AggregatedAgent, AggregatedWorkflow, Organization, Status, Workflow } from '@growly/core';
+import { ParsedStep, ConditionType, UIEventCondition, Status } from '@growly/core';
+import { generateId } from '../utils';
 
-// Mock data for organizations
-export const organizations: Organization[] = [
-  {
-    id: '1',
-    name: 'Acme Inc',
-    description: 'A global leader in innovative solutions for enterprise businesses.',
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    name: 'Globex Corporation',
-    description: 'Specializing in cutting-edge technology and software development.',
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    name: 'Initech',
-    description: 'Providing business process automation and consulting services.',
-    created_at: new Date().toISOString(),
-  },
-];
+const stepId1 = 'step-1';
+const stepId2 = 'step-2';
+const stepId3 = 'step-3';
+const stepId4 = 'step-4';
 
-// Mock data for agents
-export const agents: AggregatedAgent[] = [
+export const mockSteps: ParsedStep[] = [
+  // Independent root step - always trigger
   {
-    id: 'agent-1',
-    name: 'Customer Support Agent',
-    model: 'gpt-4',
-    description: 'Handles customer inquiries and support tickets',
-    organization_id: '1',
-    resources: ['knowledge-base-1', 'faq-database'],
-    workflows: [],
-    status: Status.Active,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'agent-2',
-    name: 'Sales Assistant',
-    model: 'claude-3',
-    description: 'Assists with sales inquiries and lead qualification',
-    organization_id: '1',
-    resources: ['product-catalog', 'pricing-sheet'],
-    workflows: [],
-    status: Status.Active,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'agent-3',
-    name: 'Data Analyst',
-    model: 'gpt-4',
-    description: 'Analyzes business data and generates reports',
-    organization_id: '2',
-    resources: ['analytics-db', 'reporting-tools'],
-    workflows: [],
-    status: Status.Inactive,
-    created_at: new Date().toISOString(),
-  },
-];
-
-// Mock data for workflows
-export const workflows: Workflow[] = [
-  {
-    id: 'workflow-1',
-    name: 'Ticket Resolution',
-    description: 'Process for resolving customer support tickets',
-    organization_id: '1',
-    status: Status.Active,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'workflow-2',
-    name: 'Lead Qualification',
-    description: 'Process for qualifying sales leads',
-    organization_id: '1',
-    status: Status.Active,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'workflow-3',
-    name: 'Customer Onboarding',
-    description: 'Process for onboarding new customers',
-    organization_id: '1',
-    status: Status.Active,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'workflow-4',
-    name: 'Monthly Reporting',
-    description: 'Process for generating monthly business reports',
-    organization_id: '2',
-    status: Status.Active,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'workflow-5',
-    name: 'Content Approval',
-    description: 'Process for approving new content',
-    organization_id: '3',
-    status: Status.Active,
-    created_at: new Date().toISOString(),
-  },
-];
-
-// Helper function to get agents for a specific organization
-export function getAgentsByOrganization(organizationId: string): AggregatedAgent[] {
-  return agents.filter(agent => agent.organization_id === organizationId);
-}
-
-// Helper function to get a specific agent by ID
-export function getAgentById(agentId: string): AggregatedAgent | undefined {
-  return agents.find(agent => agent.id === agentId);
-}
-
-// Helper function to get workflows for a specific organization
-export function getWorkflowsByOrganization(organizationId: string): Workflow[] {
-  return workflows.filter(workflow => workflow.organization_id === organizationId);
-}
-
-export const mockWorkflows: AggregatedWorkflow[] = [
-  {
-    id: 'workflow-1',
-    name: 'Customer Support Workflow',
-    description: 'Automated workflow for handling customer support tickets',
-    organization_id: 'org-1',
-    status: 'active',
-    created_at: '2023-05-15T10:30:00Z',
-    steps: [
+    id: stepId1,
+    name: 'Welcome to DeFi Portal',
+    conditions: [
       {
-        id: 'step-1',
-        name: 'Ticket Classification',
-        description: 'Classify the support ticket by category',
-        index: 0,
-        status: 'active',
-        workflow_id: 'workflow-1',
-        created_at: '2023-05-15T10:35:00Z',
-        conditions: true,
-        action: [
+        id: generateId(),
+        type: ConditionType.Always,
+        data: true,
+      },
+    ],
+    action: [
+      {
+        id: generateId(),
+        type: 'text',
+        return: { text: 'Welcome to DeFi Swap! Let’s get you started.' },
+      },
+    ],
+    workflow_id: 'workflow-1',
+    created_at: new Date().toISOString(),
+    description: 'Initial greeting for users entering the decentralized swap interface.',
+    index: 0,
+    status: Status.Active,
+  },
+
+  // Dependent step - triggered when step-1 is done
+  {
+    id: stepId2,
+    name: 'Connect Wallet Prompt',
+    conditions: [
+      {
+        id: generateId(),
+        type: ConditionType.Step,
+        data: stepId1,
+      },
+    ],
+    action: [
+      {
+        id: generateId(),
+        type: 'text',
+        return: { text: 'Please connect your wallet to start trading.' },
+      },
+    ],
+    workflow_id: 'workflow-1',
+    created_at: new Date().toISOString(),
+    description: 'Prompt the user to connect their wallet after the welcome message.',
+    index: 1,
+    status: Status.Active,
+  },
+
+  // Step triggered by UI event AND previous step
+  {
+    id: stepId3,
+    name: 'Offer Yield Opportunity',
+    conditions: [
+      {
+        id: generateId(),
+        type: ConditionType.And,
+        data: [
           {
-            type: 'agent',
-            args: {
+            id: generateId(),
+            type: ConditionType.Step,
+            data: stepId2,
+          },
+          {
+            id: generateId(),
+            type: ConditionType.UIEvent,
+            data: UIEventCondition.OnClicked,
+          },
+        ],
+      },
+    ],
+    action: [
+      {
+        id: generateId(),
+        type: 'text',
+        return: { text: 'Discover high-yield farming pools now available!' },
+      },
+    ],
+    workflow_id: 'workflow-1',
+    created_at: new Date().toISOString(),
+    description:
+      'Once the wallet is connected and the user clicks on “Explore Pools,” show them yield opportunities.',
+    index: 2,
+    status: Status.Active,
+  },
+
+  // Branching step with OR condition on step-2 or judged by agent
+  {
+    id: stepId4,
+    name: 'Request Feedback on Swap Experience',
+    conditions: [
+      {
+        id: generateId(),
+        type: ConditionType.Or,
+        data: [
+          {
+            id: generateId(),
+            type: ConditionType.Step,
+            data: stepId2,
+          },
+          {
+            id: generateId(),
+            type: ConditionType.JudgedByAgent,
+            data: {
+              stepId: stepId4,
               agentId: 'agent-1',
-              organizationId: 'org-1',
-              model: 'gpt-4o',
-              prompt:
-                'Classify this support ticket into one of the following categories: Billing, Technical, Account, Other',
-            },
-            return: {
-              type: 'text',
-              return: {
-                text: '',
-              },
-            },
-          },
-        ],
-      },
-      {
-        id: 'step-2',
-        name: 'Priority Assignment',
-        description: 'Assign priority level to the ticket',
-        index: 1,
-        status: 'active',
-        workflow_id: 'workflow-1',
-        created_at: '2023-05-15T10:40:00Z',
-        conditions: {
-          type: 'and',
-          conditions: ['step-1'],
-        },
-        action: [
-          {
-            type: 'agent',
-            args: {
-              agentId: 'agent-2',
-              organizationId: 'org-1',
-              model: 'gpt-4o',
-              prompt:
-                'Assign a priority level (Low, Medium, High, Critical) to this support ticket',
-            },
-            return: {
-              type: 'text',
-              return: {
-                text: '',
-              },
-            },
-          },
-        ],
-      },
-      {
-        id: 'step-3',
-        name: 'Response Generation',
-        description: 'Generate an initial response to the customer',
-        index: 2,
-        status: 'active',
-        workflow_id: 'workflow-1',
-        created_at: '2023-05-15T10:45:00Z',
-        conditions: {
-          type: 'and',
-          conditions: ['step-2'],
-        },
-        action: [
-          {
-            type: 'agent',
-            args: {
-              agentId: 'agent-3',
-              organizationId: 'org-1',
-              model: 'gpt-4o',
-              prompt:
-                'Generate an initial response to the customer based on the ticket category and priority',
-            },
-            return: {
-              type: 'text',
-              return: {
-                text: '',
-              },
+              prompt: 'Should we ask the user for feedback now?',
             },
           },
         ],
       },
     ],
-  },
-  {
-    id: 'workflow-2',
-    name: 'Content Approval Process',
-    description: 'Workflow for reviewing and approving content before publication',
-    organization_id: 'org-1',
-    status: 'active',
-    created_at: '2023-06-10T14:20:00Z',
-    steps: [
+    action: [
       {
-        id: 'step-4',
-        name: 'Content Review',
-        description: 'Review content for quality and accuracy',
-        index: 0,
-        status: 'active',
-        workflow_id: 'workflow-2',
-        created_at: '2023-06-10T14:25:00Z',
-        conditions: true,
-        action: [
-          {
-            type: 'agent',
-            args: {
-              agentId: 'agent-4',
-              organizationId: 'org-1',
-              model: 'gpt-4o',
-              prompt: 'Review this content for quality, accuracy, and adherence to guidelines',
-            },
-            return: {
-              type: 'text',
-              return: {
-                text: '',
-              },
-            },
-          },
-        ],
-      },
-      {
-        id: 'step-5',
-        name: 'SEO Optimization',
-        description: 'Optimize content for search engines',
-        index: 1,
-        status: 'active',
-        workflow_id: 'workflow-2',
-        created_at: '2023-06-10T14:30:00Z',
-        conditions: {
-          type: 'and',
-          conditions: ['step-4'],
+        id: generateId(),
+        type: 'agent',
+        args: {
+          prompt: 'Collect feedback on the swap process and user interface.',
+          agentId: 'agent-1',
+          organizationId: 'org-1',
+          stepId: stepId4,
         },
-        action: [
-          {
-            type: 'agent',
-            args: {
-              agentId: 'agent-5',
-              organizationId: 'org-1',
-              model: 'gpt-4o',
-              prompt: 'Suggest SEO improvements for this content',
-            },
-            return: {
-              type: 'text',
-              return: {
-                text: '',
-              },
-            },
-          },
-        ],
+        return: {
+          id: generateId(),
+          type: 'text',
+          return: { text: 'Thank you for helping us improve!' },
+        },
       },
     ],
-  },
-  {
-    id: 'workflow-3',
-    name: 'Lead Qualification',
-    description: 'Qualify sales leads based on criteria',
-    organization_id: 'org-1',
-    status: 'inactive',
-    created_at: '2023-07-05T09:15:00Z',
-    steps: [],
+    workflow_id: 'workflow-1',
+    created_at: new Date().toISOString(),
+    description:
+      'Gather user feedback either after they connect their wallet or when prompted by a support agent.',
+    index: 3,
+    status: Status.Active,
   },
 ];

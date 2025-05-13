@@ -8,24 +8,18 @@ import { generateId } from '@/lib/utils';
 import { ActionItem } from './action-item';
 import { TextAction } from './text-action';
 import { AgentAction } from './agent-action';
+import { Action } from '@growly/core';
 
 interface ActionFormProps {
-  actions: any[];
-  setActions: (actions: any[]) => void;
+  actions: Action[];
+  setActions: (actions: Action[]) => void;
 }
 
 export function ActionForm({ actions, setActions }: ActionFormProps) {
   const [currentActionType, setCurrentActionType] = useState<'text' | 'agent'>('text');
 
-  const addAction = (actionData: any) => {
-    setActions([
-      ...actions,
-      {
-        id: generateId(),
-        type: currentActionType,
-        data: actionData,
-      },
-    ]);
+  const addAction = (action: Action) => {
+    setActions([...actions, action]);
   };
 
   const removeAction = (id: string) => {
@@ -40,7 +34,6 @@ export function ActionForm({ actions, setActions }: ActionFormProps) {
           {actions.length} {actions.length === 1 ? 'action' : 'actions'}
         </Badge>
       </div>
-
       {actions.length > 0 && (
         <div className="space-y-2">
           {actions.map(action => (
@@ -48,7 +41,6 @@ export function ActionForm({ actions, setActions }: ActionFormProps) {
           ))}
         </div>
       )}
-
       <Tabs
         defaultValue="text"
         value={currentActionType}
@@ -57,11 +49,9 @@ export function ActionForm({ actions, setActions }: ActionFormProps) {
           <TabsTrigger value="text">Text</TabsTrigger>
           <TabsTrigger value="agent">Agent</TabsTrigger>
         </TabsList>
-
         <TabsContent value="text">
           <TextAction onAdd={addAction} />
         </TabsContent>
-
         <TabsContent value="agent">
           <AgentAction onAdd={addAction} />
         </TabsContent>

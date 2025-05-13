@@ -1,54 +1,47 @@
 import { Edge, MarkerType } from 'reactflow';
-import type { ParsedStep, Step } from '@growly/core';
-
-enum UIEventCondition {
-  Always = 'always',
-  OnPageLoad = 'onPageLoad',
-  OnVisited = 'onVisited',
-  OnClicked = 'onClicked',
-  OnHovered = 'onHovered',
-}
+import {
+  ConditionType,
+  ScalarCondition,
+  UIEventCondition,
+  type Condition,
+  type ParsedStep,
+} from '@growly/core';
 
 // Helper function to extract step IDs from conditions
-export function extractStepIdsFromConditions(conditions: any): string[] {
-  if (!conditions) return [];
+export function extractStepIdsFromConditions(condition: Condition): string[] {
+  if (!condition) return [];
 
   // If conditions is a boolean, there are no step dependencies
-  if (typeof conditions === 'boolean') return [];
+  if (condition.type === ConditionType.Always) return [];
 
   // If conditions is a string, it might be a step ID
-  if (typeof conditions === 'string') return [conditions];
+  if (condition.type === ConditionType.Step) return [condition.data];
 
   // If conditions is an object with type 'and' or 'or'
-  if (typeof conditions === 'object' && conditions.type) {
-    if (conditions.type === 'and' || conditions.type === 'or') {
-      return conditions.conditions.flatMap((condition: any) =>
-        extractStepIdsFromConditions(condition)
-      );
-    }
-    // If it's a judgedByAgent condition
-    if (conditions.type === 'judgedByAgent' && conditions.args && conditions.args.stepId) {
-      return [conditions.args.stepId];
-    }
+  if (condition.type === ConditionType.Or || condition.type === ConditionType.And) {
+    return condition.data.flatMap((condition: ScalarCondition) =>
+      extractStepIdsFromConditions(condition)
+    );
   }
 
-  // If conditions is an array
-  if (Array.isArray(conditions)) {
-    return conditions.flatMap(condition => extractStepIdsFromConditions(condition));
+  // If it's a judgedByAgent condition
+  if (condition.type === ConditionType.JudgedByAgent && condition.data && condition.data.stepId) {
+    return [condition.data.stepId];
   }
-
   return [];
 }
 
 // Get a human-readable description of the condition
-export function getConditionDescription(condition: any): string {
-  if (condition === true) return 'Always';
-  if (typeof condition === 'string') {
-    // Check if it's a UI event condition
-    if (Object.values(UIEventCondition).includes(condition as any)) {
-      switch (condition) {
-        case UIEventCondition.Always:
-          return 'Always';
+export function getConditionDescription(condition: Condition): React.ReactNode {
+  switch (condition.type) {
+    case ConditionType.Always:
+      return 'Always';
+    case ConditionType.Step:
+      return `After step: ${condition.data}`;
+    case ConditionType.Workflow:
+      return `After workflow: ${condition.data}`;
+    case ConditionType.UIEvent:
+      switch (condition.data) {
         case UIEventCondition.OnPageLoad:
           return 'On Page Load';
         case UIEventCondition.OnVisited:
@@ -60,18 +53,15 @@ export function getConditionDescription(condition: any): string {
         default:
           return 'UI Event';
       }
-    }
-    // Otherwise it's a step ID
-    return 'After Step';
+    case ConditionType.JudgedByAgent:
+      return 'Judged by Agent';
+    case ConditionType.Or:
+      return condition.data.map(getConditionDescription).join(' OR ');
+    case ConditionType.And:
+      return condition.data.map(getConditionDescription).join(' AND ');
+    default:
+      return 'Unknown';
   }
-
-  if (typeof condition === 'object') {
-    if (condition.type === 'and') return 'All Conditions';
-    if (condition.type === 'or') return 'Any Condition';
-    if (condition.type === 'judgedByAgent') return 'Judged by Agent';
-  }
-
-  return 'Custom Condition';
 }
 
 // Create edges based on step conditions
@@ -79,7 +69,7 @@ export function getStepConditionEdges(step: ParsedStep, allSteps: ParsedStep[]):
   const edges: Edge[] = [];
 
   // Extract step IDs from conditions
-  const dependencyIds = extractStepIdsFromConditions(step.conditions);
+  const dependencyIds = step.conditions.flatMap(extractStepIdsFromConditions);
 
   // Create an edge for each dependency
   dependencyIds.forEach(sourceId => {
@@ -94,7 +84,7 @@ export function getStepConditionEdges(step: ParsedStep, allSteps: ParsedStep[]):
           type: MarkerType.ArrowClosed,
         },
         style: { stroke: '#555' },
-        label: getConditionDescription(step.conditions),
+        label: step.conditions.map(getConditionDescription).join(', '),
       });
     }
   });

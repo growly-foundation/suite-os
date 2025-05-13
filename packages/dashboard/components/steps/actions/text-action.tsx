@@ -5,9 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus } from 'lucide-react';
+import { Action } from '@growly/core';
+import { generateId } from '@/lib/utils';
 
 interface TextActionProps {
-  onAdd: (data: any) => void;
+  onAdd: (data: Action) => void;
 }
 
 export function TextAction({ onAdd }: TextActionProps) {
@@ -25,7 +27,10 @@ export function TextAction({ onAdd }: TextActionProps) {
           rows={3}
         />
       </div>
-      <Button type="button" onClick={() => onAdd({ text: textAction })} disabled={!textAction}>
+      <Button
+        type="button"
+        onClick={() => onAdd({ id: generateId(), type: 'text', return: { text: textAction } })}
+        disabled={!textAction}>
         <Plus className="mr-2 h-4 w-4" />
         Add Text Action
       </Button>

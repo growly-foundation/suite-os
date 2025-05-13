@@ -103,30 +103,24 @@ export interface JudgedByAgentCondition {
 /**
  * An action to be performed when a step is triggered.
  */
-export type Action = TextAction | AgentAction;
+export type Action = WithId<TextAction | AgentAction>;
 
 /**
  * A text action is an action that returns a text.
  */
-export interface TextAction {
-  type: 'text';
-  return: {
-    text: string;
-  };
-}
+export type TextAction = WithId<{ type: 'text'; return: { text: string } }>;
 
 /**
  * An agent action is an action that is performed by an agent.
  *
  * Returns another action.
  */
-export interface AgentAction {
+export type AgentAction = WithId<{
   type: 'agent';
   args: {
-    agentId: AgentId;
-    organizationId: OrganizationId;
     /** Example: "Analyze the following portfolio?" */
     prompt: string;
+    isBeastMode?: boolean;
   };
   return: Action;
-}
+}>;

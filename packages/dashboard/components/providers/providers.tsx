@@ -7,6 +7,7 @@ import { PrivyProvider } from '@privy-io/react-auth';
 import { ToastContainer } from 'react-toastify';
 import '@growly/suite/styles.css';
 import dynamic from 'next/dynamic';
+import { ReactFlowProvider } from 'reactflow';
 
 const ChatWidget = dynamic(() => import('@growly/suite').then(suite => suite.DemoChatWidget), {
   ssr: false,
@@ -43,11 +44,13 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange>
-          <Suspense fallback={<AnimatedLoading />}>
-            {children}
-            <ChatWidget />
-            <ToastContainer />
-          </Suspense>
+          <ReactFlowProvider>
+            <Suspense fallback={<AnimatedLoading />}>
+              {children}
+              <ChatWidget />
+              <ToastContainer />
+            </Suspense>
+          </ReactFlowProvider>
         </ThemeProvider>
       </SuiteProvider>
     </PrivyProvider>

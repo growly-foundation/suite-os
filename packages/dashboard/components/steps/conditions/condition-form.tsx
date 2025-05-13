@@ -46,11 +46,11 @@ export function ConditionForm({ conditions, setConditions, existingSteps }: Cond
           {conditions.length} {conditions.length === 1 ? 'condition' : 'conditions'}
         </Badge>
       </div>
-
       {conditions.length > 0 && (
         <div className="space-y-2">
           {conditions.map(condition => (
             <ConditionItem
+              key={condition.id}
               condition={condition}
               onRemove={removeCondition}
               existingSteps={existingSteps}
@@ -58,7 +58,6 @@ export function ConditionForm({ conditions, setConditions, existingSteps }: Cond
           ))}
         </div>
       )}
-
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-medium">Add Condition</CardTitle>
@@ -81,24 +80,19 @@ export function ConditionForm({ conditions, setConditions, existingSteps }: Cond
               </SelectContent>
             </Select>
           </div>
-
           {/* Render the appropriate condition form based on the selected type */}
           {currentConditionType === ConditionType.Always && (
             <AlwaysCondition onAdd={addCondition} />
           )}
-
           {currentConditionType === ConditionType.Step && (
             <StepCondition onAdd={addCondition} existingSteps={existingSteps} />
           )}
-
           {currentConditionType === ConditionType.Workflow && (
             <WorkflowCondition onAdd={addCondition} />
           )}
-
           {currentConditionType === ConditionType.UIEvent && (
             <UIEventConditionForm onAdd={addCondition} />
           )}
-
           {currentConditionType === ConditionType.JudgedByAgent && (
             <JudgedByAgentConditionForm onAdd={addCondition} existingSteps={existingSteps} />
           )}

@@ -13,12 +13,16 @@ import ReactFlow, {
   type Edge,
   type Node,
   Position,
+  Panel,
   MarkerType,
+  useReactFlow,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { StepNode } from '@/components/steps/step-node';
 import type { AggregatedWorkflow } from '@growly/core';
 import { getStepConditionEdges } from '@/lib/workflow.utils';
+import Dagre from '@dagrejs/dagre';
+import { Button } from '../ui/button';
 
 const nodeTypes = {
   step: StepNode,
@@ -29,7 +33,44 @@ interface WorkflowCanvasProps {
   setWorkflow: (workflow: AggregatedWorkflow) => void;
 }
 
+const getLayoutedElements = (
+  nodes: Node[],
+  edges: Edge[],
+  options: { direction: 'TB' | 'BT' | 'LR' | 'RL' }
+) => {
+  const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
+  g.setGraph({ rankdir: options.direction });
+
+  const nodeWidth = 500;
+  const nodeHeight = 500;
+
+  edges.forEach(edge => g.setEdge(edge.source, edge.target));
+  nodes.forEach(node =>
+    g.setNode(node.id, {
+      ...node,
+      width: nodeWidth,
+      height: nodeHeight,
+    })
+  );
+
+  Dagre.layout(g);
+
+  return {
+    nodes: nodes.map(node => {
+      const position = g.node(node.id);
+      // We are shifting the dagre node position (anchor=center center) to the top left
+      // so it matches the React Flow node anchor point (top left).
+      const x = position.x - nodeWidth / 2;
+      const y = position.y - nodeHeight / 2;
+
+      return { ...node, position: { x, y } };
+    }),
+    edges,
+  };
+};
+
 export function WorkflowCanvas({ workflow, setWorkflow }: WorkflowCanvasProps) {
+  const { fitView } = useReactFlow();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -55,8 +96,9 @@ export function WorkflowCanvas({ workflow, setWorkflow }: WorkflowCanvasProps) {
       flowEdges = [...flowEdges, ...stepEdges];
     });
 
-    setNodes(flowNodes);
-    setEdges(flowEdges);
+    const layouted = getLayoutedElements(flowNodes, flowEdges, { direction: 'LR' });
+    setNodes(layouted.nodes);
+    setEdges(layouted.edges);
   }, [workflow, setNodes, setEdges]);
 
   // Update workflow when nodes change
@@ -129,9 +171,22 @@ export function WorkflowCanvas({ workflow, setWorkflow }: WorkflowCanvasProps) {
     [workflow, setWorkflow]
   );
 
+  const onLayout = useCallback(
+    (direction: 'TB' | 'BT' | 'LR' | 'RL') => {
+      console.log(nodes);
+      const layouted = getLayoutedElements(nodes, edges, { direction });
+
+      setNodes([...layouted.nodes]);
+      setEdges([...layouted.edges]);
+
+      fitView();
+    },
+    [nodes, edges]
+  );
+
   return (
     <div
-      className="h-[600px] w-full border rounded-md bg-gray-50 dark:bg-gray-900"
+      className="h-[calc(100vh-200px)] w-full border rounded-md bg-gray-50 dark:bg-gray-900"
       ref={reactFlowWrapper}>
       <ReactFlow
         nodes={nodes}
@@ -141,12 +196,20 @@ export function WorkflowCanvas({ workflow, setWorkflow }: WorkflowCanvasProps) {
         onConnect={onConnect}
         onNodeDragStop={onNodeDragStop}
         onNodesDelete={onNodesDelete}
-        nodeTypes={nodeTypes}
+        nodeTypes={nodeTypes as any}
         fitView
         deleteKeyCode="Delete">
         <Background />
         <Controls />
         {/* Removed MiniMap as requested */}
+        <Panel position="top-right" className="flex gap-2">
+          <Button onClick={() => onLayout('TB')} variant="outline">
+            Vertical Layout
+          </Button>
+          <Button onClick={() => onLayout('LR')} variant="outline">
+            Horizontal Layout
+          </Button>
+        </Panel>
       </ReactFlow>
     </div>
   );

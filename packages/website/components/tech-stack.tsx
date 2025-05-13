@@ -11,7 +11,7 @@ export default function TechStack() {
     {
       icon: <BotIcon />,
       type: 'single',
-      title: 'AgentKit',
+      title: 'AgentKit & OnchainKit',
       description:
         'Our AI infrastructure is built on top of the Coinbase AgentKit to provide functionalities for onchain actions on Base.',
       accentColor: 'rgba(59, 130, 246, 0.5)',

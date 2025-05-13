@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WorkflowCanvas } from '@/components/workflows/workflow-canvas';
 import { WorkflowSettings } from '@/components/workflows/workflow-settings';
-import { AggregatedWorkflow, Status } from '@growly/core';
+import { AggregatedWorkflow, ParsedStep, ParsedStepInsert, Status } from '@growly/core';
 import { AddStepDialog } from '@/components/steps/add-step-dialog';
 import { IntegrationGuideDialog } from '@/components/steps/integration-guide-dialog';
 import { useDashboardState } from '@/hooks/use-dashboard';
@@ -15,6 +15,7 @@ import { suiteCore } from '@/core/suite';
 import { toast } from 'react-toastify';
 import { generateId } from '@/lib/utils';
 import dynamic from 'next/dynamic';
+import { mockSteps } from '@/lib/data/mock';
 
 const AnimatedLoadingSmall = dynamic(
   () =>
@@ -127,11 +128,22 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
     }
   };
 
-  const handleAddStep = (step: any) => {
+  const handleAddStep = (step: ParsedStepInsert) => {
     if (!workflow) return;
     setWorkflow({
       ...workflow,
-      steps: [...(workflow.steps || []), step],
+      steps: [
+        ...(workflow.steps || []),
+        {
+          id: generateId(),
+          created_at: new Date().toISOString(),
+          description: step.description || null,
+          index: workflow.steps?.length || 0,
+          status: Status.Active,
+          workflow_id: workflow.id,
+          ...step,
+        },
+      ],
     });
     setIsAddStepOpen(false);
   };
@@ -176,13 +188,25 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
       </div>
 
       <Tabs defaultValue="canvas" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="canvas">Canvas</TabsTrigger>
-          <TabsTrigger value="settings">
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
-          </TabsTrigger>
-        </TabsList>
+        <div className="flex justify-between items-center">
+          <TabsList>
+            <TabsTrigger value="canvas">Canvas</TabsTrigger>
+            <TabsTrigger value="settings">
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
+            </TabsTrigger>
+          </TabsList>
+          <Button
+            variant="outline"
+            onClick={() =>
+              setWorkflow({
+                ...workflow,
+                steps: mockSteps,
+              })
+            }>
+            View Demo Steps
+          </Button>
+        </div>
         <TabsContent value="canvas" className="p-0">
           <WorkflowCanvas workflow={workflow} setWorkflow={setWorkflow} />
         </TabsContent>
