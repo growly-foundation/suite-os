@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { ArrowRight, Menu, Zap } from 'lucide-react';
+import { ArrowRight, Menu } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import Image from 'next/image';
 

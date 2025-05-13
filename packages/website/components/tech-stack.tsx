@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import FrostedGlassIcon from '@/components/frosted-glass-icon';
-import { HealthcareIcon } from '@/components/use-case-icons';
 import { BotIcon, ZapIcon } from './feature-icons';
 import React from 'react';
 

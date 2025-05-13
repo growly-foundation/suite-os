@@ -1,9 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Bot, Database, Shield, Users, Zap } from 'lucide-react';
-import ContactForm from '@/components/contact-form';
-import Testimonials from '@/components/testimonials';
+import { ArrowRight } from 'lucide-react';
 import UseCases from '@/components/use-cases';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
