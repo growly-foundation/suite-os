@@ -3,11 +3,11 @@ import { Controller, Post, Body } from '@nestjs/common';
 import { SuiteCoreService } from './suite-core.service';
 import { SuiteDatabaseCore } from '@growly/core';
 
-@Controller('chat')
+@Controller('core')
 export class SuiteCoreController {
   constructor(private readonly suiteCoreService: SuiteCoreService) {}
 
-  @Post()
+  @Post('call')
   async call<T extends keyof SuiteDatabaseCore>(
     @Body('service') service: T,
     @Body('method') method: keyof SuiteDatabaseCore[T],
@@ -16,7 +16,7 @@ export class SuiteCoreController {
     return this.suiteCoreService.call(service, method, args);
   }
 
-  @Post()
+  @Post('call-db')
   async callDatabaseService(
     @Body('method') method: keyof SuiteDatabaseCore['db'],
     @Body('args') args?: any[]

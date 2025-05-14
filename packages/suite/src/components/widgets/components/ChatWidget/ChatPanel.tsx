@@ -5,20 +5,27 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import React, { useLayoutEffect } from 'react';
-import { ConversationRole, ParsedMessage } from '@growly/core';
+import {
+  ConversationRole,
+  MessageContent,
+  ParsedMessage,
+  ParsedMessageInsert,
+  WithId,
+} from '@growly/core';
 import ChatResponse from './ChatResponse';
 import { useSuite } from '@/provider';
-import { BRAND_NAME_CAPITALIZED } from '@/constants';
 import { Avatar, Identity, Name, Badge, Address } from '@coinbase/onchainkit/identity';
 import { border, cn, pressable, text } from '@/styles/theme';
-import { AnimatedBuster, BusterState } from '@growly/ui';
+import { AnimatedBuster, BusterState, BRAND_NAME_CAPITALIZED } from '@growly/ui';
 import { Textarea } from '@/components/ui/textarea';
+import { chatService } from '@/services/chat.service';
+import { v4 as uuid } from 'uuid';
 
 interface PanelProps {
   open: boolean;
   onClose: () => void;
   messages: ParsedMessage[];
-  onSend: (message: ParsedMessage) => void;
+  onSend: (message: WithId<ParsedMessageInsert>) => void;
 }
 
 export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'>) {
@@ -28,27 +35,52 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
   const [inputValue, setInputValue] = React.useState('');
   const [isSending, setIsSending] = React.useState(false);
 
+  const sessionContext = {
+    agentId: '22520453-f7b3-4c94-9cd4-5946c90c3c92',
+    userId: 'd4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a',
+    stepId: '22520453-f7b3-4c94-9cd4-5946c90c3c92',
+  };
+
+  const sendMessage = (type: MessageContent['type'], message: string, sender: ConversationRole) => {
+    onSend({
+      id: uuid(),
+      type: type as any,
+      embedding: null,
+      content: message,
+      sender,
+      agent_id: sessionContext.agentId,
+      user_id: sessionContext.userId,
+    });
+    setRefreshing(+new Date());
+  };
+
+  const sendTextMessage = (message: string, sender: ConversationRole) => {
+    sendMessage('text', message, sender);
+  };
+
+  const sendErrorMessage = (message: string, sender: ConversationRole) => {
+    sendMessage('system:error', message, sender);
+  };
+
   const sendMessageHandler = async () => {
     if (inputValue.trim().length > 0) {
       setBusterState('writing');
       setIsSending(true);
       setInputValue('');
 
-      // Main logic to send message is here.
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      const newMessage: ParsedMessage = {
-        id: '123',
-        type: 'text',
-        agent_id: '1',
-        embedding: null,
-        user_id: '1',
-        content: inputValue,
-        sender: ConversationRole.User,
-        created_at: new Date().toISOString(),
-      };
-      onSend(newMessage);
+      sendTextMessage(inputValue, ConversationRole.User);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      try {
+        const newMessage = await chatService.chat({
+          message: inputValue,
+          ...sessionContext,
+        });
+        sendTextMessage(newMessage.reply, ConversationRole.Agent);
+      } catch (error: any) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        sendErrorMessage(error.toString(), ConversationRole.Agent);
+      }
 
-      setRefreshing(+new Date());
       setIsSending(false);
       setBusterState('idle');
     }
@@ -117,7 +149,7 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
                     </div>
                   </React.Fragment>
                 )}
-                <ChatResponse id={message.id} message={message} />
+                <ChatResponse message={message} />
               </div>
             ))}
           </React.Fragment>

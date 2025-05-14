@@ -3,11 +3,10 @@
 import { motion } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useSuite } from '@/provider';
-import { BRAND_NAME_CAPITALIZED } from '@/constants';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { background, pressable, text } from '@/styles/theme';
-import { AnimatedBuster } from '@growly/ui';
+import { AnimatedBuster, BRAND_NAME_CAPITALIZED } from '@growly/ui';
 
 export function FloatingButton(
   props: React.ButtonHTMLAttributes<HTMLButtonElement> & { iconLoading?: boolean }
