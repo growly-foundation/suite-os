@@ -120,6 +120,44 @@ $ mau deploy
 
 With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
+## Docker Build and Deployment
+
+### Building the Docker Image
+
+The server package includes a Docker setup for building and deploying the server with its dependencies, including the `@growly/core` package.
+
+To build the Docker image:
+
+```bash
+# From the server package directory
+./docker-build.sh
+```
+
+Before running the script, make sure to:
+
+1. Update the `REGISTRY` variable in `docker-build.sh` to point to your private Docker registry
+2. Ensure you're logged in to your Docker registry: `docker login your-private-registry.com`
+
+### Running with Docker Compose
+
+You can also run the server using the Docker Compose setup in the root of the monorepo:
+
+```bash
+# From the root directory
+docker-compose up server
+```
+
+### Customizing the Docker Build
+
+The Docker build process:
+
+1. Uses a multi-stage build to minimize image size
+2. Builds both the core and server packages
+3. Includes only production dependencies in the final image
+4. Sets up proper workspace dependencies between packages
+
+To customize the build, you can modify the `Dockerfile` and `.dockerignore` files in the server package.
+
 ## Resources
 
 Check out a few resources that may come in handy when working with NestJS:

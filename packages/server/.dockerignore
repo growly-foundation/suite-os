@@ -1,0 +1,26 @@
+# Node modules and dependencies
+node_modules
+dist
+.git
+.github
+
+# Environment variables
+.env
+.env.*
+
+# Local development files
+.vscode
+.idea
+*.log
+*.swp
+*.swo
+
+# Test files
+test
+**/*.spec.ts
+**/*.test.ts
+coverage
+
+# Temporary files
+.DS_Store
+Thumbs.db
