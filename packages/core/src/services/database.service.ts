@@ -1,14 +1,14 @@
-import { SupabaseClientService } from './supabase-client.service';
 import { Database } from '@/types/database.types';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export class PublicDatabaseService<T extends keyof Database['public']['Tables']> {
   constructor(
-    private supabase: SupabaseClientService,
+    private supabase: SupabaseClient,
     private table: T
   ) {}
 
   private getClient() {
-    return this.supabase.getClient().schema('public');
+    return this.supabase.schema('public');
   }
 
   async getAll(): Promise<Database['public']['Tables'][T]['Row'][]> {

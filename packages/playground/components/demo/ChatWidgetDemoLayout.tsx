@@ -4,11 +4,15 @@ import { AppContext } from '../AppProvider';
 import { Theme } from '@growly/suite';
 import { useSuite, SuiteProvider } from '@growly/suite';
 import { useAccount } from 'wagmi';
+import { DUMMY_AGENT_ID, DUMMY_ORGANIZATION_API_KEY } from '@/lib/constants';
 
 function ChatWidgetComponent({ children }: { children: React.ReactNode }) {
   const { config, setConfig } = useSuite();
   const { componentTheme, chainId, displayMode } = useContext(AppContext);
   useEffect(() => {
+    if (!setConfig) {
+      return;
+    }
     setConfig({
       ...config,
       theme: componentTheme ? Theme[componentTheme] : Theme.monoTheme,
@@ -24,9 +28,6 @@ function ChatWidgetComponent({ children }: { children: React.ReactNode }) {
             mode: 'light',
           },
         },
-      },
-      agent: {
-        name: 'Growly Agent',
       },
     });
   }, [componentTheme, setConfig, displayMode]);
@@ -50,25 +51,26 @@ export function ChatWidgetDemoLayout({ children }: { children: React.ReactNode }
   const { address } = useAccount();
   return (
     <SuiteProvider
-      config={{
-        onchainKit: {
-          chain: base,
-          projectId: process.env.NEXT_PUBLIC_SUITE_ONCHAINKIT_PROJECT_ID,
-          apiKey: process.env.NEXT_PUBLIC_SUITE_ONCHAINKIT_CLIENT_KEY,
-          enabled: true,
-          config: {
-            appearance: {
-              theme: 'base',
-              mode: 'light',
-            },
-          },
-        },
-        agent: {
-          name: 'Growly Agent Support',
-        },
-        theme: Theme.monoTheme,
+      context={{
+        agentId: DUMMY_AGENT_ID,
+        organizationApiKey: DUMMY_ORGANIZATION_API_KEY,
         session: {
           walletAddress: address,
+        },
+        config: {
+          onchainKit: {
+            chain: base,
+            projectId: process.env.NEXT_PUBLIC_SUITE_ONCHAINKIT_PROJECT_ID,
+            apiKey: process.env.NEXT_PUBLIC_SUITE_ONCHAINKIT_CLIENT_KEY,
+            enabled: true,
+            config: {
+              appearance: {
+                theme: 'base',
+                mode: 'light',
+              },
+            },
+          },
+          theme: Theme.monoTheme,
         },
       }}>
       <ChatWidgetComponent>{children}</ChatWidgetComponent>

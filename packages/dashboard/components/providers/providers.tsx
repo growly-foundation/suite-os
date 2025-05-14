@@ -3,7 +3,7 @@
 import { Suspense } from 'react';
 import { ThemeProvider } from '../theme-provider';
 import { SuiteProvider, Theme } from '@growly/suite';
-import { PrivyProvider } from '@privy-io/react-auth';
+import { PrivyProvider, usePrivy } from '@privy-io/react-auth';
 import { ToastContainer } from 'react-toastify';
 import '@growly/suite/styles.css';
 import dynamic from 'next/dynamic';
@@ -22,6 +22,7 @@ const AnimatedLoading = dynamic(
 );
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
+  const { user } = usePrivy();
   return (
     <PrivyProvider
       appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID!}
@@ -33,12 +34,16 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
         },
       }}>
       <SuiteProvider
-        config={{
-          agent: {
-            name: 'Growly Customer Support',
+        context={{
+          agentId: '',
+          organizationApiKey: '',
+          session: {
+            walletAddress: user?.wallet?.address as any,
           },
-          theme: Theme.monoTheme,
-          display: 'fullView',
+          config: {
+            theme: Theme.monoTheme,
+            display: 'fullView',
+          },
         }}>
         <ThemeProvider
           attribute="class"

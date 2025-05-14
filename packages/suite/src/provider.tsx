@@ -45,7 +45,7 @@ export interface SuiteGlobalContext {
     walletAddress: `0x${string}`;
   }>;
   config?: SuiteConfig;
-  setConfig: (config: SuiteConfig) => void;
+  setConfig?: (config: SuiteConfig) => void;
 }
 
 export const SuiteContext = React.createContext<SuiteGlobalContext>({
@@ -61,7 +61,7 @@ export const SuiteProvider: React.FC<{
   context: SuiteGlobalContext;
 }> = ({ children, context }) => {
   const [isInitialized, setIsInitialized] = useState(false);
-  const { fetchUserFromWalletAddress, fetchAgentById } = useWidgetSession();
+  const { fetchUserFromWalletAddress, fetchOrganizationAgentById } = useWidgetSession();
 
   useEffect(() => {
     const init = async () => {
@@ -73,7 +73,7 @@ export const SuiteProvider: React.FC<{
         if (!context.agentId || !context.organizationApiKey) {
           throw new Error('Agent ID and Organization API Key are required');
         }
-        await fetchAgentById(context.agentId);
+        await fetchOrganizationAgentById(context.agentId, context.organizationApiKey);
       } catch (error) {
         console.error(`Growly Suite Error: ${error}`);
       }

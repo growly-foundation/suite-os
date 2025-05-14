@@ -13,7 +13,7 @@ export class SuiteCoreService {
     args?: any[]
   ) {
     try {
-      const fn = this.suiteCore.call(service)[method];
+      const fn = this.suiteCore[service][method];
       if (!fn || typeof fn !== 'function') {
         throw new Error(`Method ${String(method)} not found on service ${String(service)}`);
       }
@@ -37,15 +37,21 @@ export class SuiteCoreService {
     args: Parameters<PublicDatabaseService<T>[M]>
   ): Promise<ReturnType<PublicDatabaseService<T>[M]>> {
     try {
-      const fn = this.suiteCore.callDatabaseService(service)[method] as (
+      const fn = this.suiteCore.db[service][method] as (
         ...args: Parameters<PublicDatabaseService<T>[M]>
       ) => ReturnType<PublicDatabaseService<T>[M]>;
       if (!fn || typeof fn !== 'function') {
         throw new Error(`Method ${String(method)} not found on service ${String(service)}`);
       }
-      return fn(...args);
+
+      const boundFn = fn.bind(this.suiteCore.db[service]); // Bind the context of the function
+      const data = await boundFn(...args);
+      return data;
     } catch (error) {
-      this.logger.error(`Error calling core service ${service}: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error calling core service [${service}][${method}][${args}]: ${error.message}`,
+        error.stack
+      );
       throw error;
     }
   }

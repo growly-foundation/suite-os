@@ -10,7 +10,7 @@ interface WidgetSession {
   setUser: (user: Optional<ParsedUser>) => void;
   setAgent: (agent: Optional<Agent>) => void;
   fetchUserFromWalletAddress: (walletAddress: `0x${string}`) => Promise<Optional<ParsedUser>>;
-  fetchAgentById: (agentId: AgentId) => Promise<Optional<Agent>>;
+  fetchOrganizationAgentById: (agentId: AgentId, apiKey: string) => Promise<Optional<Agent>>;
 }
 
 export const useWidgetSession = create<WidgetSession>(set => ({
@@ -35,8 +35,13 @@ export const useWidgetSession = create<WidgetSession>(set => ({
     set({ user: deserializedUser });
     return deserializedUser;
   },
-  fetchAgentById: async agentId => {
-    const agent = await suiteCoreService.callDatabaseService('agents', 'getById', [agentId]);
+  fetchOrganizationAgentById: async (agentId, apiKey) => {
+    const agent = await suiteCoreService.callDatabaseService('agents', 'getOneByFields', [
+      {
+        id: agentId,
+        organization_id: apiKey,
+      },
+    ]);
     set({ agent });
     return agent;
   },
