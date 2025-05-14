@@ -33,7 +33,7 @@ export class ProxyMiddleware implements NestMiddleware {
           }),
           account
         );
-        this.logger.log('Processing request to x402 /growly');
+        this.logger.log(`Processing request to x402 ${req.protocol}://${req.get('Host')}/growly`);
 
         // Make internal call to another controller endpoint
         const response = await axiosInstance.post('growly', req.body);
