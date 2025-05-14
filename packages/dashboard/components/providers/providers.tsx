@@ -2,14 +2,14 @@
 
 import { Suspense } from 'react';
 import { ThemeProvider } from '../theme-provider';
-import { SuiteProvider, Theme } from '@growly/suite';
-import { PrivyProvider, usePrivy } from '@privy-io/react-auth';
+import { PrivyProvider } from '@privy-io/react-auth';
 import { ToastContainer } from 'react-toastify';
 import '@growly/suite/styles.css';
 import dynamic from 'next/dynamic';
 import { ReactFlowProvider } from 'reactflow';
+import { SuiteProviderWrapper } from './suite-provider';
 
-const ChatWidget = dynamic(() => import('@growly/suite').then(suite => suite.DemoChatWidget), {
+const ChatWidget = dynamic(() => import('@growly/suite').then(suite => suite.ChatWidget), {
   ssr: false,
 });
 
@@ -22,7 +22,6 @@ const AnimatedLoading = dynamic(
 );
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
-  const { user } = usePrivy();
   return (
     <PrivyProvider
       appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID!}
@@ -33,18 +32,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           createOnLogin: 'users-without-wallets',
         },
       }}>
-      <SuiteProvider
-        context={{
-          agentId: '',
-          organizationApiKey: '',
-          session: {
-            walletAddress: user?.wallet?.address as any,
-          },
-          config: {
-            theme: Theme.monoTheme,
-            display: 'fullView',
-          },
-        }}>
+      <SuiteProviderWrapper>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -58,7 +46,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
             </Suspense>
           </ReactFlowProvider>
         </ThemeProvider>
-      </SuiteProvider>
+      </SuiteProviderWrapper>
     </PrivyProvider>
   );
 };

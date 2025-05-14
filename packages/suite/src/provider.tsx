@@ -84,13 +84,7 @@ export const SuiteProvider: React.FC<{
 
   const baseComponent = (
     <SuiteContext.Provider value={context}>
-      {isInitialized ? (
-        children
-      ) : (
-        <>
-          <Loader2 className="h-5 w-5 animate-spin" />
-        </>
-      )}
+      {isInitialized ? children : <Loader2 className="h-5 w-5 animate-spin" />}
     </SuiteContext.Provider>
   );
 

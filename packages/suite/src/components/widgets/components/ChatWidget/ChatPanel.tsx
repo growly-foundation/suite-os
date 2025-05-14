@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import React, { useLayoutEffect } from 'react';
-import { ConversationRole, MessageContent, ParsedMessage } from '@growly/core';
+import { ConversationRole, MessageContent } from '@growly/core';
 import ChatResponse from './ChatResponse';
 import { useSuite } from '@/provider';
 import { Avatar, Identity, Name, Badge, Address } from '@coinbase/onchainkit/identity';
@@ -16,15 +16,17 @@ import { chatService } from '@/services/chat.service';
 import { suiteCoreService } from '@/services/core.service';
 import { useWidgetSession } from '@/hooks/use-session';
 
-interface PanelProps {
-  open: boolean;
-  onClose: () => void;
-  messages: ParsedMessage[];
-  onSend: (message: ParsedMessage) => void;
-}
-
-export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'>) {
-  const { user, agent } = useWidgetSession();
+export function ChatPanel() {
+  const {
+    user,
+    agent,
+    isLoadingMessages,
+    isAgentThinking,
+    setIsAgentThinking,
+    togglePanel,
+    messages,
+    addMessage,
+  } = useWidgetSession();
   const { config, agentId, session } = useSuite();
   const [busterState, setBusterState] = React.useState<BusterState>('idle');
   const [refreshing, setRefreshing] = React.useState(+new Date());
@@ -53,7 +55,7 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
       ...newMessage,
       ...JSON.parse(newMessage.content),
     };
-    onSend(deserializedMessage);
+    addMessage(deserializedMessage);
     setRefreshing(+new Date());
   };
 
@@ -67,6 +69,7 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
 
   const sendMessageHandler = async () => {
     if (inputValue.trim().length > 0) {
+      setIsAgentThinking(true);
       setBusterState('writing');
       setIsSending(true);
       setInputValue('');
@@ -79,6 +82,7 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
           agentId,
           userId: user?.id ?? '',
           stepId: agentId,
+          isBeastMode: false,
         });
         sendTextMessage(newMessage.reply, ConversationRole.Agent);
       } catch (error: any) {
@@ -88,6 +92,7 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
 
       setIsSending(false);
       setBusterState('idle');
+      setIsAgentThinking(false);
     }
   };
 
@@ -122,7 +127,7 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
               </p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose} style={{ cursor: 'pointer' }}>
+          <Button variant="ghost" size="icon" onClick={togglePanel} style={{ cursor: 'pointer' }}>
             <X className="h-5 w-5" />
           </Button>
         </div>
@@ -140,31 +145,46 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
       <ScrollArea
         className={cn('flex-1', config?.display === 'fullView' ? 'max-h-[90vh]' : 'max-h-[500px]')}
         style={{ padding: '0px 20px' }}>
-        {messages.length > 0 ? (
+        {messages.length > 0 && (
           <React.Fragment>
-            {messages.map((message, index) => (
-              <div key={message.id}>
-                {index === 0 && (
-                  <React.Fragment>
-                    <div
-                      className={cn('text-gray-500 text-xs text-center', text.base)}
-                      style={{ padding: '20px 0px 30px 0px' }}>
-                      You are chatting with {agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
-                    </div>
-                  </React.Fragment>
-                )}
-                <ChatResponse message={message} />
+            <div
+              className={cn('text-gray-500 text-xs text-center', text.base)}
+              style={{ padding: '20px 0px 30px 0px' }}>
+              You are chatting with {agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
+            </div>
+          </React.Fragment>
+        )}
+        {!isLoadingMessages ? (
+          <React.Fragment>
+            {messages.length > 0 ? (
+              <React.Fragment>
+                {messages.map(message => (
+                  <ChatResponse key={message.id} message={message} />
+                ))}
+              </React.Fragment>
+            ) : (
+              <div className={cn('p-[50px] text-gray-500', text.body)}>
+                <div style={{ marginBottom: '10px' }}>
+                  <Pencil className="h-6 w-6 mr-2" />
+                </div>
+                <div className={cn('mt-2', text.body)}>
+                  This conversation just started. Send a message to get started.
+                </div>
               </div>
-            ))}
+            )}
           </React.Fragment>
         ) : (
-          <div className={cn('p-[50px] text-gray-500', text.body)}>
-            <div style={{ marginBottom: '10px' }}>
-              <Pencil className="h-6 w-6 mr-2" />
-            </div>
-            <div className={cn('mt-2', text.body)}>
-              This conversation just started. Send a message to get started.
-            </div>
+          <div
+            className={cn('flex justify-center items-center text-gray-500 gap-4', text.body)}
+            style={{ marginTop: 50 }}>
+            <Loader2 className="h-5 w-5 animate-spin" /> Loading conversation...
+          </div>
+        )}
+        {isAgentThinking && (
+          <div
+            className={cn('flex justify-center items-center text-gray-500 gap-4', text.body)}
+            style={{ marginTop: 50, marginBottom: 50 }}>
+            <Loader2 className="h-5 w-5 animate-spin" /> Thinking...
           </div>
         )}
       </ScrollArea>
@@ -211,12 +231,13 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
   );
 }
 
-export function ChatPanelContainer({ open, ...props }: PanelProps) {
+export function ChatPanelContainer() {
   const { config } = useSuite();
+  const { panelOpen } = useWidgetSession();
 
   return (
     <AnimatePresence>
-      {open && (
+      {panelOpen && (
         <motion.div
           initial={{ y: '100%', opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -230,7 +251,7 @@ export function ChatPanelContainer({ open, ...props }: PanelProps) {
           style={{
             backgroundColor: config?.theme?.background,
           }}>
-          <ChatPanel {...props} />
+          <ChatPanel />
         </motion.div>
       )}
     </AnimatePresence>

@@ -1,74 +1,32 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { FloatingButton } from './FloatingButton';
 import { ChatPanelContainer, ChatPanel } from './ChatPanel';
-import { MessageContent, ParsedMessage, ParsedMessageInsert, WithId } from '@growly/core';
-import { suiteCoreService } from '@/services/core.service';
 import { useWidgetSession } from '@/hooks/use-session';
 
 function ChatWidgetContainer({
-  messages,
-  onMessageSend,
-  open,
-  setOpen,
   buttonProps,
 }: {
-  messages: ParsedMessage[];
-  onMessageSend: (message: ParsedMessage) => void;
-  open: boolean;
-  setOpen: (open: boolean) => void;
   buttonProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
 }) {
+  const { togglePanel } = useWidgetSession();
   return (
     <div>
-      <FloatingButton onClick={() => setOpen(true)} {...buttonProps} />
-      <ChatPanelContainer
-        messages={messages}
-        onSend={onMessageSend}
-        open={open}
-        onClose={() => setOpen(false)}
-      />
+      <FloatingButton onClick={togglePanel} {...buttonProps} />
+      <ChatPanelContainer />
     </div>
   );
 }
 
-function ChatWidget(
-  props: { defaultOpen?: boolean } & React.ButtonHTMLAttributes<HTMLButtonElement>
-) {
-  const { defaultOpen = false } = props;
-  const { agent, user } = useWidgetSession();
-  const [messages, setMessages] = useState<ParsedMessage[]>([]);
-  const [open, setOpen] = useState(defaultOpen);
+function ChatWidget(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  const { agent, user, fetchMessages } = useWidgetSession();
 
   useEffect(() => {
-    async function fetchMessages() {
-      const messages = await suiteCoreService.callDatabaseService('messages', 'getAllByFields', [
-        {
-          agent_id: agent?.id,
-          user_id: user?.id,
-        },
-      ]);
-      const parsedMessage: ParsedMessage[] = messages.map(message => {
-        const messageContent = JSON.parse(message.content) as MessageContent;
-        return {
-          ...message,
-          ...messageContent,
-        };
-      });
-      setMessages(parsedMessage);
+    if (agent?.id && user?.id) {
+      fetchMessages();
     }
-    fetchMessages();
   }, [agent?.id, user?.id]);
 
-  return (
-    <ChatWidgetContainer
-      messages={messages}
-      onMessageSend={message => {
-        setMessages(prev => [...prev, message]);
-      }}
-      open={open}
-      setOpen={setOpen}
-    />
-  );
+  return <ChatWidgetContainer buttonProps={props} />;
 }
 
 export { ChatPanel, ChatWidgetContainer, ChatWidget };
