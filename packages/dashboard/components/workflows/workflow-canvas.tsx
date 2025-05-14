@@ -74,12 +74,17 @@ export function WorkflowCanvas() {
     [nodes, setNodes]
   );
 
-  const onLayout = useCallback((direction: LayoutDirection) => {
-    const layouted = getLayoutedElements(nodes, edges, { direction });
-    setNodes([...layouted.nodes]);
-    setEdges([...layouted.edges]);
-    fitView();
-  }, []);
+  const onLayout = useCallback(
+    (direction: LayoutDirection) => {
+      const layouted = getLayoutedElements(nodes, edges, {
+        direction,
+      });
+      setNodes([...layouted.nodes]);
+      setEdges([...layouted.edges]);
+      fitView();
+    },
+    [nodes, edges]
+  );
 
   const nodeTypes = useMemo(
     () => ({

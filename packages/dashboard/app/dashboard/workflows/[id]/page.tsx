@@ -15,9 +15,9 @@ import { suiteCore } from '@/core/suite';
 import { toast } from 'react-toastify';
 import { generateId } from '@/lib/utils';
 import dynamic from 'next/dynamic';
-import { mockSteps } from '@/lib/data/mock';
 import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
 import { StepListView } from '@/components/steps/step-list-view';
+import { generateBasicDeFiWorkflowSteps } from '@/lib/data/step-templates';
 
 const AnimatedLoadingSmall = dynamic(
   () =>
@@ -188,7 +188,7 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
               onClick={() =>
                 setWorkflow({
                   ...workflow,
-                  steps: mockSteps,
+                  steps: generateBasicDeFiWorkflowSteps(),
                 })
               }>
               View Demo Steps

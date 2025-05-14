@@ -202,7 +202,7 @@ export default function DashboardInner() {
                 <div className="space-y-4">
                   {recentActivity
                     .slice(0, showAllActivity ? recentActivity.length : MAX_RECENT_ACTIVITY)
-                    .map((activity, index) => (
+                    .map(activity => (
                       <div className="flex items-center gap-4">
                         <div
                           className={`h-8 w-8 rounded-full flex items-center justify-center ${
