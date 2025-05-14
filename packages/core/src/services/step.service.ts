@@ -1,6 +1,5 @@
-import { AggregatedWorkflow } from '@growly/core';
 import { PublicDatabaseService } from './database.service';
-import { WorkflowId } from '@/models';
+import { AggregatedWorkflow, WorkflowId } from '@/models';
 
 export class StepService {
   constructor(private stepDatabaseService: PublicDatabaseService<'steps'>) {}

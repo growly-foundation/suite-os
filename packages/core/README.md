@@ -21,15 +21,12 @@ And run `pnpm install` in the sibling packages.
 ### Interact with the services
 
 ```typescript
-import { createSuiteDatabaseCore } from '@growly/core';
+import { createSuiteCore } from '@growly/core';
 
 /**
  * SDK for interacting with the Growly Suite API.
  */
-export const suiteCore = createSuiteDatabaseCore(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
+export const suiteCore = createSuiteCore(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
 ```
 
 ### Reset the database

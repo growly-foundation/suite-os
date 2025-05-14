@@ -67,6 +67,12 @@ export interface SuiteDatabaseCore {
 
   /** Function services. */
   fn: FunctionService;
+
+  call: <T extends keyof SuiteDatabaseCore>(service: T) => SuiteDatabaseCore[T];
+
+  callDatabaseService: <T extends keyof SuiteDatabaseCore['db']>(
+    service: T
+  ) => SuiteDatabaseCore['db'][T];
 }
 
 /**
@@ -74,10 +80,7 @@ export interface SuiteDatabaseCore {
  * @param supabaseUrl The URL of your Supabase instance.
  * @param supabaseKey The public key of your Supabase instance.
  */
-export const createSuiteDatabaseCore = (
-  supabaseUrl: string,
-  supabaseKey: string
-): SuiteDatabaseCore => {
+export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): SuiteDatabaseCore => {
   const supabaseClientService = new SupabaseClientService(supabaseUrl, supabaseKey);
 
   // Database services.
@@ -143,5 +146,13 @@ export const createSuiteDatabaseCore = (
     workflows: workflowService,
     organizations: organizationService,
     steps: stepService,
+    // Call a service from the core.
+    call<T extends keyof SuiteDatabaseCore>(service: T) {
+      return this[service];
+    },
+    // Call a database service from the core.
+    callDatabaseService<T extends keyof SuiteDatabaseCore['db']>(service: T) {
+      return this.db[service];
+    },
   };
 };

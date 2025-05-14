@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui/card';
-import { ConversationRole, MessageId, ParsedMessage } from '@growly/core';
+import { ConversationRole, ParsedMessage } from '@growly/core';
 import { motion } from 'framer-motion';
 import { useSuite } from '@/provider';
 import { cn } from '@/lib/utils';
@@ -7,6 +7,7 @@ import {
   buildOnchainKitSwapMessage,
   buildOnchainKitTokenChipMessage,
 } from '@/components/messages/onchainkit';
+import { buildSystemErrorMessage } from '@/components/messages/system';
 import { border, text } from '@/styles/theme';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
@@ -37,19 +38,22 @@ const MessageContent = ({ message }: { message: ParsedMessage }) => {
     );
   }
   if (message.type === 'onchainkit:swap') {
-    return buildOnchainKitSwapMessage(message.content);
+    return buildOnchainKitSwapMessage(message.content, time);
   }
   if (message.type === 'onchainkit:token') {
-    return buildOnchainKitTokenChipMessage(message.content);
+    return buildOnchainKitTokenChipMessage(message.content, time);
+  }
+  if (message.type === 'system:error') {
+    return buildSystemErrorMessage(message.content, time);
   }
   return <></>;
 };
 
-const AgentResponse = ({ message, id }: { message: ParsedMessage; id: MessageId }) => {
+const AgentResponse = ({ message }: { message: ParsedMessage }) => {
   const { config } = useSuite();
   return (
     <motion.div
-      id={id}
+      id={message.id}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
@@ -73,11 +77,11 @@ const AgentResponse = ({ message, id }: { message: ParsedMessage; id: MessageId 
   );
 };
 
-const UserResponse = ({ message, id }: { message: ParsedMessage; id: MessageId }) => {
+const UserResponse = ({ message }: { message: ParsedMessage }) => {
   const { config } = useSuite();
   return (
     <motion.div
-      id={id}
+      id={message.id}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
@@ -97,18 +101,16 @@ const UserResponse = ({ message, id }: { message: ParsedMessage; id: MessageId }
 
 const ChatResponse = ({
   message,
-  id,
   ref,
 }: {
   message: ParsedMessage;
-  id: MessageId;
   ref?: React.RefObject<HTMLDivElement> | null;
 }) => {
   const innerResponse =
     message.sender === ConversationRole.User ? (
-      <UserResponse id={id} key={id} message={message} />
+      <UserResponse key={message.id} message={message} />
     ) : (
-      <AgentResponse id={id} key={id} message={message} />
+      <AgentResponse key={message.id} message={message} />
     );
   return <div ref={ref}>{innerResponse}</div>;
 };

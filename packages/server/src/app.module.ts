@@ -6,6 +6,7 @@ import { DatabaseModule } from './databases/database.module';
 import { MessageModule } from './message/message.module';
 import { GrowlyModule } from './growly/growly.module';
 import { ProxyMiddleware } from './middleware/x402-redirect.middleware';
+import { SuiteCoreModule } from './suite-core/suite-core.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ProxyMiddleware } from './middleware/x402-redirect.middleware';
     ChatModule,
     MessageModule,
     GrowlyModule,
+    SuiteCoreModule,
   ],
 })
 export class AppModule implements NestModule {

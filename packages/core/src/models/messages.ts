@@ -3,6 +3,7 @@ import { Tables } from '@/types/database.types';
 
 export type Message = Tables<'messages'>;
 export type ParsedMessage = Omit<Message, 'content'> & MessageContent;
+export type ParsedMessageInsert = Omit<Message, 'id' | 'created_at'> & MessageContent;
 
 /**
  * Role of the participant in the conversation.
@@ -18,6 +19,7 @@ export enum ConversationRole {
  */
 export type MessageContent =
   | TextMessageContent
+  | SystemErrorMessageContent
   | OnchainKitSwapMessageContent
   | OnchainKitTokenMessageContent;
 
@@ -26,6 +28,14 @@ export type MessageContent =
  */
 export interface TextMessageContent {
   type: 'text';
+  content: string;
+}
+
+/**
+ * System error message content.
+ */
+export interface SystemErrorMessageContent {
+  type: 'system:error';
   content: string;
 }
 

@@ -1,6 +1,6 @@
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createSuiteDatabaseCore, SuiteDatabaseCore } from '@growly/core';
+import { createSuiteCore, SuiteDatabaseCore } from '@growly/core';
 
 export const SuiteCoreProvider: Provider = {
   provide: 'GROWLY_SUITE_CORE',
@@ -13,6 +13,6 @@ export const SuiteCoreProvider: Provider = {
       throw new Error('Supabase URL and key must be provided');
     }
 
-    return createSuiteDatabaseCore(supabaseUrl, supabaseKey);
+    return createSuiteCore(supabaseUrl, supabaseKey);
   },
 };
