@@ -1,5 +1,5 @@
 import { API_URL } from '@/constants';
-import { SuiteDatabaseCore } from '@growly/core';
+import { PublicDatabaseService, SuiteDatabaseCore } from '@growly/core';
 import axios from 'axios';
 
 export class CoreService {
@@ -12,11 +12,11 @@ export class CoreService {
    * @param args Method arguments
    * @returns
    */
-  async call<T extends keyof SuiteDatabaseCore, R>(
+  async call<T extends keyof Omit<SuiteDatabaseCore, 'db'>>(
     service: T,
-    method: keyof SuiteDatabaseCore[T],
+    method: keyof Omit<SuiteDatabaseCore, 'db'>[T],
     args?: any[]
-  ): Promise<R> {
+  ): Promise<any> {
     try {
       const response = await axios.post(
         `${API_URL}/core/call`,
@@ -38,14 +38,16 @@ export class CoreService {
     }
   }
 
-  async callDatabaseService<T extends keyof SuiteDatabaseCore['db'], R>(
-    method: T,
-    args?: any[]
-  ): Promise<R> {
+  async callDatabaseService<
+    T extends keyof Omit<SuiteDatabaseCore['db'], 'client'>,
+    M extends keyof PublicDatabaseService<T>,
+    R extends ReturnType<PublicDatabaseService<T>[M]>,
+  >(service: T, method: M, args?: Parameters<PublicDatabaseService<T>[M]>): Promise<R> {
     try {
       const response = await axios.post(
         `${API_URL}/core/call-db`,
         {
+          service,
           method,
           args,
         },

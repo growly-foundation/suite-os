@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { SuiteDatabaseCore } from '@growly/core';
+import { PublicDatabaseService, SuiteDatabaseCore } from '@growly/core';
 
 @Injectable()
 export class SuiteCoreService {
@@ -7,9 +7,9 @@ export class SuiteCoreService {
 
   constructor(@Inject('GROWLY_SUITE_CORE') private readonly suiteCore: SuiteDatabaseCore) {}
 
-  async call<T extends keyof SuiteDatabaseCore>(
+  async call<T extends keyof Omit<SuiteDatabaseCore, 'db'>>(
     service: T,
-    method: keyof SuiteDatabaseCore[T],
+    method: keyof Omit<SuiteDatabaseCore, 'db'>[T],
     args?: any[]
   ) {
     try {
@@ -28,7 +28,25 @@ export class SuiteCoreService {
     }
   }
 
-  async callDatabaseService(method: keyof SuiteDatabaseCore['db'], args?: any[]) {
-    return this.call('db', method, args);
+  async callDatabaseService<
+    T extends keyof Omit<SuiteDatabaseCore['db'], 'client'>,
+    M extends keyof PublicDatabaseService<T>,
+  >(
+    service: T,
+    method: M,
+    args: Parameters<PublicDatabaseService<T>[M]>
+  ): Promise<ReturnType<PublicDatabaseService<T>[M]>> {
+    try {
+      const fn = this.suiteCore.callDatabaseService(service)[method] as (
+        ...args: Parameters<PublicDatabaseService<T>[M]>
+      ) => ReturnType<PublicDatabaseService<T>[M]>;
+      if (!fn || typeof fn !== 'function') {
+        throw new Error(`Method ${String(method)} not found on service ${String(service)}`);
+      }
+      return fn(...args);
+    } catch (error) {
+      this.logger.error(`Error calling core service ${service}: ${error.message}`, error.stack);
+      throw error;
+    }
   }
 }

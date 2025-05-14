@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FloatingButton } from './FloatingButton';
 import { ChatPanelContainer, ChatPanel } from './ChatPanel';
-import { ParsedMessage } from '@growly/core';
+import { MessageContent, ParsedMessage, ParsedMessageInsert, WithId } from '@growly/core';
+import { suiteCoreService } from '@/services/core.service';
 
 function ChatWidgetContainer({
   messages,
@@ -35,6 +36,26 @@ function ChatWidget(
   const { defaultOpen = false } = props;
   const [messages, setMessages] = useState<ParsedMessage[]>([]);
   const [open, setOpen] = useState(defaultOpen);
+
+  useEffect(() => {
+    async function fetchMessages() {
+      const messages = await suiteCoreService.callDatabaseService('messages', 'getAllByFields', [
+        {
+          agent_id: '',
+          user_id: '',
+        },
+      ]);
+      const parsedMessage: ParsedMessage[] = messages.map(message => {
+        const messageContent = JSON.parse(message.content) as MessageContent;
+        return {
+          ...message,
+          ...messageContent,
+        };
+      });
+      setMessages(parsedMessage);
+    }
+    fetchMessages();
+  }, []);
 
   return (
     <ChatWidgetContainer

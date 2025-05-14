@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { OnchainKitProvider, OnchainKitProviderReact } from '@coinbase/onchainkit';
+import { useWidgetSession } from './hooks/use-session';
+import { AgentId } from '@growly/core';
+import { Loader2 } from 'lucide-react';
 
 /**
  * Configuration for the Growly Suite.
@@ -26,40 +29,76 @@ export interface SuiteConfig {
    * Display mode for the widget.
    */
   display?: 'fullView' | 'panel';
+}
+
+export interface SuiteGlobalContext {
   /**
-   * Agent configuration.
+   * Agent ID which the widget will be associated with.
    */
-  agent?: Partial<{
-    avatar?: string;
-    name?: string;
-  }>;
+  agentId: AgentId;
+  // TODO: Right now, use the organization ID as the API Key.
+  organizationApiKey: string;
+  /**
+   * Session configuration.
+   */
   session?: Partial<{
     walletAddress: `0x${string}`;
   }>;
-}
-
-export const SuiteContext = React.createContext<{
   config?: SuiteConfig;
   setConfig: (config: SuiteConfig) => void;
-} | null>(null);
+}
+
+export const SuiteContext = React.createContext<SuiteGlobalContext>({
+  agentId: '',
+  organizationApiKey: '',
+  session: undefined,
+  config: undefined,
+  setConfig: () => {},
+});
 
 export const SuiteProvider: React.FC<{
   children: React.ReactNode;
-  config?: SuiteConfig;
-}> = ({ children, config }) => {
-  const [configState, setConfigState] = useState(config);
+  context: SuiteGlobalContext;
+}> = ({ children, context }) => {
+  const [isInitialized, setIsInitialized] = useState(false);
+  const { fetchUserFromWalletAddress, fetchAgentById } = useWidgetSession();
+
+  useEffect(() => {
+    const init = async () => {
+      setIsInitialized(false);
+      try {
+        if (context.session?.walletAddress) {
+          await fetchUserFromWalletAddress(context.session.walletAddress);
+        }
+        if (!context.agentId || !context.organizationApiKey) {
+          throw new Error('Agent ID and Organization API Key are required');
+        }
+        await fetchAgentById(context.agentId);
+      } catch (error) {
+        console.error(`Growly Suite Error: ${error}`);
+      }
+      setIsInitialized(true);
+    };
+    init();
+  }, [context]);
 
   const baseComponent = (
-    <SuiteContext.Provider value={{ config: configState, setConfig: setConfigState }}>
-      {children}
+    <SuiteContext.Provider value={context}>
+      {isInitialized ? (
+        children
+      ) : (
+        <>
+          <Loader2 className="h-5 w-5 animate-spin" />
+        </>
+      )}
     </SuiteContext.Provider>
   );
 
-  if (config?.onchainKit?.enabled) {
+  if (context.config?.onchainKit?.enabled) {
     /// No need to enable the onchainKit feature if application already uses onchainKit.
     /// Requires `import '@coinbase/onchainkit/styles.css';`.
     return (
-      <OnchainKitProvider {...config.onchainKit} address={config.session?.walletAddress}>
+      <OnchainKitProvider {...context.config.onchainKit} address={context.session?.walletAddress}>
         {baseComponent}
       </OnchainKitProvider>
     );
