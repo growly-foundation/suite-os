@@ -15,17 +15,26 @@ import { Label } from '@/components/ui/label';
 import { ConditionForm } from '@/components/steps/conditions/condition-form';
 import { ActionForm } from '@/components/steps/actions/action-form';
 import { Separator } from '@/components/ui/separator';
-import { Action, Condition, ParsedStep, ParsedStepInsert, Status, WorkflowId } from '@growly/core';
+import {
+  Action,
+  Condition,
+  ParsedStep,
+  ParsedStepInsert,
+  Status,
+  WithId,
+  WorkflowId,
+} from '@growly/core';
 import { Switch } from '../ui/switch';
 import { ZapIcon } from 'lucide-react';
+import { v4 as uuid } from 'uuid';
+import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
 
 interface AddStepDialogProps {
   defaultStep?: ParsedStep;
   workflowId: WorkflowId;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAdd: (step: ParsedStepInsert) => void;
-  existingSteps?: ParsedStep[];
+  onAdd: (step: WithId<ParsedStepInsert>) => void;
 }
 
 export function AddStepDialog({
@@ -34,8 +43,10 @@ export function AddStepDialog({
   open,
   onOpenChange,
   onAdd,
-  existingSteps = [],
 }: AddStepDialogProps) {
+  const { getSteps } = useWorkflowDetailStore();
+  const existingSteps = getSteps();
+
   const [name, setName] = useState(defaultStep?.name || '');
   const [description, setDescription] = useState(defaultStep?.description || '');
   const [conditions, setConditions] = useState<Condition[]>(defaultStep?.conditions || []);
@@ -45,6 +56,7 @@ export function AddStepDialog({
 
   const handleAdd = () => {
     onAdd({
+      id: defaultStep?.id || uuid(),
       name,
       description,
       index: defaultStep ? defaultStep.index : existingSteps.length,
@@ -101,11 +113,7 @@ export function AddStepDialog({
             </div>
           </div>
           {/* Conditions Section */}
-          <ConditionForm
-            conditions={conditions}
-            setConditions={setConditions}
-            existingSteps={existingSteps}
-          />
+          <ConditionForm conditions={conditions} setConditions={setConditions} />
           <Separator />
           {/* Actions Section */}
           <ActionForm actions={actions} setActions={setActions} />

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WorkflowCanvas } from '@/components/workflows/workflow-canvas';
 import { WorkflowSettings } from '@/components/workflows/workflow-settings';
-import { AggregatedWorkflow, ParsedStep, ParsedStepInsert, Status } from '@growly/core';
+import { ParsedStepInsert, Status, WithId } from '@growly/core';
 import { AddStepDialog } from '@/components/steps/add-step-dialog';
 import { IntegrationGuideDialog } from '@/components/steps/integration-guide-dialog';
 import { useDashboardState } from '@/hooks/use-dashboard';
@@ -16,6 +16,8 @@ import { toast } from 'react-toastify';
 import { generateId } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import { mockSteps } from '@/lib/data/mock';
+import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
+import { StepListView } from '@/components/steps/step-list-view';
 
 const AnimatedLoadingSmall = dynamic(
   () =>
@@ -28,7 +30,7 @@ const AnimatedLoadingSmall = dynamic(
 export default function WorkflowDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { fetchOrganizationWorkflowById, selectedOrganization } = useDashboardState();
-  const [workflow, setWorkflow] = useState<AggregatedWorkflow | null>(null);
+  const { workflow, setWorkflow, addStep } = useWorkflowDetailStore();
   const [isAddStepOpen, setIsAddStepOpen] = useState(false);
   const [isIntegrationGuideOpen, setIsIntegrationGuideOpen] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
@@ -42,7 +44,7 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
     if (!selectedOrganization) return;
     if (isNewWorkflow) {
       // Create a new workflow template
-      return {
+      setWorkflow({
         id: '',
         name: `Workflow ${generateId().toUpperCase()}`,
         description: '',
@@ -50,11 +52,11 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
         status: Status.Active,
         created_at: new Date().toISOString(),
         steps: [],
-      };
+      });
     } else {
       const fetchedWorkflow = await fetchOrganizationWorkflowById(paramsValue.id);
       if (fetchedWorkflow) {
-        return fetchedWorkflow;
+        setWorkflow(fetchedWorkflow);
       } else {
         // Handle workflow not found
         router.push('/dashboard/workflows');
@@ -78,38 +80,13 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
       };
       if (isNewWorkflow) {
         await suiteCore.db.workflows.create(workflowPayload);
-        toast.success('Workflow created successfully');
       } else {
         await suiteCore.db.workflows.update(workflow.id, workflowPayload);
-        toast.success('Workflow updated successfully');
       }
-      let index = 0;
-      for (const step of workflow.steps) {
-        const stepExists = await suiteCore.db.steps.getOneByFields({
-          workflow_id: workflow.id,
-          id: step.id,
-        });
-        if (stepExists) {
-          await suiteCore.db.steps.update(stepExists.id, {
-            action: JSON.stringify(step.action),
-            conditions: JSON.stringify(step.conditions),
-            description: step.description,
-            name: step.name,
-            status: step.status,
-          });
-        } else {
-          await suiteCore.db.steps.create({
-            workflow_id: workflow.id,
-            action: JSON.stringify(step.action),
-            conditions: JSON.stringify(step.conditions),
-            description: step.description,
-            index,
-            name: step.name,
-            status: step.status,
-          });
-        }
-        index++;
-      }
+      await suiteCore.steps.createStep(workflow.steps, workflow.id);
+      toast.success(
+        isNewWorkflow ? 'Workflow created successfully' : 'Workflow updated successfully'
+      );
       // Redirect to the workflows page after saving
       if (isNewWorkflow) {
         router.push('/dashboard/workflows');
@@ -121,32 +98,16 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
     }
   };
 
-  const handleAddStep = (step: ParsedStepInsert) => {
+  const handleAddStep = (step: WithId<ParsedStepInsert>) => {
     if (!workflow) return;
-    setWorkflow({
-      ...workflow,
-      steps: [
-        ...(workflow.steps || []),
-        {
-          id: generateId(),
-          created_at: new Date().toISOString(),
-          description: step.description || null,
-          index: workflow.steps?.length || 0,
-          status: Status.Active,
-          workflow_id: workflow.id,
-          ...step,
-        },
-      ],
-    });
+    addStep(step);
     setIsAddStepOpen(false);
   };
 
   const handleReset = async () => {
     try {
       setIsResetting(true);
-      const workflow = await fetchWorkflow();
-      if (!workflow) return;
-      setWorkflow(workflow);
+      await fetchWorkflow();
     } catch (error) {
       toast.error('Failed to reset workflow');
     } finally {
@@ -162,14 +123,11 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
         return;
       }
 
-      const fetchedWorkflow = await fetchWorkflow();
-      if (fetchedWorkflow) {
-        setWorkflow(fetchedWorkflow);
-      }
+      await fetchWorkflow();
       setLoading(false);
     }
     init();
-  }, [paramsValue.id, router, selectedOrganization]);
+  }, [paramsValue.id, selectedOrganization]);
 
   if (loading) {
     return <AnimatedLoadingSmall />;
@@ -214,6 +172,7 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
         <div className="flex justify-between items-center">
           <TabsList>
             <TabsTrigger value="canvas">Canvas</TabsTrigger>
+            <TabsTrigger value="list">Step List</TabsTrigger>
             <TabsTrigger value="settings">
               <Settings className="mr-2 h-4 w-4" />
               Settings
@@ -237,10 +196,13 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
           </div>
         </div>
         <TabsContent value="canvas" className="p-0">
-          <WorkflowCanvas workflow={workflow} setWorkflow={setWorkflow} />
+          <WorkflowCanvas />
+        </TabsContent>
+        <TabsContent value="list">
+          <StepListView steps={workflow.steps} />
         </TabsContent>
         <TabsContent value="settings">
-          <WorkflowSettings workflow={workflow} setWorkflow={setWorkflow} />
+          <WorkflowSettings />
         </TabsContent>
       </Tabs>
       <AddStepDialog
@@ -248,7 +210,6 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
         open={isAddStepOpen}
         onOpenChange={setIsAddStepOpen}
         onAdd={handleAddStep}
-        existingSteps={workflow.steps || []}
       />
       <IntegrationGuideDialog
         open={isIntegrationGuideOpen}

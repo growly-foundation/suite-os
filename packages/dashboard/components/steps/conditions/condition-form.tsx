@@ -22,10 +22,9 @@ import { JudgedByAgentConditionForm } from './judged-by-agent-condition-form';
 interface ConditionFormProps {
   conditions: Condition[];
   setConditions: (conditions: Condition[]) => void;
-  existingSteps: ParsedStep[];
 }
 
-export function ConditionForm({ conditions, setConditions, existingSteps }: ConditionFormProps) {
+export function ConditionForm({ conditions, setConditions }: ConditionFormProps) {
   const [currentConditionType, setCurrentConditionType] = useState<ConditionType>(
     ConditionType.Always
   );
@@ -49,12 +48,7 @@ export function ConditionForm({ conditions, setConditions, existingSteps }: Cond
       {conditions.length > 0 && (
         <div className="space-y-2">
           {conditions.map(condition => (
-            <ConditionItem
-              key={condition.id}
-              condition={condition}
-              onRemove={removeCondition}
-              existingSteps={existingSteps}
-            />
+            <ConditionItem key={condition.id} condition={condition} onRemove={removeCondition} />
           ))}
         </div>
       )}
@@ -84,9 +78,7 @@ export function ConditionForm({ conditions, setConditions, existingSteps }: Cond
           {currentConditionType === ConditionType.Always && (
             <AlwaysCondition onAdd={addCondition} />
           )}
-          {currentConditionType === ConditionType.Step && (
-            <StepCondition onAdd={addCondition} existingSteps={existingSteps} />
-          )}
+          {currentConditionType === ConditionType.Step && <StepCondition onAdd={addCondition} />}
           {currentConditionType === ConditionType.Workflow && (
             <WorkflowCondition onAdd={addCondition} />
           )}
@@ -94,7 +86,7 @@ export function ConditionForm({ conditions, setConditions, existingSteps }: Cond
             <UIEventConditionForm onAdd={addCondition} />
           )}
           {currentConditionType === ConditionType.JudgedByAgent && (
-            <JudgedByAgentConditionForm onAdd={addCondition} existingSteps={existingSteps} />
+            <JudgedByAgentConditionForm onAdd={addCondition} />
           )}
         </CardContent>
       </Card>

@@ -2,37 +2,31 @@
 
 import type React from 'react';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import ReactFlow, {
   Background,
   Controls,
-  addEdge,
   useEdgesState,
   useNodesState,
-  type Connection,
   type Edge,
   type Node,
   Position,
   Panel,
-  MarkerType,
   useReactFlow,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { StepNode } from '@/components/steps/step-node';
-import type { AggregatedWorkflow } from '@growly/core';
 import { getLayoutedElements, getStepConditionEdges } from '@/lib/workflow.utils';
 import { Button } from '../ui/button';
+import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
 
-const nodeTypes = {
-  step: StepNode,
-};
-
-interface WorkflowCanvasProps {
-  workflow: AggregatedWorkflow;
-  setWorkflow: (workflow: AggregatedWorkflow) => void;
+enum LayoutDirection {
+  Vertical = 'TB',
+  Horizontal = 'LR',
 }
 
-export function WorkflowCanvas({ workflow, setWorkflow }: WorkflowCanvasProps) {
+export function WorkflowCanvas() {
+  const { workflow, deleteStep, updateStep } = useWorkflowDetailStore();
   const { fitView } = useReactFlow();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -41,8 +35,6 @@ export function WorkflowCanvas({ workflow, setWorkflow }: WorkflowCanvasProps) {
   // Convert workflow steps to ReactFlow nodes and edges
   useEffect(() => {
     if (!workflow || !workflow.steps) return;
-    console.log(workflow.steps);
-
     // Create nodes from steps
     const flowNodes: Node[] = workflow.steps.map((step, index) => ({
       id: step.id,
@@ -60,7 +52,9 @@ export function WorkflowCanvas({ workflow, setWorkflow }: WorkflowCanvasProps) {
       flowEdges = [...flowEdges, ...stepEdges];
     });
 
-    const layouted = getLayoutedElements(flowNodes, flowEdges, { direction: 'LR' });
+    const layouted = getLayoutedElements(flowNodes, flowEdges, {
+      direction: LayoutDirection.Horizontal,
+    });
     setNodes(layouted.nodes);
     setEdges(layouted.edges);
   }, [workflow, setNodes, setEdges]);
@@ -80,96 +74,40 @@ export function WorkflowCanvas({ workflow, setWorkflow }: WorkflowCanvasProps) {
     [nodes, setNodes]
   );
 
-  const onConnect = useCallback(
-    (params: Connection) => {
-      // Create a new edge
-      const newEdge = {
-        ...params,
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-        },
-        style: { stroke: '#555' },
-      };
+  const onLayout = useCallback((direction: LayoutDirection) => {
+    const layouted = getLayoutedElements(nodes, edges, { direction });
+    setNodes([...layouted.nodes]);
+    setEdges([...layouted.edges]);
+    fitView();
+  }, []);
 
-      // Add the edge to the graph
-      setEdges(eds => addEdge(newEdge, eds));
-
-      // Update the workflow step conditions
-      if (params.source && params.target) {
-        const updatedSteps = workflow.steps?.map(step => {
-          if (step.id === params.target) {
-            // TODO: Add a condition that depends on the source step
-            const updatedConditions: any = {
-              type: 'and',
-              conditions: [params.source],
-            };
-
-            return {
-              ...step,
-              conditions: updatedConditions,
-            };
-          }
-          return step;
-        });
-
-        setWorkflow({
-          ...workflow,
-          steps: updatedSteps || [],
-        });
-      }
-    },
-    [setEdges, workflow, setWorkflow]
-  );
-
-  const onNodesDelete = useCallback(
-    (deleted: Node[]) => {
-      // Remove deleted steps from the workflow
-      const deletedIds = deleted.map(node => node.id);
-      const updatedSteps = workflow.steps?.filter(step => !deletedIds.includes(step.id)) || [];
-
-      setWorkflow({
-        ...workflow,
-        steps: updatedSteps,
-      });
-    },
-    [workflow, setWorkflow]
-  );
-
-  const onLayout = useCallback(
-    (direction: 'TB' | 'BT' | 'LR' | 'RL') => {
-      const layouted = getLayoutedElements(nodes, edges, { direction });
-
-      setNodes([...layouted.nodes]);
-      setEdges([...layouted.edges]);
-
-      fitView();
-    },
-    [nodes, edges]
+  const nodeTypes = useMemo(
+    () => ({
+      step: StepNode(workflow?.id || ''),
+    }),
+    [workflow]
   );
 
   return (
     <div
-      className="h-[calc(100vh-200px)] w-full border rounded-md bg-gray-50 dark:bg-gray-900"
+      className="h-[calc(100vh-300px)] w-full border rounded-md bg-gray-50 dark:bg-gray-900"
       ref={reactFlowWrapper}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
         onNodeDragStop={onNodeDragStop}
-        onNodesDelete={onNodesDelete}
-        nodeTypes={nodeTypes as any}
-        fitView
-        deleteKeyCode="Delete">
+        nodeTypes={nodeTypes}
+        fitView>
         <Background />
         <Controls />
         {/* Removed MiniMap as requested */}
         <Panel position="top-right" className="flex gap-2">
-          <Button onClick={() => onLayout('TB')} variant="outline">
+          <Button onClick={() => onLayout(LayoutDirection.Vertical)} variant="outline">
             Vertical Layout
           </Button>
-          <Button onClick={() => onLayout('LR')} variant="outline">
+          <Button onClick={() => onLayout(LayoutDirection.Horizontal)} variant="outline">
             Horizontal Layout
           </Button>
         </Panel>

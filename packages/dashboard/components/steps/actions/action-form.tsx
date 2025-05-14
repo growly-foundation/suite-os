@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { generateId } from '@/lib/utils';
 import { ActionItem } from './action-item';
 import { TextAction } from './text-action';
 import { AgentAction } from './agent-action';

@@ -90,7 +90,7 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
   }
 
   async create(
-    payload: Omit<Database['public']['Tables'][T]['Row'], 'id' | 'created_at'>
+    payload: Omit<Database['public']['Tables'][T]['Insert'], 'created_at'>
   ): Promise<Database['public']['Tables'][T]['Row']> {
     const { data, error } = await this.getClient()
       .from(this.table as string)
@@ -104,7 +104,7 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
 
   async update(
     id: string,
-    updates: Partial<Database['public']['Tables'][T]['Row']>
+    updates: Partial<Database['public']['Tables'][T]['Update']>
   ): Promise<Database['public']['Tables'][T]['Row']> {
     const { data, error } = await this.getClient()
       .from(this.table as string)

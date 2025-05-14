@@ -14,13 +14,15 @@ import {
 import { Plus } from 'lucide-react';
 import { ConditionType, ScalarJudgedByAgentCondition, ParsedStep } from '@growly/core';
 import { generateId } from '@/lib/utils';
+import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
 
 interface JudgedByAgentConditionProps {
   onAdd: (data: ScalarJudgedByAgentCondition) => void;
-  existingSteps: ParsedStep[];
 }
 
-export function JudgedByAgentConditionForm({ onAdd, existingSteps }: JudgedByAgentConditionProps) {
+export function JudgedByAgentConditionForm({ onAdd }: JudgedByAgentConditionProps) {
+  const { getSteps } = useWorkflowDetailStore();
+
   const [judgeStepId, setJudgeStepId] = useState('');
   const [judgePrompt, setJudgePrompt] = useState('');
 
@@ -54,7 +56,7 @@ export function JudgedByAgentConditionForm({ onAdd, existingSteps }: JudgedByAge
             <SelectValue placeholder="Select a step" />
           </SelectTrigger>
           <SelectContent>
-            {existingSteps.map(step => (
+            {getSteps().map(step => (
               <SelectItem key={step.id} value={step.id}>
                 {step.name}
               </SelectItem>

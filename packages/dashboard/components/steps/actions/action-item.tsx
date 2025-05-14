@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { getActionLabel } from '@/lib/workflow.utils';
 import { Action } from '@growly/core';
 import { Trash } from 'lucide-react';
 
@@ -11,17 +12,14 @@ interface ActionItemProps {
 }
 
 export function ActionItem({ action, onRemove, disableRemove = false }: ActionItemProps) {
-  const getActionLabel = (action: Action) => {
-    if (action.type === 'text') {
-      return `Text: ${action.return?.text.substring(0, 20)}${action.return?.text.length > 20 ? '...' : ''}`;
-    } else {
-      return `Agent: ${action.args?.prompt.substring(0, 20)}${action.args?.prompt.length > 20 ? '...' : ''}`;
-    }
-  };
-
+  const actionLabel = getActionLabel(action);
   return (
     <div className="flex items-center justify-between p-2 border rounded-md">
-      <span className="text-sm">{getActionLabel(action)}</span>
+      <span className="text-sm truncate px-4 flex items-center gap-2">
+        {actionLabel.icon}
+        <span className="font-medium">{actionLabel.title}</span>
+        <span>{actionLabel.content}</span>
+      </span>
       <Button
         variant="ghost"
         size="icon"

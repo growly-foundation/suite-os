@@ -11,20 +11,22 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
-import { ConditionType, ParsedStep, ScalarStepCondition, Step, StepId } from '@growly/core';
+import { ConditionType, ScalarStepCondition, StepId } from '@growly/core';
 import { generateId } from '@/lib/utils';
+import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
 
 interface StepConditionProps {
   onAdd: (data: ScalarStepCondition) => void;
-  existingSteps: ParsedStep[];
 }
 
-export function StepCondition({ onAdd, existingSteps }: StepConditionProps) {
+export function StepCondition({ onAdd }: StepConditionProps) {
+  const { getSteps } = useWorkflowDetailStore();
+
   const [dependsOn, setDependsOn] = useState<StepId | null>(null);
 
   return (
     <div className="space-y-4">
-      {existingSteps.length > 0 ? (
+      {getSteps().length > 0 ? (
         <>
           <div className="space-y-2">
             <Label htmlFor="dependsOn">Depends On Step</Label>
@@ -33,7 +35,7 @@ export function StepCondition({ onAdd, existingSteps }: StepConditionProps) {
                 <SelectValue placeholder="Select a step" />
               </SelectTrigger>
               <SelectContent>
-                {existingSteps.map(step => (
+                {getSteps().map(step => (
                   <SelectItem key={step.id} value={step.id}>
                     {step.name}
                   </SelectItem>

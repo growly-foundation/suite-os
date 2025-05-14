@@ -1,5 +1,6 @@
 import { Edge, MarkerType, Node } from 'reactflow';
 import {
+  Action,
   ConditionType,
   ScalarCondition,
   UIEventCondition,
@@ -7,6 +8,14 @@ import {
   type ParsedStep,
 } from '@growly/core';
 import Dagre from '@dagrejs/dagre';
+import { BotIcon, FileTextIcon } from 'lucide-react';
+
+export type ConditionItemNode = {
+  title: string;
+  desc?: string;
+  status: 'success' | 'error' | 'pending';
+  children?: ConditionItemNode[];
+};
 
 // Helper function to extract step IDs from conditions
 export function extractStepIdsFromConditions(condition: Condition): string[] {
@@ -31,6 +40,110 @@ export function extractStepIdsFromConditions(condition: Condition): string[] {
   }
   return [];
 }
+
+export const getConditionLabel = (
+  condition: Condition,
+  existingSteps: ParsedStep[]
+): ConditionItemNode[] => {
+  switch (condition.type) {
+    case ConditionType.Always:
+      return [{ title: 'Always', desc: 'Step is always executed', status: 'success' }];
+    case ConditionType.Step:
+      const step = existingSteps.find(s => s.id === condition.data);
+      return step
+        ? [
+            {
+              title: 'After step',
+              desc: `Step ${step.name} must be completed`,
+              status: 'success',
+            },
+          ]
+        : [
+            {
+              title: 'After step',
+              desc: `No step with id ${condition.data}`,
+              status: 'error',
+            },
+          ];
+    case ConditionType.Workflow:
+      return [
+        {
+          title: 'After workflow',
+          desc: `Workflow ${condition.data} must be completed`,
+          status: 'pending',
+        },
+      ];
+    case ConditionType.UIEvent:
+      return [{ title: 'UI Event', desc: getUIEventLabel(condition.data), status: 'pending' }];
+    case ConditionType.JudgedByAgent:
+      return [{ title: 'Judged by Agent', desc: 'Agent must judge the step', status: 'pending' }];
+    case ConditionType.Or:
+      return [
+        {
+          title: 'Or',
+          desc: 'Any of the following conditions are true',
+          children: condition.data
+            .map((condition: ScalarCondition) => getConditionLabel(condition, existingSteps))
+            .flat(),
+          status: 'pending',
+        },
+      ];
+    case ConditionType.And:
+      return [
+        {
+          title: 'And',
+          desc: 'All of the following conditions are true',
+          children: condition.data
+            .map((condition: ScalarCondition) => getConditionLabel(condition, existingSteps))
+            .flat(),
+          status: 'pending',
+        },
+      ];
+    default:
+      return [{ title: 'Unknown condition', status: 'error' }];
+  }
+};
+
+export const getUIEventLabel = (eventType: UIEventCondition): string => {
+  switch (eventType) {
+    case UIEventCondition.OnPageLoad:
+      return 'When the page is loaded';
+    case UIEventCondition.OnVisited:
+      return 'When a specified element is visited';
+    case UIEventCondition.OnClicked:
+      return 'When a specified element is clicked';
+    case UIEventCondition.OnHovered:
+      return 'When a specified element is hovered';
+    default:
+      return eventType;
+  }
+};
+
+export const getActionLabel = (
+  action: Action
+): {
+  icon?: React.ReactNode;
+  title: string;
+  content: React.ReactNode;
+} => {
+  if (action.type === 'text') {
+    return {
+      icon: <FileTextIcon className="h-4 w-4" />,
+      title: 'Text',
+      content: action.return?.text,
+    };
+  } else if (action.type === 'agent') {
+    return {
+      icon: <BotIcon className="h-4 w-4" />,
+      title: 'Agent',
+      content: action.args?.prompt,
+    };
+  }
+  return {
+    title: 'Unknown',
+    content: 'Unknown action',
+  };
+};
 
 // Get a human-readable description of the condition
 export function getConditionDescription(condition: Condition): React.ReactNode {
@@ -69,7 +182,6 @@ export function getConditionDescription(condition: Condition): React.ReactNode {
 export function getStepConditionEdges(step: ParsedStep, allSteps: ParsedStep[]): Edge[] {
   const edges: Edge[] = [];
 
-  console.log(step.conditions);
   // Extract step IDs from conditions
   const dependencyIds = step.conditions.flatMap(extractStepIdsFromConditions);
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import { ConditionItemNode } from './condition-item';
 import { Badge } from '@/components/ui/badge';
+import { ConditionItemNode } from '@/lib/workflow.utils';
 
 type ConditionTreeViewProps = {
   nodes: ConditionItemNode[];

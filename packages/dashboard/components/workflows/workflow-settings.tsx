@@ -8,34 +8,33 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import type { AggregatedWorkflow } from '@growly/core';
 import { suiteCore } from '@/core/suite';
 import { toast } from 'react-toastify';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Status } from '@growly/core';
+import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
 
-interface WorkflowSettingsProps {
-  workflow: AggregatedWorkflow;
-  setWorkflow: (workflow: AggregatedWorkflow) => void;
-}
-
-export function WorkflowSettings({ workflow, setWorkflow }: WorkflowSettingsProps) {
+export function WorkflowSettings() {
+  const { workflow, setWorkflow } = useWorkflowDetailStore();
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    if (!workflow) return;
     setWorkflow({ ...workflow, [name]: value });
   };
 
   const handleStatusChange = (checked: boolean) => {
+    if (!workflow) return;
     setWorkflow({ ...workflow, status: checked ? Status.Active : Status.Inactive });
   };
 
   const handleDeleteWorkflow = async () => {
     setIsLoading(true);
     try {
+      if (!workflow) return;
       await suiteCore.db.workflows.delete(workflow.id);
       toast.success('Workflow deleted successfully');
       router.push('/dashboard/workflows');
@@ -45,6 +44,10 @@ export function WorkflowSettings({ workflow, setWorkflow }: WorkflowSettingsProp
       setIsLoading(false);
     }
   };
+
+  if (!workflow) {
+    return <div>Workflow not found</div>;
+  }
 
   return (
     <Card>
