@@ -61,8 +61,7 @@ export const SuiteProvider: React.FC<{
   context: SuiteGlobalContext;
 }> = ({ children, context }) => {
   const [isInitialized, setIsInitialized] = useState(false);
-  const { createUserFromAddressIfNotExist, fetchOrganizationAgentById, agent, user } =
-    useWidgetSession();
+  const { createUserFromAddressIfNotExist, fetchOrganizationAgentById } = useWidgetSession();
 
   useEffect(() => {
     const init = async () => {
