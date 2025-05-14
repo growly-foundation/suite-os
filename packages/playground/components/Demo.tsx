@@ -2,8 +2,8 @@
 import { AppContext } from '@/components/AppProvider';
 import { SuiteComponent } from '@/types/suite';
 import { useContext, useEffect, useState } from 'react';
-import ChatWidgetDemo from './demo/ChatWidgetDemo';
-import DemoChatWidgetDemo from './demo/DemoChatWidgetDemo';
+import { ChatWidgetDemo } from './demo/ChatWidgetDemo';
+import { DemoChatWidgetDemo } from './demo/DemoChatWidgetDemo';
 import { cn } from '@/lib/utils';
 import DemoOptions from './DemoOptions';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
@@ -52,17 +52,17 @@ export default function Demo() {
         <button type="button" onClick={toggleDarkMode} className={buttonStyles}>
           {isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         </button>
+        <div className="mx-auto flex items-center justify-center pt-6 text-sm">
+          <ConnectButton />
+        </div>
         <form className="mt-4 grid gap-8">
           <DemoOptions component={activeComponent} />
         </form>
         <div className="mt-auto flex items-center justify-between pt-6 text-sm">
-          <ConnectButton />
-        </div>
-        <div className="mt-auto flex items-center justify-between pt-6 text-sm">
           <div>
             <a
               className="opacity-100 transition-opacity duration-200 hover:opacity-70"
-              href="https://github.com/growly-official/suite"
+              href="https://github.com/growly-foundation/suite"
               rel="noreferrer"
               target="_blank"
               title="View Suite on GitHub">
@@ -70,7 +70,7 @@ export default function Demo() {
             </a>
             <a
               className="pl-4 opacity-100 transition-opacity duration-200 hover:opacity-70"
-              href="https://getgrowly.xyz"
+              href="https://www.getgrowly.app/"
               rel="noreferrer"
               target="_blank"
               title="View Growly Suite">

@@ -11,7 +11,7 @@ import { useSuite } from '@/provider';
 import { BRAND_NAME_CAPITALIZED } from '@/constants';
 import { Avatar, Identity, Name, Badge, Address } from '@coinbase/onchainkit/identity';
 import { border, cn, pressable, text } from '@/styles/theme';
-import { AnimatedBuster, BusterState } from '@/components/agent/components/AnimatedBuster';
+import { AnimatedBuster, BusterState } from '@growly/ui';
 import { Textarea } from '@/components/ui/textarea';
 
 interface PanelProps {
