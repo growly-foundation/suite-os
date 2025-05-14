@@ -2,16 +2,16 @@
 
 import { motion } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useSuite } from '@/provider';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { background, pressable, text } from '@/styles/theme';
 import { AnimatedBuster, BRAND_NAME_CAPITALIZED } from '@growly/ui';
+import { useWidgetSession } from '@/hooks/use-session';
 
 export function FloatingButton(
   props: React.ButtonHTMLAttributes<HTMLButtonElement> & { iconLoading?: boolean }
 ) {
-  const { config } = useSuite();
+  const { agent } = useWidgetSession();
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -39,9 +39,7 @@ export function FloatingButton(
             </TooltipTrigger>
           </motion.div>
           <TooltipContent className={cn(text.base, background.default)}>
-            <p>
-              Needs help? Chat with {config?.agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
-            </p>
+            <p>Needs help? Chat with {agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

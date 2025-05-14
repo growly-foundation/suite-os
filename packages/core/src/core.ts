@@ -1,4 +1,4 @@
-import { SupabaseClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import {
   AgentService,
   FunctionService,
@@ -7,7 +7,6 @@ import {
   StepService,
   WorkflowService,
 } from './services';
-import { SupabaseClientService } from './services/supabase-client.service';
 
 /**
  * The Growly Suite SDK.
@@ -67,12 +66,6 @@ export interface SuiteDatabaseCore {
 
   /** Function services. */
   fn: FunctionService;
-
-  call: <T extends keyof SuiteDatabaseCore>(service: T) => SuiteDatabaseCore[T];
-
-  callDatabaseService: <T extends keyof SuiteDatabaseCore['db']>(
-    service: T
-  ) => SuiteDatabaseCore['db'][T];
 }
 
 /**
@@ -81,7 +74,7 @@ export interface SuiteDatabaseCore {
  * @param supabaseKey The public key of your Supabase instance.
  */
 export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): SuiteDatabaseCore => {
-  const supabaseClientService = new SupabaseClientService(supabaseUrl, supabaseKey);
+  const supabaseClientService = createClient(supabaseUrl, supabaseKey);
 
   // Database services.
   const adminDatabaseService = new PublicDatabaseService<'admins'>(supabaseClientService, 'admins');
@@ -128,31 +121,25 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     functionService
   );
 
+  const db = {
+    admins: adminDatabaseService,
+    admin_organizations: adminOrganizationDatabaseService,
+    agents: agentDatabaseService,
+    agent_workflows: agentWorkflowsService,
+    client: supabaseClientService,
+    organizations: organizationDatabaseService,
+    messages: messageDatabaseService,
+    steps: stepDatabaseService,
+    users: userDatabaseService,
+    workflows: workflowDatabaseService,
+  };
+
   return {
+    db,
     fn: functionService,
-    db: {
-      admins: adminDatabaseService,
-      admin_organizations: adminOrganizationDatabaseService,
-      agents: agentDatabaseService,
-      agent_workflows: agentWorkflowsService,
-      client: supabaseClientService.getClient(),
-      organizations: organizationDatabaseService,
-      messages: messageDatabaseService,
-      steps: stepDatabaseService,
-      users: userDatabaseService,
-      workflows: workflowDatabaseService,
-    },
     agents: agentService,
     workflows: workflowService,
     organizations: organizationService,
     steps: stepService,
-    // Call a service from the core.
-    call<T extends keyof SuiteDatabaseCore>(service: T) {
-      return this[service];
-    },
-    // Call a database service from the core.
-    callDatabaseService<T extends keyof SuiteDatabaseCore['db']>(service: T) {
-      return this.db[service];
-    },
   };
 };

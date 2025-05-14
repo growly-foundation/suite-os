@@ -5,13 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import React, { useLayoutEffect } from 'react';
-import {
-  ConversationRole,
-  MessageContent,
-  ParsedMessage,
-  ParsedMessageInsert,
-  WithId,
-} from '@growly/core';
+import { ConversationRole, MessageContent, ParsedMessage } from '@growly/core';
 import ChatResponse from './ChatResponse';
 import { useSuite } from '@/provider';
 import { Avatar, Identity, Name, Badge, Address } from '@coinbase/onchainkit/identity';
@@ -19,47 +13,56 @@ import { border, cn, pressable, text } from '@/styles/theme';
 import { AnimatedBuster, BusterState, BRAND_NAME_CAPITALIZED } from '@growly/ui';
 import { Textarea } from '@/components/ui/textarea';
 import { chatService } from '@/services/chat.service';
-import { v4 as uuid } from 'uuid';
+import { suiteCoreService } from '@/services/core.service';
+import { useWidgetSession } from '@/hooks/use-session';
 
 interface PanelProps {
   open: boolean;
   onClose: () => void;
   messages: ParsedMessage[];
-  onSend: (message: WithId<ParsedMessageInsert>) => void;
+  onSend: (message: ParsedMessage) => void;
 }
 
 export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'>) {
-  const { config } = useSuite();
+  const { user, agent } = useWidgetSession();
+  const { config, agentId, session } = useSuite();
   const [busterState, setBusterState] = React.useState<BusterState>('idle');
   const [refreshing, setRefreshing] = React.useState(+new Date());
   const [inputValue, setInputValue] = React.useState('');
   const [isSending, setIsSending] = React.useState(false);
 
-  const sessionContext = {
-    agentId: '22520453-f7b3-4c94-9cd4-5946c90c3c92',
-    userId: 'd4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a',
-    stepId: '22520453-f7b3-4c94-9cd4-5946c90c3c92',
-  };
-
-  const sendMessage = (type: MessageContent['type'], message: string, sender: ConversationRole) => {
-    onSend({
-      id: uuid(),
-      type: type as any,
-      embedding: null,
+  const sendRemoteMessage = async (
+    type: MessageContent['type'],
+    message: string,
+    sender: ConversationRole
+  ) => {
+    const serializedContent = JSON.stringify({
+      type,
       content: message,
-      sender,
-      agent_id: sessionContext.agentId,
-      user_id: sessionContext.userId,
     });
+    const newMessage = await suiteCoreService.callDatabaseService('messages', 'create', [
+      {
+        content: serializedContent,
+        sender,
+        agent_id: agentId,
+        user_id: user?.id,
+      },
+    ]);
+
+    const deserializedMessage = {
+      ...newMessage,
+      ...JSON.parse(newMessage.content),
+    };
+    onSend(deserializedMessage);
     setRefreshing(+new Date());
   };
 
   const sendTextMessage = (message: string, sender: ConversationRole) => {
-    sendMessage('text', message, sender);
+    sendRemoteMessage('text', message, sender);
   };
 
   const sendErrorMessage = (message: string, sender: ConversationRole) => {
-    sendMessage('system:error', message, sender);
+    sendRemoteMessage('system:error', message, sender);
   };
 
   const sendMessageHandler = async () => {
@@ -73,7 +76,9 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
       try {
         const newMessage = await chatService.chat({
           message: inputValue,
-          ...sessionContext,
+          agentId,
+          userId: user?.id ?? '',
+          stepId: agentId,
         });
         sendTextMessage(newMessage.reply, ConversationRole.Agent);
       } catch (error: any) {
@@ -110,7 +115,7 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
             {/* <AgentAvatar /> */}
             <div>
               <h2 className={cn('font-semibold', text.headline)}>
-                {config?.agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
+                {agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
               </h2>
               <p className={cn('text-sm opacity-90', text.base)}>
                 Typically replies in a few minutes
@@ -122,8 +127,8 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
           </Button>
         </div>
       </div>
-      {config?.session?.walletAddress && config.onchainKit?.enabled && (
-        <Identity address={config.session.walletAddress} hasCopyAddressOnClick={false}>
+      {session?.walletAddress && config?.onchainKit?.enabled && (
+        <Identity address={session.walletAddress} hasCopyAddressOnClick={false}>
           <Avatar />
           <Name>
             <Badge tooltip={false} />
@@ -144,8 +149,7 @@ export function ChatPanel({ onClose, messages, onSend }: Omit<PanelProps, 'open'
                     <div
                       className={cn('text-gray-500 text-xs text-center', text.base)}
                       style={{ padding: '20px 0px 30px 0px' }}>
-                      You are chatting with{' '}
-                      {config?.agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
+                      You are chatting with {agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
                     </div>
                   </React.Fragment>
                 )}

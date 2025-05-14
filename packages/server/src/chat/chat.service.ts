@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AgentService } from '../agent/agent.service';
 import { MessageService } from '../message/message.service';
+import { ConversationRole } from '@growly/core';
 
 interface ChatRequest {
   message: string;
@@ -20,7 +21,7 @@ export class ChatService {
   async chat({ message, userId, agentId }: ChatRequest) {
     try {
       // 1. Store the user message
-      await this.messageService.storeMessage(message, userId, agentId, 'user');
+      await this.messageService.storeMessage(message, userId, agentId, ConversationRole.User);
 
       // 2. Load conversation history
       const history = await this.messageService.getConversationHistory(userId, agentId);
@@ -46,8 +47,24 @@ export class ChatService {
       });
 
       // 4. Store the assistant's response
-      await this.messageService.storeMessage(reply, userId, agentId, 'assistant');
+      await this.messageService.storeMessage(reply, userId, agentId, ConversationRole.Agent);
 
+      // Return the response
+      return reply;
+    } catch (error) {
+      this.logger.error(`Error in chat processing: ${error.message}`, error.stack);
+      throw error;
+    }
+  }
+
+  async dumbChat({ message, userId, agentId }: ChatRequest) {
+    try {
+      this.logger.log('Processing with multi-agent supervisor...');
+      const reply = await this.agentService.chat({
+        message,
+        userId,
+        agentId,
+      });
       // Return the response
       return reply;
     } catch (error) {
