@@ -62,6 +62,6 @@ jobs:
             # Stop running container
             docker stop $(echo $IMAGE_NAME)
             # Remove old container
-            docker rm $(echo $REGISTRY)/$(echo $IMAGE_NAME)
+            docker rm $(echo $IMAGE_NAME)
             # Run a new container from a new image
             docker run -it --name server --publish 8080:8080 --env-file .env -d --restart always $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
