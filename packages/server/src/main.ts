@@ -19,6 +19,7 @@ async function bootstrap() {
     process.exit(1);
   }
 
+  app.enableCors();
   app.use(
     paymentMiddleware(
       payTo,

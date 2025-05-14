@@ -9,7 +9,7 @@ interface WidgetSession {
   agent: Optional<Agent>;
   setUser: (user: Optional<ParsedUser>) => void;
   setAgent: (agent: Optional<Agent>) => void;
-  fetchUserFromWalletAddress: (walletAddress: `0x${string}`) => Promise<Optional<ParsedUser>>;
+  createUserFromAddressIfNotExist: (walletAddress: `0x${string}`) => Promise<Optional<ParsedUser>>;
   fetchOrganizationAgentById: (agentId: AgentId, apiKey: string) => Promise<Optional<Agent>>;
 }
 
@@ -18,31 +18,44 @@ export const useWidgetSession = create<WidgetSession>(set => ({
   agent: undefined,
   setUser: user => set({ user }),
   setAgent: agent => set({ agent }),
-  fetchUserFromWalletAddress: async walletAddress => {
-    const users = await suiteCoreService.callDatabaseService('users', 'getAll', []);
-    const parsedUser = users.find(user => {
-      const entities = JSON.parse(user.entities as any);
-      return entities.walletAddress === walletAddress;
-    });
-    if (!parsedUser) {
-      return undefined;
-    }
+  createUserFromAddressIfNotExist: async walletAddress => {
+    try {
+      const users = await suiteCoreService.callDatabaseService('users', 'getAll', []);
+      const parsedUser = users.find(user => {
+        return (user.entities as { walletAddress: string }).walletAddress === walletAddress;
+      });
+      if (parsedUser) {
+        set({ user: parsedUser as any });
+        return parsedUser as any;
+      }
 
-    const deserializedUser = {
-      ...parsedUser,
-      entities: JSON.parse(parsedUser.entities as any),
-    };
-    set({ user: deserializedUser });
-    return deserializedUser;
+      // Create new user if not exist.
+      const newUser = await suiteCoreService.callDatabaseService('users', 'create', [
+        {
+          entities: {
+            walletAddress,
+          },
+        },
+      ]);
+      console.log(newUser);
+      set({ user: newUser as any });
+      return newUser as any;
+    } catch (error) {
+      throw new Error(`Failed to fetch user from wallet address: ${error}`);
+    }
   },
   fetchOrganizationAgentById: async (agentId, apiKey) => {
-    const agent = await suiteCoreService.callDatabaseService('agents', 'getOneByFields', [
-      {
-        id: agentId,
-        organization_id: apiKey,
-      },
-    ]);
-    set({ agent });
-    return agent;
+    try {
+      const agent = await suiteCoreService.callDatabaseService('agents', 'getOneByFields', [
+        {
+          id: agentId,
+          organization_id: apiKey,
+        },
+      ]);
+      set({ agent: agent as any });
+      return agent as any;
+    } catch (error) {
+      throw new Error(`Failed to fetch agent by ID: ${error}`);
+    }
   },
 }));

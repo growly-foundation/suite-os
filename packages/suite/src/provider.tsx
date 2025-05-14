@@ -61,14 +61,15 @@ export const SuiteProvider: React.FC<{
   context: SuiteGlobalContext;
 }> = ({ children, context }) => {
   const [isInitialized, setIsInitialized] = useState(false);
-  const { fetchUserFromWalletAddress, fetchOrganizationAgentById } = useWidgetSession();
+  const { createUserFromAddressIfNotExist, fetchOrganizationAgentById, agent, user } =
+    useWidgetSession();
 
   useEffect(() => {
     const init = async () => {
       setIsInitialized(false);
       try {
         if (context.session?.walletAddress) {
-          await fetchUserFromWalletAddress(context.session.walletAddress);
+          await createUserFromAddressIfNotExist(context.session.walletAddress);
         }
         if (!context.agentId || !context.organizationApiKey) {
           throw new Error('Agent ID and Organization API Key are required');

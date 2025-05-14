@@ -14,7 +14,7 @@ export class ChatController {
     @Body('stepId') stepId: string,
     @Body('isBeastMode') isBeastMode: boolean
   ) {
-    const reply = await this.chatService.chat({ message, userId, agentId });
+    const reply = await this.chatService.dumbChat({ message, userId, agentId });
     return { reply };
   }
 }

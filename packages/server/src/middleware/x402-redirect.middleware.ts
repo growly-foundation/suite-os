@@ -1,6 +1,6 @@
 // proxy.middleware.ts
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction, response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import axios from 'axios';
 import { Hex } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
@@ -11,11 +11,10 @@ export class ProxyMiddleware implements NestMiddleware {
   private readonly logger = new Logger(ProxyMiddleware.name);
 
   async use(req: Request, res: Response, next: NextFunction) {
+    this.logger.log(`Beast Mode: ${req.query.isBeastMode}`);
     const isBeastMode = req.query.isBeastMode === 'true' || req.body?.isBeastMode === true;
-
-    this.logger.log('Trigger x402 middleware');
-
     if (isBeastMode) {
+      this.logger.log('Trigger x402 middleware');
       try {
         // Get server private key - In the future, we will take Privy's delegated private key of admin
         const privateKey = process.env.PRIVATE_KEY as Hex;
