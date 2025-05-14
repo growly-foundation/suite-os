@@ -35,5 +35,8 @@ CREATE TABLE IF NOT EXISTS steps (
 );
 comment on table public.steps is 'Steps for each workflow.';
 
+-- Add column `is_beast_mode`
+ALTER TABLE steps ADD COLUMN is_beast_mode BOOLEAN NOT NULL DEFAULT FALSE;
+
 GRANT ALL ON TABLE steps TO postgres;
 GRANT ALL ON TABLE steps TO service_role;

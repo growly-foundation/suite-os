@@ -214,6 +214,7 @@ export type Database = {
           description: string | null
           id: string
           index: number
+          is_beast_mode: boolean
           name: string
           status: Database["public"]["Enums"]["status"]
           workflow_id: string | null
@@ -225,6 +226,7 @@ export type Database = {
           description?: string | null
           id?: string
           index?: number
+          is_beast_mode?: boolean
           name: string
           status?: Database["public"]["Enums"]["status"]
           workflow_id?: string | null
@@ -236,6 +238,7 @@ export type Database = {
           description?: string | null
           id?: string
           index?: number
+          is_beast_mode?: boolean
           name?: string
           status?: Database["public"]["Enums"]["status"]
           workflow_id?: string | null

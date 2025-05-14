@@ -26,7 +26,7 @@ enum LayoutDirection {
 }
 
 export function WorkflowCanvas() {
-  const { workflow, deleteStep, updateStep } = useWorkflowDetailStore();
+  const { workflow } = useWorkflowDetailStore();
   const { fitView } = useReactFlow();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);

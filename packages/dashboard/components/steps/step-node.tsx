@@ -71,7 +71,7 @@ export const StepNode =
     return (
       <React.Fragment>
         <Handle type="target" position={Position.Left} />
-        <Card className="w-[350px] shadow-md">
+        <Card className="w-[500px] shadow-md">
           <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               {Array.isArray(step.action) && step.action.length > 0 ? (
@@ -81,9 +81,16 @@ export const StepNode =
               )}
               {step.name}
             </CardTitle>
-            <Badge variant={step.status === 'active' ? 'default' : 'secondary'} className="text-xs">
-              {step.status}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant={step.is_beast_mode ? 'default' : 'outline'} className="text-xs">
+                {step.is_beast_mode ? 'Beast Mode' : 'Normal'}
+              </Badge>
+              <Badge
+                variant={step.status === 'active' ? 'default' : 'secondary'}
+                className="text-xs">
+                {step.status}
+              </Badge>
+            </div>
           </CardHeader>
           <CardContent className="p-4 pt-2 text-xs">
             <p className="text-xs text-muted-foreground">ID: {step.id}</p>

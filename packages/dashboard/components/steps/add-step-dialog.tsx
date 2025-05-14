@@ -51,8 +51,8 @@ export function AddStepDialog({
   const [description, setDescription] = useState(defaultStep?.description || '');
   const [conditions, setConditions] = useState<Condition[]>(defaultStep?.conditions || []);
   const [actions, setActions] = useState<Action[]>(defaultStep?.action || []);
+  const [beastMode, setBeastMode] = useState(defaultStep?.is_beast_mode || false);
   const [status, setStatus] = useState(defaultStep?.status || Status.Active);
-  const [isBeastMode, setIsBeastMode] = useState(false);
 
   const handleAdd = () => {
     onAdd({
@@ -64,6 +64,7 @@ export function AddStepDialog({
       workflow_id: workflowId,
       conditions: conditions,
       action: actions,
+      is_beast_mode: beastMode,
     });
     resetForm();
   };
@@ -134,7 +135,7 @@ export function AddStepDialog({
               <ZapIcon className="h-4 w-4" />
               Beast Mode
             </Label>
-            <Switch id="beast-mode" checked={isBeastMode} onCheckedChange={setIsBeastMode} />
+            <Switch id="beast-mode" checked={beastMode} onCheckedChange={setBeastMode} />
           </div>
         </div>
         <DialogFooter>

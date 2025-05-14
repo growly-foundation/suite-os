@@ -214,8 +214,8 @@ export const getLayoutedElements = (
   const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
   g.setGraph({ rankdir: options.direction });
 
-  const nodeWidth = 500;
-  const nodeHeight = 500;
+  const nodeWidth = 600;
+  const nodeHeight = 600;
 
   edges.forEach(edge => g.setEdge(edge.source, edge.target));
   nodes.forEach(node =>

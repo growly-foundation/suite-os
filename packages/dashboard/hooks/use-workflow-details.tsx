@@ -36,6 +36,7 @@ export const useWorkflowDetailStore = create<WorkflowDetailStore>((set, get) => 
           index: workflow.steps?.length || 0,
           status: Status.Active,
           workflow_id: workflow.id,
+          is_beast_mode: step.is_beast_mode || false,
           ...step,
           id: step.id,
         },

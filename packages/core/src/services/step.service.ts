@@ -27,6 +27,7 @@ export class StepService {
           description: step.description,
           name: step.name,
           status: step.status,
+          is_beast_mode: step.is_beast_mode,
         });
       } else {
         await this.stepDatabaseService.create({
@@ -38,6 +39,7 @@ export class StepService {
           index,
           name: step.name,
           status: step.status,
+          is_beast_mode: step.is_beast_mode,
         });
       }
       index++;
