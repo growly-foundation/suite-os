@@ -51,6 +51,9 @@ SUPABASE_KEY=your_supabase_key_here
 # Application Configuration
 NODE_ENV=development
 PORT=3000
+
+# PostgreSQL Agent Persistence
+POSTGRES_CONNECTION_STRING=postgresql://user:password@localhost:5432/growly_agents
 ```
 
 You can get these values from your Supabase project settings.

@@ -28,8 +28,12 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v2
 
-      - name: Build container image
-        run: docker buildx build --platform linux/amd64 -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) --file packages/server/Dockerfile .
+      - name: Build container image with latest tag
+        run: |
+          docker buildx build --platform linux/amd64 \
+          -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) \
+          -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):latest \
+          --file packages/server/Dockerfile .
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
