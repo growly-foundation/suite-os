@@ -1,7 +1,7 @@
 import { Card } from '@/components/ui/card';
 import { ConversationRole, ParsedMessage } from '@growly/core';
 import { motion } from 'framer-motion';
-import { useSuite } from '@/components/providers/SuiteProvider';
+import { useSuite } from '@/hooks/use-suite';
 import { cn } from '@/lib/utils';
 import {
   buildOnchainKitSwapMessage,

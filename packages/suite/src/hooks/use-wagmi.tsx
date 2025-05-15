@@ -1,5 +1,5 @@
 'use client';
-import { useSuite } from '@/components/providers/SuiteProvider';
+import { useSuite } from '@/hooks/use-suite';
 import { connectorsForWallets } from '@rainbow-me/rainbowkit';
 import {
   coin98Wallet,
