@@ -5,7 +5,7 @@ import axios from 'axios';
 import { z } from 'zod';
 import { DEFILLAMA_BASE_URL } from './constants';
 import { ProtocolResponse } from './types';
-import { pruneGetProtocolResponse } from './utils';
+import { excludeTimeSeriesFields } from './utils';
 
 const axiosInstance = axios.create({
   baseURL: DEFILLAMA_BASE_URL,
@@ -18,6 +18,7 @@ export const getProtocolTool = new DynamicStructuredTool({
   name: 'get_protocol',
   description: `
 This tool will fetch detailed information about a specific protocol from DefiLlama.
+Only prioritize this when user asking about TVL. Otherwise, use other Tavily tools to search the web.
 It takes the following inputs:
 - The protocol identifier from DefiLlama (e.g. uniswap)
 
@@ -35,9 +36,13 @@ Important notes:
     .strict(),
   func: async ({ protocolId }) => {
     try {
-      const response = await axiosInstance.get<ProtocolResponse>(`/protocol/${protocolId}`);
+      const response = await axiosInstance.get<ProtocolResponse>(
+        `/protocol/${protocolId.toLowerCase()}`
+      );
       const protocol = response.data;
-      const prunedData = pruneGetProtocolResponse(protocol);
+
+      // Exclude time-series data to make the response more manageable
+      const prunedData = excludeTimeSeriesFields(protocol);
 
       return JSON.stringify(prunedData, null, 2);
     } catch (error: unknown) {
