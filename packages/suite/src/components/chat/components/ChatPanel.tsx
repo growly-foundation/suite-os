@@ -3,15 +3,16 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import React, { useLayoutEffect } from 'react';
 import { ConversationRole, MessageContent } from '@growly/core';
-import { useSuite } from '@/provider';
+import { useSuite } from '@/components/providers/SuiteProvider';
 import { Avatar, Identity, Name, Badge, Address } from '@coinbase/onchainkit/identity';
 import { border, cn } from '@/styles/theme';
 import { chatService } from '@/services/chat.service';
 import { suiteCoreService } from '@/services/core.service';
-import { useWidgetSession } from '@/hooks/use-session';
+import { useSuiteSession } from '@/hooks/use-session';
 import { ChatPanelHeader } from './ChatPanelHeader';
 import { ChatMessageView } from './ChatMessageView';
 import { ChatInput } from './ChatInput';
+import { ConnectWallet } from './ConnectWallet';
 
 export function ChatPanel() {
   const {
@@ -22,8 +23,13 @@ export function ChatPanel() {
     setBusterState,
     inputValue,
     setInputValue,
-  } = useWidgetSession();
-  const { config, agentId, session } = useSuite();
+  } = useSuiteSession();
+  const {
+    config,
+    agentId,
+    integration,
+    appState: { walletAddress },
+  } = useSuite();
   const [refreshing, setRefreshing] = React.useState(+new Date());
   const [isSending, setIsSending] = React.useState(false);
 
@@ -111,26 +117,32 @@ export function ChatPanel() {
         }}>
         <ChatPanelHeader />
       </div>
-      {session?.walletAddress && config?.onchainKit?.enabled && (
-        <Identity address={session.walletAddress} hasCopyAddressOnClick={false}>
-          <Avatar />
-          <Name>
-            <Badge tooltip={false} />
-          </Name>
-          <Address />
-        </Identity>
+      {walletAddress ? (
+        <>
+          {integration?.onchainKit?.enabled && (
+            <Identity address={walletAddress} hasCopyAddressOnClick={false}>
+              <Avatar />
+              <Name>
+                <Badge tooltip={false} />
+              </Name>
+              <Address />
+            </Identity>
+          )}
+          {/* Messages */}
+          <ChatMessageView />
+          {/* Input Area */}
+          <ChatInput sendMessageHandler={sendMessageHandler} isSending={isSending} />
+        </>
+      ) : (
+        <ConnectWallet />
       )}
-      {/* Messages */}
-      <ChatMessageView />
-      {/* Input Area */}
-      <ChatInput sendMessageHandler={sendMessageHandler} isSending={isSending} />
     </React.Fragment>
   );
 }
 
 export function ChatPanelContainer() {
   const { config } = useSuite();
-  const { panelOpen } = useWidgetSession();
+  const { panelOpen } = useSuiteSession();
 
   return (
     <AnimatePresence>

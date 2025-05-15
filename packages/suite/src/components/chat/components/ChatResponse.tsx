@@ -1,7 +1,7 @@
 import { Card } from '@/components/ui/card';
 import { ConversationRole, ParsedMessage } from '@growly/core';
 import { motion } from 'framer-motion';
-import { useSuite } from '@/provider';
+import { useSuite } from '@/components/providers/SuiteProvider';
 import { cn } from '@/lib/utils';
 import {
   buildOnchainKitSwapMessage,
@@ -13,8 +13,8 @@ import moment from 'moment';
 import { useEffect, useState } from 'react';
 
 const MessageContent = ({ message }: { message: ParsedMessage }) => {
-  const { config } = useSuite();
-  const onchainKitEnabled = config?.onchainKit?.enabled;
+  const { config, integration } = useSuite();
+  const onchainKitEnabled = integration?.onchainKit?.enabled;
   const [time, setTime] = useState(moment(message.created_at).fromNow());
 
   useEffect(() => {
@@ -30,21 +30,23 @@ const MessageContent = ({ message }: { message: ParsedMessage }) => {
       </p>
     );
   }
-  if (!onchainKitEnabled) {
-    return (
-      <span className="text-sm font-semibold">
-        ⚠️ OnchainKit feature must be enabled to display this message.
-      </span>
-    );
-  }
-  if (message.type === 'onchainkit:swap') {
-    return buildOnchainKitSwapMessage(message.content, time);
-  }
-  if (message.type === 'onchainkit:token') {
-    return buildOnchainKitTokenChipMessage(message.content, time);
-  }
   if (message.type === 'system:error') {
     return buildSystemErrorMessage(message.content, time);
+  }
+  if (message.type.startsWith('onchainkit:')) {
+    if (!onchainKitEnabled) {
+      return (
+        <span className="text-sm font-semibold">
+          ⚠️ OnchainKit feature must be enabled to display this message.
+        </span>
+      );
+    }
+    if (message.type === 'onchainkit:swap') {
+      return buildOnchainKitSwapMessage(message.content, time);
+    }
+    if (message.type === 'onchainkit:token') {
+      return buildOnchainKitTokenChipMessage(message.content, time);
+    }
   }
   return <></>;
 };

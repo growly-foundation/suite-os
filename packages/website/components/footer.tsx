@@ -8,7 +8,7 @@ export default function Footer() {
       <div className="container px-4 md:px-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
-            <h3 className="text-lg font-bold">Growly Suite</h3>
+            <h3 className="text-lg font-bold">Growly Foundation</h3>
             <p className="text-sm text-muted-foreground">
               Focus on shipping great products, we’ll handle the connection between your users and
               your app

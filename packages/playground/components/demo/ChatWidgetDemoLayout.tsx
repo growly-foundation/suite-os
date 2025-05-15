@@ -17,18 +17,6 @@ function ChatWidgetComponent({ children }: { children: React.ReactNode }) {
       ...config,
       theme: componentTheme ? Theme[componentTheme] : Theme.monoTheme,
       display: displayMode,
-      onchainKit: {
-        chain: base,
-        projectId: process.env.NEXT_PUBLIC_SUITE_ONCHAINKIT_PROJECT_ID,
-        apiKey: process.env.NEXT_PUBLIC_SUITE_ONCHAINKIT_CLIENT_KEY,
-        enabled: true,
-        config: {
-          appearance: {
-            theme: 'base',
-            mode: 'light',
-          },
-        },
-      },
     });
   }, [componentTheme, setConfig, displayMode]);
   return (
@@ -57,7 +45,7 @@ export function ChatWidgetDemoLayout({ children }: { children: React.ReactNode }
         session: {
           walletAddress: address,
         },
-        config: {
+        integration: {
           onchainKit: {
             chain: base,
             projectId: process.env.NEXT_PUBLIC_SUITE_ONCHAINKIT_PROJECT_ID,
@@ -70,6 +58,8 @@ export function ChatWidgetDemoLayout({ children }: { children: React.ReactNode }
               },
             },
           },
+        },
+        config: {
           theme: Theme.monoTheme,
         },
       }}>

@@ -4,13 +4,13 @@ import { text } from '@/styles/theme';
 import { BRAND_NAME_CAPITALIZED } from '@growly/ui';
 import { Loader2, Pencil } from 'lucide-react';
 import ChatResponse from './ChatResponse';
-import { useWidgetSession } from '@/hooks/use-session';
-import { useSuite } from '@/provider';
+import { useSuiteSession } from '@/hooks/use-session';
+import { useSuite } from '@/components/providers/SuiteProvider';
 import React from 'react';
 
 export const ChatMessageView = () => {
   const { config } = useSuite();
-  const { messages, agent, isLoadingMessages, isAgentThinking } = useWidgetSession();
+  const { messages, agent, isLoadingMessages, isAgentThinking } = useSuiteSession();
   return (
     <ScrollArea
       className={cn('flex-1', config?.display === 'fullView' ? 'max-h-[90vh]' : 'max-h-[500px]')}

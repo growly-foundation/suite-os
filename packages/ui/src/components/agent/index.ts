@@ -1,2 +1,2 @@
-export * from './components/AgentAvatar';
-export * from './components/AnimatedBuster';
+export * from './AgentAvatar';
+export * from './AnimatedBuster';

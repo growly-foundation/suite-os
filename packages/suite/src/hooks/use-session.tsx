@@ -27,7 +27,7 @@ interface WidgetSession {
   fetchOrganizationAgentById: (agentId: AgentId, apiKey: string) => Promise<Optional<Agent>>;
 }
 
-export const useWidgetSession = create<WidgetSession>((set, get) => ({
+export const useSuiteSession = create<WidgetSession>((set, get) => ({
   busterState: 'idle',
   setBusterState: state => set({ busterState: state }),
   panelOpen: false,

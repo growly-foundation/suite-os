@@ -2,10 +2,10 @@ import { Button } from '@/components/ui/button';
 import { cn, text } from '@/styles/theme';
 import { BRAND_NAME_CAPITALIZED } from '@growly/ui';
 import { X } from 'lucide-react';
-import { useWidgetSession } from '@/hooks/use-session';
+import { useSuiteSession } from '@/hooks/use-session';
 
 export const ChatPanelHeader = () => {
-  const { togglePanel, agent } = useWidgetSession();
+  const { togglePanel, agent } = useSuiteSession();
   return (
     <div className="flex justify-between items-center">
       <div className="flex items-center space-x-3">

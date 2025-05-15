@@ -13,7 +13,12 @@ import StructuredData from '@/components/structured-data';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import TechStack from '@/components/tech-stack';
-import { BusterState, AnimatedBuster } from '@growly/ui';
+import { BusterState } from '@growly/ui';
+import dynamic from 'next/dynamic';
+
+const AnimatedBuster = dynamic(() => import('@growly/ui').then(suite => suite.AnimatedBuster), {
+  ssr: false,
+});
 
 export default function Home() {
   const [state, setState] = useState<BusterState>('idle');
@@ -33,8 +38,8 @@ export default function Home() {
             <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
               <AnimatedBuster
                 state={state}
-                className="shadow-2xl cursor-pointer hover:scale-110 hover:rotate-6 transition-all duration-300"
-                style={{ borderRadius: '50%', width: '150px', height: '150px', marginBottom: 35 }}
+                className="shadow-2xl cursor-pointer hover:scale-110 hover:rotate-6 transition-all duration-300 hover:animate-spin"
+                style={{ borderRadius: '50%', width: '200px', height: '200px', marginBottom: 35 }}
               />
               <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm mb-6">
                 AI Solution for Web 3.0 Businesses

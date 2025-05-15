@@ -1,3 +1,4 @@
+'use client';
 import hoverAnimation from '@/assets/animation/hover.json';
 import idleAnimation from '@/assets/animation/idling.json';
 import writingAnimation from '@/assets/animation/writing.json';
@@ -7,19 +8,14 @@ import { useMemo } from 'react';
 import { useState } from 'react';
 
 export type BusterState = 'idle' | 'hover' | 'writing';
-
-export const AnimatedBuster = ({
-  width,
-  height,
-  state,
-  setState,
-  ...rest
-}: {
+export type BusterProps = React.HTMLAttributes<HTMLDivElement> & {
   width?: number;
   height?: number;
   state?: BusterState;
   setState?: (state: BusterState) => void;
-} & React.HTMLAttributes<HTMLDivElement>) => {
+};
+
+export const AnimatedBuster = ({ width, height, state, setState, ...rest }: BusterProps) => {
   const [internalState, setInternalState] = useState<BusterState>(state || 'idle');
 
   const handleStateChange = (newState: BusterState) => {
@@ -65,13 +61,21 @@ export const AnimatedBuster = ({
 
   return (
     <div
-      {...rest}
       style={{ width, height }}
       onMouseEnter={() => handleStateChange('hover')}
       onMouseLeave={() => handleStateChange('idle')}
       onTouchStart={() => handleStateChange('writing')}
-      onTouchEnd={() => handleStateChange('idle')}>
+      onTouchEnd={() => handleStateChange('idle')}
+      {...rest}>
       {View}
     </div>
   );
+};
+
+export const LazyAnimatedBuster = (props: BusterProps) => {
+  const [animatedBusterComponent, setAnimatedBusterComponent] = useState<React.ReactNode>(null);
+  useEffect(() => {
+    setAnimatedBusterComponent(<AnimatedBuster {...props} />);
+  }, []);
+  return animatedBusterComponent;
 };

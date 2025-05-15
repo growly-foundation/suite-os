@@ -5,15 +5,14 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { background, pressable, text } from '@/styles/theme';
-import { AnimatedBuster, BRAND_NAME_CAPITALIZED } from '@growly/ui';
-import { useWidgetSession } from '@/hooks/use-session';
+import { LazyAnimatedBuster, BRAND_NAME_CAPITALIZED } from '@growly/ui';
+import { useSuiteSession } from '@/hooks/use-session';
 
 export function FloatingButton(
   props: React.ButtonHTMLAttributes<HTMLButtonElement> & { iconLoading?: boolean }
 ) {
-  const { agent } = useWidgetSession();
+  const { agent } = useSuiteSession();
   const [isHovered, setIsHovered] = useState(false);
-
   return (
     <div className="fixed bottom-6 right-6 z-[9990]">
       <TooltipProvider>
@@ -35,7 +34,7 @@ export function FloatingButton(
                 'border border-primary/10 rounded-full aspect-square shadow-3xl text-white',
                 pressable.coinbaseBranding
               )}>
-              <AnimatedBuster />
+              <LazyAnimatedBuster />
             </TooltipTrigger>
           </motion.div>
           <TooltipContent className={cn(text.base, background.default)}>

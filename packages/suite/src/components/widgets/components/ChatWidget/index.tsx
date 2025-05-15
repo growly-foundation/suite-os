@@ -1,14 +1,14 @@
 import { useEffect } from 'react';
 import { FloatingButton } from './FloatingButton';
 import { ChatPanelContainer, ChatPanel } from '../../../chat/components/ChatPanel';
-import { useWidgetSession } from '@/hooks/use-session';
+import { useSuiteSession } from '@/hooks/use-session';
 
 function ChatWidgetContainer({
   buttonProps,
 }: {
   buttonProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
 }) {
-  const { togglePanel } = useWidgetSession();
+  const { togglePanel } = useSuiteSession();
   return (
     <div>
       <FloatingButton onClick={togglePanel} {...buttonProps} />
@@ -18,7 +18,7 @@ function ChatWidgetContainer({
 }
 
 function ChatWidget(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  const { agent, user, fetchMessages } = useWidgetSession();
+  const { agent, user, fetchMessages } = useSuiteSession();
 
   useEffect(() => {
     if (agent?.id && user?.id) {

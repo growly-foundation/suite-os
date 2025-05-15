@@ -3,10 +3,10 @@ import { border } from '@/styles/theme';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Loader2, Send } from 'lucide-react';
-import { useSuite } from '@/provider';
-import { AnimatedBuster } from '@growly/ui';
+import { useSuite } from '@/components/providers/SuiteProvider';
+import { LazyAnimatedBuster } from '@growly/ui';
 import { text, pressable } from '@/styles/theme';
-import { useWidgetSession } from '@/hooks/use-session';
+import { useSuiteSession } from '@/hooks/use-session';
 
 export const ChatInput = ({
   sendMessageHandler,
@@ -16,7 +16,7 @@ export const ChatInput = ({
   isSending: boolean;
 }) => {
   const { config } = useSuite();
-  const { busterState, setBusterState, inputValue, setInputValue } = useWidgetSession();
+  const { busterState, setBusterState, inputValue, setInputValue } = useSuiteSession();
 
   // If "ENTER" is clicked, send a message.
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -30,7 +30,7 @@ export const ChatInput = ({
       className={cn('p-4 border-t', border.lineDefault)}
       style={{ backgroundColor: config?.theme?.background }}>
       <div className={cn('flex space-x-2', text.body)}>
-        <AnimatedBuster state={busterState} setState={setBusterState} width={40} height={40} />
+        <LazyAnimatedBuster state={busterState} setState={setBusterState} width={40} height={40} />
         <Textarea
           value={inputValue}
           onChange={e => setInputValue(e.target.value)}
