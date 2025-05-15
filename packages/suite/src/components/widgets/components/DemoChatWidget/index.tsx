@@ -1,6 +1,5 @@
 import { ConversationRole, ParsedMessage } from '@growly/core';
 import { ChatWidgetContainer } from '../ChatWidget';
-import { useState } from 'react';
 import { ETHToken, USDCToken } from './tokens';
 
 const mockMessages: ParsedMessage[] = [
@@ -168,20 +167,6 @@ const mockMessages: ParsedMessage[] = [
   },
 ];
 
-export function DemoChatWidget(
-  props: { defaultOpen?: boolean } & React.ButtonHTMLAttributes<HTMLButtonElement>
-) {
-  const { defaultOpen = false } = props;
-  const [open, setOpen] = useState(defaultOpen);
-
-  return (
-    <ChatWidgetContainer
-      messages={mockMessages}
-      onMessageSend={message => {
-        mockMessages.push(message);
-      }}
-      open={open}
-      setOpen={setOpen}
-    />
-  );
+export function DemoChatWidget() {
+  return <ChatWidgetContainer />;
 }

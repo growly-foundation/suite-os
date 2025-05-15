@@ -5,7 +5,7 @@ import { BRAND_NAME_CAPITALIZED } from '@growly/ui';
 import { Loader2, Pencil } from 'lucide-react';
 import ChatResponse from './ChatResponse';
 import { useSuiteSession } from '@/hooks/use-session';
-import { useSuite } from '@/components/providers/SuiteProvider';
+import { useSuite } from '@/hooks/use-suite';
 import React from 'react';
 
 export const ChatMessageView = () => {

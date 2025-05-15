@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import React, { useLayoutEffect } from 'react';
 import { ConversationRole, MessageContent } from '@growly/core';
-import { useSuite } from '@/components/providers/SuiteProvider';
+import { useSuite } from '@/hooks/use-suite';
 import { Avatar, Identity, Name, Badge, Address } from '@coinbase/onchainkit/identity';
 import { border, cn } from '@/styles/theme';
 import { chatService } from '@/services/chat.service';

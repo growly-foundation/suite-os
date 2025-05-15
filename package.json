@@ -15,8 +15,11 @@
     "f:suite": "pnpm --filter @growly/suite",
     "f:play": "pnpm --filter @growly/playground",
     "changeset": "changeset",
+    "changeset:version": "changeset version",
+    "changeset:publish": "pnpm build && changeset publish",
     "release:check": "changeset status --verbose --since=origin/main",
-    "release:publish": "changeset publish"
+    "release:version": "changeset version",
+    "release:publish": "pnpm build && changeset publish"
   },
   "precommit.silent": true,
   "pre-commit": [

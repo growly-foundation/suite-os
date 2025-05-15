@@ -146,6 +146,12 @@
       "module": "./dist/widgets/index.js",
       "import": "./dist/widgets/index.js",
       "default": "./dist/widgets/index.js"
+    },
+    "./hooks": {
+      "types": "./dist/hooks/index.d.ts",
+      "module": "./dist/hooks/index.js",
+      "import": "./dist/hooks/index.js",
+      "default": "./dist/hooks/index.js"
     }
   },
   "packageManager": "pnpm@10.6.3"
