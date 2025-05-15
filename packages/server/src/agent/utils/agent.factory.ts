@@ -2,10 +2,10 @@
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
 import { ConfigService } from '@nestjs/config';
 import { getProtocolTool } from '../tools/defillama/defillama';
+import { makeTavilyTools } from '../tools/tavily';
 import { makeZerionTools } from '../tools/zerion/zerion';
-import { ChatModelFactory, ChatProvider } from './model.factory';
-import { PostgresSaver } from '@langchain/langgraph-checkpoint-postgres';
 import { getCheckpointer } from './checkpointer';
+import { ChatModelFactory, ChatProvider } from './model.factory';
 
 /**
  * Interface for agent creation options
@@ -33,8 +33,13 @@ export async function createAgent(
     const llm = ChatModelFactory.create({ provider });
     // Use ConfigService for tool creation
     const { getPortfolioOverviewTool, getFungiblePositionsTool } = makeZerionTools(configService);
-
-    const tools = [getPortfolioOverviewTool, getFungiblePositionsTool, getProtocolTool];
+    const tavilySearchTool = makeTavilyTools(configService);
+    const tools = [
+      getPortfolioOverviewTool,
+      getFungiblePositionsTool,
+      getProtocolTool,
+      tavilySearchTool,
+    ];
     const checkpointer = await getCheckpointer(configService);
 
     // Initialize Agent with optional checkpointer

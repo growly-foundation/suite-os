@@ -112,3 +112,16 @@ export const pruneGetProtocolResponse = (
 
   return result;
 };
+
+/**
+ * Excludes time-series fields from the protocol response
+ *
+ * @param protocol - The protocol response from DefiLlama API
+ * @returns A copy of the protocol response with time-series fields excluded
+ */
+export const excludeTimeSeriesFields = (
+  protocol: ProtocolResponse
+): Omit<ProtocolResponse, 'tvl' | 'tokensInUsd' | 'tokens' | 'chainTvls'> => {
+  const { tvl, tokensInUsd, tokens, chainTvls, ...rest } = protocol;
+  return rest;
+};
