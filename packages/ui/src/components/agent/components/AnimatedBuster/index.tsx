@@ -13,12 +13,13 @@ export const AnimatedBuster = ({
   height,
   state,
   setState,
+  ...rest
 }: {
   width?: number;
   height?: number;
   state?: BusterState;
   setState?: (state: BusterState) => void;
-}) => {
+} & React.HTMLAttributes<HTMLDivElement>) => {
   const [internalState, setInternalState] = useState<BusterState>(state || 'idle');
 
   const handleStateChange = (newState: BusterState) => {
@@ -64,6 +65,7 @@ export const AnimatedBuster = ({
 
   return (
     <div
+      {...rest}
       style={{ width, height }}
       onMouseEnter={() => handleStateChange('hover')}
       onMouseLeave={() => handleStateChange('idle')}

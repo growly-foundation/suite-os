@@ -42,7 +42,14 @@ export interface SuiteGlobalContext {
    * Session configuration.
    */
   session?: Partial<{
+    /**
+     * Wallet address.
+     */
     walletAddress: `0x${string}`;
+    /**
+     * Connect wallet function.
+     */
+    connect?: () => void;
   }>;
   config?: SuiteConfig;
   setConfig?: (config: SuiteConfig) => void;

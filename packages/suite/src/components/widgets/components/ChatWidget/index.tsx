@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { FloatingButton } from './FloatingButton';
-import { ChatPanelContainer, ChatPanel } from './ChatPanel';
+import { ChatPanelContainer, ChatPanel } from '../../../chat/components/ChatPanel';
 import { useWidgetSession } from '@/hooks/use-session';
 
 function ChatWidgetContainer({

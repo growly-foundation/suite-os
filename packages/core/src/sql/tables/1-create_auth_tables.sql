@@ -45,3 +45,6 @@ comment on table public.users is 'Users for the application.';
 
 GRANT ALL ON TABLE users TO postgres;
 GRANT ALL ON TABLE users TO service_role;
+
+-- Add column `is_anonymous`
+ALTER TABLE users ADD COLUMN is_anonymous BOOLEAN NOT NULL DEFAULT FALSE;

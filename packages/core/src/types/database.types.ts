@@ -258,16 +258,19 @@ export type Database = {
           created_at: string
           entities: Json
           id: string
+          is_anonymous: boolean | null
         }
         Insert: {
           created_at?: string
           entities: Json
           id?: string
+          is_anonymous?: boolean | null
         }
         Update: {
           created_at?: string
           entities?: Json
           id?: string
+          is_anonymous?: boolean | null
         }
         Relationships: []
       }

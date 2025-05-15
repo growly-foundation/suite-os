@@ -10,16 +10,10 @@ import FramerSpotlight from '@/components/framer-spotlight';
 import CssGridBackground from '@/components/css-grid-background';
 import FeaturesSection from '@/components/features-section';
 import StructuredData from '@/components/structured-data';
-import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import { BusterState } from '@/components/animated-buster';
 import { motion } from 'framer-motion';
 import TechStack from '@/components/tech-stack';
-
-const AnimatedBuster = dynamic(
-  () => import('@/components/animated-buster').then(mod => mod.AnimatedBuster),
-  { ssr: false }
-);
+import { BusterState, AnimatedBuster } from '@growly/ui';
 
 export default function Home() {
   const [state, setState] = useState<BusterState>('idle');

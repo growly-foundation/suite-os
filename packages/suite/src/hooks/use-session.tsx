@@ -1,13 +1,18 @@
 import { suiteCoreService } from '@/services/core.service';
 import { create } from 'zustand';
 import { Agent, AgentId, MessageContent, ParsedMessage, ParsedUser } from '@growly/core';
+import { BusterState } from '@growly/ui';
 
 type Optional<T> = T | undefined | null;
 
 interface WidgetSession {
+  busterState: BusterState;
+  setBusterState: (state: BusterState) => void;
   panelOpen: boolean;
   togglePanel: () => void;
   user: Optional<ParsedUser>;
+  inputValue: string;
+  setInputValue: (value: string) => void;
   agent: Optional<Agent>;
   messages: ParsedMessage[];
   isLoadingMessages: boolean;
@@ -23,9 +28,13 @@ interface WidgetSession {
 }
 
 export const useWidgetSession = create<WidgetSession>((set, get) => ({
+  busterState: 'idle',
+  setBusterState: state => set({ busterState: state }),
   panelOpen: false,
   togglePanel: () => set({ panelOpen: !get().panelOpen }),
   user: undefined,
+  inputValue: '',
+  setInputValue: value => set({ inputValue: value }),
   agent: undefined,
   messages: [],
   isLoadingMessages: false,
