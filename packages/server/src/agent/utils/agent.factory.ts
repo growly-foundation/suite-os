@@ -4,32 +4,45 @@ import { ConfigService } from '@nestjs/config';
 import { getProtocolTool } from '../tools/defillama/defillama';
 import { makeZerionTools } from '../tools/zerion/zerion';
 import { ChatModelFactory, ChatProvider } from './model.factory';
+import { PostgresSaver } from '@langchain/langgraph-checkpoint-postgres';
+import { getCheckpointer } from './checkpointer';
+
+/**
+ * Interface for agent creation options
+ */
+export interface AgentOptions {
+  provider?: ChatProvider;
+  agentId: string;
+  systemPrompt: string;
+}
 
 /**
  * Initializes and returns an instance of the AI agent with a dynamic system prompt.
  *
- * @param provider The chat model provider
+ * @param options The agent creation options
  * @param configService The NestJS config service
- * @param systemPrompt The system prompt to use for this agent instance
  * @returns The initialized AI agent
  */
-export function createAgent(
-  provider: ChatProvider = 'openai',
-  configService: ConfigService,
-  systemPrompt: string
-): ReturnType<typeof createReactAgent> {
+export async function createAgent(
+  options: AgentOptions,
+  configService: ConfigService
+): Promise<ReturnType<typeof createReactAgent>> {
   try {
+    const { provider = 'openai', systemPrompt } = options;
+
     const llm = ChatModelFactory.create({ provider });
     // Use ConfigService for tool creation
     const { getPortfolioOverviewTool, getFungiblePositionsTool } = makeZerionTools(configService);
 
     const tools = [getPortfolioOverviewTool, getFungiblePositionsTool, getProtocolTool];
+    const checkpointer = await getCheckpointer(configService);
 
-    // Initialize Agent without checkpointer
+    // Initialize Agent with optional checkpointer
     return createReactAgent({
       llm,
       tools,
       prompt: systemPrompt,
+      checkpointSaver: checkpointer,
     });
   } catch (error) {
     console.error('Error initializing agent:', error);

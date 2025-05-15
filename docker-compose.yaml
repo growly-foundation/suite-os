@@ -1,19 +1,83 @@
 services:
+  postgres:
+    image: postgres:16
+    container_name: pg-db
+    restart: always
+    env_file: packages/server/.env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - web
+
   server:
     platform: linux/amd64
-    # image: ${REGISTRY:-registry.digitalocean.com/growly}/server:${TAG:-latest}
+    build:
+      context: .
+      dockerfile: packages/server/Dockerfile
     image: server:latest
-    stdin_open: true
-    tty: true
-    volumes:
-      - ./data:/app/data
-    env_file:
-      - packages/server/.env
+    container_name: server
+    restart: always
+    env_file: packages/server/.env
     ports:
       - '8080:8080'
-    restart: always
+    depends_on:
+      - postgres
+    networks:
+      - web
 
-  watchtower:
-    image: containrrr/watchtower
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    ports:
+      - '5050:80'
+    depends_on:
+      - postgres
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - pgadmin_data:/var/lib/pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: team@growly.foundation
+      PGADMIN_DEFAULT_PASSWORD: growly
+    networks:
+      - web
+
+  # nginx-proxy:
+  #   image: jwilder/nginx-proxy
+  #   container_name: nginx-proxy
+  #   restart: always
+  #   privileged: true
+  #   ports:
+  #     - '80:80'
+  #     - '443:443'
+  #   volumes:
+  #     - ./nginx/vhost.d:/etc/nginx/vhost.d
+  #     - ./nginx-certs:/etc/nginx/certs:ro
+  #     - ./nginx-conf:/etc/nginx/conf.d
+  #     - ./nginx-logs:/var/log/nginx
+  #     - /usr/share/nginx/html
+  #     - /var/run/docker.sock:/tmp/docker.sock:ro
+  #   networks:
+  #     - web
+
+  # nginx-letsencrypt:
+  #   image: jrcs/letsencrypt-nginx-proxy-companion
+  #   container_name: nginx-letsencrypt
+  #   restart: always
+  #   privileged: true
+  #   volumes:
+  #     - ./nginx/vhost.d:/etc/nginx/vhost.d
+  #     - ./nginx-certs:/etc/nginx/certs:rw
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #     - ./nginx-conf:/etc/nginx/conf.d
+  #   volumes_from:
+  #     - nginx-proxy
+  #   networks:
+  #     - web
+
+volumes:
+  pg_data:
+  pgadmin_data:
+
+networks:
+  web:
+    driver: bridge
