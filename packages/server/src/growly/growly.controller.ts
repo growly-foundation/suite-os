@@ -5,17 +5,6 @@ import { ChatService } from 'src/chat/chat.service';
 export class GrowlyController {
   constructor(private readonly chatService: ChatService) {}
 
-  // @Post()
-  // async chat(
-  //   @Body('message') message: string,
-  //   @Body('userId') userId: string,
-  //   @Body('agentId') agentId: string,
-  //   @Body('isBeastMode') isBeastMode: boolean
-  // ) {
-  //   const reply = await this.chatService.chat({ message, userId, agentId });
-  //   return { reply };
-  // }
-
   @Post()
   async chat(
     @Body('message') message: string,
@@ -24,9 +13,9 @@ export class GrowlyController {
     @Body('stepId') stepId: string
   ) {
     // TODO: Implement growly chat
-    // const reply = await this.chatService.chat({ message, userId, agentId });
+    const reply = await this.chatService.advancedChat({ message, userId, agentId });
     return {
-      reply: 'You were charged $0.001 USDC on base-sepolia',
+      reply,
     };
   }
 }

@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { getProtocolTool } from '../tools/defillama/defillama';
 import { makeTavilyTools } from '../tools/tavily';
 import { makeZerionTools } from '../tools/zerion/zerion';
+import { makeUniswapTools } from '../tools/growly/uniswap';
 import { getCheckpointer } from './checkpointer';
 import { ChatModelFactory, ChatProvider } from './model.factory';
 
@@ -33,10 +34,13 @@ export async function createAgent(
     const llm = ChatModelFactory.create({ provider });
     // Use ConfigService for tool creation
     const { getPortfolioOverviewTool, getFungiblePositionsTool } = makeZerionTools(configService);
+    const { rebalancePortfolioTool, portfolioAnalyzerTool } = makeUniswapTools(configService);
     const tavilySearchTool = makeTavilyTools(configService);
     const tools = [
       getPortfolioOverviewTool,
       getFungiblePositionsTool,
+      rebalancePortfolioTool,
+      portfolioAnalyzerTool,
       getProtocolTool,
       tavilySearchTool,
     ];
