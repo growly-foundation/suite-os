@@ -1,18 +1,16 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
 import React, { useLayoutEffect } from 'react';
 import { ConversationRole, MessageContent } from '@growly/core';
-import { useSuite } from '@/components/providers/SuiteProvider';
+import { useSuite } from '@/hooks/use-suite';
 import { Avatar, Identity, Name, Badge, Address } from '@coinbase/onchainkit/identity';
-import { border, cn } from '@/styles/theme';
 import { chatService } from '@/services/chat.service';
 import { suiteCoreService } from '@/services/core.service';
 import { useSuiteSession } from '@/hooks/use-session';
-import { ChatPanelHeader } from './ChatPanelHeader';
 import { ChatMessageView } from './ChatMessageView';
 import { ChatInput } from './ChatInput';
 import { ConnectWallet } from './ConnectWallet';
+import { PanelLayout } from '@/components/panel/components/PanelLayout';
 
 export function ChatPanel() {
   const {
@@ -108,15 +106,6 @@ export function ChatPanel() {
 
   return (
     <React.Fragment>
-      {/* Header */}
-      <div
-        className={cn('p-4 shadow-md border-b', border.lineDefault)}
-        style={{
-          backgroundColor: config?.theme?.headerBackground,
-          color: config?.theme?.headerText,
-        }}>
-        <ChatPanelHeader />
-      </div>
       {walletAddress ? (
         <>
           {integration?.onchainKit?.enabled && (
@@ -128,41 +117,14 @@ export function ChatPanel() {
               <Address />
             </Identity>
           )}
-          {/* Messages */}
-          <ChatMessageView />
-          {/* Input Area */}
+          <PanelLayout>
+            <ChatMessageView />
+          </PanelLayout>
           <ChatInput sendMessageHandler={sendMessageHandler} isSending={isSending} />
         </>
       ) : (
         <ConnectWallet />
       )}
     </React.Fragment>
-  );
-}
-
-export function ChatPanelContainer() {
-  const { config } = useSuite();
-  const { panelOpen } = useSuiteSession();
-
-  return (
-    <AnimatePresence>
-      {panelOpen && (
-        <motion.div
-          initial={{ y: '100%', opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: '100%', opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className={cn(
-            'fixed rounded-t-lg bottom-0 right-0 w-full max-w-[450px] sm:w-[450px] shadow-2xl z-[9999] flex flex-col overflow-hidden',
-            border.default,
-            config?.display === 'fullView' ? 'h-[100vh]' : 'h-[650px]'
-          )}
-          style={{
-            backgroundColor: config?.theme?.background,
-          }}>
-          <ChatPanel />
-        </motion.div>
-      )}
-    </AnimatePresence>
   );
 }

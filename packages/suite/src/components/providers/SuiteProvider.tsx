@@ -4,6 +4,7 @@ import { useSuiteSession } from '../../hooks/use-session';
 import { Loader2 } from 'lucide-react';
 import { WalletConnectProvider } from './WalletConnectProvider';
 import { SuiteGlobalContext } from './SuiteProvider.types';
+import { Theme } from '../widgets';
 
 export const SuiteContext = React.createContext<
   SuiteGlobalContext & {
@@ -16,7 +17,10 @@ export const SuiteContext = React.createContext<
   agentId: '',
   organizationApiKey: '',
   session: undefined,
-  config: undefined,
+  config: {
+    display: 'panel',
+    theme: Theme.monoTheme,
+  },
   setConfig: () => {},
   appState: {
     walletAddress: undefined,
@@ -58,11 +62,11 @@ export const SuiteProvider: React.FC<{
 
   if (!walletAddress && !context.session?.connect) {
     console.log('Growly Suite: Wallet is not connected');
-    if (context.session?.walletConnect?.projectId) {
-      console.log('Growly Suite: Enabling WalletConnect');
-      // If wallet is not connected and there is not method to connect, we will use WalletConnectProvider.
-      baseComponent = <WalletConnectProvider>{baseComponent}</WalletConnectProvider>;
-    }
+  }
+  if (context.session?.walletConnect?.projectId) {
+    console.log('Growly Suite: Enabling WalletConnect');
+    // If wallet is not connected and there is not method to connect, we will use WalletConnectProvider.
+    baseComponent = <WalletConnectProvider>{baseComponent}</WalletConnectProvider>;
   }
 
   if (context.integration?.onchainKit?.enabled) {
@@ -80,6 +84,10 @@ export const SuiteProvider: React.FC<{
     <SuiteContext.Provider
       value={{
         ...context,
+        config: {
+          display: context.config?.display ?? 'panel',
+          theme: context.config?.theme ?? Theme.monoTheme,
+        },
         appState: {
           walletAddress,
           setWalletAddress,

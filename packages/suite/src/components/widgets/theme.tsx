@@ -1,4 +1,4 @@
-import { SuiteConfig } from '@/components/providers/SuiteProvider';
+import { SuiteConfig } from '@/components/providers/SuiteProvider.types';
 
 export const defaultTheme: SuiteConfig['theme'] = {
   primary: '#0052ff',

@@ -4,7 +4,7 @@ import { BRAND_NAME_CAPITALIZED } from '@growly/ui';
 import { X } from 'lucide-react';
 import { useSuiteSession } from '@/hooks/use-session';
 
-export const ChatPanelHeader = () => {
+export const PanelHeader = () => {
   const { togglePanel, agent } = useSuiteSession();
   return (
     <div className="flex justify-between items-center">
