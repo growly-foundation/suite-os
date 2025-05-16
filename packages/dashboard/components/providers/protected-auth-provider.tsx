@@ -64,7 +64,10 @@ export const useAuth = () => {
 
   async function createUserIfNotExists() {
     await delay(2000);
-    if (!ready) return;
+    if (!ready) {
+      setIsLoading(false);
+      return;
+    }
     if (authenticated && user?.email) {
       try {
         const admin = await fetchCurrentAdmin(user.email.address);

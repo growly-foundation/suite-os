@@ -35,7 +35,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
       <SuiteProviderWrapper>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange>
           <ReactFlowProvider>
