@@ -620,7 +620,7 @@ Output:
           const tokenAmount = liquidityPlan.swapRecommendation.tokenAmount || 0;
 
           // Create swap link with token amount
-          const swapLink = `https://app.uniswap.org/swap?inputCurrency=${currencyFrom}&outputCurrency=${currencyTo}&exactAmount=${tokenAmount.toFixed(6)}&chain=${chain}`;
+          const swapLink = `https://app.uniswap.org/swap?inputCurrency=${currencyFrom}&outputCurrency=${currencyTo}&value=${tokenAmount.toFixed(6)}&chain=${chain}`;
 
           // Update the recommendation
           liquidityPlan.swapRecommendation.uniswapLink = swapLink;

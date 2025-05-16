@@ -67,11 +67,27 @@ export function makeRebalancePortfolioTool(configService: ConfigService) {
         toAddress = await tokenListManager.getTokenAddress(chain, toToken.symbol);
       }
 
+      // Check if either token is the chain's native token (ETH)
+      const isNativeFrom =
+        fromToken.symbol === 'ETH' &&
+        (chain === 'ethereum' || chain === 'optimism' || chain === 'arbitrum' || chain === 'base');
+
+      const isNativeTo =
+        toToken.symbol === 'ETH' &&
+        (chain === 'ethereum' || chain === 'optimism' || chain === 'arbitrum' || chain === 'base');
+
+      const isNativeMatic = fromToken.symbol === 'MATIC' && chain === 'polygon';
+      const isNativeMaticTo = toToken.symbol === 'MATIC' && chain === 'polygon';
+
+      // Format currency parameters
+      let currencyFrom = isNativeFrom || isNativeMatic ? 'NATIVE' : fromAddress;
+      let currencyTo = isNativeTo || isNativeMaticTo ? 'NATIVE' : toAddress;
+
       // Use the token amount that was already calculated in createRecommendation
       const finalTokenAmount = tokenAmount > 0 ? tokenAmount : 1.0;
 
       // Generate the Uniswap link with the token amount (not USD value)
-      const uniswapLink = `https://app.uniswap.org/swap?inputCurrency=${fromAddress}&outputCurrency=${toAddress}&value=${finalTokenAmount.toFixed(6)}&chain=${chain}`;
+      const uniswapLink = `https://app.uniswap.org/swap?inputCurrency=${currencyFrom}&outputCurrency=${currencyTo}&exactAmount=${finalTokenAmount.toFixed(6)}&chain=${chain}`;
 
       // Return updated recommendation
       return {
