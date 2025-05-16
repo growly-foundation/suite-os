@@ -34,13 +34,15 @@ export async function createAgent(
     const llm = ChatModelFactory.create({ provider });
     // Use ConfigService for tool creation
     const { getPortfolioOverviewTool, getFungiblePositionsTool } = makeZerionTools(configService);
-    const { rebalancePortfolioTool, portfolioAnalyzerTool } = makeUniswapTools(configService);
+    const { rebalancePortfolioTool, portfolioAnalyzerTool, liquidityProviderTool } =
+      makeUniswapTools(configService);
     const tavilySearchTool = makeTavilyTools(configService);
     const tools = [
       getPortfolioOverviewTool,
       getFungiblePositionsTool,
       rebalancePortfolioTool,
       portfolioAnalyzerTool,
+      liquidityProviderTool,
       getProtocolTool,
       tavilySearchTool,
     ];

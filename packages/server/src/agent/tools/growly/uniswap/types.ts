@@ -19,6 +19,27 @@ export interface RebalanceRecommendation {
   tokenAmount?: number;
 }
 
+export interface LiquidityPairRecommendation {
+  tokenA: TokenInfo;
+  tokenB: TokenInfo;
+  reason: string;
+  uniswapLink: string;
+  liquidityValueA: number;
+  liquidityValueB: number;
+  tokenAmountA?: number;
+  tokenAmountB?: number;
+  expectedAPR?: number;
+  pairRisk: 'Low' | 'Medium' | 'High';
+}
+
+export interface LiquidityPlan {
+  swapRecommendation?: RebalanceRecommendation;
+  liquidityRecommendation: LiquidityPairRecommendation;
+  totalValueLocked: number;
+  overallRisk: 'Low' | 'Medium' | 'High';
+  detailedReason: string;
+}
+
 export interface PortfolioAnalysis {
   riskLevel: 'Low' | 'Medium' | 'High';
   fromToken: TokenInfo | null;

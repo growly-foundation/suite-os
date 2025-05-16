@@ -27,14 +27,51 @@ The `rebalance_portfolio_suggestion` tool provides actionable rebalance recommen
 - Supports multiple chains including Ethereum, Polygon, Arbitrum, and Optimism
 - Dynamically fetches token addresses from standard token lists:
   - Superchain token list: https://static.optimism.io/optimism.tokenlist.json
-  - Uniswap token list: https://ipfs.io/ipns/tokens.uniswap.org
+  - Uses fallback addresses for common tokens if lists are unavailable
+
+### 3. Liquidity Provider
+
+The `provide_liquidity_suggestion` tool helps users earn passive income by providing liquidity to Uniswap pools:
+
+- Analyzes portfolio to find optimal token pairs for liquidity provision
+- Recommends balanced liquidity positions tailored to user's risk preferences
+- Prioritizes popular trading pairs (ETH/stablecoin) and high-volume pools
+- Calculates exact token amounts needed for balanced 50/50 pools
+- Generates pre-filled Uniswap V4 position creation links
+- Provides comprehensive liquidity plans that may include initial rebalancing
+- Fetches real-time pool data using Uniswap V4 SDK and viem including:
+  - Actual pool APR based on fees and volume
+  - Current Total Value Locked (TVL)
+  - 24-hour trading volume
+  - Risk assessment based on real pool metrics
+- Falls back to estimated values when real-time data is unavailable
+- Offers complete step-by-step guidance for users new to providing liquidity
+
+## Architecture
+
+The tools utilize several specialized components:
+
+### TokenListManager
+
+- Fetches and caches token addresses from common token lists
+- Provides fallback addresses for popular tokens
+- Handles cross-chain token address resolution
+
+### PoolDataFetcher
+
+- Interfaces with Uniswap V4 pools using the V4 SDK
+- Connects to multiple EVM chains using viem
+- Retrieves on-chain data for accurate pool metrics
+- Calculates APR, TVL, and volume from real pool data
+- Supports Ethereum, Optimism, Arbitrum, Base, and Polygon
 
 ## Usage Flow
 
-The recommended usage flow for these tools is:
+The tools can be used together for a complete DeFi strategy:
 
-1. When a user requests portfolio analysis or rebalancing suggestions, first use the `analyze_portfolio` tool to provide a comprehensive assessment
-2. If the user wishes to proceed with the suggested changes, use the `rebalance_portfolio_suggestion` tool to generate a pre-filled Uniswap swap link
+1. First use the `analyze_portfolio` tool to provide a comprehensive assessment
+2. If rebalancing is needed, use the `rebalance_portfolio_suggestion` tool for optimal token allocation
+3. For users interested in passive income, use the `provide_liquidity_suggestion` tool to identify and set up optimal liquidity positions
 
 ## Trigger Phrases
 
@@ -43,114 +80,24 @@ The recommended usage flow for these tools is:
 - "Analyze my portfolio"
 - "What's my risk level?"
 - "Can you assess my crypto holdings?"
-- "How balanced is my portfolio?"
-- "Give me detailed portfolio insights"
 
 ### Portfolio Rebalancer Triggers:
 
-- "Give me a Uniswap link to rebalance"
-- "I want to rebalance my portfolio"
-- "Help me diversify my crypto"
-- "I want to optimize my holdings"
-- "Generate a swap link"
+- "How should I rebalance my portfolio?"
+- "Suggest some trades to optimize my holdings"
+- "Help me diversify my crypto assets"
+
+### Liquidity Provider Triggers:
+
+- "How can I earn passive income with my crypto?"
+- "Suggest liquidity pairs for my portfolio"
+- "Help me provide liquidity on Uniswap"
+- "What's the best way to earn fees on my tokens?"
 
 ## Sample Outputs
 
 ### Portfolio Analyzer Output
 
 ```
-## Detailed Portfolio Analysis
-
-**Total Value:** $10,450.75
-**Risk Level:** High
-**Stablecoin Allocation:** 12.5%
-**Largest Position:** 68.3% of portfolio
-**Blockchain Diversification:** 2 chain(s)
-**Position Types:** 3 type(s)
-
-### Top Holdings
-- ETH: $7,134.33 (68.3%)
-- USDC: $1,306.34 (12.5%)
-- UNI: $1,045.08 (10.0%)
-- LINK: $575.00 (5.5%)
-- AAVE: $390.00 (3.7%)
-
-### Analysis & Recommendation
-
-I recommend swapping **1.783580 ETH** (about $1,783.58, 25% of your holdings) to **USDC**.
-
-### Detailed Reasoning
-Your portfolio currently has 68.3% concentrated in ETH, which creates significant concentration risk even for a moderate strategy.
-
-A balanced portfolio typically avoids having any single asset exceed 30-40% of total holdings to mitigate volatility while still capturing growth.
-
-I recommend rebalancing by moving 25% of your ETH position to USDC, which operates on the same blockchain and offers complementary exposure.
-
-This adjustment maintains your overall market exposure while reducing the impact of potential negative price movements in ETH.
-
-This rebalancing would optimize your portfolio based on your strategy preferences while maintaining appropriate risk exposure.
-```
-
-### Portfolio Rebalancer Output
 
 ```
-## Portfolio Rebalance Recommendation
-
-I suggest swapping **1.200000 ETH** (about $1200.00 USD) to **USDC**.
-
-### Why make this swap?
-Reducing exposure to high volatility assets to preserve capital
-
-### Current allocation:
-- ETH: $4000.00 (80.00% of portfolio)
-- USDC: $1000.00 (20.00% of portfolio)
-
-### After rebalancing (estimated):
-- ETH: $2800.00
-- USDC: $2200.00
-
-You can execute this swap on Uniswap:
-@https://app.uniswap.org/swap?inputCurrency=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2&outputCurrency=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&value=1.200000&chain=ethereum
-```
-
-## Implementation Details
-
-Both tools utilize:
-
-1. Zerion API for fetching portfolio data
-2. TokenListManager for resolving token addresses
-3. Strategy-specific analysis logic for generating recommendations
-4. Token price estimation to convert USD values to token amounts
-
-## Uniswap Link Parameters
-
-For generating Uniswap swap links, the tools use the `value` parameter which specifies the exact amount of tokens to swap:
-
-- `inputCurrency`: The address of the token being swapped from
-- `outputCurrency`: The address of the token being swapped to
-- `value`: The exact amount of the input token to swap (not USD value)
-- `chain`: The blockchain network to use for the swap
-
-## Token Conversion Logic
-
-The tools calculate actual token amounts using the following process:
-
-1. Extract token value and percentage from Zerion data
-2. Derive approximate token price by analyzing portfolio composition
-3. Convert USD swap value to token amount using the estimated price
-4. Display both token amount and USD value for better context
-
-## Token Addresses
-
-Token addresses for Uniswap links are resolved from:
-
-1. The token data returned by Zerion API when available
-2. Dynamically fetched from Superchain and Uniswap token lists
-3. A fallback list of essential tokens if external sources fail
-
-The TokenListManager handles fetching and caching token lists, with a 1-hour refresh period to ensure up-to-date token information while minimizing API calls.
-
-## Requirements
-
-- Zerion API access
-- Valid wallet address to analyze
