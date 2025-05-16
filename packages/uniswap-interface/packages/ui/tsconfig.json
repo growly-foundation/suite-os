@@ -1,0 +1,18 @@
+{
+  "extends": "../../config/tsconfig/ui.json",
+  "include": [
+    "src"
+  ],
+  "references": [
+    {
+      "path": "../utilities"
+    },
+  ],
+  "compilerOptions": {
+    "types": [
+      "chrome",
+      "jest",
+      "cypress"
+    ]
+  }
+}

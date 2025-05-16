@@ -1,0 +1,12 @@
+fragment SimpleTokenDetails on Token {
+  ...TokenBasicInfoParts
+  project {
+    id
+    isSpam
+    logoUrl
+    name
+    safetyLevel
+  }
+  ...TokenFeeDataParts
+  ...TokenProtectionInfoParts
+}

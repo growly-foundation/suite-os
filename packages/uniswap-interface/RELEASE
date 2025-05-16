@@ -1,0 +1,23 @@
+IPFS hash of the deployment:
+- CIDv0: `QmYgGWW41t5rZ973ouoVCPSVJ7xSk1ouQS8hXJaVrwBydQ`
+- CIDv1: `bafybeieztnrdyd2anpehiktteokw23mwgbjmnz42u4cpzosxjxignq2bf4`
+
+The latest release is always mirrored at [app.uniswap.org](https://app.uniswap.org).
+
+You can also access the Uniswap Interface from an IPFS gateway.
+**BEWARE**: The Uniswap interface uses [`localStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) to remember your settings, such as which tokens you have imported.
+**You should always use an IPFS gateway that enforces origin separation**, or our hosted deployment of the latest release at [app.uniswap.org](https://app.uniswap.org).
+Your Uniswap settings are never remembered across different URLs.
+
+IPFS gateways:
+- https://bafybeieztnrdyd2anpehiktteokw23mwgbjmnz42u4cpzosxjxignq2bf4.ipfs.dweb.link/
+- [ipfs://QmYgGWW41t5rZ973ouoVCPSVJ7xSk1ouQS8hXJaVrwBydQ/](ipfs://QmYgGWW41t5rZ973ouoVCPSVJ7xSk1ouQS8hXJaVrwBydQ/)
+
+## 5.85.0 (2025-05-15)
+
+
+### Features
+
+* **web:** gracefully handle upgrade prompt rejection [prod] (#19757) b76e682
+
+

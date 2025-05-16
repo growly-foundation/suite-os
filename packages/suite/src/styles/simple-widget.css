@@ -1,0 +1,48 @@
+/* Simple Widget Styles */
+.growly-suite-widget {
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
+    'Helvetica Neue', sans-serif;
+  font-size: 14px;
+}
+
+.growly-suite-widget button {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.growly-suite-widget input {
+  font-family: inherit;
+  font-size: inherit;
+  outline: none;
+}
+
+.growly-suite-widget input:focus {
+  border-color: #6366f1;
+}
+
+.growly-suite-widget p {
+  margin: 0 0 10px 0;
+}
+
+/* Animation for the widget button */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+  }
+
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+  }
+}
+
+.growly-suite-widget button:hover {
+  animation: pulse 1.5s infinite;
+}

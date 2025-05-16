@@ -16,7 +16,10 @@
     "f:play": "pnpm --filter @growly/playground",
     "changeset": "changeset",
     "release:check": "changeset status --verbose --since=origin/main",
-    "release:publish": "changeset publish"
+    "release:publish": "changeset publish",
+    "copy-widget": "node scripts/copy-growly-widget.js",
+    "build:simple-widget": "node scripts/build-simple-widget.js",
+    "build:uniswap": "pnpm build:simple-widget && cd packages/uniswap-interface && yarn web start"
   },
   "precommit.silent": true,
   "pre-commit": [
