@@ -1,4 +1,5 @@
 import '@coinbase/onchainkit/styles.css';
+import '@rainbow-me/rainbowkit/styles.css';
 
 export * from './components/ChatWidget';
 export * from './components/DemoChatWidget';

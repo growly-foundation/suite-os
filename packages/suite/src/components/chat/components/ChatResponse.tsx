@@ -11,9 +11,11 @@ import { buildSystemErrorMessage } from '@/components/messages/system';
 import { border, text } from '@/styles/theme';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
+import { buildMarkdownMessage } from '@/components/messages/system/markdown';
+import { buildTextMessage } from '@/components/messages/system/text';
 
 const MessageContent = ({ message }: { message: ParsedMessage }) => {
-  const { config, integration } = useSuite();
+  const { integration } = useSuite();
   const onchainKitEnabled = integration?.onchainKit?.enabled;
   const [time, setTime] = useState(moment(message.created_at).fromNow());
 
@@ -22,13 +24,10 @@ const MessageContent = ({ message }: { message: ParsedMessage }) => {
   }, [moment(message.created_at).minutes()]);
 
   if (message.type === 'text') {
-    return (
-      <p className="text-sm">
-        {message.content}
-        <br />
-        <span className="text-xs opacity-50">{time}</span>
-      </p>
-    );
+    if (message.sender === ConversationRole.User) {
+      return buildTextMessage(message.content, time);
+    }
+    return buildMarkdownMessage(message.content, time);
   }
   if (message.type === 'system:error') {
     return buildSystemErrorMessage(message.content, time);

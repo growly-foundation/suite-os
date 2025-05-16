@@ -22,6 +22,7 @@ export const ChatInput = ({
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter') {
       sendMessageHandler();
+      setInputValue('');
     }
   };
 
