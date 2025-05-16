@@ -1,28 +1,33 @@
-export const BuildingIcon = () => (
+export const OnboardingIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
-      d="M15 19H17V5H7V19H9M15 19V13C15 12.4477 14.5523 12 14 12H10C9.44772 12 9 12.4477 9 13V19M15 19H9"
-      stroke="url(#building-gradient)"
+      d="M15 10L19.553 7.724C19.7054 7.64784 19.8748 7.61131 20.0466 7.61752C20.2183 7.62373 20.3845 7.67248 20.5302 7.7595C20.6759 7.84652 20.7961 7.97 20.8795 8.11894C20.9628 8.26789 21.0062 8.43713 21.006 8.609V15.379C21.0056 15.5517 20.9613 15.7215 20.8765 15.8707C20.7917 16.0198 20.6698 16.1429 20.5225 16.229L16 18.5"
+      stroke="url(#rocket-gradient)"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <path
-      d="M4 19H20"
-      stroke="url(#building-gradient)"
+      d="M15 15V19C15 19.2652 14.8946 19.5196 14.7071 19.7071C14.5196 19.8946 14.2652 20 14 20H5C4.73478 20 4.48043 19.8946 4.29289 19.7071C4.10536 19.5196 4 19.2652 4 19V8C4 7.73478 4.10536 7.48043 4.29289 7.29289C4.48043 7.10536 4.73478 7 5 7H14C14.2652 7 14.5196 7.10536 14.7071 7.29289C14.8946 7.48043 15 7.73478 15 8V12"
+      stroke="url(#rocket-gradient)"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
-    <rect x="10" y="7" width="4" height="3" rx="0.5" fill="#ffffff" />
-    <rect x="10" y="14" width="4" height="3" rx="0.5" fill="#ffffff" />
+    <path
+      d="M7 15L9 17L13 13"
+      stroke="#ffffff"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
     <defs>
       <linearGradient
-        id="building-gradient"
+        id="rocket-gradient"
         x1="4"
-        y1="5"
-        x2="20"
-        y2="19"
+        y1="7"
+        x2="21"
+        y2="20"
         gradientUnits="userSpaceOnUse">
         <stop stopColor="#60A5FA" />
         <stop offset="1" stopColor="#3B82F6" />
@@ -31,119 +36,31 @@ export const BuildingIcon = () => (
   </svg>
 );
 
-export const GovernmentIcon = () => (
+export const UpgradeIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
-      d="M2 20H22M4 20V12M8 20V12M12 20V12M16 20V12M20 20V12M1 12H23M12 7L21 12L12 2L3 12L12 7Z"
-      stroke="url(#government-gradient)"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path d="M7 12V8H9V12H7Z" fill="#ffffff" />
-    <path d="M11 12V8H13V12H11Z" fill="#ffffff" />
-    <path d="M15 12V8H17V12H15Z" fill="#ffffff" />
-    <defs>
-      <linearGradient
-        id="government-gradient"
-        x1="1"
-        y1="2"
-        x2="23"
-        y2="20"
-        gradientUnits="userSpaceOnUse">
-        <stop stopColor="#A78BFA" />
-        <stop offset="1" stopColor="#8B5CF6" />
-      </linearGradient>
-    </defs>
-  </svg>
-);
-
-export const FinanceIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M3 22H21M3 10H21M3 18H21M3 14H21M3 6H21M5 2H19C20.1046 2 21 2.89543 21 4V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V4C3 2.89543 3.89543 2 5 2Z"
-      stroke="url(#finance-gradient)"
+      d="M12 8L12 16M12 8L8 12M12 8L16 12"
+      stroke="url(#upgrade-gradient)"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <path
-      d="M12 6C13.1046 6 14 5.10457 14 4C14 2.89543 13.1046 2 12 2C10.8954 2 10 2.89543 10 4C10 5.10457 10.8954 6 12 6Z"
-      fill="#ffffff"
-    />
-    <path
-      d="M12 22C13.1046 22 14 21.1046 14 20C14 18.8954 13.1046 18 12 18C10.8954 18 10 18.8954 10 20C10 21.1046 10.8954 22 12 22Z"
-      fill="#ffffff"
+      d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+      stroke="url(#upgrade-gradient)"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="url(#upgrade-gradient)"
+      fillOpacity="0.1"
     />
     <defs>
       <linearGradient
-        id="finance-gradient"
-        x1="3"
+        id="upgrade-gradient"
+        x1="2"
         y1="2"
-        x2="21"
+        x2="22"
         y2="22"
-        gradientUnits="userSpaceOnUse">
-        <stop stopColor="#FBBF24" />
-        <stop offset="1" stopColor="#F59E0B" />
-      </linearGradient>
-    </defs>
-  </svg>
-);
-
-export const HealthcareIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M4.5 12.5L8 16L12 12L16 16L19.5 12.5M12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21Z"
-      stroke="url(#healthcare-gradient)"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M12 7V13M9 10H15"
-      stroke="#ffffff"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <defs>
-      <linearGradient
-        id="healthcare-gradient"
-        x1="3"
-        y1="3"
-        x2="21"
-        y2="21"
-        gradientUnits="userSpaceOnUse">
-        <stop stopColor="#F87171" />
-        <stop offset="1" stopColor="#EF4444" />
-      </linearGradient>
-    </defs>
-  </svg>
-);
-
-export const LegalIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z"
-      stroke="url(#legal-gradient)"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M8 12H16M8 8H16M8 16H12"
-      stroke="#ffffff"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <defs>
-      <linearGradient
-        id="legal-gradient"
-        x1="3"
-        y1="3"
-        x2="21"
-        y2="21"
         gradientUnits="userSpaceOnUse">
         <stop stopColor="#A3E635" />
         <stop offset="1" stopColor="#84CC16" />
@@ -152,45 +69,87 @@ export const LegalIcon = () => (
   </svg>
 );
 
-export const EducationIcon = () => (
+export const MatchingIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
-      d="M12 4L3 9L12 14L21 9L12 4Z"
-      stroke="url(#education-gradient)"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      fill="url(#education-gradient)"
-      fillOpacity="0.2"
-    />
-    <path
-      d="M7.5 11.5V16.5C7.5 16.5 9.5 18.5 12 18.5C14.5 18.5 16.5 16.5 16.5 16.5V11.5"
-      stroke="url(#education-gradient)"
+      d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
+      stroke="url(#matching-gradient)"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <path
-      d="M19 12V16"
-      stroke="url(#education-gradient)"
+      d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z"
+      stroke="url(#matching-gradient)"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="url(#matching-gradient)"
+      fillOpacity="0.1"
+    />
+    <path
+      d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13"
+      stroke="url(#matching-gradient)"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <path
-      d="M19 19C19.5523 19 20 18.5523 20 18C20 17.4477 19.5523 17 19 17C18.4477 17 18 17.4477 18 18C18 18.5523 18.4477 19 19 19Z"
+      d="M16 3.13C16.8604 3.3503 17.623 3.8507 18.1676 4.55231C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89317 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88"
+      stroke="url(#matching-gradient)"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <defs>
+      <linearGradient
+        id="matching-gradient"
+        x1="1"
+        y1="3"
+        x2="23"
+        y2="21"
+        gradientUnits="userSpaceOnUse">
+        <stop stopColor="#C084FC" />
+        <stop offset="1" stopColor="#A855F7" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
+export const TargetingIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+      stroke="url(#target-gradient)"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18Z"
+      stroke="url(#target-gradient)"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10C10.8954 10 10 10.8954 10 12C10 13.1046 10.8954 14 12 14Z"
+      stroke="url(#target-gradient)"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       fill="#ffffff"
     />
     <defs>
       <linearGradient
-        id="education-gradient"
-        x1="3"
-        y1="4"
-        x2="21"
-        y2="18.5"
+        id="target-gradient"
+        x1="2"
+        y1="2"
+        x2="22"
+        y2="22"
         gradientUnits="userSpaceOnUse">
-        <stop stopColor="#38BDF8" />
-        <stop offset="1" stopColor="#0EA5E9" />
+        <stop stopColor="#F87171" />
+        <stop offset="1" stopColor="#EF4444" />
       </linearGradient>
     </defs>
   </svg>
