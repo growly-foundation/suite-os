@@ -3,7 +3,6 @@
 import type React from 'react';
 
 import { Home, Settings } from 'lucide-react';
-import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Screen } from '@/types/screen';
 import { useSuiteSession } from '@/hooks/use-session';
@@ -28,13 +27,12 @@ const navItems: NavItem[] = [
 ];
 
 export function MobileNavigation() {
-  const pathname = usePathname();
-  const { setScreen } = useSuiteSession();
+  const { setScreen, screen } = useSuiteSession();
   return (
     <div className="position-fixed bottom-0 left-0 right-0 w-full border-t border-gray-200 bg-white">
       <nav className="mx-auto flex h-14 max-w-md items-center justify-around px-4">
         {navItems.map(item => {
-          const isActive = pathname === item.screen;
+          const isActive = item.screen === screen;
           const IconComponent = item.icon;
           return (
             <div
