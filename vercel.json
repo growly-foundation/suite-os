@@ -1,7 +1,0 @@
-{
-  "installCommand": "pnpm run install:website",
-  "buildCommand": "pnpm run build:website",
-  "ignoreCommand": "npx turbo-ignore --fallback=HEAD^1",
-  "devCommand": "pnpm run dev:website",
-  "outputDirectory": "packages/website/.next"
-}
