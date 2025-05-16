@@ -20,7 +20,13 @@ async function bootstrap() {
   }
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://suite.getgrowly.app', 'https://getgrowly.app'],
+    origin: [
+      'http://localhost:3000',
+      'https://suite.getgrowly.app',
+      'https://www.suite.getgrowly.app',
+      'https://getgrowly.app',
+      'https://www.getgrowly.app',
+    ],
   });
   app.use(
     paymentMiddleware(
