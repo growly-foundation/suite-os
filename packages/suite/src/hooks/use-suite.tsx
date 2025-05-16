@@ -1,7 +1,8 @@
 import { SuiteContext } from '@/components/providers/SuiteProvider';
+import { useContext } from 'react';
 
 export const useSuite = () => {
-  const context = React.useContext(SuiteContext);
+  const context = useContext(SuiteContext);
   if (!context) {
     throw new Error('useSuite must be used within a SuiteProvider');
   }
