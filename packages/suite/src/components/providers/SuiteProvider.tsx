@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { OnchainKitProvider } from '@coinbase/onchainkit';
 import { useSuiteSession } from '../../hooks/use-session';
 import { Loader2 } from 'lucide-react';
@@ -10,7 +10,6 @@ export const SuiteContext = React.createContext<
   SuiteGlobalContext & {
     appState: {
       walletAddress: `0x${string}` | undefined;
-      setWalletAddress: (address: `0x${string}` | undefined) => void;
     };
   }
 >({
@@ -24,7 +23,6 @@ export const SuiteContext = React.createContext<
   setConfig: () => {},
   appState: {
     walletAddress: undefined,
-    setWalletAddress: () => {},
   },
 });
 
@@ -32,11 +30,12 @@ export const SuiteProvider: React.FC<{
   children: React.ReactNode;
   context: SuiteGlobalContext;
 }> = ({ children, context }) => {
-  const [walletAddress, setWalletAddress] = useState<`0x${string}` | undefined>(
-    context.session?.walletAddress
-  );
   const [isInitialized, setIsInitialized] = useState(false);
   const { createUserFromAddressIfNotExist, fetchOrganizationAgentById } = useSuiteSession();
+
+  const walletAddress = useMemo(() => {
+    return context.session?.walletAddress;
+  }, [context.session?.walletAddress]);
 
   useEffect(() => {
     const init = async () => {
@@ -90,7 +89,6 @@ export const SuiteProvider: React.FC<{
         },
         appState: {
           walletAddress,
-          setWalletAddress,
         },
       }}>
       {baseComponent}

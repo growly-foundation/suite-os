@@ -7,7 +7,6 @@ import dynamic from 'next/dynamic';
 import { STORAGE_KEY_SELECTED_ORGANIZATION_ID, useDashboardState } from '../../hooks/use-dashboard';
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { delay } from '@/lib/utils';
 import { Admin } from '@growly/core';
 
 const AnimatedLoading = dynamic(

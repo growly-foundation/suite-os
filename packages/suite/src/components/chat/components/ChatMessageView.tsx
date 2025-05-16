@@ -7,7 +7,13 @@ import { useSuiteSession } from '@/hooks/use-session';
 import React from 'react';
 
 export const ChatMessageView = () => {
-  const { messages, agent, isLoadingMessages, isAgentThinking } = useSuiteSession();
+  const { messages, agent, isLoadingMessages, isAgentThinking, panelOpen } = useSuiteSession();
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, panelOpen]);
+
   return (
     <React.Fragment>
       {messages.length > 0 && (
@@ -26,6 +32,7 @@ export const ChatMessageView = () => {
               {messages.map(message => (
                 <ChatResponse key={message.id} message={message} />
               ))}
+              <div ref={messagesEndRef} />
             </React.Fragment>
           ) : (
             <div className={cn('p-[50px] text-gray-500', text.body)}>

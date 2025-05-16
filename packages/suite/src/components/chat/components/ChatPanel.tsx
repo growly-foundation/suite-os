@@ -21,9 +21,9 @@ export function ChatPanel() {
     setBusterState,
     inputValue,
     setInputValue,
+    panelOpen,
   } = useSuiteSession();
   const {
-    config,
     agentId,
     integration,
     appState: { walletAddress },
@@ -93,16 +93,6 @@ export function ChatPanel() {
       setIsAgentThinking(false);
     }
   };
-
-  useLayoutEffect(() => {
-    const lastestMessage = messages[messages.length - 1];
-    if (lastestMessage && typeof document !== 'undefined') {
-      const element = document.getElementById(lastestMessage.id);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  }, [messages, refreshing]);
 
   return (
     <React.Fragment>

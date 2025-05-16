@@ -17,7 +17,8 @@ const ChatWidget = dynamic(() => import('@growly/suite').then(suite => suite.Cha
 });
 
 export const SuiteProviderWrapper = ({ children }: { children: React.ReactNode }) => {
-  const { login } = usePrivy();
+  const { login, user } = usePrivy();
+
   return (
     <SuiteProvider
       context={{
@@ -27,6 +28,7 @@ export const SuiteProviderWrapper = ({ children }: { children: React.ReactNode }
           display: 'fullView',
         },
         session: {
+          walletAddress: user?.wallet?.address as any,
           connect() {
             return login();
           },
