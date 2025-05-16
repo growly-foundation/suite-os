@@ -26,6 +26,32 @@ export const metadata: Metadata = {
     'Enterprise-grade AI platform with LLM conversations, customizable agents, secure knowledge base, and MCP server support for businesses and government agencies.',
   keywords:
     'enterprise AI, secure AI, government AI solutions, LLM, knowledge base, AI agents, MCP server',
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+    other: [
+      {
+        rel: 'android-chrome-192x192',
+        url: '/android-chrome-192x192.png',
+        sizes: '192x192',
+        type: 'image/png',
+      },
+      {
+        rel: 'android-chrome-512x512',
+        url: '/android-chrome-512x512.png',
+        sizes: '512x512',
+        type: 'image/png',
+      },
+      {
+        rel: 'manifest',
+        url: '/site.webmanifest',
+      },
+    ],
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
@@ -34,6 +60,7 @@ export const metadata: Metadata = {
     description:
       'Enterprise-grade AI platform with advanced security, customization, and control for businesses and government agencies.',
     siteName: 'Growly Suite',
+    // TODO: Update images
     images: [
       {
         url: 'https://getgrowly.app/og-image.jpg',
@@ -47,7 +74,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Growly Suite | Empower DeFi Adoption with AI-powered Engine',
     description: 'Enterprise-grade AI platform with advanced security, customization, and control.',
-    images: ['https://getgrowly.app/twitter-image.jpg'],
+    images: ['https://getgrowly.app/twitter-image.jpg'], // TODO: Update images
   },
   robots: {
     index: true,

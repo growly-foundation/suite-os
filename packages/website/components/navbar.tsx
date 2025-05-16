@@ -27,13 +27,11 @@ export default function Navbar() {
             className="flex items-center space-x-2"
             aria-label="Enterprise AI Homepage">
             <Image
-              src="https://github.com/growly-foundation/assets/blob/main/logo/growly.png?raw=true"
-              alt="Growly Logo"
-              width={32}
-              height={32}
-              className="rounded-sm mr-2"
+              src="https://github.com/growly-foundation/assets/blob/main/logo/suite-full.png?raw=true"
+              alt="Suite Logo"
+              width={100}
+              height={100}
             />
-            <span className="text-2xl font-bold">Growly Suite</span>
           </Link>
         </div>
 
