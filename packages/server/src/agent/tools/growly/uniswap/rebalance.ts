@@ -32,7 +32,7 @@ export function makeRebalancePortfolioTool(configService: ConfigService) {
     const chain = fromToken.chain === toToken.chain ? fromToken.chain : 'ethereum';
 
     // We'll create a placeholder link and then update it asynchronously
-    let uniswapLink = `https://app.uniswap.org/swap?chain=${chain}`;
+    const uniswapLink = `https://app.uniswap.org/swap?chain=${chain}`;
 
     // Calculate token amount from USD value based on the token price
     const tokenAmount = fromToken.price > 0 ? valueToSwap / fromToken.price : 0;
@@ -80,8 +80,8 @@ export function makeRebalancePortfolioTool(configService: ConfigService) {
       const isNativeMaticTo = toToken.symbol === 'MATIC' && chain === 'polygon';
 
       // Format currency parameters
-      let currencyFrom = isNativeFrom || isNativeMatic ? 'NATIVE' : fromAddress;
-      let currencyTo = isNativeTo || isNativeMaticTo ? 'NATIVE' : toAddress;
+      const currencyFrom = isNativeFrom || isNativeMatic ? 'NATIVE' : fromAddress;
+      const currencyTo = isNativeTo || isNativeMaticTo ? 'NATIVE' : toAddress;
 
       // Use the token amount that was already calculated in createRecommendation
       const finalTokenAmount = tokenAmount > 0 ? tokenAmount : 1.0;

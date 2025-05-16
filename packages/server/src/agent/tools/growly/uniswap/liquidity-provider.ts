@@ -182,8 +182,8 @@ export function makeLiquidityProviderTool(configService: ConfigService) {
       }
 
       // Generate the Uniswap link with the correct parameters
-      let currencyA = isNativeA || isNativeMatic ? 'NATIVE' : addressA;
-      let currencyB = isNativeB || isNativeMaticB ? 'NATIVE' : addressB;
+      const currencyA = isNativeA || isNativeMatic ? 'NATIVE' : addressA;
+      const currencyB = isNativeB || isNativeMaticB ? 'NATIVE' : addressB;
 
       const uniswapLink = `https://app.uniswap.org/positions/create/v4?currencyA=${currencyA}&currencyB=${currencyB}&chain=${chain}`;
 
@@ -613,8 +613,8 @@ Output:
           const isNativeMaticTo = toToken.symbol === 'MATIC' && chain === 'polygon';
 
           // Format currency parameters
-          let currencyFrom = isNativeFrom || isNativeMatic ? 'NATIVE' : fromAddress;
-          let currencyTo = isNativeTo || isNativeMaticTo ? 'NATIVE' : toAddress;
+          const currencyFrom = isNativeFrom || isNativeMatic ? 'NATIVE' : fromAddress;
+          const currencyTo = isNativeTo || isNativeMaticTo ? 'NATIVE' : toAddress;
 
           // Use the actual token amount from the recommendation
           const tokenAmount = liquidityPlan.swapRecommendation.tokenAmount || 0;

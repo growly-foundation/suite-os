@@ -11,6 +11,7 @@ import { UserButton } from '@/components/auth/user-button';
 import { OrganizationSwitcher } from '@/components/organizations/organization-switcher';
 import dynamic from 'next/dynamic';
 import ProtectedAuthProvider from '@/components/providers/protected-auth-provider';
+import Image from 'next/image';
 
 const AnimatedLoading = dynamic(
   () =>
@@ -124,7 +125,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="font-bold text-lg flex items-center">
-              <SquareStack className="h-5 w-5 text-primary" /> Suite
+              <Image src="/logos/suite-logo.png" alt="Logo" width={35} height={35} />
             </Link>
             <OrganizationSwitcher />
             <div className="flex gap-3">

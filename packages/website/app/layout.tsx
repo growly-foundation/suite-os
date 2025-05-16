@@ -60,10 +60,9 @@ export const metadata: Metadata = {
     description:
       'Enterprise-grade AI platform with advanced security, customization, and control for businesses and government agencies.',
     siteName: 'Growly Suite',
-    // TODO: Update images
     images: [
       {
-        url: 'https://getgrowly.app/og-image.jpg',
+        url: 'https://getgrowly.app/banners/suite-preview-banner.png',
         width: 1200,
         height: 630,
         alt: 'Growly Suite',
@@ -74,7 +73,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Growly Suite | Empower DeFi Adoption with AI-powered Engine',
     description: 'Enterprise-grade AI platform with advanced security, customization, and control.',
-    images: ['https://getgrowly.app/twitter-image.jpg'], // TODO: Update images
+    images: ['https://getgrowly.app/banners/suite-preview-banner.png'],
   },
   robots: {
     index: true,

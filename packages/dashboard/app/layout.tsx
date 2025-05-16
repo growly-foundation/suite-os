@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Growly Suite',
-  description: 'Customize AI agents with powerful workflows.',
+  description: 'Growly Suite | Empower DeFi Adoption with AI-powered Engine',
   authors: [{ name: 'Growly Foundation' }],
 };
 
