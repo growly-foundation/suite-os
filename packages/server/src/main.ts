@@ -19,7 +19,9 @@ async function bootstrap() {
     process.exit(1);
   }
 
-  app.enableCors();
+  app.enableCors({
+    origin: ['http://localhost:3000', 'https://suite.getgrowly.app', 'https://getgrowly.app'],
+  });
   app.use(
     paymentMiddleware(
       payTo,
