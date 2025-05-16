@@ -17,7 +17,7 @@ export const buildMarkdownMessage = (content: TextMessageContent['content'], tim
 
   return (
     <p className="text-sm">
-      <div className="prose prose-sm dark:prose-invert max-w-none">
+      <div className="prose prose-sm dark:prose-invert max-w-none break-words">
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </div>
       <br />

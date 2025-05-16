@@ -7,8 +7,8 @@ import { useAuth } from '../providers/protected-auth-provider';
 import { Loader2 } from 'lucide-react';
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
-  const { createUserIfNotExists, isLoading } = useAuth();
-  const { login } = usePrivy();
+  const { createUserIfNotExists } = useAuth();
+  const { login, authenticated } = usePrivy();
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -31,9 +31,9 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                 await createUserIfNotExists();
               }}
               className="w-full"
-              disabled={isLoading}>
-              {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ''}
-              {isLoading ? 'Signing in...' : 'Sign in'}
+              disabled={authenticated}>
+              {authenticated ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ''}
+              {authenticated ? 'Signed in' : 'Sign in'}
             </Button>
           </div>
         </CardContent>

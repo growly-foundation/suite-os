@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Loader } from 'lucide-react';
+import { ArrowLeft, Code, Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -13,6 +13,7 @@ import { AgentResources } from '@/components/agents/agent-resources';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { suiteCore } from '@/core/suite';
 import { toast } from 'react-toastify';
+import { IntegrationGuideDialog } from '@/components/steps/integration-guide-dialog';
 
 const DEFAULT_MODEL = 'gpt-4';
 
@@ -20,6 +21,7 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
   const { selectedOrganization } = useDashboardState();
   const router = useRouter();
   const [agent, setAgent] = useState<AggregatedAgent | null>(null);
+  const [isIntegrationGuideOpen, setIsIntegrationGuideOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const paramsValue = React.use(params);
 
@@ -97,13 +99,19 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
 
   return (
     <div className="flex flex-col gap-6 p-6 md:gap-8 md:p-8">
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard/agents')}>
-          <ArrowLeft className="h-5 w-5" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard/agents')}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-2xl font-bold">
+            {isNewAgent ? 'Create Agent' : `Edit Agent: ${agent.name}`}
+          </h1>
+        </div>
+        <Button variant="outline" onClick={() => setIsIntegrationGuideOpen(true)}>
+          <Code className="mr-2 h-4 w-4" />
+          Integration Guide
         </Button>
-        <h1 className="text-2xl font-bold">
-          {isNewAgent ? 'Create Agent' : `Edit Agent: ${agent.name}`}
-        </h1>
       </div>
 
       <Tabs defaultValue="details" className="space-y-4">
@@ -150,6 +158,11 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
           </Card>
         </TabsContent>
       </Tabs>
+      <IntegrationGuideDialog
+        open={isIntegrationGuideOpen}
+        onOpenChange={setIsIntegrationGuideOpen}
+        agent={agent}
+      />
     </div>
   );
 }

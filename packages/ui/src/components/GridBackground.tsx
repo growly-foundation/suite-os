@@ -1,4 +1,4 @@
-export default function CssGridBackground() {
+export default function GridBackground() {
   return (
     <>
       {/* Grid overlay that fades from outside to inside */}

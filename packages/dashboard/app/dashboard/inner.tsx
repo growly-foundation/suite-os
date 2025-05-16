@@ -121,11 +121,12 @@ export default function DashboardInner() {
         <AnimatedLoadingSmall />
       ) : (
         <div className="flex flex-col gap-6 p-6 md:gap-8 md:p-8">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <div className="flex flex-col gap-2">
               <h1 className="text-3xl font-bold tracking-tight">{selectedOrganization?.name}</h1>
-              <p className="text-muted-foreground">{selectedOrganization?.description}</p>
+              <p className="text-muted-foreground text-sm">{selectedOrganization?.description}</p>
             </div>
+            <div style={{ width: 100 }}></div>
             <div className="flex items-center gap-2">
               <Link href="/organizations">
                 <Button variant="outline">Switch Organization</Button>

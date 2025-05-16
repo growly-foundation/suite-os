@@ -1,23 +1,22 @@
 'use client';
 
-import CssGridBackground from '@/components/css-grid-background';
 import IntentSuggestion from '@/components/defi/intent-suggestion';
 import KnowYourDapp from '@/components/defi/kyd';
 import Persona from '@/components/defi/persona';
 import FeaturesSection from '@/components/features-section';
 import Footer from '@/components/footer';
-import FramerSpotlight from '@/components/framer-spotlight';
 import Navbar from '@/components/navbar';
 import StructuredData from '@/components/structured-data';
 import TechStack from '@/components/tech-stack';
 import TypingPromptInput from '@/components/typing-prompt-input';
 import { Button } from '@/components/ui/button';
 import UseCasesDefi from '@/components/use-cases-defi';
-import { BusterState } from '@growly/ui';
+import { BusterState, GridBackground, FramerSpotlight } from '@growly/ui';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
+
 const AnimatedBuster = dynamic(() => import('@growly/ui').then(suite => suite.AnimatedBuster), {
   ssr: false,
 });
@@ -34,7 +33,7 @@ export default function Home() {
         <section
           id="hero"
           className="relative min-h-screen flex items-center justify-center overflow-hidden">
-          <CssGridBackground />
+          <GridBackground />
           <FramerSpotlight />
           <div className="container px-4 md:px-6 py-16 md:py-20">
             <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
@@ -137,7 +136,7 @@ export default function Home() {
           id="hero"
           className="relative min-h-screen flex items-center justify-center overflow-hidden py-20"
           aria-labelledby="key-features-heading">
-          <CssGridBackground />
+          <GridBackground />
           <FramerSpotlight />
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-20">
