@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { FloatingButton } from './FloatingButton';
-import { ChatPanelContainer, ChatPanel } from '../../../chat/components/ChatPanel';
 import { useSuiteSession } from '@/hooks/use-session';
+import { PanelContainer } from '@/components/panel/components/PanelContainer';
 
 function ChatWidgetContainer({
   buttonProps,
@@ -12,7 +12,7 @@ function ChatWidgetContainer({
   return (
     <div>
       <FloatingButton onClick={togglePanel} {...buttonProps} />
-      <ChatPanelContainer />
+      <PanelContainer />
     </div>
   );
 }
@@ -29,4 +29,4 @@ function ChatWidget(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return <ChatWidgetContainer buttonProps={props} />;
 }
 
-export { ChatPanel, ChatWidgetContainer, ChatWidget };
+export { ChatWidgetContainer, ChatWidget };
