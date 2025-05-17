@@ -106,7 +106,11 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
   const functionService = new FunctionService(supabaseClientService);
 
   // Custom services.
-  const workflowService = new WorkflowService(workflowDatabaseService, stepDatabaseService);
+  const workflowService = new WorkflowService(
+    workflowDatabaseService,
+    stepDatabaseService,
+    agentWorkflowsService
+  );
   const stepService = new StepService(stepDatabaseService);
   const agentService = new AgentService(
     agentDatabaseService,

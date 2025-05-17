@@ -9,7 +9,7 @@ import {
   MatchingIcon,
   TargetingIcon,
 } from '@/components/use-case-icons';
-import CssGridBackground from './css-grid-background';
+import { GridBackground } from '@growly/ui';
 
 export default function UseCasesDefi() {
   const useCases = [
@@ -76,7 +76,7 @@ export default function UseCasesDefi() {
     <section
       className="relative min-h-screen flex items-center justify-center overflow-hidden py-20"
       aria-labelledby="defi-use-cases-heading">
-      <CssGridBackground />
+      <GridBackground />
       <div className="container px-4 md:px-6">
         <motion.div
           className="flex flex-col items-center justify-center space-y-4 text-center mb-12"

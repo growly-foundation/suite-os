@@ -11,6 +11,7 @@ export const SuiteContext = React.createContext<
   SuiteGlobalContext & {
     appState: {
       walletAddress: `0x${string}` | undefined;
+      setWalletAddress: (address: `0x${string}` | undefined) => void;
       setConfig: (config: SuiteConfig) => void;
     };
   }
@@ -25,6 +26,7 @@ export const SuiteContext = React.createContext<
   appState: {
     setConfig: (_config: SuiteConfig) => {},
     walletAddress: undefined,
+    setWalletAddress: (_address: `0x${string}` | undefined) => {},
   },
 });
 
@@ -41,8 +43,12 @@ export const SuiteProvider: React.FC<{
       theme: Theme.monoTheme,
     }
   );
-  const walletAddress = useMemo(() => {
-    return context.session?.walletAddress;
+  const [walletAddress, setWalletAddress] = useState<`0x${string}` | undefined>(
+    context.session?.walletAddress
+  );
+
+  useEffect(() => {
+    setWalletAddress(context.session?.walletAddress);
   }, [context.session?.walletAddress]);
 
   useEffect(() => {
@@ -96,8 +102,9 @@ export const SuiteProvider: React.FC<{
         ...context,
         config,
         appState: {
-          walletAddress,
           setConfig,
+          walletAddress,
+          setWalletAddress,
         },
       }}>
       <WorkflowExecutionObserver>{baseComponent}</WorkflowExecutionObserver>
