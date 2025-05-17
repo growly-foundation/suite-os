@@ -1,5 +1,11 @@
 # @getgrowly/suite
 
+## 1.0.1
+
+### Patch Changes
+
+- Only allows production API endpoint.
+
 ## 1.0.0
 
 ### Major Changes
