@@ -46,6 +46,9 @@ interface WidgetSession {
   fetchOrganizationAgentById: (agentId: AgentId, apiKey: string) => Promise<Optional<Agent>>;
 }
 
+/**
+ * Access to the current session data of the widget. For example, current user, agent, workflows...
+ */
 export const useSuiteSession = create<WidgetSession>((set, get) => ({
   busterState: 'idle',
   workflowExecutionService: null,
