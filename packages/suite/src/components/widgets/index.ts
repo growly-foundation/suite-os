@@ -4,4 +4,5 @@ import '@rainbow-me/rainbowkit/styles.css';
 export * from './components/ChatWidget';
 export * from './components/DemoChatWidget';
 export * from './components/StaticWidget';
+export * from './components/GrowlyButton';
 export * as Theme from './theme';

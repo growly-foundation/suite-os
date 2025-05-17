@@ -45,6 +45,9 @@ export interface SuiteDatabaseCore {
     /** Manages steps. */
     steps: PublicDatabaseService<'steps'>;
 
+    /** Manages step sessions. */
+    step_sessions: PublicDatabaseService<'step_sessions'>;
+
     /** Manages users. */
     users: PublicDatabaseService<'users'>;
 
@@ -84,6 +87,10 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     'workflows'
   );
   const stepDatabaseService = new PublicDatabaseService<'steps'>(supabaseClientService, 'steps');
+  const stepSessionsDatabaseService = new PublicDatabaseService<'step_sessions'>(
+    supabaseClientService,
+    'step_sessions'
+  );
   const organizationDatabaseService = new PublicDatabaseService<'organizations'>(
     supabaseClientService,
     'organizations'
@@ -134,6 +141,7 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     organizations: organizationDatabaseService,
     messages: messageDatabaseService,
     steps: stepDatabaseService,
+    step_sessions: stepSessionsDatabaseService,
     users: userDatabaseService,
     workflows: workflowDatabaseService,
   };

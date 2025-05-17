@@ -23,6 +23,7 @@ export const generateMoonwellWorkflowSteps = (): ParsedStep[] => {
       description: 'Welcome message for Moonwell users.',
       index: 0,
       status: Status.Active,
+      is_repeat: false,
     },
     {
       id: step2,
@@ -60,6 +61,7 @@ export const generateMoonwellWorkflowSteps = (): ParsedStep[] => {
       description: 'Intelligent suggestion based on user activity.',
       index: 1,
       status: Status.Active,
+      is_repeat: false,
     },
   ];
 };

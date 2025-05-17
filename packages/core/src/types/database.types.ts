@@ -206,6 +206,52 @@ export type Database = {
         }
         Relationships: []
       }
+      step_sessions: {
+        Row: {
+          agent_id: string | null
+          created_at: string
+          id: string
+          step_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          created_at?: string
+          id?: string
+          step_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          created_at?: string
+          id?: string
+          step_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "step_sessions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "step_sessions_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "steps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "step_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       steps: {
         Row: {
           action: Json
@@ -215,6 +261,7 @@ export type Database = {
           id: string
           index: number
           is_beast_mode: boolean
+          is_repeat: boolean
           name: string
           status: Database["public"]["Enums"]["status"]
           workflow_id: string | null
@@ -227,6 +274,7 @@ export type Database = {
           id?: string
           index?: number
           is_beast_mode?: boolean
+          is_repeat?: boolean
           name: string
           status?: Database["public"]["Enums"]["status"]
           workflow_id?: string | null
@@ -239,6 +287,7 @@ export type Database = {
           id?: string
           index?: number
           is_beast_mode?: boolean
+          is_repeat?: boolean
           name?: string
           status?: Database["public"]["Enums"]["status"]
           workflow_id?: string | null

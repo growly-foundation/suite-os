@@ -8,6 +8,7 @@ import {
   ParsedUser,
   Action,
   AggregatedWorkflow,
+  ParsedStep,
 } from '@growly/core';
 import { BusterState } from '@growly/ui';
 import { Screen } from '@/types/screen';
@@ -20,11 +21,12 @@ interface WidgetSession {
   workflowExecutionService: WorkflowExecutionService | null;
   initWorkflowExecutionService: (
     workflows: AggregatedWorkflow[],
-    executeActions: (actions: Action[]) => void
+    executeStep: (step: ParsedStep) => void
   ) => WorkflowExecutionService;
   setBusterState: (state: BusterState) => void;
   panelOpen: boolean;
   togglePanel: () => void;
+  setPanelOpen: (open: boolean) => void;
   screen: Screen;
   setScreen: (screen: Screen) => void;
   user: Optional<ParsedUser>;
@@ -49,15 +51,16 @@ export const useSuiteSession = create<WidgetSession>((set, get) => ({
   workflowExecutionService: null,
   initWorkflowExecutionService: (
     workflows: AggregatedWorkflow[],
-    executeActions: (actions: Action[]) => void
+    executeStep: (step: ParsedStep) => void
   ) => {
-    const service = new WorkflowExecutionService(workflows, executeActions);
+    const service = new WorkflowExecutionService(workflows, executeStep);
     set({ workflowExecutionService: service });
     return service;
   },
   setBusterState: state => set({ busterState: state }),
   panelOpen: false,
   togglePanel: () => set({ panelOpen: !get().panelOpen }),
+  setPanelOpen: open => set({ panelOpen: open }),
   screen: Screen.Chat,
   setScreen: screen => set({ screen }),
   user: undefined,

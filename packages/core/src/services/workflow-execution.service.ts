@@ -19,56 +19,61 @@ export class WorkflowExecutionService {
   private completedSteps = new Set<StepId>();
   private completedWorkflows = new Set<WorkflowId>();
   private agentJudgments = new Map<StepId, boolean>();
-  private executeActions: (actions: Action[]) => void;
+  private executeStep: (step: ParsedStep) => void;
 
-  constructor(workflows: AggregatedWorkflow[], executeActions: (actions: Action[]) => void) {
-    this.executeActions = executeActions;
+  constructor(workflows: AggregatedWorkflow[], executeStep: (step: ParsedStep) => void) {
+    this.executeStep = executeStep;
     this.dependencyMap = this.buildDependencyMap(workflows);
     this.triggerAlwaysSteps();
   }
 
-  triggerUIEvent(event: UIEventCondition, stepId?: StepId, conditions?: Condition[]) {
+  triggerUIEvent(
+    event: UIEventCondition,
+    stepId?: StepId,
+    conditions?: Condition[]
+  ): Promise<void> {
+    console.log('Triggering UI event', event, stepId, conditions);
     const steps = this.dependencyMap.uiEvent.get(event) || [];
     if (conditions) {
-      if (!this.evaluateConditions(conditions)) return;
+      if (!this.evaluateConditions(conditions)) return Promise.resolve();
     }
     if (stepId) {
       const step = steps.find(s => s.id === stepId);
-      if (!step) return;
-      this.evaluateAndExecuteStep(step);
+      if (!step) return Promise.resolve();
+      return this.evaluateAndExecuteStep(step);
     } else {
-      this.evaluateAndExecuteSteps(steps);
+      return this.evaluateAndExecuteSteps(steps);
     }
   }
 
-  handleAgentJudgment(stepId: StepId, accepted: boolean) {
+  handleAgentJudgment(stepId: StepId, accepted: boolean): Promise<void> {
     this.agentJudgments.set(stepId, accepted);
     const steps = this.dependencyMap.judgedByAgent.get(stepId) || [];
-    this.evaluateAndExecuteSteps(steps);
+    return this.evaluateAndExecuteSteps(steps);
   }
 
-  private markStepCompleted(stepId: StepId) {
+  private markStepCompleted(stepId: StepId): Promise<void> {
     this.completedSteps.add(stepId);
     const steps = this.dependencyMap.stepCompleted.get(stepId) || [];
-    this.evaluateAndExecuteSteps(steps);
+    return this.evaluateAndExecuteSteps(steps);
   }
 
-  private markWorkflowCompleted(workflowId: WorkflowId) {
+  private markWorkflowCompleted(workflowId: WorkflowId): Promise<void> {
     this.completedWorkflows.add(workflowId);
     const steps = this.dependencyMap.workflowCompleted.get(workflowId) || [];
-    this.evaluateAndExecuteSteps(steps);
+    return this.evaluateAndExecuteSteps(steps);
   }
 
-  private evaluateAndExecuteSteps(steps: ParsedStep[]) {
+  private async evaluateAndExecuteSteps(steps: ParsedStep[]) {
     for (const step of steps) {
-      this.evaluateAndExecuteStep(step);
+      await this.evaluateAndExecuteStep(step);
     }
   }
 
-  private evaluateAndExecuteStep(step: ParsedStep) {
+  private async evaluateAndExecuteStep(step: ParsedStep) {
     if (this.evaluateConditions(step.conditions)) {
-      this.executeActions(step.action);
-      this.markStepCompleted(step.id);
+      await this.executeStep(step);
+      await this.markStepCompleted(step.id);
     }
   }
 

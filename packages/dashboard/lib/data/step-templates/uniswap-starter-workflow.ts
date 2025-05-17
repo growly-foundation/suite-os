@@ -26,6 +26,7 @@ export const generateUniswapWorkflowSteps = (): ParsedStep[] => {
       description: 'Introductory message for Uniswap users.',
       index: 0,
       status: Status.Active,
+      is_repeat: false,
     },
     {
       id: step2,
@@ -50,6 +51,7 @@ export const generateUniswapWorkflowSteps = (): ParsedStep[] => {
       description: 'Introduce the user to the core swap functionality.',
       index: 1,
       status: Status.Active,
+      is_repeat: false,
     },
     {
       id: step3,
@@ -76,6 +78,7 @@ export const generateUniswapWorkflowSteps = (): ParsedStep[] => {
       description: 'Educate user on customizing slippage tolerance.',
       index: 2,
       status: Status.Active,
+      is_repeat: false,
     },
     {
       id: step4,
@@ -102,6 +105,7 @@ export const generateUniswapWorkflowSteps = (): ParsedStep[] => {
       description: 'Prompt user to explore providing liquidity.',
       index: 3,
       status: Status.Active,
+      is_repeat: false,
     },
     {
       id: step5,
@@ -126,6 +130,7 @@ export const generateUniswapWorkflowSteps = (): ParsedStep[] => {
       description: 'Guide user to the Add Liquidity screen.',
       index: 4,
       status: Status.Active,
+      is_repeat: false,
     },
   ];
 };

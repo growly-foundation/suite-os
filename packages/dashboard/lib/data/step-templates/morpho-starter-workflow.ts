@@ -24,6 +24,7 @@ export const generateMorphoWorkflowSteps = (): ParsedStep[] => {
       description: 'Intro to P2P lending.',
       index: 0,
       status: Status.Active,
+      is_repeat: false,
     },
     {
       id: step2,
@@ -50,6 +51,7 @@ export const generateMorphoWorkflowSteps = (): ParsedStep[] => {
       description: 'Help user understand how Morpho improves yield.',
       index: 1,
       status: Status.Active,
+      is_repeat: false,
     },
     {
       id: step3,
@@ -85,6 +87,7 @@ export const generateMorphoWorkflowSteps = (): ParsedStep[] => {
       description: 'Smart suggestion on whether to lend.',
       index: 2,
       status: Status.Active,
+      is_repeat: false,
     },
   ];
 };

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Send } from 'lucide-react';
+import { GrowlyButton } from '@growly/suite';
 
 export default function TypingPromptInput() {
   const prompts = [
@@ -24,10 +24,14 @@ export default function TypingPromptInput() {
   const [currentCharIndex, setCurrentCharIndex] = useState(0);
 
   // Controls the typing speed
-  const typingSpeed = 50; // milliseconds per character
-  const deletingSpeed = 20; // milliseconds per character
-  const pauseBeforeDelete = 2000; // pause before deleting
-  const pauseBeforeNextPrompt = 500; // pause before typing next prompt
+  const typingSpeed = 100; // milliseconds per character
+  const deletingSpeed = 30; // milliseconds per character
+  const pauseBeforeDelete = 3000; // pause before deleting
+  const pauseBeforeNextPrompt = 100; // pause before typing next prompt
+
+  const handleSend = () => {
+    console.log('Send clicked');
+  };
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
@@ -79,13 +83,14 @@ export default function TypingPromptInput() {
             value={displayText}
             readOnly
           />
-          <Button
-            size="icon"
+          <GrowlyButton
             className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 w-10 
             bg-primary/90 hover:bg-primary backdrop-blur-md shadow-md"
-            aria-label="Send message">
+            aria-label="Send message"
+            triggerMessage={displayText}
+            onClick={handleSend}>
             <Send className="h-5 w-5" />
-          </Button>
+          </GrowlyButton>
         </div>
       </div>
     </div>

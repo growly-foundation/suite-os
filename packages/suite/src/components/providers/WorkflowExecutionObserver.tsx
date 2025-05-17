@@ -1,30 +1,57 @@
-import { Action, AggregatedWorkflow, UIEventCondition, UserDefinedPayload } from '@growly/core';
+import { AggregatedWorkflow, ParsedStep, UIEventCondition, UserDefinedPayload } from '@growly/core';
 import { suiteCoreService } from '@/services/core.service';
 import { useSuiteSession } from '@/hooks/use-session';
-import { useEffect, useState } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { useSuite } from '@/hooks/use-suite';
+import { useChatActions } from '@/hooks/use-chat-actions';
+
+let executing = false;
 
 export const WorkflowExecutionObserver: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const { agentId, organizationApiKey } = useSuite();
+  const { workflowExecutionService, initWorkflowExecutionService, setPanelOpen } =
+    useSuiteSession();
+  const { textAgentMessage, generateAgentMessage } = useChatActions();
+  const { user } = useSuiteSession();
   const [growlyElementMap, setGrowlyElementMap] = useState<Map<Element, UserDefinedPayload>>(
     new Map()
   );
-  const { agentId, organizationApiKey } = useSuite();
-  const { workflowExecutionService, initWorkflowExecutionService } = useSuiteSession();
-  const executeActions = (actions: Action[]) => {
-    for (const action of actions) {
-      if (action.type === 'text') {
-        console.log(`TextAction: ${action.return.text}`);
-      } else if (action.type === 'agent') {
-        console.log(`AgentAction prompt: ${action.args.prompt}`);
-        executeActions([action.return]);
-      }
-    }
-  };
-  console.log(growlyElementMap);
 
-  const handleGrowlyMouseEvent = (event: MouseEvent, condition: UIEventCondition) => {
+  const executeStep = useCallback(
+    async (step: ParsedStep) => {
+      if (!user?.id || !agentId) return;
+      if (executing) return;
+      executing = true;
+      const stepSessionPayload = {
+        step_id: step.id,
+        user_id: user.id,
+        agent_id: agentId,
+      };
+      const existingStepSession = await suiteCoreService.callDatabaseService(
+        'step_sessions',
+        'getOneByFields',
+        [stepSessionPayload]
+      );
+      console.log('existingStepSession', existingStepSession, step.is_repeat);
+      if (existingStepSession && !step.is_repeat) return;
+      await suiteCoreService.callDatabaseService('step_sessions', 'create', [stepSessionPayload]);
+      for (const action of step.action) {
+        if (action.type === 'text') {
+          console.log(`TextAction: ${action.return.text}`);
+          await textAgentMessage(action.return.text);
+        } else if (action.type === 'agent') {
+          console.log(`AgentAction prompt: ${action.args.prompt}`);
+          await generateAgentMessage(action.args.prompt);
+        }
+      }
+      executing = false;
+    },
+    [user, agentId, textAgentMessage, generateAgentMessage, setPanelOpen]
+  );
+
+  const handleGrowlyMouseEvent = async (event: MouseEvent, condition: UIEventCondition) => {
     if (!workflowExecutionService) return;
 
     const target = event.target as HTMLElement;
@@ -34,23 +61,26 @@ export const WorkflowExecutionObserver: React.FC<{ children: React.ReactNode }> 
     if (!action || action.type !== 'step') return;
 
     console.log('Growly Suite: Action triggered', target);
-    workflowExecutionService.triggerUIEvent(
+    await workflowExecutionService.triggerUIEvent(
       condition,
       action.payload.id,
       action.payload.conditions
     );
   };
 
-  const handleGrowlyClick = (e: MouseEvent) =>
-    handleGrowlyMouseEvent(e, UIEventCondition.OnClicked);
+  const handleGrowlyClick = async (e: MouseEvent) =>
+    await handleGrowlyMouseEvent(e, UIEventCondition.OnClicked);
 
-  const handleGrowlyMouseEnter = (e: MouseEvent) =>
-    handleGrowlyMouseEvent(e, UIEventCondition.OnHovered);
+  const handleGrowlyMouseEnter = async (e: MouseEvent) =>
+    await handleGrowlyMouseEvent(e, UIEventCondition.OnHovered);
 
-  const handlePageLoad = () =>
-    workflowExecutionService?.triggerUIEvent(UIEventCondition.OnPageLoad);
+  const handlePageLoad = async () => {
+    await workflowExecutionService?.triggerUIEvent(UIEventCondition.OnPageLoad);
+  };
 
-  const handleVisited = () => workflowExecutionService?.triggerUIEvent(UIEventCondition.OnVisited);
+  const handleVisited = async () => {
+    await workflowExecutionService?.triggerUIEvent(UIEventCondition.OnVisited);
+  };
 
   const updateGrowlyMap = (nodes: NodeList | Node[]) => {
     nodes.forEach(node => {
@@ -107,7 +137,7 @@ export const WorkflowExecutionObserver: React.FC<{ children: React.ReactNode }> 
           'getWorkflowsByAgentId',
           [agentId]
         );
-        initWorkflowExecutionService(workflows, executeActions);
+        initWorkflowExecutionService(workflows, executeStep);
       } catch (error) {
         console.error(`Growly Suite Execution Error: ${error}`);
       }

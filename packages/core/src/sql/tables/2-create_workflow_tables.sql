@@ -35,8 +35,24 @@ CREATE TABLE IF NOT EXISTS steps (
 );
 comment on table public.steps is 'Steps for each workflow.';
 
+CREATE TABLE IF NOT EXISTS step_sessions (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    step_id uuid REFERENCES steps(id) ON DELETE CASCADE,
+    user_id uuid REFERENCES users(id) ON DELETE CASCADE,
+    agent_id uuid REFERENCES agents(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+comment on table public.step_sessions is 'Step sessions for each step.';
+
 -- Add column `is_beast_mode`
 ALTER TABLE steps ADD COLUMN is_beast_mode BOOLEAN NOT NULL DEFAULT FALSE;
 
+-- Add column `is_repeat`
+ALTER TABLE steps ADD COLUMN is_repeat BOOLEAN NOT NULL DEFAULT FALSE;
+
 GRANT ALL ON TABLE steps TO postgres;
 GRANT ALL ON TABLE steps TO service_role;
+
+GRANT ALL ON TABLE step_sessions TO postgres;
+GRANT ALL ON TABLE step_sessions TO service_role;
+

@@ -7,7 +7,7 @@ export const PanelLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <ScrollArea
       className={cn('flex-1', config?.display === 'fullView' ? 'max-h-[90vh]' : 'max-h-[500px]')}
-      style={{ padding: '0px 20px' }}
+      style={{ padding: '0px 50px' }}
       id="chat-messages-container">
       {children}
     </ScrollArea>

@@ -7,6 +7,11 @@ import { SuiteConfig, SuiteGlobalContext } from './SuiteProvider.types';
 import { Theme } from '../widgets';
 import { WorkflowExecutionObserver } from './WorkflowExecutionObserver';
 
+const defaultConfig: SuiteConfig = {
+  display: 'fullView',
+  theme: Theme.monoTheme,
+};
+
 export const SuiteContext = React.createContext<
   SuiteGlobalContext & {
     appState: {
@@ -19,10 +24,7 @@ export const SuiteContext = React.createContext<
   agentId: '',
   organizationApiKey: '',
   session: undefined,
-  config: {
-    display: 'panel',
-    theme: Theme.monoTheme,
-  },
+  config: defaultConfig,
   appState: {
     setConfig: (_config: SuiteConfig) => {},
     walletAddress: undefined,
@@ -37,12 +39,7 @@ export const SuiteProvider: React.FC<{
   const [baseComponent, setBaseComponent] = useState<React.ReactNode>(<></>);
   const [isInitialized, setIsInitialized] = useState(false);
   const { createUserFromAddressIfNotExist, fetchOrganizationAgentById } = useSuiteSession();
-  const [config, setConfig] = useState<SuiteConfig>(
-    context.config ?? {
-      display: 'fullView',
-      theme: Theme.monoTheme,
-    }
-  );
+  const [config, setConfig] = useState<SuiteConfig>(context.config ?? defaultConfig);
   const [walletAddress, setWalletAddress] = useState<`0x${string}` | undefined>(
     context.session?.walletAddress
   );
