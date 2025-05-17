@@ -1,13 +1,12 @@
 <div align="center">
   <p>
     <a href="https://getgrowly.app">
-      <img src="https://raw.githubusercontent.com/growly-foundation/assets/refs/heads/main/logo/suite-full.png"/>
+      <img width="500px" src="https://raw.githubusercontent.com/growly-foundation/assets/refs/heads/main/logo/suite-full.png"/>
     </a>
   </p>
   <p style="font-size: 1.2em; max-width: 600px; margin: 0 auto 20px;">
     Empower DeFi Adoption with AI-powered Engine
   </p>
-
 </div>
 
 ## 🚀 Overview
@@ -16,9 +15,12 @@ Suite is an AI-powered engine designed to streamline DeFi adoption by integratin
 
 Built on Base, Suite leverages the power of AI to help users navigate on-chain actions, understand DeFi opportunities, and make informed decisions without requiring deep technical knowledge of blockchain.
 
-[View the original idea](https://github.com/user-attachments/files/19884167/growly-widget-deck.2.pdf)
-
-[View our pitch deck](https://www.figma.com/deck/uF0kJ0gn0ViJgPUUrdq1yn/-Growly-Suite--Pitch-Deck)
+| Resource Name | Link  |  
+|---|---|
+| Website  | https://getgrowly.app  |   
+| Suite Dashboard  | https://suite.getgrowly.app  |   
+| Original Idea Pitch  | [View the original idea](https://github.com/user-attachments/files/19884167/growly-widget-deck.2.pdf)  |   
+|  Pitch Deck for Base Batches | [View our pitch deck](https://www.figma.com/deck/uF0kJ0gn0ViJgPUUrdq1yn/-Growly-Suite--Pitch-Deck)  |    
 
 ## 🏗️ Project Architecture
 
