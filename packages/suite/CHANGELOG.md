@@ -1,4 +1,4 @@
-# @growly/suite
+# @getgrowly/suite
 
 ## 1.0.0
 
@@ -9,4 +9,4 @@
 ### Patch Changes
 
 - Updated dependencies
-  - @growly/ui@1.0.0
+  - @getgrowly/ui@1.0.0

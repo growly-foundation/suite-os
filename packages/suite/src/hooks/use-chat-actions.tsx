@@ -1,5 +1,5 @@
 import { suiteCoreService } from '@/services/core.service';
-import { ConversationRole, MessageContent } from '@growly/core';
+import { ConversationRole, MessageContent } from '@getgrowly/core';
 import React from 'react';
 import { useSuiteSession } from './use-session';
 import { chatService } from '@/services/chat.service';

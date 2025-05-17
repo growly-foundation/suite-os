@@ -9,10 +9,10 @@ import {
   Action,
   AggregatedWorkflow,
   ParsedStep,
-} from '@growly/core';
-import { BusterState } from '@growly/ui';
+} from '@getgrowly/core';
+import { BusterState } from '@getgrowly/ui';
 import { Screen } from '@/types/screen';
-import { WorkflowExecutionService } from '@growly/core';
+import { WorkflowExecutionService } from '@getgrowly/core';
 
 type Optional<T> = T | undefined | null;
 
