@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { border } from '@/styles/theme';
 import { PanelHeader } from './PanelHeader';
+import { monoTheme } from '@/components/widgets/theme';
 
 export function PanelContainer() {
   const { config } = useSuite();
@@ -27,14 +28,14 @@ export function PanelContainer() {
             config?.display === 'fullView' ? 'h-[100vh]' : 'h-[650px]'
           )}
           style={{
-            backgroundColor: config?.theme?.background,
+            backgroundColor: config?.theme?.background || monoTheme?.background,
           }}>
           {/* Header */}
           <div
             className={cn('p-4 shadow-md border-b', border.lineDefault)}
             style={{
-              backgroundColor: config?.theme?.headerBackground,
-              color: config?.theme?.headerText,
+              backgroundColor: config?.theme?.headerBackground || monoTheme?.headerBackground,
+              color: config?.theme?.headerText || monoTheme?.headerText,
             }}>
             <PanelHeader />
           </div>

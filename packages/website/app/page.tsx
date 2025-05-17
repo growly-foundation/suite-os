@@ -56,7 +56,9 @@ export default function Home() {
               <TypingPromptInput />
 
               <div className="flex flex-wrap justify-center gap-3 mt-16">
-                <Button className="flex items-center gap-3 px-5 py-6 h-[40px] bg-primary hover:bg-primary/90 text-white rounded-xl border-0 dark:bg-primary dark:hover:bg-primary/90 dark:shadow-[0_0_15px_rgba(36,101,237,0.5)] relative overflow-hidden group">
+                <Button
+                  onClick={() => (window.location.href = 'https://suite.getgrowly.app')}
+                  className="flex items-center gap-3 px-5 py-6 h-[40px] bg-primary hover:bg-primary/90 text-white rounded-xl border-0 dark:bg-primary dark:hover:bg-primary/90 dark:shadow-[0_0_15px_rgba(36,101,237,0.5)] relative overflow-hidden group">
                   <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/30 to-primary/0 dark:opacity-30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%]"></div>
                   <ArrowRight />
                   <div className="flex flex-col items-start relative z-10">

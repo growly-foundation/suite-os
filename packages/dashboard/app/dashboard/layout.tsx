@@ -125,7 +125,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="font-bold text-lg flex items-center">
-              <Image src="/logos/suite-logo.png" alt="Logo" width={35} height={35} />
+              <Image src="/logos/suite-logo-full.png" alt="Logo" width={35} height={35} />
             </Link>
             <OrganizationSwitcher />
             <div className="flex gap-3">

@@ -11,6 +11,7 @@ import {
 import { Button } from '../ui/button';
 import { ParsedStep } from '@growly/core';
 import { generateBasicDeFiWorkflowSteps } from '@/lib/data/step-templates/basic-defi-workflow';
+import { generateGrowlySuiteWorkflowSteps } from '@/lib/data/step-templates/growly-support-workflow';
 import { generateUniswapWorkflowSteps } from '@/lib/data/step-templates/uniswap-starter-workflow';
 import { generateMorphoWorkflowSteps } from '@/lib/data/step-templates/morpho-starter-workflow';
 import { generateMoonwellWorkflowSteps } from '@/lib/data/step-templates/moonwell-starter-workflow';
@@ -31,6 +32,13 @@ const TEMPLATES = [
     description: 'A basic DeFi workflow template',
     logoUrl: '/logos/suite-logo.png',
     steps: generateBasicDeFiWorkflowSteps(),
+  },
+  {
+    id: 'growly-suite-landing',
+    name: 'Growly Suite Landing',
+    description: 'A template for the Growly Suite landing page.',
+    logoUrl: '/logos/suite-logo.png',
+    steps: generateGrowlySuiteWorkflowSteps(),
   },
   {
     id: 'uniswap-starter-workflow',

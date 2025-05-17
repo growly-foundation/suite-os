@@ -12,9 +12,10 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
+    { label: 'Technologies', href: '#technologies' },
     { label: 'Features', href: '#features' },
+    { label: 'How to Get Started', href: '#getting-started' },
     { label: 'Use Cases', href: '#use-cases' },
-    { label: 'Testimonials', href: '#testimonials' },
     { label: 'About Us', href: 'https://growly.foundation' },
   ];
 
@@ -51,8 +52,8 @@ export default function Navbar() {
 
           <Button
             asChild
-            className="hidden md:flex items-center gap-3 px-4 py-2 bg-[#1a1d21] hover:bg-[#2a2d31] text-white rounded-xl border-0 h-auto dark:bg-primary dark:hover:bg-primary/90 dark:shadow-[0_0_10px_rgba(36,101,237,0.4)]">
-            <Link href="#contact">
+            className="hidden md:flex items-center gap-3 px-4 py-2 bg-primary hover:bg-accent text-white rounded-xl border-0 h-auto dark:bg-primary dark:hover:bg-primary/90 dark:shadow-[0_0_10px_rgba(36,101,237,0.4)]">
+            <Link href="https://suite.getgrowly.app">
               <ArrowRight className="h-4 w-4 text-white" />
               <div className="flex flex-col items-start">
                 <span className="text-sm font-medium">Getting Started</span>
@@ -82,8 +83,8 @@ export default function Navbar() {
                   <ThemeToggle />
                   <Button
                     asChild
-                    className="w-full flex items-center gap-3 px-4 py-2 bg-[#1a1d21] hover:bg-[#2a2d31] text-white rounded-xl border-0 h-auto dark:bg-primary dark:hover:bg-primary/90 dark:shadow-[0_0_10px_rgba(36,101,237,0.4)]">
-                    <Link href="#contact" onClick={() => setIsOpen(false)}>
+                    className="w-full flex items-center gap-3 px-4 py-2 bg-primary hover:bg-secondary text-white rounded-xl border-0 h-auto dark:bg-primary dark:hover:bg-primary/90 dark:shadow-[0_0_10px_rgba(36,101,237,0.4)]">
+                    <Link href="https://suite.getgrowly.app" onClick={() => setIsOpen(false)}>
                       <ArrowRight className="h-4 w-4 text-white" />
                       <div className="flex flex-col items-start">
                         <span className="text-sm font-medium">Getting Started</span>
