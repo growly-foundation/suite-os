@@ -13,7 +13,7 @@ async function bootstrap() {
 
   const payTo = process.env.ADDRESS as `0x${string}`;
 
-  let facilitatorUrl = process.env.FACILITATOR_URL as Resource;
+  const facilitatorUrl = process.env.FACILITATOR_URL as Resource;
   let network = process.env.NETWORK || 'base-sepolia';
 
   if (process.env.NODE_ENV === 'production') {
