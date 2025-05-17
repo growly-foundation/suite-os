@@ -1,13 +1,27 @@
 import { suiteCoreService } from '@/services/core.service';
 import { create } from 'zustand';
-import { Agent, AgentId, MessageContent, ParsedMessage, ParsedUser } from '@growly/core';
+import {
+  Agent,
+  AgentId,
+  MessageContent,
+  ParsedMessage,
+  ParsedUser,
+  Action,
+  AggregatedWorkflow,
+} from '@growly/core';
 import { BusterState } from '@growly/ui';
 import { Screen } from '@/types/screen';
+import { WorkflowExecutionService } from '@growly/core';
 
 type Optional<T> = T | undefined | null;
 
 interface WidgetSession {
   busterState: BusterState;
+  workflowExecutionService: WorkflowExecutionService | null;
+  initWorkflowExecutionService: (
+    workflows: AggregatedWorkflow[],
+    executeActions: (actions: Action[]) => void
+  ) => WorkflowExecutionService;
   setBusterState: (state: BusterState) => void;
   panelOpen: boolean;
   togglePanel: () => void;
@@ -32,6 +46,15 @@ interface WidgetSession {
 
 export const useSuiteSession = create<WidgetSession>((set, get) => ({
   busterState: 'idle',
+  workflowExecutionService: null,
+  initWorkflowExecutionService: (
+    workflows: AggregatedWorkflow[],
+    executeActions: (actions: Action[]) => void
+  ) => {
+    const service = new WorkflowExecutionService(workflows, executeActions);
+    set({ workflowExecutionService: service });
+    return service;
+  },
   setBusterState: state => set({ busterState: state }),
   panelOpen: false,
   togglePanel: () => set({ panelOpen: !get().panelOpen }),

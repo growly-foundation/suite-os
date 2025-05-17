@@ -15,8 +15,6 @@ export const buildMarkdownMessage = (content: TextMessageContent['content'], tim
     cleanHTML(content).then(html => setHtml(html));
   }, [content]);
 
-  console.log(content);
-
   return (
     <p className="text-sm">
       <div className="prose prose-sm dark:prose-invert max-w-none break-words">

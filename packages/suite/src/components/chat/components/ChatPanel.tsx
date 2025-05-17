@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useLayoutEffect } from 'react';
+import React from 'react';
 import { ConversationRole, MessageContent } from '@growly/core';
 import { useSuite } from '@/hooks/use-suite';
 import { Avatar, Identity, Name, Badge, Address } from '@coinbase/onchainkit/identity';
@@ -13,22 +13,13 @@ import { ConnectWallet } from './ConnectWallet';
 import { PanelLayout } from '@/components/panel/components/PanelLayout';
 
 export function ChatPanel() {
-  const {
-    user,
-    setIsAgentThinking,
-    messages,
-    addMessage,
-    setBusterState,
-    inputValue,
-    setInputValue,
-    panelOpen,
-  } = useSuiteSession();
+  const { user, setIsAgentThinking, addMessage, setBusterState, inputValue, setInputValue } =
+    useSuiteSession();
   const {
     agentId,
     integration,
     appState: { walletAddress },
   } = useSuite();
-  const [refreshing, setRefreshing] = React.useState(+new Date());
   const [isSending, setIsSending] = React.useState(false);
 
   const sendRemoteMessage = async (
@@ -54,7 +45,6 @@ export function ChatPanel() {
       ...JSON.parse(newMessage.content),
     };
     addMessage(deserializedMessage);
-    setRefreshing(+new Date());
   };
 
   const sendTextMessage = (message: string, sender: ConversationRole) => {

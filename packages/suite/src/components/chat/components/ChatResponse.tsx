@@ -113,7 +113,11 @@ const ChatResponse = ({
     ) : (
       <AgentResponse key={message.id} message={message} />
     );
-  return <div ref={ref}>{innerResponse}</div>;
+  return (
+    <div ref={ref} className="w-full">
+      {innerResponse}
+    </div>
+  );
 };
 
 export default ChatResponse;

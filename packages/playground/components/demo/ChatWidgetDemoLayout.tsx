@@ -1,13 +1,17 @@
 import { useContext, useEffect } from 'react';
 import { base } from 'viem/chains';
 import { AppContext } from '../AppProvider';
-import { Theme } from '@growly/suite';
+import { GrowlyComponent, Theme } from '@growly/suite';
 import { useSuite, SuiteProvider } from '@growly/suite';
 import { useAccount } from 'wagmi';
 import { DUMMY_AGENT_ID, DUMMY_ORGANIZATION_API_KEY } from '@/lib/constants';
+import { Button } from '../ui/button';
 
 function ChatWidgetComponent({ children }: { children: React.ReactNode }) {
-  const { config, setConfig } = useSuite();
+  const {
+    config,
+    appState: { setConfig },
+  } = useSuite();
   const { componentTheme, chainId, displayMode } = useContext(AppContext);
   useEffect(() => {
     if (!setConfig) {
@@ -61,9 +65,15 @@ export function ChatWidgetDemoLayout({ children }: { children: React.ReactNode }
         },
         config: {
           theme: Theme.monoTheme,
+          display: 'fullView',
         },
       }}>
-      <ChatWidgetComponent>{children}</ChatWidgetComponent>
+      <ChatWidgetComponent>
+        <GrowlyComponent.Step id="step1" workflow="workflow1">
+          <Button>On Click Triggers Event</Button>
+        </GrowlyComponent.Step>
+        {children}
+      </ChatWidgetComponent>
     </SuiteProvider>
   );
 }

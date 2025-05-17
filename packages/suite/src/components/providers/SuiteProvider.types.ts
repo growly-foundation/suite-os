@@ -60,5 +60,4 @@ export interface SuiteGlobalContext {
      */
     onchainKit?: Omit<OnchainKitProviderReact, 'children' | 'address'> & { enabled: boolean };
   };
-  setConfig?: (config: SuiteConfig) => void;
 }

@@ -4,3 +4,4 @@ export * from './function.service';
 export * from './organization.service';
 export * from './agent.service';
 export * from './step.service';
+export * from './workflow-execution.service';
