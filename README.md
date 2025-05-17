@@ -135,9 +135,9 @@ pnpm dev:suite    # For widget development
 
 ## 📦 Package Structure
 
-- **@growly/core**: Core utilities shared across the monorepo
-- **@growly/ui**: UI component library built with React and Tailwind
-- **@growly/suite**: The main widget package that dApp developers integrate
+- [**@growly/core**](https://www.npmjs.com/package/@getgrowly/core): Core utilities shared across the monorepo
+- [**@growly/ui**](https://www.npmjs.com/package/@getgrowly/ui): UI component library built with React and Tailwind
+- [**@growly/suite**](https://www.npmjs.com/package/@getgrowly/suite): The main widget package that dApp developers integrate
 - **@growly/server**: Backend service for AI processing and blockchain interactions
 - **@growly/website**: Marketing website and documentation
 - **@growly/dashboard**: Admin interface for managing integrations
