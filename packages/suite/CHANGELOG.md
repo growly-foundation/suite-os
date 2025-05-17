@@ -4,6 +4,12 @@
 
 ### Major Changes
 
+- Resolve an issue with no entry file found on import
+
+## 1.0.0
+
+### Major Changes
+
 - Release the initial version for Suite experiemtal features
 
 ### Patch Changes

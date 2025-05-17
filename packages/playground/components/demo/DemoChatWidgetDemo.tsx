@@ -11,7 +11,7 @@ const DemoChatWidget = dynamic(
 export function DemoChatWidgetDemo() {
   return (
     <ChatWidgetDemoLayout>
-      <DemoChatWidget defaultOpen />
+      <DemoChatWidget />
     </ChatWidgetDemoLayout>
   );
 }

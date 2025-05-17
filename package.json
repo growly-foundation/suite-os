@@ -31,7 +31,7 @@
     "changeset:publish": "pnpm build && changeset publish",
     "release:check": "changeset status --verbose --since=origin/main",
     "release:version": "changeset version",
-    "release:publish": "pnpm build && changeset publish"
+    "release:shared": "pnpm run build:shared && changeset version && changeset publish"
   },
   "precommit.silent": true,
   "pre-commit": [
