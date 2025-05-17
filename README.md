@@ -9,6 +9,9 @@
   </p>
 </div>
 
+> [!NOTE]  
+> **Special Note**: This product is freshly built in the Base Batch APAC duration (starting from Apr 28). We reuse the boilerplate code from our exisintg project. Please check this [clean up codebase commit](https://github.com/growly-foundation/suite/commit/86ced585cd5082c575ec97fbe7e884a1779d4d27) that fully demonstrates there is no prior code has been taken into account (except the CI/CD setup that we want to reuse on existing repo).
+
 ## 🚀 Overview
 
 Suite is an AI-powered engine designed to streamline DeFi adoption by integrating cutting-edge AI agents into blockchain applications. Our solution bridges the gap between complex DeFi protocols and everyday users through an intuitive AI chat widget that can be easily embedded into any dApp.
@@ -156,8 +159,6 @@ This project is a submission to the [Base Batch APAC](https://base-batch-apac.de
   - High-level rebalance strategy with reasoning based on risk-profile (analyzed from current portfolio); suggest yield as liquidity provider, to
   - Specific DeFi protocol actions' touchpoints with intent suggestion (prefill swap and createPosition) links on Uniswap.
   - Under the background, the agent has accessed to Uniswap v4 SDK and familiarized with tickSpacing to provide the user near real-time APR of a pool
-
-**Special Note**: This product is freshly built from the Base Batch APAC duration (starting from Apr 28). Please check this [clean up codebase](https://github.com/growly-foundation/suite/commit/86ced585cd5082c575ec97fbe7e884a1779d4d27) commit to fully demonstrate that no prior code has been taken into account (except the CI/CD setup that we want to reuse on existing repo).
 
 ## 📄 License
 
