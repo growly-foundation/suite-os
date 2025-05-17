@@ -18,7 +18,9 @@ Built on Base, Suite leverages the power of AI to help users navigate on-chain a
 | Resource Name | Link  |  
 |---|---|
 | Website  | https://getgrowly.app  |   
-| Suite Dashboard  | https://suite.getgrowly.app  |   
+| Suite Dashboard  | https://suite.getgrowly.app  | 
+| Suite Playground  | https://playground.getgrowly.app  | 
+| Suite Uniswap Demo  | https://uniswap.getgrowly.app  | 
 | Original Idea Pitch  | [View the original idea](https://github.com/user-attachments/files/19884167/growly-widget-deck.2.pdf)  |   
 |  Pitch Deck for Base Batches | [View our pitch deck](https://www.figma.com/deck/uF0kJ0gn0ViJgPUUrdq1yn/-Growly-Suite--Pitch-Deck)  |    
 
