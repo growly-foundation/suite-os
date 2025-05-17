@@ -32,6 +32,8 @@ async function bootstrap() {
       'https://www.suite.getgrowly.app',
       'https://getgrowly.app',
       'https://www.getgrowly.app',
+      'https://api.getgrowly.app',
+      'https://www.api.getgrowly.app',
     ],
   });
 
