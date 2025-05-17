@@ -1,7 +1,13 @@
-import { SVGProps } from 'constants/icons/types'
+import { SVGProps } from 'constants/icons/types';
 
 const INR_ICON = (props: SVGProps) => (
-  <svg width="49" height="49" viewBox="0 0 49 49" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+  <svg
+    width="49"
+    height="49"
+    viewBox="0 0 49 49"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}>
     <g clipPath="url(#clip0_1942_61789)">
       <path d="M0 0H48.5142V16.2154H0V0Z" fill="#FF9933" />
       <path d="M0 16.2155H48.5142V32.4214H0V16.2155Z" fill="white" />
@@ -22,7 +28,10 @@ const INR_ICON = (props: SVGProps) => (
         d="M29.8308 25.3505C29.9902 25.3715 30.1364 25.2591 30.1574 25.0993C30.1783 24.9395 30.0661 24.7929 29.9068 24.7719C29.7474 24.7508 29.6012 24.8633 29.5802 25.0231C29.5592 25.1829 29.6714 25.3295 29.8308 25.3505Z"
         fill="#000088"
       />
-      <path d="M24.257 29.9926L24.4511 26.588L24.257 24.9668L24.063 26.588L24.257 29.9926Z" fill="#000088" />
+      <path
+        d="M24.257 29.9926L24.4511 26.588L24.257 24.9668L24.063 26.588L24.257 29.9926Z"
+        fill="#000088"
+      />
     </g>
     <defs>
       <clipPath id="clip0_1942_61789">
@@ -33,6 +42,6 @@ const INR_ICON = (props: SVGProps) => (
       </clipPath>
     </defs>
   </svg>
-)
+);
 
-export default INR_ICON
+export default INR_ICON;

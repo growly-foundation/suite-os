@@ -1,20 +1,25 @@
-import { EmptyActivityIcon, EmptyNftsIcon, EmptyPoolsIcon, EmptyTokensIcon } from 'nft/components/profile/view/icons'
-import { useCallback } from 'react'
-import { Trans } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
-import { Button } from 'ui/src'
-import { Flex } from 'ui/src/components/layout'
-import { Text } from 'ui/src/components/text'
+import {
+  EmptyActivityIcon,
+  EmptyNftsIcon,
+  EmptyPoolsIcon,
+  EmptyTokensIcon,
+} from 'nft/components/profile/view/icons';
+import { useCallback } from 'react';
+import { Trans } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { Button } from 'ui/src';
+import { Flex } from 'ui/src/components/layout';
+import { Text } from 'ui/src/components/text';
 
 type EmptyWalletContent = {
-  title: React.ReactNode
-  subtitle: React.ReactNode
-  actionText?: React.ReactNode
-  urlPath?: string
-  icon: React.ReactNode
-}
+  title: React.ReactNode;
+  subtitle: React.ReactNode;
+  actionText?: React.ReactNode;
+  urlPath?: string;
+  icon: React.ReactNode;
+};
 
-type EmptyWalletContentType = 'nft' | 'token' | 'activity' | 'pool'
+type EmptyWalletContentType = 'nft' | 'token' | 'activity' | 'pool';
 
 const EMPTY_WALLET_CONTENT: { [key in EmptyWalletContentType]: EmptyWalletContent } = {
   nft: {
@@ -43,23 +48,23 @@ const EMPTY_WALLET_CONTENT: { [key in EmptyWalletContentType]: EmptyWalletConten
     urlPath: '/pool',
     icon: <EmptyPoolsIcon />,
   },
-}
+};
 
 interface EmptyWalletContentProps {
-  type?: EmptyWalletContentType
-  onNavigateClick?: () => void
+  type?: EmptyWalletContentType;
+  onNavigateClick?: () => void;
 }
 
 export const EmptyWalletModule = ({ type = 'nft', onNavigateClick }: EmptyWalletContentProps) => {
-  const navigate = useNavigate()
-  const content = EMPTY_WALLET_CONTENT[type]
+  const navigate = useNavigate();
+  const content = EMPTY_WALLET_CONTENT[type];
 
   const actionButtonClick = useCallback(() => {
     if (content.urlPath) {
-      onNavigateClick?.()
-      navigate(content.urlPath)
+      onNavigateClick?.();
+      navigate(content.urlPath);
     }
-  }, [content.urlPath, navigate, onNavigateClick])
+  }, [content.urlPath, navigate, onNavigateClick]);
 
   return (
     <Flex
@@ -68,8 +73,7 @@ export const EmptyWalletModule = ({ type = 'nft', onNavigateClick }: EmptyWallet
       height="100%"
       width="100%"
       px="$spacing12"
-      $sm={{ pt: '$spacing8' }}
-    >
+      $sm={{ pt: '$spacing8' }}>
       {content.icon}
       <Text variant="subheading2" textAlign="center" mt="$spacing12">
         {content.title}
@@ -79,11 +83,14 @@ export const EmptyWalletModule = ({ type = 'nft', onNavigateClick }: EmptyWallet
       </Text>
       {content.actionText && (
         <Flex mt="$spacing20">
-          <Button data-testid="nft-explore-nfts-button" variant="branded" onPress={actionButtonClick}>
+          <Button
+            data-testid="nft-explore-nfts-button"
+            variant="branded"
+            onPress={actionButtonClick}>
             {content.actionText}
           </Button>
         </Flex>
       )}
     </Flex>
-  )
-}
+  );
+};

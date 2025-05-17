@@ -1,16 +1,24 @@
-import { Percent } from '@uniswap/sdk-core'
-import { LpIncentivesAprDisplay } from 'components/LpIncentives/LpIncentivesAprDisplay'
-import { calculateTotalApr } from 'components/LpIncentives/utils'
-import { useTranslation } from 'react-i18next'
-import { Flex, Text } from 'ui/src'
-import { useFormatter } from 'utils/formatNumbers'
+import { Percent } from '@uniswap/sdk-core';
+import { LpIncentivesAprDisplay } from 'components/LpIncentives/LpIncentivesAprDisplay';
+import { calculateTotalApr } from 'components/LpIncentives/utils';
+import { useTranslation } from 'react-i18next';
+import { Flex, Text } from 'ui/src';
+import { useFormatter } from 'utils/formatNumbers';
 
-export const PoolDetailsApr = ({ poolApr, rewardsApr }: { poolApr: Percent; rewardsApr?: number }) => {
-  const { t } = useTranslation()
-  const { formatPercent } = useFormatter()
+export const PoolDetailsApr = ({
+  poolApr,
+  rewardsApr,
+}: {
+  poolApr: Percent;
+  rewardsApr?: number;
+}) => {
+  const { t } = useTranslation();
+  const { formatPercent } = useFormatter();
 
-  const showAprBreakdown = rewardsApr !== undefined && rewardsApr > 0
-  const totalApr = rewardsApr ? formatPercent(calculateTotalApr(poolApr, rewardsApr), 2) : `${poolApr.toFixed(2)}%`
+  const showAprBreakdown = rewardsApr !== undefined && rewardsApr > 0;
+  const totalApr = rewardsApr
+    ? formatPercent(calculateTotalApr(poolApr, rewardsApr), 2)
+    : `${poolApr.toFixed(2)}%`;
 
   return (
     <Flex
@@ -22,8 +30,7 @@ export const PoolDetailsApr = ({ poolApr, rewardsApr }: { poolApr: Percent; rewa
       flexDirection="column"
       mt={-24}
       mb={24}
-      $xl={{ my: 0 }}
-    >
+      $xl={{ my: 0 }}>
       <Flex>
         <Text variant="body2" color="$neutral2">
           {t('pool.totalAPR')}
@@ -46,10 +53,14 @@ export const PoolDetailsApr = ({ poolApr, rewardsApr }: { poolApr: Percent; rewa
             <Text variant="body3" color="$neutral2">
               {t('pool.apr.reward')}
             </Text>
-            <LpIncentivesAprDisplay lpIncentiveRewardApr={rewardsApr} hideBackground showTokenSymbol />
+            <LpIncentivesAprDisplay
+              lpIncentiveRewardApr={rewardsApr}
+              hideBackground
+              showTokenSymbol
+            />
           </Flex>
         </Flex>
       )}
     </Flex>
-  )
-}
+  );
+};

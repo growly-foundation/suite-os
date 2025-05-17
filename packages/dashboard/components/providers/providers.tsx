@@ -22,31 +22,35 @@ const AnimatedLoading = dynamic(
 );
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <PrivyProvider
-      appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID!}
-      clientId={process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID!}
-      config={{
-        loginMethods: ['email'],
-        embeddedWallets: {
-          createOnLogin: 'users-without-wallets',
-        },
-      }}>
-      <SuiteProviderWrapper>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange>
-          <ReactFlowProvider>
-            <Suspense fallback={<AnimatedLoading />}>
-              {children}
-              <ChatWidget />
-              <ToastContainer />
-            </Suspense>
-          </ReactFlowProvider>
-        </ThemeProvider>
-      </SuiteProviderWrapper>
-    </PrivyProvider>
+  let baseComponent = (
+    <SuiteProviderWrapper>
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+        <ReactFlowProvider>
+          <Suspense fallback={<AnimatedLoading />}>
+            {children}
+            <ChatWidget />
+            <ToastContainer />
+          </Suspense>
+        </ReactFlowProvider>
+      </ThemeProvider>
+    </SuiteProviderWrapper>
   );
+  // If environment variables for Privy credentials are not set,
+  // do not wrap the component with PrivyProvider.
+  if (process.env.NEXT_PUBLIC_PRIVY_APP_ID && process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID) {
+    baseComponent = (
+      <PrivyProvider
+        appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID}
+        clientId={process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID}
+        config={{
+          loginMethods: ['email'],
+          embeddedWallets: {
+            createOnLogin: 'users-without-wallets',
+          },
+        }}>
+        {baseComponent}
+      </PrivyProvider>
+    );
+  }
+  return baseComponent;
 };

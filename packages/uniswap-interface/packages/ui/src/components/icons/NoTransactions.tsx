@@ -1,11 +1,11 @@
-import { Path, Svg } from 'react-native-svg'
+import { Path, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [NoTransactions, AnimatedNoTransactions] = createIcon({
   name: 'NoTransactions',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg viewBox="0 0 102 94" fill="none" {...props}>
       <Path
         d="M20.5247 9.00098L5.2535 13.3799C1.53727 14.4455 -0.611486 18.322 0.454126 22.0382L13.6601 68.093C14.7257 71.8092 18.6022 73.958 22.3184 72.8924L56.817 63H31.5247C25.4495 63 20.5247 58.0752 20.5247 52V9.00098Z"
@@ -27,4 +27,4 @@ export const [NoTransactions, AnimatedNoTransactions] = createIcon({
       />
     </Svg>
   ),
-})
+});

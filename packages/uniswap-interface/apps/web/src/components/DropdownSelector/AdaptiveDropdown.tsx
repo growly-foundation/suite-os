@@ -1,6 +1,6 @@
-import { MouseoverTooltip, TooltipSize } from 'components/Tooltip'
-import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import { useEffect, useRef, useState } from 'react'
+import { MouseoverTooltip, TooltipSize } from 'components/Tooltip';
+import { useOnClickOutside } from 'hooks/useOnClickOutside';
+import { useEffect, useRef, useState } from 'react';
 import {
   AnimatePresence,
   Flex,
@@ -12,8 +12,8 @@ import {
   useMedia,
   useScrollbarStyles,
   useShadowPropsMedium,
-} from 'ui/src'
-import { INTERFACE_NAV_HEIGHT, zIndexes } from 'ui/src/theme'
+} from 'ui/src';
+import { INTERFACE_NAV_HEIGHT, zIndexes } from 'ui/src/theme';
 
 const DropdownContent = styled(Text, {
   display: 'flex',
@@ -55,7 +55,7 @@ const DropdownContent = styled(Text, {
       },
     },
   },
-})
+});
 
 const DropdownContainer = styled(Text, {
   display: 'inline-flex',
@@ -65,25 +65,25 @@ const DropdownContainer = styled(Text, {
   borderWidth: '$none',
   textAlign: 'left',
   width: '100%',
-})
+});
 
 export interface SharedDropdownProps {
-  isOpen: boolean
-  toggleOpen: (open: boolean) => void
-  dropdownTestId?: string
-  adaptToSheet?: boolean
-  tooltipText?: string
-  dropdownStyle?: FlexProps
-  containerStyle?: React.CSSProperties
-  alignRight?: boolean
-  allowFlip?: boolean
-  positionFixed?: boolean // used to determine if fixed dropdown should be flipped
-  children: JSX.Element | JSX.Element[]
+  isOpen: boolean;
+  toggleOpen: (open: boolean) => void;
+  dropdownTestId?: string;
+  adaptToSheet?: boolean;
+  tooltipText?: string;
+  dropdownStyle?: FlexProps;
+  containerStyle?: React.CSSProperties;
+  alignRight?: boolean;
+  allowFlip?: boolean;
+  positionFixed?: boolean; // used to determine if fixed dropdown should be flipped
+  children: JSX.Element | JSX.Element[];
 }
 
 type AdaptiveDropdownProps = SharedDropdownProps & {
-  trigger: JSX.Element
-}
+  trigger: JSX.Element;
+};
 
 export function AdaptiveDropdown({
   isOpen,
@@ -99,25 +99,29 @@ export function AdaptiveDropdown({
   positionFixed,
   children,
 }: AdaptiveDropdownProps) {
-  const node = useRef<HTMLDivElement | null>(null)
-  const dropdownNode = useRef<HTMLDivElement | null>(null)
-  useOnClickOutside(node, () => isOpen && toggleOpen(false))
-  const scrollbarStyles = useScrollbarStyles()
-  const shadowProps = useShadowPropsMedium()
-  const media = useMedia()
-  const isSheet = !!adaptToSheet && media.sm
-  const [flipVertical, setFlipVertical] = useState(false)
+  const node = useRef<HTMLDivElement | null>(null);
+  const dropdownNode = useRef<HTMLDivElement | null>(null);
+  useOnClickOutside(node, () => isOpen && toggleOpen(false));
+  const scrollbarStyles = useScrollbarStyles();
+  const shadowProps = useShadowPropsMedium();
+  const media = useMedia();
+  const isSheet = !!adaptToSheet && media.sm;
+  const [flipVertical, setFlipVertical] = useState(false);
 
   useEffect(() => {
     if (isOpen && allowFlip && !isSheet) {
       if (dropdownNode.current && node.current) {
-        const rect = node.current.getBoundingClientRect()
-        const verticalPageOffset = rect.height + rect.top + 15
-        const dropdownContainerHeight = positionFixed ? window.innerHeight : document.body.offsetHeight
-        setFlipVertical(dropdownNode.current.offsetHeight + verticalPageOffset > dropdownContainerHeight)
+        const rect = node.current.getBoundingClientRect();
+        const verticalPageOffset = rect.height + rect.top + 15;
+        const dropdownContainerHeight = positionFixed
+          ? window.innerHeight
+          : document.body.offsetHeight;
+        setFlipVertical(
+          dropdownNode.current.offsetHeight + verticalPageOffset > dropdownContainerHeight
+        );
       }
     }
-  }, [isOpen, allowFlip, dropdownNode, node, positionFixed, isSheet])
+  }, [isOpen, allowFlip, dropdownNode, node, positionFixed, isSheet]);
 
   return (
     <>
@@ -131,8 +135,7 @@ export function AdaptiveDropdown({
               {...shadowProps}
               style={scrollbarStyles}
               positionRight={alignRight}
-              positionTop={false}
-            >
+              positionTop={false}>
               {children}
             </DropdownContent>
           </Flex>
@@ -146,8 +149,7 @@ export function AdaptiveDropdown({
             text={tooltipText}
             size={TooltipSize.Max}
             placement="top"
-            style={{ width: '100%' }}
-          >
+            style={{ width: '100%' }}>
             {trigger}
           </MouseoverTooltip>
           <AnimatePresence>
@@ -160,8 +162,7 @@ export function AdaptiveDropdown({
                 style={scrollbarStyles}
                 positionRight={alignRight}
                 positionTop={flipVertical}
-                position="absolute"
-              >
+                position="absolute">
                 {children}
               </DropdownContent>
             )}
@@ -172,11 +173,10 @@ export function AdaptiveDropdown({
         <WebBottomSheet
           isOpen={isOpen}
           onClose={() => toggleOpen(false)}
-          maxHeight={`calc(100dvh - ${INTERFACE_NAV_HEIGHT}px)`}
-        >
+          maxHeight={`calc(100dvh - ${INTERFACE_NAV_HEIGHT}px)`}>
           {children}
         </WebBottomSheet>
       )}
     </>
-  )
+  );
 }

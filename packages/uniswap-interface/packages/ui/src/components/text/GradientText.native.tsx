@@ -1,7 +1,7 @@
-import MaskedView from '@react-native-masked-view/masked-view'
-import { LinearGradient } from 'tamagui/linear-gradient'
-import { Text } from 'ui/src/components/text'
-import { GradientTextProps } from 'ui/src/components/text/GradientText'
+import MaskedView from '@react-native-masked-view/masked-view';
+import { LinearGradient } from 'tamagui/linear-gradient';
+import { Text } from 'ui/src/components/text';
+import { GradientTextProps } from 'ui/src/components/text/GradientText';
 
 export function GradientText({ gradient, children, ...props }: GradientTextProps): JSX.Element {
   return (
@@ -12,5 +12,5 @@ export function GradientText({ gradient, children, ...props }: GradientTextProps
         </Text>
       </LinearGradient>
     </MaskedView>
-  )
+  );
 }

@@ -1,16 +1,16 @@
 /* eslint-disable complexity */
-import { useEffect, useState } from 'react'
-import { ColorTokens, Image } from 'tamagui'
-import { FastImageWrapper } from 'ui/src/components/UniversalImage/internal/FastImageWrapper'
-import { PlainImage } from 'ui/src/components/UniversalImage/internal/PlainImage'
-import { SvgImage } from 'ui/src/components/UniversalImage/internal/SvgImage'
-import { UniversalImageProps, UniversalImageSize } from 'ui/src/components/UniversalImage/types'
-import { Flex } from 'ui/src/components/layout/Flex'
-import { Loader } from 'ui/src/loading/Loader'
-import { isSVGUri, uriToHttpUrls } from 'utilities/src/format/urls'
-import { logger } from 'utilities/src/logger/logger'
+import { useEffect, useState } from 'react';
+import { ColorTokens, Image } from 'tamagui';
+import { FastImageWrapper } from 'ui/src/components/UniversalImage/internal/FastImageWrapper';
+import { PlainImage } from 'ui/src/components/UniversalImage/internal/PlainImage';
+import { SvgImage } from 'ui/src/components/UniversalImage/internal/SvgImage';
+import { UniversalImageProps, UniversalImageSize } from 'ui/src/components/UniversalImage/types';
+import { Flex } from 'ui/src/components/layout/Flex';
+import { Loader } from 'ui/src/loading/Loader';
+import { isSVGUri, uriToHttpUrls } from 'utilities/src/format/urls';
+import { logger } from 'utilities/src/logger/logger';
 
-const LOADING_FALLBACK = <Loader.Image />
+const LOADING_FALLBACK = <Loader.Image />;
 
 export function UniversalImage({
   uri,
@@ -24,72 +24,73 @@ export function UniversalImage({
   autoplay = true,
 }: UniversalImageProps): JSX.Element | null {
   // Allow calculation of fields as needed
-  const [width, setWidth] = useState(size.width)
-  const [height, setHeight] = useState(size.height)
-  const computedSize: UniversalImageSize = { width, height, aspectRatio: size.aspectRatio }
+  const [width, setWidth] = useState(size.width);
+  const [height, setHeight] = useState(size.height);
+  const computedSize: UniversalImageSize = { width, height, aspectRatio: size.aspectRatio };
 
-  const [errored, setErrored] = useState(false)
+  const [errored, setErrored] = useState(false);
 
-  const hasWidthAndHeight = computedSize.width !== undefined && computedSize.height !== undefined
-  const hasHeightAndRatio = computedSize.height !== undefined && computedSize.aspectRatio !== undefined
-  const sizeKnown = hasWidthAndHeight || hasHeightAndRatio
+  const hasWidthAndHeight = computedSize.width !== undefined && computedSize.height !== undefined;
+  const hasHeightAndRatio =
+    computedSize.height !== undefined && computedSize.aspectRatio !== undefined;
+  const sizeKnown = hasWidthAndHeight || hasHeightAndRatio;
 
-  const isRequireSource = typeof uri === 'number'
+  const isRequireSource = typeof uri === 'number';
 
   // Propagate prop updates to state
   useEffect(() => {
-    setWidth(size.width)
-    setHeight(size.height)
-  }, [size.height, size.width])
+    setWidth(size.width);
+    setHeight(size.height);
+  }, [size.height, size.width]);
 
   // Calculate width/height and check for an error in the image retrieval for fast images
   useEffect(() => {
     // If we know dimension or this isn't a fast image, skip calculating width/height
     if (!uri || sizeKnown || !fastImage || isRequireSource) {
-      return
+      return;
     }
 
     // Calculate size if not enough info is given
     Image.getSize(
       uri,
       (calculatedWidth: number, calculatedHeight: number) => {
-        setWidth(calculatedWidth)
-        setHeight(calculatedHeight)
+        setWidth(calculatedWidth);
+        setHeight(calculatedHeight);
       },
-      () => setErrored(true),
-    )
-  }, [width, height, sizeKnown, uri, fastImage, isRequireSource])
+      () => setErrored(true)
+    );
+  }, [width, height, sizeKnown, uri, fastImage, isRequireSource]);
 
   // Handle local URI
   if (isRequireSource) {
-    return <Image height={size.height} source={uri} width={size.width} />
+    return <Image height={size.height} source={uri} width={size.width} />;
   }
 
   // Use the fallback if no URI at all
   if (!uri && fallback) {
-    return fallback
+    return fallback;
   }
 
   // Show a loader while the URI is populating or size is calculating when there's no fallback
   if (!uri || (!sizeKnown && !errored)) {
     if (style?.loadingContainer) {
-      return <Flex style={style?.loadingContainer}>{LOADING_FALLBACK}</Flex>
+      return <Flex style={style?.loadingContainer}>{LOADING_FALLBACK}</Flex>;
     }
-    return LOADING_FALLBACK
+    return LOADING_FALLBACK;
   }
 
   // Get the sanitized url
-  const imageHttpUrl = uriToHttpUrls(uri, { allowLocalUri })[0]
+  const imageHttpUrl = uriToHttpUrls(uri, { allowLocalUri })[0];
 
   // Log an error and show a fallback (or null) when the URI is bad or an error loading occurs
   if (!imageHttpUrl || errored) {
     const errMsg = errored
       ? 'could not compute sizing information for uri'
-      : 'Could not retrieve and format remote image for uri'
-    logger.warn('UniversalImage', 'UniversalImage', errMsg, { data: uri })
+      : 'Could not retrieve and format remote image for uri';
+    logger.warn('UniversalImage', 'UniversalImage', errMsg, { data: uri });
 
     // Return fallback or null
-    return fallback ?? null
+    return fallback ?? null;
   }
 
   // Handle images requested to use fast image
@@ -101,7 +102,7 @@ export function UniversalImage({
         testID={testID ? `svg-${testID}` : undefined}
         uri={uri}
       />
-    )
+    );
   }
 
   // Handle any svg separate from plain images
@@ -115,11 +116,10 @@ export function UniversalImage({
         height={size.height}
         overflow="hidden"
         testID={testID ? `svg-${testID}` : undefined}
-        width={size.width}
-      >
+        width={size.width}>
         <SvgImage autoplay={autoplay} fallback={fallback} size={size} uri={imageHttpUrl} />
       </Flex>
-    )
+    );
   }
 
   // Handle a plain image
@@ -133,5 +133,5 @@ export function UniversalImage({
       uri={imageHttpUrl}
       onLoad={onLoad}
     />
-  )
+  );
 }

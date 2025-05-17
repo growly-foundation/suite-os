@@ -1,4 +1,4 @@
-const { webPlatform: restrictedImports } = require('@uniswap/eslint-config/restrictedImports')
+const { webPlatform: restrictedImports } = require('@uniswap/eslint-config/restrictedImports');
 
 module.exports = {
   overrides: [
@@ -10,4 +10,4 @@ module.exports = {
       },
     },
   ],
-}
+};

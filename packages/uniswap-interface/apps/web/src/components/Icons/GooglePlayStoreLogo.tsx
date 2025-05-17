@@ -1,4 +1,4 @@
-import { SVGProps } from 'react'
+import { SVGProps } from 'react';
 
 export function GooglePlayStoreLogo(props: SVGProps<SVGSVGElement>) {
   return (
@@ -9,8 +9,7 @@ export function GooglePlayStoreLogo(props: SVGProps<SVGSVGElement>) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       data-testid="google-play-store-logo"
-      {...props}
-    >
+      {...props}>
       <path
         d="M7.48727 7.63928L0.873077 14.6688C0.873077 14.6688 0.873077 14.6688 0.873077 14.675C1.07802 15.4401 1.7736 16 2.5996 16C2.92876 16 3.23928 15.9129 3.50633 15.7512L3.52496 15.7387L10.9652 11.4402L7.48727 7.63928Z"
         fill="#EA4335"
@@ -28,5 +27,5 @@ export function GooglePlayStoreLogo(props: SVGProps<SVGSVGElement>) {
         fill="#34A853"
       />
     </svg>
-  )
+  );
 }

@@ -1,13 +1,13 @@
-import { EnvelopeHeartIcon } from 'components/Icons/EnvelopeHeart'
-import { useExternallyConnectableExtensionId } from 'pages/ExtensionPasskeyAuthPopUp/useExternallyConnectableExtensionId'
-import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router-dom'
-import { Anchor, Button, Flex, SpinningLoader, Text } from 'ui/src'
-import { Passkey } from 'ui/src/components/icons/Passkey'
-import { UniswapLogo } from 'ui/src/components/icons/UniswapLogo'
-import { uniswapUrls } from 'uniswap/src/constants/urls'
-import { parseMessage } from 'uniswap/src/extension/messagePassing/platform'
+import { EnvelopeHeartIcon } from 'components/Icons/EnvelopeHeart';
+import { useExternallyConnectableExtensionId } from 'pages/ExtensionPasskeyAuthPopUp/useExternallyConnectableExtensionId';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
+import { Anchor, Button, Flex, SpinningLoader, Text } from 'ui/src';
+import { Passkey } from 'ui/src/components/icons/Passkey';
+import { UniswapLogo } from 'ui/src/components/icons/UniswapLogo';
+import { uniswapUrls } from 'uniswap/src/constants/urls';
+import { parseMessage } from 'uniswap/src/extension/messagePassing/platform';
 import {
   InterfaceToExtensionRequestType,
   PasskeyCredentialError,
@@ -15,19 +15,19 @@ import {
   PasskeyRequest,
   PasskeyRequestSchema,
   PasskeySignInFlowOpened,
-} from 'uniswap/src/extension/messagePassing/types/requests'
-import { authenticatePasskey } from 'uniswap/src/features/passkey/passkey'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { logger } from 'utilities/src/logger/logger'
-import { ONE_SECOND_MS } from 'utilities/src/time/time'
-import { useTimeout } from 'utilities/src/time/timing'
+} from 'uniswap/src/extension/messagePassing/types/requests';
+import { authenticatePasskey } from 'uniswap/src/features/passkey/passkey';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { logger } from 'utilities/src/logger/logger';
+import { ONE_SECOND_MS } from 'utilities/src/time/time';
+import { useTimeout } from 'utilities/src/time/timing';
 
 // Passkey Auth Flow: Extension <> Web App
 // For a detailed flow chart of how the Web App and the Extension exchange messages,
 // check `apps/extension/src/app/features/onboarding/import/InitiatePasskeyAuth.tsx`.
 
 // If we don't receive a response back from the extension in this time, we will show an error.
-const EXTENSION_REFERRER_VERIFICATION_TIMEOUT = ONE_SECOND_MS * 3
+const EXTENSION_REFERRER_VERIFICATION_TIMEOUT = ONE_SECOND_MS * 3;
 
 enum ReferrerVerification {
   Verifying = 'Verifying',
@@ -36,54 +36,56 @@ enum ReferrerVerification {
 }
 
 export default function ExtensionPasskeyAuthPopUp() {
-  const { t } = useTranslation()
-  const extensionId = useExternallyConnectableExtensionId()
+  const { t } = useTranslation();
+  const extensionId = useExternallyConnectableExtensionId();
 
-  const [signInAttemptStatus, setSignInAttemptStatus] = useState<ReferrerVerification>(ReferrerVerification.Verifying)
-  const [passkeyRequestData, setPasskeyRequestData] = useState<PasskeyRequest | null>(null)
+  const [signInAttemptStatus, setSignInAttemptStatus] = useState<ReferrerVerification>(
+    ReferrerVerification.Verifying
+  );
+  const [passkeyRequestData, setPasskeyRequestData] = useState<PasskeyRequest | null>(null);
 
-  const [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     if (!chrome?.runtime) {
       // `chrome.runtime` should exist when the Extension is installed
       // and the URL matches the Extension's `externally_connectable` manifest field.
-      logger.debug('ExtensionPasskeyAuthPopUp/index.tsx', 'useEffect', 'No `chrome.runtime` found')
-      setSignInAttemptStatus(ReferrerVerification.Denied)
-      return
+      logger.debug('ExtensionPasskeyAuthPopUp/index.tsx', 'useEffect', 'No `chrome.runtime` found');
+      setSignInAttemptStatus(ReferrerVerification.Denied);
+      return;
     }
 
-    const requestId = searchParams.get('request_id')
+    const requestId = searchParams.get('request_id');
 
     if (!requestId) {
-      logger.debug('ExtensionPasskeyAuthPopUp/index.tsx', 'useEffect', 'No `request_id` found')
-      setSignInAttemptStatus(ReferrerVerification.Denied)
-      return
+      logger.debug('ExtensionPasskeyAuthPopUp/index.tsx', 'useEffect', 'No `request_id` found');
+      setSignInAttemptStatus(ReferrerVerification.Denied);
+      return;
     }
 
     const handleMessageRequestPasskey = async (message: unknown) => {
-      const parsedMessage = parseMessage(message, PasskeyRequestSchema)
+      const parsedMessage = parseMessage(message, PasskeyRequestSchema);
 
       if (!parsedMessage) {
-        setSignInAttemptStatus(ReferrerVerification.Denied)
-        return
+        setSignInAttemptStatus(ReferrerVerification.Denied);
+        return;
       }
 
       logger.debug(
         'ExtensionPasskeyAuthPopUp/index.tsx',
         'handleMessageRequestPasskey',
-        `Message received: ${parsedMessage.type}`,
-      )
+        `Message received: ${parsedMessage.type}`
+      );
 
-      setSignInAttemptStatus(ReferrerVerification.Allowed)
-      setPasskeyRequestData(parsedMessage)
-    }
+      setSignInAttemptStatus(ReferrerVerification.Allowed);
+      setPasskeyRequestData(parsedMessage);
+    };
 
     logger.debug(
       'ExtensionPasskeyAuthPopUp/index.tsx',
       'useEffect',
-      `Sending PasskeySignInFlowOpened message to extension ID ${extensionId}`,
-    )
+      `Sending PasskeySignInFlowOpened message to extension ID ${extensionId}`
+    );
 
     chrome.runtime.sendMessage(
       extensionId,
@@ -91,65 +93,67 @@ export default function ExtensionPasskeyAuthPopUp() {
         type: InterfaceToExtensionRequestType.PasskeySignInFlowOpened,
         requestId,
       } satisfies PasskeySignInFlowOpened,
-      handleMessageRequestPasskey,
-    )
+      handleMessageRequestPasskey
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   const onPressSignIn = async () => {
     if (signInAttemptStatus !== ReferrerVerification.Allowed || !passkeyRequestData) {
       logger.debug('ExtensionPasskeyAuthPopUp/index.tsx', 'onPressSignIn', 'Invalid state', {
         signInAttemptStatus,
         passkeyRequestData,
-      })
-      return
+      });
+      return;
     }
 
     try {
-      const credential = await authenticatePasskey(passkeyRequestData.challengeJson)
+      const credential = await authenticatePasskey(passkeyRequestData.challengeJson);
 
       if (!credential) {
         logger.debug(
           'ExtensionPasskeyAuthPopUp/index.tsx',
           'onPressSignIn',
-          `Sending PasskeyCredentialError message to extension ID ${extensionId}`,
-        )
+          `Sending PasskeyCredentialError message to extension ID ${extensionId}`
+        );
 
         chrome.runtime.sendMessage(extensionId, {
           type: InterfaceToExtensionRequestType.PasskeyCredentialError,
           requestId: passkeyRequestData.requestId,
           error: 'No credential returned',
-        } satisfies PasskeyCredentialError)
+        } satisfies PasskeyCredentialError);
 
-        return
+        return;
       }
 
       logger.debug(
         'ExtensionPasskeyAuthPopUp/index.tsx',
         'onPressSignIn',
-        `Sending PasskeyCredentialRetrieved message to extension ID ${extensionId}`,
-      )
+        `Sending PasskeyCredentialRetrieved message to extension ID ${extensionId}`
+      );
 
       chrome.runtime.sendMessage(extensionId, {
         type: InterfaceToExtensionRequestType.PasskeyCredentialRetrieved,
         requestId: passkeyRequestData.requestId,
         credential,
-      } satisfies PasskeyCredentialRetrieved)
+      } satisfies PasskeyCredentialRetrieved);
     } catch (error) {
       logger.error(error, {
         tags: {
           file: 'ExtensionPasskeyAuthPopUp/index.tsx',
           function: 'onPressSignIn',
         },
-      })
+      });
     }
-  }
+  };
 
   useTimeout(() => {
-    setSignInAttemptStatus((currentStatus) => {
-      return currentStatus === ReferrerVerification.Verifying ? ReferrerVerification.Denied : currentStatus
-    })
-  }, EXTENSION_REFERRER_VERIFICATION_TIMEOUT)
+    setSignInAttemptStatus(currentStatus => {
+      return currentStatus === ReferrerVerification.Verifying
+        ? ReferrerVerification.Denied
+        : currentStatus;
+    });
+  }, EXTENSION_REFERRER_VERIFICATION_TIMEOUT);
 
   return (
     // TODO(WALL-6386): add InterfacePageName.EXTENSION_PASSKEY_SIGN_IN_PAGE to @uniswap/analytics-events
@@ -162,8 +166,7 @@ export default function ExtensionPasskeyAuthPopUp() {
                 target="_blank"
                 rel="noreferrer"
                 href={uniswapUrls.helpArticleUrls.passkeysInfo}
-                textDecorationLine="none"
-              >
+                textDecorationLine="none">
                 <Button icon={<EnvelopeHeartIcon />} size="xxsmall" emphasis="secondary">
                   {t('common.getHelp.button')}
                 </Button>
@@ -196,13 +199,20 @@ export default function ExtensionPasskeyAuthPopUp() {
 
               <Flex row py="$spacing16">
                 <Button
-                  icon={signInAttemptStatus === ReferrerVerification.Verifying ? <SpinningLoader /> : <Passkey />}
+                  icon={
+                    signInAttemptStatus === ReferrerVerification.Verifying ? (
+                      <SpinningLoader />
+                    ) : (
+                      <Passkey />
+                    )
+                  }
                   size="large"
                   variant="branded"
                   onPress={onPressSignIn}
-                  isDisabled={signInAttemptStatus !== ReferrerVerification.Allowed}
-                >
-                  {signInAttemptStatus === ReferrerVerification.Allowed ? t('nav.logIn.button') : undefined}
+                  isDisabled={signInAttemptStatus !== ReferrerVerification.Allowed}>
+                  {signInAttemptStatus === ReferrerVerification.Allowed
+                    ? t('nav.logIn.button')
+                    : undefined}
                 </Button>
               </Flex>
             </>
@@ -210,5 +220,5 @@ export default function ExtensionPasskeyAuthPopUp() {
         </Flex>
       </Flex>
     </Trace>
-  )
+  );
 }

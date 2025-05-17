@@ -1,22 +1,22 @@
-import { MultichainContextProvider } from 'state/multichain/MultichainContext'
-import { SwapAndLimitContextProvider } from 'state/swap/SwapContext'
-import { useSwapAndLimitContext } from 'state/swap/useSwapContext'
-import { render } from 'test-utils/render'
-import { Flex } from 'ui/src'
-import { SwapTab } from 'uniswap/src/types/screens/interface'
+import { MultichainContextProvider } from 'state/multichain/MultichainContext';
+import { SwapAndLimitContextProvider } from 'state/swap/SwapContext';
+import { useSwapAndLimitContext } from 'state/swap/useSwapContext';
+import { render } from 'test-utils/render';
+import { Flex } from 'ui/src';
+import { SwapTab } from 'uniswap/src/types/screens/interface';
 
 jest.mock('hooks/useContract', () => ({
   ...jest.requireActual('hooks/useContract'),
   useContract: jest.fn(),
-}))
+}));
 
 describe('SwapAndLimitContext', () => {
   test('should use context', () => {
-    let swapAndLimitContext
+    let swapAndLimitContext;
     const TestComponent = () => {
-      swapAndLimitContext = useSwapAndLimitContext()
-      return <Flex />
-    }
+      swapAndLimitContext = useSwapAndLimitContext();
+      return <Flex />;
+    };
 
     render(
       <MultichainContextProvider>
@@ -24,8 +24,8 @@ describe('SwapAndLimitContext', () => {
           <TestComponent />
         </SwapAndLimitContextProvider>
         ,
-      </MultichainContextProvider>,
-    )
+      </MultichainContextProvider>
+    );
 
     expect(swapAndLimitContext).toEqual({
       currencyState: {
@@ -36,6 +36,6 @@ describe('SwapAndLimitContext', () => {
       currentTab: SwapTab.Swap,
       setCurrentTab: expect.any(Function),
       isSwapAndLimitContext: true,
-    })
-  })
-})
+    });
+  });
+});

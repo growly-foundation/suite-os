@@ -1,38 +1,38 @@
-import { useAccount } from 'hooks/useAccount'
-import { useCallback, useMemo } from 'react'
-import { useDispatch } from 'react-redux'
-import { useAppSelector } from 'state/hooks'
-import { OffchainOrderType } from 'state/routing/types'
-import { addSignature } from 'state/signatures/reducer'
+import { useAccount } from 'hooks/useAccount';
+import { useCallback, useMemo } from 'react';
+import { useDispatch } from 'react-redux';
+import { useAppSelector } from 'state/hooks';
+import { OffchainOrderType } from 'state/routing/types';
+import { addSignature } from 'state/signatures/reducer';
 import {
   OFFCHAIN_ORDER_TYPE_TO_SIGNATURE_TYPE,
   SignatureDetails,
   SignatureType,
   UniswapXOrderDetails,
-} from 'state/signatures/types'
-import { UniswapXOrderStatus } from 'types/uniswapx'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
+} from 'state/signatures/types';
+import { UniswapXOrderStatus } from 'types/uniswapx';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
 
 export function useAllSignatures(): { [id: string]: SignatureDetails } {
-  const account = useAccount()
-  const signatures = useAppSelector((state) => state.signatures) ?? {}
+  const account = useAccount();
+  const signatures = useAppSelector(state => state.signatures) ?? {};
   if (!account.address || !signatures[account.address]) {
-    return {}
+    return {};
   }
-  return signatures[account.address]
+  return signatures[account.address];
 }
 
 export function usePendingOrders(): UniswapXOrderDetails[] {
-  const signatures = useAllSignatures()
+  const signatures = useAllSignatures();
   return useMemo(() => {
-    return Object.values(signatures).filter(isPendingOrder)
-  }, [signatures])
+    return Object.values(signatures).filter(isPendingOrder);
+  }, [signatures]);
 }
 
 export function useOrder(orderHash: string): UniswapXOrderDetails | undefined {
-  const signatures = useAllSignatures()
+  const signatures = useAllSignatures();
   return useMemo(() => {
-    const order = signatures[orderHash]
+    const order = signatures[orderHash];
     if (
       !order ||
       ![
@@ -43,14 +43,14 @@ export function useOrder(orderHash: string): UniswapXOrderDetails | undefined {
         SignatureType.SIGN_PRIORITY_ORDER,
       ].includes(order.type as SignatureType)
     ) {
-      return undefined
+      return undefined;
     }
-    return order
-  }, [signatures, orderHash])
+    return order;
+  }, [signatures, orderHash]);
 }
 
 export function useAddOrder() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   return useCallback(
     (
@@ -60,7 +60,7 @@ export function useAddOrder() {
       expiry: number,
       swapInfo: UniswapXOrderDetails['swapInfo'],
       encodedOrder: string,
-      offchainOrderType: OffchainOrderType,
+      offchainOrderType: OffchainOrderType
     ) => {
       dispatch(
         addSignature({
@@ -74,11 +74,11 @@ export function useAddOrder() {
           status: UniswapXOrderStatus.OPEN,
           addedTime: Date.now(),
           encodedOrder,
-        }),
-      )
+        })
+      );
     },
-    [dispatch],
-  )
+    [dispatch]
+  );
 }
 
 export function isFinalizedOrder(order: UniswapXOrderDetails) {
@@ -87,14 +87,16 @@ export function isFinalizedOrder(order: UniswapXOrderDetails) {
       UniswapXOrderStatus.OPEN,
       UniswapXOrderStatus.PENDING_CANCELLATION,
       UniswapXOrderStatus.INSUFFICIENT_FUNDS,
-    ].includes(order.status)
+    ].includes(order.status);
   } else {
-    return ![UniswapXOrderStatus.OPEN, UniswapXOrderStatus.PENDING_CANCELLATION].includes(order.status)
+    return ![UniswapXOrderStatus.OPEN, UniswapXOrderStatus.PENDING_CANCELLATION].includes(
+      order.status
+    );
   }
 }
 
 export function isOnChainOrder(orderStatus: UniswapXOrderStatus) {
-  return orderStatus === UniswapXOrderStatus.FILLED
+  return orderStatus === UniswapXOrderStatus.FILLED;
 }
 
 function isPendingOrder(signature: SignatureDetails): signature is UniswapXOrderDetails {
@@ -103,7 +105,7 @@ function isPendingOrder(signature: SignatureDetails): signature is UniswapXOrder
       UniswapXOrderStatus.OPEN,
       UniswapXOrderStatus.PENDING_CANCELLATION,
       UniswapXOrderStatus.INSUFFICIENT_FUNDS,
-    ].includes(signature.status)
+    ].includes(signature.status);
   } else if (
     signature.type === SignatureType.SIGN_UNISWAPX_ORDER ||
     signature.type === SignatureType.SIGN_UNISWAPX_V2_ORDER ||
@@ -114,7 +116,7 @@ function isPendingOrder(signature: SignatureDetails): signature is UniswapXOrder
       UniswapXOrderStatus.OPEN,
       UniswapXOrderStatus.PENDING_CANCELLATION,
       UniswapXOrderStatus.INSUFFICIENT_FUNDS,
-    ].includes(signature.status)
+    ].includes(signature.status);
   }
-  return false
+  return false;
 }

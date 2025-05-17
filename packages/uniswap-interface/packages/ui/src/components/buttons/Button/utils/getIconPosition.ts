@@ -1,5 +1,5 @@
-import { I18nManager } from 'react-native'
-import type { ButtonProps } from 'ui/src/components/buttons/Button/types'
+import { I18nManager } from 'react-native';
+import type { ButtonProps } from 'ui/src/components/buttons/Button/types';
 
 /**
  * Determines the icon position based on the current layout direction.
@@ -9,6 +9,12 @@ import type { ButtonProps } from 'ui/src/components/buttons/Button/types'
  * @returns The adjusted icon position based on the layout direction.
  *          In RTL, 'before' becomes 'after' and 'after' becomes 'before'.
  */
-export const getIconPosition = (propIconPosition: ButtonProps['iconPosition']): ButtonProps['iconPosition'] => {
-  return I18nManager.isRTL ? (propIconPosition === 'before' ? 'after' : 'before') : propIconPosition
-}
+export const getIconPosition = (
+  propIconPosition: ButtonProps['iconPosition']
+): ButtonProps['iconPosition'] => {
+  return I18nManager.isRTL
+    ? propIconPosition === 'before'
+      ? 'after'
+      : 'before'
+    : propIconPosition;
+};

@@ -1,14 +1,14 @@
-import { forwardRef } from 'react'
-import { withStaticProperties, type TamaguiElement } from 'tamagui'
-import { useLayoutAnimationOnChange } from 'ui/src/animations'
-import { CustomButtonFrame } from 'ui/src/components/buttons/Button/components/CustomButtonFrame/CustomButtonFrame'
-import { CustomButtonText } from 'ui/src/components/buttons/Button/components/CustomButtonText/CustomButtonText'
-import { ThemedIcon } from 'ui/src/components/buttons/Button/components/ThemedIcon'
-import { ThemedSpinningLoader } from 'ui/src/components/buttons/Button/components/ThemedSpinnerLoader'
-import { useIsStringOrTransTag } from 'ui/src/components/buttons/Button/hooks/useIsStringOrTransTag'
-import type { ButtonProps } from 'ui/src/components/buttons/Button/types'
-import { getIconPosition } from 'ui/src/components/buttons/Button/utils/getIconPosition'
-import { getIsButtonDisabled } from 'ui/src/components/buttons/Button/utils/getIsButtonDisabled'
+import { forwardRef } from 'react';
+import { withStaticProperties, type TamaguiElement } from 'tamagui';
+import { useLayoutAnimationOnChange } from 'ui/src/animations';
+import { CustomButtonFrame } from 'ui/src/components/buttons/Button/components/CustomButtonFrame/CustomButtonFrame';
+import { CustomButtonText } from 'ui/src/components/buttons/Button/components/CustomButtonText/CustomButtonText';
+import { ThemedIcon } from 'ui/src/components/buttons/Button/components/ThemedIcon';
+import { ThemedSpinningLoader } from 'ui/src/components/buttons/Button/components/ThemedSpinnerLoader';
+import { useIsStringOrTransTag } from 'ui/src/components/buttons/Button/hooks/useIsStringOrTransTag';
+import type { ButtonProps } from 'ui/src/components/buttons/Button/types';
+import { getIconPosition } from 'ui/src/components/buttons/Button/utils/getIconPosition';
+import { getIsButtonDisabled } from 'ui/src/components/buttons/Button/utils/getIsButtonDisabled';
 
 const ButtonComponent = forwardRef<TamaguiElement, ButtonProps>(function Button(
   {
@@ -26,19 +26,19 @@ const ButtonComponent = forwardRef<TamaguiElement, ButtonProps>(function Button(
     onPress,
     ...props
   },
-  ref,
+  ref
 ) {
-  useLayoutAnimationOnChange(shouldAnimateBetweenLoadingStates ? loading : false)
+  useLayoutAnimationOnChange(shouldAnimateBetweenLoadingStates ? loading : false);
 
   // This is responsible for the disabled UI state of the button
   // If `onDisabledPress` is provided, though, the button will be interactive even when disabled
-  const isDisabled = getIsButtonDisabled({ isDisabled: propDisabled, loading })
-  const handleOnPress = isDisabled && props.onDisabledPress ? props.onDisabledPress : onPress
-  const iconPosition = getIconPosition(propIconPosition)
+  const isDisabled = getIsButtonDisabled({ isDisabled: propDisabled, loading });
+  const handleOnPress = isDisabled && props.onDisabledPress ? props.onDisabledPress : onPress;
+  const iconPosition = getIconPosition(propIconPosition);
 
   // We need to check if the children is a string, a Trans tag, or a custom component that likely renders a Trans tag, in which case we will pass it as a child to the `CustomButtonText` component
-  const isStringOrTransTag = useIsStringOrTransTag(children)
-  const customBackgroundColor = props.backgroundColor
+  const isStringOrTransTag = useIsStringOrTransTag(children);
+  const customBackgroundColor = props.backgroundColor;
 
   return (
     <CustomButtonFrame
@@ -53,18 +53,18 @@ const ButtonComponent = forwardRef<TamaguiElement, ButtonProps>(function Button(
       // TODO(WEB-6347): Re-enable disabled prop once tamagui Adapt issue is fixed
       // disabled={props.onDisabledPress ? false : isDisabled}
       custom-background-color={customBackgroundColor}
-      dd-action-name={props['dd-action-name'] ?? (typeof children === 'string' ? children : undefined)}
+      dd-action-name={
+        props['dd-action-name'] ?? (typeof children === 'string' ? children : undefined)
+      }
       {...props}
-      onPress={handleOnPress}
-    >
+      onPress={handleOnPress}>
       <ThemedIcon
         custom-background-color={customBackgroundColor}
         isDisabled={isDisabled}
         emphasis={emphasis}
         size={size}
         variant={variant}
-        typeOfButton="button"
-      >
+        typeOfButton="button">
         {loading ? undefined : icon}
       </ThemedIcon>
 
@@ -81,8 +81,8 @@ const ButtonComponent = forwardRef<TamaguiElement, ButtonProps>(function Button(
 
       {isStringOrTransTag ? <CustomButtonText>{children}</CustomButtonText> : children}
     </CustomButtonFrame>
-  )
-})
+  );
+});
 
 /**
  * Button component
@@ -114,4 +114,4 @@ const ButtonComponent = forwardRef<TamaguiElement, ButtonProps>(function Button(
 export const Button = withStaticProperties(ButtonComponent, {
   Text: CustomButtonText,
   Icon: ThemedIcon,
-})
+});

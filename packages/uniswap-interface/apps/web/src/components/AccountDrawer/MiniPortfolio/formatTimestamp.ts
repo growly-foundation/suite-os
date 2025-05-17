@@ -3,7 +3,11 @@ export enum FormatType {
   Long = 'long',
 }
 
-export function formatTimestamp(timestamp: number | undefined, includeYear?: boolean, type = FormatType.Long): string {
+export function formatTimestamp(
+  timestamp: number | undefined,
+  includeYear?: boolean,
+  type = FormatType.Long
+): string {
   const options: Intl.DateTimeFormatOptions =
     type === FormatType.Long
       ? {
@@ -21,7 +25,7 @@ export function formatTimestamp(timestamp: number | undefined, includeYear?: boo
           hour: '2-digit',
           minute: '2-digit',
           hour12: true,
-        }
+        };
 
-  return new Intl.DateTimeFormat('en-US', options).format(timestamp)
+  return new Intl.DateTimeFormat('en-US', options).format(timestamp);
 }

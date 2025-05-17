@@ -1,17 +1,17 @@
-import { useOpenLimitOrders } from 'components/AccountDrawer/MiniPortfolio/Activity/hooks'
-import { TabButton } from 'components/AccountDrawer/MiniPortfolio/shared'
-import { Clock } from 'react-feather'
-import { Trans, useTranslation } from 'react-i18next'
-import { useSporeColors } from 'ui/src/hooks/useSporeColors'
+import { useOpenLimitOrders } from 'components/AccountDrawer/MiniPortfolio/Activity/hooks';
+import { TabButton } from 'components/AccountDrawer/MiniPortfolio/shared';
+import { Clock } from 'react-feather';
+import { Trans, useTranslation } from 'react-i18next';
+import { useSporeColors } from 'ui/src/hooks/useSporeColors';
 
 function getExtraWarning(openLimitOrders: any[]) {
   if (openLimitOrders.length >= 100) {
-    return <Trans i18nKey="common.limits.cancelProceed" />
+    return <Trans i18nKey="common.limits.cancelProceed" />;
   }
   if (openLimitOrders.length >= 90) {
-    return <Trans i18nKey="common.limits.approachMax" />
+    return <Trans i18nKey="common.limits.approachMax" />;
   }
-  return undefined
+  return undefined;
 }
 
 export function OpenLimitOrdersButton({
@@ -20,18 +20,18 @@ export function OpenLimitOrdersButton({
   disabled,
   className,
 }: {
-  account: string
-  openLimitsMenu: () => void
-  disabled?: boolean
-  className?: string
+  account: string;
+  openLimitsMenu: () => void;
+  disabled?: boolean;
+  className?: string;
 }) {
-  const { t } = useTranslation()
-  const { openLimitOrders } = useOpenLimitOrders(account)
-  const colors = useSporeColors()
-  const extraWarning = getExtraWarning(openLimitOrders)
+  const { t } = useTranslation();
+  const { openLimitOrders } = useOpenLimitOrders(account);
+  const colors = useSporeColors();
+  const extraWarning = getExtraWarning(openLimitOrders);
 
   if (!openLimitOrders || openLimitOrders.length < 1) {
-    return null
+    return null;
   }
 
   return (
@@ -43,5 +43,5 @@ export function OpenLimitOrdersButton({
       disabled={disabled}
       className={className}
     />
-  )
+  );
 }

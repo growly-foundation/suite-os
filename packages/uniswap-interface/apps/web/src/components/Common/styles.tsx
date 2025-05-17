@@ -1,4 +1,4 @@
-import { css } from 'lib/styled-components'
+import { css } from 'lib/styled-components';
 
 export const ScrollBarStyles = css<{ $isHorizontalScroll?: boolean }>`
   // Firefox scrollbar styling
@@ -20,7 +20,7 @@ export const ScrollBarStyles = css<{ $isHorizontalScroll?: boolean }>`
         : css`
             width: 4px;
             overflow-y: scroll;
-          `
+          `;
     }}
   }
 
@@ -28,4 +28,4 @@ export const ScrollBarStyles = css<{ $isHorizontalScroll?: boolean }>`
     background: ${({ theme }) => theme.surface3};
     border-radius: 8px;
   }
-`
+`;

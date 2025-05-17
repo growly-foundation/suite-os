@@ -6,12 +6,12 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Bell, Home, Settings, SquareStack } from 'lucide-react';
+import { Home, SquareStack } from 'lucide-react';
 import { UserButton } from '@/components/auth/user-button';
 import { OrganizationSwitcher } from '@/components/organizations/organization-switcher';
 import dynamic from 'next/dynamic';
 import ProtectedAuthProvider from '@/components/providers/protected-auth-provider';
+import Image from 'next/image';
 
 const AnimatedLoading = dynamic(
   () =>
@@ -125,41 +125,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="font-bold text-lg flex items-center">
-              <SquareStack className="h-5 w-5 text-primary" style={{ marginRight: 10 }} /> Suite
-              Dashboard
+              <Image src="/logos/suite-logo-full.png" alt="Logo" width={35} height={35} />
             </Link>
             <OrganizationSwitcher />
+            <div className="flex gap-3">
+              {navigation.map((item, index) => {
+                const isActive =
+                  index === 0 ? pathname === item.url : pathname.includes(`${item.url}`);
+                return (
+                  <Link
+                    key={item.url}
+                    href={item.url}
+                    className={cn('growly-nav-item', isActive && 'active')}>
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.title}</span>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
-              <Bell className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Settings className="h-5 w-5" />
-            </Button>
-            <UserButton />
-          </div>
+          <UserButton />
         </div>
       </header>
       <div className="flex flex-1">
-        {/* Sidebar Navigation (Desktop) */}
-        <aside className="hidden md:block w-64 bg-white border-r p-4">
-          <nav className="space-y-1 mt-6">
-            {navigation.map((item, index) => {
-              const isActive =
-                index === 0 ? pathname === item.url : pathname.includes(`${item.url}`);
-              return (
-                <Link
-                  key={item.url}
-                  href={item.url}
-                  className={cn('growly-nav-item', isActive && 'active')}>
-                  <item.icon className="h-5 w-5" />
-                  <span>{item.title}</span>
-                </Link>
-              );
-            })}
-          </nav>
-        </aside>
         {/* Main Content */}
         <main className="flex-1 p-4 md:p-6 overflow-auto bg-white">
           <div className="max-w-7xl mx-auto">

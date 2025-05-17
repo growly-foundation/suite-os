@@ -1,10 +1,26 @@
-import type { SVGProps } from 'constants/icons/types'
+import type { SVGProps } from 'constants/icons/types';
 
 const THB_ICON = (props: SVGProps) => (
-  <svg width="49" height="50" viewBox="0 0 49 50" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+  <svg
+    width="49"
+    height="50"
+    viewBox="0 0 49 50"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}>
     <g clipPath="url(#clip0_1969_48741)">
-      <path fillRule="evenodd" clipRule="evenodd" d="M0 0.867676H48.6368V49.5044H0V0.867676Z" fill="#F4F5F8" />
-      <path fillRule="evenodd" clipRule="evenodd" d="M0 17.3396H48.6368V33.5455H0V17.3396Z" fill="#2D2A4A" />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M0 0.867676H48.6368V49.5044H0V0.867676Z"
+        fill="#F4F5F8"
+      />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M0 17.3396H48.6368V33.5455H0V17.3396Z"
+        fill="#2D2A4A"
+      />
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -21,6 +37,6 @@ const THB_ICON = (props: SVGProps) => (
       </clipPath>
     </defs>
   </svg>
-)
+);
 
-export default THB_ICON
+export default THB_ICON;

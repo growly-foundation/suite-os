@@ -1,4 +1,4 @@
-export type ColorStrings = string[]
+export type ColorStrings = string[];
 
 export const UNICON_COLORS: ColorStrings[] = [
   ['#F50DB4', '#FC74FE'],
@@ -11,4 +11,4 @@ export const UNICON_COLORS: ColorStrings[] = [
   ['#23A3FF', '#3ADCFF'],
   ['#4981FF', '#0047FF'],
   ['#4300B0', '#9E62FF'],
-]
+];

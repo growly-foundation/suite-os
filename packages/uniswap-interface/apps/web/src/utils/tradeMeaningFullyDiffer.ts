@@ -1,5 +1,5 @@
-import { Percent } from '@uniswap/sdk-core'
-import { InterfaceTrade } from 'state/routing/types'
+import { Percent } from '@uniswap/sdk-core';
+import { InterfaceTrade } from 'state/routing/types';
 
 /**
  * Returns true if the trade requires a confirmation of details before we can submit it
@@ -9,12 +9,12 @@ import { InterfaceTrade } from 'state/routing/types'
 export function tradeMeaningfullyDiffers(
   currentTrade: InterfaceTrade,
   newTrade: InterfaceTrade,
-  slippage: Percent,
+  slippage: Percent
 ): boolean {
   return (
     currentTrade.tradeType !== newTrade.tradeType ||
     !currentTrade.inputAmount.currency.equals(newTrade.inputAmount.currency) ||
     !currentTrade.outputAmount.currency.equals(newTrade.outputAmount.currency) ||
     newTrade.executionPrice.lessThan(currentTrade.worstExecutionPrice(slippage))
-  )
+  );
 }

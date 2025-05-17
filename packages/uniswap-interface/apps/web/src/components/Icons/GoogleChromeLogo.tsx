@@ -1,4 +1,4 @@
-import { ComponentProps } from 'react'
+import { ComponentProps } from 'react';
 
 export function GoogleChromeLogo(props: ComponentProps<'svg'>) {
   return (
@@ -8,18 +8,35 @@ export function GoogleChromeLogo(props: ComponentProps<'svg'>) {
       xmlnsXlink="http://www.w3.org/1999/xlink"
       width="48"
       height="48"
-      {...props}
-    >
+      {...props}>
       <defs>
-        <linearGradient id="a" x1="3.2173" y1="15" x2="44.7812" y2="15" gradientUnits="userSpaceOnUse">
+        <linearGradient
+          id="a"
+          x1="3.2173"
+          y1="15"
+          x2="44.7812"
+          y2="15"
+          gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor="#d93025" />
           <stop offset="1" stopColor="#ea4335" />
         </linearGradient>
-        <linearGradient id="b" x1="20.7219" y1="47.6791" x2="41.5039" y2="11.6837" gradientUnits="userSpaceOnUse">
+        <linearGradient
+          id="b"
+          x1="20.7219"
+          y1="47.6791"
+          x2="41.5039"
+          y2="11.6837"
+          gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor="#fcc934" />
           <stop offset="1" stopColor="#fbbc04" />
         </linearGradient>
-        <linearGradient id="c" x1="26.5981" y1="46.5015" x2="5.8161" y2="10.506" gradientUnits="userSpaceOnUse">
+        <linearGradient
+          id="c"
+          x1="26.5981"
+          y1="46.5015"
+          x2="5.8161"
+          y2="10.506"
+          gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor="#1e8e3e" />
           <stop offset="1" stopColor="#34a853" />
         </linearGradient>
@@ -43,5 +60,5 @@ export function GoogleChromeLogo(props: ComponentProps<'svg'>) {
         fill="url(#c)"
       />
     </svg>
-  )
+  );
 }

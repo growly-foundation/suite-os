@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import styled, { css, keyframes } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components';
 
 const rotate = keyframes`
   from {
@@ -8,21 +8,21 @@ const rotate = keyframes`
   to {
     transform: rotate(360deg);
   }
-`
+`;
 const SpinnerCss = css`
   animation: 2s ${rotate} linear infinite;
-`
+`;
 
 const Spinner = styled.img`
   ${SpinnerCss}
   width: 16px;
   height: 16px;
-`
+`;
 export const SpinnerSVG = styled.svg`
   ${SpinnerCss}
-`
+`;
 
 export const CustomLightSpinner = styled(Spinner)<{ size: string }>`
   height: ${({ size }) => size};
   width: ${({ size }) => size};
-`
+`;

@@ -7,36 +7,41 @@ import {
   Pool as RestPool,
   Position as RestPosition,
   Token as RestToken,
-} from '@uniswap/client-pools/dist/pools/v1/types_pb'
-import { Currency, CurrencyAmount, Percent, Price, Token } from '@uniswap/sdk-core'
-import { Pair } from '@uniswap/v2-sdk'
-import { FeeAmount, Pool as V3Pool, Position as V3Position } from '@uniswap/v3-sdk'
-import { Pool as V4Pool, Position as V4Position } from '@uniswap/v4-sdk'
-import { defaultFeeTiers } from 'components/Liquidity/constants'
-import { FeeTierData, PositionInfo } from 'components/Liquidity/types'
-import { ZERO_ADDRESS } from 'constants/misc'
-import { DYNAMIC_FEE_DATA, DynamicFeeData, FeeData } from 'pages/Pool/Positions/create/types'
-import { GeneratedIcon } from 'ui/src'
-import { Flag } from 'ui/src/components/icons/Flag'
-import { Pools } from 'ui/src/components/icons/Pools'
-import { SwapCoin } from 'ui/src/components/icons/SwapCoin'
-import { AppTFunction } from 'ui/src/i18n/types'
-import { nativeOnChain } from 'uniswap/src/constants/tokens'
-import { ProtocolItems } from 'uniswap/src/data/tradingApi/__generated__'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { CurrencyInfo } from 'uniswap/src/features/dataApi/types'
-import { getChainUrlParam } from 'utils/chainParams'
-import { formatUnits } from 'viem'
+} from '@uniswap/client-pools/dist/pools/v1/types_pb';
+import { Currency, CurrencyAmount, Percent, Price, Token } from '@uniswap/sdk-core';
+import { Pair } from '@uniswap/v2-sdk';
+import { FeeAmount, Pool as V3Pool, Position as V3Position } from '@uniswap/v3-sdk';
+import { Pool as V4Pool, Position as V4Position } from '@uniswap/v4-sdk';
+import { defaultFeeTiers } from 'components/Liquidity/constants';
+import { FeeTierData, PositionInfo } from 'components/Liquidity/types';
+import { ZERO_ADDRESS } from 'constants/misc';
+import { DYNAMIC_FEE_DATA, DynamicFeeData, FeeData } from 'pages/Pool/Positions/create/types';
+import { GeneratedIcon } from 'ui/src';
+import { Flag } from 'ui/src/components/icons/Flag';
+import { Pools } from 'ui/src/components/icons/Pools';
+import { SwapCoin } from 'ui/src/components/icons/SwapCoin';
+import { AppTFunction } from 'ui/src/i18n/types';
+import { nativeOnChain } from 'uniswap/src/constants/tokens';
+import { ProtocolItems } from 'uniswap/src/data/tradingApi/__generated__';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import { CurrencyInfo } from 'uniswap/src/features/dataApi/types';
+import { getChainUrlParam } from 'utils/chainParams';
+import { formatUnits } from 'viem';
 
 export function hasLPFoTTransferError(
   currencyInfo: Maybe<CurrencyInfo>,
-  protocolVersion: ProtocolVersion | undefined,
+  protocolVersion: ProtocolVersion | undefined
 ): CurrencyInfo | undefined {
-  const currency = currencyInfo?.currency
+  const currency = currencyInfo?.currency;
 
   // FoT is only an issue for v3 + v4
-  if (!protocolVersion || protocolVersion === ProtocolVersion.V2 || !currency || currency?.isNative) {
-    return undefined
+  if (
+    !protocolVersion ||
+    protocolVersion === ProtocolVersion.V2 ||
+    !currency ||
+    currency?.isNative
+  ) {
+    return undefined;
   }
 
   return currency?.wrapped.buyFeeBps?.gt(0) ||
@@ -44,73 +49,76 @@ export function hasLPFoTTransferError(
     currency?.wrapped.sellFeeBps?.gt(0) ||
     (currencyInfo?.safetyInfo?.blockaidFees?.sellFeePercent ?? 0) > 0
     ? currencyInfo
-    : undefined
+    : undefined;
 }
 
 export function getProtocolVersionLabel(version: ProtocolVersion): string | undefined {
   switch (version) {
     case ProtocolVersion.V2:
-      return 'v2'
+      return 'v2';
     case ProtocolVersion.V3:
-      return 'v3'
+      return 'v3';
     case ProtocolVersion.V4:
-      return 'v4'
+      return 'v4';
     default:
-      return undefined
+      return undefined;
   }
 }
 
 export function getProtocolItems(version: ProtocolVersion | undefined): ProtocolItems | undefined {
   switch (version) {
     case ProtocolVersion.V2:
-      return ProtocolItems.V2
+      return ProtocolItems.V2;
     case ProtocolVersion.V3:
-      return ProtocolItems.V3
+      return ProtocolItems.V3;
     case ProtocolVersion.V4:
-      return ProtocolItems.V4
+      return ProtocolItems.V4;
   }
-  return undefined
+  return undefined;
 }
 
-export function getProtocolStatusLabel(status: PositionStatus, t: AppTFunction): string | undefined {
+export function getProtocolStatusLabel(
+  status: PositionStatus,
+  t: AppTFunction
+): string | undefined {
   switch (status) {
     case PositionStatus.IN_RANGE:
-      return t('common.withinRange')
+      return t('common.withinRange');
     case PositionStatus.OUT_OF_RANGE:
-      return t('common.outOfRange')
+      return t('common.outOfRange');
     case PositionStatus.CLOSED:
-      return t('common.closed')
+      return t('common.closed');
   }
-  return undefined
+  return undefined;
 }
 
 export function parseProtocolVersion(version: string | undefined): ProtocolVersion | undefined {
   switch (version?.toLowerCase()) {
     case 'v2':
-      return ProtocolVersion.V2
+      return ProtocolVersion.V2;
     case 'v3':
-      return ProtocolVersion.V3
+      return ProtocolVersion.V3;
     case 'v4':
-      return ProtocolVersion.V4
+      return ProtocolVersion.V4;
     default:
-      return undefined
+      return undefined;
   }
 }
 
 export function getPositionUrl(position: PositionInfo): string {
-  const chainUrlParam = getChainUrlParam(position.chainId)
+  const chainUrlParam = getChainUrlParam(position.chainId);
   if (position.version === ProtocolVersion.V2) {
-    return `/positions/v2/${chainUrlParam}/${position.liquidityToken.address}`
+    return `/positions/v2/${chainUrlParam}/${position.liquidityToken.address}`;
   } else if (position.version === ProtocolVersion.V3) {
-    return `/positions/v3/${chainUrlParam}/${position.tokenId}`
+    return `/positions/v3/${chainUrlParam}/${position.tokenId}`;
   }
-  return `/positions/v4/${chainUrlParam}/${position.tokenId}`
+  return `/positions/v4/${chainUrlParam}/${position.tokenId}`;
 }
 
 function parseV3FeeTier(feeTier: string | undefined): FeeAmount | undefined {
-  const parsedFee = parseInt(feeTier || '')
+  const parsedFee = parseInt(feeTier || '');
 
-  return parsedFee in FeeAmount ? parsedFee : undefined
+  return parsedFee in FeeAmount ? parsedFee : undefined;
 }
 
 export function getPoolFromRest({
@@ -119,11 +127,11 @@ export function getPoolFromRest({
   token1,
   protocolVersion,
 }: {
-  pool?: RestPool | PoolPosition
-  token0?: Token
-  token1?: Token
-  protocolVersion: ProtocolVersion.V3
-}): V3Pool | undefined
+  pool?: RestPool | PoolPosition;
+  token0?: Token;
+  token1?: Token;
+  protocolVersion: ProtocolVersion.V3;
+}): V3Pool | undefined;
 export function getPoolFromRest({
   pool,
   token0,
@@ -131,12 +139,12 @@ export function getPoolFromRest({
   protocolVersion,
   hooks,
 }: {
-  pool?: RestPool | PoolPosition
-  token0?: Currency
-  token1?: Currency
-  protocolVersion: ProtocolVersion.V4
-  hooks: string
-}): V4Pool | undefined
+  pool?: RestPool | PoolPosition;
+  token0?: Currency;
+  token1?: Currency;
+  protocolVersion: ProtocolVersion.V4;
+  hooks: string;
+}): V4Pool | undefined;
 export function getPoolFromRest({
   pool,
   token0,
@@ -145,26 +153,33 @@ export function getPoolFromRest({
   hooks,
 }:
   | {
-      pool?: RestPool | PoolPosition
-      token0?: Token
-      token1?: Token
-      protocolVersion: ProtocolVersion.V3
-      hooks?: undefined
+      pool?: RestPool | PoolPosition;
+      token0?: Token;
+      token1?: Token;
+      protocolVersion: ProtocolVersion.V3;
+      hooks?: undefined;
     }
   | {
-      pool?: RestPool | PoolPosition
-      token0?: Currency
-      token1?: Currency
-      protocolVersion: ProtocolVersion.V4
-      hooks: string
+      pool?: RestPool | PoolPosition;
+      token0?: Currency;
+      token1?: Currency;
+      protocolVersion: ProtocolVersion.V4;
+      hooks: string;
     }): V3Pool | V4Pool | undefined {
   if (!pool || !token0 || !token1) {
-    return undefined
+    return undefined;
   }
 
   if (pool instanceof RestPool) {
     if (protocolVersion === ProtocolVersion.V3) {
-      return new V3Pool(token0 as Token, token1 as Token, pool.fee, pool.sqrtPriceX96, pool.liquidity, pool.tick)
+      return new V3Pool(
+        token0 as Token,
+        token1 as Token,
+        pool.fee,
+        pool.sqrtPriceX96,
+        pool.liquidity,
+        pool.tick
+      );
     }
 
     return new V4Pool(
@@ -175,13 +190,13 @@ export function getPoolFromRest({
       hooks || ZERO_ADDRESS,
       pool.sqrtPriceX96,
       pool.liquidity,
-      pool.tick,
-    )
+      pool.tick
+    );
   }
 
   if (pool instanceof PoolPosition) {
     if (protocolVersion === ProtocolVersion.V3) {
-      const feeTier = parseV3FeeTier(pool.feeTier)
+      const feeTier = parseV3FeeTier(pool.feeTier);
       if (feeTier) {
         return new V3Pool(
           token0 as Token,
@@ -189,12 +204,12 @@ export function getPoolFromRest({
           feeTier,
           pool.currentPrice,
           pool.currentLiquidity,
-          parseInt(pool.currentTick),
-        )
+          parseInt(pool.currentTick)
+        );
       }
     }
 
-    const fee = parseInt(pool.feeTier ?? '')
+    const fee = parseInt(pool.feeTier ?? '');
     return new V4Pool(
       token0,
       token1,
@@ -203,23 +218,23 @@ export function getPoolFromRest({
       hooks || ZERO_ADDRESS,
       pool.currentPrice,
       pool.liquidity,
-      parseInt(pool.currentTick),
-    )
+      parseInt(pool.currentTick)
+    );
   }
 
-  return undefined
+  return undefined;
 }
 
 function parseRestToken<T extends Currency>(token: RestToken | undefined): T | undefined {
   if (!token) {
-    return undefined
+    return undefined;
   }
 
   if (token.address === ZERO_ADDRESS) {
-    return nativeOnChain(token.chainId) as T
+    return nativeOnChain(token.chainId) as T;
   }
 
-  return new Token(token.chainId, token.address, token.decimals, token.symbol) as T
+  return new Token(token.chainId, token.address, token.decimals, token.symbol) as T;
 }
 
 function getPairFromRest({
@@ -227,18 +242,18 @@ function getPairFromRest({
   token0,
   token1,
 }: {
-  pair?: PairPosition | RestPair
-  token0: Token
-  token1: Token
+  pair?: PairPosition | RestPair;
+  token0: Token;
+  token1: Token;
 }): Pair | undefined {
   if (!pair) {
-    return undefined
+    return undefined;
   }
 
   return new Pair(
     CurrencyAmount.fromRawAmount(token0, pair.reserve0),
-    CurrencyAmount.fromRawAmount(token1, pair.reserve1),
-  )
+    CurrencyAmount.fromRawAmount(token1, pair.reserve1)
+  );
 }
 
 /**
@@ -247,15 +262,15 @@ function getPairFromRest({
  */
 export function parseRestPosition(position?: RestPosition): PositionInfo | undefined {
   if (position?.position.case === 'v2Pair') {
-    const v2PairPosition = position.position.value
-    const token0 = parseRestToken<Token>(v2PairPosition.token0)
-    const token1 = parseRestToken<Token>(v2PairPosition.token1)
-    const liquidityToken = parseRestToken<Token>(v2PairPosition.liquidityToken)
+    const v2PairPosition = position.position.value;
+    const token0 = parseRestToken<Token>(v2PairPosition.token0);
+    const token1 = parseRestToken<Token>(v2PairPosition.token1);
+    const liquidityToken = parseRestToken<Token>(v2PairPosition.liquidityToken);
     if (!token0 || !token1 || !liquidityToken) {
-      return undefined
+      return undefined;
     }
 
-    const pair = getPairFromRest({ pair: position.position.value, token0, token1 })
+    const pair = getPairFromRest({ pair: position.position.value, token0, token1 });
 
     return {
       status: position.status,
@@ -273,17 +288,22 @@ export function parseRestPosition(position?: RestPosition): PositionInfo | undef
       feeTier: undefined,
       owner: undefined,
       isHidden: position.isHidden,
-    }
+    };
   } else if (position?.position.case === 'v3Position') {
-    const v3Position = position.position.value
+    const v3Position = position.position.value;
 
-    const token0 = parseRestToken<Token>(v3Position.token0)
-    const token1 = parseRestToken<Token>(v3Position.token1)
+    const token0 = parseRestToken<Token>(v3Position.token0);
+    const token1 = parseRestToken<Token>(v3Position.token1);
     if (!token0 || !token1) {
-      return undefined
+      return undefined;
     }
 
-    const pool = getPoolFromRest({ pool: position.position.value, token0, token1, protocolVersion: ProtocolVersion.V3 })
+    const pool = getPoolFromRest({
+      pool: position.position.value,
+      token0,
+      token1,
+      protocolVersion: ProtocolVersion.V3,
+    });
     const sdkPosition = pool
       ? new V3Position({
           pool,
@@ -291,7 +311,7 @@ export function parseRestPosition(position?: RestPosition): PositionInfo | undef
           tickLower: Number(v3Position.tickLower),
           tickUpper: Number(v3Position.tickUpper),
         })
-      : undefined
+      : undefined;
 
     return {
       status: position.status,
@@ -314,17 +334,23 @@ export function parseRestPosition(position?: RestPosition): PositionInfo | undef
       v4hook: undefined,
       owner: v3Position.owner,
       isHidden: position.isHidden,
-    }
+    };
   } else if (position?.position.case === 'v4Position') {
-    const v4Position = position.position.value.poolPosition
-    const token0 = parseRestToken<Currency>(v4Position?.token0)
-    const token1 = parseRestToken<Currency>(v4Position?.token1)
+    const v4Position = position.position.value.poolPosition;
+    const token0 = parseRestToken<Currency>(v4Position?.token0);
+    const token1 = parseRestToken<Currency>(v4Position?.token1);
     if (!v4Position || !token0 || !token1) {
-      return undefined
+      return undefined;
     }
 
-    const hook = position.position.value.hooks[0]?.address
-    const pool = getPoolFromRest({ pool: v4Position, token0, token1, hooks: hook, protocolVersion: ProtocolVersion.V4 })
+    const hook = position.position.value.hooks[0]?.address;
+    const pool = getPoolFromRest({
+      pool: v4Position,
+      token0,
+      token1,
+      hooks: hook,
+      protocolVersion: ProtocolVersion.V4,
+    });
 
     const sdkPosition = pool
       ? new V4Position({
@@ -333,8 +359,14 @@ export function parseRestPosition(position?: RestPosition): PositionInfo | undef
           tickLower: Number(v4Position.tickLower),
           tickUpper: Number(v4Position.tickUpper),
         })
-      : undefined
-    const poolId = V4Pool.getPoolId(token0, token1, Number(v4Position.feeTier), Number(v4Position.tickSpacing), hook)
+      : undefined;
+    const poolId = V4Pool.getPoolId(
+      token0,
+      token1,
+      Number(v4Position.feeTier),
+      Number(v4Position.tickSpacing),
+      hook
+    );
     return {
       status: position.status,
       feeTier: v4Position.feeTier,
@@ -361,9 +393,9 @@ export function parseRestPosition(position?: RestPosition): PositionInfo | undef
       boostedApr: position.position.value.poolPosition?.boostedApr,
       token0Address: v4Position?.token0?.address,
       token1Address: v4Position?.token1?.address,
-    }
+    };
   } else {
-    return undefined
+    return undefined;
   }
 }
 
@@ -374,28 +406,28 @@ export function calculateInvertedValues({
   base,
   invert,
 }: {
-  priceLower?: Price<Currency, Currency>
-  priceUpper?: Price<Currency, Currency>
-  quote?: Currency
-  base?: Currency
-  invert?: boolean
+  priceLower?: Price<Currency, Currency>;
+  priceUpper?: Price<Currency, Currency>;
+  quote?: Currency;
+  base?: Currency;
+  invert?: boolean;
 }): {
-  priceLower?: Price<Currency, Currency>
-  priceUpper?: Price<Currency, Currency>
-  quote?: Currency
-  base?: Currency
+  priceLower?: Price<Currency, Currency>;
+  priceUpper?: Price<Currency, Currency>;
+  quote?: Currency;
+  base?: Currency;
 } {
   return {
     priceUpper: invert ? priceLower?.invert() : priceUpper,
     priceLower: invert ? priceUpper?.invert() : priceLower,
     quote: invert ? base : quote,
     base: invert ? quote : base,
-  }
+  };
 }
 
 // tick spacing must be a whole number >= 1
 export function calculateTickSpacingFromFeeAmount(feeAmount: number): number {
-  return Math.max(Math.round((2 * feeAmount) / 100), 1)
+  return Math.max(Math.round((2 * feeAmount) / 100), 1);
 }
 
 export enum HookFlag {
@@ -427,31 +459,31 @@ const FLAGS: { [key in HookFlag]: number } = {
   [HookFlag.AfterSwapReturnsDelta]: 1 << 2,
   [HookFlag.AfterAddLiquidityReturnsDelta]: 1 << 1,
   [HookFlag.AfterRemoveLiquidityReturnsDelta]: 1 << 0,
-}
+};
 
 export function getFlagsFromContractAddress(contractAddress: Address): HookFlag[] {
   // Extract the last 4 hexadecimal digits from the address
-  const last4Hex = contractAddress.slice(-4)
+  const last4Hex = contractAddress.slice(-4);
 
   // Convert the hex string to a binary string
-  const binaryStr = parseInt(last4Hex, 16).toString(2)
+  const binaryStr = parseInt(last4Hex, 16).toString(2);
 
   // Parse the last 12 bits of the binary string
-  const relevantBits = binaryStr.slice(-12)
+  const relevantBits = binaryStr.slice(-12);
 
   // Determine which flags are active
   const activeFlags = Object.entries(FLAGS)
     .filter(([, bitPosition]) => (parseInt(relevantBits, 2) & bitPosition) !== 0)
-    .map(([flag]) => flag as HookFlag)
+    .map(([flag]) => flag as HookFlag);
 
-  return activeFlags
+  return activeFlags;
 }
 
 export interface FlagWarning {
-  Icon: GeneratedIcon
-  name: string
-  info: string
-  dangerous: boolean
+  Icon: GeneratedIcon;
+  name: string;
+  info: string;
+  dangerous: boolean;
 }
 
 export function getFlagWarning(flag: HookFlag, t: AppTFunction): FlagWarning | undefined {
@@ -463,7 +495,7 @@ export function getFlagWarning(flag: HookFlag, t: AppTFunction): FlagWarning | u
         name: t('common.swap'),
         info: t('position.hook.swapWarning'),
         dangerous: false,
-      }
+      };
     case HookFlag.BeforeAddLiquidity:
     case HookFlag.AfterAddLiquidity:
       return {
@@ -471,7 +503,7 @@ export function getFlagWarning(flag: HookFlag, t: AppTFunction): FlagWarning | u
         name: t('common.addLiquidity'),
         info: t('position.hook.liquidityWarning'),
         dangerous: false,
-      }
+      };
     case HookFlag.BeforeRemoveLiquidity:
     case HookFlag.AfterRemoveLiquidity:
       return {
@@ -479,7 +511,7 @@ export function getFlagWarning(flag: HookFlag, t: AppTFunction): FlagWarning | u
         name: t('common.warning'),
         info: t('position.hook.removeWarning'),
         dangerous: true,
-      }
+      };
     case HookFlag.BeforeDonate:
     case HookFlag.AfterDonate:
       return {
@@ -487,9 +519,9 @@ export function getFlagWarning(flag: HookFlag, t: AppTFunction): FlagWarning | u
         name: t('common.donate'),
         info: t('position.hook.donateWarning'),
         dangerous: false,
-      }
+      };
     default:
-      return undefined
+      return undefined;
   }
 }
 
@@ -497,9 +529,9 @@ export function mergeFeeTiers(
   feeTiers: Record<number, FeeTierData>,
   feeData: FeeData[],
   formatPercent: (percent: Percent | undefined) => string,
-  formattedDynamicFeeTier: string,
+  formattedDynamicFeeTier: string
 ): Record<number, FeeTierData> {
-  const result: Record<number, FeeTierData> = {}
+  const result: Record<number, FeeTierData> = {};
   for (const feeTier of feeData) {
     result[feeTier.feeAmount] = {
       fee: feeTier,
@@ -510,33 +542,35 @@ export function mergeFeeTiers(
       percentage: new Percent(0, 100),
       created: false,
       tvl: '0',
-    } satisfies FeeTierData
+    } satisfies FeeTierData;
   }
 
-  return { ...result, ...feeTiers }
+  return { ...result, ...feeTiers };
 }
 
 function getDefaultFeeTiersForChain(
   chainId: UniverseChainId | undefined,
-  protocolVersion: ProtocolVersion,
+  protocolVersion: ProtocolVersion
 ): Record<FeeAmount, { feeAmount: FeeAmount; tickSpacing: number }> {
   const feeData = Object.values(defaultFeeTiers)
-    .filter((feeTier) => {
+    .filter(feeTier => {
       // Only filter by chain support if we're on V3
       if (protocolVersion === ProtocolVersion.V3) {
-        return !feeTier.supportedChainIds || (chainId && feeTier.supportedChainIds.includes(chainId))
+        return (
+          !feeTier.supportedChainIds || (chainId && feeTier.supportedChainIds.includes(chainId))
+        );
       }
-      return !feeTier.supportedChainIds
+      return !feeTier.supportedChainIds;
     })
-    .map((feeTier) => feeTier.feeData)
+    .map(feeTier => feeTier.feeData);
 
   return feeData.reduce(
     (acc, fee) => {
-      acc[fee.feeAmount] = fee
-      return acc
+      acc[fee.feeAmount] = fee;
+      return acc;
     },
-    {} as Record<FeeAmount, { feeAmount: FeeAmount; tickSpacing: number }>,
-  )
+    {} as Record<FeeAmount, { feeAmount: FeeAmount; tickSpacing: number }>
+  );
 }
 
 export function getDefaultFeeTiersForChainWithDynamicFeeTier({
@@ -544,16 +578,16 @@ export function getDefaultFeeTiersForChainWithDynamicFeeTier({
   dynamicFeeTierEnabled,
   protocolVersion,
 }: {
-  chainId?: UniverseChainId
-  dynamicFeeTierEnabled: boolean
-  protocolVersion: ProtocolVersion
+  chainId?: UniverseChainId;
+  dynamicFeeTierEnabled: boolean;
+  protocolVersion: ProtocolVersion;
 }) {
-  const feeTiers = getDefaultFeeTiersForChain(chainId, protocolVersion)
+  const feeTiers = getDefaultFeeTiersForChain(chainId, protocolVersion);
   if (!dynamicFeeTierEnabled) {
-    return feeTiers
+    return feeTiers;
   }
 
-  return { ...feeTiers, [DYNAMIC_FEE_DATA.feeAmount]: DYNAMIC_FEE_DATA }
+  return { ...feeTiers, [DYNAMIC_FEE_DATA.feeAmount]: DYNAMIC_FEE_DATA };
 }
 
 export function getDefaultFeeTiersWithData({
@@ -562,12 +596,12 @@ export function getDefaultFeeTiersWithData({
   protocolVersion,
   t,
 }: {
-  chainId?: UniverseChainId
-  feeTierData: Record<number, FeeTierData>
-  protocolVersion: ProtocolVersion
-  t: AppTFunction
+  chainId?: UniverseChainId;
+  feeTierData: Record<number, FeeTierData>;
+  protocolVersion: ProtocolVersion;
+  t: AppTFunction;
 }) {
-  const defaultFeeTiersForChain = getDefaultFeeTiersForChain(chainId, protocolVersion)
+  const defaultFeeTiersForChain = getDefaultFeeTiersForChain(chainId, protocolVersion);
 
   const feeTiers = [
     {
@@ -626,42 +660,43 @@ export function getDefaultFeeTiersWithData({
       tvl: feeTierData[FeeAmount.HIGH]?.tvl,
       boostedApr: feeTierData[FeeAmount.HIGH]?.boostedApr,
     },
-  ] as const
+  ] as const;
 
   return feeTiers.filter(
-    (feeTier) => feeTier.value !== undefined && Object.keys(feeTierData).includes(feeTier.tier.toString()),
-  )
+    feeTier =>
+      feeTier.value !== undefined && Object.keys(feeTierData).includes(feeTier.tier.toString())
+  );
 }
 
 export function isDynamicFeeTier(feeData: FeeData): feeData is DynamicFeeData {
-  return feeData.feeAmount === DYNAMIC_FEE_DATA.feeAmount
+  return feeData.feeAmount === DYNAMIC_FEE_DATA.feeAmount;
 }
 
 export function isDynamicFeeTierAmount(
-  feeAmount: string | number | undefined,
+  feeAmount: string | number | undefined
 ): feeAmount is DynamicFeeData['feeAmount'] {
   if (!feeAmount) {
-    return false
+    return false;
   }
 
-  const feeAmountNumber = Number(feeAmount)
+  const feeAmountNumber = Number(feeAmount);
   if (isNaN(feeAmountNumber)) {
-    return false
+    return false;
   }
 
-  return feeAmountNumber === DYNAMIC_FEE_DATA.feeAmount
+  return feeAmountNumber === DYNAMIC_FEE_DATA.feeAmount;
 }
 
 export function formatTokenAmount(amount: string, decimals: number): string {
   try {
-    const formatted = formatUnits(BigInt(amount), decimals)
+    const formatted = formatUnits(BigInt(amount), decimals);
     // Split by decimal point and truncate to 3 decimal places
-    const [whole, decimal] = formatted.split('.')
+    const [whole, decimal] = formatted.split('.');
     if (!decimal) {
-      return whole
+      return whole;
     }
-    return `${whole}.${decimal.slice(0, 3)}`
+    return `${whole}.${decimal.slice(0, 3)}`;
   } catch (e) {
-    return '0'
+    return '0';
   }
 }

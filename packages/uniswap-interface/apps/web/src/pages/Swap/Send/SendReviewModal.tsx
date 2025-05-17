@@ -1,29 +1,29 @@
-import { InterfaceElementName } from '@uniswap/analytics-events'
-import { PortfolioLogo } from 'components/AccountDrawer/MiniPortfolio/PortfolioLogo'
-import Identicon from 'components/Identicon'
-import { ChainLogo } from 'components/Logo/ChainLogo'
-import { GetHelpHeader } from 'components/Modal/GetHelpHeader'
-import { ReactNode } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
-import { useSelector } from 'react-redux'
-import { useMultichainContext } from 'state/multichain/useMultichainContext'
-import { useSendContext } from 'state/send/SendContext'
-import { ThemedText } from 'theme/components'
-import { capitalize } from 'tsafe'
-import { Button, Flex, Separator, styled } from 'ui/src'
-import { Unitag } from 'ui/src/components/icons/Unitag'
-import { Modal } from 'uniswap/src/components/modals/Modal'
-import { selectHasDismissedLowNetworkTokenWarning } from 'uniswap/src/features/behaviorHistory/selectors'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { ModalName, UniswapEventName } from 'uniswap/src/features/telemetry/constants'
-import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send.web'
-import { useUSDCValue } from 'uniswap/src/features/transactions/hooks/useUSDCPrice'
-import { LowNativeBalanceModal } from 'uniswap/src/features/transactions/modals/LowNativeBalanceModal'
-import { shortenAddress } from 'utilities/src/addresses'
-import { useBooleanState } from 'utilities/src/react/useBooleanState'
-import { NumberType, useFormatter } from 'utils/formatNumbers'
-import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { InterfaceElementName } from '@uniswap/analytics-events';
+import { PortfolioLogo } from 'components/AccountDrawer/MiniPortfolio/PortfolioLogo';
+import Identicon from 'components/Identicon';
+import { ChainLogo } from 'components/Logo/ChainLogo';
+import { GetHelpHeader } from 'components/Modal/GetHelpHeader';
+import { ReactNode } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
+import { useMultichainContext } from 'state/multichain/useMultichainContext';
+import { useSendContext } from 'state/send/SendContext';
+import { ThemedText } from 'theme/components';
+import { capitalize } from 'tsafe';
+import { Button, Flex, Separator, styled } from 'ui/src';
+import { Unitag } from 'ui/src/components/icons/Unitag';
+import { Modal } from 'uniswap/src/components/modals/Modal';
+import { selectHasDismissedLowNetworkTokenWarning } from 'uniswap/src/features/behaviorHistory/selectors';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { ModalName, UniswapEventName } from 'uniswap/src/features/telemetry/constants';
+import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send.web';
+import { useUSDCValue } from 'uniswap/src/features/transactions/hooks/useUSDCPrice';
+import { LowNativeBalanceModal } from 'uniswap/src/features/transactions/modals/LowNativeBalanceModal';
+import { shortenAddress } from 'utilities/src/addresses';
+import { useBooleanState } from 'utilities/src/react/useBooleanState';
+import { NumberType, useFormatter } from 'utils/formatNumbers';
+import { maxAmountSpend } from 'utils/maxAmountSpend';
 
 const ModalWrapper = styled(Flex, {
   backgroundColor: '$surface1',
@@ -31,20 +31,20 @@ const ModalWrapper = styled(Flex, {
   width: '100%',
   p: '$spacing8',
   gap: '$gap12',
-})
+});
 
 const ModalHeader = styled(Flex, {
   px: '$spacing12',
   pt: '$spacing8',
   pb: '$spacing4',
-})
+});
 
 const ReviewContentContainer = styled(Flex, {
   width: '100%',
   py: '$spacing12',
   px: '$spacing16',
   gap: '$gap16',
-})
+});
 
 const SendModalHeader = ({
   label,
@@ -52,10 +52,10 @@ const SendModalHeader = ({
   subheader,
   image,
 }: {
-  label: ReactNode
-  header: ReactNode
-  subheader: ReactNode
-  image: ReactNode
+  label: ReactNode;
+  header: ReactNode;
+  subheader: ReactNode;
+  image: ReactNode;
 }) => {
   return (
     <Flex row justifyContent="space-between" alignItems="center">
@@ -70,75 +70,82 @@ const SendModalHeader = ({
       </Flex>
       <Flex height={36}>{image}</Flex>
     </Flex>
-  )
-}
+  );
+};
 
 type SendModalInnerProps = {
-  onConfirm: () => void
-  onDismiss: () => void
-}
+  onConfirm: () => void;
+  onDismiss: () => void;
+};
 
 export type SendModalProps = SendModalInnerProps & {
-  isOpen: boolean
-}
+  isOpen: boolean;
+};
 
 export function SendReviewModal({ isOpen, onConfirm, onDismiss }: SendModalProps) {
   return (
     <Modal name={ModalName.SendReview} isModalOpen={isOpen} onClose={onDismiss} padding={0}>
       <SendReviewModalInner onConfirm={onConfirm} onDismiss={onDismiss} />
     </Modal>
-  )
+  );
 }
 
 function SendReviewModalInner({ onConfirm, onDismiss }: SendModalInnerProps) {
-  const { t } = useTranslation()
-  const { chainId } = useMultichainContext()
+  const { t } = useTranslation();
+  const { chainId } = useMultichainContext();
   const {
     value: showMaxTransferModal,
     setTrue: handleShowMaxTransferModal,
     setFalse: handleHideMaxTransferModal,
-  } = useBooleanState(false)
+  } = useBooleanState(false);
 
   const {
     sendState: { inputCurrency, inputInFiat, exactAmountFiat },
-    derivedSendInfo: { parsedTokenAmount, exactAmountOut, gasFeeCurrencyAmount, recipientData, currencyBalance },
-  } = useSendContext()
-  const hasDismissedLowNetworkTokenWarning = useSelector(selectHasDismissedLowNetworkTokenWarning)
+    derivedSendInfo: {
+      parsedTokenAmount,
+      exactAmountOut,
+      gasFeeCurrencyAmount,
+      recipientData,
+      currencyBalance,
+    },
+  } = useSendContext();
+  const hasDismissedLowNetworkTokenWarning = useSelector(selectHasDismissedLowNetworkTokenWarning);
 
-  const { formatConvertedFiatNumberOrString, formatCurrencyAmount } = useFormatter()
+  const { formatConvertedFiatNumberOrString, formatCurrencyAmount } = useFormatter();
   const formattedInputAmount = formatCurrencyAmount({
     amount: parsedTokenAmount,
     type: NumberType.TokenNonTx,
-  })
+  });
   const formattedFiatInputAmount = formatConvertedFiatNumberOrString({
     input: (inputInFiat ? exactAmountFiat : exactAmountOut) || '0',
     type: NumberType.PortfolioBalance,
-  })
+  });
 
-  const gasFeeUSD = useUSDCValue(gasFeeCurrencyAmount)
+  const gasFeeUSD = useUSDCValue(gasFeeCurrencyAmount);
   const gasFeeFormatted = formatCurrencyAmount({
     amount: gasFeeUSD,
     type: NumberType.PortfolioBalance,
-  })
+  });
 
-  const currencySymbolAmount = `${formattedInputAmount} ${inputCurrency?.symbol ?? inputCurrency?.name}`
+  const currencySymbolAmount = `${formattedInputAmount} ${inputCurrency?.symbol ?? inputCurrency?.name}`;
 
   const [primaryInputView, secondaryInputView] = inputInFiat
     ? [formattedFiatInputAmount, currencySymbolAmount]
-    : [currencySymbolAmount, formattedFiatInputAmount]
+    : [currencySymbolAmount, formattedFiatInputAmount];
 
-  const maxInputAmount = maxAmountSpend(currencyBalance)
+  const maxInputAmount = maxAmountSpend(currencyBalance);
   const isMax =
-    maxInputAmount && (parsedTokenAmount?.equalTo(maxInputAmount) || parsedTokenAmount?.greaterThan(maxInputAmount))
+    maxInputAmount &&
+    (parsedTokenAmount?.equalTo(maxInputAmount) || parsedTokenAmount?.greaterThan(maxInputAmount));
 
   const handleConfirm = () => {
     if (!hasDismissedLowNetworkTokenWarning && isMax && inputCurrency?.isNative) {
-      sendAnalyticsEvent(UniswapEventName.LowNetworkTokenInfoModalOpened, { location: 'send' })
-      handleShowMaxTransferModal()
-      return
+      sendAnalyticsEvent(UniswapEventName.LowNetworkTokenInfoModalOpened, { location: 'send' });
+      handleShowMaxTransferModal();
+      return;
     }
-    onConfirm()
-  }
+    onConfirm();
+  };
 
   return (
     <>
@@ -153,7 +160,11 @@ function SendReviewModalInner({ onConfirm, onDismiss }: SendModalInnerProps) {
               header={primaryInputView}
               subheader={secondaryInputView}
               image={
-                <PortfolioLogo currencies={[inputCurrency]} size={36} chainId={chainId ?? UniverseChainId.Mainnet} />
+                <PortfolioLogo
+                  currencies={[inputCurrency]}
+                  size={36}
+                  chainId={chainId ?? UniverseChainId.Mainnet}
+                />
               }
             />
             <SendModalHeader
@@ -161,14 +172,19 @@ function SendReviewModalInner({ onConfirm, onDismiss }: SendModalInnerProps) {
               header={
                 recipientData?.unitag || recipientData?.ensName ? (
                   <Flex row gap="$gap4" alignItems="center">
-                    <ThemedText.HeadlineLarge>{recipientData.unitag ?? recipientData.ensName}</ThemedText.HeadlineLarge>
+                    <ThemedText.HeadlineLarge>
+                      {recipientData.unitag ?? recipientData.ensName}
+                    </ThemedText.HeadlineLarge>
                     {recipientData?.unitag && <Unitag size={18} />}
                   </Flex>
                 ) : (
                   shortenAddress(recipientData?.address)
                 )
               }
-              subheader={(recipientData?.unitag || recipientData?.ensName) && shortenAddress(recipientData.address)}
+              subheader={
+                (recipientData?.unitag || recipientData?.ensName) &&
+                shortenAddress(recipientData.address)
+              }
               image={<Identicon account={recipientData?.address} size={36} />}
             />
           </Flex>
@@ -195,10 +211,10 @@ function SendReviewModalInner({ onConfirm, onDismiss }: SendModalInnerProps) {
         isOpen={showMaxTransferModal}
         onClose={handleHideMaxTransferModal}
         onAcknowledge={() => {
-          handleHideMaxTransferModal()
-          onConfirm()
+          handleHideMaxTransferModal();
+          onConfirm();
         }}
       />
     </>
-  )
+  );
 }

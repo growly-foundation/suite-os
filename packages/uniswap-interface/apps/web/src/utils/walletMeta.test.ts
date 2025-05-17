@@ -1,53 +1,62 @@
-import type { ExternalProvider } from '@ethersproject/providers'
-import { JsonRpcProvider } from '@ethersproject/providers'
-import type WalletConnectProvider from '@walletconnect/ethereum-provider'
-import { getWalletMeta, WalletMeta, WalletType } from 'utils/walletMeta'
+import type { ExternalProvider } from '@ethersproject/providers';
+import { JsonRpcProvider } from '@ethersproject/providers';
+import type WalletConnectProvider from '@walletconnect/ethereum-provider';
+import { getWalletMeta, WalletMeta, WalletType } from 'utils/walletMeta';
 
 class MockJsonRpcProvider extends JsonRpcProvider {
-  name = 'JsonRpcProvider'
-  arg: string
+  name = 'JsonRpcProvider';
+  arg: string;
 
   constructor(arg?: unknown) {
-    super()
-    this.arg = JSON.stringify(arg)
+    super();
+    this.arg = JSON.stringify(arg);
   }
 }
 
-const WC_META = { name: 'name', description: 'description', url: 'url', icons: [] }
+const WC_META = { name: 'name', description: 'description', url: 'url', icons: [] };
 
 class MockWalletConnectProviderV2 extends MockJsonRpcProvider {
-  name = WalletType.WALLET_CONNECT
-  provider: WalletConnectProvider
+  name = WalletType.WALLET_CONNECT;
+  provider: WalletConnectProvider;
 
   constructor(metadata: typeof WC_META | null) {
-    super(metadata)
-    this.provider = { isWalletConnect: true, session: { peer: { metadata } } } as unknown as WalletConnectProvider
+    super(metadata);
+    this.provider = {
+      isWalletConnect: true,
+      session: { peer: { metadata } },
+    } as unknown as WalletConnectProvider;
   }
 }
 
 class MockInjectedProvider extends MockJsonRpcProvider {
-  name = WalletType.INJECTED
-  provider: ExternalProvider
+  name = WalletType.INJECTED;
+  provider: ExternalProvider;
 
   constructor(provider: Record<string, boolean | undefined>) {
-    super(provider)
+    super(provider);
     this.provider = {
       isConnected() {
-        return true
+        return true;
       },
       ...provider,
-    } as ExternalProvider
+    } as ExternalProvider;
   }
 }
 
 const testCases: [MockJsonRpcProvider, WalletMeta | undefined][] = [
   [new MockJsonRpcProvider(), undefined],
-  [new MockWalletConnectProviderV2(null), { type: WalletType.WALLET_CONNECT, agent: '(WalletConnect)' }],
+  [
+    new MockWalletConnectProviderV2(null),
+    { type: WalletType.WALLET_CONNECT, agent: '(WalletConnect)' },
+  ],
   [
     new MockWalletConnectProviderV2(WC_META),
     { type: WalletType.WALLET_CONNECT, agent: 'name (WalletConnect)', ...WC_META },
   ],
-  [new MockInjectedProvider({}), { type: WalletType.INJECTED, agent: '(Injected)', name: undefined }],
+  [
+    new MockInjectedProvider({}),
+    { type: WalletType.INJECTED, agent: '(Injected)', name: undefined },
+  ],
   [
     new MockInjectedProvider({ isMetaMask: false }),
     { type: WalletType.INJECTED, agent: '(Injected)', name: undefined },
@@ -76,12 +85,15 @@ const testCases: [MockJsonRpcProvider, WalletMeta | undefined][] = [
     new MockInjectedProvider({ isA: true, isB: true }),
     { type: WalletType.INJECTED, agent: 'A B (Injected)', name: 'A' },
   ],
-]
+];
 
 describe('meta', () => {
-  describe.each(testCases)('getWalletMeta/getWalletName returns the project meta/name', (provider, meta) => {
-    it(`${provider?.name} ${provider.arg}`, () => {
-      expect(getWalletMeta(provider)).toEqual(meta)
-    })
-  })
-})
+  describe.each(testCases)(
+    'getWalletMeta/getWalletName returns the project meta/name',
+    (provider, meta) => {
+      it(`${provider?.name} ${provider.arg}`, () => {
+        expect(getWalletMeta(provider)).toEqual(meta);
+      });
+    }
+  );
+});

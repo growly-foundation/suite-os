@@ -1,10 +1,10 @@
-import { PersistState } from 'redux-persist'
-import { RouterPreference } from 'state/routing/types'
-import { UserState } from 'state/user/reducer'
+import { PersistState } from 'redux-persist';
+import { RouterPreference } from 'state/routing/types';
+import { UserState } from 'state/user/reducer';
 
 export type PersistAppStateV2 = {
-  _persist: PersistState
-} & { user?: UserState }
+  _persist: PersistState;
+} & { user?: UserState };
 
 /**
  * Migration to move users who have local routing as their router preference to API
@@ -23,7 +23,7 @@ export const migration2 = (state: PersistAppStateV2 | undefined) => {
         ...state._persist,
         version: 2,
       },
-    }
+    };
   }
-  return state
-}
+  return state;
+};

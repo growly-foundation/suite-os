@@ -12,11 +12,11 @@ export class CoreService {
    * @param args Method arguments
    * @returns
    */
-  async call<T extends keyof Omit<SuiteDatabaseCore, 'db'>>(
+  async call<T extends keyof Omit<SuiteDatabaseCore, 'db'>, R>(
     service: T,
     method: keyof Omit<SuiteDatabaseCore, 'db'>[T],
     args?: any[]
-  ): Promise<any> {
+  ): Promise<R> {
     try {
       const response = await axios.post(
         `${API_URL}/core/call`,

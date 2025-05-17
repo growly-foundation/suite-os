@@ -1,11 +1,11 @@
-import { useLayoutAnimationOnChange } from 'ui/src/animations'
+import { useLayoutAnimationOnChange } from 'ui/src/animations';
 
 export const useButtonAnimationOnChange = ({
   shouldAnimateBetweenLoadingStates,
   loading,
 }: {
-  shouldAnimateBetweenLoadingStates?: boolean
-  loading?: boolean
+  shouldAnimateBetweenLoadingStates?: boolean;
+  loading?: boolean;
 }): void => {
-  useLayoutAnimationOnChange(shouldAnimateBetweenLoadingStates && loading)
-}
+  useLayoutAnimationOnChange(shouldAnimateBetweenLoadingStates && loading);
+};

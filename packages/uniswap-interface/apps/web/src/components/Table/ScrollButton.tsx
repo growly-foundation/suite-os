@@ -1,13 +1,13 @@
-import { Flex, TouchableArea } from 'ui/src'
-import { ArrowRight } from 'ui/src/components/icons/ArrowRight'
+import { Flex, TouchableArea } from 'ui/src';
+import { ArrowRight } from 'ui/src/components/icons/ArrowRight';
 
-type ScrollButtonDirection = 'left' | 'right'
+type ScrollButtonDirection = 'left' | 'right';
 
 export type ScrollButtonProps = {
-  onPress: () => void
-  opacity?: number
-  direction: ScrollButtonDirection
-}
+  onPress: () => void;
+  opacity?: number;
+  direction: ScrollButtonDirection;
+};
 
 export const ScrollButton = ({ onPress, opacity, direction }: ScrollButtonProps) => (
   <TouchableArea onPress={onPress}>
@@ -23,9 +23,12 @@ export const ScrollButton = ({ onPress, opacity, direction }: ScrollButtonProps)
       borderColor="$surface3"
       $platform-web={{ backdropFilter: 'blur(2px)' }}
       opacity={opacity}
-      transition="opacity 0.2s ease-in-out"
-    >
-      <ArrowRight color="$neutral1" size="$icon.12" transform={direction === 'left' ? 'rotate(180deg)' : undefined} />
+      transition="opacity 0.2s ease-in-out">
+      <ArrowRight
+        color="$neutral1"
+        size="$icon.12"
+        transform={direction === 'left' ? 'rotate(180deg)' : undefined}
+      />
     </Flex>
   </TouchableArea>
-)
+);

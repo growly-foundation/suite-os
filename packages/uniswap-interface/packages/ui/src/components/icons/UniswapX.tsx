@@ -1,11 +1,11 @@
-import { Defs, LinearGradient, Path, Stop, Svg } from 'react-native-svg'
+import { Defs, LinearGradient, Path, Stop, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [UniswapX, AnimatedUniswapX] = createIcon({
   name: 'UniswapX',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg viewBox="0 0 10 14" fill="none" {...props}>
       <Defs>
         <LinearGradient
@@ -14,8 +14,7 @@ export const [UniswapX, AnimatedUniswapX] = createIcon({
           y1="-12.0006"
           x2="10.6573"
           y2="-11.6017"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <Stop stopColor="#4673FA" />
           <Stop offset="1" stopColor="#9646FA" />
         </LinearGradient>
@@ -26,4 +25,4 @@ export const [UniswapX, AnimatedUniswapX] = createIcon({
       />
     </Svg>
   ),
-})
+});

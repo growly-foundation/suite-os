@@ -1,44 +1,48 @@
-import { useSyncExternalStore } from 'react'
-import { logger } from 'utilities/src/logger/logger'
+import { useSyncExternalStore } from 'react';
+import { logger } from 'utilities/src/logger/logger';
 
 interface EmbeddedWalletState {
-  walletAddress: string | null
-  chainId: number | null
-  isConnected: boolean
+  walletAddress: string | null;
+  chainId: number | null;
+  isConnected: boolean;
 }
 
 const initialState: EmbeddedWalletState = {
   walletAddress: null,
   chainId: null,
   isConnected: false,
-}
+};
 
-const embeddedWalletStateKey = 'embedded-wallet'
+const embeddedWalletStateKey = 'embedded-wallet';
 
-let state = initialState
-const listeners = new Set<() => void>()
+let state = initialState;
+const listeners = new Set<() => void>();
 
-const getSnapshot = () => state
+const getSnapshot = () => state;
 
 const subscribe = (listener: () => void) => {
-  listeners.add(listener)
-  return () => listeners.delete(listener)
-}
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+};
 
 const setState = (updates: Partial<EmbeddedWalletState>) => {
-  state = { ...state, ...updates }
-  listeners.forEach((listener) => listener())
-  localStorage.setItem(embeddedWalletStateKey, JSON.stringify(state))
-}
+  state = { ...state, ...updates };
+  listeners.forEach(listener => listener());
+  localStorage.setItem(embeddedWalletStateKey, JSON.stringify(state));
+};
 
 // Initialize state from localStorage
 try {
-  const persisted = localStorage.getItem(embeddedWalletStateKey)
+  const persisted = localStorage.getItem(embeddedWalletStateKey);
   if (persisted) {
-    state = JSON.parse(persisted)
+    state = JSON.parse(persisted);
   }
 } catch (e) {
-  logger.info('embeddedWallet', 'store', `No existing embedded wallet state found for key ${embeddedWalletStateKey}`)
+  logger.info(
+    'embeddedWallet',
+    'store',
+    `No existing embedded wallet state found for key ${embeddedWalletStateKey}`
+  );
 }
 
 /**
@@ -53,14 +57,14 @@ try {
  * @property {(isConnected: boolean) => void} setIsConnected - Function to update the connection status
  */
 export function useEmbeddedWalletState() {
-  const currentState = useSyncExternalStore(subscribe, getSnapshot)
+  const currentState = useSyncExternalStore(subscribe, getSnapshot);
 
   return {
     ...currentState,
     setWalletAddress: (address: string | null) => setState({ walletAddress: address }),
     setChainId: (chainId: number | null) => setState({ chainId }),
     setIsConnected: (isConnected: boolean) => setState({ isConnected }),
-  }
+  };
 }
 
 /**
@@ -72,9 +76,9 @@ export function useEmbeddedWalletState() {
  * @property {boolean} isConnected - Whether the wallet is currently connected
  */
 export function getEmbeddedWalletState(): EmbeddedWalletState {
-  return getSnapshot()
+  return getSnapshot();
 }
 
 export function setChainId(chainId: number | null) {
-  setState({ chainId })
+  setState({ chainId });
 }

@@ -1,11 +1,11 @@
-import { ClipPath, Defs, G, LinearGradient, Path, Rect, Stop, Svg } from 'react-native-svg'
+import { ClipPath, Defs, G, LinearGradient, Path, Rect, Stop, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [AppStoreLogo, AnimatedAppStoreLogo] = createIcon({
   name: 'AppStoreLogo',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg viewBox="0 0 24 25" fill="none" {...props}>
       <G id="AppStore" clipPath="url(#clip0_1393_26724)">
         <Path
@@ -26,8 +26,7 @@ export const [AppStoreLogo, AnimatedAppStoreLogo] = createIcon({
           y1="0.5"
           x2="12.0015"
           y2="24.5"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <Stop stopColor="#18BFFB" />
           <Stop offset="1" stopColor="#2072F3" />
         </LinearGradient>
@@ -37,4 +36,4 @@ export const [AppStoreLogo, AnimatedAppStoreLogo] = createIcon({
       </Defs>
     </Svg>
   ),
-})
+});

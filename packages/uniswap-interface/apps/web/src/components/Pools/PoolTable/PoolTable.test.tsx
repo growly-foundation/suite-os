@@ -1,24 +1,24 @@
-import 'test-utils/tokens/mocks'
+import 'test-utils/tokens/mocks';
 
-import { Percent } from '@uniswap/sdk-core'
-import { ExploreTopPoolTable } from 'components/Pools/PoolTable/PoolTable'
-import Router from 'react-router-dom'
-import { useExploreContextTopPools } from 'state/explore/topPools'
-import { mocked } from 'test-utils/mocked'
-import { validParams, validRestPoolToken0, validRestPoolToken1 } from 'test-utils/pools/fixtures'
-import { render, screen } from 'test-utils/render'
-import { ProtocolVersion } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
+import { Percent } from '@uniswap/sdk-core';
+import { ExploreTopPoolTable } from 'components/Pools/PoolTable/PoolTable';
+import Router from 'react-router-dom';
+import { useExploreContextTopPools } from 'state/explore/topPools';
+import { mocked } from 'test-utils/mocked';
+import { validParams, validRestPoolToken0, validRestPoolToken1 } from 'test-utils/pools/fixtures';
+import { render, screen } from 'test-utils/render';
+import { ProtocolVersion } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
 
-jest.mock('state/explore/topPools')
+jest.mock('state/explore/topPools');
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: jest.fn(),
-}))
+}));
 
 describe('PoolTable', () => {
   beforeEach(() => {
-    jest.spyOn(Router, 'useParams').mockReturnValue(validParams)
-  })
+    jest.spyOn(Router, 'useParams').mockReturnValue(validParams);
+  });
 
   it('renders loading state', () => {
     mocked(useExploreContextTopPools).mockReturnValue({
@@ -26,12 +26,12 @@ describe('PoolTable', () => {
       isError: false,
       topPools: [],
       topBoostedPools: [],
-    })
+    });
 
-    const { asFragment } = render(<ExploreTopPoolTable />)
-    expect(screen.getAllByTestId('cell-loading-bubble')).not.toBeNull()
-    expect(asFragment()).toMatchSnapshot()
-  })
+    const { asFragment } = render(<ExploreTopPoolTable />);
+    expect(screen.getAllByTestId('cell-loading-bubble')).not.toBeNull();
+    expect(asFragment()).toMatchSnapshot();
+  });
 
   it('renders error state', () => {
     mocked(useExploreContextTopPools).mockReturnValue({
@@ -39,12 +39,12 @@ describe('PoolTable', () => {
       isError: true,
       topPools: [],
       topBoostedPools: [],
-    })
+    });
 
-    const { asFragment } = render(<ExploreTopPoolTable />)
-    expect(screen.getByTestId('table-error-modal')).not.toBeNull()
-    expect(asFragment()).toMatchSnapshot()
-  })
+    const { asFragment } = render(<ExploreTopPoolTable />);
+    expect(screen.getByTestId('table-error-modal')).not.toBeNull();
+    expect(asFragment()).toMatchSnapshot();
+  });
 
   it('renders data filled state', () => {
     const mockData = [
@@ -63,16 +63,16 @@ describe('PoolTable', () => {
         volOverTvl: 1.84,
         protocolVersion: ProtocolVersion.V3,
       },
-    ]
+    ];
     mocked(useExploreContextTopPools).mockReturnValue({
       topPools: mockData,
       topBoostedPools: mockData,
       isLoading: false,
       isError: false,
-    })
+    });
 
-    const { asFragment } = render(<ExploreTopPoolTable />)
-    expect(screen.getByTestId('top-pools-explore-table')).not.toBeNull()
-    expect(asFragment()).toMatchSnapshot()
-  })
-})
+    const { asFragment } = render(<ExploreTopPoolTable />);
+    expect(screen.getByTestId('top-pools-explore-table')).not.toBeNull();
+    expect(asFragment()).toMatchSnapshot();
+  });
+});

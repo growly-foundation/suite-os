@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'path';
 
 export const Mocks = {
   FiatOnRamp: {
@@ -23,4 +23,4 @@ export const Mocks = {
   Positions: {
     get_position: path.resolve(__dirname, '../mocks/rest/positions/get_position.json'),
   },
-}
+};

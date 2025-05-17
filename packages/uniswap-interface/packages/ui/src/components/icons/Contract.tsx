@@ -1,11 +1,11 @@
-import { Path, Rect, Svg } from 'react-native-svg'
+import { Path, Rect, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [Contract, AnimatedContract] = createIcon({
   name: 'Contract',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg viewBox="0 0 24 24" fill="none" {...props}>
       <Rect width="24" height="24" rx="12" fill={'currentColor' ?? '#00C3A0'} />
       <Path
@@ -17,4 +17,4 @@ export const [Contract, AnimatedContract] = createIcon({
     </Svg>
   ),
   defaultFill: '#00C3A0',
-})
+});

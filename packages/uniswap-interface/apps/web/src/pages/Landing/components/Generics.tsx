@@ -1,4 +1,4 @@
-import { styled, Text } from 'ui/src'
+import { styled, Text } from 'ui/src';
 
 export const H2 = styled(Text, {
   p: 0,
@@ -15,7 +15,7 @@ export const H2 = styled(Text, {
   $xl: {
     fontSize: 36,
   },
-})
+});
 
 export const H3 = styled(Text, {
   p: 0,
@@ -27,7 +27,7 @@ export const H3 = styled(Text, {
   '$platform-web': {
     letterSpacing: '-0.02em',
   },
-})
+});
 
 export const Body1 = styled(Text, {
   p: 0,
@@ -42,4 +42,4 @@ export const Body1 = styled(Text, {
     letterSpacing: '-0.01em',
     fontFeatureSettings: "'ss07' on",
   },
-})
+});

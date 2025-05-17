@@ -1,4 +1,4 @@
-import { ComponentProps } from 'react'
+import { ComponentProps } from 'react';
 
 export const PrivacyOptions = (props: ComponentProps<'svg'>) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="30" height="14" viewBox="0 0 30 14" fill="none">
@@ -16,4 +16,4 @@ export const PrivacyOptions = (props: ComponentProps<'svg'>) => (
       </clipPath>
     </defs>
   </svg>
-)
+);

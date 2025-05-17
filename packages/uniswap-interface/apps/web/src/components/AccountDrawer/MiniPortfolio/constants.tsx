@@ -1,12 +1,14 @@
-import { TransactionType } from 'state/transactions/types'
-import { UniswapXOrderStatus } from 'types/uniswapx'
-import { TransactionStatus } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import i18n from 'uniswap/src/i18n'
+import { TransactionType } from 'state/transactions/types';
+import { UniswapXOrderStatus } from 'types/uniswapx';
+import { TransactionStatus } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import i18n from 'uniswap/src/i18n';
 
 // use even number because rows are in groups of 2
-export const DEFAULT_NFT_QUERY_AMOUNT = 26
+export const DEFAULT_NFT_QUERY_AMOUNT = 26;
 
-const TransactionTitleTable: { [key in TransactionType]: { [state in TransactionStatus]: string } } = {
+const TransactionTitleTable: {
+  [key in TransactionType]: { [state in TransactionStatus]: string };
+} = {
   [TransactionType.SWAP]: {
     [TransactionStatus.Pending]: i18n.t('common.swapping'),
     [TransactionStatus.Confirmed]: i18n.t('common.swapped'),
@@ -177,7 +179,7 @@ const TransactionTitleTable: { [key in TransactionType]: { [state in Transaction
     [TransactionStatus.Confirmed]: i18n.t('common.permit.approved'),
     [TransactionStatus.Failed]: i18n.t('common.permit.failed'),
   },
-}
+};
 
 export const CancelledTransactionTitleTable: { [key in TransactionType]: string } = {
   [TransactionType.SWAP]: i18n.t('common.swap.cancelled'),
@@ -214,9 +216,11 @@ export const CancelledTransactionTitleTable: { [key in TransactionType]: string 
   [TransactionType.MIGRATE_LIQUIDITY_V3_TO_V4]: i18n.t('common.migrate.liquidity.cancelled'),
   [TransactionType.BRIDGE]: i18n.t('common.swap.cancelled'),
   [TransactionType.PERMIT]: i18n.t('common.permit.cancelled'),
-}
+};
 
-const AlternateTransactionTitleTable: { [key in TransactionType]?: { [state in TransactionStatus]: string } } = {
+const AlternateTransactionTitleTable: {
+  [key in TransactionType]?: { [state in TransactionStatus]: string };
+} = {
   [TransactionType.WRAP]: {
     [TransactionStatus.Pending]: i18n.t('common.unwrapping'),
     [TransactionStatus.Confirmed]: i18n.t('common.unwrapped'),
@@ -227,21 +231,29 @@ const AlternateTransactionTitleTable: { [key in TransactionType]?: { [state in T
     [TransactionStatus.Confirmed]: i18n.t('common.revoked.approval'),
     [TransactionStatus.Failed]: i18n.t('common.revoke.approval.failed'),
   },
-}
+};
 
-export function getActivityTitle(type: TransactionType, status: TransactionStatus, alternate?: boolean) {
+export function getActivityTitle(
+  type: TransactionType,
+  status: TransactionStatus,
+  alternate?: boolean
+) {
   if (alternate) {
-    const alternateTitle = AlternateTransactionTitleTable[type]
+    const alternateTitle = AlternateTransactionTitleTable[type];
     if (alternateTitle !== undefined) {
-      return alternateTitle[status]
+      return alternateTitle[status];
     }
   }
-  return TransactionTitleTable[type][status]
+  return TransactionTitleTable[type][status];
 }
 
-const SwapTitleTable = TransactionTitleTable[TransactionType.SWAP]
+const SwapTitleTable = TransactionTitleTable[TransactionType.SWAP];
 export const OrderTextTable: {
-  [status in UniswapXOrderStatus]: { title: string; status: TransactionStatus; statusMessage?: string }
+  [status in UniswapXOrderStatus]: {
+    title: string;
+    status: TransactionStatus;
+    statusMessage?: string;
+  };
 } = {
   [UniswapXOrderStatus.OPEN]: {
     title: SwapTitleTable.PENDING,
@@ -273,11 +285,15 @@ export const OrderTextTable: {
     title: i18n.t('common.swap.cancelled'),
     status: TransactionStatus.Failed,
   },
-}
+};
 
-const LimitTitleTable = TransactionTitleTable[TransactionType.LIMIT]
+const LimitTitleTable = TransactionTitleTable[TransactionType.LIMIT];
 export const LimitOrderTextTable: {
-  [status in UniswapXOrderStatus]: { title: string; status: TransactionStatus; statusMessage?: string }
+  [status in UniswapXOrderStatus]: {
+    title: string;
+    status: TransactionStatus;
+    statusMessage?: string;
+  };
 } = {
   [UniswapXOrderStatus.OPEN]: {
     title: LimitTitleTable.PENDING,
@@ -309,7 +325,7 @@ export const LimitOrderTextTable: {
     title: i18n.t('common.limit.cancelled'),
     status: TransactionStatus.Failed,
   },
-}
+};
 
 // Non-exhaustive list of addresses Moonpay uses when sending purchased tokens
 export const MOONPAY_SENDER_ADDRESSES = [
@@ -317,4 +333,4 @@ export const MOONPAY_SENDER_ADDRESSES = [
   '0x151b381058f91cf871e7ea1ee83c45326f61e96d',
   '0xb287eac48ab21c5fb1d3723830d60b4c797555b0',
   '0xd108fd0e8c8e71552a167e7a44ff1d345d233ba6',
-]
+];

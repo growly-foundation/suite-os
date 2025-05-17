@@ -1,14 +1,14 @@
-import { GetHelpHeader } from 'components/Modal/GetHelpHeader'
-import { useTranslation } from 'react-i18next'
-import { Button, Flex, Text } from 'ui/src'
-import { QuestionInCircle } from 'ui/src/components/icons/QuestionInCircle'
-import { Modal } from 'uniswap/src/components/modals/Modal'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
+import { GetHelpHeader } from 'components/Modal/GetHelpHeader';
+import { useTranslation } from 'react-i18next';
+import { Button, Flex, Text } from 'ui/src';
+import { QuestionInCircle } from 'ui/src/components/icons/QuestionInCircle';
+import { Modal } from 'uniswap/src/components/modals/Modal';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
 
 interface ResetCreatePositionFormModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onHandleReset: () => void
+  isOpen: boolean;
+  onClose: () => void;
+  onHandleReset: () => void;
 }
 
 export default function ResetCreatePositionFormModal({
@@ -16,12 +16,12 @@ export default function ResetCreatePositionFormModal({
   onClose,
   onHandleReset,
 }: ResetCreatePositionFormModalProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const handleReset = () => {
-    onHandleReset()
-    onClose()
-  }
+    onHandleReset();
+    onClose();
+  };
 
   return (
     <Modal
@@ -31,8 +31,7 @@ export default function ResetCreatePositionFormModal({
       gap="$gap24"
       padding="$padding16"
       isModalOpen={isOpen}
-      maxWidth={420}
-    >
+      maxWidth={420}>
       <Flex row justifyContent="flex-end" alignItems="center" gap="$spacing8" width="100%">
         <GetHelpHeader closeModal={onClose} />
       </Flex>
@@ -56,5 +55,5 @@ export default function ResetCreatePositionFormModal({
         </Flex>
       </Flex>
     </Modal>
-  )
+  );
 }

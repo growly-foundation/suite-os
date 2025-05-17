@@ -1,7 +1,7 @@
 // this allows us to use es6, es2017, es2018 syntax (const, spread operators outside of array literals, etc.)
 /* eslint-env es6, es2017, es2018 */
 
-const { native: restrictedImports } = require('@uniswap/eslint-config/restrictedImports')
+const { native: restrictedImports } = require('@uniswap/eslint-config/restrictedImports');
 
 module.exports = {
   root: true,
@@ -114,7 +114,8 @@ module.exports = {
       },
       {
         selector: "CallExpression[callee.object.name='z'][callee.property.name='any']",
-        message: 'Avoid using z.any() in favor of more precise custom types, unless absolutely necessary.',
+        message:
+          'Avoid using z.any() in favor of more precise custom types, unless absolutely necessary.',
       },
     ],
     // React Plugin
@@ -159,7 +160,7 @@ module.exports = {
         '@typescript-eslint/no-restricted-imports': [
           'error',
           {
-            paths: restrictedImports.paths.filter((rule) => rule.name !== 'expo-haptics'),
+            paths: restrictedImports.paths.filter(rule => rule.name !== 'expo-haptics'),
           },
         ],
       },
@@ -168,7 +169,10 @@ module.exports = {
       // enable these rules specifically for TypeScript files
       files: ['*.ts', '*.mts', '*.cts', '*.tsx'],
       rules: {
-        '@typescript-eslint/explicit-function-return-type': ['error', { allowedNames: ['useEffect'] }],
+        '@typescript-eslint/explicit-function-return-type': [
+          'error',
+          { allowedNames: ['useEffect'] },
+        ],
       },
     },
     {
@@ -206,7 +210,8 @@ module.exports = {
             forbid: [
               {
                 element: 'div',
-                message: 'Please avoid using div when possible, even in web code! Use `Flex` or  Fragments (`<>`).',
+                message:
+                  'Please avoid using div when possible, even in web code! Use `Flex` or  Fragments (`<>`).',
               },
             ],
           },
@@ -221,4 +226,4 @@ module.exports = {
       },
     },
   ],
-}
+};

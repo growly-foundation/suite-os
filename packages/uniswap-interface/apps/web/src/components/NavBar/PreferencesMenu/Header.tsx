@@ -1,6 +1,6 @@
-import { ReactNode } from 'react'
-import { Flex, Text, styled } from 'ui/src'
-import { ChevronLeft } from 'ui/src/components/icons/ChevronLeft'
+import { ReactNode } from 'react';
+import { Flex, Text, styled } from 'ui/src';
+import { ChevronLeft } from 'ui/src/components/icons/ChevronLeft';
 
 const Header = styled(Flex, {
   flexDirection: 'row',
@@ -14,20 +14,22 @@ const Header = styled(Flex, {
       true: { cursor: 'pointer' },
     },
   },
-})
+});
 
 interface TPreferencesHeaderProps {
-  children: ReactNode
-  onExitMenu?: () => void
+  children: ReactNode;
+  onExitMenu?: () => void;
 }
 
 export function PreferencesHeader({ children, onExitMenu }: TPreferencesHeaderProps) {
   return (
     <Header clickable={!!onExitMenu} onPress={() => onExitMenu?.()} group>
-      {onExitMenu && <ChevronLeft size="$icon.24" color="$neutral1" $group-hover={{ opacity: 0.6 }} />}
+      {onExitMenu && (
+        <ChevronLeft size="$icon.24" color="$neutral1" $group-hover={{ opacity: 0.6 }} />
+      )}
       <Text variant="subheading1" color="$neutral1" textAlign="left" width="100%">
         {children}
       </Text>
     </Header>
-  )
+  );
 }

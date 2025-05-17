@@ -1,16 +1,16 @@
-import { NATIVE_CHAIN_ID } from 'constants/tokens'
-import { searchTokenToTokenSearchResult } from 'lib/utils/searchBar'
-import { getNativeAddress } from 'uniswap/src/constants/addresses'
+import { NATIVE_CHAIN_ID } from 'constants/tokens';
+import { searchTokenToTokenSearchResult } from 'lib/utils/searchBar';
+import { getNativeAddress } from 'uniswap/src/constants/addresses';
 import {
   Chain,
   ProtectionResult,
   SafetyLevel,
   TokenStandard,
-} from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { TokenList } from 'uniswap/src/features/dataApi/types'
-import { getCurrencySafetyInfo } from 'uniswap/src/features/dataApi/utils'
-import { SearchResultType, TokenSearchResult } from 'uniswap/src/features/search/SearchResult'
+} from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import { TokenList } from 'uniswap/src/features/dataApi/types';
+import { getCurrencySafetyInfo } from 'uniswap/src/features/dataApi/utils';
+import { SearchResultType, TokenSearchResult } from 'uniswap/src/features/search/SearchResult';
 
 describe('searchBar', () => {
   describe('searchTokenToTokenSearchResult', () => {
@@ -23,9 +23,12 @@ describe('searchBar', () => {
           logoUrl: 'eth-logo.png',
           symbol: 'ETH',
           name: 'Ethereum',
-          safetyInfo: getCurrencySafetyInfo(SafetyLevel.Verified, { attackTypes: [], result: ProtectionResult.Benign }),
+          safetyInfo: getCurrencySafetyInfo(SafetyLevel.Verified, {
+            attackTypes: [],
+            result: ProtectionResult.Benign,
+          }),
           feeData: null,
-        }
+        };
 
         expect(
           searchTokenToTokenSearchResult({
@@ -48,8 +51,8 @@ describe('searchBar', () => {
               attackTypes: [],
               result: ProtectionResult.Benign,
             },
-          }),
-        ).toEqual(ethSearchResult)
+          })
+        ).toEqual(ethSearchResult);
 
         expect(
           searchTokenToTokenSearchResult({
@@ -70,7 +73,7 @@ describe('searchBar', () => {
               attackTypes: [],
               result: ProtectionResult.Benign,
             },
-          }),
+          })
         ).toEqual({
           type: SearchResultType.Token,
           chainId: UniverseChainId.Polygon,
@@ -84,9 +87,9 @@ describe('searchBar', () => {
             attackType: undefined,
             protectionResult: ProtectionResult.Benign,
           },
-        } as TokenSearchResult)
-      })
-    })
+        } as TokenSearchResult);
+      });
+    });
     describe(`${TokenStandard.Erc20}`, () => {
       it('accepts a searchToken and returns a TokenSearchResult', () => {
         const tokenSearchResult: TokenSearchResult = {
@@ -102,7 +105,7 @@ describe('searchBar', () => {
             attackType: undefined,
             protectionResult: ProtectionResult.Benign,
           },
-        }
+        };
 
         expect(
           searchTokenToTokenSearchResult({
@@ -123,9 +126,9 @@ describe('searchBar', () => {
               attackTypes: [],
               result: ProtectionResult.Benign,
             },
-          }),
-        ).toEqual(tokenSearchResult)
-      })
-    })
-  })
-})
+          })
+        ).toEqual(tokenSearchResult);
+      });
+    });
+  });
+});

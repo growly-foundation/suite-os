@@ -1,4 +1,4 @@
-import { isWeb, Stack, styled } from 'tamagui'
+import { isWeb, Stack, styled } from 'tamagui';
 
 export const Separator = styled(Stack, {
   name: 'Separator',
@@ -31,4 +31,4 @@ export const Separator = styled(Stack, {
       },
     },
   } as const,
-})
+});

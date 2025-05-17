@@ -1,24 +1,28 @@
-import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb'
-import CreatingPoolInfo from 'components/CreatingPoolInfo/CreatingPoolInfo'
-import { LiquidityPositionInfoBadges } from 'components/Liquidity/LiquidityPositionInfoBadges'
-import { getProtocolVersionLabel } from 'components/Liquidity/utils'
-import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo'
+import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb';
+import CreatingPoolInfo from 'components/CreatingPoolInfo/CreatingPoolInfo';
+import { LiquidityPositionInfoBadges } from 'components/Liquidity/LiquidityPositionInfoBadges';
+import { getProtocolVersionLabel } from 'components/Liquidity/utils';
+import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo';
 import {
   useCreatePositionContext,
   useDepositContext,
   usePriceRangeContext,
-} from 'pages/Pool/Positions/create/CreatePositionContext'
-import { DisplayCurrentPrice } from 'pages/Pool/Positions/create/RangeSelectionStep'
-import { Container } from 'pages/Pool/Positions/create/shared'
-import { PositionFlowStep } from 'pages/Pool/Positions/create/types'
-import { useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Button, Flex, FlexProps, Text, useMedia } from 'ui/src'
-import { Edit } from 'ui/src/components/icons/Edit'
-import { iconSizes } from 'ui/src/theme'
+} from 'pages/Pool/Positions/create/CreatePositionContext';
+import { DisplayCurrentPrice } from 'pages/Pool/Positions/create/RangeSelectionStep';
+import { Container } from 'pages/Pool/Positions/create/shared';
+import { PositionFlowStep } from 'pages/Pool/Positions/create/types';
+import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Button, Flex, FlexProps, Text, useMedia } from 'ui/src';
+import { Edit } from 'ui/src/components/icons/Edit';
+import { iconSizes } from 'ui/src/theme';
 
-const EditStep = ({ children, onClick, ...rest }: { children: JSX.Element; onClick: () => void } & FlexProps) => {
-  const { t } = useTranslation()
+const EditStep = ({
+  children,
+  onClick,
+  ...rest
+}: { children: JSX.Element; onClick: () => void } & FlexProps) => {
+  const { t } = useTranslation();
   return (
     <Container row gap="$gap24" justifyContent="space-between" alignItems="center" {...rest}>
       {children}
@@ -28,37 +32,40 @@ const EditStep = ({ children, onClick, ...rest }: { children: JSX.Element; onCli
           emphasis="secondary"
           size="small"
           onPress={onClick}
-          icon={<Edit size="$icon.20" />}
-        >
+          icon={<Edit size="$icon.20" />}>
           {t('common.edit.button')}
         </Button>
       </Flex>
     </Container>
-  )
-}
+  );
+};
 
 export const EditSelectTokensStep = (props?: FlexProps) => {
-  const { setStep, derivedPositionInfo, positionState } = useCreatePositionContext()
-  const { reset: resetPriceRangeState } = usePriceRangeContext()
-  const { reset: resetDepositState } = useDepositContext()
+  const { setStep, derivedPositionInfo, positionState } = useCreatePositionContext();
+  const { reset: resetPriceRangeState } = usePriceRangeContext();
+  const { reset: resetDepositState } = useDepositContext();
 
-  const { creatingPoolOrPair, currencies, protocolVersion, defaultInitialPrice } = derivedPositionInfo
-  const { fee, hook } = positionState
-  const [token0, token1] = currencies
-  const versionLabel = getProtocolVersionLabel(protocolVersion)
-  const media = useMedia()
+  const { creatingPoolOrPair, currencies, protocolVersion, defaultInitialPrice } =
+    derivedPositionInfo;
+  const { fee, hook } = positionState;
+  const [token0, token1] = currencies;
+  const versionLabel = getProtocolVersionLabel(protocolVersion);
+  const media = useMedia();
 
   const handleEdit = useCallback(() => {
-    resetPriceRangeState()
-    resetDepositState()
-    setStep(PositionFlowStep.SELECT_TOKENS_AND_FEE_TIER)
-  }, [resetDepositState, resetPriceRangeState, setStep])
+    resetPriceRangeState();
+    resetDepositState();
+    setStep(PositionFlowStep.SELECT_TOKENS_AND_FEE_TIER);
+  }, [resetDepositState, resetPriceRangeState, setStep]);
 
   return (
     <EditStep onClick={handleEdit} {...props}>
       <Flex gap="$gap12" width="100%">
         <Flex row gap="$gap12">
-          <DoubleCurrencyLogo currencies={[token0, token1]} size={media.md ? iconSizes.icon44 : iconSizes.icon32} />
+          <DoubleCurrencyLogo
+            currencies={[token0, token1]}
+            size={media.md ? iconSizes.icon44 : iconSizes.icon32}
+          />
           <Flex row gap="$gap12" $md={{ flexDirection: 'column', gap: '$gap4' }}>
             <Flex row gap="$gap8" alignItems="center">
               <Text variant="subheading1">{token0?.symbol}</Text>
@@ -82,5 +89,5 @@ export const EditSelectTokensStep = (props?: FlexProps) => {
         ) : null}
       </Flex>
     </EditStep>
-  )
-}
+  );
+};

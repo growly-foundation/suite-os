@@ -1,19 +1,25 @@
-import { useTheme } from 'lib/styled-components'
-import { colors } from 'theme/colors'
+import { useTheme } from 'lib/styled-components';
+import { colors } from 'theme/colors';
 
-type SVGProps = React.SVGProps<SVGSVGElement> & { fill?: string }
+type SVGProps = React.SVGProps<SVGSVGElement> & { fill?: string };
 
 const useEmptyStateIconColors = () => {
-  const theme = useTheme()
-  const primary = theme.darkMode ? colors.gray150 : colors.gray600
-  const secondary = theme.darkMode ? colors.gray600 : colors.gray300
-  return { primary, secondary }
-}
+  const theme = useTheme();
+  const primary = theme.darkMode ? colors.gray150 : colors.gray600;
+  const secondary = theme.darkMode ? colors.gray600 : colors.gray300;
+  return { primary, secondary };
+};
 
 export const EmptyActivityIcon = (props: SVGProps) => {
-  const { primary, secondary } = useEmptyStateIconColors()
+  const { primary, secondary } = useEmptyStateIconColors();
   return (
-    <svg {...props} width="102" height="94" viewBox="0 0 102 94" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      {...props}
+      width="102"
+      height="94"
+      viewBox="0 0 102 94"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg">
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -33,13 +39,19 @@ export const EmptyActivityIcon = (props: SVGProps) => {
         fill={primary}
       />
     </svg>
-  )
-}
+  );
+};
 
 export const EmptyNftsIcon = (props: SVGProps) => {
-  const { primary } = useEmptyStateIconColors()
+  const { primary } = useEmptyStateIconColors();
   return (
-    <svg {...props} width="116" height="116" viewBox="0 0 116 116" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      {...props}
+      width="116"
+      height="116"
+      viewBox="0 0 116 116"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg">
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -53,13 +65,19 @@ export const EmptyNftsIcon = (props: SVGProps) => {
         fill={primary}
       />
     </svg>
-  )
-}
+  );
+};
 
 export const EmptyPoolsIcon = (props: SVGProps) => {
-  const { primary, secondary } = useEmptyStateIconColors()
+  const { primary, secondary } = useEmptyStateIconColors();
   return (
-    <svg {...props} width="81" height="97" viewBox="0 0 81 85" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      {...props}
+      width="81"
+      height="97"
+      viewBox="0 0 81 85"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg">
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -74,13 +92,19 @@ export const EmptyPoolsIcon = (props: SVGProps) => {
         strokeLinejoin="round"
       />
     </svg>
-  )
-}
+  );
+};
 
 export const EmptyTokensIcon = (props: SVGProps) => {
-  const { primary, secondary } = useEmptyStateIconColors()
+  const { primary, secondary } = useEmptyStateIconColors();
   return (
-    <svg {...props} width="91" height="80" viewBox="0 0 91 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      {...props}
+      width="91"
+      height="80"
+      viewBox="0 0 91 80"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg">
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -94,5 +118,5 @@ export const EmptyTokensIcon = (props: SVGProps) => {
         fill={primary}
       />
     </svg>
-  )
-}
+  );
+};

@@ -1,13 +1,16 @@
-import { Gesture, GestureDetector } from 'react-native-gesture-handler'
-import { ClickableWithinGestureProps } from 'ui/src/components/swipeablecards/props'
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { ClickableWithinGestureProps } from 'ui/src/components/swipeablecards/props';
 
-export function ClickableWithinGesture({ onPress, children }: ClickableWithinGestureProps): JSX.Element {
+export function ClickableWithinGesture({
+  onPress,
+  children,
+}: ClickableWithinGestureProps): JSX.Element {
   const tap = Gesture.Tap()
     .enabled(!!onPress)
     .runOnJS(true)
     .onEnd(() => {
-      onPress?.()
-    })
+      onPress?.();
+    });
 
-  return <GestureDetector gesture={tap}>{children}</GestureDetector>
+  return <GestureDetector gesture={tap}>{children}</GestureDetector>;
 }

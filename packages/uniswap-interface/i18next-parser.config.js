@@ -79,4 +79,4 @@ module.exports = {
   //   description: "${maxLength}", // t('my-key', {maxLength: 150})
   // }
   customValueTemplate: null,
-}
+};

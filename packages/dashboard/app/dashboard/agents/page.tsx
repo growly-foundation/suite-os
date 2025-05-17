@@ -17,11 +17,12 @@ const AnimatedLoadingSmall = dynamic(
 );
 
 export default function AgentsPage() {
-  const { agentStatus, fetchOrganizationAgents, organizationAgents } = useDashboardState();
+  const { agentStatus, fetchOrganizationAgents, organizationAgents, selectedOrganization } =
+    useDashboardState();
 
   useEffect(() => {
     fetchOrganizationAgents();
-  }, [fetchOrganizationAgents]);
+  }, [fetchOrganizationAgents, selectedOrganization]);
 
   return (
     <div className="flex flex-col gap-6 p-6 md:gap-8 md:p-8">

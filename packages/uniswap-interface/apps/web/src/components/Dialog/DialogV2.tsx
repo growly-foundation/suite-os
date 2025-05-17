@@ -1,35 +1,35 @@
-import { GetHelpHeader } from 'components/Modal/GetHelpHeader'
-import React from 'react'
-import { Button, ButtonEmphasis, ButtonVariant, Flex, FlexProps, Text, TextProps } from 'ui/src'
-import { Modal } from 'uniswap/src/components/modals/Modal'
-import { LearnMoreLink } from 'uniswap/src/components/text/LearnMoreLink'
-import { ModalNameType } from 'uniswap/src/features/telemetry/constants'
-import { isExtension } from 'utilities/src/platform'
+import { GetHelpHeader } from 'components/Modal/GetHelpHeader';
+import React from 'react';
+import { Button, ButtonEmphasis, ButtonVariant, Flex, FlexProps, Text, TextProps } from 'ui/src';
+import { Modal } from 'uniswap/src/components/modals/Modal';
+import { LearnMoreLink } from 'uniswap/src/components/text/LearnMoreLink';
+import { ModalNameType } from 'uniswap/src/features/telemetry/constants';
+import { isExtension } from 'utilities/src/platform';
 
 interface DialogV2Props {
-  isOpen: boolean
-  onClose: () => void
-  icon: React.ReactNode
-  title: string
-  subtext: string | React.ReactNode
-  learnMoreUrl?: string
-  learnMoreTextColor?: string
-  learnMoreTextVariant?: TextProps['variant']
-  modalName: ModalNameType
-  primaryButtonText: string
-  primaryButtonOnClick: () => void
-  primaryButtonVariant?: ButtonVariant
-  primaryButtonEmphasis?: ButtonEmphasis
-  isPrimaryButtonLoading?: boolean
-  secondaryButtonText?: string
-  secondaryButtonOnClick?: () => void
-  secondaryButtonVariant?: ButtonVariant
-  secondaryButtonEmphasis?: ButtonEmphasis
-  buttonContainerProps?: FlexProps
-  children?: React.ReactNode
-  alignment?: 'top' | 'center'
-  displayHelpCTA?: boolean
-  textAlign?: 'center' | 'left'
+  isOpen: boolean;
+  onClose: () => void;
+  icon: React.ReactNode;
+  title: string;
+  subtext: string | React.ReactNode;
+  learnMoreUrl?: string;
+  learnMoreTextColor?: string;
+  learnMoreTextVariant?: TextProps['variant'];
+  modalName: ModalNameType;
+  primaryButtonText: string;
+  primaryButtonOnClick: () => void;
+  primaryButtonVariant?: ButtonVariant;
+  primaryButtonEmphasis?: ButtonEmphasis;
+  isPrimaryButtonLoading?: boolean;
+  secondaryButtonText?: string;
+  secondaryButtonOnClick?: () => void;
+  secondaryButtonVariant?: ButtonVariant;
+  secondaryButtonEmphasis?: ButtonEmphasis;
+  buttonContainerProps?: FlexProps;
+  children?: React.ReactNode;
+  alignment?: 'top' | 'center';
+  displayHelpCTA?: boolean;
+  textAlign?: 'center' | 'left';
 }
 
 export function DialogV2({
@@ -64,8 +64,7 @@ export function DialogV2({
         flexDirection="column"
         alignItems={textAlign === 'center' ? 'center' : 'flex-start'}
         p="$spacing12"
-        gap="$spacing8"
-      >
+        gap="$spacing8">
         {icon}
         <Text variant="subheading1" color="$neutral1" mt="$spacing8">
           {title}
@@ -78,7 +77,11 @@ export function DialogV2({
           subtext
         )}
         {learnMoreUrl && (
-          <LearnMoreLink url={learnMoreUrl} textColor={learnMoreTextColor} textVariant={learnMoreTextVariant} />
+          <LearnMoreLink
+            url={learnMoreUrl}
+            textColor={learnMoreTextColor}
+            textVariant={learnMoreTextVariant}
+          />
         )}
         {children}
         <Flex gap="$spacing8" width="100%" mt="$spacing16" {...buttonContainerProps}>
@@ -87,8 +90,7 @@ export function DialogV2({
             emphasis={primaryButtonEmphasis}
             minHeight="$spacing48"
             onPress={primaryButtonOnClick}
-            loading={isPrimaryButtonLoading}
-          >
+            loading={isPrimaryButtonLoading}>
             {primaryButtonText}
           </Button>
           {secondaryButtonText && secondaryButtonOnClick && (
@@ -96,13 +98,12 @@ export function DialogV2({
               variant={secondaryButtonVariant}
               emphasis={secondaryButtonEmphasis}
               minHeight="$spacing48"
-              onPress={secondaryButtonOnClick}
-            >
+              onPress={secondaryButtonOnClick}>
               {secondaryButtonText}
             </Button>
           )}
         </Flex>
       </Flex>
     </Modal>
-  )
+  );
 }

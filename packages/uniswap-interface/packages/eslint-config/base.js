@@ -3,7 +3,7 @@
 // This is dangerous as it hides accidentally undefined variables.
 // We blocklist the globals that we deem potentially confusing.
 // To use them, explicitly reference them, e.g. `window.name` or `window.status`.
-const restrictedGlobals = require('confusing-browser-globals')
+const restrictedGlobals = require('confusing-browser-globals');
 
 module.exports = {
   env: {
@@ -66,7 +66,10 @@ module.exports = {
     'no-restricted-globals': ['error'].concat(restrictedGlobals),
 
     // Custom Rules
-    'local-rules/no-unwrapped-t': ['error', { blockedElements: ['Flex', 'AnimatedFlex', 'TouchableArea', 'Trace'] }],
+    'local-rules/no-unwrapped-t': [
+      'error',
+      { blockedElements: ['Flex', 'AnimatedFlex', 'TouchableArea', 'Trace'] },
+    ],
 
     '@typescript-eslint/no-unused-vars': [
       'error',
@@ -121,7 +124,8 @@ module.exports = {
             forbid: [
               {
                 element: 'div',
-                message: 'Please avoid using div when possible, even in web code! Use `Flex` or  Fragments (`<>`).',
+                message:
+                  'Please avoid using div when possible, even in web code! Use `Flex` or  Fragments (`<>`).',
               },
             ],
           },
@@ -149,4 +153,4 @@ module.exports = {
       plugins: ['cypress'],
     },
   ],
-}
+};

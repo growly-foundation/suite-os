@@ -1,11 +1,11 @@
-import { Path, Svg } from 'react-native-svg'
+import { Path, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [DoubleChevron, AnimatedDoubleChevron] = createIcon({
   name: 'DoubleChevron',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg viewBox="0 0 28 28" fill="none" {...props}>
       <Path
         d="M13.9912 11.9609C14.2812 11.9609 14.5273 11.8379 14.8086 11.6094L20.75 6.81055C20.9609 6.62598 21.0928 6.3623 21.0928 6.0459C21.0928 5.43945 20.6094 5 20.0557 5C19.8008 5 19.5371 5.10547 19.291 5.30762L14 9.5791L8.7002 5.30762C8.44531 5.10547 8.19043 5 7.93555 5C7.38184 5 6.89844 5.43945 6.89844 6.0459C6.89844 6.3623 7.03027 6.62598 7.24121 6.81055L13.1738 11.6006C13.4639 11.8379 13.71 11.9609 13.9912 11.9609Z"
@@ -17,4 +17,4 @@ export const [DoubleChevron, AnimatedDoubleChevron] = createIcon({
       />
     </Svg>
   ),
-})
+});

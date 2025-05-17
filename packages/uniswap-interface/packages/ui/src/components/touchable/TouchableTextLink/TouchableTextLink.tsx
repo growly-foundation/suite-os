@@ -1,38 +1,56 @@
-import { ForwardedRef, forwardRef, memo, useMemo, useRef } from 'react'
-import { GestureResponderEvent, Linking } from 'react-native'
-import { styled, type ColorTokens, type TamaguiElement } from 'tamagui'
-import { Text, type TextProps } from 'ui/src/components/text'
-import { TouchableAreaFrame } from 'ui/src/components/touchable/TouchableArea/TouchableAreaFrame'
-import type { TouchableAreaProps } from 'ui/src/components/touchable/TouchableArea/types'
-import { getMaybeHoverColor } from 'ui/src/theme'
-import { logger } from 'utilities/src/logger/logger'
-import { isMobileApp } from 'utilities/src/platform'
-import { useEvent } from 'utilities/src/react/hooks'
+import { ForwardedRef, forwardRef, memo, useMemo, useRef } from 'react';
+import { GestureResponderEvent, Linking } from 'react-native';
+import { styled, type ColorTokens, type TamaguiElement } from 'tamagui';
+import { Text, type TextProps } from 'ui/src/components/text';
+import { TouchableAreaFrame } from 'ui/src/components/touchable/TouchableArea/TouchableAreaFrame';
+import type { TouchableAreaProps } from 'ui/src/components/touchable/TouchableArea/types';
+import { getMaybeHoverColor } from 'ui/src/theme';
+import { logger } from 'utilities/src/logger/logger';
+import { isMobileApp } from 'utilities/src/platform';
+import { useEvent } from 'utilities/src/react/hooks';
 
 type PropsFromText = Pick<
   TextProps,
-  'textTransform' | 'allowFontScaling' | 'adjustsFontSizeToFit' | 'textAlign' | 'flex' | 'flexGrow' | 'flexShrink'
->
+  | 'textTransform'
+  | 'allowFontScaling'
+  | 'adjustsFontSizeToFit'
+  | 'textAlign'
+  | 'flex'
+  | 'flexGrow'
+  | 'flexShrink'
+>;
 
-type PropsFromTouchableArea = Pick<TouchableAreaProps, 'onPress' | 'disabled' | 'disabledStyle' | 'forceStyle'>
+type PropsFromTouchableArea = Pick<
+  TouchableAreaProps,
+  'onPress' | 'disabled' | 'disabledStyle' | 'forceStyle'
+>;
 
 type OwnProps = {
-  children: string
-  variant?: Extract<TextProps['variant'], 'buttonLabel1' | 'buttonLabel2' | 'buttonLabel3' | 'buttonLabel4'>
+  children: string;
+  variant?: Extract<
+    TextProps['variant'],
+    'buttonLabel1' | 'buttonLabel2' | 'buttonLabel3' | 'buttonLabel4'
+  >;
   color?: Extract<
     ColorTokens,
-    '$neutral1' | '$neutral2' | '$neutral3' | '$accent1' | '$statusSuccess' | '$statusWarning' | '$statusCritical'
-  >
-  link: string
-  target?: TextProps['target']
-  onlyUseText?: boolean
-}
+    | '$neutral1'
+    | '$neutral2'
+    | '$neutral3'
+    | '$accent1'
+    | '$statusSuccess'
+    | '$statusWarning'
+    | '$statusCritical'
+  >;
+  link: string;
+  target?: TextProps['target'];
+  onlyUseText?: boolean;
+};
 
-export type TouchableTextLinkProps = PropsFromText & PropsFromTouchableArea & OwnProps
+export type TouchableTextLinkProps = PropsFromText & PropsFromTouchableArea & OwnProps;
 
 const PLATFORM_WEB_PROPS: Partial<TextProps['$platform-web']> = {
   textUnderlinePosition: 'from-font',
-}
+};
 
 const TouchableTextLinkFrame = styled(TouchableAreaFrame, {
   name: 'TouchableTextLink',
@@ -44,134 +62,133 @@ const TouchableTextLinkFrame = styled(TouchableAreaFrame, {
   hoverStyle: undefined,
   focusVisibleStyle: undefined,
   borderRadius: '$none',
-})
+});
 
-const TouchableTextLink_ = forwardRef<TamaguiElement, TouchableTextLinkProps>(function TouchableTextLink(
-  {
-    children,
-    variant = 'buttonLabel1',
-    color = '$neutral1',
-    link,
-    onPress,
-    target = '_blank',
-    disabled,
-    disabledStyle,
-    forceStyle,
-    onlyUseText,
-    ...textProps
-  },
-  ref,
-) {
-  const textRef = useRef<TamaguiElement>() as unknown as ForwardedRef<TamaguiElement>
+const TouchableTextLink_ = forwardRef<TamaguiElement, TouchableTextLinkProps>(
+  function TouchableTextLink(
+    {
+      children,
+      variant = 'buttonLabel1',
+      color = '$neutral1',
+      link,
+      onPress,
+      target = '_blank',
+      disabled,
+      disabledStyle,
+      forceStyle,
+      onlyUseText,
+      ...textProps
+    },
+    ref
+  ) {
+    const textRef = useRef<TamaguiElement>() as unknown as ForwardedRef<TamaguiElement>;
 
-  const hoveredColor = getMaybeHoverColor(color)
+    const hoveredColor = getMaybeHoverColor(color);
 
-  const colorConsideringDisabled = disabled ? '$neutral2' : color
+    const colorConsideringDisabled = disabled ? '$neutral2' : color;
 
-  const hoverStyle = useMemo(
-    (): TextProps['$group-item-hover'] => ({ color: disabled ? undefined : hoveredColor }),
-    [disabled, hoveredColor],
-  )
+    const hoverStyle = useMemo(
+      (): TextProps['$group-item-hover'] => ({ color: disabled ? undefined : hoveredColor }),
+      [disabled, hoveredColor]
+    );
 
-  const focusVisibleStyle = useMemo(
-    (): TextProps['$group-item-focusVisible'] => ({
-      color: hoveredColor,
-      textDecorationStyle: 'unset',
-      textDecorationColor: hoveredColor,
-      textDecorationLine: 'underline',
-      textDecorationDistance: 1,
-    }),
-    [hoveredColor],
-  )
+    const focusVisibleStyle = useMemo(
+      (): TextProps['$group-item-focusVisible'] => ({
+        color: hoveredColor,
+        textDecorationStyle: 'unset',
+        textDecorationColor: hoveredColor,
+        textDecorationLine: 'underline',
+        textDecorationDistance: 1,
+      }),
+      [hoveredColor]
+    );
 
-  const handleOnPressWithLink = useEvent(async (event: GestureResponderEvent): Promise<void> => {
-    onPress?.(event)
+    const handleOnPressWithLink = useEvent(async (event: GestureResponderEvent): Promise<void> => {
+      onPress?.(event);
 
-    if (isMobileApp) {
-      try {
-        await Linking.openURL(link)
-      } catch (error) {
-        logger.error(error, {
-          tags: {
-            file: 'TouchableTextLink',
-            function: 'handleOnPressWithLink',
-          },
-        })
+      if (isMobileApp) {
+        try {
+          await Linking.openURL(link);
+        } catch (error) {
+          logger.error(error, {
+            tags: {
+              file: 'TouchableTextLink',
+              function: 'handleOnPressWithLink',
+            },
+          });
+        }
+      } else {
+        // Web
+        // We need to blur it after the link is pressed so that it is not focused when the link is not focused
+        setTimeout(() => {
+          if (ref && 'current' in ref) {
+            ref.current?.blur?.();
+          }
+
+          if (textRef && 'current' in textRef) {
+            textRef.current?.blur?.();
+          }
+        }, 0);
       }
-    } else {
-      // Web
-      // We need to blur it after the link is pressed so that it is not focused when the link is not focused
-      setTimeout(() => {
-        if (ref && 'current' in ref) {
-          ref.current?.blur?.()
-        }
+    });
 
-        if (textRef && 'current' in textRef) {
-          textRef.current?.blur?.()
-        }
-      }, 0)
+    if (onlyUseText) {
+      return (
+        <Text
+          ref={ref ?? textRef}
+          aria-disabled={disabled}
+          disabled={disabled}
+          focusStyle={focusVisibleStyle}
+          $group-item-focusVisible={focusVisibleStyle}
+          textDecorationLine="none"
+          hoverStyle={hoverStyle}
+          $platform-web={PLATFORM_WEB_PROPS}
+          variant={variant}
+          color={colorConsideringDisabled}
+          forceStyle={forceStyle}
+          outlineStyle="none"
+          href={disabled ? undefined : link}
+          target={target}
+          tag="a"
+          role="link"
+          onPress={handleOnPressWithLink}
+          {...textProps}>
+          {children}
+        </Text>
+      );
     }
-  })
 
-  if (onlyUseText) {
     return (
-      <Text
-        ref={ref ?? textRef}
-        aria-disabled={disabled}
+      <TouchableTextLinkFrame
         disabled={disabled}
-        focusStyle={focusVisibleStyle}
-        $group-item-focusVisible={focusVisibleStyle}
-        textDecorationLine="none"
-        hoverStyle={hoverStyle}
-        $platform-web={PLATFORM_WEB_PROPS}
-        variant={variant}
-        color={colorConsideringDisabled}
+        disabledStyle={disabledStyle}
         forceStyle={forceStyle}
-        outlineStyle="none"
-        href={disabled ? undefined : link}
-        target={target}
-        tag="a"
-        role="link"
-        onPress={handleOnPressWithLink}
-        {...textProps}
-      >
-        {children}
-      </Text>
-    )
+        aria-disabled={disabled}
+        onPress={handleOnPressWithLink}>
+        <Text
+          ref={ref ?? textRef}
+          aria-disabled={disabled}
+          disabled={disabled}
+          focusStyle={focusVisibleStyle}
+          $group-item-focusVisible={focusVisibleStyle}
+          textDecorationLine="none"
+          $group-item-hover={hoverStyle}
+          $platform-web={PLATFORM_WEB_PROPS}
+          variant={variant}
+          color={colorConsideringDisabled}
+          forceStyle={forceStyle}
+          outlineStyle="none"
+          href={disabled ? undefined : link}
+          target={target}
+          tag="a"
+          role="link"
+          {...textProps}>
+          {children}
+        </Text>
+      </TouchableTextLinkFrame>
+    );
   }
-
-  return (
-    <TouchableTextLinkFrame
-      disabled={disabled}
-      disabledStyle={disabledStyle}
-      forceStyle={forceStyle}
-      aria-disabled={disabled}
-      onPress={handleOnPressWithLink}
-    >
-      <Text
-        ref={ref ?? textRef}
-        aria-disabled={disabled}
-        disabled={disabled}
-        focusStyle={focusVisibleStyle}
-        $group-item-focusVisible={focusVisibleStyle}
-        textDecorationLine="none"
-        $group-item-hover={hoverStyle}
-        $platform-web={PLATFORM_WEB_PROPS}
-        variant={variant}
-        color={colorConsideringDisabled}
-        forceStyle={forceStyle}
-        outlineStyle="none"
-        href={disabled ? undefined : link}
-        target={target}
-        tag="a"
-        role="link"
-        {...textProps}
-      >
-        {children}
-      </Text>
-    </TouchableTextLinkFrame>
-  )
-})
+);
 
 /**
  * `TouchableTextLink` is a specialized component for clickable/tappable pieces of text.
@@ -193,4 +210,4 @@ const TouchableTextLink_ = forwardRef<TamaguiElement, TouchableTextLinkProps>(fu
  * @see Text for text styling options.
  * @see TouchableAreaFrame for the underlying touchable wrapper.
  */
-export const TouchableTextLink = memo(TouchableTextLink_)
+export const TouchableTextLink = memo(TouchableTextLink_);

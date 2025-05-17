@@ -1,9 +1,9 @@
-import { ReactComponent as CandlestickChartIcon } from 'assets/svg/candlestick-chart-icon.svg'
-import { ReactComponent as LineChartIcon } from 'assets/svg/line-chart-icon.svg'
-import { PriceChartType } from 'components/Charts/utils'
-import { MouseoverTooltip } from 'components/Tooltip'
-import { useTranslation } from 'react-i18next'
-import { ColorTokens, Flex, SegmentedControl, useMedia, useSporeColors } from 'ui/src'
+import { ReactComponent as CandlestickChartIcon } from 'assets/svg/candlestick-chart-icon.svg';
+import { ReactComponent as LineChartIcon } from 'assets/svg/line-chart-icon.svg';
+import { PriceChartType } from 'components/Charts/utils';
+import { MouseoverTooltip } from 'components/Tooltip';
+import { useTranslation } from 'react-i18next';
+import { ColorTokens, Flex, SegmentedControl, useMedia, useSporeColors } from 'ui/src';
 
 const CandlestickIcon = ({ color, isDisabled }: { color: ColorTokens; isDisabled?: boolean }) => {
   return (
@@ -15,22 +15,22 @@ const CandlestickIcon = ({ color, isDisabled }: { color: ColorTokens; isDisabled
         style={isDisabled ? { opacity: 0.2, cursor: 'not-allowed' } : {}}
       />
     </Flex>
-  )
-}
+  );
+};
 
 export const AdvancedPriceChartToggle = ({
   currentChartType,
   onChartTypeChange,
   disableCandlestickUI,
 }: {
-  currentChartType: PriceChartType
-  onChartTypeChange: (c: PriceChartType) => void
-  disableCandlestickUI?: boolean
+  currentChartType: PriceChartType;
+  onChartTypeChange: (c: PriceChartType) => void;
+  disableCandlestickUI?: boolean;
 }) => {
-  const { t } = useTranslation()
-  const media = useMedia()
-  const colors = useSporeColors()
-  const iconColor = colors.neutral1.val
+  const { t } = useTranslation();
+  const media = useMedia();
+  const colors = useSporeColors();
+  const iconColor = colors.neutral1.val;
 
   const options = [
     {
@@ -45,27 +45,26 @@ export const AdvancedPriceChartToggle = ({
           text={t('token.chart.candlestick.unavailable')}
           placement="auto"
           disabled={!disableCandlestickUI}
-          style={{ marginTop: 9 }}
-        >
+          style={{ marginTop: 9 }}>
           <CandlestickIcon color={iconColor} isDisabled={disableCandlestickUI} />
         </MouseoverTooltip>
       ),
     },
-  ]
+  ];
 
   return (
     <SegmentedControl
       fullWidth={media.md}
       options={options}
       selectedOption={currentChartType}
-      onSelectOption={(selectedValue) => {
+      onSelectOption={selectedValue => {
         if (disableCandlestickUI && selectedValue === PriceChartType.CANDLESTICK) {
           // ignore the click if candlestick is disabled
-          return
+          return;
         }
-        onChartTypeChange(selectedValue as PriceChartType)
+        onChartTypeChange(selectedValue as PriceChartType);
       }}
       size="default"
     />
-  )
-}
+  );
+};

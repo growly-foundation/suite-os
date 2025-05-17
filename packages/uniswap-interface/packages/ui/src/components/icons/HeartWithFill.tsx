@@ -1,4 +1,4 @@
-import { Path, Svg, SvgProps } from 'react-native-svg'
+import { Path, Svg, SvgProps } from 'react-native-svg';
 
 // WALL-4653: Allows you to customize the `fill` parameter of the `Heart.tsx` component,
 // which prevents the color from fading when the iOS share dialog is opened.
@@ -10,5 +10,5 @@ export function HeartWithFill(props: SvgProps): JSX.Element {
         fill={props.color || 'currentColor'}
       />
     </Svg>
-  )
+  );
 }

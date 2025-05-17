@@ -1,15 +1,16 @@
 import { AggregatedWorkflow } from '@/models/workflows';
-import { Condition, Action } from '@/models/steps';
+import { Condition, Action, Step, ParsedStep } from '@/models/steps';
 import { PublicDatabaseService } from './database.service';
-import { OrganizationId, WorkflowId } from '@/models';
+import { AgentId, OrganizationId, WorkflowId } from '@/models';
 
 export class WorkflowService {
   constructor(
     private workflowDatabaseService: PublicDatabaseService<'workflows'>,
-    private stepDatabaseService: PublicDatabaseService<'steps'>
+    private stepDatabaseService: PublicDatabaseService<'steps'>,
+    private agentWorkflowsDatabaseService: PublicDatabaseService<'agent_workflows'>
   ) {}
 
-  async getWorkflowWithSteps(workflowId: WorkflowId) {
+  async getWorkflowWithSteps(workflowId: WorkflowId): Promise<AggregatedWorkflow | null> {
     try {
       const workflow = await this.workflowDatabaseService.getOneByFields({ id: workflowId });
       if (!workflow) throw new Error('Workflow not found');
@@ -18,17 +19,31 @@ export class WorkflowService {
       });
       return {
         ...workflow,
-        steps: steps.map(step => ({
-          ...step,
-          // Expect an array of conditions and actions.
-          conditions: step.conditions ? (JSON.parse(step.conditions as any) as Condition[]) : [],
-          action: step.action ? (JSON.parse(step.action as any) as Action[]) : [],
-        })),
+        steps: steps.map(this.parseStep),
       };
     } catch (error) {
       console.error(error);
       return null;
     }
+  }
+
+  async getWorkflowsByAgentId(agent_id: AgentId): Promise<AggregatedWorkflow[]> {
+    const workflows = await this.agentWorkflowsDatabaseService.getAllByFields({
+      agent_id,
+    });
+    const aggregatedWorkflows: AggregatedWorkflow[] = [];
+    for (const { workflow_id } of workflows) {
+      const workflow = await this.workflowDatabaseService.getOneByFields({ id: workflow_id });
+      if (!workflow) throw new Error('Workflow not found');
+      const steps = await this.stepDatabaseService.getAllByFields({
+        workflow_id,
+      });
+      aggregatedWorkflows.push({
+        ...workflow,
+        steps: steps.map(this.parseStep),
+      });
+    }
+    return aggregatedWorkflows;
   }
 
   async getWorkflowsByOrganizationId(
@@ -44,14 +59,18 @@ export class WorkflowService {
       });
       aggregatedWorkflows.push({
         ...workflow,
-        steps: steps.map(step => ({
-          ...step,
-          // Expect an array of conditions and actions.
-          conditions: step.conditions ? (JSON.parse(step.conditions as any) as Condition[]) : [],
-          action: step.action ? (JSON.parse(step.action as any) as Action[]) : [],
-        })),
+        steps: steps.map(this.parseStep),
       });
     }
     return aggregatedWorkflows;
+  }
+
+  private parseStep(step: Step): ParsedStep {
+    return {
+      ...step,
+      // Expect an array of conditions and actions.
+      conditions: step.conditions ? (JSON.parse(step.conditions as any) as Condition[]) : [],
+      action: step.action ? (JSON.parse(step.action as any) as Action[]) : [],
+    };
   }
 }

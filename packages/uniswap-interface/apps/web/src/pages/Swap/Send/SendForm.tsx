@@ -1,62 +1,62 @@
-import { InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events'
-import { useAccountDrawer } from 'components/AccountDrawer/MiniPortfolio/hooks'
-import Column from 'components/deprecated/Column'
-import { useAccount } from 'hooks/useAccount'
-import { useGroupedRecentTransfers } from 'hooks/useGroupedRecentTransfers'
-import { useSendCallback } from 'hooks/useSendCallback'
-import { NewAddressSpeedBumpModal } from 'pages/Swap/Send/NewAddressSpeedBump'
-import SendCurrencyInputForm from 'pages/Swap/Send/SendCurrencyInputForm'
-import { SendRecipientForm } from 'pages/Swap/Send/SendRecipientForm'
-import { SendReviewModal } from 'pages/Swap/Send/SendReviewModal'
-import { SmartContractSpeedBumpModal } from 'pages/Swap/Send/SmartContractSpeedBump'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { SendContextProvider, useSendContext } from 'state/send/SendContext'
-import { CurrencyState } from 'state/swap/types'
-import { Button, Flex } from 'ui/src'
-import { useIsSmartContractAddress } from 'uniswap/src/features/address/useIsSmartContractAddress'
-import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { InterfacePageNameLocal } from 'uniswap/src/features/telemetry/constants'
+import { InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events';
+import { useAccountDrawer } from 'components/AccountDrawer/MiniPortfolio/hooks';
+import Column from 'components/deprecated/Column';
+import { useAccount } from 'hooks/useAccount';
+import { useGroupedRecentTransfers } from 'hooks/useGroupedRecentTransfers';
+import { useSendCallback } from 'hooks/useSendCallback';
+import { NewAddressSpeedBumpModal } from 'pages/Swap/Send/NewAddressSpeedBump';
+import SendCurrencyInputForm from 'pages/Swap/Send/SendCurrencyInputForm';
+import { SendRecipientForm } from 'pages/Swap/Send/SendRecipientForm';
+import { SendReviewModal } from 'pages/Swap/Send/SendReviewModal';
+import { SmartContractSpeedBumpModal } from 'pages/Swap/Send/SmartContractSpeedBump';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { SendContextProvider, useSendContext } from 'state/send/SendContext';
+import { CurrencyState } from 'state/swap/types';
+import { Button, Flex } from 'ui/src';
+import { useIsSmartContractAddress } from 'uniswap/src/features/address/useIsSmartContractAddress';
+import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { InterfacePageNameLocal } from 'uniswap/src/features/telemetry/constants';
 
 type SendFormProps = {
-  onCurrencyChange?: (selected: CurrencyState) => void
-  disableTokenInputs?: boolean
-}
+  onCurrencyChange?: (selected: CurrencyState) => void;
+  disableTokenInputs?: boolean;
+};
 
 function useSendButtonState() {
-  const { sendState, derivedSendInfo } = useSendContext()
-  const { recipient } = sendState
-  const { parsedTokenAmount, recipientData } = derivedSendInfo
-  const { t } = useTranslation()
+  const { sendState, derivedSendInfo } = useSendContext();
+  const { recipient } = sendState;
+  const { parsedTokenAmount, recipientData } = derivedSendInfo;
+  const { t } = useTranslation();
 
   return useMemo(() => {
     if (recipient && !recipientData) {
       return {
         label: t('common.invalidRecipient.error'),
         disabled: true,
-      }
+      };
     }
 
     if (!parsedTokenAmount) {
       return {
         label: t('common.noAmount.error'),
         disabled: true,
-      }
+      };
     }
 
     if (!recipient && !recipientData) {
       return {
         label: t('common.input.noRecipient.error'),
         disabled: true,
-      }
+      };
     }
 
     return {
       label: t('common.send.button'),
       disabled: false,
-    }
-  }, [t, parsedTokenAmount, recipient, recipientData])
+    };
+  }, [t, parsedTokenAmount, recipient, recipientData]);
 }
 
 enum SendFormModalState {
@@ -72,52 +72,55 @@ enum SendSpeedBump {
 }
 
 function SendFormInner({ disableTokenInputs = false, onCurrencyChange }: SendFormProps) {
-  const account = useAccount()
-  const { t } = useTranslation()
-  const { defaultChainId } = useEnabledChains()
+  const account = useAccount();
+  const { t } = useTranslation();
+  const { defaultChainId } = useEnabledChains();
 
-  const accountDrawer = useAccountDrawer()
+  const accountDrawer = useAccountDrawer();
 
-  const [sendFormModalState, setSendFormModalState] = useState(SendFormModalState.None)
+  const [sendFormModalState, setSendFormModalState] = useState(SendFormModalState.None);
   const [sendFormSpeedBumpState, setSendFormSpeedBumpState] = useState({
     [SendSpeedBump.NEW_ADDRESS_SPEED_BUMP]: false,
     [SendSpeedBump.SMART_CONTRACT_SPEED_BUMP]: false,
-  })
-  const { sendState, setSendState, derivedSendInfo } = useSendContext()
-  const { inputError, parsedTokenAmount, recipientData, transaction, gasFee } = derivedSendInfo
+  });
+  const { sendState, setSendState, derivedSendInfo } = useSendContext();
+  const { inputError, parsedTokenAmount, recipientData, transaction, gasFee } = derivedSendInfo;
 
-  const { isSmartContractAddress, loading: loadingSmartContractAddress } = useIsSmartContractAddress(
-    recipientData?.address,
-    sendState.inputCurrency?.chainId ?? defaultChainId,
-  )
+  const { isSmartContractAddress, loading: loadingSmartContractAddress } =
+    useIsSmartContractAddress(
+      recipientData?.address,
+      sendState.inputCurrency?.chainId ?? defaultChainId
+    );
 
-  const { transfers: recentTransfers, loading: transfersLoading } = useGroupedRecentTransfers(account.address)
+  const { transfers: recentTransfers, loading: transfersLoading } = useGroupedRecentTransfers(
+    account.address
+  );
   const isRecentAddress = useMemo(() => {
     if (!recipientData?.address) {
-      return undefined
+      return undefined;
     }
 
-    return !!recentTransfers?.[recipientData.address]
-  }, [recentTransfers, recipientData?.address])
+    return !!recentTransfers?.[recipientData.address];
+  }, [recentTransfers, recipientData?.address]);
 
-  const sendButtonState = useSendButtonState()
+  const sendButtonState = useSendButtonState();
   const sendCallback = useSendCallback({
     currencyAmount: parsedTokenAmount,
     recipient: recipientData?.address,
     transactionRequest: transaction,
     gasFee,
-  })
+  });
 
   const handleModalState = useCallback((newState?: SendFormModalState) => {
-    setSendFormModalState(newState ?? SendFormModalState.None)
-  }, [])
+    setSendFormModalState(newState ?? SendFormModalState.None);
+  }, []);
 
   useEffect(() => {
     setSendFormSpeedBumpState(() => ({
       [SendSpeedBump.SMART_CONTRACT_SPEED_BUMP]: isSmartContractAddress,
       [SendSpeedBump.NEW_ADDRESS_SPEED_BUMP]: !isRecentAddress,
-    }))
-  }, [isRecentAddress, isSmartContractAddress, recipientData?.address])
+    }));
+  }, [isRecentAddress, isSmartContractAddress, recipientData?.address]);
 
   const handleSendButton = useCallback(
     (prevSpeedBump?: SendSpeedBump) => {
@@ -125,66 +128,67 @@ function SendFormInner({ disableTokenInputs = false, onCurrencyChange }: SendFor
         prevSpeedBump !== SendSpeedBump.SMART_CONTRACT_SPEED_BUMP &&
         sendFormSpeedBumpState[SendSpeedBump.SMART_CONTRACT_SPEED_BUMP]
       ) {
-        handleModalState(SendFormModalState.SMART_CONTRACT_SPEED_BUMP)
-        return
+        handleModalState(SendFormModalState.SMART_CONTRACT_SPEED_BUMP);
+        return;
       }
 
       if (
         prevSpeedBump !== SendSpeedBump.NEW_ADDRESS_SPEED_BUMP &&
         sendFormSpeedBumpState[SendSpeedBump.NEW_ADDRESS_SPEED_BUMP]
       ) {
-        handleModalState(SendFormModalState.NEW_ADDRESS_SPEED_BUMP)
-        return
+        handleModalState(SendFormModalState.NEW_ADDRESS_SPEED_BUMP);
+        return;
       }
 
-      handleModalState(SendFormModalState.REVIEW)
+      handleModalState(SendFormModalState.REVIEW);
     },
-    [handleModalState, sendFormSpeedBumpState],
-  )
+    [handleModalState, sendFormSpeedBumpState]
+  );
 
   const handleConfirmSmartContractSpeedBump = useCallback(() => {
-    setSendFormSpeedBumpState((prev) => ({
+    setSendFormSpeedBumpState(prev => ({
       ...prev,
       [SendSpeedBump.SMART_CONTRACT_SPEED_BUMP]: false,
-    }))
-    handleModalState(SendFormModalState.None)
-    handleSendButton(SendSpeedBump.SMART_CONTRACT_SPEED_BUMP)
-  }, [handleModalState, handleSendButton])
+    }));
+    handleModalState(SendFormModalState.None);
+    handleSendButton(SendSpeedBump.SMART_CONTRACT_SPEED_BUMP);
+  }, [handleModalState, handleSendButton]);
   const handleCancelSmartContractSpeedBump = useCallback(
     () => handleModalState(SendFormModalState.None),
-    [handleModalState],
-  )
+    [handleModalState]
+  );
 
   const handleConfirmNewAddressSpeedBump = useCallback(() => {
-    setSendFormSpeedBumpState((prev) => ({
+    setSendFormSpeedBumpState(prev => ({
       ...prev,
       [SendSpeedBump.NEW_ADDRESS_SPEED_BUMP]: false,
-    }))
-    handleModalState(SendFormModalState.None)
-    handleSendButton(SendSpeedBump.NEW_ADDRESS_SPEED_BUMP)
-  }, [handleModalState, handleSendButton])
+    }));
+    handleModalState(SendFormModalState.None);
+    handleSendButton(SendSpeedBump.NEW_ADDRESS_SPEED_BUMP);
+  }, [handleModalState, handleSendButton]);
   const handleCancelNewAddressSpeedBump = useCallback(
     () => handleModalState(SendFormModalState.None),
-    [handleModalState],
-  )
+    [handleModalState]
+  );
 
   const handleSend = useCallback(() => {
     sendCallback()
       .then(() => {
-        handleModalState(SendFormModalState.None)
-        setSendState((prev) => ({
+        handleModalState(SendFormModalState.None);
+        setSendState(prev => ({
           ...prev,
           exactAmountToken: undefined,
           exactAmountFiat: '',
           recipient: '',
           validatedRecipient: undefined,
           inputInFiat: true,
-        }))
+        }));
       })
-      .catch(() => undefined)
-  }, [handleModalState, sendCallback, setSendState])
+      .catch(() => undefined);
+  }, [handleModalState, sendCallback, setSendState]);
 
-  const buttonDisabled = !!inputError || loadingSmartContractAddress || transfersLoading || sendButtonState.disabled
+  const buttonDisabled =
+    !!inputError || loadingSmartContractAddress || transfersLoading || sendButtonState.disabled;
 
   return (
     <>
@@ -195,10 +199,14 @@ function SendFormInner({ disableTokenInputs = false, onCurrencyChange }: SendFor
           <Trace
             logPress
             eventOnTrigger={InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED}
-            element={InterfaceElementName.CONNECT_WALLET_BUTTON}
-          >
+            element={InterfaceElementName.CONNECT_WALLET_BUTTON}>
             <Flex row>
-              <Button variant="branded" emphasis="secondary" size="large" fill onPress={accountDrawer.open}>
+              <Button
+                variant="branded"
+                emphasis="secondary"
+                size="large"
+                fill
+                onPress={accountDrawer.open}>
                 {t('common.connectWallet.button')}
               </Button>
             </Flex>
@@ -212,8 +220,7 @@ function SendFormInner({ disableTokenInputs = false, onCurrencyChange }: SendFor
                 size="large"
                 fill
                 isDisabled={buttonDisabled}
-                onPress={() => handleSendButton()}
-              >
+                onPress={() => handleSendButton()}>
                 {sendButtonState.label}
               </Button>
             </Flex>
@@ -236,7 +243,7 @@ function SendFormInner({ disableTokenInputs = false, onCurrencyChange }: SendFor
         onDismiss={handleCancelNewAddressSpeedBump}
       />
     </>
-  )
+  );
 }
 
 export function SendForm(props: SendFormProps) {
@@ -246,5 +253,5 @@ export function SendForm(props: SendFormProps) {
         <SendFormInner {...props} />
       </SendContextProvider>
     </Trace>
-  )
+  );
 }

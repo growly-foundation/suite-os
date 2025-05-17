@@ -1,18 +1,18 @@
-import { OutageCloseButton } from 'components/Banner/Outage/OutageBanner'
-import { useTheme } from 'lib/styled-components'
-import { useState } from 'react'
-import { Globe } from 'react-feather'
-import { useTranslation } from 'react-i18next'
-import { Flex, Text } from 'ui/src'
-import { zIndexes } from 'ui/src/theme'
+import { OutageCloseButton } from 'components/Banner/Outage/OutageBanner';
+import { useTheme } from 'lib/styled-components';
+import { useState } from 'react';
+import { Globe } from 'react-feather';
+import { useTranslation } from 'react-i18next';
+import { Flex, Text } from 'ui/src';
+import { zIndexes } from 'ui/src/theme';
 
 export function MonadOutageBanner() {
-  const { t } = useTranslation()
-  const [hidden, setHidden] = useState(false)
-  const theme = useTheme()
+  const { t } = useTranslation();
+  const [hidden, setHidden] = useState(false);
+  const theme = useTheme();
 
   if (hidden) {
-    return null
+    return null;
   }
 
   return (
@@ -37,8 +37,7 @@ export function MonadOutageBanner() {
       $xs={{
         right: 10,
         left: 10,
-      }}
-    >
+      }}>
       <Flex row p="$spacing8" borderRadius="$rounded20" height="100%">
         <Flex
           centered
@@ -47,8 +46,7 @@ export function MonadOutageBanner() {
           height={45}
           width={45}
           backgroundColor={theme.warning2}
-          borderRadius="$rounded12"
-        >
+          borderRadius="$rounded12">
           <Globe size={28} color={theme.warning2} />
         </Flex>
         <Flex gap="$spacing2" p={10} $xs={{ maxWidth: 270 }} flexShrink={1}>
@@ -62,10 +60,10 @@ export function MonadOutageBanner() {
         <OutageCloseButton
           data-testid="monad-outage-banner"
           onClick={() => {
-            setHidden(true)
+            setHidden(true);
           }}
         />
       </Flex>
     </Flex>
-  )
+  );
 }

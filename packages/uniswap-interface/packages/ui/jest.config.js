@@ -38,11 +38,7 @@ module.exports = {
     ],
   },
   displayName: 'UI Package',
-  collectCoverageFrom: [
-    'src/**/*.{js,ts,tsx}',
-    '!src/**/*.stories.**',
-    '!**/node_modules/**',
-  ],
+  collectCoverageFrom: ['src/**/*.{js,ts,tsx}', '!src/**/*.stories.**', '!**/node_modules/**'],
   coverageThreshold: {
     global: {
       lines: 0,

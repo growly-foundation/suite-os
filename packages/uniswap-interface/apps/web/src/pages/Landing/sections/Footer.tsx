@@ -1,35 +1,35 @@
-import { MenuItem, useMenuContent } from 'components/NavBar/CompanyMenu/Content'
-import { MenuLink } from 'components/NavBar/CompanyMenu/MenuDropdown'
-import { useTabsContent } from 'components/NavBar/Tabs/TabsContent'
-import { useModalState } from 'hooks/useModalState'
-import deprecatedStyled from 'lib/styled-components'
-import { Discord, Github, Twitter } from 'pages/Landing/components/Icons'
-import { Wiggle } from 'pages/Landing/components/animations'
-import { useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Anchor, Flex, Separator, Text, styled } from 'ui/src'
-import { iconSizes } from 'ui/src/theme'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
+import { MenuItem, useMenuContent } from 'components/NavBar/CompanyMenu/Content';
+import { MenuLink } from 'components/NavBar/CompanyMenu/MenuDropdown';
+import { useTabsContent } from 'components/NavBar/Tabs/TabsContent';
+import { useModalState } from 'hooks/useModalState';
+import deprecatedStyled from 'lib/styled-components';
+import { Discord, Github, Twitter } from 'pages/Landing/components/Icons';
+import { Wiggle } from 'pages/Landing/components/animations';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Anchor, Flex, Separator, Text, styled } from 'ui/src';
+import { iconSizes } from 'ui/src/theme';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
 
-const SOCIAL_ICONS_SIZE = `${iconSizes.icon32}px`
+const SOCIAL_ICONS_SIZE = `${iconSizes.icon32}px`;
 
 const SocialIcon = deprecatedStyled(Wiggle)`
   flex: 0;
-  fill: ${(props) => props.theme.neutral1};
+  fill: ${props => props.theme.neutral1};
   cursor: pointer;
   transition: fill;
   transition-duration: 0.2s;
   &:hover {
-    fill: ${(props) => props.$hoverColor};
+    fill: ${props => props.$hoverColor};
   }
-`
+`;
 const PolicyLink = styled(Text, {
   variant: 'body3',
   animation: '100ms',
   color: '$neutral2',
   cursor: 'pointer',
   hoverStyle: { color: '$neutral1' },
-})
+});
 
 export function Socials({ iconSize }: { iconSize?: string }) {
   return (
@@ -50,7 +50,7 @@ export function Socials({ iconSize }: { iconSize?: string }) {
         </Anchor>
       </SocialIcon>
     </Flex>
-  )
+  );
 }
 
 function FooterSection({ title, items }: { title: string; items: MenuItem[] }) {
@@ -70,29 +70,36 @@ function FooterSection({ title, items }: { title: string; items: MenuItem[] }) {
         ))}
       </Flex>
     </Flex>
-  )
+  );
 }
 
 export function Footer() {
-  const { t } = useTranslation()
-  const { toggleModal: togglePrivacyPolicy } = useModalState(ModalName.PrivacyPolicy)
-  const tabsContent = useTabsContent()
+  const { t } = useTranslation();
+  const { toggleModal: togglePrivacyPolicy } = useModalState(ModalName.PrivacyPolicy);
+  const tabsContent = useTabsContent();
   const appSectionItems: MenuItem[] = useMemo(() => {
-    return tabsContent.map((tab) => ({
+    return tabsContent.map(tab => ({
       label: tab.title,
       href: tab.href,
       internal: true,
-    }))
-  }, [tabsContent])
-  const sections = useMenuContent()
+    }));
+  }, [tabsContent]);
+  const sections = useMenuContent();
   const brandAssets = {
     label: t('common.brandAssets'),
     href: 'https://github.com/Uniswap/brand-assets/raw/main/Uniswap%20Brand%20Assets.zip',
     internal: false,
-  }
+  };
 
   return (
-    <Flex maxWidth="100vw" width="100%" gap="$spacing24" pt="$none" px="$spacing48" pb={40} $lg={{ px: '$spacing40' }}>
+    <Flex
+      maxWidth="100vw"
+      width="100%"
+      gap="$spacing24"
+      pt="$none"
+      px="$spacing48"
+      pb={40}
+      $lg={{ px: '$spacing40' }}>
       <Flex row $md={{ flexDirection: 'column' }} justifyContent="space-between" gap="$spacing32">
         <Flex height="100%" gap="$spacing60">
           <Flex $md={{ display: 'none' }}>
@@ -119,8 +126,7 @@ export function Footer() {
         alignItems="center"
         $md={{ flexDirection: 'column', alignItems: 'flex-start' }}
         width="100%"
-        justifyContent="space-between"
-      >
+        justifyContent="space-between">
         <Text variant="body3">© 2024 - Uniswap Labs</Text>
         <Flex row alignItems="center" gap="$spacing16">
           <Anchor textDecorationLine="none" href="https://uniswap.org/trademark" target="_blank">
@@ -130,5 +136,5 @@ export function Footer() {
         </Flex>
       </Flex>
     </Flex>
-  )
+  );
 }

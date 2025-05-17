@@ -1,6 +1,6 @@
 // Based mostly on https://github.com/Uniswap/interface/blob/main/src/theme/index.tsx
 
-import { colorsDark, colorsLight } from 'ui/src/theme'
+import { colorsDark, colorsLight } from 'ui/src/theme';
 
 export const colors = {
   white: '#FFFFFF',
@@ -156,9 +156,9 @@ export const colors = {
   critical2_dark: colorsDark.statusCritical2,
   critical2_light: colorsLight.statusCritical2,
   scrim: colorsLight.scrim,
-}
+};
 
-export type ThemeColors = typeof darkTheme
+export type ThemeColors = typeof darkTheme;
 
 const commonTheme = {
   white: colors.white,
@@ -190,7 +190,7 @@ const commonTheme = {
 
   brandedGradient: 'linear-gradient(139.57deg, #FF79C9 4.35%, #FFB8E2 96.44%);',
   promotionalGradient: colors.accent1_light,
-}
+};
 
 export const darkTheme = {
   ...commonTheme,
@@ -233,7 +233,7 @@ export const darkTheme = {
   scrim: colors.scrim,
 
   blue400: colors.blue400,
-}
+};
 
 export const lightTheme: ThemeColors = {
   ...commonTheme,
@@ -276,4 +276,4 @@ export const lightTheme: ThemeColors = {
   scrim: colors.scrim,
 
   blue400: colors.blue400,
-}
+};

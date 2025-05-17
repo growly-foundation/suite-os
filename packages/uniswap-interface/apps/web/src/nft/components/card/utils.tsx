@@ -1,4 +1,4 @@
-import { NftImage, NftPlayableMedia } from 'nft/components/card/media'
+import { NftImage, NftPlayableMedia } from 'nft/components/card/media';
 import {
   LarvaLabsMarketplaceIcon,
   LooksRareIcon,
@@ -7,10 +7,16 @@ import {
   OpenSeaMarketplaceIcon,
   SudoSwapIcon,
   X2y2Icon,
-} from 'nft/components/iconExports'
-import { GenieAsset, Markets, UniformAspectRatio, UniformAspectRatios, WalletAsset } from 'nft/types'
-import { isAudio, isVideo } from 'nft/utils'
-import { ReactNode, useCallback } from 'react'
+} from 'nft/components/iconExports';
+import {
+  GenieAsset,
+  Markets,
+  UniformAspectRatio,
+  UniformAspectRatios,
+  WalletAsset,
+} from 'nft/types';
+import { isAudio, isVideo } from 'nft/utils';
+import { ReactNode, useCallback } from 'react';
 
 enum AssetMediaType {
   Image = 0,
@@ -19,33 +25,33 @@ enum AssetMediaType {
 }
 
 function getAssetImageUrl(asset: GenieAsset | WalletAsset) {
-  return asset.imageUrl || asset.smallImageUrl
+  return asset.imageUrl || asset.smallImageUrl;
 }
 
 function getAssetMediaUrl(asset: GenieAsset | WalletAsset) {
-  return asset.animationUrl
+  return asset.animationUrl;
 }
 
 export function detailsHref(asset: GenieAsset | WalletAsset) {
   if ('address' in asset) {
-    return `/nfts/asset/${asset.address}/${asset.tokenId}?origin=collection`
+    return `/nfts/asset/${asset.address}/${asset.tokenId}?origin=collection`;
   }
   if ('asset_contract' in asset) {
-    return `/nfts/asset/${asset.asset_contract.address}/${asset.tokenId}?origin=profile`
+    return `/nfts/asset/${asset.asset_contract.address}/${asset.tokenId}?origin=profile`;
   }
-  return '/nfts/profile'
+  return '/nfts/profile';
 }
 
 function getAssetMediaType(asset: GenieAsset | WalletAsset) {
-  let assetMediaType = AssetMediaType.Image
+  let assetMediaType = AssetMediaType.Image;
   if (asset.animationUrl) {
     if (isAudio(asset.animationUrl)) {
-      assetMediaType = AssetMediaType.Audio
+      assetMediaType = AssetMediaType.Audio;
     } else if (isVideo(asset.animationUrl)) {
-      assetMediaType = AssetMediaType.Video
+      assetMediaType = AssetMediaType.Video;
     }
   }
-  return assetMediaType
+  return assetMediaType;
 }
 
 // eslint-disable-next-line consistent-return
@@ -56,7 +62,7 @@ export function getNftDisplayComponent(
   uniformAspectRatio?: UniformAspectRatio,
   setUniformAspectRatio?: (uniformAspectRatio: UniformAspectRatio) => void,
   renderedHeight?: number,
-  setRenderedHeight?: (renderedHeight: number | undefined) => void,
+  setRenderedHeight?: (renderedHeight: number | undefined) => void
 ) {
   switch (getAssetMediaType(asset)) {
     case AssetMediaType.Image:
@@ -68,7 +74,7 @@ export function getNftDisplayComponent(
           renderedHeight={renderedHeight}
           setRenderedHeight={setRenderedHeight}
         />
-      )
+      );
     case AssetMediaType.Video:
       return (
         <NftPlayableMedia
@@ -82,7 +88,7 @@ export function getNftDisplayComponent(
           renderedHeight={renderedHeight}
           setRenderedHeight={setRenderedHeight}
         />
-      )
+      );
     case AssetMediaType.Audio:
       return (
         <NftPlayableMedia
@@ -97,7 +103,7 @@ export function getNftDisplayComponent(
           renderedHeight={renderedHeight}
           setRenderedHeight={setRenderedHeight}
         />
-      )
+      );
   }
 }
 
@@ -108,54 +114,54 @@ export function useSelectAsset({
   isDisabled,
   onClick,
 }: {
-  selectAsset?: () => void
-  unselectAsset?: () => void
-  isSelected: boolean
-  isDisabled: boolean
-  onClick?: () => void
+  selectAsset?: () => void;
+  unselectAsset?: () => void;
+  isSelected: boolean;
+  isDisabled: boolean;
+  onClick?: () => void;
 }) {
   return useCallback(
     (e: React.MouseEvent) => {
-      e.stopPropagation()
-      e.preventDefault()
+      e.stopPropagation();
+      e.preventDefault();
 
       if (isDisabled) {
-        return
+        return;
       }
 
       if (onClick) {
-        onClick()
-        return
+        onClick();
+        return;
       }
 
       if (isSelected) {
-        unselectAsset?.()
+        unselectAsset?.();
       } else {
-        selectAsset?.()
+        selectAsset?.();
       }
     },
-    [selectAsset, isDisabled, onClick, unselectAsset, isSelected],
-  )
+    [selectAsset, isDisabled, onClick, unselectAsset, isSelected]
+  );
 }
 
 export function getMarketplaceIcon(market: Markets): ReactNode {
   switch (market) {
     case Markets.Opensea:
-      return <OpenSeaMarketplaceIcon />
+      return <OpenSeaMarketplaceIcon />;
     case Markets.LooksRare:
-      return <LooksRareIcon />
+      return <LooksRareIcon />;
     case Markets.X2Y2:
-      return <X2y2Icon />
+      return <X2y2Icon />;
     case Markets.Sudoswap:
-      return <SudoSwapIcon />
+      return <SudoSwapIcon />;
     case Markets.NFT20:
-      return <Nft20Icon />
+      return <Nft20Icon />;
     case Markets.NFTX:
-      return <NftXIcon />
+      return <NftXIcon />;
     case Markets.Cryptopunks:
-      return <LarvaLabsMarketplaceIcon />
+      return <LarvaLabsMarketplaceIcon />;
     default:
-      return null
+      return null;
   }
 }
 
@@ -164,12 +170,12 @@ export const handleUniformAspectRatio = (
   e: React.SyntheticEvent<HTMLElement, Event>,
   setUniformAspectRatio?: (uniformAspectRatio: UniformAspectRatio) => void,
   renderedHeight?: number,
-  setRenderedHeight?: (renderedHeight: number | undefined) => void,
+  setRenderedHeight?: (renderedHeight: number | undefined) => void
 ) => {
   if (uniformAspectRatio !== UniformAspectRatios.square && setUniformAspectRatio) {
-    const height = e.currentTarget.clientHeight
-    const width = e.currentTarget.clientWidth
-    const aspectRatio = width / height
+    const height = e.currentTarget.clientHeight;
+    const width = e.currentTarget.clientWidth;
+    const aspectRatio = width / height;
 
     if (
       (!renderedHeight || renderedHeight !== height) &&
@@ -177,31 +183,35 @@ export const handleUniformAspectRatio = (
       uniformAspectRatio !== UniformAspectRatios.square &&
       setRenderedHeight
     ) {
-      setRenderedHeight(height)
+      setRenderedHeight(height);
     }
 
-    const variance = 0.05
+    const variance = 0.05;
     if (uniformAspectRatio === UniformAspectRatios.unset) {
-      setUniformAspectRatio(aspectRatio >= 1 ? UniformAspectRatios.square : aspectRatio)
-    } else if (aspectRatio > uniformAspectRatio + variance || aspectRatio < uniformAspectRatio - variance) {
-      setUniformAspectRatio(UniformAspectRatios.square)
-      setRenderedHeight && setRenderedHeight(undefined)
+      setUniformAspectRatio(aspectRatio >= 1 ? UniformAspectRatios.square : aspectRatio);
+    } else if (
+      aspectRatio > uniformAspectRatio + variance ||
+      aspectRatio < uniformAspectRatio - variance
+    ) {
+      setUniformAspectRatio(UniformAspectRatios.square);
+      setRenderedHeight && setRenderedHeight(undefined);
     }
   }
-}
+};
 
 export function getHeightFromAspectRatio(
   uniformAspectRatio: UniformAspectRatio,
-  renderedHeight?: number,
+  renderedHeight?: number
 ): number | undefined {
-  return uniformAspectRatio === UniformAspectRatios.square || uniformAspectRatio === UniformAspectRatios.unset
+  return uniformAspectRatio === UniformAspectRatios.square ||
+    uniformAspectRatio === UniformAspectRatios.unset
     ? undefined
-    : renderedHeight
+    : renderedHeight;
 }
 
 export function getMediaAspectRatio(
   uniformAspectRatio?: UniformAspectRatio,
-  setUniformAspectRatio?: (uniformAspectRatio: UniformAspectRatio) => void,
+  setUniformAspectRatio?: (uniformAspectRatio: UniformAspectRatio) => void
 ): string {
-  return uniformAspectRatio === UniformAspectRatios.square || !setUniformAspectRatio ? '1' : 'auto'
+  return uniformAspectRatio === UniformAspectRatios.square || !setUniformAspectRatio ? '1' : 'auto';
 }

@@ -1,5 +1,5 @@
-import { RuleTester } from 'eslint'
-import noStrings from './no-unwrapped-t'
+import { RuleTester } from 'eslint';
+import noStrings from './no-unwrapped-t';
 
 const ruleTester = new RuleTester({
   parserOptions: {
@@ -9,7 +9,7 @@ const ruleTester = new RuleTester({
       jsx: true,
     },
   },
-})
+});
 
 ruleTester.run('no-unwrapped-t', noStrings, {
   valid: [
@@ -88,4 +88,4 @@ ruleTester.run('no-unwrapped-t', noStrings, {
       options: [{ blockedElements: ['Flex'] }],
     },
   ],
-})
+});

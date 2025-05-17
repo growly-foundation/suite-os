@@ -1,2 +1,2 @@
-export * from './components/agent';
+export * from './components';
 export * from './constants';

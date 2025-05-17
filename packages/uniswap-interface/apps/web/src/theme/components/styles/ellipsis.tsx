@@ -1,12 +1,12 @@
-import { css } from 'lib/styled-components'
-import { TextStyle } from 'ui/src'
+import { css } from 'lib/styled-components';
+import { TextStyle } from 'ui/src';
 
 /** @deprecated use tamagui and EllipsisTamaguiStyle instead */
 export const EllipsisStyle = css`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-`
+`;
 
 export const EllipsisTamaguiStyle = {
   '$platform-web': {
@@ -14,4 +14,4 @@ export const EllipsisTamaguiStyle = {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
-} satisfies TextStyle
+} satisfies TextStyle;

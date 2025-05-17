@@ -1,7 +1,13 @@
-import type { SVGProps } from 'constants/icons/types'
+import type { SVGProps } from 'constants/icons/types';
 
 const SGD_ICON = (props: SVGProps) => (
-  <svg width="49" height="49" viewBox="0 0 49 49" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+  <svg
+    width="49"
+    height="49"
+    viewBox="0 0 49 49"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}>
     <g clipPath="url(#clip0_1942_61817)">
       <path
         fillRule="evenodd"
@@ -37,6 +43,6 @@ const SGD_ICON = (props: SVGProps) => (
       </clipPath>
     </defs>
   </svg>
-)
+);
 
-export default SGD_ICON
+export default SGD_ICON;

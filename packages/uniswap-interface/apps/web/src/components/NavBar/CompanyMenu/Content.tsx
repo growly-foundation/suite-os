@@ -1,21 +1,21 @@
-import { useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next';
 
 export interface MenuItem {
-  label: string
-  href: string
-  internal?: boolean
-  overflow?: boolean
-  closeMenu?: () => void
+  label: string;
+  href: string;
+  internal?: boolean;
+  overflow?: boolean;
+  closeMenu?: () => void;
 }
 
 export interface MenuSection {
-  title: string
-  items: MenuItem[]
-  closeMenu?: () => void
+  title: string;
+  items: MenuItem[];
+  closeMenu?: () => void;
 }
 
 export const useMenuContent = (): MenuSection[] => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return [
     {
@@ -37,8 +37,11 @@ export const useMenuContent = (): MenuSection[] => {
       title: t('common.needHelp'),
       items: [
         { label: t('common.helpCenter'), href: 'https://support.uniswap.org/hc/en-us' },
-        { label: t('common.contactUs.button'), href: 'https://support.uniswap.org/hc/en-us/requests/new' },
+        {
+          label: t('common.contactUs.button'),
+          href: 'https://support.uniswap.org/hc/en-us/requests/new',
+        },
       ],
     },
-  ]
-}
+  ];
+};

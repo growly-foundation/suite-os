@@ -1,7 +1,7 @@
-import { SmartContractSpeedBumpModal } from 'pages/Swap/Send/SmartContractSpeedBump'
-import { SendContext, SendContextType } from 'state/send/SendContext'
-import { render, screen } from 'test-utils/render'
-import { DAI } from 'uniswap/src/constants/tokens'
+import { SmartContractSpeedBumpModal } from 'pages/Swap/Send/SmartContractSpeedBump';
+import { SendContext, SendContextType } from 'state/send/SendContext';
+import { render, screen } from 'test-utils/render';
+import { DAI } from 'uniswap/src/constants/tokens';
 
 const mockSendContext: SendContextType = {
   sendState: {
@@ -20,19 +20,19 @@ const mockSendContext: SendContextType = {
     },
   },
   setSendState: jest.fn(),
-}
+};
 
 describe('SmartContractSpeedBumpModal', () => {
   it('should render correctly', () => {
-    const mockOnCancel = jest.fn()
-    const mockOnConfirm = jest.fn()
+    const mockOnCancel = jest.fn();
+    const mockOnConfirm = jest.fn();
     render(
       <SendContext.Provider value={mockSendContext}>
         <SmartContractSpeedBumpModal isOpen onDismiss={mockOnCancel} onConfirm={mockOnConfirm} />
-      </SendContext.Provider>,
-    )
+      </SendContext.Provider>
+    );
 
-    expect(document.body).toMatchSnapshot()
-    expect(screen.getByText('Is this a wallet address?')).toBeInTheDocument()
-  })
-})
+    expect(document.body).toMatchSnapshot();
+    expect(screen.getByText('Is this a wallet address?')).toBeInTheDocument();
+  });
+});

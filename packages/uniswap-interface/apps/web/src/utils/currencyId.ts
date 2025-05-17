@@ -1,12 +1,12 @@
-import { Currency } from '@uniswap/sdk-core'
+import { Currency } from '@uniswap/sdk-core';
 
 /** @deprecated confusing since currencyId from packages/uniswap is formatted as `chainId-address` */
 export function currencyId(currency?: Currency): string {
   if (currency?.isNative) {
-    return 'ETH'
+    return 'ETH';
   }
   if (currency?.isToken) {
-    return currency.address
+    return currency.address;
   }
-  throw new Error('invalid currency')
+  throw new Error('invalid currency');
 }

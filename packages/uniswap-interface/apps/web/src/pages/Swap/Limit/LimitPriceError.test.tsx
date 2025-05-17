@@ -1,7 +1,7 @@
-import { LimitPriceErrorType } from 'components/CurrencyInputPanel/LimitPriceInputPanel/useCurrentPriceAdjustment'
-import { LimitPriceError } from 'pages/Swap/Limit/LimitPriceError'
-import { render } from 'test-utils/render'
-import { DAI, USDC_MAINNET } from 'uniswap/src/constants/tokens'
+import { LimitPriceErrorType } from 'components/CurrencyInputPanel/LimitPriceInputPanel/useCurrentPriceAdjustment';
+import { LimitPriceError } from 'pages/Swap/Limit/LimitPriceError';
+import { render } from 'test-utils/render';
+import { DAI, USDC_MAINNET } from 'uniswap/src/constants/tokens';
 
 describe('LimitPriceError', () => {
   it.each([
@@ -17,10 +17,10 @@ describe('LimitPriceError', () => {
         priceInverted={inverted}
         priceAdjustmentPercentage={change}
         priceError={LimitPriceErrorType.BELOW_MARKET}
-      />,
-    )
-    expect(container.firstChild).toMatchSnapshot()
-  })
+      />
+    );
+    expect(container.firstChild).toMatchSnapshot();
+  });
 
   it('renders the limit price error correctly when there is a calculation error', async () => {
     const { container } = render(
@@ -30,8 +30,8 @@ describe('LimitPriceError', () => {
         priceInverted={false}
         priceAdjustmentPercentage={0}
         priceError={LimitPriceErrorType.CALCULATION_ERROR}
-      />,
-    )
-    expect(container.firstChild).toMatchSnapshot()
-  })
-})
+      />
+    );
+    expect(container.firstChild).toMatchSnapshot();
+  });
+});

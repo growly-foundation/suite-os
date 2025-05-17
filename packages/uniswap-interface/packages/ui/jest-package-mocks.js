@@ -11,25 +11,27 @@ jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: jest.fn().mockImplementation(() => ({})),
   useSafeAreaFrame: jest.fn().mockImplementation(() => ({})),
   SafeAreaProvider: jest.fn(({ children }) => children),
-}))
+}));
 
 jest.mock('ui/src/assets', () => {
   const assets = {
     ...jest.requireActual('ui/src/assets'),
-  }
+  };
 
-  Object.keys(assets).map((key) => {
-    assets[key] = `mock-asset-${key}.png`
-  })
+  Object.keys(assets).map(key => {
+    assets[key] = `mock-asset-${key}.png`;
+  });
 
-  return assets
-})
+  return assets;
+});
 
 jest.mock('react-native-webview', () => {
-  const { View } = require('react-native')
+  const { View } = require('react-native');
   return {
     WebView: View,
-  }
-})
+  };
+});
 
-jest.mock('ui/src/hooks/useDeviceInsets', () => jest.requireActual('ui/src/hooks/useDeviceInsets.web.ts'))
+jest.mock('ui/src/hooks/useDeviceInsets', () =>
+  jest.requireActual('ui/src/hooks/useDeviceInsets.web.ts')
+);

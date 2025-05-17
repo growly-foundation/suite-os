@@ -1,12 +1,12 @@
-import { Store } from '@reduxjs/toolkit'
-import { persistStore } from 'redux-persist'
-import { createDefaultStore } from 'state'
-import { initialState as initialListsState } from 'state/lists/reducer'
-import { PERSIST_VERSION } from 'state/migrations'
-import { RouterPreference } from 'state/routing/types'
-import { initialState as initialSignaturesState } from 'state/signatures/reducer'
-import { initialState as initialTransactionsState } from 'state/transactions/reducer'
-import { initialState as initialUserState } from 'state/user/reducer'
+import { Store } from '@reduxjs/toolkit';
+import { persistStore } from 'redux-persist';
+import { createDefaultStore } from 'state';
+import { initialState as initialListsState } from 'state/lists/reducer';
+import { PERSIST_VERSION } from 'state/migrations';
+import { RouterPreference } from 'state/routing/types';
+import { initialState as initialSignaturesState } from 'state/signatures/reducer';
+import { initialState as initialTransactionsState } from 'state/transactions/reducer';
+import { initialState as initialUserState } from 'state/user/reducer';
 
 const defaultState = {
   lists: {},
@@ -49,39 +49,42 @@ const defaultState = {
     hideSmallBalances: true,
     hideSpamTokens: true,
   },
-}
+};
 
 describe('redux migrations', () => {
-  let store: Store
+  let store: Store;
 
   beforeEach(() => {
-    localStorage.clear()
+    localStorage.clear();
     // Re-create the store before each test so it starts with undefined state.
-    store = createDefaultStore()
-  })
+    store = createDefaultStore();
+  });
 
   it('clears legacy redux_localstorage_simple values during the initial migration', async () => {
     localStorage.setItem(
       'redux_localstorage_simple_transactions',
-      JSON.stringify({ 1: { test: { info: 'transactions' } } }),
-    )
+      JSON.stringify({ 1: { test: { info: 'transactions' } } })
+    );
     localStorage.setItem(
       'redux_localstorage_simple_user',
-      JSON.stringify({ test: 'user', userRouterPreference: 'auto' }),
-    )
-    localStorage.setItem('redux_localstorage_simple_lists', JSON.stringify({ test: 'lists' }))
-    localStorage.setItem('redux_localstorage_simple_signatures', JSON.stringify({ test: 'signatures' }))
+      JSON.stringify({ test: 'user', userRouterPreference: 'auto' })
+    );
+    localStorage.setItem('redux_localstorage_simple_lists', JSON.stringify({ test: 'lists' }));
+    localStorage.setItem(
+      'redux_localstorage_simple_signatures',
+      JSON.stringify({ test: 'signatures' })
+    );
 
-    persistStore(store)
+    persistStore(store);
     // wait for the migration to complete
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise(resolve => setTimeout(resolve, 0));
 
-    expect(localStorage.getItem('redux_localstorage_simple_transactions')).toBeNull()
-    expect(localStorage.getItem('redux_localstorage_simple_user')).toBeNull()
-    expect(localStorage.getItem('redux_localstorage_simple_lists')).toBeNull()
-    expect(localStorage.getItem('redux_localstorage_simple_signatures')).toBeNull()
+    expect(localStorage.getItem('redux_localstorage_simple_transactions')).toBeNull();
+    expect(localStorage.getItem('redux_localstorage_simple_user')).toBeNull();
+    expect(localStorage.getItem('redux_localstorage_simple_lists')).toBeNull();
+    expect(localStorage.getItem('redux_localstorage_simple_signatures')).toBeNull();
 
-    const state = store.getState()
+    const state = store.getState();
     expect(state).toMatchObject({
       ...defaultState,
       // These are migrated values.
@@ -95,17 +98,17 @@ describe('redux migrations', () => {
       signatures: {
         test: 'signatures',
       },
-    })
-  })
+    });
+  });
 
   it('initial state with no previous persisted state', async () => {
-    persistStore(store)
+    persistStore(store);
     // wait for the migration to complete
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise(resolve => setTimeout(resolve, 0));
 
-    const state = store.getState()
-    expect(state).toMatchObject(defaultState)
-  })
+    const state = store.getState();
+    expect(state).toMatchObject(defaultState);
+  });
 
   it('migrates from a previous version of the state type', async () => {
     localStorage.setItem(
@@ -116,14 +119,14 @@ describe('redux migrations', () => {
         lists: initialListsState,
         signatures: initialSignaturesState,
         _persist: { version: -1 },
-      }),
-    )
+      })
+    );
 
-    persistStore(store)
+    persistStore(store);
     // wait for the migration to complete
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise(resolve => setTimeout(resolve, 0));
 
-    const state = store.getState()
-    expect(state).toMatchObject(defaultState)
-  })
-})
+    const state = store.getState();
+    expect(state).toMatchObject(defaultState);
+  });
+});

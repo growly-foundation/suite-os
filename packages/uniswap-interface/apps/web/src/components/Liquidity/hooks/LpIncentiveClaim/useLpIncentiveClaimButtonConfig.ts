@@ -1,11 +1,11 @@
-import { DialogButtonType } from 'components/Dialog/Dialog'
-import { useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
+import { DialogButtonType } from 'components/Dialog/Dialog';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface UseLpIncentiveClaimButtonConfigProps {
-  isLoading: boolean
-  isPendingTransaction: boolean
-  onClaim: () => void
+  isLoading: boolean;
+  isPendingTransaction: boolean;
+  onClaim: () => void;
 }
 
 export function useLpIncentiveClaimButtonConfig({
@@ -13,7 +13,7 @@ export function useLpIncentiveClaimButtonConfig({
   isPendingTransaction,
   onClaim,
 }: UseLpIncentiveClaimButtonConfigProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return useMemo(() => {
     if (isLoading) {
@@ -21,7 +21,7 @@ export function useLpIncentiveClaimButtonConfig({
         title: t('common.confirmWallet'),
         onClick: () => {},
         isLoading: true,
-      }
+      };
     }
 
     if (isPendingTransaction) {
@@ -29,7 +29,7 @@ export function useLpIncentiveClaimButtonConfig({
         title: t('common.transactionPending'),
         onClick: () => {},
         isLoading: true,
-      }
+      };
     }
 
     return {
@@ -37,6 +37,6 @@ export function useLpIncentiveClaimButtonConfig({
       type: DialogButtonType.Accent,
       onClick: onClaim,
       isLoading,
-    }
-  }, [onClaim, isLoading, isPendingTransaction, t])
+    };
+  }, [onClaim, isLoading, isPendingTransaction, t]);
 }

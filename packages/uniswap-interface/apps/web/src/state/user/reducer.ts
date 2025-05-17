@@ -1,46 +1,46 @@
-import { createSlice } from '@reduxjs/toolkit'
-import { DEFAULT_DEADLINE_FROM_NOW } from 'constants/misc'
-import { RouterPreference } from 'state/routing/types'
-import { SerializedPair, SlippageTolerance } from 'state/user/types'
+import { createSlice } from '@reduxjs/toolkit';
+import { DEFAULT_DEADLINE_FROM_NOW } from 'constants/misc';
+import { RouterPreference } from 'state/routing/types';
+import { SerializedPair, SlippageTolerance } from 'state/user/types';
 
-const currentTimestamp = () => new Date().getTime()
+const currentTimestamp = () => new Date().getTime();
 
 export interface UserState {
   // the timestamp of the last updateVersion action
-  lastUpdateVersionTimestamp?: number
+  lastUpdateVersionTimestamp?: number;
 
   // which router should be used to calculate trades
-  userRouterPreference: RouterPreference
+  userRouterPreference: RouterPreference;
 
   // hides closed (inactive) positions across the app
-  userHideClosedPositions: boolean
+  userHideClosedPositions: boolean;
 
   // user defined slippage tolerance in bips, used in all txns
-  userSlippageTolerance: number | SlippageTolerance.Auto
+  userSlippageTolerance: number | SlippageTolerance.Auto;
 
   // flag to indicate whether the user has been migrated from the old slippage tolerance values
-  userSlippageToleranceHasBeenMigratedToAuto: boolean
+  userSlippageToleranceHasBeenMigratedToAuto: boolean;
 
   // deadline set by user in minutes, used in all txns
-  userDeadline: number
+  userDeadline: number;
 
   pairs: {
     [chainId: number]: {
       // keyed by token0Address:token1Address
-      [key: string]: SerializedPair
-    }
-  }
+      [key: string]: SerializedPair;
+    };
+  };
 
-  timestamp: number
+  timestamp: number;
 
   // undefined means has not gone through A/B split yet
-  showSurveyPopup?: boolean
+  showSurveyPopup?: boolean;
 
-  originCountry?: string
+  originCountry?: string;
 }
 
 function pairKey(token0Address: string, token1Address: string) {
-  return `${token0Address};${token1Address}`
+  return `${token0Address};${token1Address}`;
 }
 
 export const initialState: UserState = {
@@ -53,42 +53,44 @@ export const initialState: UserState = {
   timestamp: currentTimestamp(),
   showSurveyPopup: undefined,
   originCountry: undefined,
-}
+};
 
 const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
     updateUserSlippageTolerance(state, action) {
-      state.userSlippageTolerance = action.payload.userSlippageTolerance
-      state.timestamp = currentTimestamp()
+      state.userSlippageTolerance = action.payload.userSlippageTolerance;
+      state.timestamp = currentTimestamp();
     },
     updateUserDeadline(state, action) {
-      state.userDeadline = action.payload.userDeadline
-      state.timestamp = currentTimestamp()
+      state.userDeadline = action.payload.userDeadline;
+      state.timestamp = currentTimestamp();
     },
     updateUserRouterPreference(state, action) {
-      state.userRouterPreference = action.payload.userRouterPreference
+      state.userRouterPreference = action.payload.userRouterPreference;
     },
     updateHideClosedPositions(state, action) {
-      state.userHideClosedPositions = action.payload.userHideClosedPositions
+      state.userHideClosedPositions = action.payload.userHideClosedPositions;
     },
     addSerializedPair(state, { payload: { serializedPair } }) {
       if (
         serializedPair.token0.chainId === serializedPair.token1.chainId &&
         serializedPair.token0.address !== serializedPair.token1.address
       ) {
-        const chainId = serializedPair.token0.chainId
-        state.pairs[chainId] = state.pairs[chainId] || {}
-        state.pairs[chainId][pairKey(serializedPair.token0.address, serializedPair.token1.address)] = serializedPair
+        const chainId = serializedPair.token0.chainId;
+        state.pairs[chainId] = state.pairs[chainId] || {};
+        state.pairs[chainId][
+          pairKey(serializedPair.token0.address, serializedPair.token1.address)
+        ] = serializedPair;
       }
-      state.timestamp = currentTimestamp()
+      state.timestamp = currentTimestamp();
     },
     setOriginCountry(state, { payload: country }) {
-      state.originCountry = country
+      state.originCountry = country;
     },
   },
-})
+});
 
 export const {
   addSerializedPair,
@@ -97,5 +99,5 @@ export const {
   updateUserRouterPreference,
   updateUserDeadline,
   updateUserSlippageTolerance,
-} = userSlice.actions
-export default userSlice.reducer
+} = userSlice.actions;
+export default userSlice.reducer;

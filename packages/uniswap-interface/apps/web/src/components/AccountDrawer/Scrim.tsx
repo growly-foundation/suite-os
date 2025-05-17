@@ -1,8 +1,8 @@
-import styled from 'lib/styled-components'
-import { useEffect } from 'react'
-import { Z_INDEX } from 'theme/zIndex'
-import { useDeviceDimensions } from 'ui/src/hooks/useDeviceDimensions'
-import { breakpoints } from 'ui/src/theme'
+import styled from 'lib/styled-components';
+import { useEffect } from 'react';
+import { Z_INDEX } from 'theme/zIndex';
+import { useDeviceDimensions } from 'ui/src/hooks/useDeviceDimensions';
+import { breakpoints } from 'ui/src/theme';
 
 // TODO(WEB-6717): Replace with Tamagui Overlay
 const ScrimBackground = styled.div<{ $open: boolean; $maxWidth?: number; $zIndex?: number }>`
@@ -17,30 +17,31 @@ const ScrimBackground = styled.div<{ $open: boolean; $maxWidth?: number; $zIndex
 
   opacity: 0;
   pointer-events: none;
-  @media only screen and (max-width: ${({ theme, $maxWidth }) => `${$maxWidth ?? theme.breakpoint.md}px`}) {
+  @media only screen and (max-width: ${({ theme, $maxWidth }) =>
+      `${$maxWidth ?? theme.breakpoint.md}px`}) {
     opacity: ${({ $open }) => ($open ? 1 : 0)};
     pointer-events: ${({ $open }) => ($open ? 'auto' : 'none')};
     transition: opacity ${({ theme }) => theme.transition.duration.medium} ease-in-out;
   }
-`
+`;
 
 interface ScrimBackgroundProps extends React.ComponentPropsWithRef<'div'> {
-  $open: boolean
-  $maxWidth?: number
-  $zIndex?: number
+  $open: boolean;
+  $maxWidth?: number;
+  $zIndex?: number;
 }
 
 export const Scrim = (props: ScrimBackgroundProps) => {
-  const { fullWidth: width } = useDeviceDimensions()
+  const { fullWidth: width } = useDeviceDimensions();
 
   useEffect(() => {
     if (width && width < breakpoints.md && props.$open) {
-      document.body.style.overflow = 'hidden'
+      document.body.style.overflow = 'hidden';
     }
     return () => {
-      document.body.style.overflow = 'visible'
-    }
-  }, [props.$open, width])
+      document.body.style.overflow = 'visible';
+    };
+  }, [props.$open, width]);
 
-  return <ScrimBackground {...props} />
-}
+  return <ScrimBackground {...props} />;
+};

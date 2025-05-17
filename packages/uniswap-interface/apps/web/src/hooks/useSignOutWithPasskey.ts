@@ -1,11 +1,11 @@
-import { usePasskeyAuthWithHelpModal } from 'hooks/usePasskeyAuthWithHelpModal'
-import { useEmbeddedWalletState } from 'state/embeddedWallet/store'
-import { disconnectWallet } from 'uniswap/src/features/passkey/embeddedWallet'
-import { logger } from 'utilities/src/logger/logger'
+import { usePasskeyAuthWithHelpModal } from 'hooks/usePasskeyAuthWithHelpModal';
+import { useEmbeddedWalletState } from 'state/embeddedWallet/store';
+import { disconnectWallet } from 'uniswap/src/features/passkey/embeddedWallet';
+import { logger } from 'utilities/src/logger/logger';
 
 interface SignOutWithPasskeyOptions {
-  onSuccess?: () => void
-  onError?: (error: Error) => void
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
 }
 
 /**
@@ -20,17 +20,17 @@ interface SignOutWithPasskeyOptions {
  * @returns Mutation object with signOutWithPasskey function and mutation states
  */
 export function useSignOutWithPasskey({ onSuccess, onError }: SignOutWithPasskeyOptions = {}) {
-  const { setIsConnected } = useEmbeddedWalletState()
+  const { setIsConnected } = useEmbeddedWalletState();
 
   const { mutate: signOutWithPasskey, ...rest } = usePasskeyAuthWithHelpModal(
     async () => {
-      await disconnectWallet()
-      return true
+      await disconnectWallet();
+      return true;
     },
     {
       onSuccess: () => {
-        setIsConnected(false)
-        onSuccess?.()
+        setIsConnected(false);
+        onSuccess?.();
       },
       onError: (error: Error) => {
         logger.error(error, {
@@ -38,11 +38,11 @@ export function useSignOutWithPasskey({ onSuccess, onError }: SignOutWithPasskey
             file: 'useSignOutWithPasskey',
             function: 'signOutWithPasskey',
           },
-        })
-        onError?.(error)
+        });
+        onError?.(error);
       },
-    },
-  )
+    }
+  );
 
-  return { signOutWithPasskey, ...rest }
+  return { signOutWithPasskey, ...rest };
 }

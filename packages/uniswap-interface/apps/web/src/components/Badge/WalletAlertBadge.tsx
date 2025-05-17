@@ -1,16 +1,16 @@
-import { BorderedAlertTriangle } from 'components/Icons/BorderedAlertTriangle'
-import { Flex, Image } from 'ui/src'
-import { WalletAlert } from 'ui/src/components/icons/WalletAlert'
-import { normalizeBase64Image } from 'utils/images'
+import { BorderedAlertTriangle } from 'components/Icons/BorderedAlertTriangle';
+import { Flex, Image } from 'ui/src';
+import { WalletAlert } from 'ui/src/components/icons/WalletAlert';
+import { normalizeBase64Image } from 'utils/images';
 
 type WalletBadgeProps = {
-  iconSize?: string
-  walletIconSize?: number
-  badgeSize?: number
-  walletColor?: string
-  badgeColor?: string
-  walletIcon?: string
-}
+  iconSize?: string;
+  walletIconSize?: number;
+  badgeSize?: number;
+  walletColor?: string;
+  badgeColor?: string;
+  walletIcon?: string;
+};
 
 /**
  * Renders a wallet icon with a little alert badge in the bottom-right.
@@ -24,10 +24,15 @@ export function WalletAlertBadge({
   badgeColor = '$statusWarning',
 }: WalletBadgeProps) {
   // If the wallet icon is a base64 image (like Phantom), we need to normalize it
-  const cleanImageSrc = walletIcon ? normalizeBase64Image(walletIcon) : undefined
+  const cleanImageSrc = walletIcon ? normalizeBase64Image(walletIcon) : undefined;
 
   return (
-    <Flex position="relative" height={iconSize} width={iconSize} justifyContent="center" alignItems="center">
+    <Flex
+      position="relative"
+      height={iconSize}
+      width={iconSize}
+      justifyContent="center"
+      alignItems="center">
       {cleanImageSrc ? (
         <Image src={cleanImageSrc} width={iconSize} height={iconSize} borderRadius="$rounded8" />
       ) : (
@@ -38,8 +43,7 @@ export function WalletAlertBadge({
           width={iconSize}
           alignItems="center"
           justifyContent="center"
-          mb="$spacing4"
-        >
+          mb="$spacing4">
           <WalletAlert color={walletColor} size={walletIconSize} />
         </Flex>
       )}
@@ -47,5 +51,5 @@ export function WalletAlertBadge({
         <BorderedAlertTriangle height={badgeSize} width={badgeSize} color={badgeColor} />
       </Flex>
     </Flex>
-  )
+  );
 }

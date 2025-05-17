@@ -1,11 +1,11 @@
-import { TextProps } from 'tamagui'
-import type { ButtonEmphasis, ButtonVariant } from 'ui/src/components/buttons/Button/types'
+import { TextProps } from 'tamagui';
+import type { ButtonEmphasis, ButtonVariant } from 'ui/src/components/buttons/Button/types';
 
 type TextStyleLookup = {
   [variant in ButtonVariant]: {
-    [emphasis in ButtonEmphasis]: Pick<TextProps, 'color' | '$group-item-hover'>
-  }
-}
+    [emphasis in ButtonEmphasis]: Pick<TextProps, 'color' | '$group-item-hover'>;
+  };
+};
 
 export const variantEmphasisHash: TextStyleLookup = {
   branded: {
@@ -106,4 +106,4 @@ export const variantEmphasisHash: TextStyleLookup = {
       },
     },
   },
-}
+};

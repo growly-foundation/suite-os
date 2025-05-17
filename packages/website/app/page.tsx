@@ -1,20 +1,21 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
-import UseCases from '@/components/use-cases';
-import Navbar from '@/components/navbar';
-import Footer from '@/components/footer';
-import TypingPromptInput from '@/components/typing-prompt-input';
-import FramerSpotlight from '@/components/framer-spotlight';
-import CssGridBackground from '@/components/css-grid-background';
+import IntentSuggestion from '@/components/defi/intent-suggestion';
+import KnowYourDapp from '@/components/defi/kyd';
+import Persona from '@/components/defi/persona';
 import FeaturesSection from '@/components/features-section';
+import Footer from '@/components/footer';
+import Navbar from '@/components/navbar';
 import StructuredData from '@/components/structured-data';
-import { useState } from 'react';
-import { motion } from 'framer-motion';
 import TechStack from '@/components/tech-stack';
-import { BusterState } from '@growly/ui';
+import TypingPromptInput from '@/components/typing-prompt-input';
+import { Button } from '@/components/ui/button';
+import UseCasesDefi from '@/components/use-cases-defi';
+import { BusterState, GridBackground, FramerSpotlight } from '@growly/ui';
+import { motion } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { useState } from 'react';
 
 const AnimatedBuster = dynamic(() => import('@growly/ui').then(suite => suite.AnimatedBuster), {
   ssr: false,
@@ -32,7 +33,7 @@ export default function Home() {
         <section
           id="hero"
           className="relative min-h-screen flex items-center justify-center overflow-hidden">
-          <CssGridBackground />
+          <GridBackground />
           <FramerSpotlight />
           <div className="container px-4 md:px-6 py-16 md:py-20">
             <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
@@ -55,7 +56,9 @@ export default function Home() {
               <TypingPromptInput />
 
               <div className="flex flex-wrap justify-center gap-3 mt-16">
-                <Button className="flex items-center gap-3 px-5 py-6 h-[40px] bg-primary hover:bg-primary/90 text-white rounded-xl border-0 dark:bg-primary dark:hover:bg-primary/90 dark:shadow-[0_0_15px_rgba(36,101,237,0.5)] relative overflow-hidden group">
+                <Button
+                  onClick={() => (window.location.href = 'https://suite.getgrowly.app')}
+                  className="flex items-center gap-3 px-5 py-6 h-[40px] bg-primary hover:bg-primary/90 text-white rounded-xl border-0 dark:bg-primary dark:hover:bg-primary/90 dark:shadow-[0_0_15px_rgba(36,101,237,0.5)] relative overflow-hidden group">
                   <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/30 to-primary/0 dark:opacity-30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%]"></div>
                   <ArrowRight />
                   <div className="flex flex-col items-start relative z-10">
@@ -135,7 +138,7 @@ export default function Home() {
           id="hero"
           className="relative min-h-screen flex items-center justify-center overflow-hidden py-20"
           aria-labelledby="key-features-heading">
-          <CssGridBackground />
+          <GridBackground />
           <FramerSpotlight />
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-20">
@@ -170,8 +173,62 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Use Cases */}
-        <UseCases />
+        {/* DeFi Specialization */}
+        <section
+          className="py-20"
+          id="defi-specialization"
+          aria-labelledby="defi-specialization-heading">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center mb-20">
+              <div className="space-y-2" style={{ marginBottom: 50 }}>
+                <h2
+                  id="defi-specialization-heading"
+                  className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+                  Unlock Web3 Insights
+                </h2>
+                <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
+                  Powerful tools to understand dApps, analyze on-chain activities, and get
+                  personalized recommendations
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-6 lg:grid-cols-3 lg:gap-12 items-start">
+              {[
+                {
+                  component: <KnowYourDapp />,
+                  title: 'Know Your dApp (KYD)',
+                  description:
+                    'Feed the AI assistant with everything about the Dapp (GitHub, Gitbook, blogs) so it can easily explain your product to users.',
+                },
+                {
+                  component: <Persona />,
+                  title: 'Onchain Persona Analysis',
+                  description:
+                    'Aggregate multichain transaction data and cross-dApp activities to build a comprehensive risk profile of each user.',
+                },
+                {
+                  component: <IntentSuggestion />,
+                  title: 'Intent Suggestion',
+                  description:
+                    'Simplify DeFi access with data-informed user guidance, and plug-and-play widgets (OnchainKit).',
+                },
+              ].map(({ component, title, description }, index) => (
+                <div key={index} className="flex flex-col items-center space-y-4 text-center">
+                  <div className="flex h-[400px] w-full items-center justify-center rounded-full cursor-pointer hover:bg-primary transition-colors duration-300 text-primary-foreground">
+                    {component}
+                  </div>
+                  <div style={{ marginTop: 85 }}>
+                    <h3 className="text-xl font-bold">{title}</h3>
+                    <p className="text-muted-foreground">{description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* DeFi Use Cases */}
+        <UseCasesDefi />
         <Footer />
       </div>
     </>

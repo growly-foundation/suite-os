@@ -1,35 +1,37 @@
-import { PortfolioLogo } from 'components/AccountDrawer/MiniPortfolio/PortfolioLogo'
-import { Cell } from 'components/Table/Cell'
-import { useTableSize } from 'components/Table/TableSizeProvider'
-import { useAbbreviatedTimeString } from 'components/Table/utils'
-import { MouseoverTooltip, TooltipSize } from 'components/Tooltip'
-import { NATIVE_CHAIN_ID } from 'constants/tokens'
-import { getTokenDetailsURL, unwrapToken } from 'graphql/data/util'
-import { useCurrency } from 'hooks/Tokens'
-import deprecatedStyled from 'lib/styled-components'
-import { PropsWithChildren } from 'react'
-import { ArrowDown } from 'react-feather'
-import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
-import { ClickableStyle, ClickableTamaguiStyle } from 'theme/components/styles'
-import { Z_INDEX } from 'theme/zIndex'
-import { Anchor, Flex, Text, TextProps, View, styled } from 'ui/src'
-import { breakpoints, zIndexes } from 'ui/src/theme'
-import { Token } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains'
-import { fromGraphQLChain } from 'uniswap/src/features/chains/utils'
-import { useCurrentLocale } from 'uniswap/src/features/language/hooks'
+import { PortfolioLogo } from 'components/AccountDrawer/MiniPortfolio/PortfolioLogo';
+import { Cell } from 'components/Table/Cell';
+import { useTableSize } from 'components/Table/TableSizeProvider';
+import { useAbbreviatedTimeString } from 'components/Table/utils';
+import { MouseoverTooltip, TooltipSize } from 'components/Tooltip';
+import { NATIVE_CHAIN_ID } from 'constants/tokens';
+import { getTokenDetailsURL, unwrapToken } from 'graphql/data/util';
+import { useCurrency } from 'hooks/Tokens';
+import deprecatedStyled from 'lib/styled-components';
+import { PropsWithChildren } from 'react';
+import { ArrowDown } from 'react-feather';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import { ClickableStyle, ClickableTamaguiStyle } from 'theme/components/styles';
+import { Z_INDEX } from 'theme/zIndex';
+import { Anchor, Flex, Text, TextProps, View, styled } from 'ui/src';
+import { breakpoints, zIndexes } from 'ui/src/theme';
+import { Token } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains';
+import { fromGraphQLChain } from 'uniswap/src/features/chains/utils';
+import { useCurrentLocale } from 'uniswap/src/features/language/hooks';
 
-export const SHOW_RETURN_TO_TOP_OFFSET = 500
-export const LOAD_MORE_BOTTOM_OFFSET = 50
+export const SHOW_RETURN_TO_TOP_OFFSET = 500;
+export const LOAD_MORE_BOTTOM_OFFSET = 50;
 
 export const TableContainer = styled(Flex, {
   centered: true,
   m: '0 auto 24px auto',
   className: 'scrollbar-hidden',
-})
+});
 
-export const TableHead = (props: PropsWithChildren<{ $isSticky: boolean; $top: number }>): JSX.Element => (
+export const TableHead = (
+  props: PropsWithChildren<{ $isSticky: boolean; $top: number }>
+): JSX.Element => (
   <Flex
     width="100%"
     zIndex={zIndexes.dropdown - 2}
@@ -37,12 +39,11 @@ export const TableHead = (props: PropsWithChildren<{ $isSticky: boolean; $top: n
     justifyContent="flex-end"
     backgroundColor="$surface1"
     className="scrollbar-hidden"
-    $platform-web={props.$isSticky ? { position: 'sticky' } : {}}
-  >
+    $platform-web={props.$isSticky ? { position: 'sticky' } : {}}>
     {props.$isSticky && <Flex height={12} />}
     {props.children}
   </Flex>
-)
+);
 
 export const TableBodyContainer = styled(View, {
   width: '100%',
@@ -60,7 +61,7 @@ export const TableBodyContainer = styled(View, {
     overflowX: 'auto',
     overflowY: 'scroll',
   },
-})
+});
 
 export const LoadingIndicatorContainer = styled(Flex, {
   row: true,
@@ -70,7 +71,7 @@ export const LoadingIndicatorContainer = styled(Flex, {
   '$platform-web': {
     position: 'sticky',
   },
-})
+});
 
 export const LoadingIndicator = styled(Flex, {
   row: true,
@@ -81,7 +82,7 @@ export const LoadingIndicator = styled(Flex, {
   gap: '$gap8',
   height: 34,
   zIndex: Z_INDEX.under_dropdown,
-})
+});
 
 const TableRow = styled(Flex, {
   row: true,
@@ -89,17 +90,17 @@ const TableRow = styled(Flex, {
   width: 'fit-content',
   minWidth: '100%',
   height: '100%',
-})
+});
 
 export const DataRow = styled(TableRow, {
   hoverStyle: {
     backgroundColor: '$surface1Hovered',
   },
-})
+});
 
 export const NoDataFoundTableRow = styled(TableRow, {
   justifyContent: 'center',
-})
+});
 
 export const TableScrollMask = styled(View, {
   position: 'absolute',
@@ -110,7 +111,7 @@ export const TableScrollMask = styled(View, {
   width: 20,
   pointerEvents: 'none',
   background: `linear-gradient(to right, transparent, var(--surface1))`,
-})
+});
 
 export const HeaderRow = styled(TableRow, {
   borderWidth: 1,
@@ -134,12 +135,12 @@ export const HeaderRow = styled(TableRow, {
       },
     },
   } as const,
-})
+});
 
 export const CellContainer = styled(Flex, {
   grow: true,
   className: 'first-child-flex-grow-0 last-child-justify-end',
-})
+});
 
 export const StyledExternalLink = styled(Anchor, {
   textDecorationLine: 'none',
@@ -147,18 +148,18 @@ export const StyledExternalLink = styled(Anchor, {
   color: '$neutral1',
   target: '_blank',
   rel: 'noopener noreferrer',
-})
+});
 const StyledInternalLink = deprecatedStyled(Link)`
   text-decoration: none;
   ${ClickableStyle}
   color: ${({ theme }) => theme.neutral1};
-`
+`;
 
 export const TableRowLink = deprecatedStyled(Link)`
   color: none;
   text-decoration: none;
   cursor: pointer;
-`
+`;
 
 export const ClickableHeaderRow = styled(Flex, {
   row: true,
@@ -168,7 +169,7 @@ export const ClickableHeaderRow = styled(Flex, {
   gap: '$gap4',
 
   ...ClickableTamaguiStyle,
-})
+});
 
 export const HeaderArrow = styled(ArrowDown, {
   height: 14,
@@ -190,7 +191,7 @@ export const HeaderArrow = styled(ArrowDown, {
       },
     },
   },
-})
+});
 
 export const HeaderSortText = styled(Text, {
   variant: 'body3',
@@ -204,7 +205,7 @@ export const HeaderSortText = styled(Text, {
       },
     },
   } as const,
-})
+});
 
 export const FilterHeaderRow = styled(Flex, {
   row: true,
@@ -220,7 +221,7 @@ export const FilterHeaderRow = styled(Flex, {
       true: ClickableTamaguiStyle,
     },
   } as const,
-})
+});
 
 const StyledTimestampRow = styled(StyledExternalLink, {
   group: true,
@@ -233,29 +234,29 @@ const StyledTimestampRow = styled(StyledExternalLink, {
   hoverStyle: {
     opacity: 1,
   },
-})
+});
 
 export const TableText = ({ children, ...props }: PropsWithChildren<TextProps>) => {
-  const { width: tableWidth } = useTableSize()
+  const { width: tableWidth } = useTableSize();
 
   return (
     <Text color="$neutral1" variant={tableWidth <= breakpoints.lg ? 'body3' : 'body2'} {...props}>
       {children}
     </Text>
-  )
-}
+  );
+};
 
 export const EllipsisText = ({ children, ...props }: PropsWithChildren<TextProps>) => {
   return (
     <TableText {...props} whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">
       {children}
     </TableText>
-  )
-}
+  );
+};
 
 export const HeaderCell = styled(Cell, {
   py: '$spacing12',
-})
+});
 
 /**
  * Converts the given timestamp to an abbreviated format (s,m,h) for timestamps younger than 1 day
@@ -267,20 +268,20 @@ export const HeaderCell = styled(Cell, {
  * @returns JSX.Element containing the formatted timestamp
  */
 export const TimestampCell = ({ timestamp, link }: { timestamp: number; link: string }) => {
-  const locale = useCurrentLocale()
+  const locale = useCurrentLocale();
   const options: Intl.DateTimeFormatOptions = {
     year: '2-digit',
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
-  }
+  };
   const fullDate = new Date(timestamp * 1000)
     .toLocaleString(locale, options)
     .toLocaleLowerCase(locale)
-    .replace(/\s(am|pm)/, '$1')
+    .replace(/\s(am|pm)/, '$1');
 
-  const abbreviatedTime = useAbbreviatedTimeString(timestamp * 1000)
+  const abbreviatedTime = useAbbreviatedTimeString(timestamp * 1000);
 
   return (
     <StyledTimestampRow href={link}>
@@ -288,8 +289,8 @@ export const TimestampCell = ({ timestamp, link }: { timestamp: number; link: st
         <TableText>{abbreviatedTime}</TableText>
       </MouseoverTooltip>
     </StyledTimestampRow>
-  )
-}
+  );
+};
 
 /**
  * Given a token displays the Token's Logo and Symbol with a link to its TDP
@@ -297,19 +298,18 @@ export const TimestampCell = ({ timestamp, link }: { timestamp: number; link: st
  * @returns JSX.Element showing the Token's Logo, Chain logo if non-mainnet, and Token Symbol
  */
 export const TokenLinkCell = ({ token, hideLogo }: { token: Token; hideLogo?: boolean }) => {
-  const { t } = useTranslation()
-  const { defaultChainId } = useEnabledChains()
-  const chainId = fromGraphQLChain(token.chain) ?? defaultChainId
-  const unwrappedToken = unwrapToken(chainId, token)
-  const isNative = unwrappedToken.address === NATIVE_CHAIN_ID
-  const nativeCurrency = useCurrency(NATIVE_CHAIN_ID, chainId)
+  const { t } = useTranslation();
+  const { defaultChainId } = useEnabledChains();
+  const chainId = fromGraphQLChain(token.chain) ?? defaultChainId;
+  const unwrappedToken = unwrapToken(chainId, token);
+  const isNative = unwrappedToken.address === NATIVE_CHAIN_ID;
+  const nativeCurrency = useCurrency(NATIVE_CHAIN_ID, chainId);
   return (
     <StyledInternalLink
       to={getTokenDetailsURL({
         address: unwrappedToken.address,
         chain: token.chain,
-      })}
-    >
+      })}>
       <Flex row gap="$gap8" maxWidth="100px" alignItems="center">
         <EllipsisText>{unwrappedToken?.symbol ?? t('common.unknown').toUpperCase()}</EllipsisText>
         {!hideLogo && (
@@ -322,5 +322,5 @@ export const TokenLinkCell = ({ token, hideLogo }: { token: Token; hideLogo?: bo
         )}
       </Flex>
     </StyledInternalLink>
-  )
-}
+  );
+};

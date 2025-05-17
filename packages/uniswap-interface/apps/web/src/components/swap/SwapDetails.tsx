@@ -1,33 +1,33 @@
-import { InterfaceElementName, SwapEventName } from '@uniswap/analytics-events'
-import { Currency, Percent } from '@uniswap/sdk-core'
-import { ReactComponent as ExpandoIconClosed } from 'assets/svg/expando-icon-closed.svg'
-import { ReactComponent as ExpandoIconOpened } from 'assets/svg/expando-icon-opened.svg'
-import Column from 'components/deprecated/Column'
-import { AutoRow, RowBetween } from 'components/deprecated/Row'
-import { LimitDisclaimer } from 'components/swap/LimitDisclaimer'
-import SwapLineItem, { SwapLineItemType } from 'components/swap/SwapLineItem'
-import { SwapCallbackError, SwapShowAcceptChanges } from 'components/swap/styled'
-import { Allowance, AllowanceState } from 'hooks/usePermit2Allowance'
-import { SwapResult } from 'hooks/useSwapCallback'
-import styled from 'lib/styled-components'
-import ms from 'ms'
-import { ReactNode, useMemo, useState } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
-import { InterfaceTrade, LimitOrderTrade, RouterPreference } from 'state/routing/types'
-import { isClassicTrade, isLimitTrade } from 'state/routing/utils'
-import { useRouterPreference, useUserSlippageTolerance } from 'state/user/hooks'
-import { ThemedText } from 'theme/components'
-import { ExternalLink } from 'theme/components/Links'
-import { Button, Flex, HeightAnimator, Separator, Text } from 'ui/src'
-import { AlertTriangleFilled } from 'ui/src/components/icons/AlertTriangleFilled'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { useTrace } from 'utilities/src/telemetry/trace/TraceContext'
-import getRoutingDiagramEntries from 'utils/getRoutingDiagramEntries'
-import { formatSwapButtonClickEventProperties } from 'utils/loggingFormatters'
+import { InterfaceElementName, SwapEventName } from '@uniswap/analytics-events';
+import { Currency, Percent } from '@uniswap/sdk-core';
+import { ReactComponent as ExpandoIconClosed } from 'assets/svg/expando-icon-closed.svg';
+import { ReactComponent as ExpandoIconOpened } from 'assets/svg/expando-icon-opened.svg';
+import Column from 'components/deprecated/Column';
+import { AutoRow, RowBetween } from 'components/deprecated/Row';
+import { LimitDisclaimer } from 'components/swap/LimitDisclaimer';
+import SwapLineItem, { SwapLineItemType } from 'components/swap/SwapLineItem';
+import { SwapCallbackError, SwapShowAcceptChanges } from 'components/swap/styled';
+import { Allowance, AllowanceState } from 'hooks/usePermit2Allowance';
+import { SwapResult } from 'hooks/useSwapCallback';
+import styled from 'lib/styled-components';
+import ms from 'ms';
+import { ReactNode, useMemo, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { InterfaceTrade, LimitOrderTrade, RouterPreference } from 'state/routing/types';
+import { isClassicTrade, isLimitTrade } from 'state/routing/utils';
+import { useRouterPreference, useUserSlippageTolerance } from 'state/user/hooks';
+import { ThemedText } from 'theme/components';
+import { ExternalLink } from 'theme/components/Links';
+import { Button, Flex, HeightAnimator, Separator, Text } from 'ui/src';
+import { AlertTriangleFilled } from 'ui/src/components/icons/AlertTriangleFilled';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { useTrace } from 'utilities/src/telemetry/trace/TraceContext';
+import getRoutingDiagramEntries from 'utils/getRoutingDiagramEntries';
+import { formatSwapButtonClickEventProperties } from 'utils/loggingFormatters';
 
 const DetailsContainer = styled(Column)`
   padding: 0px 12px 8px;
-`
+`;
 
 const DropdownControllerWrapper = styled.div`
   display: flex;
@@ -37,7 +37,7 @@ const DropdownControllerWrapper = styled.div`
   padding: 0 16px;
   min-width: fit-content;
   white-space: nowrap;
-`
+`;
 
 const DropdownButton = styled.button`
   padding: 0px 16px;
@@ -50,23 +50,23 @@ const DropdownButton = styled.button`
   border: none;
   align-items: center;
   cursor: pointer;
-`
+`;
 
 const HelpLink = styled(ExternalLink)`
   width: 100%;
   text-align: center;
   margin-top: 16px;
   margin-bottom: 4px;
-`
+`;
 
 interface CallToAction {
-  buttonText: string
-  helpLink?: HelpLink
+  buttonText: string;
+  helpLink?: HelpLink;
 }
 
 interface HelpLink {
-  text: string
-  url: string
+  text: string;
+  url: string;
 }
 
 function DropdownController({ open, onClick }: { open: boolean; onClick: () => void }) {
@@ -75,13 +75,17 @@ function DropdownController({ open, onClick }: { open: boolean; onClick: () => v
       <Separator />
       <DropdownControllerWrapper>
         <ThemedText.BodySmall color="neutral2">
-          {open ? <Trans i18nKey="common.showLess.button" /> : <Trans i18nKey="common.showMore.button" />}
+          {open ? (
+            <Trans i18nKey="common.showLess.button" />
+          ) : (
+            <Trans i18nKey="common.showMore.button" />
+          )}
         </ThemedText.BodySmall>
         {open ? <ExpandoIconOpened /> : <ExpandoIconClosed />}
       </DropdownControllerWrapper>
       <Separator />
     </DropdownButton>
-  )
+  );
 }
 
 export function SwapDetails({
@@ -100,46 +104,50 @@ export function SwapDetails({
   isLoading,
   priceImpact,
 }: {
-  trade: InterfaceTrade
-  inputCurrency?: Currency
-  allowance?: Allowance
-  swapResult?: SwapResult
-  allowedSlippage: Percent
-  onConfirm: () => void
-  swapErrorMessage?: ReactNode
-  disabledConfirm: boolean
-  fiatValueInput: { data?: number; isLoading: boolean }
-  fiatValueOutput: { data?: number; isLoading: boolean }
-  showAcceptChanges: boolean
-  onAcceptChanges?: () => void
-  isLoading: boolean
-  priceImpact?: Percent
+  trade: InterfaceTrade;
+  inputCurrency?: Currency;
+  allowance?: Allowance;
+  swapResult?: SwapResult;
+  allowedSlippage: Percent;
+  onConfirm: () => void;
+  swapErrorMessage?: ReactNode;
+  disabledConfirm: boolean;
+  fiatValueInput: { data?: number; isLoading: boolean };
+  fiatValueOutput: { data?: number; isLoading: boolean };
+  showAcceptChanges: boolean;
+  onAcceptChanges?: () => void;
+  isLoading: boolean;
+  priceImpact?: Percent;
 }) {
-  const { t } = useTranslation()
-  const isAutoSlippage = useUserSlippageTolerance()[0] === 'auto'
-  const [routerPreference] = useRouterPreference()
-  const routes = isClassicTrade(trade) ? getRoutingDiagramEntries(trade) : undefined
-  const [showMore, setShowMore] = useState(false)
+  const { t } = useTranslation();
+  const isAutoSlippage = useUserSlippageTolerance()[0] === 'auto';
+  const [routerPreference] = useRouterPreference();
+  const routes = isClassicTrade(trade) ? getRoutingDiagramEntries(trade) : undefined;
+  const [showMore, setShowMore] = useState(false);
 
-  const analyticsContext = useTrace()
+  const analyticsContext = useTrace();
 
-  const lineItemProps = { trade, allowedSlippage, syncing: false, priceImpact }
+  const lineItemProps = { trade, allowedSlippage, syncing: false, priceImpact };
 
   const callToAction: CallToAction = useMemo(() => {
     if (allowance && allowance.state === AllowanceState.REQUIRED && allowance.needsSetupApproval) {
       return {
         buttonText: isLimitTrade(trade) ? t('swap.approveAndSubmit') : t('swap.approveAndSwap'),
-      }
-    } else if (allowance && allowance.state === AllowanceState.REQUIRED && allowance.needsPermitSignature) {
+      };
+    } else if (
+      allowance &&
+      allowance.state === AllowanceState.REQUIRED &&
+      allowance.needsPermitSignature
+    ) {
       return {
         buttonText: t('swap.signAndSwap'),
-      }
+      };
     } else {
       return {
         buttonText: isLimitTrade(trade) ? t('swap.placeOrder') : t('swap.confirmSwap'),
-      }
+      };
     }
-  }, [allowance, t, trade])
+  }, [allowance, t, trade]);
 
   return (
     <>
@@ -191,16 +199,14 @@ export function SwapDetails({
                 fiatValueOutput: fiatValueOutput.data,
               }),
               ...analyticsContext,
-            }}
-          >
+            }}>
             <Button
               variant="branded"
               data-testid="confirm-swap-button"
               loading={isLoading}
               onPress={onConfirm}
               isDisabled={disabledConfirm}
-              id={InterfaceElementName.CONFIRM_SWAP_BUTTON}
-            >
+              id={InterfaceElementName.CONFIRM_SWAP_BUTTON}>
               {isLoading ? t('swap.finalizingQuote') : callToAction.buttonText}
             </Button>
             {callToAction.helpLink && (
@@ -212,7 +218,7 @@ export function SwapDetails({
         </AutoRow>
       )}
     </>
-  )
+  );
 }
 
 function SwapLineItems({
@@ -222,11 +228,11 @@ function SwapLineItems({
   syncing,
   priceImpact,
 }: {
-  showMore: boolean
-  trade: InterfaceTrade
-  allowedSlippage: Percent
-  syncing: boolean
-  priceImpact?: Percent
+  showMore: boolean;
+  trade: InterfaceTrade;
+  allowedSlippage: Percent;
+  syncing: boolean;
+  priceImpact?: Percent;
 }) {
   return (
     <>
@@ -236,7 +242,12 @@ function SwapLineItems({
         syncing={syncing}
         type={SwapLineItemType.EXCHANGE_RATE}
       />
-      <ExpandableLineItems trade={trade} allowedSlippage={allowedSlippage} open={showMore} priceImpact={priceImpact} />
+      <ExpandableLineItems
+        trade={trade}
+        allowedSlippage={allowedSlippage}
+        open={showMore}
+        priceImpact={priceImpact}
+      />
       <SwapLineItem
         trade={trade}
         allowedSlippage={allowedSlippage}
@@ -262,22 +273,22 @@ function SwapLineItems({
         type={SwapLineItemType.NETWORK_COST}
       />
     </>
-  )
+  );
 }
 
 function ExpandableLineItems(props: {
-  trade: InterfaceTrade
-  allowedSlippage: Percent
-  open: boolean
-  priceImpact?: Percent
+  trade: InterfaceTrade;
+  allowedSlippage: Percent;
+  open: boolean;
+  priceImpact?: Percent;
 }) {
-  const { open, trade, allowedSlippage, priceImpact } = props
+  const { open, trade, allowedSlippage, priceImpact } = props;
 
   if (!trade) {
-    return null
+    return null;
   }
 
-  const lineItemProps = { trade, allowedSlippage, syncing: false, priceImpact }
+  const lineItemProps = { trade, allowedSlippage, syncing: false, priceImpact };
 
   return (
     <HeightAnimator open={open} mt={open ? 0 : -8}>
@@ -308,7 +319,7 @@ function ExpandableLineItems(props: {
         />
       </Flex>
     </HeightAnimator>
-  )
+  );
 }
 
 function LimitLineItems({ trade }: { trade: LimitOrderTrade }) {
@@ -320,5 +331,5 @@ function LimitLineItems({ trade }: { trade: LimitOrderTrade }) {
       <SwapLineItem trade={trade} type={SwapLineItemType.NETWORK_COST} />
       <LimitDisclaimer />
     </>
-  )
+  );
 }

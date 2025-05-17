@@ -1,11 +1,11 @@
-import WebView from 'react-native-webview'
-import { SvgImageProps } from 'ui/src/components/UniversalImage/types'
-import { useSvgData } from 'ui/src/components/UniversalImage/utils'
-import { Flex } from 'ui/src/components/layout/Flex'
-import { Loader } from 'ui/src/loading/Loader'
-import { isIOS } from 'utilities/src/platform'
+import WebView from 'react-native-webview';
+import { SvgImageProps } from 'ui/src/components/UniversalImage/types';
+import { useSvgData } from 'ui/src/components/UniversalImage/utils';
+import { Flex } from 'ui/src/components/layout/Flex';
+import { Loader } from 'ui/src/loading/Loader';
+import { isIOS } from 'utilities/src/platform';
 
-const heightUnits = isIOS ? 'vh' : '%'
+const heightUnits = isIOS ? 'vh' : '%';
 
 const getHTML = (svgContent: string): string => `
 <html>
@@ -37,18 +37,18 @@ const getHTML = (svgContent: string): string => `
     ${svgContent}
   </body>
 </html>
-`
+`;
 
 export function SvgImage({ uri, size, autoplay, fallback }: SvgImageProps): JSX.Element | null {
-  const svgData = useSvgData(uri, autoplay)
+  const svgData = useSvgData(uri, autoplay);
 
   if (!svgData?.content || !svgData?.aspectRatio) {
-    return fallback ?? <Loader.Image />
+    return fallback ?? <Loader.Image />;
   }
 
-  const html = getHTML(svgData.content)
+  const html = getHTML(svgData.content);
 
-  const aspectRatio = size.aspectRatio ?? svgData.aspectRatio
+  const aspectRatio = size.aspectRatio ?? svgData.aspectRatio;
 
   return (
     <Flex aspectRatio={aspectRatio} maxHeight={size.height ?? '100%'}>
@@ -72,5 +72,5 @@ export function SvgImage({ uri, size, autoplay, fallback }: SvgImageProps): JSX.
         useWebKit={false}
       />
     </Flex>
-  )
+  );
 }

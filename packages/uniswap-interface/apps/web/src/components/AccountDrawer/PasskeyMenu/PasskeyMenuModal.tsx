@@ -1,6 +1,6 @@
-import { PropsWithChildren } from 'react'
-import { Flex, TouchableArea } from 'ui/src'
-import { X } from 'ui/src/components/icons/X'
+import { PropsWithChildren } from 'react';
+import { Flex, TouchableArea } from 'ui/src';
+import { X } from 'ui/src/components/icons/X';
 
 export enum PasskeyMenuModalState {
   ADD_PASSKEY = 'ADD_PASSKEY',
@@ -32,8 +32,8 @@ export function GenericPasskeyMenuModal({
       width="max-content"
       maxWidth={336}
       zIndex={2}
-      onPress={(e) => {
-        e.stopPropagation()
+      onPress={e => {
+        e.stopPropagation();
       }}
       $md={{
         position: 'static',
@@ -42,8 +42,7 @@ export function GenericPasskeyMenuModal({
         px: 0,
         width: '100%',
         maxWidth: '100%',
-      }}
-    >
+      }}>
       <Flex row width="100%" mb={-8} justifyContent="flex-end" $md={{ display: 'none' }}>
         <TouchableArea onPress={onClose}>
           <X size={24} color="$neutral2" />
@@ -51,5 +50,5 @@ export function GenericPasskeyMenuModal({
       </Flex>
       {children}
     </Flex>
-  )
+  );
 }

@@ -1,15 +1,18 @@
-import { useFiatOnRampTransactions } from 'state/fiatOnRampTransactions/hooks'
-import { FiatOnRampTransactionStatus, FiatOnRampTransactionType } from 'state/fiatOnRampTransactions/types'
-import Updater from 'state/fiatOnRampTransactions/updater'
-import { mocked } from 'test-utils/mocked'
-import { act, render } from 'test-utils/render'
+import { useFiatOnRampTransactions } from 'state/fiatOnRampTransactions/hooks';
+import {
+  FiatOnRampTransactionStatus,
+  FiatOnRampTransactionType,
+} from 'state/fiatOnRampTransactions/types';
+import Updater from 'state/fiatOnRampTransactions/updater';
+import { mocked } from 'test-utils/mocked';
+import { act, render } from 'test-utils/render';
 
-const dispatchMock = jest.fn()
+const dispatchMock = jest.fn();
 jest.mock('state/hooks', () => ({
   ...jest.requireActual('state/hooks'),
   useAppDispatch: () => dispatchMock,
-}))
-jest.mock('state/fiatOnRampTransactions/hooks')
+}));
+jest.mock('state/fiatOnRampTransactions/hooks');
 
 describe('FiatOnRampTransactions Updater', () => {
   beforeEach(() => {
@@ -44,18 +47,18 @@ describe('FiatOnRampTransactions Updater', () => {
         syncedWithBackend: false,
         provider: 'COINBASE_PAY',
       },
-    })
-  })
+    });
+  });
 
   it('should fetch /transaction endpoint for each transaction with forceFetch=false', async () => {
     const fetchSpy = jest
       .spyOn(window, 'fetch')
-      .mockResolvedValue({ json: jest.fn().mockReturnValue({ transaction: 'test' }) } as any)
-    const { asFragment } = render(<Updater />)
+      .mockResolvedValue({ json: jest.fn().mockReturnValue({ transaction: 'test' }) } as any);
+    const { asFragment } = render(<Updater />);
     await act(async () => {
-      asFragment()
-    })
-    expect(fetchSpy).toHaveBeenCalledTimes(2)
-    expect(dispatchMock).toHaveBeenCalledTimes(2)
-  })
-})
+      asFragment();
+    });
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+    expect(dispatchMock).toHaveBeenCalledTimes(2);
+  });
+});

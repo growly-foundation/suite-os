@@ -1,3 +1,3 @@
-export * from './Flex'
-export * from './Inset'
-export * from './Separator'
+export * from './Flex';
+export * from './Inset';
+export * from './Separator';

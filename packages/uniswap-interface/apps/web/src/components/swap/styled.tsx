@@ -1,6 +1,6 @@
-import { ReactNode } from 'react'
-import { Flex, styled as TamaguiStyled, Text } from 'ui/src'
-import { AlertTriangleFilled } from 'ui/src/components/icons/AlertTriangleFilled'
+import { ReactNode } from 'react';
+import { Flex, styled as TamaguiStyled, Text } from 'ui/src';
+import { AlertTriangleFilled } from 'ui/src/components/icons/AlertTriangleFilled';
 
 export const PageWrapper = TamaguiStyled(Flex, {
   pt: '$spacing60',
@@ -14,7 +14,7 @@ export const PageWrapper = TamaguiStyled(Flex, {
   $md: {
     pt: '$spacing20',
   },
-})
+});
 
 export const ArrowWrapper = TamaguiStyled(Flex, {
   display: 'flex',
@@ -42,7 +42,7 @@ export const ArrowWrapper = TamaguiStyled(Flex, {
       },
     },
   },
-})
+});
 
 // styles
 const dotsKeyframe = `
@@ -57,12 +57,12 @@ const dotsKeyframe = `
       content: '...';
     }
   }
-    `
+    `;
 
 const DotsComponent = TamaguiStyled(Flex, {
   display: 'inline',
   className: 'dots-animation',
-})
+});
 
 export const Dots = ({ children }: { children: ReactNode }) => {
   return (
@@ -78,8 +78,8 @@ export const Dots = ({ children }: { children: ReactNode }) => {
       }`}</style>
       <DotsComponent>{children}</DotsComponent>
     </>
-  )
-}
+  );
+};
 
 const SwapCallbackErrorInner = TamaguiStyled(Flex, {
   flexDirection: 'row',
@@ -93,7 +93,7 @@ const SwapCallbackErrorInner = TamaguiStyled(Flex, {
   pr: 20,
   pb: 16,
   pl: 16,
-})
+});
 
 const SwapCallbackErrorInnerAlertTriangle = TamaguiStyled(Flex, {
   backgroundColor: '$statusCritical2',
@@ -103,7 +103,7 @@ const SwapCallbackErrorInnerAlertTriangle = TamaguiStyled(Flex, {
   borderRadius: '$rounded12',
   minWidth: 48,
   height: 48,
-})
+});
 
 export function SwapCallbackError({ error }: { error: ReactNode }) {
   return (
@@ -115,14 +115,14 @@ export function SwapCallbackError({ error }: { error: ReactNode }) {
         {error}
       </Text>
     </SwapCallbackErrorInner>
-  )
+  );
 }
 
 export const SwapShowAcceptChanges = TamaguiStyled(Flex, {
   backgroundColor: '$accent2',
   p: '$spacing12',
   borderRadius: '$rounded12',
-})
+});
 
 export const SwapSection = TamaguiStyled(Flex, {
   backgroundColor: '$surface2',
@@ -141,7 +141,7 @@ export const SwapSection = TamaguiStyled(Flex, {
   focusWithinStyle: {
     borderColor: '$surface3',
   },
-})
+});
 
 export const ArrowContainer = TamaguiStyled(Flex, {
   display: 'inline-flex',
@@ -149,4 +149,4 @@ export const ArrowContainer = TamaguiStyled(Flex, {
   justifyContent: 'center',
   width: '100%',
   height: '100%',
-})
+});

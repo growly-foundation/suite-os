@@ -1,1 +1,1 @@
-declare module 'colorthief/src/color-thief-node'
+declare module 'colorthief/src/color-thief-node';

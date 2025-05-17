@@ -1,11 +1,11 @@
-import { Currency, Percent } from '@uniswap/sdk-core'
-import { ChartEntry } from 'components/Charts/LiquidityRangeInput/types'
-import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo'
-import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
-import { Flex, Text } from 'ui/src'
-import { iconSizes } from 'ui/src/theme'
-import { useUSDCValue } from 'uniswap/src/features/transactions/hooks/useUSDCPrice'
-import { NumberType, useFormatter } from 'utils/formatNumbers'
+import { Currency, Percent } from '@uniswap/sdk-core';
+import { ChartEntry } from 'components/Charts/LiquidityRangeInput/types';
+import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo';
+import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount';
+import { Flex, Text } from 'ui/src';
+import { iconSizes } from 'ui/src/theme';
+import { useUSDCValue } from 'uniswap/src/features/transactions/hooks/useUSDCPrice';
+import { NumberType, useFormatter } from 'utils/formatNumbers';
 
 export function TickTooltip({
   hoverY,
@@ -18,29 +18,31 @@ export function TickTooltip({
   quoteCurrency,
   baseCurrency,
 }: {
-  hoverY: number
-  hoveredTick: ChartEntry
-  currentPrice: number
-  currentTick?: number
-  containerHeight: number
-  contentWidth: number
-  axisLabelPaneWidth: number
-  quoteCurrency: Currency
-  baseCurrency: Currency
+  hoverY: number;
+  hoveredTick: ChartEntry;
+  currentPrice: number;
+  currentTick?: number;
+  containerHeight: number;
+  contentWidth: number;
+  axisLabelPaneWidth: number;
+  quoteCurrency: Currency;
+  baseCurrency: Currency;
 }) {
-  const { formatCurrencyAmount, formatPercent } = useFormatter()
+  const { formatCurrencyAmount, formatPercent } = useFormatter();
 
-  const amountBaseLockedUSD = useUSDCValue(tryParseCurrencyAmount(hoveredTick.amount1Locked?.toFixed(2), baseCurrency))
+  const amountBaseLockedUSD = useUSDCValue(
+    tryParseCurrencyAmount(hoveredTick.amount1Locked?.toFixed(2), baseCurrency)
+  );
   const amountQuoteLockedUSD = useUSDCValue(
-    tryParseCurrencyAmount(hoveredTick.amount0Locked?.toFixed(2), quoteCurrency),
-  )
+    tryParseCurrencyAmount(hoveredTick.amount0Locked?.toFixed(2), quoteCurrency)
+  );
 
   if (!amountQuoteLockedUSD || !amountBaseLockedUSD) {
-    return null
+    return null;
   }
 
-  const atTop = hoverY < 20
-  const atBottom = containerHeight - hoverY < 20
+  const atTop = hoverY < 20;
+  const atBottom = containerHeight - hoverY < 20;
 
   return (
     <Flex
@@ -55,8 +57,7 @@ export function TickTooltip({
       borderWidth="$spacing1"
       backgroundColor="$surface2"
       pointerEvents="none"
-      transform={atBottom ? 'translateY(-12px)' : atTop ? 'translateY(14px)' : undefined}
-    >
+      transform={atBottom ? 'translateY(-12px)' : atTop ? 'translateY(14px)' : undefined}>
       {(currentPrice >= hoveredTick.price0 || hoveredTick.tick === currentTick) && (
         <Flex justifyContent="space-between" row alignItems="center" gap="$gap8">
           <Flex row gap="$gap4" alignItems="center">
@@ -74,8 +75,11 @@ export function TickTooltip({
               <Text variant="body4" color="$neutral2">
                 {formatPercent(
                   hoveredTick.tick === currentTick
-                    ? new Percent(amountQuoteLockedUSD.quotient, amountBaseLockedUSD.add(amountQuoteLockedUSD).quotient)
-                    : new Percent(1, 1),
+                    ? new Percent(
+                        amountQuoteLockedUSD.quotient,
+                        amountBaseLockedUSD.add(amountQuoteLockedUSD).quotient
+                      )
+                    : new Percent(1, 1)
                 )}
               </Text>
             )}
@@ -99,8 +103,11 @@ export function TickTooltip({
               <Text variant="body4" color="$neutral2">
                 {formatPercent(
                   hoveredTick.tick === currentTick
-                    ? new Percent(amountBaseLockedUSD.quotient, amountQuoteLockedUSD.add(amountBaseLockedUSD).quotient)
-                    : new Percent(1, 1),
+                    ? new Percent(
+                        amountBaseLockedUSD.quotient,
+                        amountQuoteLockedUSD.add(amountBaseLockedUSD).quotient
+                      )
+                    : new Percent(1, 1)
                 )}
               </Text>
             )}
@@ -108,5 +115,5 @@ export function TickTooltip({
         </Flex>
       )}
     </Flex>
-  )
+  );
 }

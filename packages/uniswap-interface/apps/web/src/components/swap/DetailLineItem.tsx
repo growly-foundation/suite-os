@@ -1,46 +1,46 @@
-import { LoadingRow } from 'components/Loader/styled'
-import { MouseoverTooltip, TooltipSize } from 'components/Tooltip'
-import { useIsMobile } from 'hooks/screenSize/useIsMobile'
-import useHoverProps from 'hooks/useHoverProps'
-import styled from 'lib/styled-components'
-import { PropsWithChildren } from 'react'
-import { ThemedText } from 'theme/components'
-import { Flex } from 'ui/src'
+import { LoadingRow } from 'components/Loader/styled';
+import { MouseoverTooltip, TooltipSize } from 'components/Tooltip';
+import { useIsMobile } from 'hooks/screenSize/useIsMobile';
+import useHoverProps from 'hooks/useHoverProps';
+import styled from 'lib/styled-components';
+import { PropsWithChildren } from 'react';
+import { ThemedText } from 'theme/components';
+import { Flex } from 'ui/src';
 
 export type LineItemData = {
-  Label: React.FC
-  Value: React.FC
-  TooltipBody?: React.FC
-  tooltipSize?: TooltipSize
-  loaderWidth?: number
-}
+  Label: React.FC;
+  Value: React.FC;
+  TooltipBody?: React.FC;
+  tooltipSize?: TooltipSize;
+  loaderWidth?: number;
+};
 
 const LabelText = styled(ThemedText.BodySmall)<{ hasTooltip?: boolean }>`
   cursor: ${({ hasTooltip }) => (hasTooltip ? 'help' : 'auto')};
   color: ${({ theme }) => theme.neutral2};
-`
+`;
 
 const DetailRowValue = styled(ThemedText.BodySmall)`
   text-align: right;
   overflow-wrap: break-word;
-`
+`;
 
 type ValueWrapperProps = PropsWithChildren<{
-  lineItem: LineItemData
-  labelHovered: boolean
-  syncing: boolean
-}>
+  lineItem: LineItemData;
+  labelHovered: boolean;
+  syncing: boolean;
+}>;
 
 function ValueWrapper({ children, lineItem, labelHovered, syncing }: ValueWrapperProps) {
-  const { TooltipBody, tooltipSize, loaderWidth } = lineItem
-  const isMobile = useIsMobile()
+  const { TooltipBody, tooltipSize, loaderWidth } = lineItem;
+  const isMobile = useIsMobile();
 
   if (syncing) {
-    return <LoadingRow data-testid="loading-row" height={15} width={loaderWidth ?? 50} />
+    return <LoadingRow data-testid="loading-row" height={15} width={loaderWidth ?? 50} />;
   }
 
   if (!TooltipBody) {
-    return <DetailRowValue>{children}</DetailRowValue>
+    return <DetailRowValue>{children}</DetailRowValue>;
   }
 
   return (
@@ -52,18 +52,23 @@ function ValueWrapper({ children, lineItem, labelHovered, syncing }: ValueWrappe
         <ThemedText.Caption color="neutral2">
           <TooltipBody />
         </ThemedText.Caption>
-      }
-    >
+      }>
       <DetailRowValue>{children}</DetailRowValue>
     </MouseoverTooltip>
-  )
+  );
 }
 
-export function DetailLineItem({ LineItem, syncing }: { LineItem: LineItemData; syncing?: boolean }) {
-  const [labelHovered, hoverProps] = useHoverProps()
+export function DetailLineItem({
+  LineItem,
+  syncing,
+}: {
+  LineItem: LineItemData;
+  syncing?: boolean;
+}) {
+  const [labelHovered, hoverProps] = useHoverProps();
 
   if (!LineItem || !LineItem.Label || !LineItem.Value) {
-    return null
+    return null;
   }
 
   return (
@@ -75,5 +80,5 @@ export function DetailLineItem({ LineItem, syncing }: { LineItem: LineItemData; 
         <LineItem.Value />
       </ValueWrapper>
     </Flex>
-  )
+  );
 }

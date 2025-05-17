@@ -1,17 +1,21 @@
-import { Currency } from '@uniswap/sdk-core'
-import { useCurrencyInfo } from 'hooks/Tokens'
-import styled from 'lib/styled-components'
-import { memo } from 'react'
-import { Flex, useColorSchemeFromSeed } from 'ui/src'
-import { zIndexes } from 'ui/src/theme'
-import { STATUS_RATIO } from 'uniswap/src/components/CurrencyLogo/CurrencyLogo'
-import { NetworkLogo } from 'uniswap/src/components/CurrencyLogo/NetworkLogo'
-import { SplitLogo } from 'uniswap/src/components/CurrencyLogo/SplitLogo'
-import { TokenLogo } from 'uniswap/src/components/CurrencyLogo/TokenLogo'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { isMobileApp } from 'utilities/src/platform'
+import { Currency } from '@uniswap/sdk-core';
+import { useCurrencyInfo } from 'hooks/Tokens';
+import styled from 'lib/styled-components';
+import { memo } from 'react';
+import { Flex, useColorSchemeFromSeed } from 'ui/src';
+import { zIndexes } from 'ui/src/theme';
+import { STATUS_RATIO } from 'uniswap/src/components/CurrencyLogo/CurrencyLogo';
+import { NetworkLogo } from 'uniswap/src/components/CurrencyLogo/NetworkLogo';
+import { SplitLogo } from 'uniswap/src/components/CurrencyLogo/SplitLogo';
+import { TokenLogo } from 'uniswap/src/components/CurrencyLogo/TokenLogo';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import { isMobileApp } from 'utilities/src/platform';
 
-const MissingImageLogo = styled.div<{ $size?: string; $textColor: string; $backgroundColor: string }>`
+const MissingImageLogo = styled.div<{
+  $size?: string;
+  $textColor: string;
+  $backgroundColor: string;
+}>`
   --size: ${({ $size }) => $size};
   border-radius: 100px;
   color: ${({ $textColor }) => $textColor};
@@ -26,34 +30,40 @@ const MissingImageLogo = styled.div<{ $size?: string; $textColor: string; $backg
   align-items: center;
   justify-content: center;
   position: relative;
-`
+`;
 
 function LogolessPlaceholder({
   currency,
   size,
   includeNetwork = true,
 }: {
-  currency?: Currency
-  size: number
-  includeNetwork?: boolean
+  currency?: Currency;
+  size: number;
+  includeNetwork?: boolean;
 }) {
-  const { foreground, background } = useColorSchemeFromSeed(currency?.name ?? currency?.symbol ?? '')
+  const { foreground, background } = useColorSchemeFromSeed(
+    currency?.name ?? currency?.symbol ?? ''
+  );
 
-  const chainId = currency?.chainId
-  const showNetworkLogo = includeNetwork && chainId && chainId !== UniverseChainId.Mainnet
-  const networkLogoSize = Math.round(size * STATUS_RATIO)
-  const networkLogoBorderWidth = isMobileApp ? 2 : 1.5
+  const chainId = currency?.chainId;
+  const showNetworkLogo = includeNetwork && chainId && chainId !== UniverseChainId.Mainnet;
+  const networkLogoSize = Math.round(size * STATUS_RATIO);
+  const networkLogoBorderWidth = isMobileApp ? 2 : 1.5;
 
   return (
     <MissingImageLogo $size={size + 'px'} $textColor={foreground} $backgroundColor={background}>
       {currency?.symbol?.toUpperCase().replace('$', '').replace(/\s+/g, '').slice(0, 3)}
       {showNetworkLogo && (
         <Flex bottom={-2} position="absolute" right={-3} zIndex={zIndexes.mask}>
-          <NetworkLogo borderWidth={networkLogoBorderWidth} chainId={chainId} size={networkLogoSize} />
+          <NetworkLogo
+            borderWidth={networkLogoBorderWidth}
+            chainId={chainId}
+            size={networkLogoSize}
+          />
         </Flex>
       )}
     </MissingImageLogo>
-  )
+  );
 }
 
 export const DoubleCurrencyLogo = memo(function DoubleCurrencyLogo({
@@ -62,24 +72,30 @@ export const DoubleCurrencyLogo = memo(function DoubleCurrencyLogo({
   customIcon,
   includeNetwork = true,
 }: {
-  currencies: Array<Currency | undefined>
-  size?: number
-  customIcon?: React.ReactNode
-  includeNetwork?: boolean
+  currencies: Array<Currency | undefined>;
+  size?: number;
+  customIcon?: React.ReactNode;
+  includeNetwork?: boolean;
 }) {
-  const currencyInfos = [useCurrencyInfo(currencies?.[0]), useCurrencyInfo(currencies?.[1])]
-  const invalidCurrencyLogo0 = !currencyInfos[0]?.logoUrl
-  const invalidCurrencyLogo1 = !currencyInfos[1]?.logoUrl
-  const chainId = includeNetwork ? currencyInfos[0]?.currency.chainId ?? null : null
+  const currencyInfos = [useCurrencyInfo(currencies?.[0]), useCurrencyInfo(currencies?.[1])];
+  const invalidCurrencyLogo0 = !currencyInfos[0]?.logoUrl;
+  const invalidCurrencyLogo1 = !currencyInfos[1]?.logoUrl;
+  const chainId = includeNetwork ? (currencyInfos[0]?.currency.chainId ?? null) : null;
 
   if (invalidCurrencyLogo0 && invalidCurrencyLogo1) {
-    return <LogolessPlaceholder currency={currencies?.[0]} size={size} includeNetwork={Boolean(chainId)} />
+    return (
+      <LogolessPlaceholder
+        currency={currencies?.[0]}
+        size={size}
+        includeNetwork={Boolean(chainId)}
+      />
+    );
   }
   if (invalidCurrencyLogo0 && currencyInfos[1]?.logoUrl) {
-    return <TokenLogo url={currencyInfos[1].logoUrl} size={size} chainId={chainId} />
+    return <TokenLogo url={currencyInfos[1].logoUrl} size={size} chainId={chainId} />;
   }
   if (invalidCurrencyLogo1 && currencyInfos[0]?.logoUrl) {
-    return <TokenLogo url={currencyInfos[0]?.logoUrl} size={size} chainId={chainId} />
+    return <TokenLogo url={currencyInfos[0]?.logoUrl} size={size} chainId={chainId} />;
   }
   return (
     <SplitLogo
@@ -89,5 +105,5 @@ export const DoubleCurrencyLogo = memo(function DoubleCurrencyLogo({
       customIcon={customIcon}
       size={size}
     />
-  )
-})
+  );
+});

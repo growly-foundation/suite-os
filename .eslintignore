@@ -1,3 +1,4 @@
 **/**.js
 **/*.config.ts
 **/components/ui/**.tsx
+**/uniswap-*

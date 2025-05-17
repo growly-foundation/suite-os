@@ -1,17 +1,17 @@
-import { createMigrate } from 'redux-persist'
-import { migration1 } from 'state/migrations/1'
-import { PersistAppStateV10, migration10 } from 'state/migrations/10'
-import { migration11 } from 'state/migrations/11'
-import { migration2 } from 'state/migrations/2'
-import { migration3 } from 'state/migrations/3'
-import { migration4 } from 'state/migrations/4'
-import { migration5 } from 'state/migrations/5'
-import { migration6 } from 'state/migrations/6'
-import { migration7 } from 'state/migrations/7'
-import { migration8 } from 'state/migrations/8'
-import { migration9 } from 'state/migrations/9'
-import { RouterPreference } from 'state/routing/types'
-import { SlippageTolerance } from 'state/user/types'
+import { createMigrate } from 'redux-persist';
+import { migration1 } from 'state/migrations/1';
+import { PersistAppStateV10, migration10 } from 'state/migrations/10';
+import { migration11 } from 'state/migrations/11';
+import { migration2 } from 'state/migrations/2';
+import { migration3 } from 'state/migrations/3';
+import { migration4 } from 'state/migrations/4';
+import { migration5 } from 'state/migrations/5';
+import { migration6 } from 'state/migrations/6';
+import { migration7 } from 'state/migrations/7';
+import { migration8 } from 'state/migrations/8';
+import { migration9 } from 'state/migrations/9';
+import { RouterPreference } from 'state/routing/types';
+import { SlippageTolerance } from 'state/user/types';
 
 const persistUserState: PersistAppStateV10['user'] = {
   userRouterPreference: RouterPreference.X,
@@ -23,7 +23,7 @@ const persistUserState: PersistAppStateV10['user'] = {
   tokens: {},
   pairs: {},
   timestamp: Date.now(),
-}
+};
 
 const previousStateWithMeta: PersistAppStateV10 = {
   user: {
@@ -34,7 +34,7 @@ const previousStateWithMeta: PersistAppStateV10 = {
     version: 9,
     rehydrated: true,
   },
-}
+};
 
 const previousStateWithoutMeta: PersistAppStateV10 = {
   user: {
@@ -45,7 +45,7 @@ const previousStateWithoutMeta: PersistAppStateV10 = {
     version: 9,
     rehydrated: true,
   },
-}
+};
 describe('migration to v10', () => {
   it('should migrate users who have undefined recentConnectionMeta', async () => {
     const migrator = createMigrate(
@@ -62,12 +62,12 @@ describe('migration to v10', () => {
         10: migration10,
         11: migration11,
       },
-      { debug: false },
-    )
-    const result: any = await migrator(previousStateWithMeta, 11)
+      { debug: false }
+    );
+    const result: any = await migrator(previousStateWithMeta, 11);
 
-    expect(Object.keys(result.user)).not.toContain('recentConnectionMeta')
-  })
+    expect(Object.keys(result.user)).not.toContain('recentConnectionMeta');
+  });
 
   it('should migrate users who have defined recentConnectionMeta', async () => {
     const migrator = createMigrate(
@@ -84,9 +84,9 @@ describe('migration to v10', () => {
         10: migration10,
         11: migration11,
       },
-      { debug: false },
-    )
-    const result: any = await migrator(previousStateWithoutMeta, 11)
-    expect(Object.keys(result.user)).not.toContain('recentConnectionMeta')
-  })
-})
+      { debug: false }
+    );
+    const result: any = await migrator(previousStateWithoutMeta, 11);
+    expect(Object.keys(result.user)).not.toContain('recentConnectionMeta');
+  });
+});

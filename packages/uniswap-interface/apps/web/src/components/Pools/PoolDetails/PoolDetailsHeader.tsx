@@ -1,49 +1,56 @@
-import { Percent } from '@uniswap/sdk-core'
-import { BreadcrumbNavContainer, BreadcrumbNavLink, CurrentPageBreadcrumb } from 'components/BreadcrumbNav'
-import { DropdownSelector } from 'components/DropdownSelector'
-import { EtherscanLogo } from 'components/Icons/Etherscan'
-import { ExplorerIcon } from 'components/Icons/ExplorerIcon'
-import CurrencyLogo from 'components/Logo/CurrencyLogo'
-import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo'
-import { LpIncentivesAprDisplay } from 'components/LpIncentives/LpIncentivesAprDisplay'
-import { DetailBubble } from 'components/Pools/PoolDetails/shared'
-import { PoolDetailsBadge } from 'components/Pools/PoolTable/PoolTable'
-import ShareButton from 'components/Tokens/TokenDetails/ShareButton'
-import { ActionButtonStyle } from 'components/Tokens/TokenDetails/shared'
-import { LoadingBubble } from 'components/Tokens/loading'
-import Column from 'components/deprecated/Column'
-import Row from 'components/deprecated/Row'
-import { NATIVE_CHAIN_ID } from 'constants/tokens'
-import { getTokenDetailsURL, gqlToCurrency } from 'graphql/data/util'
-import styled, { useTheme } from 'lib/styled-components'
-import { ReversedArrowsIcon } from 'nft/components/iconExports'
-import React, { useMemo, useState } from 'react'
-import { ChevronRight, ExternalLink as ExternalLinkIcon } from 'react-feather'
-import { Trans, useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
-import { ThemedText } from 'theme/components'
-import { ExternalLink } from 'theme/components/Links'
-import { ClickableStyle, ClickableTamaguiStyle, EllipsisStyle } from 'theme/components/styles'
-import { textFadeIn } from 'theme/styles'
-import { Flex, TouchableArea, useIsTouchDevice, useMedia } from 'ui/src'
-import { BIPS_BASE } from 'uniswap/src/constants/misc'
-import { ProtocolVersion, Token } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { toGraphQLChain } from 'uniswap/src/features/chains/utils'
-import { FeatureFlags } from 'uniswap/src/features/gating/flags'
-import { useFeatureFlag } from 'uniswap/src/features/gating/hooks'
-import { ExplorerDataType, getExplorerLink } from 'uniswap/src/utils/linking'
-import { shortenAddress } from 'utilities/src/addresses'
-import { getChainUrlParam } from 'utils/chainParams'
-import { useFormatter } from 'utils/formatNumbers'
+import { Percent } from '@uniswap/sdk-core';
+import {
+  BreadcrumbNavContainer,
+  BreadcrumbNavLink,
+  CurrentPageBreadcrumb,
+} from 'components/BreadcrumbNav';
+import { DropdownSelector } from 'components/DropdownSelector';
+import { EtherscanLogo } from 'components/Icons/Etherscan';
+import { ExplorerIcon } from 'components/Icons/ExplorerIcon';
+import CurrencyLogo from 'components/Logo/CurrencyLogo';
+import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo';
+import { LpIncentivesAprDisplay } from 'components/LpIncentives/LpIncentivesAprDisplay';
+import { DetailBubble } from 'components/Pools/PoolDetails/shared';
+import { PoolDetailsBadge } from 'components/Pools/PoolTable/PoolTable';
+import ShareButton from 'components/Tokens/TokenDetails/ShareButton';
+import { ActionButtonStyle } from 'components/Tokens/TokenDetails/shared';
+import { LoadingBubble } from 'components/Tokens/loading';
+import Column from 'components/deprecated/Column';
+import Row from 'components/deprecated/Row';
+import { NATIVE_CHAIN_ID } from 'constants/tokens';
+import { getTokenDetailsURL, gqlToCurrency } from 'graphql/data/util';
+import styled, { useTheme } from 'lib/styled-components';
+import { ReversedArrowsIcon } from 'nft/components/iconExports';
+import React, { useMemo, useState } from 'react';
+import { ChevronRight, ExternalLink as ExternalLinkIcon } from 'react-feather';
+import { Trans, useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import { ThemedText } from 'theme/components';
+import { ExternalLink } from 'theme/components/Links';
+import { ClickableStyle, ClickableTamaguiStyle, EllipsisStyle } from 'theme/components/styles';
+import { textFadeIn } from 'theme/styles';
+import { Flex, TouchableArea, useIsTouchDevice, useMedia } from 'ui/src';
+import { BIPS_BASE } from 'uniswap/src/constants/misc';
+import {
+  ProtocolVersion,
+  Token,
+} from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import { toGraphQLChain } from 'uniswap/src/features/chains/utils';
+import { FeatureFlags } from 'uniswap/src/features/gating/flags';
+import { useFeatureFlag } from 'uniswap/src/features/gating/hooks';
+import { ExplorerDataType, getExplorerLink } from 'uniswap/src/utils/linking';
+import { shortenAddress } from 'utilities/src/addresses';
+import { getChainUrlParam } from 'utils/chainParams';
+import { useFormatter } from 'utils/formatNumbers';
 
 const StyledExternalLink = styled(ExternalLink)`
   &:hover {
     // Override hover behavior from ExternalLink
     opacity: 1;
   }
-`
+`;
 
 const HeaderContainer = styled.div`
   display: flex;
@@ -52,27 +59,33 @@ const HeaderContainer = styled.div`
   width: 100%;
   ${textFadeIn};
   animation-duration: ${({ theme }) => theme.transition.duration.medium};
-`
+`;
 
 const IconBubble = styled(LoadingBubble)`
   width: 32px;
   height: 32px;
   border-radius: 50%;
-`
+`;
 
 interface PoolDetailsBreadcrumbProps {
-  chainId?: UniverseChainId
-  poolAddress?: string
-  token0?: Token
-  token1?: Token
-  loading?: boolean
+  chainId?: UniverseChainId;
+  poolAddress?: string;
+  token0?: Token;
+  token1?: Token;
+  loading?: boolean;
 }
 
-export function PoolDetailsBreadcrumb({ chainId, poolAddress, token0, token1, loading }: PoolDetailsBreadcrumbProps) {
-  const { defaultChainId } = useEnabledChains()
-  const chainUrlParam = getChainUrlParam(chainId ?? defaultChainId)
-  const exploreOrigin = `/explore/${chainUrlParam}`
-  const poolsOrigin = `/explore/pools/${chainUrlParam}`
+export function PoolDetailsBreadcrumb({
+  chainId,
+  poolAddress,
+  token0,
+  token1,
+  loading,
+}: PoolDetailsBreadcrumbProps) {
+  const { defaultChainId } = useEnabledChains();
+  const chainUrlParam = getChainUrlParam(chainId ?? defaultChainId);
+  const exploreOrigin = `/explore/${chainUrlParam}`;
+  const poolsOrigin = `/explore/pools/${chainUrlParam}`;
 
   return (
     <BreadcrumbNavContainer aria-label="breadcrumb-nav">
@@ -85,10 +98,13 @@ export function PoolDetailsBreadcrumb({ chainId, poolAddress, token0, token1, lo
       {loading || !poolAddress ? (
         <DetailBubble $width={200} />
       ) : (
-        <CurrentPageBreadcrumb address={poolAddress} poolName={`${token0?.symbol} / ${token1?.symbol}`} />
+        <CurrentPageBreadcrumb
+          address={poolAddress}
+          poolName={`${token0?.symbol} / ${token1?.symbol}`}
+        />
       )}
     </BreadcrumbNavContainer>
-  )
+  );
 }
 
 const StyledPoolDetailsTitle = styled.div`
@@ -97,7 +113,7 @@ const StyledPoolDetailsTitle = styled.div`
   gap: 12px;
   width: max-content;
   align-items: center;
-`
+`;
 
 const PoolName = styled(ThemedText.HeadlineMedium)`
   font-size: 24px !important;
@@ -106,7 +122,7 @@ const PoolName = styled(ThemedText.HeadlineMedium)`
     font-size: 18px !important;
     line-height: 24px !important;
   }
-`
+`;
 
 const PoolDetailsTitle = ({
   token0,
@@ -117,19 +133,19 @@ const PoolDetailsTitle = ({
   toggleReversed,
   hookAddress,
 }: {
-  token0?: Token
-  token1?: Token
-  chainId?: UniverseChainId
-  feeTier?: number
-  protocolVersion?: ProtocolVersion
-  toggleReversed: React.DispatchWithoutAction
-  hookAddress?: string
+  token0?: Token;
+  token1?: Token;
+  chainId?: UniverseChainId;
+  feeTier?: number;
+  protocolVersion?: ProtocolVersion;
+  toggleReversed: React.DispatchWithoutAction;
+  hookAddress?: string;
 }) => {
-  const theme = useTheme()
-  const { formatPercent } = useFormatter()
-  const { defaultChainId } = useEnabledChains()
-  const graphQLChain = toGraphQLChain(chainId ?? defaultChainId)
-  const feePercent = feeTier && formatPercent(new Percent(feeTier, BIPS_BASE * 100))
+  const theme = useTheme();
+  const { formatPercent } = useFormatter();
+  const { defaultChainId } = useEnabledChains();
+  const graphQLChain = toGraphQLChain(chainId ?? defaultChainId);
+  const feePercent = feeTier && formatPercent(new Percent(feeTier, BIPS_BASE * 100));
   return (
     <StyledPoolDetailsTitle>
       <Flex>
@@ -138,8 +154,7 @@ const PoolDetailsTitle = ({
             to={getTokenDetailsURL({
               address: token0?.address,
               chain: graphQLChain,
-            })}
-          >
+            })}>
             {token0?.symbol}
           </StyledLink>
           &nbsp;/&nbsp;
@@ -147,8 +162,7 @@ const PoolDetailsTitle = ({
             to={getTokenDetailsURL({
               address: token1?.address,
               chain: graphQLChain,
-            })}
-          >
+            })}>
             {token1?.symbol}
           </StyledLink>
         </PoolName>
@@ -158,7 +172,12 @@ const PoolDetailsTitle = ({
           {protocolVersion?.toLowerCase()}
         </PoolDetailsBadge>
         {hookAddress && (
-          <ExternalLink href={getExplorerLink(chainId ?? defaultChainId, hookAddress, ExplorerDataType.ADDRESS)}>
+          <ExternalLink
+            href={getExplorerLink(
+              chainId ?? defaultChainId,
+              hookAddress,
+              ExplorerDataType.ADDRESS
+            )}>
             <PoolDetailsBadge variant="body3" {...ClickableTamaguiStyle}>
               {shortenAddress(hookAddress, 0, 4)}
             </PoolDetailsBadge>
@@ -174,13 +193,12 @@ const PoolDetailsTitle = ({
         hoverable
         {...ClickableTamaguiStyle}
         onPress={toggleReversed}
-        testID="toggle-tokens-reverse-arrows"
-      >
+        testID="toggle-tokens-reverse-arrows">
         <ReversedArrowsIcon size="20px" color={theme.neutral2} />
       </TouchableArea>
     </StyledPoolDetailsTitle>
-  )
-}
+  );
+};
 
 const ContractsDropdownRowContainer = styled(Row)`
   align-items: center;
@@ -193,37 +211,41 @@ const ContractsDropdownRowContainer = styled(Row)`
   &:hover {
     background: ${({ theme }) => theme.surface3};
   }
-`
+`;
 
 const ContractsDropdownRow = ({
   address,
   chainId,
   tokens,
 }: {
-  address?: string
-  chainId?: number
-  tokens: (Token | undefined)[]
+  address?: string;
+  chainId?: number;
+  tokens: (Token | undefined)[];
 }) => {
-  const theme = useTheme()
-  const currency = tokens[0] && gqlToCurrency(tokens[0])
-  const isPool = tokens.length === 2
-  const currencies = isPool && tokens[1] ? [currency, gqlToCurrency(tokens[1])] : [currency]
-  const isNative = address === NATIVE_CHAIN_ID
+  const theme = useTheme();
+  const currency = tokens[0] && gqlToCurrency(tokens[0]);
+  const isPool = tokens.length === 2;
+  const currencies = isPool && tokens[1] ? [currency, gqlToCurrency(tokens[1])] : [currency];
+  const isNative = address === NATIVE_CHAIN_ID;
   const explorerUrl =
     chainId &&
     address &&
     getExplorerLink(
       chainId,
       address,
-      isNative ? ExplorerDataType.NATIVE : isPool ? ExplorerDataType.ADDRESS : ExplorerDataType.TOKEN,
-    )
+      isNative
+        ? ExplorerDataType.NATIVE
+        : isPool
+          ? ExplorerDataType.ADDRESS
+          : ExplorerDataType.TOKEN
+    );
 
   if (!chainId || !explorerUrl) {
     return (
       <ContractsDropdownRowContainer>
         <DetailBubble $width={117} />
       </ContractsDropdownRowContainer>
-    )
+    );
   }
 
   return (
@@ -243,8 +265,8 @@ const ContractsDropdownRow = ({
         <ExternalLinkIcon size="16px" stroke={theme.neutral2} />
       </ContractsDropdownRowContainer>
     </StyledExternalLink>
-  )
-}
+  );
+};
 
 const PoolDetailsHeaderActions = ({
   chainId,
@@ -254,17 +276,17 @@ const PoolDetailsHeaderActions = ({
   token1,
   protocolVersion,
 }: {
-  chainId?: number
-  poolAddress?: string
-  poolName: string
-  token0?: Token
-  token1?: Token
-  protocolVersion?: ProtocolVersion
+  chainId?: number;
+  poolAddress?: string;
+  poolName: string;
+  token0?: Token;
+  token1?: Token;
+  protocolVersion?: ProtocolVersion;
 }) => {
-  const { t } = useTranslation()
-  const theme = useTheme()
-  const isTouchDevice = useIsTouchDevice()
-  const [contractsModalIsOpen, toggleContractsModal] = useState(false)
+  const { t } = useTranslation();
+  const theme = useTheme();
+  const isTouchDevice = useIsTouchDevice();
+  const [contractsModalIsOpen, toggleContractsModal] = useState(false);
 
   return (
     <Row width="max-content" justify="flex-end" gap="sm">
@@ -282,11 +304,14 @@ const PoolDetailsHeaderActions = ({
         hideChevron
         buttonStyle={ActionButtonStyle}
         dropdownStyle={{ minWidth: 235 }}
-        alignRight
-      >
+        alignRight>
         <>
           {protocolVersion !== ProtocolVersion.V4 && (
-            <ContractsDropdownRow address={poolAddress} chainId={chainId} tokens={[token0, token1]} />
+            <ContractsDropdownRow
+              address={poolAddress}
+              chainId={chainId}
+              tokens={[token0, token1]}
+            />
           )}
           <ContractsDropdownRow address={token0?.address} chainId={chainId} tokens={[token0]} />
           <ContractsDropdownRow address={token1?.address} chainId={chainId} tokens={[token1]} />
@@ -294,27 +319,27 @@ const PoolDetailsHeaderActions = ({
       </DropdownSelector>
       <ShareButton name={poolName} utmSource="share-pool" />
     </Row>
-  )
-}
+  );
+};
 
 const StyledLink = styled(Link)`
   color: ${({ theme }) => theme.neutral1};
   text-decoration: none;
   ${ClickableStyle}
-`
+`;
 
 interface PoolDetailsHeaderProps {
-  chainId?: number
-  poolAddress?: string
-  token0?: Token
-  token1?: Token
-  feeTier?: number
-  protocolVersion?: ProtocolVersion
-  toggleReversed: React.DispatchWithoutAction
-  loading?: boolean
-  hookAddress?: string
-  poolApr?: Percent
-  rewardsApr?: number
+  chainId?: number;
+  poolAddress?: string;
+  token0?: Token;
+  token1?: Token;
+  feeTier?: number;
+  protocolVersion?: ProtocolVersion;
+  toggleReversed: React.DispatchWithoutAction;
+  loading?: boolean;
+  hookAddress?: string;
+  poolApr?: Percent;
+  rewardsApr?: number;
 }
 
 export function PoolDetailsHeader({
@@ -329,15 +354,15 @@ export function PoolDetailsHeader({
   loading,
   rewardsApr,
 }: PoolDetailsHeaderProps) {
-  const media = useMedia()
-  const shouldColumnBreak = media.md
-  const poolName = `${token0?.symbol} / ${token1?.symbol}`
+  const media = useMedia();
+  const shouldColumnBreak = media.md;
+  const poolName = `${token0?.symbol} / ${token1?.symbol}`;
   const currencies = useMemo(
     () => (token0 && token1 ? [gqlToCurrency(token0), gqlToCurrency(token1)] : []),
-    [token0, token1],
-  )
-  const isLPIncentivesEnabled = useFeatureFlag(FeatureFlags.LpIncentives)
-  const showRewards = isLPIncentivesEnabled && rewardsApr && rewardsApr > 0
+    [token0, token1]
+  );
+  const isLPIncentivesEnabled = useFeatureFlag(FeatureFlags.LpIncentives);
+  const showRewards = isLPIncentivesEnabled && rewardsApr && rewardsApr > 0;
 
   if (loading) {
     return (
@@ -354,7 +379,7 @@ export function PoolDetailsHeader({
           </Row>
         )}
       </HeaderContainer>
-    )
+    );
   }
   return (
     <HeaderContainer>
@@ -379,11 +404,17 @@ export function PoolDetailsHeader({
             protocolVersion={protocolVersion}
             toggleReversed={toggleReversed}
           />
-          {showRewards && <LpIncentivesAprDisplay lpIncentiveRewardApr={rewardsApr} hideBackground />}
+          {showRewards && (
+            <LpIncentivesAprDisplay lpIncentiveRewardApr={rewardsApr} hideBackground />
+          )}
         </Flex>
       ) : (
         <Flex row gap={showRewards ? '$spacing16' : '$spacing12'} alignItems="center" width="100%">
-          <DoubleCurrencyLogo size={showRewards ? 56 : 30} currencies={currencies} data-testid="double-token-logo" />
+          <DoubleCurrencyLogo
+            size={showRewards ? 56 : 30}
+            currencies={currencies}
+            data-testid="double-token-logo"
+          />
           <Flex flex={1}>
             <Flex row justifyContent="space-between" alignItems="center" width="100%">
               <PoolDetailsTitle
@@ -404,10 +435,12 @@ export function PoolDetailsHeader({
                 protocolVersion={protocolVersion}
               />
             </Flex>
-            {showRewards && <LpIncentivesAprDisplay lpIncentiveRewardApr={rewardsApr} hideBackground />}
+            {showRewards && (
+              <LpIncentivesAprDisplay lpIncentiveRewardApr={rewardsApr} hideBackground />
+            )}
           </Flex>
         </Flex>
       )}
     </HeaderContainer>
-  )
+  );
 }

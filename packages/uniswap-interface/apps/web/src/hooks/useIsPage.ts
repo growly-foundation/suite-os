@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom';
 
 export enum PageType {
   BUY = '/buy',
@@ -29,7 +29,7 @@ const pageMatchDefaults: Record<PageType, MatchType> = {
   [PageType.POSITIONS]: MatchType.INCLUDES,
   [PageType.SEND]: MatchType.ENDS_WITH,
   [PageType.SWAP]: MatchType.ENDS_WITH,
-}
+};
 
 /**
  * Custom hook to check if the current pathname matches a specified page path.
@@ -39,21 +39,21 @@ const pageMatchDefaults: Record<PageType, MatchType> = {
  * @returns {boolean} - True if the pathname matches the condition, false otherwise
  */
 export function useIsPage(page: PageType, matchTypeOverride?: MatchType) {
-  const { pathname } = useLocation()
+  const { pathname } = useLocation();
 
   // Determine the match type: override or default from the mapping
-  const matchType = matchTypeOverride ?? pageMatchDefaults[page]
+  const matchType = matchTypeOverride ?? pageMatchDefaults[page];
 
   switch (matchType) {
     case MatchType.EXACT:
-      return pathname === page
+      return pathname === page;
     case MatchType.ENDS_WITH:
-      return pathname.endsWith(page)
+      return pathname.endsWith(page);
     case MatchType.INCLUDES:
-      return pathname.includes(page)
+      return pathname.includes(page);
     case MatchType.STARTS_WITH:
-      return pathname.startsWith(page)
+      return pathname.startsWith(page);
     default:
-      return pathname === page
+      return pathname === page;
   }
 }

@@ -1,39 +1,41 @@
-import { Tooltip as TamaguiTooltip, styled, withStaticProperties } from 'tamagui'
-import { TooltipContentProps } from 'ui/src/components/tooltip/Tooltip'
+import { Tooltip as TamaguiTooltip, styled, withStaticProperties } from 'tamagui';
+import { TooltipContentProps } from 'ui/src/components/tooltip/Tooltip';
 
-export type { TooltipProps } from 'tamagui'
+export type { TooltipProps } from 'tamagui';
 
-const ANIMATION_OFFSET = 4
+const ANIMATION_OFFSET = 4;
 
-const StyledContent = styled(TamaguiTooltip.Content)
+const StyledContent = styled(TamaguiTooltip.Content);
 const HigherOrderStyledContent = StyledContent.styleable<TooltipContentProps>((props, ref) => {
-  const { animationDirection = 'top' } = props
+  const { animationDirection = 'top' } = props;
 
   const animationStyles: {
-    opacity: 0
-    y?: number
-    x?: number
+    opacity: 0;
+    y?: number;
+    x?: number;
   } = {
     opacity: 0,
-  }
+  };
 
   switch (animationDirection) {
     case 'left':
-      animationStyles.x = ANIMATION_OFFSET
-      break
+      animationStyles.x = ANIMATION_OFFSET;
+      break;
     case 'right':
-      animationStyles.x = -ANIMATION_OFFSET
-      break
+      animationStyles.x = -ANIMATION_OFFSET;
+      break;
     case 'top':
-      animationStyles.y = ANIMATION_OFFSET
-      break
+      animationStyles.y = ANIMATION_OFFSET;
+      break;
     case 'bottom':
-      animationStyles.y = -ANIMATION_OFFSET
-      break
+      animationStyles.y = -ANIMATION_OFFSET;
+      break;
   }
 
-  return <StyledContent ref={ref} enterStyle={animationStyles} exitStyle={animationStyles} {...props} />
-})
+  return (
+    <StyledContent ref={ref} enterStyle={animationStyles} exitStyle={animationStyles} {...props} />
+  );
+});
 
 const Content = styled(HigherOrderStyledContent, {
   animation: 'simple',
@@ -57,7 +59,7 @@ const Content = styled(HigherOrderStyledContent, {
     shadowOpacity: 0.04,
     shadowRadius: '$spacing12',
   },
-})
+});
 
 const Arrow = styled(TamaguiTooltip.Arrow, {
   '$theme-dark': {
@@ -70,7 +72,7 @@ const Arrow = styled(TamaguiTooltip.Arrow, {
     shadowOpacity: 0.08,
     shadowRadius: '$spacing16',
   },
-})
+});
 
 const TooltipRoot = styled(TamaguiTooltip, {
   offset: {
@@ -78,10 +80,10 @@ const TooltipRoot = styled(TamaguiTooltip, {
   },
   delay: { close: 500, open: 0 },
   restMs: 200,
-})
+});
 
 export const Tooltip = withStaticProperties(TooltipRoot, {
   Trigger: TamaguiTooltip.Trigger,
   Content,
   Arrow,
-})
+});

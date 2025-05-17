@@ -1,38 +1,38 @@
 // Component logic from: https://github.com/awesomejerry/react-native-qrcode-svg
 // Custom matrix renderer from: https://github.com/awesomejerry/react-native-qrcode-svg/pull/139/files
 
-import { create, QRCodeErrorCorrectionLevel, QRCodeSegment } from 'qrcode'
-import { useMemo } from 'react'
-import Svg, { Defs, G, LinearGradient, Path, Rect, Stop } from 'react-native-svg'
-import { isWeb } from 'tamagui'
-import { BaseQRProps } from 'ui/src/components/QRCode/QRCodeDisplay'
-import { useSporeColors } from 'ui/src/hooks/useSporeColors'
+import { create, QRCodeErrorCorrectionLevel, QRCodeSegment } from 'qrcode';
+import { useMemo } from 'react';
+import Svg, { Defs, G, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
+import { isWeb } from 'tamagui';
+import { BaseQRProps } from 'ui/src/components/QRCode/QRCodeDisplay';
+import { useSporeColors } from 'ui/src/hooks/useSporeColors';
 
 // size of the SVG element of the eye for the SVG we use in particular.
-const SVG_SIZE = 40
+const SVG_SIZE = 40;
 // Alignment markers always take up 7x7 cells
-const EYE_SIZE_UNITS = 7
+const EYE_SIZE_UNITS = 7;
 /**
  * Unsure why this is need but the scaling on the web is 2x. This
  * offset multiplier ensures that we the eyes align correctly on web.
  */
-const EYE_OFFSET_MULTIPLIER = isWeb ? 2 : 1
+const EYE_OFFSET_MULTIPLIER = isWeb ? 2 : 1;
 
 export interface QRCodeProps extends BaseQRProps {
   /* what the qr code stands for */
-  value: string
+  value: string;
   /* the whole component size */
-  backgroundColor?: string
+  backgroundColor?: string;
   /* the color of the background */
-  overlayColor: string
+  overlayColor: string;
   /* quiet zone in pixels */
-  quietZone?: number
+  quietZone?: number;
 }
 
 interface SVGPartProps {
-  x?: number
-  y?: number
-  size: number
+  x?: number;
+  y?: number;
+  size: number;
 }
 
 // x and y attributes are not supported on <g> elements on web. Likewise, they are not supported on svg elements on React Native.
@@ -43,7 +43,7 @@ const QREyes = ({
   fillColor,
   size,
 }: SVGPartProps & {
-  fillColor?: string
+  fillColor?: string;
 }): JSX.Element => (
   <Svg x={x} y={y}>
     <G transform={`scale(${size / SVG_SIZE})`} x={x} y={y}>
@@ -59,7 +59,7 @@ const QREyes = ({
       />
     </G>
   </Svg>
-)
+);
 
 const QREyeBG = ({
   x = -1,
@@ -67,14 +67,14 @@ const QREyeBG = ({
   size,
   backgroundColor,
 }: SVGPartProps & {
-  backgroundColor?: string
+  backgroundColor?: string;
 }): JSX.Element => (
   <Svg x={x} y={y}>
     <G transform={`scale(${size / SVG_SIZE})`} x={x} y={y}>
       <Path d="M0 0H40V40H0V0Z" fill={backgroundColor} />
     </G>
   </Svg>
-)
+);
 
 const QREyeWrapper = ({
   x = 0,
@@ -84,58 +84,62 @@ const QREyeWrapper = ({
   fillColor,
   size,
 }: SVGPartProps & {
-  backgroundColor?: string
-  overlayColor?: string
-  fillColor?: string
+  backgroundColor?: string;
+  overlayColor?: string;
+  fillColor?: string;
 }): JSX.Element => (
   <>
     <QREyeBG backgroundColor={backgroundColor} size={size} x={x} y={y} />
     <QREyes fillColor={fillColor} size={size} x={x} y={y} />
     <QREyes fillColor={overlayColor} size={size} x={x} y={y} />
   </>
-)
+);
 
 function transformMatrixIntoCirclePath(
   matrix: number[][],
-  size: number,
+  size: number
 ): {
-  cellSize: number
-  path: string
+  cellSize: number;
+  path: string;
 } {
-  const cellSize = size / matrix.length
-  const radius = cellSize / 2
-  let path = ''
+  const cellSize = size / matrix.length;
+  const radius = cellSize / 2;
+  let path = '';
 
   matrix.forEach((row, i) => {
     row.forEach((column: number, j: number) => {
       if (column) {
-        const cx = j * cellSize + radius
-        const cy = i * cellSize + radius
+        const cx = j * cellSize + radius;
+        const cy = i * cellSize + radius;
 
         path += `
           M ${cx - radius},${cy}
           A ${radius},${radius} 0 1,0 ${cx + radius},${cy}
           A ${radius},${radius} 0 1,0 ${cx - radius},${cy}
-        `
+        `;
       }
-    })
-  })
+    });
+  });
 
   return {
     cellSize,
     path,
-  }
+  };
 }
 
-function genMatrix(value: string | QRCodeSegment[], errorCorrectionLevel: QRCodeErrorCorrectionLevel): number[][] {
-  const arr = Array.prototype.slice.call(create(value, { errorCorrectionLevel }).modules.data, 0)
-  const sqrt = Math.sqrt(arr.length)
+function genMatrix(
+  value: string | QRCodeSegment[],
+  errorCorrectionLevel: QRCodeErrorCorrectionLevel
+): number[][] {
+  const arr = Array.prototype.slice.call(create(value, { errorCorrectionLevel }).modules.data, 0);
+  const sqrt = Math.sqrt(arr.length);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return arr.reduce(
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    (rows, key, index) => (index % sqrt === 0 ? rows.push([key]) : rows[rows.length - 1].push(key)) && rows,
-    [],
-  )
+    (rows, key, index) =>
+      (index % sqrt === 0 ? rows.push([key]) : rows[rows.length - 1].push(key)) && rows,
+    []
+  );
 }
 
 /**
@@ -158,28 +162,33 @@ export function QRCode({
   quietZone = 8,
   ecl = 'H',
 }: QRCodeProps): JSX.Element | null {
-  const colors = useSporeColors()
+  const colors = useSporeColors();
 
   const { matrix, path } = useMemo(() => {
-    const _matrix = genMatrix(value, ecl)
+    const _matrix = genMatrix(value, ecl);
     return {
       matrix: _matrix,
       path: transformMatrixIntoCirclePath(_matrix, size).path,
-    }
-  }, [value, size, ecl])
+    };
+  }, [value, size, ecl]);
 
-  const eyeSize = size * (EYE_SIZE_UNITS / matrix.length)
-  const backgroundColor = inputBackgroundColor ?? colors.surface1.val
-  const cornerPosition = (size - eyeSize) / EYE_OFFSET_MULTIPLIER
+  const eyeSize = size * (EYE_SIZE_UNITS / matrix.length);
+  const backgroundColor = inputBackgroundColor ?? colors.surface1.val;
+  const cornerPosition = (size - eyeSize) / EYE_OFFSET_MULTIPLIER;
 
   return (
     <Svg
       height={size}
       viewBox={[-quietZone, -quietZone, size + quietZone * 2, size + quietZone * 2].join(' ')}
-      width={size}
-    >
+      width={size}>
       <Defs>
-        <LinearGradient gradientTransform="rotate(45)" id="grad" x1="0%" x2="100%" y1="0%" y2="100%">
+        <LinearGradient
+          gradientTransform="rotate(45)"
+          id="grad"
+          x1="0%"
+          x2="100%"
+          y1="0%"
+          y2="100%">
           <Stop offset="0" stopColor={color} stopOpacity="1" />
           <Stop offset="1" stopColor="rgb(0,255,255)" stopOpacity="1" />
           <Stop offset="1" stopColor={undefined} stopOpacity="1" />
@@ -220,5 +229,5 @@ export function QRCode({
         />
       </G>
     </Svg>
-  )
+  );
 }

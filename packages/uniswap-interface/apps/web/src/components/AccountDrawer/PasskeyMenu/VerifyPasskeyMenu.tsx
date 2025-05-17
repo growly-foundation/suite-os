@@ -1,20 +1,20 @@
-import { GenericPasskeyMenuModal } from 'components/AccountDrawer/PasskeyMenu/PasskeyMenuModal'
-import { useTranslation } from 'react-i18next'
-import { Button, Flex, Text } from 'ui/src'
-import { ShieldCheck } from 'ui/src/components/icons/ShieldCheck'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { ElementName, ModalName } from 'uniswap/src/features/telemetry/constants'
+import { GenericPasskeyMenuModal } from 'components/AccountDrawer/PasskeyMenu/PasskeyMenuModal';
+import { useTranslation } from 'react-i18next';
+import { Button, Flex, Text } from 'ui/src';
+import { ShieldCheck } from 'ui/src/components/icons/ShieldCheck';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { ElementName, ModalName } from 'uniswap/src/features/telemetry/constants';
 
 export function VerifyPasskeyMenu({
   show,
   onVerify,
   onClose,
 }: {
-  show: boolean
-  onVerify: () => void
-  onClose: () => void
+  show: boolean;
+  onVerify: () => void;
+  onClose: () => void;
 }) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   return (
     <Trace logImpression modal={ModalName.VerifyPasskey}>
       <GenericPasskeyMenuModal show={show} onClose={onClose}>
@@ -24,8 +24,7 @@ export function VerifyPasskeyMenu({
             backgroundColor="$surface2"
             borderRadius="$rounded12"
             alignItems="center"
-            justifyContent="center"
-          >
+            justifyContent="center">
             <ShieldCheck size="$icon.24" color="$neutral1" />
           </Flex>
 
@@ -47,5 +46,5 @@ export function VerifyPasskeyMenu({
         </Flex>
       </GenericPasskeyMenuModal>
     </Trace>
-  )
+  );
 }

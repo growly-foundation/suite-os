@@ -1,11 +1,11 @@
-import { Path, Svg } from 'react-native-svg'
+import { Path, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [QuestionInCircle, AnimatedQuestionInCircle] = createIcon({
   name: 'QuestionInCircle',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg viewBox="0 0 24 24" fill="none" {...props}>
       <Path
         d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
@@ -21,7 +21,13 @@ export const [QuestionInCircle, AnimatedQuestionInCircle] = createIcon({
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <Path d="M12 17H12.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <Path
+        d="M12 17H12.01"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </Svg>
   ),
-})
+});

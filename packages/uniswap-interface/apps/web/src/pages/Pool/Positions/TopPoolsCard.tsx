@@ -1,26 +1,26 @@
-import { LiquidityPositionInfoBadges } from 'components/Liquidity/LiquidityPositionInfoBadges'
-import { LPIncentiveRewardsBadge } from 'components/Liquidity/LPIncentiveRewardsBadge'
-import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo'
-import { gqlToCurrency, supportedChainIdFromGQLChain, unwrapToken } from 'graphql/data/util'
-import { Trans } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
-import { PoolStat } from 'state/explore/types'
-import { Flex, Text } from 'ui/src'
-import { Chain } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains'
-import { toGraphQLChain } from 'uniswap/src/features/chains/utils'
-import { useLocalizationContext } from 'uniswap/src/features/language/LocalizationContext'
+import { LiquidityPositionInfoBadges } from 'components/Liquidity/LiquidityPositionInfoBadges';
+import { LPIncentiveRewardsBadge } from 'components/Liquidity/LPIncentiveRewardsBadge';
+import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo';
+import { gqlToCurrency, supportedChainIdFromGQLChain, unwrapToken } from 'graphql/data/util';
+import { Trans } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { PoolStat } from 'state/explore/types';
+import { Flex, Text } from 'ui/src';
+import { Chain } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains';
+import { toGraphQLChain } from 'uniswap/src/features/chains/utils';
+import { useLocalizationContext } from 'uniswap/src/features/language/LocalizationContext';
 
 export function TopPoolsCard({ pool }: { pool: PoolStat }) {
-  const navigate = useNavigate()
-  const { defaultChainId } = useEnabledChains()
-  const { formatPercent } = useLocalizationContext()
+  const navigate = useNavigate();
+  const { defaultChainId } = useEnabledChains();
+  const { formatPercent } = useLocalizationContext();
 
-  const chainId = supportedChainIdFromGQLChain(pool.chain as Chain) ?? defaultChainId
-  const token0 = pool.token0 ? gqlToCurrency(unwrapToken(chainId, pool.token0)) : undefined
-  const token1 = pool.token1 ? gqlToCurrency(unwrapToken(chainId, pool.token1)) : undefined
+  const chainId = supportedChainIdFromGQLChain(pool.chain as Chain) ?? defaultChainId;
+  const token0 = pool.token0 ? gqlToCurrency(unwrapToken(chainId, pool.token0)) : undefined;
+  const token1 = pool.token1 ? gqlToCurrency(unwrapToken(chainId, pool.token1)) : undefined;
 
-  const formattedApr = pool.boostedApr ? formatPercent(pool.boostedApr) : null
+  const formattedApr = pool.boostedApr ? formatPercent(pool.boostedApr) : null;
 
   return (
     <Flex
@@ -32,8 +32,11 @@ export function TopPoolsCard({ pool }: { pool: PoolStat }) {
       justifyContent="space-between"
       cursor="pointer"
       hoverStyle={{ backgroundColor: '$surface1Hovered', borderColor: '$surface3Hovered' }}
-      onPress={() => navigate(`/explore/pools/${toGraphQLChain(chainId ?? defaultChainId).toLowerCase()}/${pool.id}`)}
-    >
+      onPress={() =>
+        navigate(
+          `/explore/pools/${toGraphQLChain(chainId ?? defaultChainId).toLowerCase()}/${pool.id}`
+        )
+      }>
       <Flex row gap="$gap16">
         <DoubleCurrencyLogo currencies={[token0, token1]} size={44} />
         <Flex gap="$gap4">
@@ -56,5 +59,5 @@ export function TopPoolsCard({ pool }: { pool: PoolStat }) {
         {formattedApr && <LPIncentiveRewardsBadge formattedRewardApr={formattedApr} />}
       </Flex>
     </Flex>
-  )
+  );
 }

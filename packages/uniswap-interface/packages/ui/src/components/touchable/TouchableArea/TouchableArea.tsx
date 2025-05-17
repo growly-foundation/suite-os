@@ -1,21 +1,29 @@
-import { BlurView, type BlurViewProps } from 'expo-blur'
-import { Children, cloneElement, forwardRef, isValidElement, memo, useMemo, type ReactNode } from 'react'
-import { StyleSheet, type GestureResponderEvent } from 'react-native'
-import type { ColorTokens } from 'tamagui'
-import { withStaticProperties, type TamaguiElement, type YStackProps } from 'tamagui'
-import { ThemedIcon } from 'ui/src/components/buttons/Button/components/ThemedIcon'
-import { withAnimated } from 'ui/src/components/factories/animated'
-import { Text, type TextProps } from 'ui/src/components/text'
-import { TouchableAreaFrame } from 'ui/src/components/touchable/TouchableArea/TouchableAreaFrame'
-import type { TouchableAreaProps } from 'ui/src/components/touchable/TouchableArea/types'
-import { useAutoDimensions } from 'ui/src/components/touchable/TouchableArea/useAutoDimensions'
-import { useAutoHitSlop } from 'ui/src/components/touchable/TouchableArea/useAutoHitSlop'
-import { getMaybeHoverColor, zIndexes } from 'ui/src/theme'
-import { isTestEnv } from 'utilities/src/environment/env'
-import { isIOS, isMobileApp } from 'utilities/src/platform'
-import { useEvent } from 'utilities/src/react/hooks'
+import { BlurView, type BlurViewProps } from 'expo-blur';
+import {
+  Children,
+  cloneElement,
+  forwardRef,
+  isValidElement,
+  memo,
+  useMemo,
+  type ReactNode,
+} from 'react';
+import { StyleSheet, type GestureResponderEvent } from 'react-native';
+import type { ColorTokens } from 'tamagui';
+import { withStaticProperties, type TamaguiElement, type YStackProps } from 'tamagui';
+import { ThemedIcon } from 'ui/src/components/buttons/Button/components/ThemedIcon';
+import { withAnimated } from 'ui/src/components/factories/animated';
+import { Text, type TextProps } from 'ui/src/components/text';
+import { TouchableAreaFrame } from 'ui/src/components/touchable/TouchableArea/TouchableAreaFrame';
+import type { TouchableAreaProps } from 'ui/src/components/touchable/TouchableArea/types';
+import { useAutoDimensions } from 'ui/src/components/touchable/TouchableArea/useAutoDimensions';
+import { useAutoHitSlop } from 'ui/src/components/touchable/TouchableArea/useAutoHitSlop';
+import { getMaybeHoverColor, zIndexes } from 'ui/src/theme';
+import { isTestEnv } from 'utilities/src/environment/env';
+import { isIOS, isMobileApp } from 'utilities/src/platform';
+import { useEvent } from 'utilities/src/react/hooks';
 
-export type TouchableAreaEvent = GestureResponderEvent
+export type TouchableAreaEvent = GestureResponderEvent;
 
 // TODO(MOB-2826): tests are picking up weird animationStyle on snapshots...
 const DEFAULT_ANIMATION_PROPS: Partial<YStackProps> = isTestEnv()
@@ -23,8 +31,11 @@ const DEFAULT_ANIMATION_PROPS: Partial<YStackProps> = isTestEnv()
   : {
       animation: 'simple',
       animateOnly: ['transform', 'opacity'],
-    }
-const blurViewStyle: BlurViewProps['style'] = { ...StyleSheet.absoluteFillObject, zIndex: zIndexes.negative }
+    };
+const blurViewStyle: BlurViewProps['style'] = {
+  ...StyleSheet.absoluteFillObject,
+  zIndex: zIndexes.negative,
+};
 
 const WithInjectedColors = memo(
   ({
@@ -32,189 +43,197 @@ const WithInjectedColors = memo(
     disabled,
     variant,
   }: {
-    children: ReactNode
-    disabled?: boolean
-    variant?: TouchableAreaProps['variant']
+    children: ReactNode;
+    disabled?: boolean;
+    variant?: TouchableAreaProps['variant'];
   }): ReactNode[] => {
-    return Children.toArray(children).map((child) => {
+    return Children.toArray(children).map(child => {
       if (!isValidElement(child)) {
-        return child
+        return child;
       }
 
       // We don't want to override this if it's already set
-      let groupHover: TextProps['$group-hover'] = child.props['$group-hover']
+      let groupHover: TextProps['$group-hover'] = child.props['$group-hover'];
 
       // decide which color properties to use
-      const maybeColor: string | ColorTokens = child.props.color ?? '$accent3'
-      const maybeBackgroundColor: string | ColorTokens = child.props.backgroundColor
+      const maybeColor: string | ColorTokens = child.props.color ?? '$accent3';
+      const maybeBackgroundColor: string | ColorTokens = child.props.backgroundColor;
 
       // if we don't have a group hover, and we have a color or background color, we can get a hover color
-      if (!groupHover && [maybeColor, maybeBackgroundColor].some((val) => typeof val === 'string')) {
-        const maybeColorHover = getMaybeHoverColor(maybeColor)
-        const maybeBackgroundColorHover = getMaybeHoverColor(maybeBackgroundColor)
+      if (!groupHover && [maybeColor, maybeBackgroundColor].some(val => typeof val === 'string')) {
+        const maybeColorHover = getMaybeHoverColor(maybeColor);
+        const maybeBackgroundColorHover = getMaybeHoverColor(maybeBackgroundColor);
 
         groupHover = {
           color: disabled ? undefined : maybeColorHover,
           backgroundColor: disabled ? undefined : maybeBackgroundColorHover,
-        }
+        };
       }
 
       // `disabled` overrides `maybeBackgroundColor` if it's already set
       const backgroundColorConsideringDisabled: string | ColorTokens =
-        disabled && (variant === 'filled' || maybeBackgroundColor) ? '$surface2' : maybeBackgroundColor
+        disabled && (variant === 'filled' || maybeBackgroundColor)
+          ? '$surface2'
+          : maybeBackgroundColor;
 
       // `disabled` overrides `maybeColor` if it's already set
-      const colorConsideringDisabled: string | ColorTokens = disabled ? '$neutral2' : maybeColor
+      const colorConsideringDisabled: string | ColorTokens = disabled ? '$neutral2' : maybeColor;
 
       return cloneElement(child, {
         // @ts-expect-error '$group-item-hover' is a tamagui type, not a React Native type
         color: colorConsideringDisabled,
         backgroundColor: backgroundColorConsideringDisabled,
         '$group-hover': groupHover,
-      })
-    })
-  },
-)
+      });
+    });
+  }
+);
 
-const TouchableAreaComponentWithoutMemo = forwardRef<TamaguiElement, TouchableAreaProps>(function TouchableArea(
-  {
-    children,
-    hoverable = true,
-    onLayout: onLayoutProp,
-    shouldConsiderMinimumDimensions = false,
-    width: widthProp,
-    height: heightProp,
-    scaleTo,
-    pressStyle: pressStyleProp,
-    activeOpacity = 0.75,
-    animation: animationProp,
-    animateOnly: animateOnlyProp,
-    variant = 'unstyled',
-    shouldStopPropagation = true,
-    onPress,
-    onPressIn,
-    onPressOut,
-    ...restProps
-  },
-  ref,
-): JSX.Element {
-  const [hitSlop, onLayoutWithHitSlop] = useAutoHitSlop(onLayoutProp)
+const TouchableAreaComponentWithoutMemo = forwardRef<TamaguiElement, TouchableAreaProps>(
+  function TouchableArea(
+    {
+      children,
+      hoverable = true,
+      onLayout: onLayoutProp,
+      shouldConsiderMinimumDimensions = false,
+      width: widthProp,
+      height: heightProp,
+      scaleTo,
+      pressStyle: pressStyleProp,
+      activeOpacity = 0.75,
+      animation: animationProp,
+      animateOnly: animateOnlyProp,
+      variant = 'unstyled',
+      shouldStopPropagation = true,
+      onPress,
+      onPressIn,
+      onPressOut,
+      ...restProps
+    },
+    ref
+  ): JSX.Element {
+    const [hitSlop, onLayoutWithHitSlop] = useAutoHitSlop(onLayoutProp);
 
-  const { onLayout, width, height } = useAutoDimensions({
-    onLayout: onLayoutWithHitSlop,
-    shouldConsiderMinimumDimensions,
-    width: widthProp,
-    height: heightProp,
-  })
+    const { onLayout, width, height } = useAutoDimensions({
+      onLayout: onLayoutWithHitSlop,
+      shouldConsiderMinimumDimensions,
+      width: widthProp,
+      height: heightProp,
+    });
 
-  const pressStyle: YStackProps['pressStyle'] = useMemo(() => {
-    const maybeScaleStyle = scaleTo ? { scale: scaleTo } : undefined
-    const maybeActiveOpacityStyle = activeOpacity ? { opacity: activeOpacity } : undefined
+    const pressStyle: YStackProps['pressStyle'] = useMemo(() => {
+      const maybeScaleStyle = scaleTo ? { scale: scaleTo } : undefined;
+      const maybeActiveOpacityStyle = activeOpacity ? { opacity: activeOpacity } : undefined;
 
-    return StyleSheet.flatten([maybeScaleStyle, maybeActiveOpacityStyle, pressStyleProp].filter(Boolean))
-  }, [scaleTo, activeOpacity, pressStyleProp])
+      return StyleSheet.flatten(
+        [maybeScaleStyle, maybeActiveOpacityStyle, pressStyleProp].filter(Boolean)
+      );
+    }, [scaleTo, activeOpacity, pressStyleProp]);
 
-  const animation = isTestEnv() ? undefined : animationProp ?? DEFAULT_ANIMATION_PROPS.animation
-  const animateOnly = isTestEnv() ? undefined : animateOnlyProp ?? DEFAULT_ANIMATION_PROPS.animateOnly
+    const animation = isTestEnv()
+      ? undefined
+      : (animationProp ?? DEFAULT_ANIMATION_PROPS.animation);
+    const animateOnly = isTestEnv()
+      ? undefined
+      : (animateOnlyProp ?? DEFAULT_ANIMATION_PROPS.animateOnly);
 
-  // Wrap onPress to stop propagation if needed
-  const handlePress = useEvent((event: TouchableAreaEvent): void => {
-    if (!shouldStopPropagation) {
-      onPress?.(event)
-      return
+    // Wrap onPress to stop propagation if needed
+    const handlePress = useEvent((event: TouchableAreaEvent): void => {
+      if (!shouldStopPropagation) {
+        onPress?.(event);
+        return;
+      }
+
+      if (typeof event?.stopPropagation === 'function') {
+        event.stopPropagation();
+      }
+
+      onPress?.(event);
+    });
+
+    // Wrap onPress to stop propagation if needed
+    const handlePressIn = useEvent((event: TouchableAreaEvent): void => {
+      if (!shouldStopPropagation) {
+        onPressIn?.(event);
+        return;
+      }
+
+      if (typeof event?.stopPropagation === 'function') {
+        event.stopPropagation();
+      }
+
+      onPressIn?.(event);
+    });
+
+    const handlePressOut = useEvent((event: TouchableAreaEvent): void => {
+      if (!shouldStopPropagation) {
+        onPressOut?.(event);
+        return;
+      }
+
+      if (typeof event?.stopPropagation === 'function') {
+        event.stopPropagation();
+      }
+
+      onPressOut?.(event);
+    });
+
+    if (variant === 'floating' && isMobileApp) {
+      return (
+        <TouchableAreaFrame
+          ref={ref}
+          hoverable={hoverable}
+          hitSlop={hitSlop}
+          animation={animation}
+          animateOnly={animateOnly}
+          variant={variant}
+          pressStyle={pressStyle}
+          onLayout={onLayout}
+          onPress={onPress ? handlePress : undefined}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          {...restProps}
+          width={width}
+          height={height}>
+          <WithInjectedColors variant={variant} disabled={restProps.disabled}>
+            {children}
+          </WithInjectedColors>
+          <BlurView
+            experimentalBlurMethod="dimezisBlurView"
+            style={blurViewStyle}
+            intensity={30}
+            tint={isIOS ? 'light' : 'default'}
+          />
+        </TouchableAreaFrame>
+      );
     }
 
-    if (typeof event?.stopPropagation === 'function') {
-      event.stopPropagation()
-    }
-
-    onPress?.(event)
-  })
-
-  // Wrap onPress to stop propagation if needed
-  const handlePressIn = useEvent((event: TouchableAreaEvent): void => {
-    if (!shouldStopPropagation) {
-      onPressIn?.(event)
-      return
-    }
-
-    if (typeof event?.stopPropagation === 'function') {
-      event.stopPropagation()
-    }
-
-    onPressIn?.(event)
-  })
-
-  const handlePressOut = useEvent((event: TouchableAreaEvent): void => {
-    if (!shouldStopPropagation) {
-      onPressOut?.(event)
-      return
-    }
-
-    if (typeof event?.stopPropagation === 'function') {
-      event.stopPropagation()
-    }
-
-    onPressOut?.(event)
-  })
-
-  if (variant === 'floating' && isMobileApp) {
+    // Web uses CSS for blur, so we don't need to use `expo-blur`'s `BlurView` for the `floating` variant
     return (
       <TouchableAreaFrame
         ref={ref}
         hoverable={hoverable}
-        hitSlop={hitSlop}
         animation={animation}
         animateOnly={animateOnly}
         variant={variant}
+        hitSlop={hitSlop}
         pressStyle={pressStyle}
         onLayout={onLayout}
         onPress={onPress ? handlePress : undefined}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
+        onPressIn={onPressIn ? handlePressIn : undefined}
+        onPressOut={onPressOut ? handlePressOut : undefined}
         {...restProps}
         width={width}
-        height={height}
-      >
+        height={height}>
         <WithInjectedColors variant={variant} disabled={restProps.disabled}>
           {children}
         </WithInjectedColors>
-        <BlurView
-          experimentalBlurMethod="dimezisBlurView"
-          style={blurViewStyle}
-          intensity={30}
-          tint={isIOS ? 'light' : 'default'}
-        />
       </TouchableAreaFrame>
-    )
+    );
   }
+);
 
-  // Web uses CSS for blur, so we don't need to use `expo-blur`'s `BlurView` for the `floating` variant
-  return (
-    <TouchableAreaFrame
-      ref={ref}
-      hoverable={hoverable}
-      animation={animation}
-      animateOnly={animateOnly}
-      variant={variant}
-      hitSlop={hitSlop}
-      pressStyle={pressStyle}
-      onLayout={onLayout}
-      onPress={onPress ? handlePress : undefined}
-      onPressIn={onPressIn ? handlePressIn : undefined}
-      onPressOut={onPressOut ? handlePressOut : undefined}
-      {...restProps}
-      width={width}
-      height={height}
-    >
-      <WithInjectedColors variant={variant} disabled={restProps.disabled}>
-        {children}
-      </WithInjectedColors>
-    </TouchableAreaFrame>
-  )
-})
-
-const TouchableAreaComponent = memo(TouchableAreaComponentWithoutMemo)
+const TouchableAreaComponent = memo(TouchableAreaComponentWithoutMemo);
 
 /**
  * `TouchableArea` is an interactive element in the UI that performs an action when clicked, tapped, pressed, or long pressed.
@@ -248,6 +267,6 @@ const TouchableAreaComponent = memo(TouchableAreaComponentWithoutMemo)
 export const TouchableArea = withStaticProperties(TouchableAreaComponent, {
   Text,
   Icon: ThemedIcon,
-})
+});
 
-export const AnimatedTouchableArea = withAnimated(TouchableArea)
+export const AnimatedTouchableArea = withAnimated(TouchableArea);

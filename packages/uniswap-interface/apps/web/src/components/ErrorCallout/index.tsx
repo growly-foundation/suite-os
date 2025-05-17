@@ -1,8 +1,8 @@
-import { useTranslation } from 'react-i18next'
-import { ClickableTamaguiStyle } from 'theme/components/styles'
-import { Flex, Text, TouchableArea } from 'ui/src'
-import { AlertTriangleFilled } from 'ui/src/components/icons/AlertTriangleFilled'
-import { RotateLeft } from 'ui/src/components/icons/RotateLeft'
+import { useTranslation } from 'react-i18next';
+import { ClickableTamaguiStyle } from 'theme/components/styles';
+import { Flex, Text, TouchableArea } from 'ui/src';
+import { AlertTriangleFilled } from 'ui/src/components/icons/AlertTriangleFilled';
+import { RotateLeft } from 'ui/src/components/icons/RotateLeft';
 
 export function ErrorCallout({
   errorMessage,
@@ -13,18 +13,18 @@ export function ErrorCallout({
   pressIcon = <RotateLeft size="$icon.16" color="$neutral1" />,
   onPress,
 }: {
-  action?: string
-  errorMessage: boolean | string
-  description?: string
-  title?: string
-  isWarning?: boolean
-  pressIcon?: React.ReactNode
-  onPress?: () => void
+  action?: string;
+  errorMessage: boolean | string;
+  description?: string;
+  title?: string;
+  isWarning?: boolean;
+  pressIcon?: React.ReactNode;
+  onPress?: () => void;
 }) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   if (!errorMessage) {
-    return null
+    return null;
   }
 
   return (
@@ -33,9 +33,11 @@ export function ErrorCallout({
         backgroundColor={isWarning ? '$statusWarning2' : '$statusCritical2'}
         p="$padding12"
         borderRadius="$rounded12"
-        alignSelf="flex-start"
-      >
-        <AlertTriangleFilled color={isWarning ? '$statusWarning' : '$statusCritical'} size="$icon.20" />
+        alignSelf="flex-start">
+        <AlertTriangleFilled
+          color={isWarning ? '$statusWarning' : '$statusCritical'}
+          size="$icon.20"
+        />
       </Flex>
       <Flex alignItems="flex-start" flexWrap="wrap" flexShrink={1} gap="$gap4">
         <Text color={isWarning ? '$statusWarning' : '$statusCritical'} variant="body3">
@@ -60,5 +62,5 @@ export function ErrorCallout({
         )}
       </Flex>
     </Flex>
-  )
+  );
 }

@@ -1,13 +1,16 @@
-import { ReactComponent as UniswapLogo } from 'assets/svg/uniswap_app_logo.svg'
-import { useEthersWeb3Provider } from 'hooks/useEthersProvider'
-import { useAtom } from 'jotai'
-import { useAtomValue } from 'jotai/utils'
-import { X } from 'react-feather'
-import { useTranslation } from 'react-i18next'
-import { hideMobileAppPromoBannerAtom, persistHideMobileAppPromoBannerAtom } from 'state/application/atoms'
-import { Anchor, Flex, Text, styled, useSporeColors } from 'ui/src'
-import { isWebAndroid, isWebIOS } from 'utilities/src/platform'
-import { getWalletMeta } from 'utils/walletMeta'
+import { ReactComponent as UniswapLogo } from 'assets/svg/uniswap_app_logo.svg';
+import { useEthersWeb3Provider } from 'hooks/useEthersProvider';
+import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai/utils';
+import { X } from 'react-feather';
+import { useTranslation } from 'react-i18next';
+import {
+  hideMobileAppPromoBannerAtom,
+  persistHideMobileAppPromoBannerAtom,
+} from 'state/application/atoms';
+import { Anchor, Flex, Text, styled, useSporeColors } from 'ui/src';
+import { isWebAndroid, isWebIOS } from 'utilities/src/platform';
+import { getWalletMeta } from 'utils/walletMeta';
 
 const Wrapper = styled(Flex, {
   height: 56,
@@ -21,7 +24,7 @@ const Wrapper = styled(Flex, {
   alignItems: 'center',
   display: 'none',
   $md: { display: 'flex' },
-})
+});
 
 const StyledButton = styled(Anchor, {
   height: '$spacing28',
@@ -33,7 +36,7 @@ const StyledButton = styled(Anchor, {
   alignItems: 'center',
   whiteSpace: 'nowrap',
   textDecorationLine: 'none',
-})
+});
 
 /**
  * We show the mobile app promo banner if:
@@ -43,49 +46,51 @@ const StyledButton = styled(Anchor, {
  * - The user has not clicked the Uniswap wallet or Get Uniswap Wallet buttons in wallet options
  */
 export function useMobileAppPromoBannerEligible(): boolean {
-  const hideMobileAppPromoBanner = useAtomValue(hideMobileAppPromoBannerAtom)
-  const persistHideMobileAppPromoBanner = useAtomValue(persistHideMobileAppPromoBannerAtom)
-  return (isWebIOS || isWebAndroid) && !hideMobileAppPromoBanner && !persistHideMobileAppPromoBanner
+  const hideMobileAppPromoBanner = useAtomValue(hideMobileAppPromoBannerAtom);
+  const persistHideMobileAppPromoBanner = useAtomValue(persistHideMobileAppPromoBannerAtom);
+  return (
+    (isWebIOS || isWebAndroid) && !hideMobileAppPromoBanner && !persistHideMobileAppPromoBanner
+  );
 }
 
-const UNIVERSAL_DOWNLOAD_LINK = 'https://uniswapwallet.onelink.me/8q3y/39b0eeui'
+const UNIVERSAL_DOWNLOAD_LINK = 'https://uniswapwallet.onelink.me/8q3y/39b0eeui';
 
 function getDownloadLink(userAgent: string, peerWalletAgent?: string): string {
   if (userAgent.includes('MetaMaskMobile')) {
-    return 'https://uniswapwallet.onelink.me/8q3y/ee713xnh'
+    return 'https://uniswapwallet.onelink.me/8q3y/ee713xnh';
   }
   if (userAgent.includes('Phantom')) {
-    return 'https://uniswapwallet.onelink.me/8q3y/sjdi6xky'
+    return 'https://uniswapwallet.onelink.me/8q3y/sjdi6xky';
   }
   if (userAgent.includes('OKApp')) {
-    return 'https://uniswapwallet.onelink.me/8q3y/7i8g60sb'
+    return 'https://uniswapwallet.onelink.me/8q3y/7i8g60sb';
   }
   if (userAgent.includes('BitKeep')) {
-    return 'https://uniswapwallet.onelink.me/8q3y/93vro3iq'
+    return 'https://uniswapwallet.onelink.me/8q3y/93vro3iq';
   }
   if (userAgent.includes('DeFiWallet')) {
-    return 'https://uniswapwallet.onelink.me/8q3y/ay1z22ab'
+    return 'https://uniswapwallet.onelink.me/8q3y/ay1z22ab';
   }
   if (userAgent.includes('1inchWallet')) {
-    return 'https://uniswapwallet.onelink.me/8q3y/03e2c5cw'
+    return 'https://uniswapwallet.onelink.me/8q3y/03e2c5cw';
   }
   if (userAgent.includes('RHNCW')) {
-    return 'https://uniswapwallet.onelink.me/8q3y/ipq1dx4n'
+    return 'https://uniswapwallet.onelink.me/8q3y/ipq1dx4n';
   }
   if (peerWalletAgent?.includes('CoinbaseWallet CoinbaseBrowser')) {
-    return 'https://uniswapwallet.onelink.me/8q3y/24xpl5zh'
+    return 'https://uniswapwallet.onelink.me/8q3y/24xpl5zh';
   }
-  return UNIVERSAL_DOWNLOAD_LINK
+  return UNIVERSAL_DOWNLOAD_LINK;
 }
 
 export function MobileAppPromoBanner() {
-  const { t } = useTranslation()
-  const [, setHideMobileAppPromoBanner] = useAtom(hideMobileAppPromoBannerAtom)
-  const colors = useSporeColors()
+  const { t } = useTranslation();
+  const [, setHideMobileAppPromoBanner] = useAtom(hideMobileAppPromoBannerAtom);
+  const colors = useSporeColors();
 
-  const provider = useEthersWeb3Provider()
+  const provider = useEthersWeb3Provider();
 
-  const peerWalletAgent = provider ? getWalletMeta(provider)?.agent : undefined
+  const peerWalletAgent = provider ? getWalletMeta(provider)?.agent : undefined;
 
   return (
     <Wrapper>
@@ -95,7 +100,7 @@ export function MobileAppPromoBanner() {
           size={20}
           color={colors.neutral2.val}
           onClick={() => {
-            setHideMobileAppPromoBanner(true)
+            setHideMobileAppPromoBanner(true);
           }}
         />
         <UniswapLogo width="32px" height="32px" />
@@ -112,5 +117,5 @@ export function MobileAppPromoBanner() {
         </Text>
       </StyledButton>
     </Wrapper>
-  )
+  );
 }

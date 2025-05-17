@@ -1,6 +1,6 @@
-import { NONFUNGIBLE_POSITION_MANAGER_ADDRESSES, WETH9 } from '@uniswap/sdk-core'
-import { MOONPAY_SENDER_ADDRESSES } from 'components/AccountDrawer/MiniPortfolio/constants'
-import { DAI } from 'uniswap/src/constants/tokens'
+import { NONFUNGIBLE_POSITION_MANAGER_ADDRESSES, WETH9 } from '@uniswap/sdk-core';
+import { MOONPAY_SENDER_ADDRESSES } from 'components/AccountDrawer/MiniPortfolio/constants';
+import { DAI } from 'uniswap/src/constants/tokens';
 import {
   AssetActivityPartsFragment,
   Chain,
@@ -17,12 +17,12 @@ import {
   TransactionDirection,
   TransactionStatus,
   TransactionType,
-} from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
+} from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
 
-const MockOrderTimestamp = 10000
-const MockRecipientAddress = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
-export const MockSenderAddress = '0x50EC05ADe8280758E2077fcBC08D878D4aef79C3'
+const MockOrderTimestamp = 10000;
+const MockRecipientAddress = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045';
+export const MockSenderAddress = '0x50EC05ADe8280758E2077fcBC08D878D4aef79C3';
 
 export const mockTransactionDetailsPartsFragment: TransactionDetailsPartsFragment = {
   __typename: 'TransactionDetails',
@@ -34,7 +34,7 @@ export const mockTransactionDetailsPartsFragment: TransactionDetailsPartsFragmen
   nonce: 123,
   status: TransactionStatus.Confirmed,
   assetChanges: [],
-}
+};
 
 const mockAssetActivityPartsFragment = {
   __typename: 'AssetActivity',
@@ -62,7 +62,7 @@ const mockAssetActivityPartsFragment = {
       standard: TokenStandard.Erc20,
     },
   },
-}
+};
 
 const mockNftApprovalPartsFragment: NftApprovalPartsFragment = {
   __typename: 'NftApproval',
@@ -91,7 +91,7 @@ const mockNftApprovalPartsFragment: NftApprovalPartsFragment = {
       name: 'SomeCollectionName',
     },
   },
-}
+};
 
 const mockNftApproveForAllPartsFragment: NftApproveForAllPartsFragment = {
   __typename: 'NftApproveForAll',
@@ -121,7 +121,7 @@ const mockNftApproveForAllPartsFragment: NftApproveForAllPartsFragment = {
       name: 'SomeCollectionName',
     },
   },
-}
+};
 
 const mockNftTransferPartsFragment: NftTransferPartsFragment = {
   __typename: 'NftTransfer',
@@ -152,7 +152,7 @@ const mockNftTransferPartsFragment: NftTransferPartsFragment = {
       name: 'SomeCollectionName',
     },
   },
-}
+};
 
 const mockSpamNftTransferPartsFragment: NftTransferPartsFragment = {
   ...mockNftTransferPartsFragment,
@@ -160,7 +160,7 @@ const mockSpamNftTransferPartsFragment: NftTransferPartsFragment = {
     ...mockNftTransferPartsFragment.asset,
     isSpam: true,
   },
-}
+};
 
 export const mockTokenTransferOutPartsFragment: TokenTransferPartsFragment = {
   __typename: 'TokenTransfer',
@@ -196,7 +196,7 @@ export const mockTokenTransferOutPartsFragment: TokenTransferPartsFragment = {
     currency: Currency.Usd,
     value: 100,
   },
-}
+};
 
 const mockNativeTokenTransferOutPartsFragment: TokenTransferPartsFragment = {
   __typename: 'TokenTransfer',
@@ -232,7 +232,7 @@ const mockNativeTokenTransferOutPartsFragment: TokenTransferPartsFragment = {
     currency: Currency.Usd,
     value: 399.0225,
   },
-}
+};
 
 const mockWrappedEthTransferInPartsFragment: TokenTransferPartsFragment = {
   __typename: 'TokenTransfer',
@@ -268,7 +268,7 @@ const mockWrappedEthTransferInPartsFragment: TokenTransferPartsFragment = {
     currency: Currency.Usd,
     value: 399.1334007875,
   },
-}
+};
 
 export const mockTokenTransferInPartsFragment: TokenTransferPartsFragment = {
   __typename: 'TokenTransfer',
@@ -304,7 +304,7 @@ export const mockTokenTransferInPartsFragment: TokenTransferPartsFragment = {
     currency: Currency.Usd,
     value: 100,
   },
-}
+};
 
 const mockSpamTokenTransferInPartsFragment: TokenTransferPartsFragment = {
   ...mockTokenTransferInPartsFragment,
@@ -316,7 +316,7 @@ const mockSpamTokenTransferInPartsFragment: TokenTransferPartsFragment = {
       isSpam: true,
     },
   },
-}
+};
 
 const mockTokenApprovalPartsFragment: TokenApprovalPartsFragment = {
   __typename: 'TokenApproval',
@@ -344,7 +344,7 @@ const mockTokenApprovalPartsFragment: TokenApprovalPartsFragment = {
       },
     },
   },
-}
+};
 
 const commonTransactionDetailsFields = {
   __typename: 'TransactionDetails',
@@ -354,7 +354,7 @@ const commonTransactionDetailsFields = {
   nonce: 12345,
   status: TransactionStatus.Confirmed,
   to: MockRecipientAddress,
-}
+};
 
 export const MockNFTApproval = {
   ...mockAssetActivityPartsFragment,
@@ -363,7 +363,7 @@ export const MockNFTApproval = {
     type: TransactionType.Approve,
     assetChanges: [mockNftApprovalPartsFragment],
   },
-} as AssetActivityPartsFragment
+} as AssetActivityPartsFragment;
 
 export const MockNFTApprovalForAll = {
   ...mockAssetActivityPartsFragment,
@@ -372,7 +372,7 @@ export const MockNFTApprovalForAll = {
     type: TransactionType.Approve,
     assetChanges: [mockNftApproveForAllPartsFragment],
   },
-} as AssetActivityPartsFragment
+} as AssetActivityPartsFragment;
 
 export const MockMint = {
   ...mockAssetActivityPartsFragment,
@@ -381,7 +381,7 @@ export const MockMint = {
     type: TransactionType.Mint,
     assetChanges: [mockNftTransferPartsFragment],
   },
-} as AssetActivityPartsFragment
+} as AssetActivityPartsFragment;
 
 export const MockSpamMint = {
   ...MockMint,
@@ -389,7 +389,7 @@ export const MockSpamMint = {
     ...MockMint.details,
     assetChanges: [mockSpamNftTransferPartsFragment],
   },
-} as AssetActivityPartsFragment
+} as AssetActivityPartsFragment;
 
 export const MockSwap = {
   ...mockAssetActivityPartsFragment,
@@ -398,7 +398,7 @@ export const MockSwap = {
     type: TransactionType.Swap,
     assetChanges: [mockTokenTransferOutPartsFragment, mockTokenTransferInPartsFragment],
   },
-} as AssetActivityPartsFragment
+} as AssetActivityPartsFragment;
 
 export const MockSpamSwap = {
   ...MockSwap,
@@ -406,7 +406,7 @@ export const MockSpamSwap = {
     ...MockSwap.details,
     assetChanges: [mockTokenTransferOutPartsFragment, mockSpamTokenTransferInPartsFragment],
   },
-} as AssetActivityPartsFragment
+} as AssetActivityPartsFragment;
 
 export const MockSwapOrder = {
   ...mockAssetActivityPartsFragment,
@@ -415,7 +415,7 @@ export const MockSwapOrder = {
     type: TransactionType.SwapOrder,
     assetChanges: [mockTokenTransferOutPartsFragment, mockTokenTransferInPartsFragment],
   },
-} as AssetActivityPartsFragment
+} as AssetActivityPartsFragment;
 
 export const MockTokenApproval = {
   ...mockAssetActivityPartsFragment,
@@ -424,7 +424,7 @@ export const MockTokenApproval = {
     type: TransactionType.Approve,
     assetChanges: [mockTokenApprovalPartsFragment],
   },
-} as AssetActivityPartsFragment
+} as AssetActivityPartsFragment;
 
 export const MockTokenSend = {
   ...mockAssetActivityPartsFragment,
@@ -433,7 +433,7 @@ export const MockTokenSend = {
     type: TransactionType.Send,
     assetChanges: [mockTokenTransferOutPartsFragment],
   },
-} as AssetActivityPartsFragment
+} as AssetActivityPartsFragment;
 
 export const MockTokenReceive = {
   ...mockAssetActivityPartsFragment,
@@ -442,7 +442,7 @@ export const MockTokenReceive = {
     type: TransactionType.Receive,
     assetChanges: [mockTokenTransferInPartsFragment],
   },
-} as AssetActivityPartsFragment
+} as AssetActivityPartsFragment;
 
 export const MockRemoveLiquidity = {
   ...mockAssetActivityPartsFragment,
@@ -458,7 +458,7 @@ export const MockRemoveLiquidity = {
       },
     ],
   },
-} as AssetActivityPartsFragment
+} as AssetActivityPartsFragment;
 
 export const MockMoonpayPurchase = {
   ...mockAssetActivityPartsFragment,
@@ -472,7 +472,7 @@ export const MockMoonpayPurchase = {
       },
     ],
   },
-} as AssetActivityPartsFragment
+} as AssetActivityPartsFragment;
 
 export const MockNFTReceive = {
   ...mockAssetActivityPartsFragment,
@@ -486,7 +486,7 @@ export const MockNFTReceive = {
       },
     ],
   },
-} as AssetActivityPartsFragment
+} as AssetActivityPartsFragment;
 
 export const MockNFTPurchase = {
   ...mockAssetActivityPartsFragment,
@@ -501,7 +501,7 @@ export const MockNFTPurchase = {
       },
     ],
   },
-} as AssetActivityPartsFragment
+} as AssetActivityPartsFragment;
 
 export const MockWrap = {
   ...mockAssetActivityPartsFragment,
@@ -510,4 +510,4 @@ export const MockWrap = {
     type: TransactionType.Lend,
     assetChanges: [mockNativeTokenTransferOutPartsFragment, mockWrappedEthTransferInPartsFragment],
   },
-} as AssetActivityPartsFragment
+} as AssetActivityPartsFragment;

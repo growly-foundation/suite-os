@@ -1,1 +1,1 @@
-export type SVGProps = React.SVGProps<SVGSVGElement>
+export type SVGProps = React.SVGProps<SVGSVGElement>;

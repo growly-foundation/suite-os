@@ -9,10 +9,10 @@
  */
 
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import styledFn from 'styled-components'
+import styledFn from 'styled-components';
 
 /** @deprecated use `styled` from `ui/src` instead */
-export default styledFn
+export default styledFn;
 
 // eslint-disable-next-line no-restricted-syntax, @typescript-eslint/no-restricted-imports
-export * from 'styled-components'
+export * from 'styled-components';

@@ -1,29 +1,29 @@
-import { InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events'
-import PortfolioDrawer from 'components/AccountDrawer'
-import { usePendingActivity } from 'components/AccountDrawer/MiniPortfolio/Activity/hooks'
-import { useAccountDrawer } from 'components/AccountDrawer/MiniPortfolio/hooks'
-import StatusIcon from 'components/Identicon/StatusIcon'
-import { RecentlyConnectedModal } from 'components/Web3Status/RecentlyConnectedModal'
-import { useAccountIdentifier } from 'components/Web3Status/useAccountIdentifier'
-import { PrefetchBalancesWrapper } from 'graphql/data/apollo/AdaptiveTokenBalancesProvider'
-import { useAccount } from 'hooks/useAccount'
-import { useModalState } from 'hooks/useModalState'
-import { atom, useAtom } from 'jotai'
-import styled from 'lib/styled-components'
-import { Portal } from 'nft/components/common/Portal'
-import { RefObject, forwardRef, useCallback, useEffect, useRef } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
-import { useAppSelector } from 'state/hooks'
-import { Button, ButtonProps, Flex, Popover, Text } from 'ui/src'
-import { Unitag } from 'ui/src/components/icons/Unitag'
-import { breakpoints } from 'ui/src/theme'
-import { FeatureFlags } from 'uniswap/src/features/gating/flags'
-import { useFeatureFlag } from 'uniswap/src/features/gating/hooks'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
-import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send'
-import { TestID } from 'uniswap/src/test/fixtures/testIDs'
-import { isIFramed } from 'utils/isIFramed'
+import { InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events';
+import PortfolioDrawer from 'components/AccountDrawer';
+import { usePendingActivity } from 'components/AccountDrawer/MiniPortfolio/Activity/hooks';
+import { useAccountDrawer } from 'components/AccountDrawer/MiniPortfolio/hooks';
+import StatusIcon from 'components/Identicon/StatusIcon';
+import { RecentlyConnectedModal } from 'components/Web3Status/RecentlyConnectedModal';
+import { useAccountIdentifier } from 'components/Web3Status/useAccountIdentifier';
+import { PrefetchBalancesWrapper } from 'graphql/data/apollo/AdaptiveTokenBalancesProvider';
+import { useAccount } from 'hooks/useAccount';
+import { useModalState } from 'hooks/useModalState';
+import { atom, useAtom } from 'jotai';
+import styled from 'lib/styled-components';
+import { Portal } from 'nft/components/common/Portal';
+import { RefObject, forwardRef, useCallback, useEffect, useRef } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { useAppSelector } from 'state/hooks';
+import { Button, ButtonProps, Flex, Popover, Text } from 'ui/src';
+import { Unitag } from 'ui/src/components/icons/Unitag';
+import { breakpoints } from 'ui/src/theme';
+import { FeatureFlags } from 'uniswap/src/features/gating/flags';
+import { useFeatureFlag } from 'uniswap/src/features/gating/hooks';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
+import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send';
+import { TestID } from 'uniswap/src/test/fixtures/testIDs';
+import { isIFramed } from 'utils/isIFramed';
 
 const TextStyled = styled.span<{ marginRight?: number }>`
   flex: 1 1 auto;
@@ -34,11 +34,11 @@ const TextStyled = styled.span<{ marginRight?: number }>`
   font-weight: 485;
   margin-right: ${({ marginRight = 0 }) => marginRight}px;
   color: ${({ theme }) => theme.neutral1};
-`
+`;
 
 const Web3StatusGeneric = forwardRef<HTMLDivElement, ButtonProps>(function Web3StatusGeneric(
   { children, ...props },
-  ref,
+  ref
 ) {
   return (
     <Flex row ref={ref}>
@@ -47,13 +47,12 @@ const Web3StatusGeneric = forwardRef<HTMLDivElement, ButtonProps>(function Web3S
         emphasis="text-only"
         userSelect="none"
         hoverStyle={{ backgroundColor: '$surface1Hovered' }}
-        {...props}
-      >
+        {...props}>
         {children}
       </Button>
     </Flex>
-  )
-})
+  );
+});
 
 const AddressAndChevronContainer = styled.div<{ $loading?: boolean }>`
   display: flex;
@@ -63,54 +62,52 @@ const AddressAndChevronContainer = styled.div<{ $loading?: boolean }>`
   @media only screen and (max-width: ${breakpoints.xl}px) {
     display: none;
   }
-`
+`;
 
-const ExistingUserCTAButton = forwardRef<HTMLDivElement, { onPress: () => void }>(function ExistingUserCTAButton(
-  { onPress },
-  ref,
-) {
-  const { t } = useTranslation()
+const ExistingUserCTAButton = forwardRef<HTMLDivElement, { onPress: () => void }>(
+  function ExistingUserCTAButton({ onPress }, ref) {
+    const { t } = useTranslation();
 
-  const isEmbeddedWalletEnabled = useFeatureFlag(FeatureFlags.EmbeddedWallet)
-  const isLogIn = isEmbeddedWalletEnabled
+    const isEmbeddedWalletEnabled = useFeatureFlag(FeatureFlags.EmbeddedWallet);
+    const isLogIn = isEmbeddedWalletEnabled;
 
-  return (
-    <Button
-      fill={false}
-      size="small"
-      variant="branded"
-      emphasis="primary"
-      tabIndex={0}
-      data-testid="navbar-connect-wallet"
-      ref={ref}
-      onPress={onPress}
-    >
-      {isLogIn ? t('nav.logIn.button') : t('common.connect.button')}
-    </Button>
-  )
-})
+    return (
+      <Button
+        fill={false}
+        size="small"
+        variant="branded"
+        emphasis="primary"
+        tabIndex={0}
+        data-testid="navbar-connect-wallet"
+        ref={ref}
+        onPress={onPress}>
+        {isLogIn ? t('nav.logIn.button') : t('common.connect.button')}
+      </Button>
+    );
+  }
+);
 
-export const Web3StatusRef = atom<RefObject<HTMLElement> | undefined>(undefined)
+export const Web3StatusRef = atom<RefObject<HTMLElement> | undefined>(undefined);
 
 function Web3StatusInner() {
-  const switchingChain = useAppSelector((state) => state.wallets.switchingChain)
-  const account = useAccount()
-  const ref = useRef<HTMLDivElement>(null)
-  const [, setRef] = useAtom(Web3StatusRef)
+  const switchingChain = useAppSelector(state => state.wallets.switchingChain);
+  const account = useAccount();
+  const ref = useRef<HTMLDivElement>(null);
+  const [, setRef] = useAtom(Web3StatusRef);
 
   // To share the Connect button ref with the AccountDrawer modal so it doesn't trigger useOnClickOutside
   useEffect(() => {
-    setRef(ref)
-  }, [setRef])
+    setRef(ref);
+  }, [setRef]);
 
-  const accountDrawer = useAccountDrawer()
+  const accountDrawer = useAccountDrawer();
   const handleWalletDropdownClick = useCallback(() => {
-    sendAnalyticsEvent(InterfaceEventName.ACCOUNT_DROPDOWN_BUTTON_CLICKED)
-    accountDrawer.toggle()
-  }, [accountDrawer])
+    sendAnalyticsEvent(InterfaceEventName.ACCOUNT_DROPDOWN_BUTTON_CLICKED);
+    accountDrawer.toggle();
+  }, [accountDrawer]);
 
-  const { hasPendingActivity, pendingActivityCount } = usePendingActivity()
-  const { accountIdentifier, hasUnitag, hasRecent } = useAccountIdentifier()
+  const { hasPendingActivity, pendingActivityCount } = usePendingActivity();
+  const { accountIdentifier, hasUnitag, hasRecent } = useAccountIdentifier();
 
   // TODO(WEB-4173): Remove isIFrame check when we can update wagmi to version >= 2.9.4
   if ((account.isConnecting || account.isReconnecting) && hasRecent && !isIFramed()) {
@@ -120,8 +117,7 @@ function Web3StatusInner() {
         isDisabled
         onDisabledPress={handleWalletDropdownClick}
         onPress={handleWalletDropdownClick}
-        ref={ref}
-      >
+        ref={ref}>
         <AddressAndChevronContainer $loading={true}>
           <Text variant="body2" marginRight={hasUnitag ? '$spacing8' : undefined}>
             {accountIdentifier}
@@ -129,12 +125,15 @@ function Web3StatusInner() {
           {hasUnitag ? <Unitag size={18} /> : undefined}
         </AddressAndChevronContainer>
       </Web3StatusGeneric>
-    )
+    );
   }
 
   if (account.address) {
     return (
-      <Trace logPress eventOnTrigger={InterfaceEventName.MINI_PORTFOLIO_TOGGLED} properties={{ type: 'open' }}>
+      <Trace
+        logPress
+        eventOnTrigger={InterfaceEventName.MINI_PORTFOLIO_TOGGLED}
+        properties={{ type: 'open' }}>
         <Web3StatusGeneric
           isDisabled={Boolean(switchingChain)}
           data-testid={TestID.Web3StatusConnected}
@@ -142,8 +141,7 @@ function Web3StatusInner() {
           onDisabledPress={handleWalletDropdownClick}
           loading={hasPendingActivity}
           ref={ref}
-          icon={!hasPendingActivity ? <StatusIcon size={24} showMiniIcons={false} /> : undefined}
-        >
+          icon={!hasPendingActivity ? <StatusIcon size={24} showMiniIcons={false} /> : undefined}>
           {hasPendingActivity ? (
             <TextStyled>
               <Trans i18nKey="activity.pending" values={{ pendingActivityCount }} />
@@ -158,25 +156,24 @@ function Web3StatusInner() {
           )}
         </Web3StatusGeneric>
       </Trace>
-    )
+    );
   }
 
   return (
     <Trace
       logPress
       eventOnTrigger={InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED}
-      element={InterfaceElementName.CONNECT_WALLET_BUTTON}
-    >
+      element={InterfaceElementName.CONNECT_WALLET_BUTTON}>
       {/* eslint-disable-next-line react/forbid-elements */}
-      <div onKeyDown={(e) => e.key === 'Enter' && handleWalletDropdownClick()}>
+      <div onKeyDown={e => e.key === 'Enter' && handleWalletDropdownClick()}>
         <ExistingUserCTAButton ref={ref} onPress={handleWalletDropdownClick} />
       </div>
     </Trace>
-  )
+  );
 }
 
 export default function Web3Status() {
-  const { isOpen: recentlyConnectedModalIsOpen } = useModalState(ModalName.RecentlyConnectedModal)
+  const { isOpen: recentlyConnectedModalIsOpen } = useModalState(ModalName.RecentlyConnectedModal);
   return (
     <PrefetchBalancesWrapper>
       <Popover
@@ -184,8 +181,7 @@ export default function Web3Status() {
         stayInFrame
         allowFlip
         open={recentlyConnectedModalIsOpen}
-        offset={{ mainAxis: 8, crossAxis: -4 }}
-      >
+        offset={{ mainAxis: 8, crossAxis: -4 }}>
         <Popover.Trigger>
           <Web3StatusInner />
         </Popover.Trigger>
@@ -195,5 +191,5 @@ export default function Web3Status() {
         <PortfolioDrawer />
       </Portal>
     </PrefetchBalancesWrapper>
-  )
+  );
 }

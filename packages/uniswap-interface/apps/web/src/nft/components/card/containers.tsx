@@ -1,18 +1,18 @@
-import Column from 'components/deprecated/Column'
-import Row from 'components/deprecated/Row'
-import styled from 'lib/styled-components'
-import { StyledImage } from 'nft/components/card/media'
-import { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
-import { ThemedText } from 'theme/components'
-import { breakpoints } from 'ui/src/theme'
+import Column from 'components/deprecated/Column';
+import Row from 'components/deprecated/Row';
+import styled from 'lib/styled-components';
+import { StyledImage } from 'nft/components/card/media';
+import { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
+import { ThemedText } from 'theme/components';
+import { breakpoints } from 'ui/src/theme';
 
-const BORDER_RADIUS = '12'
+const BORDER_RADIUS = '12';
 
 const StyledDetailsRelativeContainer = styled.div`
   position: relative;
   height: 84px;
-`
+`;
 
 const StyledDetailsContainer = styled(Column)`
   position: absolute;
@@ -23,17 +23,18 @@ const StyledDetailsContainer = styled(Column)`
   height: 84px;
   background: ${({ theme }) => theme.surface1};
   will-change: transform;
-  transition: ${({ theme }) => `${theme.transition.duration.medium} ${theme.transition.timing.ease} transform`};
+  transition: ${({ theme }) =>
+    `${theme.transition.duration.medium} ${theme.transition.timing.ease} transform`};
 
   @media screen and (max-width: ${breakpoints.md}px) {
     height: 112px;
     transform: translateY(-28px);
   }
-`
+`;
 
 const StyledActionButton = styled(ThemedText.BodySmall)<{
-  selected: boolean
-  isDisabled: boolean
+  selected: boolean;
+  isDisabled: boolean;
 }>`
   position: absolute;
   display: flex;
@@ -41,7 +42,8 @@ const StyledActionButton = styled(ThemedText.BodySmall)<{
   bottom: -32px;
   left: 8px;
   right: 8px;
-  color: ${({ theme, isDisabled }) => (isDisabled ? theme.neutral1 : theme.deprecated_accentTextLightPrimary)};
+  color: ${({ theme, isDisabled }) =>
+    isDisabled ? theme.neutral1 : theme.deprecated_accentTextLightPrimary};
   background: ${({ theme, selected, isDisabled }) =>
     selected ? theme.critical : isDisabled ? theme.surface3 : theme.accent1};
   transition: ${({ theme }) =>
@@ -73,13 +75,15 @@ const StyledActionButton = styled(ThemedText.BodySmall)<{
   }
 
   &:hover:before {
-    background-color: ${({ theme, isDisabled }) => !isDisabled && theme.deprecated_stateOverlayHover};
+    background-color: ${({ theme, isDisabled }) =>
+      !isDisabled && theme.deprecated_stateOverlayHover};
   }
 
   &:active:before {
-    background-color: ${({ theme, isDisabled }) => !isDisabled && theme.deprecated_stateOverlayPressed};
+    background-color: ${({ theme, isDisabled }) =>
+      !isDisabled && theme.deprecated_stateOverlayPressed};
   }
-`
+`;
 
 const ActionButton = ({
   isDisabled,
@@ -87,21 +91,20 @@ const ActionButton = ({
   clickActionButton,
   children,
 }: {
-  isDisabled: boolean
-  isSelected: boolean
-  clickActionButton: (e: React.MouseEvent) => void
-  children: ReactNode
+  isDisabled: boolean;
+  isSelected: boolean;
+  clickActionButton: (e: React.MouseEvent) => void;
+  children: ReactNode;
 }) => {
   return (
     <StyledActionButton
       selected={isSelected}
       isDisabled={isDisabled}
-      onClick={(e) => (isDisabled ? undefined : clickActionButton(e))}
-    >
+      onClick={e => (isDisabled ? undefined : clickActionButton(e))}>
       {children}
     </StyledActionButton>
-  )
-}
+  );
+};
 
 const StyledCardContainer = styled.div<{ selected: boolean; isDisabled: boolean }>`
   position: relative;
@@ -123,7 +126,8 @@ const StyledCardContainer = styled.div<{ selected: boolean; isDisabled: boolean 
     border-radius: ${BORDER_RADIUS}px;
     border-color: ${({ theme, selected }) => (selected ? theme.accent1 : theme.surface3)};
     pointer-events: none;
-    transition: ${({ theme }) => `${theme.transition.duration.medium} ${theme.transition.timing.ease} border`};
+    transition: ${({ theme }) =>
+      `${theme.transition.duration.medium} ${theme.transition.timing.ease} border`};
     will-change: border;
 
     @media screen and (max-width: ${breakpoints.md}px) {
@@ -150,7 +154,7 @@ const StyledCardContainer = styled.div<{ selected: boolean; isDisabled: boolean 
       transform: scale(1.15);
     }
   }
-`
+`;
 
 const CardContainer = ({
   isSelected,
@@ -159,11 +163,11 @@ const CardContainer = ({
   testId,
   onClick,
 }: {
-  isSelected: boolean
-  isDisabled: boolean
-  children: ReactNode
-  testId?: string
-  onClick?: (e: React.MouseEvent) => void
+  isSelected: boolean;
+  isDisabled: boolean;
+  children: ReactNode;
+  testId?: string;
+  onClick?: (e: React.MouseEvent) => void;
 }) => {
   return (
     <StyledCardContainer
@@ -171,16 +175,15 @@ const CardContainer = ({
       isDisabled={isDisabled}
       draggable={false}
       data-testid={testId}
-      onClick={onClick}
-    >
+      onClick={onClick}>
       {children}
     </StyledCardContainer>
-  )
-}
+  );
+};
 
 const StyledLink = styled(Link)`
   text-decoration: none;
-`
+`;
 
 const Container = ({
   isSelected,
@@ -190,27 +193,31 @@ const Container = ({
   onClick,
   children,
 }: {
-  isSelected: boolean
-  isDisabled: boolean
-  detailsHref?: string
-  testId?: string
-  children: ReactNode
-  onClick?: (e: React.MouseEvent) => void
+  isSelected: boolean;
+  isDisabled: boolean;
+  detailsHref?: string;
+  testId?: string;
+  children: ReactNode;
+  onClick?: (e: React.MouseEvent) => void;
 }) => {
   return (
-    <CardContainer isSelected={isSelected} isDisabled={isDisabled} testId={testId} onClick={onClick}>
+    <CardContainer
+      isSelected={isSelected}
+      isDisabled={isDisabled}
+      testId={testId}
+      onClick={onClick}>
       {detailsHref ? <StyledLink to={detailsHref}>{children}</StyledLink> : children}
     </CardContainer>
-  )
-}
+  );
+};
 
 const DetailsRelativeContainer = ({ children }: { children: ReactNode }) => {
-  return <StyledDetailsRelativeContainer>{children}</StyledDetailsRelativeContainer>
-}
+  return <StyledDetailsRelativeContainer>{children}</StyledDetailsRelativeContainer>;
+};
 
 const DetailsContainer = ({ children }: { children: ReactNode }) => {
-  return <StyledDetailsContainer>{children}</StyledDetailsContainer>
-}
+  return <StyledDetailsContainer>{children}</StyledDetailsContainer>;
+};
 
 const StyledInfoContainer = styled(Column)`
   gap: 4px;
@@ -218,29 +225,31 @@ const StyledInfoContainer = styled(Column)`
   width: 100%;
   padding: 0px 8px;
   height: 48px;
-`
+`;
 
 const InfoContainer = ({ children }: { children: ReactNode }) => {
-  return <StyledInfoContainer>{children}</StyledInfoContainer>
-}
+  return <StyledInfoContainer>{children}</StyledInfoContainer>;
+};
 
 const StyledPrimaryRow = styled(Row)`
   gap: 8px;
   justify-content: space-between;
-`
+`;
 
-const PrimaryRow = ({ children }: { children: ReactNode }) => <StyledPrimaryRow>{children}</StyledPrimaryRow>
+const PrimaryRow = ({ children }: { children: ReactNode }) => (
+  <StyledPrimaryRow>{children}</StyledPrimaryRow>
+);
 
 const StyledPrimaryDetails = styled(Row)`
   justify-items: center;
   overflow: hidden;
   white-space: nowrap;
   gap: 8px;
-`
+`;
 
 const PrimaryDetails = ({ children }: { children: ReactNode }) => (
   <StyledPrimaryDetails>{children}</StyledPrimaryDetails>
-)
+);
 
 const PrimaryInfoContainer = styled(ThemedText.BodySmall)`
   overflow: hidden;
@@ -248,37 +257,39 @@ const PrimaryInfoContainer = styled(ThemedText.BodySmall)`
   text-overflow: ellipsis;
   font-weight: 535 !important;
   line-height: 20px;
-`
+`;
 
 const PrimaryInfo = ({ children }: { children: ReactNode }) => {
-  return <PrimaryInfoContainer>{children}</PrimaryInfoContainer>
-}
+  return <PrimaryInfoContainer>{children}</PrimaryInfoContainer>;
+};
 
 const StyledSecondaryRow = styled(Row)`
   justify-content: space-between;
-`
+`;
 
-const SecondaryRow = ({ children }: { children: ReactNode }) => <StyledSecondaryRow>{children}</StyledSecondaryRow>
+const SecondaryRow = ({ children }: { children: ReactNode }) => (
+  <StyledSecondaryRow>{children}</StyledSecondaryRow>
+);
 
 const StyledSecondaryDetails = styled(Row)`
   overflow: hidden;
   white-space: nowrap;
-`
+`;
 
 const SecondaryDetails = ({ children }: { children: ReactNode }) => (
   <StyledSecondaryDetails>{children}</StyledSecondaryDetails>
-)
+);
 
 const SecondaryInfoContainer = styled(ThemedText.BodyPrimary)`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   line-height: 24px;
-`
+`;
 
 const SecondaryInfo = ({ children }: { children: ReactNode }) => {
-  return <SecondaryInfoContainer>{children}</SecondaryInfoContainer>
-}
+  return <SecondaryInfoContainer>{children}</SecondaryInfoContainer>;
+};
 
 export {
   ActionButton,
@@ -292,4 +303,4 @@ export {
   SecondaryDetails,
   SecondaryInfo,
   SecondaryRow,
-}
+};

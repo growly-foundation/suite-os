@@ -1,14 +1,14 @@
-import { AutoColumn } from 'components/deprecated/Column'
-import { RowBetween } from 'components/deprecated/Row'
-import { useAccount } from 'hooks/useAccount'
-import styled, { useTheme } from 'lib/styled-components'
-import { ChangeEvent, ReactNode, useCallback } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
-import { ExternalLink } from 'theme/components/Links'
-import { flexColumnNoWrap } from 'theme/styles'
-import { Text } from 'ui/src'
-import { useENS } from 'uniswap/src/features/ens/useENS'
-import { ExplorerDataType, getExplorerLink } from 'uniswap/src/utils/linking'
+import { AutoColumn } from 'components/deprecated/Column';
+import { RowBetween } from 'components/deprecated/Row';
+import { useAccount } from 'hooks/useAccount';
+import styled, { useTheme } from 'lib/styled-components';
+import { ChangeEvent, ReactNode, useCallback } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { ExternalLink } from 'theme/components/Links';
+import { flexColumnNoWrap } from 'theme/styles';
+import { Text } from 'ui/src';
+import { useENS } from 'uniswap/src/features/ens/useENS';
+import { ExplorerDataType, getExplorerLink } from 'uniswap/src/utils/linking';
 
 const InputPanel = styled.div`
   ${flexColumnNoWrap};
@@ -17,7 +17,7 @@ const InputPanel = styled.div`
   background-color: ${({ theme }) => theme.surface1};
   z-index: 1;
   width: 100%;
-`
+`;
 
 const ContainerRow = styled.div<{ error: boolean }>`
   display: flex;
@@ -29,12 +29,12 @@ const ContainerRow = styled.div<{ error: boolean }>`
     border-color 300ms ${({ error }) => (error ? 'step-end' : 'step-start')},
     color 500ms ${({ error }) => (error ? 'step-end' : 'step-start')};
   background-color: ${({ theme }) => theme.surface1};
-`
+`;
 
 const InputContainer = styled.div`
   flex: 1;
   padding: 1rem;
-`
+`;
 
 const Input = styled.input<{ error?: boolean }>`
   font-size: 1.25rem;
@@ -67,7 +67,7 @@ const Input = styled.input<{ error?: boolean }>`
   ::placeholder {
     color: ${({ theme }) => theme.neutral3};
   }
-`
+`;
 
 export default function AddressInputPanel({
   id,
@@ -77,31 +77,31 @@ export default function AddressInputPanel({
   value,
   onChange,
 }: {
-  id?: string
-  className?: string
-  label?: ReactNode
-  placeholder?: string
+  id?: string;
+  className?: string;
+  label?: ReactNode;
+  placeholder?: string;
   // the typed string value
-  value: string
+  value: string;
   // triggers whenever the typed value changes
-  onChange: (value: string) => void
+  onChange: (value: string) => void;
 }) {
-  const { t } = useTranslation()
-  const { chainId } = useAccount()
-  const theme = useTheme()
+  const { t } = useTranslation();
+  const { chainId } = useAccount();
+  const theme = useTheme();
 
-  const { address, loading, name } = useENS({ nameOrAddress: value })
+  const { address, loading, name } = useENS({ nameOrAddress: value });
 
   const handleInput = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      const input = event.target.value
-      const withoutSpaces = input.replace(/\s+/g, '')
-      onChange(withoutSpaces)
+      const input = event.target.value;
+      const withoutSpaces = input.replace(/\s+/g, '');
+      onChange(withoutSpaces);
     },
-    [onChange],
-  )
+    [onChange]
+  );
 
-  const error = Boolean(value.length > 0 && !loading && !address)
+  const error = Boolean(value.length > 0 && !loading && !address);
 
   return (
     <InputPanel id={id}>
@@ -115,8 +115,7 @@ export default function AddressInputPanel({
               {address && chainId && (
                 <ExternalLink
                   href={getExplorerLink(chainId, name ?? address, ExplorerDataType.ADDRESS)}
-                  style={{ fontSize: '14px' }}
-                >
+                  style={{ fontSize: '14px' }}>
                   (<Trans i18nKey="common.viewOnExplorer" />)
                 </ExternalLink>
               )}
@@ -138,5 +137,5 @@ export default function AddressInputPanel({
         </InputContainer>
       </ContainerRow>
     </InputPanel>
-  )
+  );
 }

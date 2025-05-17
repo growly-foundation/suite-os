@@ -21,7 +21,9 @@ export const ChatInput = ({
   // If "ENTER" is clicked, send a message.
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter') {
+      event.preventDefault(); // ⛔ prevent new line
       sendMessageHandler();
+      setInputValue('');
     }
   };
 

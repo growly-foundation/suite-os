@@ -1,34 +1,35 @@
-import { useCallback, useMemo } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
-import { Flex, Separator, Text, useIsDarkMode, useSporeColors } from 'ui/src'
-import { CRYPTO_PURCHASE_BACKGROUND_DARK, CRYPTO_PURCHASE_BACKGROUND_LIGHT } from 'ui/src/assets'
-import { ArrowDownCircle } from 'ui/src/components/icons/ArrowDownCircle'
-import { Buy as BuyIcon } from 'ui/src/components/icons/Buy'
-import { ActionCard, ActionCardItem } from 'uniswap/src/components/misc/ActionCard'
-import { FORServiceProvider } from 'uniswap/src/features/fiatOnRamp/types'
-import { useCexTransferProviders } from 'uniswap/src/features/fiatOnRamp/useCexTransferProviders'
-import { getServiceProviderLogo } from 'uniswap/src/features/fiatOnRamp/utils'
-import { ElementName } from 'uniswap/src/features/telemetry/constants'
+import { useCallback, useMemo } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { Flex, Separator, Text, useIsDarkMode, useSporeColors } from 'ui/src';
+import { CRYPTO_PURCHASE_BACKGROUND_DARK, CRYPTO_PURCHASE_BACKGROUND_LIGHT } from 'ui/src/assets';
+import { ArrowDownCircle } from 'ui/src/components/icons/ArrowDownCircle';
+import { Buy as BuyIcon } from 'ui/src/components/icons/Buy';
+import { ActionCard, ActionCardItem } from 'uniswap/src/components/misc/ActionCard';
+import { FORServiceProvider } from 'uniswap/src/features/fiatOnRamp/types';
+import { useCexTransferProviders } from 'uniswap/src/features/fiatOnRamp/useCexTransferProviders';
+import { getServiceProviderLogo } from 'uniswap/src/features/fiatOnRamp/utils';
+import { ElementName } from 'uniswap/src/features/telemetry/constants';
 
-const ICON_SIZE = 28
-const ICON_SHIFT = 18
+const ICON_SIZE = 28;
+const ICON_SHIFT = 18;
 
 function CEXTransferLogo({ providers }: { providers: FORServiceProvider[] }) {
-  const colors = useSporeColors()
-  const isDarkMode = useIsDarkMode()
-  const displayProviders = providers.slice(0, 3)
-  const totalLogos = displayProviders.length
+  const colors = useSporeColors();
+  const isDarkMode = useIsDarkMode();
+  const displayProviders = providers.slice(0, 3);
+  const totalLogos = displayProviders.length;
 
   return (
-    <Flex height={ICON_SIZE} width={totalLogos === 1 ? ICON_SIZE : ICON_SIZE + (totalLogos - 1) * ICON_SHIFT}>
+    <Flex
+      height={ICON_SIZE}
+      width={totalLogos === 1 ? ICON_SIZE : ICON_SIZE + (totalLogos - 1) * ICON_SHIFT}>
       {displayProviders.map((provider, index) => (
         <Flex
           key={provider.serviceProvider}
           position="absolute"
           left={totalLogos === 1 ? 0 : index * ICON_SHIFT}
           borderRadius="$rounded8"
-          zIndex={-index}
-        >
+          zIndex={-index}>
           <img
             key={provider.serviceProvider}
             width={ICON_SIZE}
@@ -45,7 +46,7 @@ function CEXTransferLogo({ providers }: { providers: FORServiceProvider[] }) {
         </Flex>
       ))}
     </Flex>
-  )
+  );
 }
 
 export const EmptyWallet = ({
@@ -53,24 +54,25 @@ export const EmptyWallet = ({
   handleReceiveCryptoClick,
   handleCEXTransferClick,
 }: {
-  handleBuyCryptoClick: () => void
-  handleReceiveCryptoClick: () => void
-  handleCEXTransferClick: () => void
+  handleBuyCryptoClick: () => void;
+  handleReceiveCryptoClick: () => void;
+  handleCEXTransferClick: () => void;
 }) => {
-  const { t } = useTranslation()
-  const isDarkMode = useIsDarkMode()
-  const providers = useCexTransferProviders()
+  const { t } = useTranslation();
+  const isDarkMode = useIsDarkMode();
+  const providers = useCexTransferProviders();
 
   const BackgroundImageWrapperCallback = useCallback(
     ({ children }: { children: React.ReactNode }) => {
       return (
-        <BackgroundImage image={isDarkMode ? CRYPTO_PURCHASE_BACKGROUND_DARK : CRYPTO_PURCHASE_BACKGROUND_LIGHT}>
+        <BackgroundImage
+          image={isDarkMode ? CRYPTO_PURCHASE_BACKGROUND_DARK : CRYPTO_PURCHASE_BACKGROUND_LIGHT}>
           {children}
         </BackgroundImage>
-      )
+      );
     },
-    [isDarkMode],
-  )
+    [isDarkMode]
+  );
 
   const options: ActionCardItem[] = useMemo(
     () => [
@@ -108,8 +110,8 @@ export const EmptyWallet = ({
       handleReceiveCryptoClick,
       handleCEXTransferClick,
       t,
-    ],
-  )
+    ]
+  );
 
   return (
     <Flex gap="$spacing20">
@@ -123,7 +125,7 @@ export const EmptyWallet = ({
         </Text>
       </Flex>
       <Flex gap="$spacing12">
-        {options.map((option) => (
+        {options.map(option => (
           <ActionCard
             key={option.title}
             {...option}
@@ -136,10 +138,16 @@ export const EmptyWallet = ({
         ))}
       </Flex>
     </Flex>
-  )
-}
+  );
+};
 
-const BackgroundImage = ({ children, image }: { children: React.ReactNode; image: string }): JSX.Element => {
+const BackgroundImage = ({
+  children,
+  image,
+}: {
+  children: React.ReactNode;
+  image: string;
+}): JSX.Element => {
   return (
     <Flex>
       <img
@@ -156,5 +164,5 @@ const BackgroundImage = ({ children, image }: { children: React.ReactNode; image
       />
       {children}
     </Flex>
-  )
-}
+  );
+};

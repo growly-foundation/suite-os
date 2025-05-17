@@ -1,4 +1,4 @@
-import { useCallback, useReducer } from 'react'
+import { useCallback, useReducer } from 'react';
 
 /**
  * A custom hook that provides simple infrastructure for tracking pagination.
@@ -8,14 +8,14 @@ import { useCallback, useReducer } from 'react'
  * @returns {Function} loadMore - A function to increment the page number. Accepts an optional onComplete callback.
  */
 const useSimplePagination = () => {
-  const [page, incrementPage] = useReducer((current: number) => current + 1, 1)
+  const [page, incrementPage] = useReducer((current: number) => current + 1, 1);
 
   const loadMore = useCallback(({ onComplete }: { onComplete?: () => void }) => {
-    incrementPage()
-    onComplete?.()
-  }, [])
+    incrementPage();
+    onComplete?.();
+  }, []);
 
-  return { page, loadMore }
-}
+  return { page, loadMore };
+};
 
-export default useSimplePagination
+export default useSimplePagination;

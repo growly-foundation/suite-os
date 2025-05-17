@@ -1,11 +1,11 @@
-import { Path, Svg } from 'react-native-svg'
+import { Path, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [QrCode, AnimatedQrCode] = createIcon({
   name: 'QrCode',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg viewBox="0 0 24 24" fill="none" {...props}>
       <Path
         d="M9 2H3C2.44772 2 2 2.44772 2 3V9C2 9.55228 2.44772 10 3 10H9C9.55228 10 10 9.55228 10 9V3C10 2.44772 9.55228 2 9 2Z"
@@ -42,7 +42,13 @@ export const [QrCode, AnimatedQrCode] = createIcon({
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <Path d="M18 16H22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <Path
+        d="M18 16H22"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
       <Path
         d="M22 20.0001V22.0001"
         stroke="currentColor"
@@ -52,4 +58,4 @@ export const [QrCode, AnimatedQrCode] = createIcon({
       />
     </Svg>
   ),
-})
+});

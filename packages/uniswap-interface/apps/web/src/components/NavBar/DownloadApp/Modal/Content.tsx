@@ -1,10 +1,10 @@
-import { PropsWithChildren, ReactNode } from 'react'
-import { useTranslation } from 'react-i18next'
-import { ExternalLink } from 'theme/components/Links'
-import { Flex, FlexProps, Image, ModalCloseIcon, Text, TouchableArea } from 'ui/src'
-import { UNISWAP_LOGO } from 'ui/src/assets'
-import { BackArrow } from 'ui/src/components/icons/BackArrow'
-import { iconSizes } from 'ui/src/theme'
+import { PropsWithChildren, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ExternalLink } from 'theme/components/Links';
+import { Flex, FlexProps, Image, ModalCloseIcon, Text, TouchableArea } from 'ui/src';
+import { UNISWAP_LOGO } from 'ui/src/assets';
+import { BackArrow } from 'ui/src/components/icons/BackArrow';
+import { iconSizes } from 'ui/src/theme';
 
 export function ModalContent({
   title,
@@ -17,16 +17,16 @@ export function ModalContent({
   onClose,
   ...rest
 }: PropsWithChildren<{
-  title: string
-  subtext?: string | ReactNode
-  header?: ReactNode
-  footer?: ReactNode
-  learnMoreLink?: string
-  goBack?: () => void
-  onClose?: () => void
+  title: string;
+  subtext?: string | ReactNode;
+  header?: ReactNode;
+  footer?: ReactNode;
+  learnMoreLink?: string;
+  goBack?: () => void;
+  onClose?: () => void;
 }> &
   FlexProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <>
@@ -39,13 +39,19 @@ export function ModalContent({
           )}
           {onClose && (
             <Flex marginLeft="auto">
-              <ModalCloseIcon size="$icon.20" onClose={onClose} data-testid="get-the-app-close-button" />
+              <ModalCloseIcon
+                size="$icon.20"
+                onClose={onClose}
+                data-testid="get-the-app-close-button"
+              />
             </Flex>
           )}
         </Flex>
         <Flex alignItems="center" gap="$spacing32" maxWidth="480px" {...rest}>
           <Flex alignItems="center" gap="$spacing12">
-            {header ?? <Image height={iconSizes.icon64} source={UNISWAP_LOGO} width={iconSizes.icon64} />}
+            {header ?? (
+              <Image height={iconSizes.icon64} source={UNISWAP_LOGO} width={iconSizes.icon64} />
+            )}
             <Flex alignItems="center" gap="$spacing12" px="$spacing40">
               <Text variant="heading3" color="$neutral1">
                 {title}
@@ -69,5 +75,5 @@ export function ModalContent({
       </Flex>
       {footer}
     </>
-  )
+  );
 }

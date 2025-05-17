@@ -1,11 +1,17 @@
-import React, { type ComponentProps } from 'react'
-import { useSporeColorsForTheme } from 'ui/src/hooks/useSporeColors'
+import React, { type ComponentProps } from 'react';
+import { useSporeColorsForTheme } from 'ui/src/hooks/useSporeColors';
 
 export const BorderedAlertTriangle = React.memo((props: ComponentProps<'svg'>) => {
-  const colors = useSporeColorsForTheme()
-  const bgColor = colors.background.val
+  const colors = useSporeColorsForTheme();
+  const bgColor = colors.background.val;
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}>
       <g clipPath="url(#clip0_2786_211021)">
         <path
           d="M8.28223 4.04199C10.052 1.22865 14.2768 1.32224 15.8818 4.32422L22.4893 16.6797L22.6221 16.9502C23.8898 19.7572 21.8364 23 18.6924 23H5.30859C2.06197 23 -0.0198235 19.5459 1.51172 16.6807V16.6797L8.11816 4.32422L8.11914 4.32324L8.28223 4.04199Z"
@@ -42,7 +48,7 @@ export const BorderedAlertTriangle = React.memo((props: ComponentProps<'svg'>) =
         </clipPath>
       </defs>
     </svg>
-  )
-})
+  );
+});
 
-BorderedAlertTriangle.displayName = 'BorderedAlertTriangle'
+BorderedAlertTriangle.displayName = 'BorderedAlertTriangle';

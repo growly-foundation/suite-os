@@ -1,9 +1,9 @@
-import { Text, styled } from 'tamagui'
-import { variantEmphasisHash } from 'ui/src/components/buttons/Button/components/CustomButtonText/variantEmphasisHash'
-import { buttonStyledContext, lineHeights } from 'ui/src/components/buttons/Button/constants'
-import type { ButtonEmphasis, ButtonVariantProps } from 'ui/src/components/buttons/Button/types'
-import { getMaybeHexOrRGBColor } from 'ui/src/components/buttons/Button/utils/getMaybeHexOrRGBColor'
-import { getContrastPassingTextColor } from 'ui/src/utils/colors'
+import { Text, styled } from 'tamagui';
+import { variantEmphasisHash } from 'ui/src/components/buttons/Button/components/CustomButtonText/variantEmphasisHash';
+import { buttonStyledContext, lineHeights } from 'ui/src/components/buttons/Button/constants';
+import type { ButtonEmphasis, ButtonVariantProps } from 'ui/src/components/buttons/Button/types';
+import { getMaybeHexOrRGBColor } from 'ui/src/components/buttons/Button/utils/getMaybeHexOrRGBColor';
+import { getContrastPassingTextColor } from 'ui/src/utils/colors';
 
 /**
  * This component is used to render the text/label within our `Button` component.
@@ -27,19 +27,19 @@ export const CustomButtonText = styled(Text, {
         if (props.isDisabled) {
           return {
             color: '$neutral2',
-          }
+          };
         }
 
         // @ts-expect-error we know 'custom-background-color' might be on `props` via `buttonStyledContext`, and if it is, it's a GetThemeValueForKey<'backgroundColor'> | OpaqueColorValue
-        const customBackgroundColor = props['custom-background-color']
-        const maybeCustomColorProp = getMaybeHexOrRGBColor(props.color)
+        const customBackgroundColor = props['custom-background-color'];
+        const maybeCustomColorProp = getMaybeHexOrRGBColor(props.color);
 
-        const maybeButtonBackgroundCustomColor = getMaybeHexOrRGBColor(customBackgroundColor)
+        const maybeButtonBackgroundCustomColor = getMaybeHexOrRGBColor(customBackgroundColor);
 
         if (maybeButtonBackgroundCustomColor) {
           return {
             color: getContrastPassingTextColor(maybeButtonBackgroundCustomColor),
-          }
+          };
         }
 
         if (maybeCustomColorProp) {
@@ -48,14 +48,14 @@ export const CustomButtonText = styled(Text, {
             '$group-item-hover': {
               color: maybeCustomColorProp,
             },
-          }
+          };
         }
 
         const emphasis =
           // @ts-expect-error we know emphasis will be ButtonEmphasis
-          (props.emphasis || 'primary') as NonNullable<ButtonEmphasis>
+          (props.emphasis || 'primary') as NonNullable<ButtonEmphasis>;
 
-        return variantEmphasisHash[variant][emphasis]
+        return variantEmphasisHash[variant][emphasis];
       },
     },
     // these are taken from Figma and mapped to the values in fonts.ts > buttonFont
@@ -88,4 +88,4 @@ export const CustomButtonText = styled(Text, {
       },
     },
   } as const,
-})
+});

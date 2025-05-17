@@ -1,15 +1,15 @@
-import { ChartType } from 'components/Charts/utils'
-import { MissingDataIcon } from 'components/Table/icons'
-import Column from 'components/deprecated/Column'
-import Row from 'components/deprecated/Row'
-import styled, { useTheme } from 'lib/styled-components'
-import { lighten } from 'polished'
-import { PropsWithChildren, ReactNode } from 'react'
-import { Trans } from 'react-i18next'
-import { ThemedText } from 'theme/components'
-import { textFadeIn } from 'theme/styles'
-import { Flex } from 'ui/src'
-import { opacify } from 'ui/src/theme'
+import { ChartType } from 'components/Charts/utils';
+import { MissingDataIcon } from 'components/Table/icons';
+import Column from 'components/deprecated/Column';
+import Row from 'components/deprecated/Row';
+import styled, { useTheme } from 'lib/styled-components';
+import { lighten } from 'polished';
+import { PropsWithChildren, ReactNode } from 'react';
+import { Trans } from 'react-i18next';
+import { ThemedText } from 'theme/components';
+import { textFadeIn } from 'theme/styles';
+import { Flex } from 'ui/src';
+import { opacify } from 'ui/src/theme';
 
 const ChartErrorContainer = styled(Row)`
   position: absolute;
@@ -26,10 +26,10 @@ const ChartErrorContainer = styled(Row)`
   gap: 12px;
   ${textFadeIn};
   z-index: 1;
-`
+`;
 const ErrorTextColumn = styled(Column)`
   white-space: normal;
-`
+`;
 
 export function ChartErrorView({ children }: PropsWithChildren) {
   return (
@@ -44,7 +44,7 @@ export function ChartErrorView({ children }: PropsWithChildren) {
         <ThemedText.BodySmall color="neutral2">{children}</ThemedText.BodySmall>
       </ErrorTextColumn>
     </ChartErrorContainer>
-  )
+  );
 }
 
 function ChartSkeletonAxes({
@@ -53,10 +53,10 @@ function ChartSkeletonAxes({
   tickColor,
   hideYAxis,
 }: {
-  height: number
-  fillColor: string
-  tickColor: string
-  hideYAxis?: boolean
+  height: number;
+  fillColor: string;
+  tickColor: string;
+  hideYAxis?: boolean;
 }) {
   return (
     <g>
@@ -79,11 +79,19 @@ function ChartSkeletonAxes({
         </g>
       )}
     </g>
-  )
+  );
 }
 
-function ChartLoadingStateMask({ type, height, id }: { type: ChartType; height: number; id: string }) {
-  const theme = useTheme()
+function ChartLoadingStateMask({
+  type,
+  height,
+  id,
+}: {
+  type: ChartType;
+  height: number;
+  id: string;
+}) {
+  const theme = useTheme();
 
   switch (type) {
     case ChartType.TVL:
@@ -96,7 +104,12 @@ function ChartLoadingStateMask({ type, height, id }: { type: ChartType; height: 
                 <animate attributeName="offset" values="-1;3" dur="1.3s" repeatCount="indefinite" />
               </stop>
               <stop offset="0.5" stopColor={lighten(0.24, theme.neutral3)}>
-                <animate attributeName="offset" values="-0.5;3.5" dur="1.3s" repeatCount="indefinite" />
+                <animate
+                  attributeName="offset"
+                  values="-0.5;3.5"
+                  dur="1.3s"
+                  repeatCount="indefinite"
+                />
               </stop>
               <stop offset="1" stopColor={theme.neutral3}>
                 <animate attributeName="offset" values="0;4" dur="1.3s" repeatCount="indefinite" />
@@ -113,20 +126,35 @@ function ChartLoadingStateMask({ type, height, id }: { type: ChartType; height: 
             />
           </mask>
         </>
-      )
+      );
     case ChartType.VOLUME:
       return (
         <>
           <defs>
             <linearGradient id={`${id}-gradient`} x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0" stopColor={theme.neutral3}>
-                <animate attributeName="offset" values="-0.2;3.3" dur="1.3s" repeatCount="indefinite" />
+                <animate
+                  attributeName="offset"
+                  values="-0.2;3.3"
+                  dur="1.3s"
+                  repeatCount="indefinite"
+                />
               </stop>
               <stop offset="0.1" stopColor={lighten(0.05, theme.neutral3)}>
-                <animate attributeName="offset" values="-0.1;3.4" dur="1.3s" repeatCount="indefinite" />
+                <animate
+                  attributeName="offset"
+                  values="-0.1;3.4"
+                  dur="1.3s"
+                  repeatCount="indefinite"
+                />
               </stop>
               <stop offset="0.2" stopColor={theme.neutral3}>
-                <animate attributeName="offset" values="0;3.5" dur="1.3s" repeatCount="indefinite" />
+                <animate
+                  attributeName="offset"
+                  values="0;3.5"
+                  dur="1.3s"
+                  repeatCount="indefinite"
+                />
               </stop>
             </linearGradient>
           </defs>
@@ -145,9 +173,9 @@ function ChartLoadingStateMask({ type, height, id }: { type: ChartType; height: 
             </g>
           </mask>
         </>
-      )
+      );
     default:
-      return null
+      return null;
   }
 }
 
@@ -158,30 +186,40 @@ export function ChartSkeleton({
   dim,
   hideYAxis,
 }: {
-  height: number
-  errorText?: ReactNode
-  type: ChartType
-  dim?: boolean
-  hideYAxis?: boolean
+  height: number;
+  errorText?: ReactNode;
+  type: ChartType;
+  dim?: boolean;
+  hideYAxis?: boolean;
 }) {
-  const theme = useTheme()
-  const neutral3Opacified = theme.neutral3
+  const theme = useTheme();
+  const neutral3Opacified = theme.neutral3;
 
-  const fillColor = errorText || dim ? neutral3Opacified : theme.neutral3
-  const tickColor = errorText ? opacify(12.5, theme.neutral3) : neutral3Opacified
+  const fillColor = errorText || dim ? neutral3Opacified : theme.neutral3;
+  const tickColor = errorText ? opacify(12.5, theme.neutral3) : neutral3Opacified;
 
-  const maskId = `mask-${type}-${height}`
+  const maskId = `mask-${type}-${height}`;
 
   return (
     <Row style={{ position: 'relative' }}>
       <svg width="100%" height={height} xmlns="http://www.w3.org/2000/svg" fill="none">
-        <ChartSkeletonAxes height={height} fillColor={fillColor} tickColor={tickColor} hideYAxis={hideYAxis} />
+        <ChartSkeletonAxes
+          height={height}
+          fillColor={fillColor}
+          tickColor={tickColor}
+          hideYAxis={hideYAxis}
+        />
         <ChartLoadingStateMask id={maskId} type={type} height={height} />
         <g mask={`url(#${maskId})`}>
-          <rect width="94%" height={height} rx="4" fill={errorText ? fillColor : `url(#${maskId}-gradient)`} />
+          <rect
+            width="94%"
+            height={height}
+            rx="4"
+            fill={errorText ? fillColor : `url(#${maskId}-gradient)`}
+          />
         </g>
       </svg>
       {errorText && <ChartErrorView>{errorText}</ChartErrorView>}
     </Row>
-  )
+  );
 }

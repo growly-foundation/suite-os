@@ -1,20 +1,25 @@
-import { configureStore } from '@reduxjs/toolkit'
-import { setupListeners } from '@reduxjs/toolkit/query/react'
-import localForage from 'localforage'
-import { PersistConfig, persistReducer, persistStore } from 'redux-persist'
-import createSagaMiddleware from 'redux-saga'
-import { updateVersion } from 'state/global/actions'
-import { INDEXED_DB_REDUX_TABLE_NAME, PERSIST_VERSION, customCreateMigrate, migrations } from 'state/migrations'
-import { quickRouteApi } from 'state/routing/quickRouteSlice'
-import { routingApi } from 'state/routing/slice'
-import { rootWebSaga } from 'state/sagas/root'
-import { walletCapabilitiesListenerMiddleware } from 'state/walletCapabilities/reducer'
-import { InterfaceState, interfacePersistedStateList, interfaceReducer } from 'state/webReducer'
-import { fiatOnRampAggregatorApi } from 'uniswap/src/features/fiatOnRamp/api'
-import { delegationListenerMiddleware } from 'uniswap/src/features/smartWallet/delegation/slice'
-import { isDevEnv, isTestEnv } from 'utilities/src/environment/env'
-import { createDatadogReduxEnhancer } from 'utilities/src/logger/datadog/Datadog'
-import { ALLOW_ANALYTICS_ATOM_KEY } from 'utilities/src/telemetry/analytics/constants'
+import { configureStore } from '@reduxjs/toolkit';
+import { setupListeners } from '@reduxjs/toolkit/query/react';
+import localForage from 'localforage';
+import { PersistConfig, persistReducer, persistStore } from 'redux-persist';
+import createSagaMiddleware from 'redux-saga';
+import { updateVersion } from 'state/global/actions';
+import {
+  INDEXED_DB_REDUX_TABLE_NAME,
+  PERSIST_VERSION,
+  customCreateMigrate,
+  migrations,
+} from 'state/migrations';
+import { quickRouteApi } from 'state/routing/quickRouteSlice';
+import { routingApi } from 'state/routing/slice';
+import { rootWebSaga } from 'state/sagas/root';
+import { walletCapabilitiesListenerMiddleware } from 'state/walletCapabilities/reducer';
+import { InterfaceState, interfacePersistedStateList, interfaceReducer } from 'state/webReducer';
+import { fiatOnRampAggregatorApi } from 'uniswap/src/features/fiatOnRamp/api';
+import { delegationListenerMiddleware } from 'uniswap/src/features/smartWallet/delegation/slice';
+import { isDevEnv, isTestEnv } from 'utilities/src/environment/env';
+import { createDatadogReduxEnhancer } from 'utilities/src/logger/datadog/Datadog';
+import { ALLOW_ANALYTICS_ATOM_KEY } from 'utilities/src/telemetry/analytics/constants';
 
 const persistConfig: PersistConfig<InterfaceState> = {
   key: 'interface',
@@ -32,25 +37,25 @@ const persistConfig: PersistConfig<InterfaceState> = {
   // @ts-ignore
   deserialize: false,
   debug: isDevEnv(),
-}
+};
 
-const persistedReducer = persistReducer(persistConfig, interfaceReducer)
+const persistedReducer = persistReducer(persistConfig, interfaceReducer);
 
-const sagaMiddleware = createSagaMiddleware()
+const sagaMiddleware = createSagaMiddleware();
 
 const dataDogReduxEnhancer = createDatadogReduxEnhancer({
   shouldLogReduxState: (): boolean => {
-    const allowAnalytics = window.localStorage.getItem(ALLOW_ANALYTICS_ATOM_KEY) !== 'false'
+    const allowAnalytics = window.localStorage.getItem(ALLOW_ANALYTICS_ATOM_KEY) !== 'false';
     // Do not log the state if a user has opted out of analytics.
-    return !!allowAnalytics
+    return !!allowAnalytics;
   },
-})
+});
 
 export function createDefaultStore() {
   const store = configureStore({
     reducer: persistedReducer,
-    enhancers: (defaultEnhancers) => defaultEnhancers.concat(dataDogReduxEnhancer),
-    middleware: (getDefaultMiddleware) =>
+    enhancers: defaultEnhancers => defaultEnhancers.concat(dataDogReduxEnhancer),
+    middleware: getDefaultMiddleware =>
       getDefaultMiddleware({
         thunk: true,
         immutableCheck: isTestEnv()
@@ -81,17 +86,17 @@ export function createDefaultStore() {
         .concat(sagaMiddleware)
         .concat(walletCapabilitiesListenerMiddleware.middleware)
         .concat(delegationListenerMiddleware.middleware),
-  })
-  sagaMiddleware.run(rootWebSaga)
+  });
+  sagaMiddleware.run(rootWebSaga);
 
-  return store
+  return store;
 }
 
-const store = createDefaultStore()
-export const persistor = persistStore(store)
+const store = createDefaultStore();
+export const persistor = persistStore(store);
 
-setupListeners(store.dispatch)
+setupListeners(store.dispatch);
 
-store.dispatch(updateVersion())
+store.dispatch(updateVersion());
 
-export default store
+export default store;

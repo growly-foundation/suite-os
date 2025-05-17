@@ -23,3 +23,6 @@ export const getNumberFromStr = (str: string, max: number): number => {
     1;
   return num;
 };
+
+export const truncateString = (str: string, maxLength: number): string =>
+  `${str.slice(0, maxLength)}${str.length > maxLength ? '...' : ''}`;

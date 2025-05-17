@@ -1,32 +1,36 @@
-import { FlagWarning, getFlagWarning, getFlagsFromContractAddress } from 'components/Liquidity/utils'
-import { GetHelpHeader } from 'components/Modal/GetHelpHeader'
-import { useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { CopyHelper } from 'theme/components/CopyHelper'
-import { Button, Checkbox, Flex, HeightAnimator, Separator, Text, TouchableArea } from 'ui/src'
-import { AlertTriangleFilled } from 'ui/src/components/icons/AlertTriangleFilled'
-import { ContractInteraction } from 'ui/src/components/icons/ContractInteraction'
-import { DocumentList } from 'ui/src/components/icons/DocumentList'
-import { Page } from 'ui/src/components/icons/Page'
-import { RotatableChevron } from 'ui/src/components/icons/RotatableChevron'
-import { Modal } from 'uniswap/src/components/modals/Modal'
-import { LearnMoreLink } from 'uniswap/src/components/text/LearnMoreLink'
-import { uniswapUrls } from 'uniswap/src/constants/urls'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { ElementName, ModalName } from 'uniswap/src/features/telemetry/constants'
-import { shortenAddress } from 'utilities/src/addresses'
+import {
+  FlagWarning,
+  getFlagWarning,
+  getFlagsFromContractAddress,
+} from 'components/Liquidity/utils';
+import { GetHelpHeader } from 'components/Modal/GetHelpHeader';
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { CopyHelper } from 'theme/components/CopyHelper';
+import { Button, Checkbox, Flex, HeightAnimator, Separator, Text, TouchableArea } from 'ui/src';
+import { AlertTriangleFilled } from 'ui/src/components/icons/AlertTriangleFilled';
+import { ContractInteraction } from 'ui/src/components/icons/ContractInteraction';
+import { DocumentList } from 'ui/src/components/icons/DocumentList';
+import { Page } from 'ui/src/components/icons/Page';
+import { RotatableChevron } from 'ui/src/components/icons/RotatableChevron';
+import { Modal } from 'uniswap/src/components/modals/Modal';
+import { LearnMoreLink } from 'uniswap/src/components/text/LearnMoreLink';
+import { uniswapUrls } from 'uniswap/src/constants/urls';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { ElementName, ModalName } from 'uniswap/src/features/telemetry/constants';
+import { shortenAddress } from 'utilities/src/addresses';
 
 function HookWarnings({ flags, hasDangerous }: { flags: FlagWarning[]; hasDangerous: boolean }) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
-  const [expandedProperties, setExpandedProperties] = useState(hasDangerous)
+  const [expandedProperties, setExpandedProperties] = useState(hasDangerous);
 
   const toggleExpandedProperties = () => {
-    setExpandedProperties((state) => !state)
-  }
+    setExpandedProperties(state => !state);
+  };
 
   if (!flags.length) {
-    return null
+    return null;
   }
 
   return (
@@ -37,10 +41,17 @@ function HookWarnings({ flags, hasDangerous }: { flags: FlagWarning[]; hasDanger
           <Flex row flex={1} gap="$gap4" alignItems="center">
             <ContractInteraction color="$neutral2" size="$icon.16" />
             <Text variant="buttonLabel3" color="$neutral2">
-              {expandedProperties ? t('position.addingHook.hideProperties') : t('position.addingHook.viewProperties')}
+              {expandedProperties
+                ? t('position.addingHook.hideProperties')
+                : t('position.addingHook.viewProperties')}
             </Text>
           </Flex>
-          <RotatableChevron direction={expandedProperties ? 'up' : 'down'} color="$neutral2" width={16} height={16} />
+          <RotatableChevron
+            direction={expandedProperties ? 'up' : 'down'}
+            color="$neutral2"
+            width={16}
+            height={16}
+          />
         </Flex>
       </TouchableArea>
       {expandedProperties && (
@@ -63,7 +74,7 @@ function HookWarnings({ flags, hasDangerous }: { flags: FlagWarning[]; hasDanger
         </Flex>
       )}
     </>
-  )
+  );
 }
 
 export function HookModal({
@@ -73,62 +84,62 @@ export function HookModal({
   onContinue,
   address,
 }: {
-  address: Address
-  isOpen: boolean
-  onClose: () => void
-  onClearHook: () => void
-  onContinue: () => void
+  address: Address;
+  isOpen: boolean;
+  onClose: () => void;
+  onClearHook: () => void;
+  onContinue: () => void;
 }) {
-  const { t } = useTranslation()
-  const [disclaimerChecked, setDisclaimerChecked] = useState(false)
+  const { t } = useTranslation();
+  const [disclaimerChecked, setDisclaimerChecked] = useState(false);
 
   const handleClearHook = () => {
-    onClearHook()
-    onClose()
-  }
+    onClearHook();
+    onClose();
+  };
 
   const onDisclaimerChecked = () => {
-    setDisclaimerChecked((state) => !state)
-  }
+    setDisclaimerChecked(state => !state);
+  };
 
   const { flags, hasDangerous } = useMemo(() => {
     if (!address) {
       return {
         flags: [],
         hasDangerous: false,
-      }
+      };
     }
 
-    let hasDangerous = false
-    const flagInfos: Record<string, FlagWarning> = {}
-    getFlagsFromContractAddress(address).forEach((flag) => {
-      const warning = getFlagWarning(flag, t)
+    let hasDangerous = false;
+    const flagInfos: Record<string, FlagWarning> = {};
+    getFlagsFromContractAddress(address).forEach(flag => {
+      const warning = getFlagWarning(flag, t);
 
       if (warning?.dangerous) {
-        hasDangerous = true
+        hasDangerous = true;
       }
 
       if (warning?.name) {
-        flagInfos[warning.name] = warning
+        flagInfos[warning.name] = warning;
       }
-    })
+    });
 
     return {
       flags: Object.values(flagInfos),
       hasDangerous,
-    }
-  }, [address, t])
+    };
+  }, [address, t]);
 
-  const canContinue = !hasDangerous || (hasDangerous && disclaimerChecked)
+  const canContinue = !hasDangerous || (hasDangerous && disclaimerChecked);
   const handleContinue = () => {
     if (canContinue) {
-      onContinue()
-      onClose()
+      onContinue();
+      onClose();
     }
-  }
+  };
 
   if (!address) {
-    return null
+    return null;
   }
 
   // TODO(WEB-5289): match entrance/exit animations with the currency selector
@@ -137,8 +148,7 @@ export function HookModal({
       name={ModalName.Hook}
       onClose={onClose}
       isModalOpen={isOpen}
-      analyticsProperties={{ hook_address: address, hasDangerous }}
-    >
+      analyticsProperties={{ hook_address: address, hasDangerous }}>
       <HeightAnimator animation="fast">
         <Flex gap="$spacing24">
           <GetHelpHeader closeModal={onClose} />
@@ -148,8 +158,7 @@ export function HookModal({
               p="$padding12"
               borderRadius="$rounded12"
               backgroundColor={hasDangerous ? '$statusCritical2' : '$surface3'}
-              justifyContent="center"
-            >
+              justifyContent="center">
               {hasDangerous ? (
                 <AlertTriangleFilled size="$icon.24" color="$statusCritical" />
               ) : (
@@ -162,7 +171,11 @@ export function HookModal({
             <Text variant="body2" color="$neutral2" textAlign="center" my="$padding8">
               {hasDangerous ? t('position.hook.warningInfo') : t('position.addingHook.disclaimer')}
             </Text>
-            <LearnMoreLink centered url={uniswapUrls.helpArticleUrls.addingV4Hooks} textVariant="buttonLabel3" />
+            <LearnMoreLink
+              centered
+              url={uniswapUrls.helpArticleUrls.addingV4Hooks}
+              textVariant="buttonLabel3"
+            />
           </Flex>
 
           <Flex borderRadius="$rounded16" backgroundColor="$surface2" py="$gap12" px="$gap16">
@@ -183,7 +196,13 @@ export function HookModal({
           </Flex>
 
           {hasDangerous && (
-            <Flex row alignItems="center" gap="$gap8" borderRadius="$rounded16" backgroundColor="$surface2" p="$gap12">
+            <Flex
+              row
+              alignItems="center"
+              gap="$gap8"
+              borderRadius="$rounded16"
+              backgroundColor="$surface2"
+              p="$gap12">
               <Checkbox size="$icon.16" checked={disclaimerChecked} onPress={onDisclaimerChecked} />
               <Text variant="buttonLabel4" color="$neutral2">
                 {t('position.hook.disclaimer')}
@@ -198,7 +217,11 @@ export function HookModal({
               </Button>
             </Trace>
             <Trace logPress element={ElementName.Continue}>
-              <Button isDisabled={!canContinue} size="small" variant="branded" onPress={handleContinue}>
+              <Button
+                isDisabled={!canContinue}
+                size="small"
+                variant="branded"
+                onPress={handleContinue}>
                 {t('common.button.continue')}
               </Button>
             </Trace>
@@ -206,5 +229,5 @@ export function HookModal({
         </Flex>
       </HeightAnimator>
     </Modal>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import { atom } from 'jotai'
+import { atom } from 'jotai';
 
 export enum MenuState {
   DEFAULT = 'default',
@@ -12,7 +12,7 @@ export enum MenuState {
   OTHER_WALLETS = 'other_wallets',
 }
 
-export const miniPortfolioMenuStateAtom = atom(MenuState.DEFAULT)
+export const miniPortfolioMenuStateAtom = atom(MenuState.DEFAULT);
 
 export enum ModalState {
   DEFAULT = 0,
@@ -20,4 +20,4 @@ export enum ModalState {
   QR_CODE = 2,
 }
 
-export const miniPortfolioModalStateAtom = atom<ModalState | undefined>(undefined)
+export const miniPortfolioModalStateAtom = atom<ModalState | undefined>(undefined);

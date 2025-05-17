@@ -1,13 +1,15 @@
 'use client';
 
-import { SuiteProvider, Theme } from '@growly/suite';
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
-import '@growly/suite/styles.css';
 
 // Growly Foundation - Growly Customer Support
-export const DUMMY_AGENT_ID = '22520453-f7b3-4c94-9cd4-5946c90c3c92';
-export const DUMMY_ORGANIZATION_API_KEY = 'b3803e17-2435-4d5b-8cbe-3638c7ee539c';
+export const DUMMY_AGENT_ID = 'cbbbc3d2-73fb-4e53-b35d-3c8a1d59adab';
+export const DUMMY_ORGANIZATION_API_KEY = '83f5dd65-da1e-4fcf-bc0f-4032778d03fb';
+
+const SuiteProvider = dynamic(() => import('@growly/suite').then(suite => suite.SuiteProvider), {
+  ssr: false,
+});
 
 const ChatWidget = dynamic(() => import('@growly/suite').then(suite => suite.ChatWidget), {
   ssr: false,
@@ -20,7 +22,6 @@ export const SuiteProviderWrapper = ({ children }: { children: React.ReactNode }
         agentId: DUMMY_AGENT_ID,
         organizationApiKey: DUMMY_ORGANIZATION_API_KEY,
         config: {
-          theme: Theme.monoTheme,
           display: 'fullView',
         },
         session: {
@@ -30,7 +31,7 @@ export const SuiteProviderWrapper = ({ children }: { children: React.ReactNode }
         },
       }}>
       <Suspense fallback={null}>
-        {/* {children} */}
+        {children}
         <ChatWidget />
       </Suspense>
     </SuiteProvider>

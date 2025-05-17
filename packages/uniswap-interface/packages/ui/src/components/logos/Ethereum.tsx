@@ -1,11 +1,11 @@
-import { Path, Svg } from 'react-native-svg'
+import { Path, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [Ethereum, AnimatedEthereum] = createIcon({
   name: 'Ethereum',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg viewBox="0 0 8 14" fill="none" {...props}>
       <Path
         d="M0.193306 6.68588L3.7445 0.915183C3.86165 0.724822 4.13835 0.724822 4.2555 0.915183L7.80669 6.68588C7.90641 6.84791 7.83204 7.06065 7.65309 7.12527L4.10189 8.40765C4.03605 8.43143 3.96395 8.43143 3.89811 8.40765L0.34691 7.12527C0.167961 7.06065 0.0935913 6.84791 0.193306 6.68588Z"
@@ -17,4 +17,4 @@ export const [Ethereum, AnimatedEthereum] = createIcon({
       />
     </Svg>
   ),
-})
+});

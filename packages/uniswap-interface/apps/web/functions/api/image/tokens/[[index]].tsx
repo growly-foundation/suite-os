@@ -1,38 +1,42 @@
 /* eslint-disable react/forbid-elements */
-import { ImageResponse } from '@vercel/og'
+import { ImageResponse } from '@vercel/og';
 
-import { WATERMARK_URL } from '../../../constants'
-import getFont from '../../../utils/getFont'
-import getNetworkLogoUrl from '../../../utils/getNetworkLogoURL'
-import { getRGBColor } from '../../../utils/getRGBColor'
-import { getRequest } from '../../../utils/getRequest'
-import getToken from '../../../utils/getToken'
+import { WATERMARK_URL } from '../../../constants';
+import getFont from '../../../utils/getFont';
+import getNetworkLogoUrl from '../../../utils/getNetworkLogoURL';
+import { getRGBColor } from '../../../utils/getRGBColor';
+import { getRequest } from '../../../utils/getRequest';
+import getToken from '../../../utils/getToken';
 
 export const onRequest: PagesFunction = async ({ params, request }) => {
   try {
-    const origin = new URL(request.url).origin
-    const { index } = params
-    const networkName = String(index[0])
-    const tokenAddress = String(index[1])
+    const origin = new URL(request.url).origin;
+    const { index } = params;
+    const networkName = String(index[0]);
+    const tokenAddress = String(index[1]);
 
-    const cacheUrl = origin + '/tokens/' + networkName + '/' + tokenAddress
+    const cacheUrl = origin + '/tokens/' + networkName + '/' + tokenAddress;
     const data = await getRequest(
       cacheUrl,
       () => getToken(networkName, tokenAddress, cacheUrl),
-      (data): data is NonNullable<Awaited<ReturnType<typeof getToken>>> => Boolean(data.tokenData?.symbol && data.name),
-    )
+      (data): data is NonNullable<Awaited<ReturnType<typeof getToken>>> =>
+        Boolean(data.tokenData?.symbol && data.name)
+    );
 
     if (!data) {
-      return new Response('Token not found.', { status: 404 })
+      return new Response('Token not found.', { status: 404 });
     }
 
-    const [fontData, palette] = await Promise.all([getFont(origin), getRGBColor(data.ogImage, true)])
+    const [fontData, palette] = await Promise.all([
+      getFont(origin),
+      getRGBColor(data.ogImage, true),
+    ]);
 
-    const networkLogo = getNetworkLogoUrl(networkName.toUpperCase(), origin)
+    const networkLogo = getNetworkLogoUrl(networkName.toUpperCase(), origin);
 
     // ImageResponse cannot handle webp images: https://github.com/vercel/satori/issues/273#issuecomment-1296323042
     // TODO: remove this check logic once @vercel/og supports webp, which appears to be in-progress https://github.com/vercel/satori/pull/622
-    const ogImage = data.ogImage?.includes('.webp') ? undefined : data.ogImage
+    const ogImage = data.ogImage?.includes('.webp') ? undefined : data.ogImage;
 
     return new ImageResponse(
       (
@@ -42,8 +46,7 @@ export const onRequest: PagesFunction = async ({ params, request }) => {
             display: 'flex',
             width: '1200px',
             height: '630px',
-          }}
-        >
+          }}>
           <div
             style={{
               display: 'flex',
@@ -51,8 +54,7 @@ export const onRequest: PagesFunction = async ({ params, request }) => {
               alignItems: 'center',
               height: '100%',
               padding: '72px',
-            }}
-          >
+            }}>
             <div
               style={{
                 display: 'flex',
@@ -62,8 +64,7 @@ export const onRequest: PagesFunction = async ({ params, request }) => {
                 width: '100%',
                 height: '100%',
                 color: 'white',
-              }}
-            >
+              }}>
               {ogImage ? (
                 <img src={ogImage} width="144px" style={{ borderRadius: '100%' }}>
                   {networkLogo != '' && (
@@ -88,16 +89,14 @@ export const onRequest: PagesFunction = async ({ params, request }) => {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                  }}
-                >
+                  }}>
                   <div
                     style={{
                       fontFamily: 'Inter',
                       fontSize: '48px',
                       lineHeight: '58px',
                       color: 'white',
-                    }}
-                  >
+                    }}>
                     {data.name?.slice(0, 3).toUpperCase()}
                   </div>
                   {networkLogo != '' && (
@@ -120,8 +119,7 @@ export const onRequest: PagesFunction = async ({ params, request }) => {
                   lineHeight: '72px',
                   marginLeft: '-5px',
                   marginTop: '24px',
-                }}
-              >
+                }}>
                 {data.name}
               </div>
               <div
@@ -131,8 +129,7 @@ export const onRequest: PagesFunction = async ({ params, request }) => {
                   justifyContent: 'space-between',
                   alignItems: 'flex-end',
                   width: '100%',
-                }}
-              >
+                }}>
                 <div
                   style={{
                     fontFamily: 'Inter',
@@ -143,8 +140,7 @@ export const onRequest: PagesFunction = async ({ params, request }) => {
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
                     width: '100%',
-                  }}
-                >
+                  }}>
                   {data.tokenData?.symbol}
                 </div>
                 <img src={WATERMARK_URL} alt="Uniswap" height="72px" width="324px" />
@@ -163,9 +159,9 @@ export const onRequest: PagesFunction = async ({ params, request }) => {
             style: 'normal',
           },
         ],
-      },
-    ) as Response
+      }
+    ) as Response;
   } catch (error: any) {
-    return new Response(error.message || error.toString(), { status: 500 })
+    return new Response(error.message || error.toString(), { status: 500 });
   }
-}
+};

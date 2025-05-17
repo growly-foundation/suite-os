@@ -1,49 +1,52 @@
-import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb'
+import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb';
 import {
   WrappedLiquidityPositionRangeChart,
   getLiquidityRangeChartProps,
-} from 'components/Charts/LiquidityPositionRangeChart/LiquidityPositionRangeChart'
-import { ErrorCallout } from 'components/ErrorCallout'
-import { LiquidityPositionInfoBadges } from 'components/Liquidity/LiquidityPositionInfoBadges'
-import { getLPBaseAnalyticsProperties } from 'components/Liquidity/analytics'
-import { useUpdatedAmountsFromDependentAmount } from 'components/Liquidity/hooks/useDependentAmountFallback'
-import { getProtocolVersionLabel } from 'components/Liquidity/utils'
-import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo'
-import { GetHelpHeader } from 'components/Modal/GetHelpHeader'
-import { DetailLineItem } from 'components/swap/DetailLineItem'
-import { useCurrencyInfo } from 'hooks/Tokens'
-import useSelectChain from 'hooks/useSelectChain'
-import { BaseQuoteFiatAmount } from 'pages/Pool/Positions/create/BaseQuoteFiatAmount'
+} from 'components/Charts/LiquidityPositionRangeChart/LiquidityPositionRangeChart';
+import { ErrorCallout } from 'components/ErrorCallout';
+import { LiquidityPositionInfoBadges } from 'components/Liquidity/LiquidityPositionInfoBadges';
+import { getLPBaseAnalyticsProperties } from 'components/Liquidity/analytics';
+import { useUpdatedAmountsFromDependentAmount } from 'components/Liquidity/hooks/useDependentAmountFallback';
+import { getProtocolVersionLabel } from 'components/Liquidity/utils';
+import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo';
+import { GetHelpHeader } from 'components/Modal/GetHelpHeader';
+import { DetailLineItem } from 'components/swap/DetailLineItem';
+import { useCurrencyInfo } from 'hooks/Tokens';
+import useSelectChain from 'hooks/useSelectChain';
+import { BaseQuoteFiatAmount } from 'pages/Pool/Positions/create/BaseQuoteFiatAmount';
 import {
   useCreatePositionContext,
   useCreateTxContext,
   useDepositContext,
   usePriceRangeContext,
-} from 'pages/Pool/Positions/create/CreatePositionContext'
-import { PoolOutOfSyncError } from 'pages/Pool/Positions/create/PoolOutOfSyncError'
-import { formatPrices } from 'pages/Pool/Positions/create/shared'
-import { getInvertedTuple, getPoolIdOrAddressFromCreatePositionInfo } from 'pages/Pool/Positions/create/utils'
-import { useCallback, useMemo, useState } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
-import { useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import { liquiditySaga } from 'state/sagas/liquidity/liquiditySaga'
-import { Button, Flex, Separator, Text } from 'ui/src'
-import { iconSizes } from 'ui/src/theme'
-import { ProgressIndicator } from 'uniswap/src/components/ConfirmSwapModal/ProgressIndicator'
-import { NetworkLogo } from 'uniswap/src/components/CurrencyLogo/NetworkLogo'
-import { TokenLogo } from 'uniswap/src/components/CurrencyLogo/TokenLogo'
-import { Modal } from 'uniswap/src/components/modals/Modal'
-import { useAccountMeta } from 'uniswap/src/contexts/UniswapContext'
-import { AccountType } from 'uniswap/src/features/accounts/types'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { useLocalizationContext } from 'uniswap/src/features/language/LocalizationContext'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
-import { isValidLiquidityTxContext } from 'uniswap/src/features/transactions/liquidity/types'
-import { TransactionStep } from 'uniswap/src/features/transactions/steps/types'
-import { NumberType } from 'utilities/src/format/types'
-import { useTrace } from 'utilities/src/telemetry/trace/TraceContext'
-import { useAccount } from 'wagmi'
+} from 'pages/Pool/Positions/create/CreatePositionContext';
+import { PoolOutOfSyncError } from 'pages/Pool/Positions/create/PoolOutOfSyncError';
+import { formatPrices } from 'pages/Pool/Positions/create/shared';
+import {
+  getInvertedTuple,
+  getPoolIdOrAddressFromCreatePositionInfo,
+} from 'pages/Pool/Positions/create/utils';
+import { useCallback, useMemo, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { liquiditySaga } from 'state/sagas/liquidity/liquiditySaga';
+import { Button, Flex, Separator, Text } from 'ui/src';
+import { iconSizes } from 'ui/src/theme';
+import { ProgressIndicator } from 'uniswap/src/components/ConfirmSwapModal/ProgressIndicator';
+import { NetworkLogo } from 'uniswap/src/components/CurrencyLogo/NetworkLogo';
+import { TokenLogo } from 'uniswap/src/components/CurrencyLogo/TokenLogo';
+import { Modal } from 'uniswap/src/components/modals/Modal';
+import { useAccountMeta } from 'uniswap/src/contexts/UniswapContext';
+import { AccountType } from 'uniswap/src/features/accounts/types';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import { useLocalizationContext } from 'uniswap/src/features/language/LocalizationContext';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
+import { isValidLiquidityTxContext } from 'uniswap/src/features/transactions/liquidity/types';
+import { TransactionStep } from 'uniswap/src/features/transactions/steps/types';
+import { NumberType } from 'utilities/src/format/types';
+import { useTrace } from 'utilities/src/telemetry/trace/TraceContext';
+import { useAccount } from 'wagmi';
 
 export function CreatePositionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const {
@@ -51,47 +54,47 @@ export function CreatePositionModal({ isOpen, onClose }: { isOpen: boolean; onCl
     derivedPositionInfo,
     currentTransactionStep,
     setCurrentTransactionStep,
-  } = useCreatePositionContext()
+  } = useCreatePositionContext();
   const {
     derivedPriceRangeInfo,
     priceRangeState: { priceInverted },
-  } = usePriceRangeContext()
+  } = usePriceRangeContext();
   const {
     derivedDepositInfo,
     depositState: { exactField },
-  } = useDepositContext()
-  const { t } = useTranslation()
-  const { currencies, protocolVersion, creatingPoolOrPair } = derivedPositionInfo
-  const { formattedAmounts, currencyAmounts, currencyAmountsUSDValue } = derivedDepositInfo
+  } = useDepositContext();
+  const { t } = useTranslation();
+  const { currencies, protocolVersion, creatingPoolOrPair } = derivedPositionInfo;
+  const { formattedAmounts, currencyAmounts, currencyAmountsUSDValue } = derivedDepositInfo;
 
-  const token0CurrencyInfo = useCurrencyInfo(currencyAmounts?.TOKEN0?.currency)
-  const token1CurrencyInfo = useCurrencyInfo(currencyAmounts?.TOKEN1?.currency)
+  const token0CurrencyInfo = useCurrencyInfo(currencyAmounts?.TOKEN0?.currency);
+  const token1CurrencyInfo = useCurrencyInfo(currencyAmounts?.TOKEN1?.currency);
 
-  const { formatNumberOrString, formatCurrencyAmount } = useLocalizationContext()
-  const [baseCurrency, quoteCurrency] = getInvertedTuple(currencies, priceInverted)
+  const { formatNumberOrString, formatCurrencyAmount } = useLocalizationContext();
+  const [baseCurrency, quoteCurrency] = getInvertedTuple(currencies, priceInverted);
 
   const { formattedPrices } = useMemo(() => {
-    return formatPrices(derivedPriceRangeInfo, formatNumberOrString)
-  }, [formatNumberOrString, derivedPriceRangeInfo])
+    return formatPrices(derivedPriceRangeInfo, formatNumberOrString);
+  }, [formatNumberOrString, derivedPriceRangeInfo]);
 
-  const versionLabel = getProtocolVersionLabel(protocolVersion)
+  const versionLabel = getProtocolVersionLabel(protocolVersion);
 
-  const [steps, setSteps] = useState<TransactionStep[]>([])
-  const dispatch = useDispatch()
-  const { txInfo, gasFeeEstimateUSD, error, refetch, dependentAmount } = useCreateTxContext()
-  const account = useAccountMeta()
-  const selectChain = useSelectChain()
-  const connectedAccount = useAccount()
-  const startChainId = connectedAccount.chainId
-  const navigate = useNavigate()
-  const trace = useTrace()
+  const [steps, setSteps] = useState<TransactionStep[]>([]);
+  const dispatch = useDispatch();
+  const { txInfo, gasFeeEstimateUSD, error, refetch, dependentAmount } = useCreateTxContext();
+  const account = useAccountMeta();
+  const selectChain = useSelectChain();
+  const connectedAccount = useAccount();
+  const startChainId = connectedAccount.chainId;
+  const navigate = useNavigate();
+  const trace = useTrace();
 
   const onSuccess = useCallback(() => {
-    setSteps([])
-    setCurrentTransactionStep(undefined)
-    onClose()
-    navigate('/positions')
-  }, [setCurrentTransactionStep, onClose, navigate])
+    setSteps([]);
+    setCurrentTransactionStep(undefined);
+    onClose();
+    navigate('/positions');
+  }, [setCurrentTransactionStep, onClose, navigate]);
 
   const liquidityRangeChartProps = useMemo(
     () =>
@@ -100,11 +103,11 @@ export function CreatePositionModal({ isOpen, onClose }: { isOpen: boolean; onCl
         priceRangeInfo: derivedPriceRangeInfo,
         pricesInverted: priceInverted,
       }),
-    [derivedPositionInfo, derivedPriceRangeInfo, priceInverted],
-  )
+    [derivedPositionInfo, derivedPriceRangeInfo, priceInverted]
+  );
 
   const handleCreate = useCallback(() => {
-    const isValidTx = isValidLiquidityTxContext(txInfo)
+    const isValidTx = isValidLiquidityTxContext(txInfo);
     if (
       !account ||
       account?.type !== AccountType.SignerMnemonic ||
@@ -112,7 +115,7 @@ export function CreatePositionModal({ isOpen, onClose }: { isOpen: boolean; onCl
       !currencyAmounts?.TOKEN0 ||
       !currencyAmounts?.TOKEN1
     ) {
-      return
+      return;
     }
 
     dispatch(
@@ -125,7 +128,7 @@ export function CreatePositionModal({ isOpen, onClose }: { isOpen: boolean; onCl
         setSteps,
         onSuccess,
         onFailure: () => {
-          setCurrentTransactionStep(undefined)
+          setCurrentTransactionStep(undefined);
         },
         analytics: {
           ...getLPBaseAnalyticsProperties({
@@ -143,8 +146,8 @@ export function CreatePositionModal({ isOpen, onClose }: { isOpen: boolean; onCl
           createPool: creatingPoolOrPair,
           createPosition: true,
         },
-      }),
-    )
+      })
+    );
   }, [
     txInfo,
     account,
@@ -162,9 +165,9 @@ export function CreatePositionModal({ isOpen, onClose }: { isOpen: boolean; onCl
     currencyAmountsUSDValue?.TOKEN1,
     derivedPositionInfo,
     creatingPoolOrPair,
-  ])
+  ]);
 
-  const [token0, token1] = currencies
+  const [token0, token1] = currencies;
   const { updatedFormattedAmounts, updatedUSDAmounts } = useUpdatedAmountsFromDependentAmount({
     token0,
     token1,
@@ -175,10 +178,15 @@ export function CreatePositionModal({ isOpen, onClose }: { isOpen: boolean; onCl
     formattedAmounts,
     deposit0Disabled: derivedPriceRangeInfo.deposit0Disabled,
     deposit1Disabled: derivedPriceRangeInfo.deposit1Disabled,
-  })
+  });
 
   return (
-    <Modal name={ModalName.CreatePosition} padding="$none" onClose={onClose} isDismissible isModalOpen={isOpen}>
+    <Modal
+      name={ModalName.CreatePosition}
+      padding="$none"
+      onClose={onClose}
+      isDismissible
+      isModalOpen={isOpen}>
       <Flex px="$spacing8" pt="$spacing12" pb="$spacing8" gap="$spacing24">
         <Flex px="$spacing12">
           <GetHelpHeader
@@ -261,7 +269,10 @@ export function CreatePositionModal({ isOpen, onClose }: { isOpen: boolean; onCl
                   <Text variant="body1">{currencyAmounts?.TOKEN0?.currency.symbol}</Text>
                 </Flex>
                 <Text variant="body3" color="$neutral2">
-                  {formatCurrencyAmount({ value: updatedUSDAmounts?.TOKEN0, type: NumberType.FiatTokenPrice })}
+                  {formatCurrencyAmount({
+                    value: updatedUSDAmounts?.TOKEN0,
+                    type: NumberType.FiatTokenPrice,
+                  })}
                 </Text>
               </Flex>
               <TokenLogo
@@ -279,7 +290,10 @@ export function CreatePositionModal({ isOpen, onClose }: { isOpen: boolean; onCl
                   <Text variant="body1">{currencyAmounts?.TOKEN1?.currency.symbol}</Text>
                 </Flex>
                 <Text variant="body3" color="$neutral2">
-                  {formatCurrencyAmount({ value: updatedUSDAmounts?.TOKEN1, type: NumberType.FiatTokenPrice })}
+                  {formatCurrencyAmount({
+                    value: updatedUSDAmounts?.TOKEN1,
+                    type: NumberType.FiatTokenPrice,
+                  })}
                 </Text>
               </Flex>
               <TokenLogo
@@ -315,7 +329,10 @@ export function CreatePositionModal({ isOpen, onClose }: { isOpen: boolean; onCl
                         shape="square"
                       />
                       <Text variant="body3">
-                        {formatCurrencyAmount({ value: gasFeeEstimateUSD, type: NumberType.FiatGasPrice })}
+                        {formatCurrencyAmount({
+                          value: gasFeeEstimateUSD,
+                          type: NumberType.FiatGasPrice,
+                        })}
                       </Text>
                     </Flex>
                   ),
@@ -323,11 +340,21 @@ export function CreatePositionModal({ isOpen, onClose }: { isOpen: boolean; onCl
               />
             </Flex>
             {currentTransactionStep ? (
-              <Button size="large" variant="branded" loading={true} key="create-position-confirm" fill={false}>
+              <Button
+                size="large"
+                variant="branded"
+                loading={true}
+                key="create-position-confirm"
+                fill={false}>
                 {t('common.confirmWallet')}
               </Button>
             ) : (
-              <Button size="large" variant="branded" onPress={handleCreate} isDisabled={!txInfo?.action} fill={false}>
+              <Button
+                size="large"
+                variant="branded"
+                onPress={handleCreate}
+                isDisabled={!txInfo?.action}
+                fill={false}>
                 {t('common.button.create')}
               </Button>
             )}
@@ -335,5 +362,5 @@ export function CreatePositionModal({ isOpen, onClose }: { isOpen: boolean; onCl
         )}
       </Flex>
     </Modal>
-  )
+  );
 }

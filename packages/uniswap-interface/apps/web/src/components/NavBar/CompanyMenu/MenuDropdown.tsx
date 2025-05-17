@@ -1,20 +1,20 @@
-import { MenuItem, MenuSection, useMenuContent } from 'components/NavBar/CompanyMenu/Content'
-import { DownloadApp } from 'components/NavBar/CompanyMenu/DownloadAppCTA'
-import { LegalAndPrivacyMenu } from 'components/NavBar/LegalAndPrivacyMenu'
-import { NavDropdown } from 'components/NavBar/NavDropdown'
-import { useTabsVisible } from 'components/NavBar/ScreenSizes'
-import { useTabsContent } from 'components/NavBar/Tabs/TabsContent'
-import { Socials } from 'pages/Landing/sections/Footer'
-import { useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
-import { ThemedText } from 'theme/components'
-import { ExternalLink } from 'theme/components/Links'
-import { Flex, Separator, Text, styled } from 'ui/src'
-import { TextVariantTokens } from 'ui/src/theme'
-import { FeatureFlags } from 'uniswap/src/features/gating/flags'
-import { useFeatureFlag } from 'uniswap/src/features/gating/hooks'
-import { TestID } from 'uniswap/src/test/fixtures/testIDs'
+import { MenuItem, MenuSection, useMenuContent } from 'components/NavBar/CompanyMenu/Content';
+import { DownloadApp } from 'components/NavBar/CompanyMenu/DownloadAppCTA';
+import { LegalAndPrivacyMenu } from 'components/NavBar/LegalAndPrivacyMenu';
+import { NavDropdown } from 'components/NavBar/NavDropdown';
+import { useTabsVisible } from 'components/NavBar/ScreenSizes';
+import { useTabsContent } from 'components/NavBar/Tabs/TabsContent';
+import { Socials } from 'pages/Landing/sections/Footer';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import { ThemedText } from 'theme/components';
+import { ExternalLink } from 'theme/components/Links';
+import { Flex, Separator, Text, styled } from 'ui/src';
+import { TextVariantTokens } from 'ui/src/theme';
+import { FeatureFlags } from 'uniswap/src/features/gating/flags';
+import { useFeatureFlag } from 'uniswap/src/features/gating/hooks';
+import { TestID } from 'uniswap/src/test/fixtures/testIDs';
 
 const Container = styled(Flex, {
   width: '295px',
@@ -23,20 +23,20 @@ const Container = styled(Flex, {
   userSelect: 'none',
   height: 'unset',
   borderRadius: '$rounded12',
-})
+});
 
 const LinkStyle = {
   textDecoration: 'none',
   height: 'unset',
   padding: 0,
-}
+};
 
 const LinkTextStyle = {
   color: '$neutral2',
   hoverStyle: {
     opacity: 0.6,
   },
-}
+};
 
 export function MenuLink({
   label,
@@ -57,7 +57,7 @@ export function MenuLink({
         {label}
       </Text>
     </ExternalLink>
-  )
+  );
 }
 function Section({ title, items, closeMenu }: MenuSection) {
   return (
@@ -74,30 +74,32 @@ function Section({ title, items, closeMenu }: MenuSection) {
         />
       ))}
     </Flex>
-  )
+  );
 }
 export function MenuDropdown({ close }: { close?: () => void }) {
-  const { t } = useTranslation()
-  const isConversionTrackingEnabled = useFeatureFlag(FeatureFlags.ConversionTracking)
-  const menuContent = useMenuContent()
-  const areTabsVisible = useTabsVisible()
-  const tabs = useTabsContent()
+  const { t } = useTranslation();
+  const isConversionTrackingEnabled = useFeatureFlag(FeatureFlags.ConversionTracking);
+  const menuContent = useMenuContent();
+  const areTabsVisible = useTabsVisible();
+  const tabs = useTabsContent();
   const tabsMenuItems = useMemo(() => {
-    return tabs.map((tab) => {
+    return tabs.map(tab => {
       return {
         label: tab.title,
         href: tab.href,
         internal: true,
         overflow: false,
-      }
-    })
-  }, [tabs])
+      };
+    });
+  }, [tabs]);
 
   return (
     <NavDropdown isOpen={false} dataTestId={TestID.NavCompanyDropdown}>
       <Container>
         <Flex gap="$spacing20">
-          {!areTabsVisible && <Section title={t('common.app')} items={tabsMenuItems} closeMenu={close} />}
+          {!areTabsVisible && (
+            <Section title={t('common.app')} items={tabsMenuItems} closeMenu={close} />
+          )}
           {menuContent.map((sectionContent, index) => (
             <Section
               key={`menu_section_${index}`}
@@ -113,5 +115,5 @@ export function MenuDropdown({ close }: { close?: () => void }) {
         </Flex>
       </Container>
     </NavDropdown>
-  )
+  );
 }

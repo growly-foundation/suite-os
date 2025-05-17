@@ -1,49 +1,56 @@
-import { PageType, useIsPage } from 'hooks/useIsPage'
-import { useMemo } from 'react'
-import { ArrowUpRight } from 'react-feather'
-import { useTranslation } from 'react-i18next'
-import { useMultichainContext } from 'state/multichain/useMultichainContext'
-import { ExternalLink } from 'theme/components/Links'
-import { ClickableTamaguiStyle } from 'theme/components/styles'
-import { useIsDarkMode } from 'theme/components/ThemeToggle'
-import { ElementAfterText, Flex, Text, TouchableArea, TouchableAreaEvent, useSporeColors } from 'ui/src'
-import { X } from 'ui/src/components/icons/X'
-import { opacify } from 'ui/src/theme'
-import { CardImage } from 'uniswap/src/components/cards/image'
-import { NewTag } from 'uniswap/src/components/pill/NewTag'
-import { useUniswapContext } from 'uniswap/src/contexts/UniswapContext'
-import { useIsBridgingChain } from 'uniswap/src/features/bridging/hooks/chains'
-import { getChainInfo } from 'uniswap/src/features/chains/chainInfo'
-import { useIsSupportedChainId } from 'uniswap/src/features/chains/hooks/useSupportedChainId'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
+import { PageType, useIsPage } from 'hooks/useIsPage';
+import { useMemo } from 'react';
+import { ArrowUpRight } from 'react-feather';
+import { useTranslation } from 'react-i18next';
+import { useMultichainContext } from 'state/multichain/useMultichainContext';
+import { ExternalLink } from 'theme/components/Links';
+import { ClickableTamaguiStyle } from 'theme/components/styles';
+import { useIsDarkMode } from 'theme/components/ThemeToggle';
+import {
+  ElementAfterText,
+  Flex,
+  Text,
+  TouchableArea,
+  TouchableAreaEvent,
+  useSporeColors,
+} from 'ui/src';
+import { X } from 'ui/src/components/icons/X';
+import { opacify } from 'ui/src/theme';
+import { CardImage } from 'uniswap/src/components/cards/image';
+import { NewTag } from 'uniswap/src/components/pill/NewTag';
+import { useUniswapContext } from 'uniswap/src/contexts/UniswapContext';
+import { useIsBridgingChain } from 'uniswap/src/features/bridging/hooks/chains';
+import { getChainInfo } from 'uniswap/src/features/chains/chainInfo';
+import { useIsSupportedChainId } from 'uniswap/src/features/chains/hooks/useSupportedChainId';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
 
 export function SwapBottomCard() {
-  const { chainId: oldFlowChainId } = useMultichainContext()
-  const { swapInputChainId: newFlowChainId } = useUniswapContext()
-  const chainId = newFlowChainId ?? oldFlowChainId
+  const { chainId: oldFlowChainId } = useMultichainContext();
+  const { swapInputChainId: newFlowChainId } = useUniswapContext();
+  const chainId = newFlowChainId ?? oldFlowChainId;
 
-  const isSupportedChain = useIsSupportedChainId(chainId)
+  const isSupportedChain = useIsSupportedChainId(chainId);
 
-  const isBridgingSupportedChain = useIsBridgingChain(chainId ?? UniverseChainId.Mainnet)
+  const isBridgingSupportedChain = useIsBridgingChain(chainId ?? UniverseChainId.Mainnet);
 
-  const isSwapPage = useIsPage(PageType.SWAP)
-  const isSendPage = useIsPage(PageType.SEND)
+  const isSwapPage = useIsPage(PageType.SWAP);
+  const isSendPage = useIsPage(PageType.SEND);
 
-  const hideCard = !isSupportedChain || !(isSwapPage || isSendPage)
+  const hideCard = !isSupportedChain || !(isSwapPage || isSendPage);
 
   const card = useMemo(() => {
     if (hideCard) {
-      return null
+      return null;
     }
 
     if (!isBridgingSupportedChain) {
-      return <MaybeExternalBridgeCard chainId={chainId} />
+      return <MaybeExternalBridgeCard chainId={chainId} />;
     } else {
-      return null
+      return null;
     }
-  }, [chainId, hideCard, isBridgingSupportedChain])
+  }, [chainId, hideCard, isBridgingSupportedChain]);
 
-  return <>{card}</>
+  return <>{card}</>;
 }
 
 // keeping this code for any future web banners
@@ -56,12 +63,12 @@ export function ImagePromoBanner({
   onDismiss,
   onPress,
 }: {
-  title: string
-  subtitle: string
-  image: any
-  isNew?: boolean
-  onDismiss: () => void
-  onPress: () => void
+  title: string;
+  subtitle: string;
+  image: any;
+  isNew?: boolean;
+  onDismiss: () => void;
+  onPress: () => void;
 }): JSX.Element {
   return (
     <TouchableArea {...ClickableTamaguiStyle} onPress={onPress}>
@@ -78,12 +85,12 @@ export function ImagePromoBanner({
         isNew={isNew}
       />
     </TouchableArea>
-  )
+  );
 }
 
 interface ChainTheme {
-  bgColor: string
-  textColor: string
+  bgColor: string;
+  textColor: string;
 }
 
 const CHAIN_THEME_LIGHT: Record<UniverseChainId, ChainTheme> = {
@@ -104,29 +111,32 @@ const CHAIN_THEME_LIGHT: Record<UniverseChainId, ChainTheme> = {
   [UniverseChainId.WorldChain]: { bgColor: 'rgba(0, 0, 0, 0.12)', textColor: '#000000' },
   [UniverseChainId.Zksync]: { bgColor: 'rgba(54, 103, 246, 0.12)', textColor: '#3667F6' },
   [UniverseChainId.Zora]: { bgColor: 'rgba(0, 0, 0, 0.12)', textColor: '#000000' },
-}
+};
 
 const CHAIN_THEME_DARK: Record<UniverseChainId, ChainTheme> = {
   ...CHAIN_THEME_LIGHT,
-  [UniverseChainId.Blast]: { bgColor: 'rgba(252, 252, 3, 0.12)', textColor: 'rgba(252, 252, 3, 1) ' },
+  [UniverseChainId.Blast]: {
+    bgColor: 'rgba(252, 252, 3, 0.12)',
+    textColor: 'rgba(252, 252, 3, 1) ',
+  },
   [UniverseChainId.Celo]: { bgColor: '#FCFF5299', textColor: '#655947' },
   [UniverseChainId.Soneium]: { bgColor: '#000000', textColor: '#FFFFFF' },
   [UniverseChainId.WorldChain]: { bgColor: 'rgba(255, 255, 255, 0.12)', textColor: '#FFFFFF' },
   [UniverseChainId.Zksync]: { bgColor: 'rgba(97, 137, 255, 0.12)', textColor: '#6189FF' },
   [UniverseChainId.Zora]: { bgColor: 'rgba(255, 255, 255, 0.12)', textColor: '#FFFFFF' },
-}
+};
 
 function useChainTheme(chainId: UniverseChainId): ChainTheme {
-  const isDarkMode = useIsDarkMode()
-  return isDarkMode ? CHAIN_THEME_LIGHT[chainId] : CHAIN_THEME_DARK[chainId]
+  const isDarkMode = useIsDarkMode();
+  return isDarkMode ? CHAIN_THEME_LIGHT[chainId] : CHAIN_THEME_DARK[chainId];
 }
 
 function MaybeExternalBridgeCard({ chainId }: { chainId: UniverseChainId }) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
-  const { bgColor, textColor } = useChainTheme(chainId)
-  const chainInfo = getChainInfo(chainId)
-  const logoUri = chainInfo.logo as string
+  const { bgColor, textColor } = useChainTheme(chainId);
+  const chainInfo = getChainInfo(chainId);
+  const logoUri = chainInfo.logo as string;
 
   return chainInfo.bridge ? (
     <ExternalLink href={chainInfo.bridge}>
@@ -138,11 +148,11 @@ function MaybeExternalBridgeCard({ chainId }: { chainId: UniverseChainId }) {
         backgroundColor={bgColor}
       />
     </ExternalLink>
-  ) : null
+  ) : null;
 }
 
-const ICON_SIZE = 20
-const ICON_SIZE_PX = `${ICON_SIZE}px`
+const ICON_SIZE = 20;
+const ICON_SIZE_PX = `${ICON_SIZE}px`;
 
 function CardInner({
   image,
@@ -154,16 +164,16 @@ function CardInner({
   onDismiss,
   isNew = false,
 }: {
-  title: string
-  subtitle: string
-  image: JSX.Element | null
-  isAbsoluteImage?: boolean
-  backgroundColor?: string
-  textColor?: string
-  isNew?: boolean
-  onDismiss?: () => void
+  title: string;
+  subtitle: string;
+  image: JSX.Element | null;
+  isAbsoluteImage?: boolean;
+  backgroundColor?: string;
+  textColor?: string;
+  isNew?: boolean;
+  onDismiss?: () => void;
 }) {
-  const colors = useSporeColors()
+  const colors = useSporeColors();
 
   return (
     <Flex
@@ -177,10 +187,14 @@ function CardInner({
       pl={isAbsoluteImage ? '$none' : '$spacing12'}
       borderRadius="$rounded20"
       justifyContent="space-between"
-      width="100%"
-    >
+      width="100%">
       {image}
-      <Flex row fill alignItems="center" p="$spacing12" pl={isAbsoluteImage ? '$spacing48' : '$spacing12'}>
+      <Flex
+        row
+        fill
+        alignItems="center"
+        p="$spacing12"
+        pl={isAbsoluteImage ? '$spacing48' : '$spacing12'}>
         <Flex fill alignContent="center">
           <ElementAfterText
             text={title}
@@ -199,10 +213,9 @@ function CardInner({
             $md={{ alignSelf: 'center' }}
             hitSlop={ICON_SIZE}
             onPress={(e: TouchableAreaEvent) => {
-              e.stopPropagation()
-              onDismiss()
-            }}
-          >
+              e.stopPropagation();
+              onDismiss();
+            }}>
             <X color="$neutral3" size={ICON_SIZE} />
           </TouchableArea>
         ) : (
@@ -212,5 +225,5 @@ function CardInner({
         )}
       </Flex>
     </Flex>
-  )
+  );
 }

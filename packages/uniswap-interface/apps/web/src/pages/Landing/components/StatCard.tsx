@@ -1,8 +1,8 @@
-import { motion } from 'framer-motion'
-import styled, { keyframes, useTheme } from 'lib/styled-components'
-import { parseToRgb } from 'polished'
-import { Flex } from 'ui/src'
-import { opacify } from 'ui/src/theme'
+import { motion } from 'framer-motion';
+import styled, { keyframes, useTheme } from 'lib/styled-components';
+import { parseToRgb } from 'polished';
+import { Flex } from 'ui/src';
+import { opacify } from 'ui/src/theme';
 
 const Mask = motion(styled.div`
   position: relative;
@@ -17,7 +17,7 @@ const Mask = motion(styled.div`
   @media (max-width: 768px) {
     min-height: 32px;
   }
-`)
+`);
 
 const Char = motion(styled.div<{ color: string }>`
   font-variant-numeric: lining-nums tabular-nums;
@@ -43,7 +43,7 @@ const Char = motion(styled.div<{ color: string }>`
     font-size: 22px;
     line-height: 22px;
   }
-`)
+`);
 const Container = styled.div<{ live?: boolean }>`
   display: flex;
   flex-direction: column;
@@ -66,18 +66,18 @@ const Container = styled.div<{ live?: boolean }>`
   @media (max-width: 768px) {
   }
   background-image: radial-gradient(rgba(${({ theme }) => {
-    const { red, green, blue } = parseToRgb(theme.neutral2)
-    return `${red}, ${green}, ${blue}`
+    const { red, green, blue } = parseToRgb(theme.neutral2);
+    return `${red}, ${green}, ${blue}`;
   }}, 0.25) 0.5px, transparent 0)};
   background-size: 12px 12px;
   background-position: -8.5px -8.5px;
-`
+`;
 const SpriteContainer = motion(styled.div`
   pointer-events: none;
   diplay: flex;
   flex-direction: column;
   color: ${({ theme }) => theme.neutral2};
-`)
+`);
 
 const pulsate = (color: string) => keyframes`
   0% {
@@ -86,7 +86,7 @@ const pulsate = (color: string) => keyframes`
   100% {
     box-shadow: 0 0 0 4px ${opacify(24, color)};
   }
-`
+`;
 const LiveIcon = styled.div<{ display: string }>`
   display: ${({ display }) => display};
   width: 6px;
@@ -101,7 +101,7 @@ const LiveIcon = styled.div<{ display: string }>`
   animation-duration: 1000ms;
   animation-iteration-count: infinite;
   animation-timing-function: ease-in-out;
-`
+`;
 const Title = styled.h3<{ color: string }>`
   padding: 0;
   margin: 0;
@@ -119,28 +119,28 @@ const Title = styled.h3<{ color: string }>`
     font-size: 18px;
     line-height: 20px;
   }
-`
+`;
 type StatCardProps = {
-  title: string
-  value: string
-  live?: boolean
-  prefix?: string
-  suffix?: string
-  delay?: number
-  inView?: boolean
-}
+  title: string;
+  value: string;
+  live?: boolean;
+  prefix?: string;
+  suffix?: string;
+  delay?: number;
+  inView?: boolean;
+};
 
 function rotateArray<T>(arr: T[], n: number) {
-  return arr.slice(n, arr.length).concat(arr.slice(0, n))
+  return arr.slice(n, arr.length).concat(arr.slice(0, n));
 }
 
-const numeric = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-const currency = ['¥', '£', '€', '$']
-const suffixes = [' ', 'K', 'M', 'B', 'T']
-const delineators = [',', '.']
+const numeric = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+const currency = ['¥', '£', '€', '$'];
+const suffixes = [' ', 'K', 'M', 'B', 'T'];
+const delineators = [',', '.'];
 
 export function StatCard(props: StatCardProps) {
-  const theme = useTheme()
+  const theme = useTheme();
   return (
     <Container live={props.live}>
       <Flex row alignItems="center" gap="$gap4">
@@ -156,19 +156,23 @@ export function StatCard(props: StatCardProps) {
         inView={props.inView}
       />
     </Container>
-  )
+  );
 }
 
-function StringInterpolationWithMotion({ value, delay, inView, live }: Omit<StatCardProps, 'title'>) {
-  const chars = value.split('')
-  const theme = useTheme()
+function StringInterpolationWithMotion({
+  value,
+  delay,
+  inView,
+  live,
+}: Omit<StatCardProps, 'title'>) {
+  const chars = value.split('');
+  const theme = useTheme();
 
   return (
     <Mask
       initial="initial"
       animate={inView ? 'animate' : 'initial'}
-      transition={{ staggerChildren: 0.025, delayChildren: delay }}
-    >
+      transition={{ staggerChildren: 0.025, delayChildren: delay }}>
       {chars.map((char: string, index: number) => {
         // select charset based on char
         const charset = numeric.includes(char)
@@ -177,21 +181,36 @@ function StringInterpolationWithMotion({ value, delay, inView, live }: Omit<Stat
             ? delineators
             : currency.includes(char)
               ? currency
-              : suffixes
+              : suffixes;
 
-        return <NumberSprite char={char} key={index} charset={charset} color={live ? theme.success : theme.neutral1} />
+        return (
+          <NumberSprite
+            char={char}
+            key={index}
+            charset={charset}
+            color={live ? theme.success : theme.neutral1}
+          />
+        );
       })}
     </Mask>
-  )
+  );
 }
 
-function NumberSprite({ char, charset, color }: { char: string; charset: string[]; color: string }) {
-  const height = 60
+function NumberSprite({
+  char,
+  charset,
+  color,
+}: {
+  char: string;
+  charset: string[];
+  color: string;
+}) {
+  const height = 60;
 
   // rotate array so that the char is at the top
-  const chars = rotateArray(charset, charset.indexOf(char))
+  const chars = rotateArray(charset, charset.indexOf(char));
 
-  const idx = chars.indexOf(char)
+  const idx = chars.indexOf(char);
 
   const variants = {
     initial: {
@@ -204,7 +223,7 @@ function NumberSprite({ char, charset, color }: { char: string; charset: string[
         type: 'spring',
       },
     },
-  }
+  };
 
   return (
     <SpriteContainer variants={variants}>
@@ -223,14 +242,14 @@ function NumberSprite({ char, charset, color }: { char: string; charset: string[
               type: 'spring',
             },
           },
-        }
+        };
 
         return (
           <Char variants={charVariants} key={index} color={color}>
             {char}
           </Char>
-        )
+        );
       })}
     </SpriteContainer>
-  )
+  );
 }

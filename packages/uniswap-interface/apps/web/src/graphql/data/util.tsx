@@ -1,13 +1,19 @@
-import { DeepPartial } from '@apollo/client/utilities'
-import { BigNumber } from '@ethersproject/bignumber'
-import { DataTag, DefaultError, QueryKey, UndefinedInitialDataOptions, queryOptions } from '@tanstack/react-query'
-import { Currency, Token } from '@uniswap/sdk-core'
-import { NATIVE_CHAIN_ID } from 'constants/tokens'
-import ms from 'ms'
-import { ExploreTab } from 'pages/Explore/constants'
-import { TokenStat } from 'state/explore/types'
-import { ColorTokens } from 'ui/src'
-import { WRAPPED_NATIVE_CURRENCY, nativeOnChain } from 'uniswap/src/constants/tokens'
+import { DeepPartial } from '@apollo/client/utilities';
+import { BigNumber } from '@ethersproject/bignumber';
+import {
+  DataTag,
+  DefaultError,
+  QueryKey,
+  UndefinedInitialDataOptions,
+  queryOptions,
+} from '@tanstack/react-query';
+import { Currency, Token } from '@uniswap/sdk-core';
+import { NATIVE_CHAIN_ID } from 'constants/tokens';
+import ms from 'ms';
+import { ExploreTab } from 'pages/Explore/constants';
+import { TokenStat } from 'state/explore/types';
+import { ColorTokens } from 'ui/src';
+import { WRAPPED_NATIVE_CURRENCY, nativeOnChain } from 'uniswap/src/constants/tokens';
 import {
   Chain,
   ContractInput,
@@ -15,18 +21,18 @@ import {
   HistoryDuration,
   PriceSource,
   TokenStandard,
-} from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { GqlChainId, UniverseChainId, isUniverseChainId } from 'uniswap/src/features/chains/types'
+} from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { GqlChainId, UniverseChainId, isUniverseChainId } from 'uniswap/src/features/chains/types';
 import {
   fromGraphQLChain,
   isBackendSupportedChain,
   toGraphQLChain,
   toSupportedChainId,
-} from 'uniswap/src/features/chains/utils'
-import { FORSupportedToken } from 'uniswap/src/features/fiatOnRamp/types'
-import { AVERAGE_L1_BLOCK_TIME_MS } from 'uniswap/src/features/transactions/hooks/usePollingIntervalByChain'
-import { getChainIdFromBackendChain, getChainIdFromChainUrlParam } from 'utils/chainParams'
-import { getNativeTokenDBAddress } from 'utils/nativeTokens'
+} from 'uniswap/src/features/chains/utils';
+import { FORSupportedToken } from 'uniswap/src/features/fiatOnRamp/types';
+import { AVERAGE_L1_BLOCK_TIME_MS } from 'uniswap/src/features/transactions/hooks/usePollingIntervalByChain';
+import { getChainIdFromBackendChain, getChainIdFromChainUrlParam } from 'utils/chainParams';
+import { getNativeTokenDBAddress } from 'utils/nativeTokens';
 
 export enum PollingInterval {
   Slow = ms(`5m`),
@@ -47,37 +53,42 @@ export enum TimePeriod {
 export function toHistoryDuration(timePeriod: TimePeriod): HistoryDuration {
   switch (timePeriod) {
     case TimePeriod.HOUR:
-      return HistoryDuration.Hour
+      return HistoryDuration.Hour;
     case TimePeriod.DAY:
-      return HistoryDuration.Day
+      return HistoryDuration.Day;
     case TimePeriod.WEEK:
-      return HistoryDuration.Week
+      return HistoryDuration.Week;
     case TimePeriod.MONTH:
-      return HistoryDuration.Month
+      return HistoryDuration.Month;
     case TimePeriod.YEAR:
-      return HistoryDuration.Year
+      return HistoryDuration.Year;
   }
 }
 
-export type PricePoint = { timestamp: number; value: number }
+export type PricePoint = { timestamp: number; value: number };
 
 export function toContractInput(currency: Currency, fallback: UniverseChainId): ContractInput {
-  const supportedChainId = toSupportedChainId(currency.chainId)
-  const chain = toGraphQLChain(supportedChainId ?? fallback)
-  return { chain, address: currency.isToken ? currency.address : getNativeTokenDBAddress(chain) }
+  const supportedChainId = toSupportedChainId(currency.chainId);
+  const chain = toGraphQLChain(supportedChainId ?? fallback);
+  return { chain, address: currency.isToken ? currency.address : getNativeTokenDBAddress(chain) };
 }
 
 export function gqlToCurrency(token: DeepPartial<GqlToken | TokenStat>): Currency | undefined {
   if (!token.chain) {
-    return undefined
+    return undefined;
   }
   const chainId =
-    getChainIdFromChainUrlParam(token.chain.toLowerCase()) ?? getChainIdFromBackendChain(token.chain as GqlChainId)
+    getChainIdFromChainUrlParam(token.chain.toLowerCase()) ??
+    getChainIdFromBackendChain(token.chain as GqlChainId);
   if (!chainId) {
-    return undefined
+    return undefined;
   }
-  if (token.standard === TokenStandard.Native || token.address === NATIVE_CHAIN_ID || !token.address) {
-    return nativeOnChain(chainId)
+  if (
+    token.standard === TokenStandard.Native ||
+    token.address === NATIVE_CHAIN_ID ||
+    !token.address
+  ) {
+    return nativeOnChain(chainId);
   } else {
     return new Token(
       chainId,
@@ -87,33 +98,45 @@ export function gqlToCurrency(token: DeepPartial<GqlToken | TokenStat>): Currenc
       token.name ?? token.project?.name ?? undefined,
       undefined,
       token.feeData?.buyFeeBps ? BigNumber.from(token.feeData.buyFeeBps) : undefined,
-      token.feeData?.sellFeeBps ? BigNumber.from(token.feeData.sellFeeBps) : undefined,
-    )
+      token.feeData?.sellFeeBps ? BigNumber.from(token.feeData.sellFeeBps) : undefined
+    );
   }
 }
 
 export function fiatOnRampToCurrency(forCurrency: FORSupportedToken): Currency | undefined {
   if (!isUniverseChainId(Number(forCurrency.chainId))) {
-    return undefined
+    return undefined;
   }
-  const supportedChainId = Number(forCurrency.chainId) as UniverseChainId
+  const supportedChainId = Number(forCurrency.chainId) as UniverseChainId;
 
   if (!forCurrency.address) {
-    return nativeOnChain(supportedChainId)
+    return nativeOnChain(supportedChainId);
   } else {
     // The Meld code may not match the currency's symbol (e.g. codes like USDC_BASE), so these should not be used for display.
-    return new Token(supportedChainId, forCurrency.address, 18, forCurrency.cryptoCurrencyCode, forCurrency.displayName)
+    return new Token(
+      supportedChainId,
+      forCurrency.address,
+      18,
+      forCurrency.cryptoCurrencyCode,
+      forCurrency.displayName
+    );
   }
 }
 
-export function supportedChainIdFromGQLChain(chain: GqlChainId): UniverseChainId
-export function supportedChainIdFromGQLChain(chain: Chain): UniverseChainId | undefined
+export function supportedChainIdFromGQLChain(chain: GqlChainId): UniverseChainId;
+export function supportedChainIdFromGQLChain(chain: Chain): UniverseChainId | undefined;
 export function supportedChainIdFromGQLChain(chain: Chain): UniverseChainId | undefined {
-  return isBackendSupportedChain(chain) ? fromGraphQLChain(chain) ?? undefined : undefined
+  return isBackendSupportedChain(chain) ? (fromGraphQLChain(chain) ?? undefined) : undefined;
 }
 
-export function getTokenExploreURL({ tab, chainUrlParam }: { tab: ExploreTab; chainUrlParam?: string }) {
-  return `/explore/${tab}${chainUrlParam ? `/${chainUrlParam}` : ''}`
+export function getTokenExploreURL({
+  tab,
+  chainUrlParam,
+}: {
+  tab: ExploreTab;
+  chainUrlParam?: string;
+}) {
+  return `/explore/${tab}${chainUrlParam ? `/${chainUrlParam}` : ''}`;
 }
 
 export function getTokenDetailsURL({
@@ -122,36 +145,36 @@ export function getTokenDetailsURL({
   chainUrlParam,
   inputAddress,
 }: {
-  address?: string | null
-  chain?: Chain
-  chainUrlParam?: string
-  inputAddress?: string | null
+  address?: string | null;
+  chain?: Chain;
+  chainUrlParam?: string;
+  inputAddress?: string | null;
 }) {
-  const chainName = chainUrlParam || chain?.toLowerCase() || Chain.Ethereum.toLowerCase()
-  const tokenAddress = address ?? NATIVE_CHAIN_ID
-  const inputAddressSuffix = inputAddress ? `?inputCurrency=${inputAddress}` : ''
-  return `/explore/tokens/${chainName}/${tokenAddress}${inputAddressSuffix}`
+  const chainName = chainUrlParam || chain?.toLowerCase() || Chain.Ethereum.toLowerCase();
+  const tokenAddress = address ?? NATIVE_CHAIN_ID;
+  const inputAddressSuffix = inputAddress ? `?inputCurrency=${inputAddress}` : '';
+  return `/explore/tokens/${chainName}/${tokenAddress}${inputAddressSuffix}`;
 }
 
 export function unwrapToken<
   T extends
     | {
-        address?: string | null
-        project?: { name?: string | null }
+        address?: string | null;
+        project?: { name?: string | null };
       }
     | undefined,
 >(chainId: number, token: T): T {
   if (!token?.address) {
-    return token
+    return token;
   }
 
-  const address = token.address.toLowerCase()
-  const nativeAddress = WRAPPED_NATIVE_CURRENCY[chainId]?.address.toLowerCase()
+  const address = token.address.toLowerCase();
+  const nativeAddress = WRAPPED_NATIVE_CURRENCY[chainId]?.address.toLowerCase();
   if (address !== nativeAddress) {
-    return token
+    return token;
   }
 
-  const nativeToken = nativeOnChain(chainId)
+  const nativeToken = nativeOnChain(chainId);
 
   return {
     ...token,
@@ -162,10 +185,10 @@ export function unwrapToken<
     },
     address: NATIVE_CHAIN_ID,
     extensions: undefined, // prevents marking cross-chain wrapped tokens as native
-  }
+  };
 }
 
-type ProtocolMeta = { name: string; color: ColorTokens; gradient: { start: string; end: string } }
+type ProtocolMeta = { name: string; color: ColorTokens; gradient: { start: string; end: string } };
 const PROTOCOL_META: { [source in PriceSource]: ProtocolMeta } = {
   [PriceSource.SubgraphV2]: {
     name: 'v2',
@@ -183,14 +206,14 @@ const PROTOCOL_META: { [source in PriceSource]: ProtocolMeta } = {
     gradient: { start: 'rgba(96, 123, 238, 0.20)', end: 'rgba(55, 70, 136, 0.00)' },
   },
   /* [PriceSource.UniswapX]: { name: 'UniswapX', color: purple } */
-}
+};
 
 export function getProtocolColor(priceSource: PriceSource): ColorTokens {
-  return PROTOCOL_META[priceSource].color
+  return PROTOCOL_META[priceSource].color;
 }
 
 export function getProtocolName(priceSource: PriceSource): string {
-  return PROTOCOL_META[priceSource].name
+  return PROTOCOL_META[priceSource].name;
 }
 
 export enum OrderDirection {
@@ -209,15 +232,18 @@ export function apolloQueryOptions<
   TData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey,
 >(
-  options: Pick<UndefinedInitialDataOptions<TQueryFnData, TError, TData, TQueryKey>, 'queryKey' | 'queryFn'>,
+  options: Pick<
+    UndefinedInitialDataOptions<TQueryFnData, TError, TData, TQueryKey>,
+    'queryKey' | 'queryFn'
+  >
 ): Pick<
   UndefinedInitialDataOptions<TQueryFnData, TError, TData, TQueryKey> & {
-    queryKey: DataTag<TQueryKey, TQueryFnData>
+    queryKey: DataTag<TQueryKey, TQueryFnData>;
   },
   'queryKey' | 'queryFn'
 > {
   return queryOptions({
     ...options,
     staleTime: 0,
-  })
+  });
 }

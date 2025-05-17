@@ -1,9 +1,9 @@
-import { defineConfig, devices } from '@playwright/test'
-import dotenv from 'dotenv'
-import path from 'path'
+import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+import path from 'path';
 
 if (process.env.CI !== 'true') {
-  dotenv.config({ path: path.resolve(__dirname, '.env.local') })
+  dotenv.config({ path: path.resolve(__dirname, '.env.local') });
 }
 
 export default defineConfig({
@@ -30,4 +30,4 @@ export default defineConfig({
     },
   ],
   outputDir: './test-results',
-})
+});

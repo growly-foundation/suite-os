@@ -1,24 +1,24 @@
-import { createMigrate } from 'redux-persist'
-import { migration1 } from 'state/migrations/1'
-import { migration10 } from 'state/migrations/10'
-import { migration11 } from 'state/migrations/11'
-import { migration12 } from 'state/migrations/12'
-import { migration13 } from 'state/migrations/13'
-import { migration14 } from 'state/migrations/14'
-import { migration15 } from 'state/migrations/15'
-import { migration16 } from 'state/migrations/16'
-import { migration17 } from 'state/migrations/17'
-import { migration18 } from 'state/migrations/18'
-import { PersistAppStateV19, migration19 } from 'state/migrations/19'
-import { migration2 } from 'state/migrations/2'
-import { migration3 } from 'state/migrations/3'
-import { migration4 } from 'state/migrations/4'
-import { migration5 } from 'state/migrations/5'
-import { migration6 } from 'state/migrations/6'
-import { migration7 } from 'state/migrations/7'
-import { migration8 } from 'state/migrations/8'
-import { migration9 } from 'state/migrations/9'
-import { Language } from 'uniswap/src/features/language/constants'
+import { createMigrate } from 'redux-persist';
+import { migration1 } from 'state/migrations/1';
+import { migration10 } from 'state/migrations/10';
+import { migration11 } from 'state/migrations/11';
+import { migration12 } from 'state/migrations/12';
+import { migration13 } from 'state/migrations/13';
+import { migration14 } from 'state/migrations/14';
+import { migration15 } from 'state/migrations/15';
+import { migration16 } from 'state/migrations/16';
+import { migration17 } from 'state/migrations/17';
+import { migration18 } from 'state/migrations/18';
+import { PersistAppStateV19, migration19 } from 'state/migrations/19';
+import { migration2 } from 'state/migrations/2';
+import { migration3 } from 'state/migrations/3';
+import { migration4 } from 'state/migrations/4';
+import { migration5 } from 'state/migrations/5';
+import { migration6 } from 'state/migrations/6';
+import { migration7 } from 'state/migrations/7';
+import { migration8 } from 'state/migrations/8';
+import { migration9 } from 'state/migrations/9';
+import { Language } from 'uniswap/src/features/language/constants';
 
 const previousState: PersistAppStateV19 = {
   _persist: {
@@ -31,7 +31,7 @@ const previousState: PersistAppStateV19 = {
   userSettings: {
     currentLanguage: Language.English,
   },
-}
+};
 
 const migrator = createMigrate(
   {
@@ -55,13 +55,13 @@ const migrator = createMigrate(
     18: migration18,
     19: migration19,
   },
-  { debug: false },
-)
+  { debug: false }
+);
 
 describe('migration to v19', () => {
   it('should translate locale to a user language, retaining customization', async () => {
-    const result: any = await migrator(previousState, 19)
-    expect(result.user.userLocale).toBe(undefined)
-    expect(result.userSettings.currentLanguage).toBe(Language.Italian)
-  })
-})
+    const result: any = await migrator(previousState, 19);
+    expect(result.user.userLocale).toBe(undefined);
+    expect(result.userSettings.currentLanguage).toBe(Language.Italian);
+  });
+});

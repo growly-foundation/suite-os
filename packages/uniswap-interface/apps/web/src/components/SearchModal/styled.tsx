@@ -1,5 +1,5 @@
-import { RowBetween } from 'components/deprecated/Row'
-import styled from 'lib/styled-components'
+import { RowBetween } from 'components/deprecated/Row';
+import styled from 'lib/styled-components';
 
 export const MenuItem = styled(RowBetween)<{ dim?: boolean }>`
   padding: 4px 20px;
@@ -13,7 +13,7 @@ export const MenuItem = styled(RowBetween)<{ dim?: boolean }>`
     background-color: ${({ theme }) => theme.deprecated_hoverDefault};
   }
   opacity: ${({ disabled, selected, dim }) => (dim || disabled || selected ? 0.4 : 1)};
-`
+`;
 
 export const SearchInput = styled.input`
   padding: 16px;
@@ -44,4 +44,4 @@ export const SearchInput = styled.input`
     background-color: ${({ theme }) => theme.surface2};
     outline: none;
   }
-`
+`;

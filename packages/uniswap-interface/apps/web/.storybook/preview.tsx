@@ -1,17 +1,17 @@
-import type { Preview } from '@storybook/react'
-import { Provider } from 'react-redux'
-import store from 'state'
-import { ReactRouterUrlProvider } from 'uniswap/src/contexts/UrlContext'
-import { TamaguiProvider } from '../src/theme/tamaguiProvider'
+import type { Preview } from '@storybook/react';
+import { Provider } from 'react-redux';
+import store from 'state';
+import { ReactRouterUrlProvider } from 'uniswap/src/contexts/UrlContext';
+import { TamaguiProvider } from '../src/theme/tamaguiProvider';
 
-import '@reach/dialog/styles.css'
-import { MemoryRouter } from 'react-router-dom'
-import '../src/global.css'
-import '../src/polyfills'
+import '@reach/dialog/styles.css';
+import { MemoryRouter } from 'react-router-dom';
+import '../src/global.css';
+import '../src/polyfills';
 
 const preview: Preview = {
   decorators: [
-    (Story) => (
+    Story => (
       <MemoryRouter>
         <ReactRouterUrlProvider>
           <Provider store={store}>
@@ -32,6 +32,6 @@ const preview: Preview = {
       },
     },
   },
-}
+};
 
-export default preview
+export default preview;

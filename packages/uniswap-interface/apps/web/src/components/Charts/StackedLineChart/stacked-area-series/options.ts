@@ -3,14 +3,14 @@
  * Modifications are called out with comments.
  */
 
-import { customSeriesDefaultOptions, CustomSeriesOptions, Logical } from 'lightweight-charts'
+import { customSeriesDefaultOptions, CustomSeriesOptions, Logical } from 'lightweight-charts';
 
 export interface StackedAreaSeriesOptions extends CustomSeriesOptions {
-  colors: readonly string[]
-  lineWidth: number
-  gradients?: { start: string; end: string }[]
+  colors: readonly string[];
+  lineWidth: number;
+  gradients?: { start: string; end: string }[];
   // Modification: tracks the hovered data point, used for rendering crosshair
-  hoveredLogicalIndex?: Logical
+  hoveredLogicalIndex?: Logical;
 }
 
 export const defaultOptions: StackedAreaSeriesOptions = {
@@ -18,4 +18,4 @@ export const defaultOptions: StackedAreaSeriesOptions = {
   colors: [],
   gradients: undefined,
   lineWidth: 2,
-} as const
+} as const;

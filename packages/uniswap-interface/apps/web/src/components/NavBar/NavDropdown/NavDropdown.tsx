@@ -1,6 +1,13 @@
-import { ReactNode, RefObject } from 'react'
-import { Flex, Popover, WebBottomSheet, styled, useScrollbarStyles, useShadowPropsMedium } from 'ui/src'
-import { INTERFACE_NAV_HEIGHT } from 'ui/src/theme'
+import { ReactNode, RefObject } from 'react';
+import {
+  Flex,
+  Popover,
+  WebBottomSheet,
+  styled,
+  useScrollbarStyles,
+  useShadowPropsMedium,
+} from 'ui/src';
+import { INTERFACE_NAV_HEIGHT } from 'ui/src/theme';
 
 const NavDropdownContent = styled(Flex, {
   borderRadius: '$rounded16',
@@ -30,21 +37,29 @@ const NavDropdownContent = styled(Flex, {
       false: {},
     },
   },
-})
+});
 
 interface NavDropdownProps {
-  children: ReactNode
-  isOpen: boolean
-  width?: number
-  dropdownRef?: RefObject<HTMLDivElement>
-  dataTestId?: string
-  padded?: boolean
-  mr?: number
+  children: ReactNode;
+  isOpen: boolean;
+  width?: number;
+  dropdownRef?: RefObject<HTMLDivElement>;
+  dataTestId?: string;
+  padded?: boolean;
+  mr?: number;
 }
 
-export function NavDropdown({ children, width, dropdownRef, isOpen, padded, dataTestId, mr = 0 }: NavDropdownProps) {
-  const shadowProps = useShadowPropsMedium()
-  const scrollbarStyles = useScrollbarStyles()
+export function NavDropdown({
+  children,
+  width,
+  dropdownRef,
+  isOpen,
+  padded,
+  dataTestId,
+  mr = 0,
+}: NavDropdownProps) {
+  const shadowProps = useShadowPropsMedium();
+  const scrollbarStyles = useScrollbarStyles();
 
   return (
     <>
@@ -63,8 +78,7 @@ export function NavDropdown({ children, width, dropdownRef, isOpen, padded, data
             },
           },
         ]}
-        data-testid={dataTestId}
-      >
+        data-testid={dataTestId}>
         <Popover.Arrow />
         <NavDropdownContent
           data-testid={dataTestId}
@@ -73,8 +87,7 @@ export function NavDropdown({ children, width, dropdownRef, isOpen, padded, data
           padded={padded}
           {...shadowProps}
           $platform-web={{ overflow: 'auto' }}
-          style={scrollbarStyles}
-        >
+          style={scrollbarStyles}>
           {children}
         </NavDropdownContent>
       </Popover.Content>
@@ -84,5 +97,5 @@ export function NavDropdown({ children, width, dropdownRef, isOpen, padded, data
         </WebBottomSheet>
       </Popover.Adapt>
     </>
-  )
+  );
 }

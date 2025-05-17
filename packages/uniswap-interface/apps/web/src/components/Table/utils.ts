@@ -1,8 +1,8 @@
-import { Column, RowData } from '@tanstack/react-table'
-import { CSSProperties } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useSporeColors } from 'ui/src/hooks/useSporeColors'
-import { padding, zIndexes } from 'ui/src/theme'
+import { Column, RowData } from '@tanstack/react-table';
+import { CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useSporeColors } from 'ui/src/hooks/useSporeColors';
+import { padding, zIndexes } from 'ui/src/theme';
 
 /**
  * Displays the time as a human-readable string.
@@ -12,34 +12,34 @@ import { padding, zIndexes } from 'ui/src/theme'
  * @returns {string} Message to display.
  */
 export function useAbbreviatedTimeString(timestamp: number) {
-  const { t } = useTranslation()
-  const now = Date.now()
-  const timeSince = now - timestamp
-  const secondsPassed = Math.floor(timeSince / 1000)
-  const minutesPassed = Math.floor(secondsPassed / 60)
-  const hoursPassed = Math.floor(minutesPassed / 60)
-  const daysPassed = Math.floor(hoursPassed / 24)
-  const monthsPassed = Math.floor(daysPassed / 30)
+  const { t } = useTranslation();
+  const now = Date.now();
+  const timeSince = now - timestamp;
+  const secondsPassed = Math.floor(timeSince / 1000);
+  const minutesPassed = Math.floor(secondsPassed / 60);
+  const hoursPassed = Math.floor(minutesPassed / 60);
+  const daysPassed = Math.floor(hoursPassed / 24);
+  const monthsPassed = Math.floor(daysPassed / 30);
 
   if (monthsPassed > 0) {
-    return t(`common.time.past.months.short`, { months: monthsPassed })
+    return t(`common.time.past.months.short`, { months: monthsPassed });
   } else if (daysPassed > 0) {
-    return t(`common.time.past.days.short`, { days: daysPassed })
+    return t(`common.time.past.days.short`, { days: daysPassed });
   } else if (hoursPassed > 0) {
-    return t(`common.time.past.hours.short`, { hours: hoursPassed })
+    return t(`common.time.past.hours.short`, { hours: hoursPassed });
   } else if (minutesPassed > 0) {
-    return t(`common.time.past.minutes.short`, { minutes: minutesPassed })
+    return t(`common.time.past.minutes.short`, { minutes: minutesPassed });
   } else {
-    return t(`common.time.past.seconds.short`, { seconds: secondsPassed })
+    return t(`common.time.past.seconds.short`, { seconds: secondsPassed });
   }
 }
 
 export function getCommonPinningStyles<Data extends RowData>(
   column: Column<Data, unknown>,
-  colors: ReturnType<typeof useSporeColors>,
+  colors: ReturnType<typeof useSporeColors>
 ): CSSProperties {
-  const isPinned = column.getIsPinned()
-  const isLastPinnedColumn = column.getIsLastColumn('left')
+  const isPinned = column.getIsPinned();
+  const isLastPinnedColumn = column.getIsLastColumn('left');
 
   return {
     left: isPinned === 'left' ? `${column.getStart('left')}px` : 0,
@@ -53,5 +53,5 @@ export function getCommonPinningStyles<Data extends RowData>(
     height: '100%',
     display: 'flex',
     justifyContent: 'center',
-  }
+  };
 }

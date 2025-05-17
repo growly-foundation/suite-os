@@ -1,11 +1,11 @@
-import { Path, Svg } from 'react-native-svg'
+import { Path, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [PaperStack, AnimatedPaperStack] = createIcon({
   name: 'PaperStack',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg viewBox="0 0 14 14" fill="none" {...props}>
       <Path
         d="M5.29469 10.272C3.83536 10.0146 3.23479 9.15664 3.49212 7.69731L4.38747 2.62L4.3847 2.61597L1.85882 3.06067C0.399486 3.32 -0.200644 4.1793 0.058689 5.63863L1.0888 11.476C1.3408 12.9353 2.2001 13.5353 3.65944 13.276L8.03737 12.5053C9.05937 12.32 9.66751 11.8387 9.83017 11.068L9.82545 11.06C9.77345 11.0526 9.72678 11.0527 9.67278 11.0433L5.29469 10.272Z"
@@ -20,4 +20,4 @@ export const [PaperStack, AnimatedPaperStack] = createIcon({
       />
     </Svg>
   ),
-})
+});

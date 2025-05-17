@@ -1,1 +1,1 @@
-export type SporeComponentVariant = 'branded' | 'default'
+export type SporeComponentVariant = 'branded' | 'default';

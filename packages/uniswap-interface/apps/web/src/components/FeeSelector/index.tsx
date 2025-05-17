@@ -1,22 +1,22 @@
-import { FeePoolSelectAction, LiquidityEventName } from '@uniswap/analytics-events'
-import { Currency } from '@uniswap/sdk-core'
-import { FeeAmount } from '@uniswap/v3-sdk'
-import { OutlineCard } from 'components/Card/cards'
-import { FeeOption } from 'components/FeeSelector/FeeOption'
-import { FeeTierPercentageBadge } from 'components/FeeSelector/FeeTierPercentageBadge'
-import { FEE_AMOUNT_DETAIL } from 'components/FeeSelector/shared'
-import { AutoColumn } from 'components/deprecated/Column'
-import { useAccount } from 'hooks/useAccount'
-import { useFeeTierDistribution } from 'hooks/useFeeTierDistribution'
-import { PoolState, usePools } from 'hooks/usePools'
-import styled from 'lib/styled-components'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Trans } from 'react-i18next'
-import { Button, Flex, RadioButtonGroup, Text } from 'ui/src'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send'
-import { useTrace } from 'utilities/src/telemetry/trace/TraceContext'
-import { useFormatter } from 'utils/formatNumbers'
+import { FeePoolSelectAction, LiquidityEventName } from '@uniswap/analytics-events';
+import { Currency } from '@uniswap/sdk-core';
+import { FeeAmount } from '@uniswap/v3-sdk';
+import { OutlineCard } from 'components/Card/cards';
+import { FeeOption } from 'components/FeeSelector/FeeOption';
+import { FeeTierPercentageBadge } from 'components/FeeSelector/FeeTierPercentageBadge';
+import { FEE_AMOUNT_DETAIL } from 'components/FeeSelector/shared';
+import { AutoColumn } from 'components/deprecated/Column';
+import { useAccount } from 'hooks/useAccount';
+import { useFeeTierDistribution } from 'hooks/useFeeTierDistribution';
+import { PoolState, usePools } from 'hooks/usePools';
+import styled from 'lib/styled-components';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Trans } from 'react-i18next';
+import { Button, Flex, RadioButtonGroup, Text } from 'ui/src';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send';
+import { useTrace } from 'utilities/src/telemetry/trace/TraceContext';
+import { useFormatter } from 'utils/formatNumbers';
 
 const Select = styled.div`
   align-items: flex-start;
@@ -24,12 +24,12 @@ const Select = styled.div`
   grid-template-columns: 1fr 1fr 1fr;
   grid-gap: 8px;
   width: 100%;
-`
+`;
 
 const DynamicSection = styled(AutoColumn)<{ disabled?: boolean }>`
   opacity: ${({ disabled }) => (disabled ? '0.2' : '1')};
   pointer-events: ${({ disabled }) => (disabled ? 'none' : 'initial')};
-`
+`;
 
 export default function FeeSelector({
   disabled = false,
@@ -38,17 +38,20 @@ export default function FeeSelector({
   currencyA,
   currencyB,
 }: {
-  disabled?: boolean
-  feeAmount?: FeeAmount
-  handleFeePoolSelect: (feeAmount: FeeAmount) => void
-  currencyA?: Currency
-  currencyB?: Currency
+  disabled?: boolean;
+  feeAmount?: FeeAmount;
+  handleFeePoolSelect: (feeAmount: FeeAmount) => void;
+  currencyA?: Currency;
+  currencyB?: Currency;
 }) {
-  const { chainId } = useAccount()
-  const trace = useTrace()
-  const { formatDelta } = useFormatter()
+  const { chainId } = useAccount();
+  const trace = useTrace();
+  const { formatDelta } = useFormatter();
 
-  const { isLoading, isError, largestUsageFeeTier, distributions } = useFeeTierDistribution(currencyA, currencyB)
+  const { isLoading, isError, largestUsageFeeTier, distributions } = useFeeTierDistribution(
+    currencyA,
+    currencyB
+  );
 
   // get pool data on-chain for latest states
   const pools = usePools(
@@ -61,8 +64,8 @@ export default function FeeSelector({
       [currencyA, currencyB, FeeAmount.MEDIUM],
       [currencyA, currencyB, FeeAmount.HIGH],
     ],
-    chainId,
-  )
+    chainId
+  );
 
   const poolsByFeeTier: Record<FeeAmount, PoolState> = useMemo(
     () =>
@@ -71,8 +74,8 @@ export default function FeeSelector({
           acc = {
             ...acc,
             ...{ [curPool?.fee as FeeAmount]: curPoolState },
-          }
-          return acc
+          };
+          return acc;
         },
         {
           // default all states to NOT_EXISTS
@@ -83,14 +86,14 @@ export default function FeeSelector({
           [FeeAmount.LOW]: PoolState.NOT_EXISTS,
           [FeeAmount.MEDIUM]: PoolState.NOT_EXISTS,
           [FeeAmount.HIGH]: PoolState.NOT_EXISTS,
-        },
+        }
       ),
-    [pools],
-  )
+    [pools]
+  );
 
-  const [showOptions, setShowOptions] = useState(false)
+  const [showOptions, setShowOptions] = useState(false);
 
-  const recommended = useRef(false)
+  const recommended = useRef(false);
 
   const handleFeePoolSelectWithEvent = useCallback(
     (fee: FeeAmount) => {
@@ -98,37 +101,37 @@ export default function FeeSelector({
         action: FeePoolSelectAction.MANUAL,
         fee_tier: fee,
         ...trace,
-      })
-      handleFeePoolSelect(fee)
+      });
+      handleFeePoolSelect(fee);
     },
-    [handleFeePoolSelect, trace],
-  )
+    [handleFeePoolSelect, trace]
+  );
 
   useEffect(() => {
     if (feeAmount || isLoading || isError) {
-      return
+      return;
     }
 
     if (!largestUsageFeeTier) {
       // cannot recommend, open options
-      setShowOptions(true)
+      setShowOptions(true);
     } else {
-      setShowOptions(false)
+      setShowOptions(false);
 
-      recommended.current = true
+      recommended.current = true;
       sendAnalyticsEvent(LiquidityEventName.SELECT_LIQUIDITY_POOL_FEE_TIER, {
         action: FeePoolSelectAction.RECOMMENDED,
         fee_tier: largestUsageFeeTier,
         ...trace,
-      })
+      });
 
-      handleFeePoolSelect(largestUsageFeeTier)
+      handleFeePoolSelect(largestUsageFeeTier);
     }
-  }, [feeAmount, isLoading, isError, largestUsageFeeTier, handleFeePoolSelect, trace])
+  }, [feeAmount, isLoading, isError, largestUsageFeeTier, handleFeePoolSelect, trace]);
 
   useEffect(() => {
-    setShowOptions(isError)
-  }, [isError])
+    setShowOptions(isError);
+  }, [isError]);
 
   return (
     <Flex gap="$gap16">
@@ -136,8 +139,7 @@ export default function FeeSelector({
         <OutlineCard
           $platform-web={{
             alignSelf: 'center',
-          }}
-        >
+          }}>
           <Flex row justifyContent="space-between" alignItems="center">
             <Flex id="add-liquidity-selected-fee">
               {!feeAmount ? (
@@ -175,9 +177,12 @@ export default function FeeSelector({
               variant="default"
               emphasis="secondary"
               size="small"
-              fill={false}
-            >
-              {showOptions ? <Trans i18nKey="common.hide.button" /> : <Trans i18nKey="common.edit.button" />}
+              fill={false}>
+              {showOptions ? (
+                <Trans i18nKey="common.hide.button" />
+              ) : (
+                <Trans i18nKey="common.edit.button" />
+              )}
             </Button>
           </Flex>
         </OutlineCard>
@@ -187,8 +192,7 @@ export default function FeeSelector({
             value={feeAmount?.toString()}
             orientation="horizontal"
             justifyContent="flex-start"
-            flexWrap="wrap"
-          >
+            flexWrap="wrap">
             <Select>
               {[
                 FeeAmount.LOWEST,
@@ -199,7 +203,7 @@ export default function FeeSelector({
                 FeeAmount.MEDIUM,
                 FeeAmount.HIGH,
               ].map((_feeAmount, i) => {
-                const { supportedChains } = FEE_AMOUNT_DETAIL[_feeAmount]
+                const { supportedChains } = FEE_AMOUNT_DETAIL[_feeAmount];
                 if ((supportedChains as unknown as UniverseChainId[]).includes(chainId)) {
                   return (
                     <FeeOption
@@ -210,14 +214,14 @@ export default function FeeSelector({
                       poolState={poolsByFeeTier[_feeAmount]}
                       key={i}
                     />
-                  )
+                  );
                 }
-                return null
+                return null;
               })}
             </Select>
           </RadioButtonGroup>
         )}
       </DynamicSection>
     </Flex>
-  )
+  );
 }

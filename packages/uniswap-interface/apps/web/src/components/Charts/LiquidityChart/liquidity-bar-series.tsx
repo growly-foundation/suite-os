@@ -3,7 +3,7 @@ import {
   LiquidityBarProps,
   LiquidityBarSeriesOptions,
   LiquidityBarSeriesRenderer,
-} from 'components/Charts/LiquidityChart/renderer'
+} from 'components/Charts/LiquidityChart/renderer';
 import {
   CustomSeriesPricePlotValues,
   ICustomSeriesPaneView,
@@ -11,37 +11,37 @@ import {
   Time,
   WhitespaceData,
   customSeriesDefaultOptions,
-} from 'lightweight-charts'
+} from 'lightweight-charts';
 
 export class LiquidityBarSeries<TData extends LiquidityBarData>
   implements ICustomSeriesPaneView<Time, TData, LiquidityBarSeriesOptions>
 {
-  _renderer: LiquidityBarSeriesRenderer<TData>
-  _tokenAColor: string
-  _tokenBColor: string
-  _highlightColor: string
+  _renderer: LiquidityBarSeriesRenderer<TData>;
+  _tokenAColor: string;
+  _tokenBColor: string;
+  _highlightColor: string;
 
   constructor(props: LiquidityBarProps) {
-    this._tokenAColor = props.tokenAColor
-    this._renderer = new LiquidityBarSeriesRenderer(props)
-    this._tokenBColor = props.tokenBColor
-    this._highlightColor = props.highlightColor
+    this._tokenAColor = props.tokenAColor;
+    this._renderer = new LiquidityBarSeriesRenderer(props);
+    this._tokenBColor = props.tokenBColor;
+    this._highlightColor = props.highlightColor;
   }
 
   priceValueBuilder(plotRow: TData): CustomSeriesPricePlotValues {
-    return [0, plotRow.liquidity]
+    return [0, plotRow.liquidity];
   }
 
   isWhitespace(data: TData | WhitespaceData): data is WhitespaceData {
-    return !(data as TData).liquidity
+    return !(data as TData).liquidity;
   }
 
   renderer(): LiquidityBarSeriesRenderer<TData> {
-    return this._renderer
+    return this._renderer;
   }
 
   update(data: PaneRendererCustomData<Time, TData>, options: LiquidityBarSeriesOptions): void {
-    this._renderer.update(data, options)
+    this._renderer.update(data, options);
   }
 
   defaultOptions() {
@@ -50,6 +50,6 @@ export class LiquidityBarSeries<TData extends LiquidityBarData>
       tokenAColor: this._tokenAColor,
       tokenBColor: this._tokenBColor,
       highlightColor: this._highlightColor,
-    }
+    };
   }
 }

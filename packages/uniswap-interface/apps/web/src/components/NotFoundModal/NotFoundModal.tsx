@@ -1,9 +1,9 @@
-import { GetHelpHeader } from 'components/Modal/GetHelpHeader'
-import { useTranslation } from 'react-i18next'
-import { Button, Flex, Text } from 'ui/src'
-import { AlertTriangleFilled } from 'ui/src/components/icons/AlertTriangleFilled'
-import { Modal } from 'uniswap/src/components/modals/Modal'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
+import { GetHelpHeader } from 'components/Modal/GetHelpHeader';
+import { useTranslation } from 'react-i18next';
+import { Button, Flex, Text } from 'ui/src';
+import { AlertTriangleFilled } from 'ui/src/components/icons/AlertTriangleFilled';
+import { Modal } from 'uniswap/src/components/modals/Modal';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
 
 function NotFoundModal({
   title,
@@ -11,12 +11,12 @@ function NotFoundModal({
   isOpen,
   closeModal,
 }: {
-  title: string
-  description: string
-  isOpen: boolean
-  closeModal: () => void
+  title: string;
+  description: string;
+  isOpen: boolean;
+  closeModal: () => void;
 }) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <Modal name={ModalName.NotFound} isModalOpen={isOpen} onClose={closeModal} padding={0}>
@@ -28,8 +28,7 @@ function NotFoundModal({
           borderRadius="$rounded12"
           p="$spacing12"
           mt="$spacing16"
-          mb="$spacing8"
-        >
+          mb="$spacing8">
           <AlertTriangleFilled color="$neutral3" size="$icon.24" />
         </Flex>
 
@@ -46,7 +45,7 @@ function NotFoundModal({
         </Button>
       </Flex>
     </Modal>
-  )
+  );
 }
 
-export default NotFoundModal
+export default NotFoundModal;

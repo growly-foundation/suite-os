@@ -1,11 +1,12 @@
-import { Address, createTestClient, http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { mainnet } from 'viem/chains'
-import { concat, keccak256, pad, toHex } from 'viem/utils'
+import { Address, createTestClient, http } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { mainnet } from 'viem/chains';
+import { concat, keccak256, pad, toHex } from 'viem/utils';
 
-const TEST_WALLET_PRIVATE_KEY = '0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97'
+const TEST_WALLET_PRIVATE_KEY =
+  '0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97';
 
-export const ONE_MILLION_USDT = 1_000_000_000_000n
+export const ONE_MILLION_USDT = 1_000_000_000_000n;
 
 // This client must be in "anvil" mode:
 export const anvilClient = createTestClient({
@@ -13,7 +14,7 @@ export const anvilClient = createTestClient({
   chain: mainnet,
   mode: 'anvil',
   transport: http('http://127.0.0.1:8545'),
-})
+});
 
 /**
  * For a mapping(address => uint256) at slot `mappingSlot`,
@@ -21,10 +22,10 @@ export const anvilClient = createTestClient({
  */
 function getBalanceSlotKey(user: Address, mappingSlot: number): `0x${string}` {
   // user must be left-padded to 32 bytes, and the slot number must be 32 bytes.
-  const paddedUser = pad(user, { size: 32 }) // 32-byte address
-  const paddedSlot = pad(`0x${mappingSlot.toString(16)}`, { size: 32 }) // 32-byte slot
+  const paddedUser = pad(user, { size: 32 }); // 32-byte address
+  const paddedSlot = pad(`0x${mappingSlot.toString(16)}`, { size: 32 }); // 32-byte slot
 
-  return keccak256(concat([paddedUser, paddedSlot])) as `0x${string}`
+  return keccak256(concat([paddedUser, paddedSlot])) as `0x${string}`;
 }
 
 /**
@@ -40,14 +41,14 @@ async function setErc20BalanceViaStorage(
   erc20Address: Address,
   user: Address,
   newBalance: bigint,
-  mappingSlot: number = 0,
+  mappingSlot: number = 0
 ) {
   // 1. Compute the correct storage key for user's balance
-  const balanceSlotKey = getBalanceSlotKey(user, mappingSlot)
+  const balanceSlotKey = getBalanceSlotKey(user, mappingSlot);
 
   // 2. Encode `newBalance` as a 32-byte hex
   //    EVM stores uint256 in big-endian 32-byte.
-  const encodedBalance = toHex(newBalance, { size: 32 })
+  const encodedBalance = toHex(newBalance, { size: 32 });
 
   // 3. Call `anvil_setStorageAt` so that `balances[user] = newBalance`.
   //    This is an Anvil *custom* JSON-RPC method (not part of standard Ethereum).
@@ -55,10 +56,10 @@ async function setErc20BalanceViaStorage(
     address: erc20Address,
     index: balanceSlotKey,
     value: encodedBalance,
-  })
+  });
 
   // 4. Optionally mine a block to "lock in" the state (some frameworks need it):
-  await client.mine({ blocks: 1 })
+  await client.mine({ blocks: 1 });
 }
 
 /**
@@ -68,13 +69,13 @@ export async function setErc20BalanceWithMultipleSlots(
   client: typeof anvilClient,
   erc20Address: Address,
   user: Address,
-  newBalance: bigint,
+  newBalance: bigint
 ) {
   // Try common slots used by different ERC20 implementations
-  const commonSlots = [0, 1, 2, 3, 9]
+  const commonSlots = [0, 1, 2, 3, 9];
 
   for (const slot of commonSlots) {
-    await setErc20BalanceViaStorage(client, erc20Address, user, newBalance, slot)
+    await setErc20BalanceViaStorage(client, erc20Address, user, newBalance, slot);
 
     // You could add a verification step here to check if it worked
     // For example, call the balanceOf function and see if it returns the expected value

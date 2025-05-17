@@ -2,14 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Code, Loader2, Plus, Save, Settings } from 'lucide-react';
+import { ArrowLeft, Loader2, Plus, Save, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WorkflowCanvas } from '@/components/workflows/workflow-canvas';
 import { WorkflowSettings } from '@/components/workflows/workflow-settings';
 import { ParsedStepInsert, Status, WithId } from '@growly/core';
 import { AddStepDialog } from '@/components/steps/add-step-dialog';
-import { IntegrationGuideDialog } from '@/components/steps/integration-guide-dialog';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { suiteCore } from '@/core/suite';
 import { toast } from 'react-toastify';
@@ -17,7 +16,8 @@ import { generateId } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
 import { StepListView } from '@/components/steps/step-list-view';
-import { generateBasicDeFiWorkflowSteps } from '@/lib/data/step-templates';
+import { generateBasicDeFiWorkflowSteps } from '@/lib/data/step-templates/basic-defi-workflow';
+import { ExploreTemplateDialog } from '@/components/steps/explore-template-dialog';
 
 const AnimatedLoadingSmall = dynamic(
   () =>
@@ -30,9 +30,9 @@ const AnimatedLoadingSmall = dynamic(
 export default function WorkflowDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { fetchOrganizationWorkflowById, selectedOrganization } = useDashboardState();
+  const [isExploreTemplateOpen, setIsExploreTemplateOpen] = useState(false);
   const { workflow, setWorkflow, addStep } = useWorkflowDetailStore();
   const [isAddStepOpen, setIsAddStepOpen] = useState(false);
-  const [isIntegrationGuideOpen, setIsIntegrationGuideOpen] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -153,10 +153,6 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
             <Plus className="mr-2 h-4 w-4" />
             Add Step
           </Button>
-          <Button variant="outline" onClick={() => setIsIntegrationGuideOpen(true)}>
-            <Code className="mr-2 h-4 w-4" />
-            Integration Guide
-          </Button>
           <Button onClick={handleSave} disabled={saving}>
             {saving ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -182,17 +178,17 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
             <Button disabled={isResetting} variant="outline" size={'sm'} onClick={handleReset}>
               {isResetting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Reset'}
             </Button>
-            <Button
-              variant="outline"
-              size={'sm'}
-              onClick={() =>
+            <ExploreTemplateDialog
+              open={isExploreTemplateOpen}
+              onOpenChange={setIsExploreTemplateOpen}
+              onSelectTemplate={template => {
                 setWorkflow({
                   ...workflow,
-                  steps: generateBasicDeFiWorkflowSteps(),
-                })
-              }>
-              View Demo Steps
-            </Button>
+                  steps: template.steps,
+                });
+                setIsExploreTemplateOpen(false);
+              }}
+            />
           </div>
         </div>
         <TabsContent value="canvas" className="p-0">
@@ -210,11 +206,6 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
         open={isAddStepOpen}
         onOpenChange={setIsAddStepOpen}
         onAdd={handleAddStep}
-      />
-      <IntegrationGuideDialog
-        open={isIntegrationGuideOpen}
-        onOpenChange={setIsIntegrationGuideOpen}
-        workflow={workflow}
       />
     </div>
   );

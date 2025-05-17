@@ -1,15 +1,15 @@
-import type { Token } from '@uniswap/sdk-core'
-import dottedBackgroundDark from 'assets/images/dotted-grid-dark.png'
-import dottedBackground from 'assets/images/dotted-grid.png'
-import tokenLogo from 'assets/images/token-logo.png'
-import { formatTokenAmount } from 'components/Liquidity/utils'
-import { LP_INCENTIVES_REWARD_TOKEN } from 'components/LpIncentives/constants'
-import { lpIncentivesLastClaimedAtom } from 'hooks/useLpIncentives'
-import { useAtom } from 'jotai'
-import ms from 'ms'
-import { useEffect, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import type { Token } from '@uniswap/sdk-core';
+import dottedBackgroundDark from 'assets/images/dotted-grid-dark.png';
+import dottedBackground from 'assets/images/dotted-grid.png';
+import tokenLogo from 'assets/images/token-logo.png';
+import { formatTokenAmount } from 'components/Liquidity/utils';
+import { LP_INCENTIVES_REWARD_TOKEN } from 'components/LpIncentives/constants';
+import { lpIncentivesLastClaimedAtom } from 'hooks/useLpIncentives';
+import { useAtom } from 'jotai';
+import ms from 'ms';
+import { useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import {
   Button,
   Flex,
@@ -23,30 +23,30 @@ import {
   useMedia,
   useShadowPropsMedium,
   useShadowPropsShort,
-} from 'ui/src'
-import { ArrowRight } from 'ui/src/components/icons/ArrowRight'
-import { InfoCircleFilled } from 'ui/src/components/icons/InfoCircleFilled'
-import { iconSizes } from 'ui/src/theme'
-import { LearnMoreLink } from 'uniswap/src/components/text/LearnMoreLink'
-import { InfoTooltip } from 'uniswap/src/components/tooltip/InfoTooltip'
-import { uniswapUrls } from 'uniswap/src/constants/urls'
-import { useGetPoolsRewards } from 'uniswap/src/data/rest/getPoolsRewards'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { Trace } from 'uniswap/src/features/telemetry/Trace'
-import { UniswapEventName } from 'uniswap/src/features/telemetry/constants'
-import { logger } from 'utilities/src/logger/logger'
-import { isMobileWeb } from 'utilities/src/platform'
+} from 'ui/src';
+import { ArrowRight } from 'ui/src/components/icons/ArrowRight';
+import { InfoCircleFilled } from 'ui/src/components/icons/InfoCircleFilled';
+import { iconSizes } from 'ui/src/theme';
+import { LearnMoreLink } from 'uniswap/src/components/text/LearnMoreLink';
+import { InfoTooltip } from 'uniswap/src/components/tooltip/InfoTooltip';
+import { uniswapUrls } from 'uniswap/src/constants/urls';
+import { useGetPoolsRewards } from 'uniswap/src/data/rest/getPoolsRewards';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import { Trace } from 'uniswap/src/features/telemetry/Trace';
+import { UniswapEventName } from 'uniswap/src/features/telemetry/constants';
+import { logger } from 'utilities/src/logger/logger';
+import { isMobileWeb } from 'utilities/src/platform';
 
 interface LpIncentiveRewardsCardProps {
-  onCollectRewards: () => void
-  walletAddress?: `0x${string}`
-  token?: Token
-  chainIds?: number[]
-  setTokenRewards: (value: string) => void
-  initialHasCollectedRewards: boolean
+  onCollectRewards: () => void;
+  walletAddress?: `0x${string}`;
+  token?: Token;
+  chainIds?: number[];
+  setTokenRewards: (value: string) => void;
+  initialHasCollectedRewards: boolean;
 }
 
-const FIVE_MINUTES_MS = ms('5m')
+const FIVE_MINUTES_MS = ms('5m');
 
 function LpIncentiveRewardsCard({
   onCollectRewards,
@@ -56,36 +56,36 @@ function LpIncentiveRewardsCard({
   setTokenRewards,
   initialHasCollectedRewards,
 }: LpIncentiveRewardsCardProps) {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
-  const shadowPropsShort = useShadowPropsShort()
-  const shadowPropsMedium = useShadowPropsMedium()
-  const isDarkMode = useIsDarkMode()
-  const media = useMedia()
-  const isSmallScreen = media.sm
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const shadowPropsShort = useShadowPropsShort();
+  const shadowPropsMedium = useShadowPropsMedium();
+  const isDarkMode = useIsDarkMode();
+  const media = useMedia();
+  const isSmallScreen = media.sm;
 
   const {
     data: rewardsData,
     isLoading,
     error,
-  } = useGetPoolsRewards({ walletAddress, chainIds }, Boolean(walletAddress))
+  } = useGetPoolsRewards({ walletAddress, chainIds }, Boolean(walletAddress));
 
-  const [lastClaimed, setLastClaimed] = useAtom(lpIncentivesLastClaimedAtom)
+  const [lastClaimed, setLastClaimed] = useAtom(lpIncentivesLastClaimedAtom);
 
   // TODO: refactor business logic into separate hook
   // Determine if rewards are effectively claimed, considering initial state and recent optimistic updates
   const effectivelyClaimed = useMemo(() => {
     if (initialHasCollectedRewards) {
-      return true
+      return true;
     }
     if (!lastClaimed || !rewardsData?.totalUnclaimedAmountUni) {
-      return false
+      return false;
     }
 
-    const timeDiff = Date.now() - lastClaimed.timestamp
+    const timeDiff = Date.now() - lastClaimed.timestamp;
 
-    return timeDiff < FIVE_MINUTES_MS && rewardsData.totalUnclaimedAmountUni === lastClaimed.amount
-  }, [initialHasCollectedRewards, lastClaimed, rewardsData?.totalUnclaimedAmountUni])
+    return timeDiff < FIVE_MINUTES_MS && rewardsData.totalUnclaimedAmountUni === lastClaimed.amount;
+  }, [initialHasCollectedRewards, lastClaimed, rewardsData?.totalUnclaimedAmountUni]);
 
   const { lpIncentiveRewards, userHasRewards, isParseRewardsError } = useMemo(() => {
     if (effectivelyClaimed) {
@@ -93,54 +93,57 @@ function LpIncentiveRewardsCard({
         lpIncentiveRewards: '0',
         userHasRewards: false,
         isParseRewardsError: false,
-      }
+      };
     }
 
     try {
-      const threshold = BigInt(10) ** BigInt(token.decimals - 3)
-      const rewards = rewardsData?.totalUnclaimedAmountUni ?? '0'
+      const threshold = BigInt(10) ** BigInt(token.decimals - 3);
+      const rewards = rewardsData?.totalUnclaimedAmountUni ?? '0';
 
       return {
         lpIncentiveRewards: formatTokenAmount(rewards, token.decimals),
         userHasRewards: BigInt(rewards) >= threshold, // Returns true if rewards are at least 0.001 UNI
         isParseRewardsError: false,
-      }
+      };
     } catch (e) {
       logger.error(e, {
         tags: { file: 'LpIncentiveRewardsCard.tsx', function: 'lpIncentiveRewards' },
-      })
+      });
 
       return {
         lpIncentiveRewards: '-',
         userHasRewards: false,
         isParseRewardsError: true,
-      }
+      };
     }
-  }, [effectivelyClaimed, rewardsData?.totalUnclaimedAmountUni, token.decimals])
+  }, [effectivelyClaimed, rewardsData?.totalUnclaimedAmountUni, token.decimals]);
 
-  const isCollectButtonDisabled = useMemo(() => Boolean(!userHasRewards || error), [userHasRewards, error])
+  const isCollectButtonDisabled = useMemo(
+    () => Boolean(!userHasRewards || error),
+    [userHasRewards, error]
+  );
 
   useEffect(() => {
     // If rewards have been claimed, set token rewards to 0
     if (effectivelyClaimed) {
-      setTokenRewards('0')
-      return
+      setTokenRewards('0');
+      return;
     }
 
-    const rewards = rewardsData?.totalUnclaimedAmountUni ?? '0'
-    setTokenRewards(rewards)
-  }, [rewardsData?.totalUnclaimedAmountUni, setTokenRewards, effectivelyClaimed])
+    const rewards = rewardsData?.totalUnclaimedAmountUni ?? '0';
+    setTokenRewards(rewards);
+  }, [rewardsData?.totalUnclaimedAmountUni, setTokenRewards, effectivelyClaimed]);
 
   // Clear last claimed from local storage if timestamp past expiration
   useEffect(() => {
     if (lastClaimed && Date.now() - lastClaimed.timestamp > FIVE_MINUTES_MS) {
-      setLastClaimed(null)
+      setLastClaimed(null);
     }
-  }, [lastClaimed, setLastClaimed])
+  }, [lastClaimed, setLastClaimed]);
 
   const rewardsError = useMemo((): boolean => {
-    return !!error || isParseRewardsError
-  }, [error, isParseRewardsError])
+    return !!error || isParseRewardsError;
+  }, [error, isParseRewardsError]);
 
   const renderRewardsAmount = () => {
     if (isLoading) {
@@ -154,7 +157,7 @@ function LpIncentiveRewardsCard({
             marginBottom="$spacing4"
           />
         </Skeleton>
-      )
+      );
     }
 
     if (rewardsError) {
@@ -162,15 +165,17 @@ function LpIncentiveRewardsCard({
         <Text variant={isSmallScreen ? 'subheading1' : 'heading2'} color="$neutral1">
           -
         </Text>
-      )
+      );
     }
 
     return (
-      <Text variant={isSmallScreen ? 'subheading1' : 'heading2'} color={userHasRewards ? '$accent1' : '$neutral1'}>
+      <Text
+        variant={isSmallScreen ? 'subheading1' : 'heading2'}
+        color={userHasRewards ? '$accent1' : '$neutral1'}>
         {lpIncentiveRewards} {token.symbol}
       </Text>
-    )
-  }
+    );
+  };
 
   return (
     <Flex group cursor="default">
@@ -185,8 +190,7 @@ function LpIncentiveRewardsCard({
         overflow="hidden"
         transition="all 0.2s ease-out"
         $group-hover={shadowPropsMedium['$platform-web'] as FlexProps}
-        {...shadowPropsShort}
-      >
+        {...shadowPropsShort}>
         <Flex
           position="absolute"
           top={0}
@@ -220,14 +224,15 @@ function LpIncentiveRewardsCard({
                 maxWidth="fit-content"
                 onPress={onCollectRewards}
                 borderColor={isCollectButtonDisabled ? '$neutral3' : 'unset'}
-                isDisabled={isCollectButtonDisabled}
-              >
+                isDisabled={isCollectButtonDisabled}>
                 {t('pool.incentives.collectRewards')}
               </Button>
             </Flex>
             <Flex row gap="$spacing6">
               <Text variant={isSmallScreen ? 'body4' : 'body3'} color="$neutral2">
-                {rewardsError ? t('pool.incentives.yourRewards.error') : t('pool.incentives.rewardsEarned')}
+                {rewardsError
+                  ? t('pool.incentives.yourRewards.error')
+                  : t('pool.incentives.rewardsEarned')}
               </Text>
               {!isMobileWeb && (
                 <InfoTooltip
@@ -245,8 +250,13 @@ function LpIncentiveRewardsCard({
                           : t('pool.incentives.administeredRewards')}
                       </Text>
                       {!rewardsError && (
-                        <Trace logPress eventOnTrigger={UniswapEventName.LpIncentiveLearnMoreCtaClicked}>
-                          <LearnMoreLink textVariant="buttonLabel4" url={uniswapUrls.helpArticleUrls.lpIncentiveInfo} />
+                        <Trace
+                          logPress
+                          eventOnTrigger={UniswapEventName.LpIncentiveLearnMoreCtaClicked}>
+                          <LearnMoreLink
+                            textVariant="buttonLabel4"
+                            url={uniswapUrls.helpArticleUrls.lpIncentiveInfo}
+                          />
                         </Trace>
                       )}
                     </Flex>
@@ -265,13 +275,15 @@ function LpIncentiveRewardsCard({
               alignItems="center"
               hoverStyle={{ opacity: 0.8 }}
               onPress={() => navigate('/explore/pools')}
-              alignSelf="flex-start"
-            >
+              alignSelf="flex-start">
               <Text variant={isSmallScreen ? 'body4' : 'body3'} color="$neutral1">
                 {t('pool.incentives.uni.findMore')}
               </Text>
               <Flex animation="simple" enterStyle={{ x: 0 }} x={0} $group-item-hover={{ x: 4 }}>
-                <ArrowRight color="$neutral1" size={isSmallScreen ? iconSizes.icon12 : iconSizes.icon16} />
+                <ArrowRight
+                  color="$neutral1"
+                  size={isSmallScreen ? iconSizes.icon12 : iconSizes.icon16}
+                />
               </Flex>
             </TouchableArea>
           </Trace>
@@ -281,7 +293,7 @@ function LpIncentiveRewardsCard({
         </Flex>
       </Flex>
     </Flex>
-  )
+  );
 }
 
-export default LpIncentiveRewardsCard
+export default LpIncentiveRewardsCard;

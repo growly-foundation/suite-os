@@ -1,7 +1,13 @@
-import type { SVGProps } from 'constants/icons/types'
+import type { SVGProps } from 'constants/icons/types';
 
 const TRY_ICON = (props: SVGProps) => (
-  <svg width="49" height="49" viewBox="0 0 49 49" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+  <svg
+    width="49"
+    height="49"
+    viewBox="0 0 49 49"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}>
     <g clipPath="url(#clip0_1942_61888)">
       <path fillRule="evenodd" clipRule="evenodd" d="M0 0H48.5142V48.6368H0V0Z" fill="#E30A17" />
       <path
@@ -32,6 +38,6 @@ const TRY_ICON = (props: SVGProps) => (
       </clipPath>
     </defs>
   </svg>
-)
+);
 
-export default TRY_ICON
+export default TRY_ICON;

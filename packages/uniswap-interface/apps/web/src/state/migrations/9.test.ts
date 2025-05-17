@@ -1,15 +1,15 @@
-import { createMigrate } from 'redux-persist'
-import { migration1 } from 'state/migrations/1'
-import { migration2 } from 'state/migrations/2'
-import { migration3 } from 'state/migrations/3'
-import { migration4 } from 'state/migrations/4'
-import { migration5 } from 'state/migrations/5'
-import { migration6 } from 'state/migrations/6'
-import { migration7 } from 'state/migrations/7'
-import { migration8 } from 'state/migrations/8'
-import { PersistAppStateV9, migration9 } from 'state/migrations/9'
+import { createMigrate } from 'redux-persist';
+import { migration1 } from 'state/migrations/1';
+import { migration2 } from 'state/migrations/2';
+import { migration3 } from 'state/migrations/3';
+import { migration4 } from 'state/migrations/4';
+import { migration5 } from 'state/migrations/5';
+import { migration6 } from 'state/migrations/6';
+import { migration7 } from 'state/migrations/7';
+import { migration8 } from 'state/migrations/8';
+import { PersistAppStateV9, migration9 } from 'state/migrations/9';
 
-const COINGECKO_AVAX_LIST = 'https://tokens.coingecko.com/avalanche/all.json'
+const COINGECKO_AVAX_LIST = 'https://tokens.coingecko.com/avalanche/all.json';
 
 const previousState: PersistAppStateV9 = {
   lists: {
@@ -50,7 +50,7 @@ const previousState: PersistAppStateV9 = {
     version: 8,
     rehydrated: true,
   },
-}
+};
 
 describe('migration to v9', () => {
   it('should delete deprecated lists', async () => {
@@ -66,11 +66,11 @@ describe('migration to v9', () => {
         8: migration8,
         9: migration9,
       },
-      { debug: false },
-    )
-    const result: any = await migrator(previousState, 9)
-    expect(result?.lists?.byUrl?.[COINGECKO_AVAX_LIST]).toBeDefined()
-    expect(result?.lists.randomURL).toBeUndefined()
-    expect(result?._persist.version).toEqual(9)
-  })
-})
+      { debug: false }
+    );
+    const result: any = await migrator(previousState, 9);
+    expect(result?.lists?.byUrl?.[COINGECKO_AVAX_LIST]).toBeDefined();
+    expect(result?.lists.randomURL).toBeUndefined();
+    expect(result?._persist.version).toEqual(9);
+  });
+});

@@ -1,6 +1,6 @@
-import { LoadingBubble } from 'components/Tokens/loading'
-import { ForwardedRef, PropsWithChildren, forwardRef } from 'react'
-import { Flex, FlexProps, TamaguiElement, useMedia } from 'ui/src'
+import { LoadingBubble } from 'components/Tokens/loading';
+import { ForwardedRef, PropsWithChildren, forwardRef } from 'react';
+import { Flex, FlexProps, TamaguiElement, useMedia } from 'ui/src';
 
 export const Cell = forwardRef(
   (
@@ -10,9 +10,9 @@ export const Cell = forwardRef(
       testId,
       ...rest
     }: PropsWithChildren<{ loading?: boolean; testId?: string } & Partial<FlexProps>>,
-    ref: ForwardedRef<TamaguiElement>,
+    ref: ForwardedRef<TamaguiElement>
   ) => {
-    const media = useMedia()
+    const media = useMedia();
 
     return (
       <Flex
@@ -27,12 +27,15 @@ export const Cell = forwardRef(
         py={rest.py ?? (media.lg ? 12 : 16)}
         alignItems={rest.alignItems ?? 'center'}
         ref={ref}
-        {...rest}
-      >
-        {loading ? <LoadingBubble height={16} width="75%" data-testid="cell-loading-bubble" /> : children}
+        {...rest}>
+        {loading ? (
+          <LoadingBubble height={16} width="75%" data-testid="cell-loading-bubble" />
+        ) : (
+          children
+        )}
       </Flex>
-    )
-  },
-)
+    );
+  }
+);
 
-Cell.displayName = 'Cell'
+Cell.displayName = 'Cell';

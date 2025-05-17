@@ -1,11 +1,11 @@
-import { Path, Svg } from 'react-native-svg'
+import { Path, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [Language, AnimatedLanguage] = createIcon({
   name: 'Language',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg viewBox="0 0 40 40" fill="none" {...props}>
       <Path d="M29.0163 16.2065L31.125 22H26.9077L29.0163 16.2065Z" fill="currentColor" />
       <Path
@@ -20,4 +20,4 @@ export const [Language, AnimatedLanguage] = createIcon({
       />
     </Svg>
   ),
-})
+});

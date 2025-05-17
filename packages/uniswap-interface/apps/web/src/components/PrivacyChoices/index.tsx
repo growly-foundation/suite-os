@@ -1,34 +1,37 @@
-import { InterfaceElementName } from '@uniswap/analytics-events'
-import { PRIVACY_SHARING_OPT_OUT_STORAGE_KEY } from 'components/PrivacyChoices/constants'
-import { useModalState } from 'hooks/useModalState'
-import { useAtom } from 'jotai'
-import { atomWithStorage } from 'jotai/utils'
-import { useCallback, useState } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
-import { Anchor, Button, Checkbox, Flex, ModalCloseIcon, Text } from 'ui/src'
-import { Lock } from 'ui/src/components/icons/Lock'
-import { Modal } from 'uniswap/src/components/modals/Modal'
-import { uniswapUrls } from 'uniswap/src/constants/urls'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
+import { InterfaceElementName } from '@uniswap/analytics-events';
+import { PRIVACY_SHARING_OPT_OUT_STORAGE_KEY } from 'components/PrivacyChoices/constants';
+import { useModalState } from 'hooks/useModalState';
+import { useAtom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
+import { useCallback, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { Anchor, Button, Checkbox, Flex, ModalCloseIcon, Text } from 'ui/src';
+import { Lock } from 'ui/src/components/icons/Lock';
+import { Modal } from 'uniswap/src/components/modals/Modal';
+import { uniswapUrls } from 'uniswap/src/constants/urls';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
 
 export function PrivacyChoicesModal() {
-  const { isOpen, closeModal } = useModalState(ModalName.PrivacyChoices)
-  const { t } = useTranslation()
-  const privacySharingOptOutAtom = atomWithStorage<boolean>(PRIVACY_SHARING_OPT_OUT_STORAGE_KEY, false)
-  const [privacySharingOptOut, setPrivacySharingOptOut] = useAtom(privacySharingOptOutAtom)
-  const [isOptOutChecked, setIsOptOutChecked] = useState(privacySharingOptOut)
+  const { isOpen, closeModal } = useModalState(ModalName.PrivacyChoices);
+  const { t } = useTranslation();
+  const privacySharingOptOutAtom = atomWithStorage<boolean>(
+    PRIVACY_SHARING_OPT_OUT_STORAGE_KEY,
+    false
+  );
+  const [privacySharingOptOut, setPrivacySharingOptOut] = useAtom(privacySharingOptOutAtom);
+  const [isOptOutChecked, setIsOptOutChecked] = useState(privacySharingOptOut);
 
   const closeAndResetModal = useCallback(() => {
     // Reset the checkbox if a user doesn't save
-    setIsOptOutChecked(privacySharingOptOut)
-    closeModal()
-  }, [privacySharingOptOut, closeModal, setIsOptOutChecked])
+    setIsOptOutChecked(privacySharingOptOut);
+    closeModal();
+  }, [privacySharingOptOut, closeModal, setIsOptOutChecked]);
 
   const handleSave = useCallback(() => {
-    setPrivacySharingOptOut(isOptOutChecked)
-    closeModal()
-  }, [isOptOutChecked, closeModal, setPrivacySharingOptOut])
+    setPrivacySharingOptOut(isOptOutChecked);
+    closeModal();
+  }, [isOptOutChecked, closeModal, setPrivacySharingOptOut]);
 
   return (
     <Modal name={ModalName.PrivacyChoices} isModalOpen={isOpen} onClose={closeAndResetModal}>
@@ -65,10 +68,12 @@ export function PrivacyChoicesModal() {
               borderWidth="$border.width1"
               borderColor="$surface3"
               borderStyle="solid"
-              gap="$gap8"
-            >
+              gap="$gap8">
               <Flex row alignItems="center" gap="$gap12">
-                <Checkbox checked={isOptOutChecked} onCheckedChange={(checked) => setIsOptOutChecked(!!checked)} />
+                <Checkbox
+                  checked={isOptOutChecked}
+                  onCheckedChange={checked => setIsOptOutChecked(!!checked)}
+                />
                 <Text variant="buttonLabel2" color="$neutral1">
                   {t('common.privacyChoices.checkbox.label')}
                 </Text>
@@ -89,5 +94,5 @@ export function PrivacyChoicesModal() {
         </Flex>
       </Flex>
     </Modal>
-  )
+  );
 }

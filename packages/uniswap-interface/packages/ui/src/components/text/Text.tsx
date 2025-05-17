@@ -1,10 +1,10 @@
-import { PropsWithChildren } from 'react'
-import { GetProps, Text as TamaguiText, isWeb, styled } from 'tamagui'
-import { Flex } from 'ui/src/components/layout'
-import { HiddenFromScreenReaders } from 'ui/src/components/text/HiddenFromScreenReaders'
-import { useEnableFontScaling } from 'ui/src/components/text/useEnableFontScaling'
-import { Skeleton } from 'ui/src/loading/Skeleton'
-import { fonts } from 'ui/src/theme/fonts'
+import { PropsWithChildren } from 'react';
+import { GetProps, Text as TamaguiText, isWeb, styled } from 'tamagui';
+import { Flex } from 'ui/src/components/layout';
+import { HiddenFromScreenReaders } from 'ui/src/components/text/HiddenFromScreenReaders';
+import { useEnableFontScaling } from 'ui/src/components/text/useEnableFontScaling';
+import { Skeleton } from 'ui/src/loading/Skeleton';
+import { fonts } from 'ui/src/theme/fonts';
 
 export const TextFrame = styled(TamaguiText, {
   fontFamily: '$body',
@@ -116,29 +116,29 @@ export const TextFrame = styled(TamaguiText, {
   defaultVariants: {
     variant: 'body2',
   },
-})
+});
 
 const Heading1 = styled(TextFrame, {
   tag: 'h1',
-})
+});
 
 const Heading2 = styled(TextFrame, {
   tag: 'h2',
-})
+});
 
 const Heading3 = styled(TextFrame, {
   tag: 'h3',
-})
+});
 
-type TextFrameProps = GetProps<typeof TextFrame>
+type TextFrameProps = GetProps<typeof TextFrame>;
 
 export type TextProps = TextFrameProps & {
-  maxFontSizeMultiplier?: number
-  allowFontScaling?: boolean
-  loading?: boolean | 'no-shimmer'
-  loadingPlaceholderText?: string
-  title?: string
-}
+  maxFontSizeMultiplier?: number;
+  allowFontScaling?: boolean;
+  loading?: boolean | 'no-shimmer';
+  loadingPlaceholderText?: string;
+  title?: string;
+};
 
 // Use this text component throughout the app instead of
 // Default RN Text for theme support
@@ -159,30 +159,30 @@ export const TextPlaceholder = ({ children }: PropsWithChildren<unknown>): JSX.E
         />
       </Flex>
     </Flex>
-  )
-}
+  );
+};
 
 export const TextLoaderWrapper = ({
   children,
   loadingShimmer,
 }: { loadingShimmer?: boolean } & PropsWithChildren<unknown>): JSX.Element => {
-  const inner = <TextPlaceholder>{children}</TextPlaceholder>
+  const inner = <TextPlaceholder>{children}</TextPlaceholder>;
   if (loadingShimmer) {
-    return <Skeleton>{inner}</Skeleton>
+    return <Skeleton>{inner}</Skeleton>;
   }
 
-  return inner
-}
+  return inner;
+};
 
 const TEXT_COMPONENTS = {
   heading1: Heading1,
   heading2: Heading2,
   heading3: Heading3,
-} as const
+} as const;
 
 const getTextComponent = (variant: TextProps['variant']): typeof TextFrame => {
-  return TEXT_COMPONENTS[variant as keyof typeof TEXT_COMPONENTS] ?? TextFrame
-}
+  return TEXT_COMPONENTS[variant as keyof typeof TEXT_COMPONENTS] ?? TextFrame;
+};
 
 /**
  * Use this component instead of the default React Native <Text> component anywhere text shows up throughout the app, so we can use the design system values for colors and sizes, and make sure all text looks and behaves the same way
@@ -190,21 +190,31 @@ const getTextComponent = (variant: TextProps['variant']): typeof TextFrame => {
  * @param loadingPlaceholderText - The text that the loader's size will be derived from. Pick something that's close to the same length as the final text is expected to be, e.g. if it's a ticker symbol, "XXX" might be a good placeholder text. This prop is optional and defaults to "000.00".
  */
 export const Text = TextFrame.styleable<TextProps>(
-  ({ loading = false, allowFontScaling, loadingPlaceholderText = '000.00', ...rest }: TextProps, ref): JSX.Element => {
-    const enableFontScaling = useEnableFontScaling(allowFontScaling)
-    const TextComponent = getTextComponent(rest.variant)
+  (
+    { loading = false, allowFontScaling, loadingPlaceholderText = '000.00', ...rest }: TextProps,
+    ref
+  ): JSX.Element => {
+    const enableFontScaling = useEnableFontScaling(allowFontScaling);
+    const TextComponent = getTextComponent(rest.variant);
 
     if (loading) {
       return (
         <TextLoaderWrapper loadingShimmer={loading !== 'no-shimmer'}>
-          <TextComponent ref={ref} allowFontScaling={enableFontScaling} color="$transparent" opacity={0} {...rest}>
+          <TextComponent
+            ref={ref}
+            allowFontScaling={enableFontScaling}
+            color="$transparent"
+            opacity={0}
+            {...rest}>
             {/* Important that `children` isn't used or rendered by <Text> when `loading` is true, because if the child of a <Text> component is a dynamic variable that might not be finished fetching yet, it'll result in an error until it's finished loading. We use `loadingPlaceholderText` to set the size of the loading element instead. */}
             {loadingPlaceholderText}
           </TextComponent>
         </TextLoaderWrapper>
-      )
+      );
     }
 
-    return <TextComponent ref={ref} allowFontScaling={enableFontScaling} color="$neutral1" {...rest} />
-  },
-)
+    return (
+      <TextComponent ref={ref} allowFontScaling={enableFontScaling} color="$neutral1" {...rest} />
+    );
+  }
+);

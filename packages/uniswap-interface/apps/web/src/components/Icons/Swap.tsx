@@ -9,4 +9,4 @@ export const Swap = () => (
       strokeLinejoin="round"
     />
   </svg>
-)
+);

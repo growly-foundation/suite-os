@@ -3,4 +3,4 @@ export enum UniformAspectRatios {
   square = 1,
 }
 
-export type UniformAspectRatio = UniformAspectRatios | number
+export type UniformAspectRatio = UniformAspectRatios | number;

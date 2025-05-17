@@ -1,33 +1,33 @@
-import 'test-utils/tokens/mocks'
+import 'test-utils/tokens/mocks';
 
-import { BigNumber } from '@ethersproject/bignumber'
-import { WETH9 } from '@uniswap/sdk-core'
-import { Pending } from 'components/ConfirmSwapModal/Pending'
-import { SwapResult, useSwapTransactionStatus } from 'hooks/useSwapCallback'
-import { TradeFillType } from 'state/routing/types'
-import { useOrder } from 'state/signatures/hooks'
-import { SignatureType, UniswapXOrderDetails } from 'state/signatures/types'
-import { LIMIT_ORDER_TRADE, TEST_TRADE_EXACT_INPUT } from 'test-utils/constants'
-import { mocked } from 'test-utils/mocked'
-import { render, screen } from 'test-utils/render'
-import { UniswapXOrderStatus } from 'types/uniswapx'
-import { TransactionStatus } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
+import { BigNumber } from '@ethersproject/bignumber';
+import { WETH9 } from '@uniswap/sdk-core';
+import { Pending } from 'components/ConfirmSwapModal/Pending';
+import { SwapResult, useSwapTransactionStatus } from 'hooks/useSwapCallback';
+import { TradeFillType } from 'state/routing/types';
+import { useOrder } from 'state/signatures/hooks';
+import { SignatureType, UniswapXOrderDetails } from 'state/signatures/types';
+import { LIMIT_ORDER_TRADE, TEST_TRADE_EXACT_INPUT } from 'test-utils/constants';
+import { mocked } from 'test-utils/mocked';
+import { render, screen } from 'test-utils/render';
+import { UniswapXOrderStatus } from 'types/uniswapx';
+import { TransactionStatus } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
 
 jest.mock('state/transactions/hooks', () => ({
   ...jest.requireActual('state/transactions/hooks'),
   useIsTransactionConfirmed: jest.fn(),
-}))
+}));
 
 jest.mock('hooks/useSwapCallback', () => ({
   ...jest.requireActual('hooks/useSwapCallback'),
   useSwapTransactionStatus: jest.fn(),
-}))
+}));
 
 jest.mock('state/signatures/hooks', () => ({
   ...jest.requireActual('state/signatures/hooks'),
   useOrder: jest.fn(),
-}))
+}));
 
 const classicSwapResult: SwapResult = {
   type: TradeFillType.Classic,
@@ -45,7 +45,7 @@ const classicSwapResult: SwapResult = {
     blockNumber: undefined,
     blockHash: undefined,
   },
-}
+};
 
 const uniswapXSwapResult: SwapResult = {
   type: TradeFillType.UniswapX,
@@ -54,7 +54,7 @@ const uniswapXSwapResult: SwapResult = {
     deadline: 1234,
     encodedOrder: '0xencodedOrder',
   },
-}
+};
 
 const filledOrderDetails: UniswapXOrderDetails = {
   type: SignatureType.SIGN_LIMIT,
@@ -78,17 +78,41 @@ const filledOrderDetails: UniswapXOrderDetails = {
   chainId: UniverseChainId.Mainnet,
   expiry: 4,
   offerer: '0x1234',
-}
+};
 
 describe('Pending - classic trade titles', () => {
   it.each([
-    [false, false, undefined, TEST_TRADE_EXACT_INPUT, classicSwapResult, TransactionStatus.Pending, 'Swap submitted'],
-    [false, false, undefined, TEST_TRADE_EXACT_INPUT, classicSwapResult, TransactionStatus.Confirmed, 'Swap success!'],
+    [
+      false,
+      false,
+      undefined,
+      TEST_TRADE_EXACT_INPUT,
+      classicSwapResult,
+      TransactionStatus.Pending,
+      'Swap submitted',
+    ],
+    [
+      false,
+      false,
+      undefined,
+      TEST_TRADE_EXACT_INPUT,
+      classicSwapResult,
+      TransactionStatus.Confirmed,
+      'Swap success!',
+    ],
     [false, false, undefined, TEST_TRADE_EXACT_INPUT, undefined, undefined, 'Confirm swap'],
   ])(
     'renders classic trade correctly, with approvalPending= %p , revocationPending= %p, wrapTxHash= %p',
-    async (approvalPending, revocationPending, wrapTxHash, trade, swapResult, swapTxStatus, expectedTitle) => {
-      mocked(useSwapTransactionStatus).mockReturnValue(swapTxStatus)
+    async (
+      approvalPending,
+      revocationPending,
+      wrapTxHash,
+      trade,
+      swapResult,
+      swapTxStatus,
+      expectedTitle
+    ) => {
+      mocked(useSwapTransactionStatus).mockReturnValue(swapTxStatus);
       const { asFragment } = render(
         <Pending
           trade={trade}
@@ -96,23 +120,39 @@ describe('Pending - classic trade titles', () => {
           revocationPending={revocationPending}
           wrapTxHash={wrapTxHash}
           swapResult={swapResult}
-        />,
-      )
-      expect(asFragment()).toMatchSnapshot()
-      expect(screen.getByText(expectedTitle)).toBeInTheDocument()
-    },
-  )
-})
+        />
+      );
+      expect(asFragment()).toMatchSnapshot();
+      expect(screen.getByText(expectedTitle)).toBeInTheDocument();
+    }
+  );
+});
 
 describe('Pending - uniswapX trade titles', () => {
   it.each([
     [false, false, undefined, LIMIT_ORDER_TRADE, uniswapXSwapResult, undefined, 'Limit submitted'],
-    [false, false, undefined, LIMIT_ORDER_TRADE, uniswapXSwapResult, filledOrderDetails, 'Limit filled!'],
+    [
+      false,
+      false,
+      undefined,
+      LIMIT_ORDER_TRADE,
+      uniswapXSwapResult,
+      filledOrderDetails,
+      'Limit filled!',
+    ],
     [false, false, undefined, LIMIT_ORDER_TRADE, undefined, undefined, 'Confirm limit'],
   ])(
     'renders limit order correctly, with approvalPending= %p , revocationPending= %p, wrapTxHash= %p',
-    async (approvalPending, revocationPending, wrapTxHash, trade, swapResult, orderDetails, expectedTitle) => {
-      mocked(useOrder).mockReturnValue(orderDetails)
+    async (
+      approvalPending,
+      revocationPending,
+      wrapTxHash,
+      trade,
+      swapResult,
+      orderDetails,
+      expectedTitle
+    ) => {
+      mocked(useOrder).mockReturnValue(orderDetails);
       const { asFragment } = render(
         <Pending
           trade={trade}
@@ -120,10 +160,10 @@ describe('Pending - uniswapX trade titles', () => {
           revocationPending={revocationPending}
           wrapTxHash={wrapTxHash}
           swapResult={swapResult}
-        />,
-      )
-      expect(asFragment()).toMatchSnapshot()
-      expect(screen.getByText(expectedTitle)).toBeInTheDocument()
-    },
-  )
-})
+        />
+      );
+      expect(asFragment()).toMatchSnapshot();
+      expect(screen.getByText(expectedTitle)).toBeInTheDocument();
+    }
+  );
+});

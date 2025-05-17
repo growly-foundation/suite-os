@@ -1,7 +1,13 @@
-import type { SVGProps } from 'constants/icons/types'
+import type { SVGProps } from 'constants/icons/types';
 
 const USD_ICON = (props: SVGProps) => (
-  <svg width="49" height="49" viewBox="0 0 49 49" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+  <svg
+    width="49"
+    height="49"
+    viewBox="0 0 49 49"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}>
     <path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -22,6 +28,6 @@ const USD_ICON = (props: SVGProps) => (
       fill="white"
     />
   </svg>
-)
+);
 
-export default USD_ICON
+export default USD_ICON;

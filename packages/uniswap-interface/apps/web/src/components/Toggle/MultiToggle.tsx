@@ -1,4 +1,4 @@
-import styled from 'lib/styled-components'
+import styled from 'lib/styled-components';
 
 export const ToggleWrapper = styled.button<{ width?: string }>`
   display: flex;
@@ -10,7 +10,7 @@ export const ToggleWrapper = styled.button<{ width?: string }>`
   border: ${({ theme }) => '1px solid ' + theme.surface3};
   cursor: pointer;
   outline: none;
-`
+`;
 
 export const ToggleElement = styled.span<{ isActive?: boolean; fontSize?: string }>`
   display: flex;
@@ -29,4 +29,4 @@ export const ToggleElement = styled.span<{ isActive?: boolean; fontSize?: string
     user-select: initial;
     color: ${({ theme, isActive }) => (isActive ? theme.neutral2 : theme.neutral3)};
   }
-`
+`;

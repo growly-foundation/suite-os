@@ -1,44 +1,45 @@
-import { DeltaArrow } from 'components/Tokens/TokenDetails/Delta'
-import { LoadingBubble } from 'components/Tokens/loading'
-import { Fragment, memo, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { use24hProtocolVolume, useDailyTVLWithChange } from 'state/explore/protocolStats'
-import { Flex, Popover, Text, isTouchable, useMedia, useShadowPropsMedium } from 'ui/src'
-import { NumberType, useFormatter } from 'utils/formatNumbers'
+import { DeltaArrow } from 'components/Tokens/TokenDetails/Delta';
+import { LoadingBubble } from 'components/Tokens/loading';
+import { Fragment, memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { use24hProtocolVolume, useDailyTVLWithChange } from 'state/explore/protocolStats';
+import { Flex, Popover, Text, isTouchable, useMedia, useShadowPropsMedium } from 'ui/src';
+import { NumberType, useFormatter } from 'utils/formatNumbers';
 
 interface ExploreStatSectionData {
-  label: string
-  value: string
-  change: number
+  label: string;
+  value: string;
+  change: number;
   protocolPopoverFormattedData?: {
-    label: string
-    value?: number
-  }[]
+    label: string;
+    value?: number;
+  }[];
 }
 
 const ExploreStatsSection = () => {
-  const media = useMedia()
-  const { t } = useTranslation()
-  const { formatFiatPrice } = useFormatter()
+  const media = useMedia();
+  const { t } = useTranslation();
+  const { formatFiatPrice } = useFormatter();
 
   const {
     protocolVolumes,
     totalVolume,
     totalChangePercent: volume24hChangePercent,
     isLoading: isVolumeLoading,
-  } = use24hProtocolVolume()
+  } = use24hProtocolVolume();
   const {
     totalTVL,
     protocolTVL,
     totalChangePercent: totalTVL24hrChangePercent,
     protocolChangePercent,
     isLoading: isTVLLoading,
-  } = useDailyTVLWithChange()
+  } = useDailyTVLWithChange();
 
-  const isStatDataLoading = isVolumeLoading || isTVLLoading
+  const isStatDataLoading = isVolumeLoading || isTVLLoading;
 
   const exploreStatsSectionData = useMemo(() => {
-    const formatPrice = (price: number) => formatFiatPrice({ price, type: NumberType.ChartFiatValue })
+    const formatPrice = (price: number) =>
+      formatFiatPrice({ price, type: NumberType.ChartFiatValue });
 
     const stats = [
       {
@@ -51,13 +52,29 @@ const ExploreStatsSection = () => {
           { label: t('common.protocol.v2'), value: protocolVolumes.v2 },
         ],
       },
-      { label: t('common.totalUniswapTVL'), value: formatPrice(totalTVL), change: totalTVL24hrChangePercent },
-      { label: t('explore.v2TVL'), value: formatPrice(protocolTVL.v2), change: protocolChangePercent.v2 },
-      { label: t('explore.v3TVL'), value: formatPrice(protocolTVL.v3), change: protocolChangePercent.v3 },
-      { label: t('explore.v4TVL'), value: formatPrice(protocolTVL.v4), change: protocolChangePercent.v4 },
-    ]
+      {
+        label: t('common.totalUniswapTVL'),
+        value: formatPrice(totalTVL),
+        change: totalTVL24hrChangePercent,
+      },
+      {
+        label: t('explore.v2TVL'),
+        value: formatPrice(protocolTVL.v2),
+        change: protocolChangePercent.v2,
+      },
+      {
+        label: t('explore.v3TVL'),
+        value: formatPrice(protocolTVL.v3),
+        change: protocolChangePercent.v3,
+      },
+      {
+        label: t('explore.v4TVL'),
+        value: formatPrice(protocolTVL.v4),
+        change: protocolChangePercent.v4,
+      },
+    ];
 
-    return stats.filter((state): state is Exclude<typeof state, null> => state !== null)
+    return stats.filter((state): state is Exclude<typeof state, null> => state !== null);
   }, [
     t,
     formatFiatPrice,
@@ -74,7 +91,7 @@ const ExploreStatsSection = () => {
     protocolChangePercent.v2,
     protocolChangePercent.v3,
     protocolChangePercent.v4,
-  ])
+  ]);
 
   return (
     <Flex row width="100%">
@@ -87,8 +104,7 @@ const ExploreStatsSection = () => {
           flex={1}
           cursor={data.protocolPopoverFormattedData ? 'pointer' : 'default'}
           transition="opacity 0.3s ease, transform 0.3s ease"
-          display={media.md && index > 1 ? 'none' : 'flex'}
-        >
+          display={media.md && index > 1 ? 'none' : 'flex'}>
           {isTouchable || !data.protocolPopoverFormattedData ? (
             <StatDisplay data={data} isLoading={isStatDataLoading} />
           ) : (
@@ -97,23 +113,26 @@ const ExploreStatsSection = () => {
         </Flex>
       ))}
     </Flex>
-  )
-}
+  );
+};
 
-export default ExploreStatsSection
+export default ExploreStatsSection;
 
 interface StatDisplayProps {
-  data: ExploreStatSectionData
-  isLoading?: boolean
-  isHoverable?: boolean
+  data: ExploreStatSectionData;
+  isLoading?: boolean;
+  isHoverable?: boolean;
 }
 
 const StatDisplay = memo(({ data, isLoading, isHoverable }: StatDisplayProps) => {
-  const { formatDelta } = useFormatter()
+  const { formatDelta } = useFormatter();
 
   return (
     <Flex group gap="$spacing4" animation="simple">
-      <Text variant="body4" color="$neutral2" $group-hover={{ color: isHoverable ? '$neutral2Hovered' : '$neutral2' }}>
+      <Text
+        variant="body4"
+        color="$neutral2"
+        $group-hover={{ color: isHoverable ? '$neutral2Hovered' : '$neutral2' }}>
         {data.label}
       </Text>
       {isLoading ? (
@@ -136,14 +155,14 @@ const StatDisplay = memo(({ data, isLoading, isHoverable }: StatDisplayProps) =>
         )}
       </Flex>
     </Flex>
-  )
-})
+  );
+});
 
-StatDisplay.displayName = 'StatDisplay'
+StatDisplay.displayName = 'StatDisplay';
 
 const StatDisplayWithPopover = memo(({ data, isLoading }: StatDisplayProps) => {
-  const shadowProps = useShadowPropsMedium()
-  const { formatFiatPrice } = useFormatter()
+  const shadowProps = useShadowPropsMedium();
+  const { formatFiatPrice } = useFormatter();
 
   return (
     <Popover hoverable placement="bottom-start" offset={{ mainAxis: 10 }}>
@@ -157,10 +176,9 @@ const StatDisplayWithPopover = memo(({ data, isLoading }: StatDisplayProps) => {
         enterStyle={{ y: -10, opacity: 0 }}
         exitStyle={{ y: -10, opacity: 0 }}
         animation="simple"
-        {...shadowProps}
-      >
+        {...shadowProps}>
         <Flex gap="$spacing8" px="$spacing4" py="$spacing6" width={180}>
-          {data.protocolPopoverFormattedData?.map((item) => {
+          {data.protocolPopoverFormattedData?.map(item => {
             return (
               <Flex key={item.label} row justifyContent="space-between">
                 <Text variant="body4" color="neutral2">
@@ -173,12 +191,12 @@ const StatDisplayWithPopover = memo(({ data, isLoading }: StatDisplayProps) => {
                   })}
                 </Text>
               </Flex>
-            )
+            );
           })}
         </Flex>
       </Popover.Content>
     </Popover>
-  )
-})
+  );
+});
 
-StatDisplayWithPopover.displayName = 'StatDisplayWithPopover'
+StatDisplayWithPopover.displayName = 'StatDisplayWithPopover';

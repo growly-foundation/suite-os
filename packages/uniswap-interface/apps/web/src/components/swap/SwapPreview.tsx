@@ -1,29 +1,29 @@
-import { Currency, Percent, TradeType } from '@uniswap/sdk-core'
-import Column, { AutoColumn } from 'components/deprecated/Column'
-import { SwapModalHeaderAmount } from 'components/swap/SwapModalHeaderAmount'
-import { useUSDPrice } from 'hooks/useUSDPrice'
-import styled from 'lib/styled-components'
-import { Trans } from 'react-i18next'
-import { InterfaceTrade } from 'state/routing/types'
-import { isPreviewTrade } from 'state/routing/utils'
-import { ThemedText } from 'theme/components'
-import { CurrencyField } from 'uniswap/src/types/currency'
+import { Currency, Percent, TradeType } from '@uniswap/sdk-core';
+import Column, { AutoColumn } from 'components/deprecated/Column';
+import { SwapModalHeaderAmount } from 'components/swap/SwapModalHeaderAmount';
+import { useUSDPrice } from 'hooks/useUSDPrice';
+import styled from 'lib/styled-components';
+import { Trans } from 'react-i18next';
+import { InterfaceTrade } from 'state/routing/types';
+import { isPreviewTrade } from 'state/routing/utils';
+import { ThemedText } from 'theme/components';
+import { CurrencyField } from 'uniswap/src/types/currency';
 
 const HeaderContainer = styled(AutoColumn)`
   margin-top: 0px;
-`
+`;
 
 export function SwapPreview({
   trade,
   inputCurrency,
   allowedSlippage,
 }: {
-  trade: InterfaceTrade
-  inputCurrency?: Currency
-  allowedSlippage: Percent
+  trade: InterfaceTrade;
+  inputCurrency?: Currency;
+  allowedSlippage: Percent;
 }) {
-  const fiatValueInput = useUSDPrice(trade.inputAmount)
-  const fiatValueOutput = useUSDPrice(trade.outputAmount)
+  const fiatValueInput = useUSDPrice(trade.inputAmount);
+  const fiatValueOutput = useUSDPrice(trade.outputAmount);
 
   return (
     <HeaderContainer gap="sm">
@@ -51,7 +51,8 @@ export function SwapPreview({
                   components={{
                     amount: (
                       <b>
-                        {trade.minimumAmountOut(allowedSlippage).toSignificant(6)} {trade.outputAmount.currency.symbol}
+                        {trade.minimumAmountOut(allowedSlippage).toSignificant(6)}{' '}
+                        {trade.outputAmount.currency.symbol}
                       </b>
                     ),
                   }}
@@ -64,7 +65,8 @@ export function SwapPreview({
                   components={{
                     amount: (
                       <b>
-                        {trade.maximumAmountIn(allowedSlippage).toSignificant(6)} {trade.inputAmount.currency.symbol}
+                        {trade.maximumAmountIn(allowedSlippage).toSignificant(6)}{' '}
+                        {trade.inputAmount.currency.symbol}
                       </b>
                     ),
                   }}
@@ -75,5 +77,5 @@ export function SwapPreview({
         />
       </Column>
     </HeaderContainer>
-  )
+  );
 }

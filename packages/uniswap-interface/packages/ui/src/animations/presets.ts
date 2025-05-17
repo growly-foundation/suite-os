@@ -1,8 +1,8 @@
-import type { ViewStyle } from 'tamagui'
+import type { ViewStyle } from 'tamagui';
 
 // for now only enter/exit though we can change this in the future to support
 // any type of animation, likely we'd want to split that into multiple files
-type EnterExitStyles = Record<string, Pick<ViewStyle, 'enterStyle' | 'exitStyle'>>
+type EnterExitStyles = Record<string, Pick<ViewStyle, 'enterStyle' | 'exitStyle'>>;
 
 export const animationsEnter = {
   fadeInDown: {
@@ -11,7 +11,7 @@ export const animationsEnter = {
       opacity: 0,
     },
   },
-} satisfies EnterExitStyles
+} satisfies EnterExitStyles;
 
 export const animationsExit = {
   fadeOutUp: {
@@ -27,7 +27,7 @@ export const animationsExit = {
       opacity: 0,
     },
   },
-} satisfies EnterExitStyles
+} satisfies EnterExitStyles;
 
 export const animationsEnterExit = {
   fadeInDownOutUp: {
@@ -39,10 +39,10 @@ export const animationsEnterExit = {
     ...animationsEnter.fadeInDown,
     ...animationsExit.fadeOutDown,
   },
-} satisfies EnterExitStyles
+} satisfies EnterExitStyles;
 
 export const animationPresets = {
   ...animationsEnter,
   ...animationsExit,
   ...animationsEnterExit,
-} satisfies EnterExitStyles
+} satisfies EnterExitStyles;

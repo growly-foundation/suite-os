@@ -1,13 +1,13 @@
-import { WETH9 } from '@uniswap/sdk-core'
-import { DAI } from 'uniswap/src/constants/tokens'
+import { WETH9 } from '@uniswap/sdk-core';
+import { DAI } from 'uniswap/src/constants/tokens';
 import {
   AssetActivityPartsFragment,
   Chain,
   SwapOrderStatus,
   TokenStandard,
-} from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
+} from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
 
-const MockOrderTimestamp = 10000
+const MockOrderTimestamp = 10000;
 
 const mockAssetActivityPartsFragment = {
   __typename: 'AssetActivity',
@@ -35,7 +35,7 @@ const mockAssetActivityPartsFragment = {
       standard: TokenStandard.Erc20,
     },
   },
-}
+};
 
 const mockSwapOrderDetailsPartsFragment = {
   __typename: 'SwapOrderDetails',
@@ -85,12 +85,12 @@ const mockSwapOrderDetailsPartsFragment = {
       },
     },
   },
-}
+};
 
 export const MockOpenUniswapXOrder = {
   ...mockAssetActivityPartsFragment,
   details: mockSwapOrderDetailsPartsFragment,
-} as AssetActivityPartsFragment
+} as AssetActivityPartsFragment;
 
 export const MockExpiredUniswapXOrder = {
   ...mockAssetActivityPartsFragment,
@@ -98,7 +98,7 @@ export const MockExpiredUniswapXOrder = {
     ...mockSwapOrderDetailsPartsFragment,
     orderStatus: SwapOrderStatus.Expired,
   },
-} as AssetActivityPartsFragment
+} as AssetActivityPartsFragment;
 
 export const MockFilledUniswapXOrder = {
   ...mockAssetActivityPartsFragment,
@@ -106,4 +106,4 @@ export const MockFilledUniswapXOrder = {
     ...mockSwapOrderDetailsPartsFragment,
     orderStatus: SwapOrderStatus.Filled,
   },
-} as AssetActivityPartsFragment
+} as AssetActivityPartsFragment;

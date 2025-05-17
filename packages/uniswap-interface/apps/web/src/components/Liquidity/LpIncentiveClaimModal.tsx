@@ -1,29 +1,29 @@
-import { Token } from '@uniswap/sdk-core'
-import { DialogV2 } from 'components/Dialog/DialogV2'
-import { useFormattedTokenRewards } from 'components/Liquidity/hooks/LpIncentiveClaim/useFormattedTokenRewards'
-import { useLpIncentiveClaimButtonConfig } from 'components/Liquidity/hooks/LpIncentiveClaim/useLpIncentiveClaimButtonConfig'
-import { useLpIncentiveClaimMutation } from 'components/Liquidity/hooks/LpIncentiveClaim/useLpIncentiveClaimMutation'
-import { LP_INCENTIVES_REWARD_TOKEN } from 'components/LpIncentives/constants'
-import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Flex, Image, Text } from 'ui/src'
-import { iconSizes } from 'ui/src/theme'
-import { InlineWarningCard } from 'uniswap/src/components/InlineWarningCard/InlineWarningCard'
-import { WarningSeverity } from 'uniswap/src/components/modals/WarningModal/types'
-import { ModalName, UniswapEventName } from 'uniswap/src/features/telemetry/constants'
-import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send'
-import { logger } from 'utilities/src/logger/logger'
-import { useEvent } from 'utilities/src/react/hooks'
-import { didUserReject } from 'utils/swapErrorToUserReadableMessage'
+import { Token } from '@uniswap/sdk-core';
+import { DialogV2 } from 'components/Dialog/DialogV2';
+import { useFormattedTokenRewards } from 'components/Liquidity/hooks/LpIncentiveClaim/useFormattedTokenRewards';
+import { useLpIncentiveClaimButtonConfig } from 'components/Liquidity/hooks/LpIncentiveClaim/useLpIncentiveClaimButtonConfig';
+import { useLpIncentiveClaimMutation } from 'components/Liquidity/hooks/LpIncentiveClaim/useLpIncentiveClaimMutation';
+import { LP_INCENTIVES_REWARD_TOKEN } from 'components/LpIncentives/constants';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Flex, Image, Text } from 'ui/src';
+import { iconSizes } from 'ui/src/theme';
+import { InlineWarningCard } from 'uniswap/src/components/InlineWarningCard/InlineWarningCard';
+import { WarningSeverity } from 'uniswap/src/components/modals/WarningModal/types';
+import { ModalName, UniswapEventName } from 'uniswap/src/features/telemetry/constants';
+import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send';
+import { logger } from 'utilities/src/logger/logger';
+import { useEvent } from 'utilities/src/react/hooks';
+import { didUserReject } from 'utils/swapErrorToUserReadableMessage';
 
 interface LpIncentiveClaimModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSuccess: () => void
-  token?: Token
-  tokenRewards: string
-  isPendingTransaction?: boolean
-  iconUrl?: string
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+  token?: Token;
+  tokenRewards: string;
+  isPendingTransaction?: boolean;
+  iconUrl?: string;
 }
 
 export function LpIncentiveClaimModal({
@@ -35,19 +35,19 @@ export function LpIncentiveClaimModal({
   isPendingTransaction = false,
   iconUrl,
 }: LpIncentiveClaimModalProps) {
-  const [error, setError] = useState<string | null>(null)
-  const { t } = useTranslation()
+  const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
-  const formattedTokenRewards = useFormattedTokenRewards({ tokenRewards, token })
+  const formattedTokenRewards = useFormattedTokenRewards({ tokenRewards, token });
 
   const { mutate: claim, isPending } = useLpIncentiveClaimMutation({
     token,
     onSuccess,
     onClose,
-    onError: (error) => {
+    onError: error => {
       // For wallet rejections, we don't need to show an error
       if (didUserReject(error)) {
-        return
+        return;
       }
 
       logger.error(error, {
@@ -55,38 +55,43 @@ export function LpIncentiveClaimModal({
           file: 'LpIncentiveClaimModal',
           function: 'useLpIncentiveClaimMutation',
         },
-      })
-      setError(t('pool.incentives.collectFailed'))
+      });
+      setError(t('pool.incentives.collectFailed'));
     },
-  })
+  });
 
   const handleClaim = useEvent(({ skipAnalytics = false } = {}) => {
     if (!skipAnalytics) {
-      sendAnalyticsEvent(UniswapEventName.LpIncentiveCollectRewardsRetry)
+      sendAnalyticsEvent(UniswapEventName.LpIncentiveCollectRewardsRetry);
     }
-    setError(null)
-    claim()
-  })
+    setError(null);
+    claim();
+  });
 
   // Only auto-claim when the modal opens and there's no pending transaction
   useEffect(() => {
     if (isOpen && !isPendingTransaction) {
-      handleClaim({ skipAnalytics: true })
+      handleClaim({ skipAnalytics: true });
     }
-  }, [isOpen, isPendingTransaction, handleClaim])
+  }, [isOpen, isPendingTransaction, handleClaim]);
 
   const buttonConfig = useLpIncentiveClaimButtonConfig({
     isLoading: isPending,
     isPendingTransaction,
     onClaim: () => handleClaim(), // Don't skip analytics for manual claim
-  })
+  });
 
   return (
     <DialogV2
       isOpen={isOpen}
       icon={
         iconUrl ? (
-          <Image src={iconUrl} width={iconSizes.icon48} height={iconSizes.icon48} objectFit="cover" />
+          <Image
+            src={iconUrl}
+            width={iconSizes.icon48}
+            height={iconSizes.icon48}
+            objectFit="cover"
+          />
         ) : undefined
       }
       title={t('pool.incentives.collectingRewards')}
@@ -113,5 +118,5 @@ export function LpIncentiveClaimModal({
       modalName={ModalName.LpIncentiveClaimModal}
       primaryButtonText={buttonConfig.title}
     />
-  )
+  );
 }

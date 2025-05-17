@@ -1,16 +1,23 @@
-import { ReactNode } from 'react'
-import { Flex, Switch, Text } from 'ui/src'
+import { ReactNode } from 'react';
+import { Flex, Switch, Text } from 'ui/src';
 
 interface SettingsToggleProps {
-  title: ReactNode
-  description?: string
-  dataid?: string
-  disabled?: boolean
-  isActive: boolean
-  toggle: () => void
+  title: ReactNode;
+  description?: string;
+  dataid?: string;
+  disabled?: boolean;
+  isActive: boolean;
+  toggle: () => void;
 }
 
-export function SettingsToggle({ title, description, dataid, isActive, toggle, disabled }: SettingsToggleProps) {
+export function SettingsToggle({
+  title,
+  description,
+  dataid,
+  isActive,
+  toggle,
+  disabled,
+}: SettingsToggleProps) {
   return (
     <Flex row alignItems="center" justifyContent="space-between" py="$padding12">
       <Flex maxWidth="80%" $xl={{ maxWidth: '70%' }}>
@@ -23,7 +30,13 @@ export function SettingsToggle({ title, description, dataid, isActive, toggle, d
           </Text>
         )}
       </Flex>
-      <Switch testID={dataid} variant="branded" checked={isActive} onCheckedChange={toggle} disabled={disabled} />
+      <Switch
+        testID={dataid}
+        variant="branded"
+        checked={isActive}
+        onCheckedChange={toggle}
+        disabled={disabled}
+      />
     </Flex>
-  )
+  );
 }

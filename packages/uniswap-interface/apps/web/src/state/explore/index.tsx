@@ -1,15 +1,18 @@
-import { ExploreStatsResponse, ProtocolStatsResponse } from '@uniswap/client-explore/dist/uniswap/explore/v1/service_pb'
-import { createContext, useMemo } from 'react'
-import { ALL_NETWORKS_ARG } from 'uniswap/src/data/rest/base'
-import { useExploreStatsQuery } from 'uniswap/src/data/rest/exploreStats'
-import { useProtocolStatsQuery } from 'uniswap/src/data/rest/protocolStats'
-import { useIsSupportedChainId } from 'uniswap/src/features/chains/hooks/useSupportedChainId'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
+import {
+  ExploreStatsResponse,
+  ProtocolStatsResponse,
+} from '@uniswap/client-explore/dist/uniswap/explore/v1/service_pb';
+import { createContext, useMemo } from 'react';
+import { ALL_NETWORKS_ARG } from 'uniswap/src/data/rest/base';
+import { useExploreStatsQuery } from 'uniswap/src/data/rest/exploreStats';
+import { useProtocolStatsQuery } from 'uniswap/src/data/rest/protocolStats';
+import { useIsSupportedChainId } from 'uniswap/src/features/chains/hooks/useSupportedChainId';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
 
 interface QueryResult<T> {
-  data?: T
-  isLoading: boolean
-  error: boolean
+  data?: T;
+  isLoading: boolean;
+  error: boolean;
 }
 
 /**
@@ -18,13 +21,16 @@ interface QueryResult<T> {
  * @property protocolStatsData - Data for the Protocol Stats Graphs
  */
 interface ExploreContextType {
-  exploreStats: QueryResult<ExploreStatsResponse>
-  protocolStats: QueryResult<ProtocolStatsResponse>
+  exploreStats: QueryResult<ExploreStatsResponse>;
+  protocolStats: QueryResult<ProtocolStatsResponse>;
 }
 
-export const giveExploreStatDefaultValue = (value: number | undefined, defaultValue = 0): number => {
-  return value ?? defaultValue
-}
+export const giveExploreStatDefaultValue = (
+  value: number | undefined,
+  defaultValue = 0
+): number => {
+  return value ?? defaultValue;
+};
 
 export const ExploreContext = createContext<ExploreContextType>({
   exploreStats: {
@@ -37,18 +43,18 @@ export const ExploreContext = createContext<ExploreContextType>({
     isLoading: false,
     error: false,
   },
-})
+});
 
-export const TABLE_PAGE_SIZE = 20
+export const TABLE_PAGE_SIZE = 20;
 
 export function ExploreContextProvider({
   chainId,
   children,
 }: {
-  chainId?: UniverseChainId
-  children: React.ReactNode
+  chainId?: UniverseChainId;
+  children: React.ReactNode;
 }) {
-  const isSupportedChain = useIsSupportedChainId(chainId)
+  const isSupportedChain = useIsSupportedChainId(chainId);
 
   const {
     data: exploreStatsData,
@@ -56,14 +62,14 @@ export function ExploreContextProvider({
     error: exploreStatsError,
   } = useExploreStatsQuery({
     chainId: isSupportedChain ? chainId?.toString() : ALL_NETWORKS_ARG,
-  })
+  });
   const {
     data: protocolStatsData,
     isLoading: protocolStatsLoading,
     error: protocolStatsError,
   } = useProtocolStatsQuery({
     chainId: isSupportedChain ? chainId?.toString() : ALL_NETWORKS_ARG,
-  })
+  });
 
   const exploreContext = useMemo(() => {
     return {
@@ -77,7 +83,7 @@ export function ExploreContextProvider({
         isLoading: protocolStatsLoading,
         error: !!protocolStatsError,
       },
-    }
+    };
   }, [
     exploreStatsData,
     exploreStatsError,
@@ -85,6 +91,6 @@ export function ExploreContextProvider({
     protocolStatsData,
     protocolStatsError,
     protocolStatsLoading,
-  ])
-  return <ExploreContext.Provider value={exploreContext}>{children}</ExploreContext.Provider>
+  ]);
+  return <ExploreContext.Provider value={exploreContext}>{children}</ExploreContext.Provider>;
 }

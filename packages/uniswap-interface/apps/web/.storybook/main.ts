@@ -1,16 +1,16 @@
-import type { StorybookConfig } from '@storybook/react-webpack5'
-import { DefinePlugin } from 'webpack'
+import type { StorybookConfig } from '@storybook/react-webpack5';
+import { DefinePlugin } from 'webpack';
 
-import { dirname, join, resolve } from 'path'
+import { dirname, join, resolve } from 'path';
 
-const isDev = process.env.NODE_ENV === 'development'
+const isDev = process.env.NODE_ENV === 'development';
 
 /**
  * This function is used to resolve the absolute path of a package.
  * It is needed in projects that use Yarn PnP or are set up within a monorepo.
  */
 function getAbsolutePath(value: string): any {
-  return dirname(require.resolve(join(value, 'package.json')))
+  return dirname(require.resolve(join(value, 'package.json')));
 }
 const config: StorybookConfig = {
   stories: [
@@ -31,56 +31,58 @@ const config: StorybookConfig = {
     options: {},
   },
   staticDirs: ['../public'],
-  webpackFinal: (config) => {
+  webpackFinal: config => {
     // There are some conflicting ESLint rules that prevent storybook from building if this plugin is added to the Webpack configuration
     if (!config.plugins) {
-      config.plugins = []
+      config.plugins = [];
     }
 
-    config.plugins = config.plugins.filter((plugin) => plugin?.constructor.name !== 'ESLintWebpackPlugin')
+    config.plugins = config.plugins.filter(
+      plugin => plugin?.constructor.name !== 'ESLintWebpackPlugin'
+    );
 
     config.plugins.push(
       new DefinePlugin({
         __DEV__: isDev,
-      }),
-    )
+      })
+    );
 
     // This modifies the existing image rule to exclude `.svg` files
     // since we handle those with `@svgr/webpack`.
     const imageRule =
       config?.module?.rules &&
-      config.module.rules.find((rule) => {
+      config.module.rules.find(rule => {
         if (rule && typeof rule !== 'string' && rule.test instanceof RegExp) {
-          return rule.test.test('.svg')
+          return rule.test.test('.svg');
         }
 
-        return
-      })
+        return;
+      });
 
     if (imageRule && typeof imageRule !== 'string') {
-      imageRule.exclude = /\.svg$/i
+      imageRule.exclude = /\.svg$/i;
     }
 
     config?.module?.rules &&
       config.module.rules.push({
         test: /\.svg$/i,
         use: ['@svgr/webpack'],
-      })
+      });
 
     config?.module?.rules &&
       config.module.rules.push({
         test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/,
-      })
+      });
 
-    config.resolve ??= {}
+    config.resolve ??= {};
 
     // Add fallback for Node.js 'os' module
     config.resolve.fallback = {
       ...(config.resolve.fallback || {}),
       os: false,
-    }
+    };
 
     config.resolve = {
       ...config.resolve,
@@ -89,11 +91,11 @@ const config: StorybookConfig = {
         'react-native$': 'react-native-web',
         'expo-blur': require.resolve('./__mocks__/expo-blur.js'),
       },
-    }
+    };
 
-    config.resolve.modules = [resolve(__dirname, '../src'), 'node_modules']
+    config.resolve.modules = [resolve(__dirname, '../src'), 'node_modules'];
 
-    return config
+    return config;
   },
-}
-export default config
+};
+export default config;

@@ -1,18 +1,18 @@
-import { PositionStatus, ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb'
-import { DropdownSelector } from 'components/DropdownSelector'
-import { lpStatusConfig } from 'components/Liquidity/constants'
-import { getProtocolStatusLabel, getProtocolVersionLabel } from 'components/Liquidity/utils'
-import { useMemo, useState } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
-import { ClickableTamaguiStyle } from 'theme/components/styles'
-import { Flex, LabeledCheckbox, Text, useMedia } from 'ui/src'
-import { Plus } from 'ui/src/components/icons/Plus'
-import { RotatableChevron } from 'ui/src/components/icons/RotatableChevron'
-import { StatusIndicatorCircle } from 'ui/src/components/icons/StatusIndicatorCircle'
-import { NetworkFilter } from 'uniswap/src/components/network/NetworkFilter'
-import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
+import { PositionStatus, ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb';
+import { DropdownSelector } from 'components/DropdownSelector';
+import { lpStatusConfig } from 'components/Liquidity/constants';
+import { getProtocolStatusLabel, getProtocolVersionLabel } from 'components/Liquidity/utils';
+import { useMemo, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { ClickableTamaguiStyle } from 'theme/components/styles';
+import { Flex, LabeledCheckbox, Text, useMedia } from 'ui/src';
+import { Plus } from 'ui/src/components/icons/Plus';
+import { RotatableChevron } from 'ui/src/components/icons/RotatableChevron';
+import { StatusIndicatorCircle } from 'ui/src/components/icons/StatusIndicatorCircle';
+import { NetworkFilter } from 'uniswap/src/components/network/NetworkFilter';
+import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
 
 const StyledDropdownButton = {
   borderRadius: '$rounded16',
@@ -24,19 +24,19 @@ const StyledDropdownButton = {
     ...ClickableTamaguiStyle.hoverStyle,
     backgroundColor: 'none',
   },
-}
+};
 
 type PositionsHeaderProps = {
-  showFilters?: boolean
-  selectedChain: UniverseChainId | null
-  selectedVersions?: ProtocolVersion[]
-  selectedStatus?: PositionStatus[]
-  onChainChange: (selectedChain: UniverseChainId | null) => void
-  onVersionChange: (toggledVersion: ProtocolVersion) => void
-  onStatusChange: (toggledStatus: PositionStatus) => void
-}
+  showFilters?: boolean;
+  selectedChain: UniverseChainId | null;
+  selectedVersions?: ProtocolVersion[];
+  selectedStatus?: PositionStatus[];
+  onChainChange: (selectedChain: UniverseChainId | null) => void;
+  onVersionChange: (toggledVersion: ProtocolVersion) => void;
+  onStatusChange: (toggledStatus: PositionStatus) => void;
+};
 
-const PROTOCOL_VERSIONS = [ProtocolVersion.V4, ProtocolVersion.V3, ProtocolVersion.V2]
+const PROTOCOL_VERSIONS = [ProtocolVersion.V4, ProtocolVersion.V3, ProtocolVersion.V2];
 
 export function PositionsHeader({
   showFilters = true,
@@ -47,46 +47,47 @@ export function PositionsHeader({
   onVersionChange,
   onStatusChange,
 }: PositionsHeaderProps) {
-  const { t } = useTranslation()
-  const { chains } = useEnabledChains()
-  const navigate = useNavigate()
-  const media = useMedia()
+  const { t } = useTranslation();
+  const { chains } = useEnabledChains();
+  const navigate = useNavigate();
+  const media = useMedia();
 
   const statusFilterOptions = useMemo(() => {
-    return [PositionStatus.IN_RANGE, PositionStatus.OUT_OF_RANGE, PositionStatus.CLOSED].map((status) => {
-      const config = lpStatusConfig[status]
+    return [PositionStatus.IN_RANGE, PositionStatus.OUT_OF_RANGE, PositionStatus.CLOSED].map(
+      status => {
+        const config = lpStatusConfig[status];
 
-      if (!config) {
-        return <></>
+        if (!config) {
+          return <></>;
+        }
+
+        return (
+          <Flex
+            key={`PositionsHeader-status-${status}`}
+            row
+            gap="$spacing8"
+            width="100%"
+            justifyContent="space-between"
+            alignItems="center">
+            <StatusIndicatorCircle color={config.color} />
+            <LabeledCheckbox
+              py="$spacing4"
+              size="$icon.18"
+              hoverStyle={{ opacity: 0.8, backgroundColor: 'unset' }}
+              containerStyle={{ flex: 1 }}
+              checkboxPosition="end"
+              checked={selectedStatus?.includes(status) ?? false}
+              text={getProtocolStatusLabel(status, t)}
+              onCheckPressed={() => onStatusChange(status)}
+            />
+          </Flex>
+        );
       }
-
-      return (
-        <Flex
-          key={`PositionsHeader-status-${status}`}
-          row
-          gap="$spacing8"
-          width="100%"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <StatusIndicatorCircle color={config.color} />
-          <LabeledCheckbox
-            py="$spacing4"
-            size="$icon.18"
-            hoverStyle={{ opacity: 0.8, backgroundColor: 'unset' }}
-            containerStyle={{ flex: 1 }}
-            checkboxPosition="end"
-            checked={selectedStatus?.includes(status) ?? false}
-            text={getProtocolStatusLabel(status, t)}
-            onCheckPressed={() => onStatusChange(status)}
-          />
-        </Flex>
-      )
-    })
-  }, [selectedStatus, onStatusChange, t])
+    );
+  }, [selectedStatus, onStatusChange, t]);
 
   const versionFilterOptions = useMemo(() => {
-    return PROTOCOL_VERSIONS.map((version) => (
+    return PROTOCOL_VERSIONS.map(version => (
       <LabeledCheckbox
         key={`PositionsHeader-version-${version}`}
         py="$spacing4"
@@ -96,34 +97,33 @@ export function PositionsHeader({
         text={getProtocolVersionLabel(version)}
         onCheckPressed={() => onVersionChange(version)}
       />
-    ))
-  }, [selectedVersions, onVersionChange])
+    ));
+  }, [selectedVersions, onVersionChange]);
 
   const createOptions = useMemo(
     () =>
-      PROTOCOL_VERSIONS.map((version) => {
-        const protocolVersionLabel = getProtocolVersionLabel(version)
+      PROTOCOL_VERSIONS.map(version => {
+        const protocolVersionLabel = getProtocolVersionLabel(version);
         return (
           <Flex
             key={`PositionsHeader-create-${protocolVersionLabel}`}
             p="$spacing8"
             {...ClickableTamaguiStyle}
             onPress={() => {
-              navigate(`/positions/create/${protocolVersionLabel}`)
-            }}
-          >
+              navigate(`/positions/create/${protocolVersionLabel}`);
+            }}>
             <Text variant="body2">
               <Trans i18nKey="position.new.protocol" values={{ protocol: protocolVersionLabel }} />
             </Text>
           </Flex>
-        )
+        );
       }),
-    [navigate],
-  )
+    [navigate]
+  );
 
-  const [createDropdownOpen, setCreateDropdownOpen] = useState(false)
-  const [protocolDropdownOpen, setProtocolDropdownOpen] = useState(false)
-  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false)
+  const [createDropdownOpen, setCreateDropdownOpen] = useState(false);
+  const [protocolDropdownOpen, setProtocolDropdownOpen] = useState(false);
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
 
   return (
     <Flex gap={16}>
@@ -143,9 +143,8 @@ export function PositionsHeader({
             flexGrow={1}
             {...ClickableTamaguiStyle}
             onPress={() => {
-              navigate('/positions/create/v4')
-            }}
-          >
+              navigate('/positions/create/v4');
+            }}>
             <Plus size={20} color="$surface1" />
             <Text color="$surface1" variant="buttonLabel3">
               {t('common.new')}
@@ -161,8 +160,7 @@ export function PositionsHeader({
                 justifyContent="center"
                 alignItems="center"
                 p="$padding8"
-                {...ClickableTamaguiStyle}
-              >
+                {...ClickableTamaguiStyle}>
                 <RotatableChevron direction="down" height={20} width={20} color="$surface1" />
               </Flex>
             }
@@ -174,10 +172,9 @@ export function PositionsHeader({
             hideChevron={true}
             isOpen={createDropdownOpen}
             toggleOpen={() => {
-              setCreateDropdownOpen((prev) => !prev)
+              setCreateDropdownOpen(prev => !prev);
             }}
-            alignRight={media.sm}
-          >
+            alignRight={media.sm}>
             {createOptions}
           </DropdownSelector>
         </Flex>
@@ -186,21 +183,19 @@ export function PositionsHeader({
             <DropdownSelector
               isOpen={protocolDropdownOpen}
               toggleOpen={() => {
-                setProtocolDropdownOpen((prev) => !prev)
+                setProtocolDropdownOpen(prev => !prev);
               }}
               menuLabel={<Text variant="buttonLabel3">{t('common.status')}</Text>}
               dropdownStyle={{ width: 240 }}
-              buttonStyle={StyledDropdownButton}
-            >
+              buttonStyle={StyledDropdownButton}>
               {statusFilterOptions}
             </DropdownSelector>
             <DropdownSelector
               isOpen={statusDropdownOpen}
-              toggleOpen={() => setStatusDropdownOpen((prev) => !prev)}
+              toggleOpen={() => setStatusDropdownOpen(prev => !prev)}
               menuLabel={<Text variant="buttonLabel3">{t('common.protocol')}</Text>}
               dropdownStyle={{ width: 160 }}
-              buttonStyle={StyledDropdownButton}
-            >
+              buttonStyle={StyledDropdownButton}>
               {versionFilterOptions}
             </DropdownSelector>
             <Flex
@@ -210,8 +205,7 @@ export function PositionsHeader({
               borderRadius="$rounded16"
               px="$padding12"
               height="100%"
-              {...ClickableTamaguiStyle}
-            >
+              {...ClickableTamaguiStyle}>
               <NetworkFilter
                 includeAllNetworks
                 selectedChain={selectedChain}
@@ -226,5 +220,5 @@ export function PositionsHeader({
         )}
       </Flex>
     </Flex>
-  )
+  );
 }

@@ -1,8 +1,8 @@
-import formatLocaleNumber from 'lib/utils/formatLocaleNumber'
-import { Locale, WEB_SUPPORTED_LANGUAGES } from 'uniswap/src/features/language/constants'
-import { getLocale } from 'uniswap/src/features/language/hooks'
+import formatLocaleNumber from 'lib/utils/formatLocaleNumber';
+import { Locale, WEB_SUPPORTED_LANGUAGES } from 'uniswap/src/features/language/constants';
+import { getLocale } from 'uniswap/src/features/language/hooks';
 
-const INPUT = 4000000.123 // 4 million
+const INPUT = 4000000.123; // 4 million
 
 function expectedOutput(l: Locale): string {
   switch (l) {
@@ -28,14 +28,14 @@ function expectedOutput(l: Locale): string {
     case 'es-US':
     case 'ms-MY':
     case 'ko-KR':
-      return `4,000,000.123`
+      return `4,000,000.123`;
     case 'fr-FR':
       // eslint-disable-next-line no-irregular-whitespace
-      return `4 000 000,123`
+      return `4 000 000,123`;
     case 'ar-SA':
-      return `٤٬٠٠٠٬٠٠٠٫١٢٣`
+      return `٤٬٠٠٠٬٠٠٠٫١٢٣`;
     case 'hi-IN':
-      return `40,00,000.123`
+      return `40,00,000.123`;
     case 'cs-CZ':
     case 'fi-FI':
     case 'af-ZA':
@@ -48,7 +48,7 @@ function expectedOutput(l: Locale): string {
     case 'uk-UA':
     case 'es-CR':
       // eslint-disable-next-line no-irregular-whitespace
-      return `4 000 000,123`
+      return `4 000 000,123`;
     case 'ca-ES':
     case 'da-DK':
     case 'el-GR':
@@ -69,21 +69,24 @@ function expectedOutput(l: Locale): string {
     case 'sr-SP':
     case 'tr-TR':
     case 'vi-VN':
-      return `4.000.000,123`
+      return `4.000.000,123`;
     default:
-      throw new Error(`Missing test locale: ${l}`)
+      throw new Error(`Missing test locale: ${l}`);
   }
 }
 
-const TEST_MATRIX = WEB_SUPPORTED_LANGUAGES.map((language) => ({
+const TEST_MATRIX = WEB_SUPPORTED_LANGUAGES.map(language => ({
   locale: getLocale(language),
   input: INPUT,
   expected: expectedOutput(getLocale(language)),
-}))
+}));
 
 describe('formatLocaleNumber', () => {
-  test.concurrent.each(TEST_MATRIX)('should format correctly for %p', async ({ locale, input, expected }) => {
-    const result = formatLocaleNumber({ number: input, locale })
-    expect(result).toEqual(expected)
-  })
-})
+  test.concurrent.each(TEST_MATRIX)(
+    'should format correctly for %p',
+    async ({ locale, input, expected }) => {
+      const result = formatLocaleNumber({ number: input, locale });
+      expect(result).toEqual(expected);
+    }
+  );
+});

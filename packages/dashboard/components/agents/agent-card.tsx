@@ -17,6 +17,7 @@ import { Skeleton } from '../ui/skeleton';
 import moment from 'moment';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { toast } from 'react-toastify';
+import { truncateString } from '@/lib/utils';
 
 export const AgentCard = ({ agent }: { agent: Agent }) => {
   const [loading, setLoading] = useState(true);
@@ -113,7 +114,7 @@ export const AgentCard = ({ agent }: { agent: Agent }) => {
             </DropdownMenu>
           </div>
           <p className="text-sm text-muted-foreground line-clamp-2 mb-4 h-[50px]">
-            {agent.description || 'No description provided'}
+            {truncateString(agent.description || '', 100) || 'No description provided'}
           </p>
           <div className="grid grid-cols-3 gap-2 mb-4">
             <div className="flex flex-col items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 p-2">

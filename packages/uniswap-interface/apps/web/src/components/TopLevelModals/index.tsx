@@ -1,27 +1,27 @@
-import { ModalRenderer } from 'components/TopLevelModals/modalRegistry'
-import { useAccount } from 'hooks/useAccount'
-import useAccountRiskCheck from 'hooks/useAccountRiskCheck'
-import { PageType, useIsPage } from 'hooks/useIsPage'
-import { PasskeysHelpModalTypeAtom } from 'hooks/usePasskeyAuthWithHelpModal'
-import { useAtomValue } from 'jotai/utils'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
-import { useUnitagByAddress } from 'uniswap/src/features/unitags/hooks'
-import { shortenAddress } from 'utilities/src/addresses'
-import { isBetaEnv, isDevEnv } from 'utilities/src/environment/env'
+import { ModalRenderer } from 'components/TopLevelModals/modalRegistry';
+import { useAccount } from 'hooks/useAccount';
+import useAccountRiskCheck from 'hooks/useAccountRiskCheck';
+import { PageType, useIsPage } from 'hooks/useIsPage';
+import { PasskeysHelpModalTypeAtom } from 'hooks/usePasskeyAuthWithHelpModal';
+import { useAtomValue } from 'jotai/utils';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
+import { useUnitagByAddress } from 'uniswap/src/features/unitags/hooks';
+import { shortenAddress } from 'utilities/src/addresses';
+import { isBetaEnv, isDevEnv } from 'utilities/src/environment/env';
 
 export default function TopLevelModals() {
-  const isLandingPage = useIsPage(PageType.LANDING)
-  const account = useAccount()
-  const { unitag } = useUnitagByAddress(account.address)
+  const isLandingPage = useIsPage(PageType.LANDING);
+  const account = useAccount();
+  const { unitag } = useUnitagByAddress(account.address);
   const accountName = unitag?.username
     ? unitag.username + '.uni.eth'
     : account.address
       ? shortenAddress(account.address)
-      : undefined
-  useAccountRiskCheck(account.address)
-  const passkeysHelpModalType = useAtomValue(PasskeysHelpModalTypeAtom)
+      : undefined;
+  useAccountRiskCheck(account.address);
+  const passkeysHelpModalType = useAtomValue(PasskeysHelpModalTypeAtom);
 
-  const shouldShowDevFlags = isDevEnv() || isBetaEnv()
+  const shouldShowDevFlags = isDevEnv() || isBetaEnv();
 
   // On landing page we need to be very careful about what modals we show
   // because too many modals attached to the dom can cause performance issues
@@ -39,7 +39,7 @@ export default function TopLevelModals() {
         {shouldShowDevFlags && <ModalRenderer modalName={ModalName.DevFlags} />}
         <ModalRenderer modalName={ModalName.OffchainActivity} />
       </>
-    )
+    );
   }
 
   return (
@@ -61,8 +61,11 @@ export default function TopLevelModals() {
       <ModalRenderer modalName={ModalName.RemoveLiquidity} />
       <ModalRenderer modalName={ModalName.ClaimFee} />
       <ModalRenderer modalName={ModalName.RecoveryPhrase} />
-      <ModalRenderer modalName={ModalName.PasskeysHelp} componentProps={{ type: passkeysHelpModalType, accountName }} />
+      <ModalRenderer
+        modalName={ModalName.PasskeysHelp}
+        componentProps={{ type: passkeysHelpModalType, accountName }}
+      />
       <ModalRenderer modalName={ModalName.DelegationMismatch} />
     </>
-  )
+  );
 }

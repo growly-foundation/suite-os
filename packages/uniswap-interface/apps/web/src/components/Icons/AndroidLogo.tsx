@@ -1,4 +1,4 @@
-import { ComponentProps } from 'react'
+import { ComponentProps } from 'react';
 
 export function AndroidLogo(props: ComponentProps<'svg'>) {
   return (
@@ -8,5 +8,5 @@ export function AndroidLogo(props: ComponentProps<'svg'>) {
         fill={props.fill ?? '#fff'}
       />
     </svg>
-  )
+  );
 }

@@ -1,20 +1,20 @@
-import { InterfaceElementName } from '@uniswap/analytics-events'
-import UNIWALLET_ICON from 'assets/wallets/uniswap-wallet-icon.png'
-import { useAccountDrawer } from 'components/AccountDrawer/MiniPortfolio/hooks'
-import { OptionContainer } from 'components/WalletModal/UniswapWalletOptions'
-import { useModalState } from 'hooks/useModalState'
-import { useState } from 'react'
-import { Trans } from 'react-i18next'
-import { Flex, Image, Text } from 'ui/src'
-import { FeatureFlags } from 'uniswap/src/features/gating/flags'
-import { useFeatureFlag } from 'uniswap/src/features/gating/hooks'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
-import { useEvent } from 'utilities/src/react/hooks'
+import { InterfaceElementName } from '@uniswap/analytics-events';
+import UNIWALLET_ICON from 'assets/wallets/uniswap-wallet-icon.png';
+import { useAccountDrawer } from 'components/AccountDrawer/MiniPortfolio/hooks';
+import { OptionContainer } from 'components/WalletModal/UniswapWalletOptions';
+import { useModalState } from 'hooks/useModalState';
+import { useState } from 'react';
+import { Trans } from 'react-i18next';
+import { Flex, Image, Text } from 'ui/src';
+import { FeatureFlags } from 'uniswap/src/features/gating/flags';
+import { useFeatureFlag } from 'uniswap/src/features/gating/hooks';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
+import { useEvent } from 'utilities/src/react/hooks';
 
 interface BackgroundImageProps {
-  backgroundImage?: string
-  isHovered?: boolean
+  backgroundImage?: string;
+  isHovered?: boolean;
 }
 
 function BackgroundImage({ backgroundImage, isHovered }: BackgroundImageProps) {
@@ -36,20 +36,20 @@ function BackgroundImage({ backgroundImage, isHovered }: BackgroundImageProps) {
         backgroundSize: 'cover',
       }}
     />
-  )
+  );
 }
 
 export const DownloadWalletOption = () => {
-  const accountDrawer = useAccountDrawer()
-  const { openModal: openGetTheAppModal } = useModalState(ModalName.GetTheApp)
-  const isEmbeddedWalletEnabled = useFeatureFlag(FeatureFlags.EmbeddedWallet)
+  const accountDrawer = useAccountDrawer();
+  const { openModal: openGetTheAppModal } = useModalState(ModalName.GetTheApp);
+  const isEmbeddedWalletEnabled = useFeatureFlag(FeatureFlags.EmbeddedWallet);
   // Hovered state is passed from the background component to the background image which is layered underneath the option container
-  const [optionHovered, setOptionHovered] = useState(false)
+  const [optionHovered, setOptionHovered] = useState(false);
 
   const onClickDownload = useEvent(() => {
-    openGetTheAppModal()
-    accountDrawer.toggle()
-  })
+    openGetTheAppModal();
+    accountDrawer.toggle();
+  });
 
   return (
     <Trace logPress element={InterfaceElementName.EXTENSION_DOWNLOAD_CONNECTOR}>
@@ -62,9 +62,11 @@ export const DownloadWalletOption = () => {
         position="relative"
         onHoverIn={() => setOptionHovered(true)}
         onHoverOut={() => setOptionHovered(false)}
-        data-testid="download-uniswap-wallet"
-      >
-        <BackgroundImage backgroundImage="/images/extension_promo/background_connector.png" isHovered={optionHovered} />
+        data-testid="download-uniswap-wallet">
+        <BackgroundImage
+          backgroundImage="/images/extension_promo/background_connector.png"
+          isHovered={optionHovered}
+        />
         <OptionContainer onPress={onClickDownload} hideBackground>
           <Image
             src={UNIWALLET_ICON}
@@ -86,5 +88,5 @@ export const DownloadWalletOption = () => {
         </OptionContainer>
       </Flex>
     </Trace>
-  )
-}
+  );
+};

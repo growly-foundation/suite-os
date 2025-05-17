@@ -1,6 +1,6 @@
-import Column from 'components/deprecated/Column'
-import styled from 'lib/styled-components'
-import { breakpoints } from 'ui/src/theme'
+import Column from 'components/deprecated/Column';
+import styled from 'lib/styled-components';
+import { breakpoints } from 'ui/src/theme';
 
 export const NavDropdownDefaultWrapper = styled(Column)`
   width: 100%;
@@ -14,10 +14,10 @@ export const NavDropdownDefaultWrapper = styled(Column)`
   }
   max-height: inherit;
   overflow-y: auto;
-`
+`;
 export const NavDropdownTabWrapper = styled(Column)`
   min-width: 180px;
   padding: 4px;
   gap: 4px;
   position: relative;
-`
+`;

@@ -1,10 +1,18 @@
-import { LoadingRows } from 'components/Loader/styled'
-import { LoadingRow } from 'pages/Pool/Positions/shared'
-import { TopPoolsCard } from 'pages/Pool/Positions/TopPoolsCard'
-import { PoolStat } from 'state/explore/types'
-import { Flex, Text } from 'ui/src'
+import { LoadingRows } from 'components/Loader/styled';
+import { LoadingRow } from 'pages/Pool/Positions/shared';
+import { TopPoolsCard } from 'pages/Pool/Positions/TopPoolsCard';
+import { PoolStat } from 'state/explore/types';
+import { Flex, Text } from 'ui/src';
 
-export function TopPoolsSection({ pools, title, isLoading }: { pools: PoolStat[]; title: string; isLoading: boolean }) {
+export function TopPoolsSection({
+  pools,
+  title,
+  isLoading,
+}: {
+  pools: PoolStat[];
+  title: string;
+  isLoading: boolean;
+}) {
   if (isLoading) {
     return (
       <LoadingRows>
@@ -15,17 +23,17 @@ export function TopPoolsSection({ pools, title, isLoading }: { pools: PoolStat[]
         <LoadingRow />
         <LoadingRow />
       </LoadingRows>
-    )
+    );
   }
 
   return (
     <Flex gap="$gap20">
       <Text variant="subheading1">{title}</Text>
       <Flex gap="$gap12">
-        {pools.slice(0, 6).map((pool) => {
-          return <TopPoolsCard key={pool.id} pool={pool} />
+        {pools.slice(0, 6).map(pool => {
+          return <TopPoolsCard key={pool.id} pool={pool} />;
         })}
       </Flex>
     </Flex>
-  )
+  );
 }

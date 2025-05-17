@@ -1,6 +1,6 @@
-import { styled } from 'tamagui'
-import { CustomButtonFrame } from 'ui/src/components/buttons/Button/components/CustomButtonFrame/CustomButtonFrame'
-import { dropdownButtonStyledContext } from 'ui/src/components/buttons/DropdownButton/constants'
+import { styled } from 'tamagui';
+import { CustomButtonFrame } from 'ui/src/components/buttons/Button/components/CustomButtonFrame/CustomButtonFrame';
+import { dropdownButtonStyledContext } from 'ui/src/components/buttons/DropdownButton/constants';
 
 export const DropdownButtonFrame = styled(CustomButtonFrame, {
   context: dropdownButtonStyledContext,
@@ -14,10 +14,10 @@ export const DropdownButtonFrame = styled(CustomButtonFrame, {
     emphasis: {
       secondary: (_, { props }) => {
         // @ts-expect-error we know isExpanded will be DropdownButtonProps['isExpanded']
-        const isExpanded = props.isExpanded as DropdownButtonProps['isExpanded']
+        const isExpanded = props.isExpanded as DropdownButtonProps['isExpanded'];
 
         if (!isExpanded) {
-          return {}
+          return {};
         }
 
         return {
@@ -27,31 +27,31 @@ export const DropdownButtonFrame = styled(CustomButtonFrame, {
             borderColor: '$surface3Hovered',
             backgroundColor: '$transparent',
           },
-        }
+        };
       },
       tertiary: (_, { props }) => {
         // @ts-expect-error we know isExpanded will be DropdownButtonProps['isExpanded']
-        const isExpanded = props.isExpanded as DropdownButtonProps['isExpanded']
+        const isExpanded = props.isExpanded as DropdownButtonProps['isExpanded'];
 
         if (!isExpanded) {
-          return {}
+          return {};
         }
 
         return {
           backgroundColor: '$transparent',
-        }
+        };
       },
       'text-only': (_, { props }) => {
         // @ts-expect-error we know isExpanded will be DropdownButtonProps['isExpanded']
-        const isExpanded = props.isExpanded as DropdownButtonProps['isExpanded']
+        const isExpanded = props.isExpanded as DropdownButtonProps['isExpanded'];
 
         if (!isExpanded) {
-          return {}
+          return {};
         }
 
         return {
           backgroundColor: '$transparent',
-        }
+        };
       },
     },
     elementPositioning: {
@@ -59,4 +59,4 @@ export const DropdownButtonFrame = styled(CustomButtonFrame, {
       grouped: {},
     },
   } as const,
-})
+});

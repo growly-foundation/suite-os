@@ -1,24 +1,24 @@
-'use strict'
+'use strict';
 
-const { getParserServices } = require('@typescript-eslint/utils/eslint-utils')
-const ts = require('typescript')
+const { getParserServices } = require('@typescript-eslint/utils/eslint-utils');
+const ts = require('typescript');
 
 /**
  * Check if a TypeScript method declaration contains a 'this' keyword.
  */
 function methodUsesThis(tsMethod) {
-  let found = false
+  let found = false;
   function visit(node) {
     if (node.kind === ts.SyntaxKind.ThisKeyword) {
-      found = true
-      return
+      found = true;
+      return;
     }
-    ts.forEachChild(node, visit)
+    ts.forEachChild(node, visit);
   }
   if (tsMethod.body) {
-    visit(tsMethod.body)
+    visit(tsMethod.body);
   }
-  return found
+  return found;
 }
 
 /**
@@ -43,26 +43,26 @@ module.exports = {
     },
   },
   create(context) {
-    const parserServices = getParserServices(context)
-    const typeChecker = parserServices.program.getTypeChecker()
+    const parserServices = getParserServices(context);
+    const typeChecker = parserServices.program.getTypeChecker();
 
     return {
       "VariableDeclarator[id.type='ObjectPattern']"(node) {
-        const objectNode = node.init
-        if (!objectNode) return
+        const objectNode = node.init;
+        if (!objectNode) return;
 
         try {
-          const tsNode = parserServices.esTreeNodeToTSNodeMap.get(objectNode)
-          const type = typeChecker.getTypeAtLocation(tsNode)
-          const properties = type.getProperties()
+          const tsNode = parserServices.esTreeNodeToTSNodeMap.get(objectNode);
+          const type = typeChecker.getTypeAtLocation(tsNode);
+          const properties = type.getProperties();
 
           for (const prop of node.id.properties) {
-            if (prop.type !== 'Property') continue
-            const propertyName = prop.key.name
-            const symbol = properties.find((s) => s.getName() === propertyName)
-            if (!symbol) continue
+            if (prop.type !== 'Property') continue;
+            const propertyName = prop.key.name;
+            const symbol = properties.find(s => s.getName() === propertyName);
+            if (!symbol) continue;
 
-            const declarations = symbol.getDeclarations() || []
+            const declarations = symbol.getDeclarations() || [];
             for (const decl of declarations) {
               // Check method declarations (method() { ... })
               if (
@@ -75,8 +75,8 @@ module.exports = {
                   node: prop,
                   messageId: 'preventDestructure',
                   data: { name: propertyName },
-                })
-                break
+                });
+                break;
               }
               // Check property assignments with function expressions (method: function() { ... })
               if (
@@ -90,8 +90,8 @@ module.exports = {
                   node: prop,
                   messageId: 'preventDestructure',
                   data: { name: propertyName },
-                })
-                break
+                });
+                break;
               }
             }
           }
@@ -99,6 +99,6 @@ module.exports = {
           // Handle type resolution errors
         }
       },
-    }
+    };
   },
-}
+};

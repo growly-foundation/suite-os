@@ -1,26 +1,38 @@
-import { memo, useEffect, useMemo } from 'react'
-import { Pressable, StyleSheet, type PressableProps, type StyleProp, type ViewStyle } from 'react-native'
-import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
-import { Check } from 'ui/src/components/icons'
+import { memo, useEffect, useMemo } from 'react';
+import {
+  Pressable,
+  StyleSheet,
+  type PressableProps,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
+import Animated, {
+  Easing,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import { Check } from 'ui/src/components/icons';
 import {
   SWITCH_THUMB_HEIGHT,
   SWITCH_THUMB_PADDING,
   SWITCH_TRACK_HEIGHT,
   SWITCH_TRACK_WIDTH,
-} from 'ui/src/components/switch/shared'
-import type { SwitchProps } from 'ui/src/components/switch/types'
-import { useSporeColors } from 'ui/src/hooks/useSporeColors'
-import { useEvent } from 'utilities/src/react/hooks'
+} from 'ui/src/components/switch/shared';
+import type { SwitchProps } from 'ui/src/components/switch/types';
+import { useSporeColors } from 'ui/src/hooks/useSporeColors';
+import { useEvent } from 'utilities/src/react/hooks';
 
 const ANIMATION_CONFIG = {
   duration: 80,
   easing: Easing.inOut(Easing.quad),
-} as const
+} as const;
 
 type CustomSwitchProps = Pick<
   SwitchProps,
   'checked' | 'defaultChecked' | 'onCheckedChange' | 'disabled' | 'variant' | 'testID'
-> & { style?: StyleProp<ViewStyle>; pointerEvents?: Extract<SwitchProps['pointerEvents'], 'none'> }
+> & { style?: StyleProp<ViewStyle>; pointerEvents?: Extract<SwitchProps['pointerEvents'], 'none'> };
 
 export const Switch = memo(function Switch({
   checked,
@@ -32,64 +44,79 @@ export const Switch = memo(function Switch({
   testID,
   pointerEvents,
 }: CustomSwitchProps): JSX.Element {
-  const colors = useSporeColors()
-  const isBranded = variant === 'branded'
-  const progress = useSharedValue(checked ?? defaultChecked ? 1 : 0)
+  const colors = useSporeColors();
+  const isBranded = variant === 'branded';
+  const progress = useSharedValue((checked ?? defaultChecked) ? 1 : 0);
 
   useEffect(() => {
     if (checked !== undefined && checked !== (progress.value === 1)) {
-      progress.value = withTiming(checked ? 1 : 0, ANIMATION_CONFIG)
+      progress.value = withTiming(checked ? 1 : 0, ANIMATION_CONFIG);
     }
-  }, [checked, progress])
+  }, [checked, progress]);
 
   const trackStyle = useAnimatedStyle(() => {
-    const isOn = progress.value
+    const isOn = progress.value;
     return {
-      backgroundColor: withTiming(getTrackColor(isOn, disabled, isBranded, colors), ANIMATION_CONFIG),
+      backgroundColor: withTiming(
+        getTrackColor(isOn, disabled, isBranded, colors),
+        ANIMATION_CONFIG
+      ),
       opacity: disabled && isOn ? 0.6 : 1,
-    }
-  })
+    };
+  });
 
   const thumbStyle = useAnimatedStyle(() => {
-    const isOn = progress.value
+    const isOn = progress.value;
     return {
       transform: [
         {
           translateX: withTiming(
-            interpolate(isOn, [0, 1], [0, SWITCH_TRACK_WIDTH - SWITCH_THUMB_HEIGHT - SWITCH_THUMB_PADDING * 2]),
-            ANIMATION_CONFIG,
+            interpolate(
+              isOn,
+              [0, 1],
+              [0, SWITCH_TRACK_WIDTH - SWITCH_THUMB_HEIGHT - SWITCH_THUMB_PADDING * 2]
+            ),
+            ANIMATION_CONFIG
           ),
         },
       ],
-      backgroundColor: withTiming(getThumbColor(isOn, disabled, isBranded, colors), ANIMATION_CONFIG),
-    }
-  })
+      backgroundColor: withTiming(
+        getThumbColor(isOn, disabled, isBranded, colors),
+        ANIMATION_CONFIG
+      ),
+    };
+  });
 
   const iconStyle = useAnimatedStyle(() => {
-    const isOn = progress.value
+    const isOn = progress.value;
     return {
       opacity: withTiming(isOn, ANIMATION_CONFIG),
-    }
-  })
+    };
+  });
 
   const handlePress = useEvent((): void => {
     if (disabled) {
-      return
+      return;
     }
-    const newValue = progress.value === 0
-    progress.value = withTiming(newValue ? 1 : 0, ANIMATION_CONFIG)
+    const newValue = progress.value === 0;
+    progress.value = withTiming(newValue ? 1 : 0, ANIMATION_CONFIG);
     requestAnimationFrame(() => {
-      onCheckedChange?.(newValue)
-    })
-  })
+      onCheckedChange?.(newValue);
+    });
+  });
 
   const containerStyle: PressableProps['style'] = useMemo(
     () => (pointerEvents === 'none' ? { pointerEvents: 'none' } : {}),
-    [pointerEvents],
-  )
+    [pointerEvents]
+  );
 
   return (
-    <Pressable disabled={disabled} hitSlop={12} style={containerStyle} testID={testID} onPress={handlePress}>
+    <Pressable
+      disabled={disabled}
+      hitSlop={12}
+      style={containerStyle}
+      testID={testID}
+      onPress={handlePress}>
       <Animated.View style={[styles.track, style, trackStyle]}>
         <Animated.View style={[styles.thumb, thumbStyle]}>
           <Animated.View style={[styles.iconContainer, iconStyle]}>
@@ -98,50 +125,50 @@ export const Switch = memo(function Switch({
         </Animated.View>
       </Animated.View>
     </Pressable>
-  )
-})
+  );
+});
 
 // Shared worklets for color calculations
 function getTrackColor(
   isOn: number,
   disabled: boolean | undefined,
   isBranded: boolean,
-  colors: ReturnType<typeof useSporeColors>,
+  colors: ReturnType<typeof useSporeColors>
 ): string {
-  'worklet'
+  'worklet';
   if (disabled && !isOn) {
-    return colors.surface3.val
+    return colors.surface3.val;
   }
   if (isBranded) {
-    return isOn ? colors.accent1.val : colors.neutral3.val
+    return isOn ? colors.accent1.val : colors.neutral3.val;
   }
-  return isOn ? colors.accent3.val : colors.neutral3.val
+  return isOn ? colors.accent3.val : colors.neutral3.val;
 }
 
 function getThumbColor(
   isOn: number,
   disabled: boolean | undefined,
   isBranded: boolean,
-  colors: ReturnType<typeof useSporeColors>,
+  colors: ReturnType<typeof useSporeColors>
 ): string {
-  'worklet'
+  'worklet';
   if (disabled && !isOn) {
-    return colors.neutral3.val
+    return colors.neutral3.val;
   }
-  return colors.white.val
+  return colors.white.val;
 }
 
 function getIconColor(
   isOn: number,
   disabled: boolean | undefined,
   isBranded: boolean,
-  colors: ReturnType<typeof useSporeColors>,
+  colors: ReturnType<typeof useSporeColors>
 ): string {
-  'worklet'
+  'worklet';
   if (disabled && !isOn) {
-    return colors.white.val
+    return colors.white.val;
   }
-  return isBranded ? colors.accent1.val : colors.neutral1.val
+  return isBranded ? colors.accent1.val : colors.neutral1.val;
 }
 
 const styles = StyleSheet.create({
@@ -165,4 +192,4 @@ const styles = StyleSheet.create({
     padding: SWITCH_THUMB_PADDING,
     width: SWITCH_TRACK_WIDTH,
   },
-})
+});

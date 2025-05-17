@@ -22,11 +22,12 @@ export default function WorkflowManager() {
     workflowStatus,
     organizationWorkflows: workflows,
     fetchOrganizationWorkflows: fetchWorkflows,
+    selectedOrganization,
   } = useDashboardState();
 
   useEffect(() => {
     fetchWorkflows();
-  }, []);
+  }, [fetchWorkflows, selectedOrganization]);
 
   return (
     <div className="p-6 space-y-6">

@@ -1,8 +1,8 @@
-import { Placement } from '@popperjs/core'
-import { MouseoverTooltip } from 'components/Tooltip'
-import { ReactNode, useCallback, useState } from 'react'
-import { Flex, styled } from 'ui/src'
-import { InfoCircleFilled } from 'ui/src/components/icons/InfoCircleFilled'
+import { Placement } from '@popperjs/core';
+import { MouseoverTooltip } from 'components/Tooltip';
+import { ReactNode, useCallback, useState } from 'react';
+import { Flex, styled } from 'ui/src';
+import { InfoCircleFilled } from 'ui/src/components/icons/InfoCircleFilled';
 
 const InfoIconWrapper = styled(Flex, {
   alignItems: 'center',
@@ -16,21 +16,21 @@ const InfoIconWrapper = styled(Flex, {
   hoverStyle: {
     opacity: 0.7,
   },
-})
+});
 
 export default function QuestionHelper({
   text,
   size = 16,
   placement,
 }: {
-  text: ReactNode
-  size?: number
-  placement?: Placement
+  text: ReactNode;
+  size?: number;
+  placement?: Placement;
 }) {
-  const [show, setShow] = useState<boolean>(false)
+  const [show, setShow] = useState<boolean>(false);
 
-  const open = useCallback(() => setShow(true), [setShow])
-  const close = useCallback(() => setShow(false), [setShow])
+  const open = useCallback(() => setShow(true), [setShow]);
+  const close = useCallback(() => setShow(false), [setShow]);
   return (
     <Flex ml="$spacing4" alignItems="center">
       <MouseoverTooltip text={text} forceShow={show} placement={placement}>
@@ -39,5 +39,5 @@ export default function QuestionHelper({
         </InfoIconWrapper>
       </MouseoverTooltip>
     </Flex>
-  )
+  );
 }

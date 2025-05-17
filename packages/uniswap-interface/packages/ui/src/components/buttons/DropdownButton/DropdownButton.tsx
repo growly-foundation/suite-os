@@ -1,98 +1,119 @@
-import { Fragment, cloneElement, forwardRef, useMemo } from 'react'
-import { TamaguiElement, withStaticProperties } from 'tamagui'
-import { ThemedIcon } from 'ui/src/components/buttons/Button/components/ThemedIcon'
-import { useIsStringOrTransTag } from 'ui/src/components/buttons/Button/hooks/useIsStringOrTransTag'
-import { getIconPosition } from 'ui/src/components/buttons/Button/utils/getIconPosition'
-import { getIsButtonDisabled } from 'ui/src/components/buttons/Button/utils/getIsButtonDisabled'
-import { DropdownButtonFrame } from 'ui/src/components/buttons/DropdownButton/DropdownButtonFrame'
-import { DropdownButtonText } from 'ui/src/components/buttons/DropdownButton/DropdownButtonText'
-import { EXPANDED_COLOR, EXPANDED_HOVER_COLOR } from 'ui/src/components/buttons/DropdownButton/constants'
-import { DropdownButtonProps } from 'ui/src/components/buttons/DropdownButton/types'
-import { IconProps } from 'ui/src/components/factories/createIcon'
-import { RotatableChevron } from 'ui/src/components/icons'
-import { Flex } from 'ui/src/components/layout/Flex'
+import { Fragment, cloneElement, forwardRef, useMemo } from 'react';
+import { TamaguiElement, withStaticProperties } from 'tamagui';
+import { ThemedIcon } from 'ui/src/components/buttons/Button/components/ThemedIcon';
+import { useIsStringOrTransTag } from 'ui/src/components/buttons/Button/hooks/useIsStringOrTransTag';
+import { getIconPosition } from 'ui/src/components/buttons/Button/utils/getIconPosition';
+import { getIsButtonDisabled } from 'ui/src/components/buttons/Button/utils/getIsButtonDisabled';
+import { DropdownButtonFrame } from 'ui/src/components/buttons/DropdownButton/DropdownButtonFrame';
+import { DropdownButtonText } from 'ui/src/components/buttons/DropdownButton/DropdownButtonText';
+import {
+  EXPANDED_COLOR,
+  EXPANDED_HOVER_COLOR,
+} from 'ui/src/components/buttons/DropdownButton/constants';
+import { DropdownButtonProps } from 'ui/src/components/buttons/DropdownButton/types';
+import { IconProps } from 'ui/src/components/factories/createIcon';
+import { RotatableChevron } from 'ui/src/components/icons';
+import { Flex } from 'ui/src/components/layout/Flex';
 
 type LeftContainerProps = Pick<DropdownButtonProps, 'elementPositioning' | 'children' | 'icon'> & {
-  label: DropdownButtonProps['children']
-}
+  label: DropdownButtonProps['children'];
+};
 
-const LeftContainer = ({ elementPositioning, children, icon, label }: LeftContainerProps): JSX.Element => {
+const LeftContainer = ({
+  elementPositioning,
+  children,
+  icon,
+  label,
+}: LeftContainerProps): JSX.Element => {
   if (elementPositioning === 'grouped' && icon && label) {
     return (
       <Flex row alignItems="center" gap="$gap12">
         {children}
       </Flex>
-    )
+    );
   }
 
-  return <Fragment>{children}</Fragment>
-}
+  return <Fragment>{children}</Fragment>;
+};
 
-const DropdownButtonComponent = forwardRef<TamaguiElement, DropdownButtonProps>(function DropdownButton(
-  { children, emphasis = 'secondary', icon, isDisabled, elementPositioning = 'equal', isExpanded, ...props },
-  ref,
-) {
-  const disabled = getIsButtonDisabled({ isDisabled, loading: undefined })
-  const isStringOrTransTag = useIsStringOrTransTag(children)
+const DropdownButtonComponent = forwardRef<TamaguiElement, DropdownButtonProps>(
+  function DropdownButton(
+    {
+      children,
+      emphasis = 'secondary',
+      icon,
+      isDisabled,
+      elementPositioning = 'equal',
+      isExpanded,
+      ...props
+    },
+    ref
+  ) {
+    const disabled = getIsButtonDisabled({ isDisabled, loading: undefined });
+    const isStringOrTransTag = useIsStringOrTransTag(children);
 
-  /* When a `dropdownSelector` has an icon and text (children), we need to add a flexGrow={1} to the Flex to make sure the icon, text, and right chevron are equally spaced */
-  const SpacingElement = useMemo(() => {
-    return elementPositioning !== 'grouped' && icon && children ? <Flex flexGrow={1} /> : null
-  }, [elementPositioning, icon, children])
+    /* When a `dropdownSelector` has an icon and text (children), we need to add a flexGrow={1} to the Flex to make sure the icon, text, and right chevron are equally spaced */
+    const SpacingElement = useMemo(() => {
+      return elementPositioning !== 'grouped' && icon && children ? <Flex flexGrow={1} /> : null;
+    }, [elementPositioning, icon, children]);
 
-  const iconGroupItemHover: IconProps['$group-item-hover'] = useMemo(
-    () =>
-      isExpanded
-        ? {
-            color: EXPANDED_HOVER_COLOR,
-          }
-        : undefined,
-    [isExpanded],
-  )
-  const iconColor = isExpanded ? EXPANDED_COLOR : undefined
+    const iconGroupItemHover: IconProps['$group-item-hover'] = useMemo(
+      () =>
+        isExpanded
+          ? {
+              color: EXPANDED_HOVER_COLOR,
+            }
+          : undefined,
+      [isExpanded]
+    );
+    const iconColor = isExpanded ? EXPANDED_COLOR : undefined;
 
-  return (
-    <DropdownButtonFrame
-      ref={ref}
-      iconPosition={getIconPosition('before')}
-      emphasis={emphasis}
-      isDisabled={disabled}
-      isExpanded={isExpanded}
-      {...props}
-    >
-      <LeftContainer icon={icon} elementPositioning={elementPositioning} label={children}>
+    return (
+      <DropdownButtonFrame
+        ref={ref}
+        iconPosition={getIconPosition('before')}
+        emphasis={emphasis}
+        isDisabled={disabled}
+        isExpanded={isExpanded}
+        {...props}>
+        <LeftContainer icon={icon} elementPositioning={elementPositioning} label={children}>
+          <ThemedIcon
+            isDisabled={isDisabled}
+            emphasis={emphasis}
+            size={props.size}
+            variant="default"
+            typeOfButton="button">
+            {icon
+              ? cloneElement(icon, {
+                  color: iconColor,
+                  '$group-item-hover': iconGroupItemHover,
+                })
+              : undefined}
+          </ThemedIcon>
+          {SpacingElement}
+
+          {isStringOrTransTag ? <DropdownButtonText>{children}</DropdownButtonText> : children}
+        </LeftContainer>
+
+        {SpacingElement}
+
         <ThemedIcon
           isDisabled={isDisabled}
           emphasis={emphasis}
           size={props.size}
           variant="default"
-          typeOfButton="button"
-        >
-          {icon
-            ? cloneElement(icon, {
-                color: iconColor,
-                '$group-item-hover': iconGroupItemHover,
-              })
-            : undefined}
+          typeOfButton="button">
+          <RotatableChevron
+            color={iconColor}
+            animation="fast"
+            direction={isExpanded ? 'up' : 'down'}
+            $group-item-hover={iconGroupItemHover}
+          />
         </ThemedIcon>
-        {SpacingElement}
-
-        {isStringOrTransTag ? <DropdownButtonText>{children}</DropdownButtonText> : children}
-      </LeftContainer>
-
-      {SpacingElement}
-
-      <ThemedIcon isDisabled={isDisabled} emphasis={emphasis} size={props.size} variant="default" typeOfButton="button">
-        <RotatableChevron
-          color={iconColor}
-          animation="fast"
-          direction={isExpanded ? 'up' : 'down'}
-          $group-item-hover={iconGroupItemHover}
-        />
-      </ThemedIcon>
-    </DropdownButtonFrame>
-  )
-})
+      </DropdownButtonFrame>
+    );
+  }
+);
 
 /**
  * A dropdown button component that can be used to select an option from a dropdown menu.
@@ -108,4 +129,4 @@ export const DropdownButton = withStaticProperties(DropdownButtonComponent, {
   Text: DropdownButtonText,
   Icon: ThemedIcon,
   Chevron: RotatableChevron,
-})
+});

@@ -1,37 +1,37 @@
-import { usePoolData } from 'graphql/data/pools/usePoolData'
-import PoolDetails from 'pages/PoolDetails'
-import Router from 'react-router-dom'
-import store from 'state'
-import { mocked } from 'test-utils/mocked'
-import { validParams, validPoolDataResponse } from 'test-utils/pools/fixtures'
-import { render, screen, waitFor } from 'test-utils/render'
-import { dismissTokenWarning } from 'uniswap/src/features/tokens/slice/slice'
+import { usePoolData } from 'graphql/data/pools/usePoolData';
+import PoolDetails from 'pages/PoolDetails';
+import Router from 'react-router-dom';
+import store from 'state';
+import { mocked } from 'test-utils/mocked';
+import { validParams, validPoolDataResponse } from 'test-utils/pools/fixtures';
+import { render, screen, waitFor } from 'test-utils/render';
+import { dismissTokenWarning } from 'uniswap/src/features/tokens/slice/slice';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: jest.fn(),
-}))
+}));
 
 jest.mock('graphql/data/pools/usePoolData', () => {
-  const originalModule = jest.requireActual('graphql/data/pools/usePoolData')
+  const originalModule = jest.requireActual('graphql/data/pools/usePoolData');
   return {
     ...originalModule,
     usePoolData: jest.fn(),
-  }
-})
+  };
+});
 
 jest.mock('hooks/useColor', () => {
-  const originalModule = jest.requireActual('hooks/useColor')
+  const originalModule = jest.requireActual('hooks/useColor');
   return {
     ...originalModule,
     useColor: jest.fn().mockReturnValue('#FFFFFF'),
-  }
-})
+  };
+});
 
 describe('PoolDetailsPage', () => {
   beforeEach(() => {
-    jest.spyOn(Router, 'useParams').mockReturnValue(validParams)
-    mocked(usePoolData).mockReturnValue(validPoolDataResponse)
+    jest.spyOn(Router, 'useParams').mockReturnValue(validParams);
+    mocked(usePoolData).mockReturnValue(validPoolDataResponse);
     store.dispatch(
       dismissTokenWarning({
         token: {
@@ -41,8 +41,8 @@ describe('PoolDetailsPage', () => {
           name: 'USD Coin',
           decimals: 6,
         },
-      }),
-    )
+      })
+    );
     store.dispatch(
       dismissTokenWarning({
         token: {
@@ -52,62 +52,62 @@ describe('PoolDetailsPage', () => {
           name: 'Wrapped Ether',
           decimals: 18,
         },
-      }),
-    )
-  })
+      })
+    );
+  });
 
   it('not found page displayed when given no poolAddress', () => {
-    jest.spyOn(Router, 'useParams').mockReturnValue({ chainName: validParams.chainName })
-    render(<PoolDetails />)
+    jest.spyOn(Router, 'useParams').mockReturnValue({ chainName: validParams.chainName });
+    render(<PoolDetails />);
 
     waitFor(() => {
-      expect(screen.getByText(/not found/i)).toBeInTheDocument()
-    })
-  })
+      expect(screen.getByText(/not found/i)).toBeInTheDocument();
+    });
+  });
 
   it('not found page displayed when given no chainName', () => {
-    jest.spyOn(Router, 'useParams').mockReturnValue({ poolAddress: validParams.poolAddress })
-    render(<PoolDetails />)
+    jest.spyOn(Router, 'useParams').mockReturnValue({ poolAddress: validParams.poolAddress });
+    render(<PoolDetails />);
 
     waitFor(() => {
-      expect(screen.getByText(/not found/i)).toBeInTheDocument()
-    })
-  })
+      expect(screen.getByText(/not found/i)).toBeInTheDocument();
+    });
+  });
 
   it('not found page displayed when given invalid chainName', () => {
     jest
       .spyOn(Router, 'useParams')
-      .mockReturnValue({ poolAddress: validParams.poolAddress, chainName: 'invalid-chain' })
-    render(<PoolDetails />)
+      .mockReturnValue({ poolAddress: validParams.poolAddress, chainName: 'invalid-chain' });
+    render(<PoolDetails />);
 
     waitFor(() => {
-      expect(screen.getByText(/not found/i)).toBeInTheDocument()
-    })
-  })
+      expect(screen.getByText(/not found/i)).toBeInTheDocument();
+    });
+  });
 
   it('not found page displayed when no data is received from backend', () => {
     mocked(usePoolData).mockReturnValue({
       data: undefined,
       loading: false,
       error: false,
-    })
-    render(<PoolDetails />)
+    });
+    render(<PoolDetails />);
 
     waitFor(() => {
-      expect(screen.getByText(/not found/i)).toBeInTheDocument()
-    })
-  })
+      expect(screen.getByText(/not found/i)).toBeInTheDocument();
+    });
+  });
 
   it('nothing displayed while data is loading', () => {
     mocked(usePoolData).mockReturnValue({
       data: undefined,
       loading: true,
       error: false,
-    })
-    render(<PoolDetails />)
+    });
+    render(<PoolDetails />);
 
     waitFor(() => {
-      expect(screen.getByTestId('pdp-links-loading-skeleton')).toBeInTheDocument()
-    })
-  })
-})
+      expect(screen.getByTestId('pdp-links-loading-skeleton')).toBeInTheDocument();
+    });
+  });
+});

@@ -1,16 +1,16 @@
-import { ErrorCallout } from 'components/ErrorCallout'
-import { useCreatePositionContext } from 'pages/Pool/Positions/create/CreatePositionContext'
-import { useTranslation } from 'react-i18next'
+import { ErrorCallout } from 'components/ErrorCallout';
+import { useCreatePositionContext } from 'pages/Pool/Positions/create/CreatePositionContext';
+import { useTranslation } from 'react-i18next';
 
 export function PoolOutOfSyncError() {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const {
     derivedPositionInfo: { isPoolOutOfSync, refetchPoolData },
-  } = useCreatePositionContext()
+  } = useCreatePositionContext();
 
   if (!isPoolOutOfSync) {
-    return null
+    return null;
   }
 
   return (
@@ -22,5 +22,5 @@ export function PoolOutOfSyncError() {
       action={t('pool.refresh.prices')}
       onPress={refetchPoolData}
     />
-  )
+  );
 }

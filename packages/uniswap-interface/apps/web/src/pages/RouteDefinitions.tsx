@@ -1,57 +1,65 @@
-import { getExploreDescription, getExploreTitle } from 'pages/getExploreTitle'
-import { getAddLiquidityPageTitle, getPositionPageDescription, getPositionPageTitle } from 'pages/getPositionPageTitle'
-import { ReactNode, Suspense, lazy, useMemo } from 'react'
-import { Navigate, Route, Routes, matchPath, useLocation } from 'react-router-dom'
-import { EXTENSION_PASSKEY_AUTH_PATH } from 'uniswap/src/features/passkey/constants'
-import { isBrowserRouterEnabled } from 'utils/env'
+import { getExploreDescription, getExploreTitle } from 'pages/getExploreTitle';
+import {
+  getAddLiquidityPageTitle,
+  getPositionPageDescription,
+  getPositionPageTitle,
+} from 'pages/getPositionPageTitle';
+import { ReactNode, Suspense, lazy, useMemo } from 'react';
+import { Navigate, Route, Routes, matchPath, useLocation } from 'react-router-dom';
+import { EXTENSION_PASSKEY_AUTH_PATH } from 'uniswap/src/features/passkey/constants';
+import { isBrowserRouterEnabled } from 'utils/env';
 // High-traffic pages (index and /swap) should not be lazy-loaded.
-import Landing from 'pages/Landing'
-import Swap from 'pages/Swap'
-import { FeatureFlags } from 'uniswap/src/features/gating/flags'
-import { useFeatureFlag } from 'uniswap/src/features/gating/hooks'
-import i18n from 'uniswap/src/i18n'
+import Landing from 'pages/Landing';
+import Swap from 'pages/Swap';
+import { FeatureFlags } from 'uniswap/src/features/gating/flags';
+import { useFeatureFlag } from 'uniswap/src/features/gating/hooks';
+import i18n from 'uniswap/src/i18n';
 
-const CreatePosition = lazy(() => import('pages/Pool/Positions/create/CreatePosition'))
-const AddLiquidityV3WithTokenRedirects = lazy(() => import('pages/AddLiquidityV3/redirects'))
-const AddLiquidityV2WithTokenRedirects = lazy(() => import('pages/AddLiquidityV2/redirects'))
-const RedirectExplore = lazy(() => import('pages/Explore/redirects'))
-const MigrateV2 = lazy(() => import('pages/MigrateV2'))
-const MigrateV2Pair = lazy(() => import('pages/MigrateV2/MigrateV2Pair'))
-const MigrateV3 = lazy(() => import('pages/MigrateV3'))
-const NotFound = lazy(() => import('pages/NotFound'))
-const Pool = lazy(() => import('pages/Pool'))
+const CreatePosition = lazy(() => import('pages/Pool/Positions/create/CreatePosition'));
+const AddLiquidityV3WithTokenRedirects = lazy(() => import('pages/AddLiquidityV3/redirects'));
+const AddLiquidityV2WithTokenRedirects = lazy(() => import('pages/AddLiquidityV2/redirects'));
+const RedirectExplore = lazy(() => import('pages/Explore/redirects'));
+const MigrateV2 = lazy(() => import('pages/MigrateV2'));
+const MigrateV2Pair = lazy(() => import('pages/MigrateV2/MigrateV2Pair'));
+const MigrateV3 = lazy(() => import('pages/MigrateV3'));
+const NotFound = lazy(() => import('pages/NotFound'));
+const Pool = lazy(() => import('pages/Pool'));
 const LegacyPoolRedirects = lazy(() =>
-  import('pages/LegacyPool/redirects').then((module) => ({ default: module.LegacyPoolRedirects })),
-)
+  import('pages/LegacyPool/redirects').then(module => ({ default: module.LegacyPoolRedirects }))
+);
 const PoolFinderRedirects = lazy(() =>
-  import('pages/LegacyPool/redirects').then((module) => ({ default: module.PoolFinderRedirects })),
-)
+  import('pages/LegacyPool/redirects').then(module => ({ default: module.PoolFinderRedirects }))
+);
 const LegacyPositionPageRedirects = lazy(() =>
-  import('pages/LegacyPool/redirects').then((module) => ({ default: module.LegacyPositionPageRedirects })),
-)
+  import('pages/LegacyPool/redirects').then(module => ({
+    default: module.LegacyPositionPageRedirects,
+  }))
+);
 const RemoveLiquidityV2WithTokenRedirects = lazy(() =>
-  import('pages/LegacyPool/redirects').then((module) => ({ default: module.RemoveLiquidityV2WithTokenRedirects })),
-)
-const PositionPage = lazy(() => import('pages/Pool/Positions/PositionPage'))
-const V2PositionPage = lazy(() => import('pages/Pool/Positions/V2PositionPage'))
-const PoolDetails = lazy(() => import('pages/PoolDetails'))
-const TokenDetails = lazy(() => import('pages/TokenDetails'))
-const ExtensionPasskeyAuthPopUp = lazy(() => import('pages/ExtensionPasskeyAuthPopUp'))
-const PasskeyManagement = lazy(() => import('pages/PasskeyManagement'))
+  import('pages/LegacyPool/redirects').then(module => ({
+    default: module.RemoveLiquidityV2WithTokenRedirects,
+  }))
+);
+const PositionPage = lazy(() => import('pages/Pool/Positions/PositionPage'));
+const V2PositionPage = lazy(() => import('pages/Pool/Positions/V2PositionPage'));
+const PoolDetails = lazy(() => import('pages/PoolDetails'));
+const TokenDetails = lazy(() => import('pages/TokenDetails'));
+const ExtensionPasskeyAuthPopUp = lazy(() => import('pages/ExtensionPasskeyAuthPopUp'));
+const PasskeyManagement = lazy(() => import('pages/PasskeyManagement'));
 
 interface RouterConfig {
-  browserRouterEnabled?: boolean
-  hash?: string
-  isEmbeddedWalletEnabled?: boolean
+  browserRouterEnabled?: boolean;
+  hash?: string;
+  isEmbeddedWalletEnabled?: boolean;
 }
 
 /**
  * Convenience hook which organizes the router configuration into a single object.
  */
 export function useRouterConfig(): RouterConfig {
-  const browserRouterEnabled = isBrowserRouterEnabled()
-  const { hash } = useLocation()
-  const isEmbeddedWalletEnabled = useFeatureFlag(FeatureFlags.EmbeddedWallet)
+  const browserRouterEnabled = isBrowserRouterEnabled();
+  const { hash } = useLocation();
+  const isEmbeddedWalletEnabled = useFeatureFlag(FeatureFlags.EmbeddedWallet);
 
   return useMemo(
     () => ({
@@ -59,8 +67,8 @@ export function useRouterConfig(): RouterConfig {
       hash,
       isEmbeddedWalletEnabled,
     }),
-    [browserRouterEnabled, hash, isEmbeddedWalletEnabled],
-  )
+    [browserRouterEnabled, hash, isEmbeddedWalletEnabled]
+  );
 }
 
 // SEO titles and descriptions sourced from https://docs.google.com/spreadsheets/d/1_6vSxGgmsx6QGEZ4mdHppv1VkuiJEro3Y_IopxUHGB4/edit#gid=0
@@ -78,15 +86,15 @@ const StaticTitlesAndDescriptions = {
   MigrateDescriptionV4: i18n.t('title.easilyRemoveV4'),
   AddLiquidityDescription: i18n.t('title.earnFees'),
   PasskeyManagementTitle: i18n.t('title.managePasskeys'),
-}
+};
 
 export interface RouteDefinition {
-  path: string
-  nestedPaths: string[]
-  getTitle: (path?: string) => string
-  getDescription: (path?: string) => string
-  enabled: (args: RouterConfig) => boolean
-  getElement: (args: RouterConfig) => ReactNode
+  path: string;
+  nestedPaths: string[];
+  getTitle: (path?: string) => string;
+  getDescription: (path?: string) => string;
+  enabled: (args: RouterConfig) => boolean;
+  getElement: (args: RouterConfig) => ReactNode;
 }
 
 // Assigns the defaults to the route definition.
@@ -100,7 +108,7 @@ function createRouteDefinition(route: Partial<RouteDefinition>): RouteDefinition
     nestedPaths: [],
     // overwrite the defaults
     ...route,
-  }
+  };
 }
 
 export const routes: RouteDefinition[] = [
@@ -108,8 +116,12 @@ export const routes: RouteDefinition[] = [
     path: '/',
     getTitle: () => StaticTitlesAndDescriptions.UniswapTitle,
     getDescription: () => StaticTitlesAndDescriptions.SwapDescription,
-    getElement: (args) => {
-      return args.browserRouterEnabled && args.hash ? <Navigate to={args.hash.replace('#', '')} replace /> : <Landing />
+    getElement: args => {
+      return args.browserRouterEnabled && args.hash ? (
+        <Navigate to={args.hash.replace('#', '')} replace />
+      ) : (
+        <Landing />
+      );
     },
   }),
   createRouteDefinition({
@@ -163,12 +175,11 @@ export const routes: RouteDefinition[] = [
           <Route
             path="*"
             Component={() => {
-              window.location.href = 'https://vote.uniswapfoundation.org'
-              return null
-            }}
-          ></Route>
+              window.location.href = 'https://vote.uniswapfoundation.org';
+              return null;
+            }}></Route>
         </Routes>
-      )
+      );
     },
   }),
   createRouteDefinition({
@@ -340,25 +351,25 @@ export const routes: RouteDefinition[] = [
     path: '/manage/passkey/:walletAddress',
     getElement: () => <PasskeyManagement />,
     getTitle: () => StaticTitlesAndDescriptions.PasskeyManagementTitle,
-    enabled: (args) => args.isEmbeddedWalletEnabled ?? false,
+    enabled: args => args.isEmbeddedWalletEnabled ?? false,
   }),
   createRouteDefinition({ path: '*', getElement: () => <Navigate to="/not-found" replace /> }),
   createRouteDefinition({ path: '/not-found', getElement: () => <NotFound /> }),
-]
+];
 
 export const findRouteByPath = (pathname: string) => {
   for (const route of routes) {
-    const match = matchPath(route.path, pathname)
+    const match = matchPath(route.path, pathname);
     if (match) {
-      return route
+      return route;
     }
-    const subPaths = route.nestedPaths.map((nestedPath) => `${route.path}/${nestedPath}`)
+    const subPaths = route.nestedPaths.map(nestedPath => `${route.path}/${nestedPath}`);
     for (const subPath of subPaths) {
-      const match = matchPath(subPath, pathname)
+      const match = matchPath(subPath, pathname);
       if (match) {
-        return route
+        return route;
       }
     }
   }
-  return undefined
-}
+  return undefined;
+};

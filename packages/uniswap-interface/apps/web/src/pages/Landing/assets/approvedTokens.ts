@@ -1,6 +1,6 @@
-import ethereumLogo from 'assets/images/ethereum-logo.png'
-import { NATIVE_CHAIN_ID } from 'constants/tokens'
-import { Chain } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
+import ethereumLogo from 'assets/images/ethereum-logo.png';
+import { NATIVE_CHAIN_ID } from 'constants/tokens';
+import { Chain } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
 
 export enum TokenStandard {
   ERC20 = 0,
@@ -8,13 +8,13 @@ export enum TokenStandard {
 }
 
 export interface InteractiveToken {
-  name: string
-  symbol: string
-  address: string
-  chain: Chain
-  standard: TokenStandard
-  color: string
-  logoUrl: string
+  name: string;
+  symbol: string;
+  address: string;
+  chain: Chain;
+  standard: TokenStandard;
+  color: string;
+  logoUrl: string;
 }
 
 export const approvedERC20: InteractiveToken[] = [
@@ -237,7 +237,7 @@ export const approvedERC20: InteractiveToken[] = [
     chain: Chain.Ethereum,
     standard: TokenStandard.ERC20,
   },
-]
+];
 
 export const approvedERC721: InteractiveToken[] = [
   {
@@ -347,7 +347,8 @@ export const approvedERC721: InteractiveToken[] = [
     chain: Chain.Ethereum,
     standard: TokenStandard.ERC721,
     color: '#92CEA8',
-    logoUrl: 'https://i.seadn.io/gcs/files/fedec03593a44488bc31f6365781069a.png?auto=format&dpr=1&w=512',
+    logoUrl:
+      'https://i.seadn.io/gcs/files/fedec03593a44488bc31f6365781069a.png?auto=format&dpr=1&w=512',
   },
   {
     name: 'Bibos',
@@ -359,4 +360,4 @@ export const approvedERC721: InteractiveToken[] = [
     chain: Chain.Ethereum,
     standard: TokenStandard.ERC721,
   },
-]
+];

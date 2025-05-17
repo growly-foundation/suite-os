@@ -1,6 +1,6 @@
 // this allows us to use es6, es2017, es2018 syntax (const, spread operators outside of array literals, etc.)
 /* eslint-env es6, es2017, es2018 */
-const globals = require('./globals')
+const globals = require('./globals');
 
 /** @type any */
 module.exports = {
@@ -19,7 +19,19 @@ module.exports = {
   //   '<rootDir>/packages/**/src/**/*.ts',
   // ],
   moduleDirectories: ['node_modules', 'src'],
-  moduleFileExtensions: ['jest.tsx', 'jest.ts', 'ts', 'tsx', 'js', 'mjs', 'cjs', 'jsx', 'json', 'node', 'mp4'],
+  moduleFileExtensions: [
+    'jest.tsx',
+    'jest.ts',
+    'ts',
+    'tsx',
+    'js',
+    'mjs',
+    'cjs',
+    'jsx',
+    'json',
+    'node',
+    'mp4',
+  ],
   moduleNameMapper: {
     '.+\\.(css|style|less|sass|scss|png|jpg|ttf|woff|woff2|mp4)$': 'jest-transform-stub',
     // Jest by default doesn't support absolute imports out of the box
@@ -38,4 +50,4 @@ module.exports = {
   collectCoverage: false, // only collect in CI
   clearMocks: true,
   ...globals,
-}
+};

@@ -1,18 +1,18 @@
-import { HEADER_DESCRIPTIONS } from 'components/Tokens/TokenTable'
-import { UNSUPPORTED_METADATA_CHAINS } from 'components/Tokens/constants'
-import { TokenSortMethod } from 'components/Tokens/state'
-import { MouseoverTooltip } from 'components/Tooltip'
-import { TokenQueryData } from 'graphql/data/Token'
-import styled from 'lib/styled-components'
-import { ReactNode } from 'react'
-import { Trans } from 'react-i18next'
-import { ThemedText } from 'theme/components'
-import { ExternalLink } from 'theme/components/Links'
-import { textFadeIn } from 'theme/styles'
-import { getChainInfo } from 'uniswap/src/features/chains/chainInfo'
-import { useIsSupportedChainId } from 'uniswap/src/features/chains/hooks/useSupportedChainId'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { NumberType, useFormatter } from 'utils/formatNumbers'
+import { HEADER_DESCRIPTIONS } from 'components/Tokens/TokenTable';
+import { UNSUPPORTED_METADATA_CHAINS } from 'components/Tokens/constants';
+import { TokenSortMethod } from 'components/Tokens/state';
+import { MouseoverTooltip } from 'components/Tooltip';
+import { TokenQueryData } from 'graphql/data/Token';
+import styled from 'lib/styled-components';
+import { ReactNode } from 'react';
+import { Trans } from 'react-i18next';
+import { ThemedText } from 'theme/components';
+import { ExternalLink } from 'theme/components/Links';
+import { textFadeIn } from 'theme/styles';
+import { getChainInfo } from 'uniswap/src/features/chains/chainInfo';
+import { useIsSupportedChainId } from 'uniswap/src/features/chains/hooks/useSupportedChainId';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import { NumberType, useFormatter } from 'utils/formatNumbers';
 
 export const StatWrapper = styled.div`
   color: ${({ theme }) => theme.neutral2};
@@ -21,37 +21,37 @@ export const StatWrapper = styled.div`
   flex: 1;
   padding-top: 24px;
   padding-bottom: 0px;
-`
+`;
 const TokenStatsSection = styled.div`
   display: flex;
   flex-wrap: wrap;
-`
+`;
 export const StatPair = styled.div`
   display: flex;
   flex: 1;
   flex-wrap: wrap;
-`
+`;
 
 const Header = styled(ThemedText.MediumHeader)`
   font-size: 28px !important;
   padding-top: 40px;
-`
+`;
 
 const StatPrice = styled.div`
   margin-top: 4px;
   font-size: 28px;
   color: ${({ theme }) => theme.neutral1};
-`
+`;
 const NoData = styled.div`
   color: ${({ theme }) => theme.neutral3};
   padding-top: 40px;
-`
+`;
 export const StatsWrapper = styled.div`
   gap: 16px;
   ${textFadeIn}
-`
+`;
 
-type NumericStat = number | undefined | null
+type NumericStat = number | undefined | null;
 
 function Stat({
   dataCy,
@@ -59,12 +59,12 @@ function Stat({
   title,
   description,
 }: {
-  dataCy: string
-  value: NumericStat
-  title: ReactNode
-  description?: ReactNode
+  dataCy: string;
+  value: NumericStat;
+  title: ReactNode;
+  description?: ReactNode;
 }) {
-  const { formatNumber } = useFormatter()
+  const { formatNumber } = useFormatter();
 
   return (
     <StatWrapper data-cy={`${dataCy}`}>
@@ -78,28 +78,30 @@ function Stat({
         })}
       </StatPrice>
     </StatWrapper>
-  )
+  );
 }
 
 type StatsSectionProps = {
-  chainId: UniverseChainId
-  address: string
-  tokenQueryData: TokenQueryData
-}
+  chainId: UniverseChainId;
+  address: string;
+  tokenQueryData: TokenQueryData;
+};
 export default function StatsSection(props: StatsSectionProps) {
-  const { chainId, address, tokenQueryData } = props
-  const isSupportedChain = useIsSupportedChainId(chainId)
-  const { label, infoLink } = isSupportedChain ? getChainInfo(chainId) : { label: undefined, infoLink: undefined }
+  const { chainId, address, tokenQueryData } = props;
+  const isSupportedChain = useIsSupportedChainId(chainId);
+  const { label, infoLink } = isSupportedChain
+    ? getChainInfo(chainId)
+    : { label: undefined, infoLink: undefined };
 
-  const tokenMarketInfo = tokenQueryData?.market
-  const tokenProjectMarketInfo = tokenQueryData?.project?.markets?.[0] // aggregated market price from CoinGecko
+  const tokenMarketInfo = tokenQueryData?.market;
+  const tokenProjectMarketInfo = tokenQueryData?.project?.markets?.[0]; // aggregated market price from CoinGecko
 
-  const FDV = tokenProjectMarketInfo?.fullyDilutedValuation?.value
-  const marketCap = tokenProjectMarketInfo?.marketCap?.value
-  const TVL = tokenMarketInfo?.totalValueLocked?.value
-  const volume24H = tokenMarketInfo?.volume24H?.value
+  const FDV = tokenProjectMarketInfo?.fullyDilutedValuation?.value;
+  const marketCap = tokenProjectMarketInfo?.marketCap?.value;
+  const TVL = tokenMarketInfo?.totalValueLocked?.value;
+  const volume24H = tokenMarketInfo?.volume24H?.value;
 
-  const hasStats = TVL || FDV || marketCap || volume24H
+  const hasStats = TVL || FDV || marketCap || volume24H;
 
   if (hasStats) {
     return (
@@ -138,7 +140,7 @@ export default function StatsSection(props: StatsSectionProps) {
           </StatPair>
         </TokenStatsSection>
       </StatsWrapper>
-    )
+    );
   } else {
     return UNSUPPORTED_METADATA_CHAINS.includes(chainId) ? (
       <>
@@ -161,6 +163,6 @@ export default function StatsSection(props: StatsSectionProps) {
       </>
     ) : (
       <NoData data-cy="token-details-no-stats-data">No stats available</NoData>
-    )
+    );
   }
 }

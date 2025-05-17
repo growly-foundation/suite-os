@@ -1,38 +1,41 @@
-import { NavDropdown, NavDropdownDefaultWrapper } from 'components/NavBar/NavDropdown/index'
-import { NavIcon } from 'components/NavBar/NavIcon'
-import { CurrencySettings } from 'components/NavBar/PreferencesMenu/Currency'
-import { LanguageSettings } from 'components/NavBar/PreferencesMenu/Language'
-import { PreferenceSettings } from 'components/NavBar/PreferencesMenu/Preferences'
-import { PreferencesView } from 'components/NavBar/PreferencesMenu/shared'
-import { useCallback, useState } from 'react'
-import { AnimateTransition, Popover, useMedia } from 'ui/src'
-import { MoreHorizontal } from 'ui/src/components/icons/MoreHorizontal'
+import { NavDropdown, NavDropdownDefaultWrapper } from 'components/NavBar/NavDropdown/index';
+import { NavIcon } from 'components/NavBar/NavIcon';
+import { CurrencySettings } from 'components/NavBar/PreferencesMenu/Currency';
+import { LanguageSettings } from 'components/NavBar/PreferencesMenu/Language';
+import { PreferenceSettings } from 'components/NavBar/PreferencesMenu/Preferences';
+import { PreferencesView } from 'components/NavBar/PreferencesMenu/shared';
+import { useCallback, useState } from 'react';
+import { AnimateTransition, Popover, useMedia } from 'ui/src';
+import { MoreHorizontal } from 'ui/src/components/icons/MoreHorizontal';
 
 export function getSettingsViewIndex(view: PreferencesView) {
   if (view === PreferencesView.SETTINGS) {
-    return 0
+    return 0;
   } else if (view === PreferencesView.LANGUAGE) {
-    return 1
+    return 1;
   } else {
-    return 2
+    return 2;
   }
 }
 
 export function PreferenceMenu() {
-  const media = useMedia()
+  const media = useMedia();
 
-  const [settingsView, setSettingsView] = useState<PreferencesView>(PreferencesView.SETTINGS)
-  const [isOpen, setIsOpen] = useState(false)
-  const handleExitMenu = useCallback(() => setSettingsView(PreferencesView.SETTINGS), [setSettingsView])
+  const [settingsView, setSettingsView] = useState<PreferencesView>(PreferencesView.SETTINGS);
+  const [isOpen, setIsOpen] = useState(false);
+  const handleExitMenu = useCallback(
+    () => setSettingsView(PreferencesView.SETTINGS),
+    [setSettingsView]
+  );
   const onOpenChange = useCallback(
     (open: boolean) => {
-      setIsOpen(open)
+      setIsOpen(open);
       if (!open) {
-        handleExitMenu()
+        handleExitMenu();
       }
     },
-    [handleExitMenu, setIsOpen],
-  )
+    [handleExitMenu, setIsOpen]
+  );
 
   return (
     <Popover placement="bottom" stayInFrame allowFlip onOpenChange={onOpenChange}>
@@ -45,8 +48,7 @@ export function PreferenceMenu() {
         <NavDropdownDefaultWrapper>
           <AnimateTransition
             currentIndex={getSettingsViewIndex(settingsView)}
-            animationType={settingsView === PreferencesView.SETTINGS ? 'forward' : 'backward'}
-          >
+            animationType={settingsView === PreferencesView.SETTINGS ? 'forward' : 'backward'}>
             <PreferenceSettings
               showThemeLabel={!media.sm}
               setSettingsView={(view: PreferencesView) => setSettingsView(view)}
@@ -57,5 +59,5 @@ export function PreferenceMenu() {
         </NavDropdownDefaultWrapper>
       </NavDropdown>
     </Popover>
-  )
+  );
 }

@@ -1,9 +1,12 @@
-import { TransactionResponse } from '@ethersproject/abstract-provider'
-import { TradeType } from '@uniswap/sdk-core'
-import { TransactionStatus } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { TransactionStep, TransactionStepType } from 'uniswap/src/features/transactions/steps/types'
-import { ValidatedTransactionRequest } from 'uniswap/src/features/transactions/swap/utils/trade'
+import { TransactionResponse } from '@ethersproject/abstract-provider';
+import { TradeType } from '@uniswap/sdk-core';
+import { TransactionStatus } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import {
+  TransactionStep,
+  TransactionStepType,
+} from 'uniswap/src/features/transactions/steps/types';
+import { ValidatedTransactionRequest } from 'uniswap/src/features/transactions/swap/utils/trade';
 
 export enum TransactionType {
   APPROVAL = 0,
@@ -42,170 +45,170 @@ export enum TransactionType {
   PERMIT = 33,
 }
 interface BaseTransactionInfo {
-  type: TransactionType
+  type: TransactionType;
 }
 
 export interface ApproveTransactionInfo extends BaseTransactionInfo {
-  type: TransactionType.APPROVAL
-  tokenAddress: string
-  spender: string
-  amount: string
+  type: TransactionType.APPROVAL;
+  tokenAddress: string;
+  spender: string;
+  amount: string;
 }
 
 export interface PermitTransactionInfo extends BaseTransactionInfo {
-  type: TransactionType.PERMIT
-  tokenAddress: string
-  spender: string
-  amount: string
+  type: TransactionType.PERMIT;
+  tokenAddress: string;
+  spender: string;
+  amount: string;
 }
 
 interface BaseSwapTransactionInfo extends BaseTransactionInfo {
-  type: TransactionType.SWAP
-  tradeType: TradeType
-  inputCurrencyId: string
-  outputCurrencyId: string
-  isUniswapXOrder: boolean
+  type: TransactionType.SWAP;
+  tradeType: TradeType;
+  inputCurrencyId: string;
+  outputCurrencyId: string;
+  isUniswapXOrder: boolean;
 }
 
 export interface BridgeTransactionInfo extends BaseTransactionInfo {
-  type: TransactionType.BRIDGE
-  inputCurrencyId: string
-  inputChainId: UniverseChainId
-  inputCurrencyAmountRaw: string
-  outputCurrencyId: string
-  outputChainId: UniverseChainId
-  outputCurrencyAmountRaw: string
-  quoteId?: string
-  depositConfirmed: boolean
+  type: TransactionType.BRIDGE;
+  inputCurrencyId: string;
+  inputChainId: UniverseChainId;
+  inputCurrencyAmountRaw: string;
+  outputCurrencyId: string;
+  outputChainId: UniverseChainId;
+  outputCurrencyAmountRaw: string;
+  quoteId?: string;
+  depositConfirmed: boolean;
 }
 
 export interface ExactInputSwapTransactionInfo extends BaseSwapTransactionInfo {
-  tradeType: TradeType.EXACT_INPUT
-  inputCurrencyAmountRaw: string
-  expectedOutputCurrencyAmountRaw: string
-  minimumOutputCurrencyAmountRaw: string
-  settledOutputCurrencyAmountRaw?: string
+  tradeType: TradeType.EXACT_INPUT;
+  inputCurrencyAmountRaw: string;
+  expectedOutputCurrencyAmountRaw: string;
+  minimumOutputCurrencyAmountRaw: string;
+  settledOutputCurrencyAmountRaw?: string;
 }
 export interface ExactOutputSwapTransactionInfo extends BaseSwapTransactionInfo {
-  tradeType: TradeType.EXACT_OUTPUT
-  outputCurrencyAmountRaw: string
-  expectedInputCurrencyAmountRaw: string
-  maximumInputCurrencyAmountRaw: string
+  tradeType: TradeType.EXACT_OUTPUT;
+  outputCurrencyAmountRaw: string;
+  expectedInputCurrencyAmountRaw: string;
+  maximumInputCurrencyAmountRaw: string;
 }
 
 interface DepositLiquidityStakingTransactionInfo {
-  type: TransactionType.DEPOSIT_LIQUIDITY_STAKING
-  token0Address: string
-  token1Address: string
+  type: TransactionType.DEPOSIT_LIQUIDITY_STAKING;
+  token0Address: string;
+  token1Address: string;
 }
 
 interface WithdrawLiquidityStakingTransactionInfo {
-  type: TransactionType.WITHDRAW_LIQUIDITY_STAKING
-  token0Address: string
-  token1Address: string
+  type: TransactionType.WITHDRAW_LIQUIDITY_STAKING;
+  token0Address: string;
+  token1Address: string;
 }
 
 export interface WrapTransactionInfo {
-  type: TransactionType.WRAP
-  unwrapped: boolean
-  currencyAmountRaw: string
-  chainId?: number
+  type: TransactionType.WRAP;
+  unwrapped: boolean;
+  currencyAmountRaw: string;
+  chainId?: number;
 }
 
 interface ClaimTransactionInfo {
-  type: TransactionType.CLAIM
-  recipient: string
-  uniAmountRaw?: string
+  type: TransactionType.CLAIM;
+  recipient: string;
+  uniAmountRaw?: string;
 }
 
 export interface CreateV3PoolTransactionInfo {
-  type: TransactionType.CREATE_V3_POOL
-  baseCurrencyId: string
-  quoteCurrencyId: string
+  type: TransactionType.CREATE_V3_POOL;
+  baseCurrencyId: string;
+  quoteCurrencyId: string;
 }
 
 export interface IncreaseLiquidityTransactionInfo {
-  type: TransactionType.INCREASE_LIQUIDITY
-  token0CurrencyId: string
-  token1CurrencyId: string
-  token0CurrencyAmountRaw: string
-  token1CurrencyAmountRaw: string
+  type: TransactionType.INCREASE_LIQUIDITY;
+  token0CurrencyId: string;
+  token1CurrencyId: string;
+  token0CurrencyAmountRaw: string;
+  token1CurrencyAmountRaw: string;
 }
 
 export interface DecreaseLiquidityTransactionInfo {
-  type: TransactionType.DECREASE_LIQUIDITY
-  token0CurrencyId: string
-  token1CurrencyId: string
-  token0CurrencyAmountRaw: string
-  token1CurrencyAmountRaw: string
+  type: TransactionType.DECREASE_LIQUIDITY;
+  token0CurrencyId: string;
+  token1CurrencyId: string;
+  token0CurrencyAmountRaw: string;
+  token1CurrencyAmountRaw: string;
 }
 
 export interface CreatePositionTransactionInfo {
-  type: TransactionType.CREATE_POSITION
-  token0CurrencyId: string
-  token1CurrencyId: string
-  token0CurrencyAmountRaw: string
-  token1CurrencyAmountRaw: string
+  type: TransactionType.CREATE_POSITION;
+  token0CurrencyId: string;
+  token1CurrencyId: string;
+  token0CurrencyAmountRaw: string;
+  token1CurrencyAmountRaw: string;
 }
 
 export interface CollectFeesTransactionInfo {
-  type: TransactionType.COLLECT_FEES
-  token0CurrencyId: string
-  token1CurrencyId: string
-  token0CurrencyAmountRaw: string
-  token1CurrencyAmountRaw: string
+  type: TransactionType.COLLECT_FEES;
+  token0CurrencyId: string;
+  token1CurrencyId: string;
+  token0CurrencyAmountRaw: string;
+  token1CurrencyAmountRaw: string;
 }
 
 export interface MigrateV3LiquidityToV4TransactionInfo {
-  type: TransactionType.MIGRATE_LIQUIDITY_V3_TO_V4
-  token0CurrencyId: string
-  token1CurrencyId: string
-  token0CurrencyAmountRaw: string
-  token1CurrencyAmountRaw: string
+  type: TransactionType.MIGRATE_LIQUIDITY_V3_TO_V4;
+  token0CurrencyId: string;
+  token1CurrencyId: string;
+  token0CurrencyAmountRaw: string;
+  token1CurrencyAmountRaw: string;
 }
 
 export interface AddLiquidityV3PoolTransactionInfo {
-  type: TransactionType.ADD_LIQUIDITY_V3_POOL
-  createPool: boolean
-  baseCurrencyId: string
-  quoteCurrencyId: string
-  feeAmount: number
-  expectedAmountBaseRaw: string
-  expectedAmountQuoteRaw: string
+  type: TransactionType.ADD_LIQUIDITY_V3_POOL;
+  createPool: boolean;
+  baseCurrencyId: string;
+  quoteCurrencyId: string;
+  feeAmount: number;
+  expectedAmountBaseRaw: string;
+  expectedAmountQuoteRaw: string;
 }
 
 export interface AddLiquidityV2PoolTransactionInfo {
-  type: TransactionType.ADD_LIQUIDITY_V2_POOL
-  baseCurrencyId: string
-  quoteCurrencyId: string
-  expectedAmountBaseRaw: string
-  expectedAmountQuoteRaw: string
+  type: TransactionType.ADD_LIQUIDITY_V2_POOL;
+  baseCurrencyId: string;
+  quoteCurrencyId: string;
+  expectedAmountBaseRaw: string;
+  expectedAmountQuoteRaw: string;
 }
 
 export interface MigrateV2LiquidityToV3TransactionInfo {
-  type: TransactionType.MIGRATE_LIQUIDITY_V2_TO_V3
-  baseCurrencyId: string
-  quoteCurrencyId: string
-  isFork: boolean
+  type: TransactionType.MIGRATE_LIQUIDITY_V2_TO_V3;
+  baseCurrencyId: string;
+  quoteCurrencyId: string;
+  isFork: boolean;
 }
 
 export interface RemoveLiquidityV3TransactionInfo {
-  type: TransactionType.REMOVE_LIQUIDITY_V3
-  baseCurrencyId: string
-  quoteCurrencyId: string
-  expectedAmountBaseRaw: string
-  expectedAmountQuoteRaw: string
+  type: TransactionType.REMOVE_LIQUIDITY_V3;
+  baseCurrencyId: string;
+  quoteCurrencyId: string;
+  expectedAmountBaseRaw: string;
+  expectedAmountQuoteRaw: string;
 }
 
 interface SubmitProposalTransactionInfo {
-  type: TransactionType.SUBMIT_PROPOSAL
+  type: TransactionType.SUBMIT_PROPOSAL;
 }
 
 export interface SendTransactionInfo {
-  type: TransactionType.SEND
-  currencyId: string
-  amount: string
-  recipient: string
+  type: TransactionType.SEND;
+  currencyId: string;
+  amount: string;
+  recipient: string;
 }
 
 export type TransactionInfo =
@@ -230,40 +233,40 @@ export type TransactionInfo =
   | BridgeTransactionInfo
   | CreatePositionTransactionInfo
   | MigrateV3LiquidityToV4TransactionInfo
-  | LpIncentivesClaimTransactionInfo
+  | LpIncentivesClaimTransactionInfo;
 
 interface BaseTransactionDetails {
-  status: TransactionStatus
-  hash: string
-  batchInfo?: { connectorId?: string; batchId: string; chainId: UniverseChainId }
-  addedTime: number
-  from: string
-  info: TransactionInfo
-  nonce?: number
-  cancelled?: true
+  status: TransactionStatus;
+  hash: string;
+  batchInfo?: { connectorId?: string; batchId: string; chainId: UniverseChainId };
+  addedTime: number;
+  from: string;
+  info: TransactionInfo;
+  nonce?: number;
+  cancelled?: true;
 }
 
 export interface PendingTransactionDetails extends BaseTransactionDetails {
-  status: TransactionStatus.Pending
-  lastCheckedBlockNumber?: number
-  deadline?: number
+  status: TransactionStatus.Pending;
+  lastCheckedBlockNumber?: number;
+  deadline?: number;
 }
 
 export interface ConfirmedTransactionDetails extends BaseTransactionDetails {
-  status: TransactionStatus.Confirmed | TransactionStatus.Failed
-  confirmedTime: number
+  status: TransactionStatus.Confirmed | TransactionStatus.Failed;
+  confirmedTime: number;
 }
 
-export type TransactionDetails = PendingTransactionDetails | ConfirmedTransactionDetails
+export type TransactionDetails = PendingTransactionDetails | ConfirmedTransactionDetails;
 
-export type VitalTxFields = Pick<TransactionResponse, 'hash' | 'nonce' | 'data'>
+export type VitalTxFields = Pick<TransactionResponse, 'hash' | 'nonce' | 'data'>;
 
 export interface LpIncentivesClaimTransactionInfo {
-  type: TransactionType.LP_INCENTIVES_CLAIM_REWARDS
-  tokenAddress: string
+  type: TransactionType.LP_INCENTIVES_CLAIM_REWARDS;
+  tokenAddress: string;
 }
 
 export type LpIncentivesClaimTransactionStep = TransactionStep & {
-  type: TransactionStepType.CollectLpIncentiveRewardsTransactionStep
-  txRequest: ValidatedTransactionRequest
-}
+  type: TransactionStepType.CollectLpIncentiveRewardsTransactionStep;
+  txRequest: ValidatedTransactionRequest;
+};

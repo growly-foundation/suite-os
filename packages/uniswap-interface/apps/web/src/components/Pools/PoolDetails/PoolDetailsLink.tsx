@@ -1,29 +1,32 @@
-import { EtherscanLogo } from 'components/Icons/Etherscan'
-import { ExplorerIcon } from 'components/Icons/ExplorerIcon'
-import CurrencyLogo from 'components/Logo/CurrencyLogo'
-import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo'
-import { LoadingBubble } from 'components/Tokens/loading'
-import { MouseoverTooltip, TooltipSize } from 'components/Tooltip'
-import Row from 'components/deprecated/Row'
-import { NATIVE_CHAIN_ID } from 'constants/tokens'
-import { getTokenDetailsURL, gqlToCurrency } from 'graphql/data/util'
-import useCopyClipboard from 'hooks/useCopyClipboard'
-import styled, { useTheme } from 'lib/styled-components'
-import { useCallback, useState } from 'react'
-import { ChevronRight, Copy } from 'react-feather'
-import { Trans, useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
-import { ThemedText } from 'theme/components'
-import { ExternalLink } from 'theme/components/Links'
-import { ClickableStyle, EllipsisStyle } from 'theme/components/styles'
-import { Flex } from 'ui/src'
-import { breakpoints } from 'ui/src/theme'
-import { Token, TokenStandard } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { ExplorerDataType, getExplorerLink } from 'uniswap/src/utils/linking'
-import { isAddress, shortenAddress } from 'utilities/src/addresses'
-import { getChainUrlParam } from 'utils/chainParams'
+import { EtherscanLogo } from 'components/Icons/Etherscan';
+import { ExplorerIcon } from 'components/Icons/ExplorerIcon';
+import CurrencyLogo from 'components/Logo/CurrencyLogo';
+import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo';
+import { LoadingBubble } from 'components/Tokens/loading';
+import { MouseoverTooltip, TooltipSize } from 'components/Tooltip';
+import Row from 'components/deprecated/Row';
+import { NATIVE_CHAIN_ID } from 'constants/tokens';
+import { getTokenDetailsURL, gqlToCurrency } from 'graphql/data/util';
+import useCopyClipboard from 'hooks/useCopyClipboard';
+import styled, { useTheme } from 'lib/styled-components';
+import { useCallback, useState } from 'react';
+import { ChevronRight, Copy } from 'react-feather';
+import { Trans, useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { ThemedText } from 'theme/components';
+import { ExternalLink } from 'theme/components/Links';
+import { ClickableStyle, EllipsisStyle } from 'theme/components/styles';
+import { Flex } from 'ui/src';
+import { breakpoints } from 'ui/src/theme';
+import {
+  Token,
+  TokenStandard,
+} from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import { ExplorerDataType, getExplorerLink } from 'uniswap/src/utils/linking';
+import { isAddress, shortenAddress } from 'utilities/src/addresses';
+import { getChainUrlParam } from 'utils/chainParams';
 
 const TokenName = styled(ThemedText.BodyPrimary)`
   display: none;
@@ -32,14 +35,14 @@ const TokenName = styled(ThemedText.BodyPrimary)`
     display: block;
   }
   ${EllipsisStyle}
-`
+`;
 
 const TokenTextWrapper = styled(Row)<{ isClickable?: boolean }>`
   gap: 8px;
   margin-right: 12px;
   ${EllipsisStyle}
   ${({ isClickable }) => isClickable && ClickableStyle}
-`
+`;
 
 const SymbolText = styled(ThemedText.BodyPrimary)`
   flex-shrink: 0;
@@ -47,7 +50,7 @@ const SymbolText = styled(ThemedText.BodyPrimary)`
   @media (max-width: ${breakpoints.xl}px) and (min-width: ${breakpoints.xs}px) {
     color: ${({ theme }) => theme.neutral2};
   }
-`
+`;
 
 const CopyAddress = styled(Row)`
   gap: 8px;
@@ -60,13 +63,13 @@ const CopyAddress = styled(Row)`
   width: max-content;
   flex-shrink: 0;
   ${ClickableStyle}
-`
+`;
 const StyledCopyIcon = styled(Copy)`
   width: 16px;
   height: 16px;
   color: ${({ theme }) => theme.neutral2};
   flex-shrink: 0;
-`
+`;
 
 const ExplorerWrapper = styled.div`
   padding: 8px;
@@ -74,65 +77,71 @@ const ExplorerWrapper = styled.div`
   background-color: ${({ theme }) => theme.surface3};
   display: flex;
   ${ClickableStyle}
-`
+`;
 
 const ButtonsRow = styled(Row)`
   gap: 8px;
   flex-shrink: 0;
   width: max-content;
-`
+`;
 
 interface PoolDetailsLinkProps {
-  address?: string
-  chainId?: UniverseChainId
-  tokens: (Token | undefined)[]
-  loading?: boolean
+  address?: string;
+  chainId?: UniverseChainId;
+  tokens: (Token | undefined)[];
+  loading?: boolean;
 }
 
 export function PoolDetailsLink({ address, chainId, tokens, loading }: PoolDetailsLinkProps) {
-  const theme = useTheme()
-  const { t } = useTranslation()
-  const currency = tokens[0] && gqlToCurrency(tokens[0])
-  const [isCopied, setCopied] = useCopyClipboard()
+  const theme = useTheme();
+  const { t } = useTranslation();
+  const currency = tokens[0] && gqlToCurrency(tokens[0]);
+  const [isCopied, setCopied] = useCopyClipboard();
   const copy = useCallback(() => {
-    const checksummedAddress = isAddress(address)
-    checksummedAddress && setCopied(checksummedAddress)
-  }, [address, setCopied])
-  const isPool = tokens.length === 2
-  const isNative = address === NATIVE_CHAIN_ID || (tokens[0] && !isPool && tokens[0].standard === TokenStandard.Native)
-  const currencies = isPool && tokens[1] ? [currency, gqlToCurrency(tokens[1])] : [currency]
+    const checksummedAddress = isAddress(address);
+    checksummedAddress && setCopied(checksummedAddress);
+  }, [address, setCopied]);
+  const isPool = tokens.length === 2;
+  const isNative =
+    address === NATIVE_CHAIN_ID ||
+    (tokens[0] && !isPool && tokens[0].standard === TokenStandard.Native);
+  const currencies = isPool && tokens[1] ? [currency, gqlToCurrency(tokens[1])] : [currency];
   const explorerUrl =
     chainId &&
     getExplorerLink(
       chainId,
       address ?? '',
-      isNative ? ExplorerDataType.NATIVE : isPool ? ExplorerDataType.ADDRESS : ExplorerDataType.TOKEN,
-    )
+      isNative
+        ? ExplorerDataType.NATIVE
+        : isPool
+          ? ExplorerDataType.ADDRESS
+          : ExplorerDataType.TOKEN
+    );
 
-  const navigate = useNavigate()
-  const { defaultChainId } = useEnabledChains()
-  const chainUrlParam = getChainUrlParam(chainId ?? defaultChainId)
+  const navigate = useNavigate();
+  const { defaultChainId } = useEnabledChains();
+  const chainUrlParam = getChainUrlParam(chainId ?? defaultChainId);
   const handleTokenTextClick = useCallback(() => {
     if (!isPool) {
-      navigate(getTokenDetailsURL({ address: tokens[0]?.address, chainUrlParam }))
+      navigate(getTokenDetailsURL({ address: tokens[0]?.address, chainUrlParam }));
     }
-  }, [navigate, tokens, isPool, chainUrlParam])
+  }, [navigate, tokens, isPool, chainUrlParam]);
 
-  const [truncateAddress, setTruncateAddress] = useState<false | 'start' | 'both'>(false)
+  const [truncateAddress, setTruncateAddress] = useState<false | 'start' | 'both'>(false);
   const onTextRender = useCallback(
     (textRef: HTMLElement) => {
       if (textRef) {
-        const hasOverflow = textRef.clientWidth < textRef.scrollWidth
+        const hasOverflow = textRef.clientWidth < textRef.scrollWidth;
         if (hasOverflow) {
-          setTruncateAddress((prev) => (prev ? 'both' : 'start'))
+          setTruncateAddress(prev => (prev ? 'both' : 'start'));
         }
       }
     },
     // This callback must run after it sets truncateAddress to 'start' to see if it needs to 'both'.
     // It checks if the textRef has overflow, and sets truncateAddress accordingly to avoid it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [truncateAddress],
-  )
+    [truncateAddress]
+  );
 
   if (loading || !chainId) {
     return (
@@ -140,19 +149,20 @@ export function PoolDetailsLink({ address, chainId, tokens, loading }: PoolDetai
         <LoadingBubble containerWidth="100%" width="100%" />
         <LoadingBubble containerWidth="100%" width="100%" />
       </Flex>
-    )
+    );
   }
 
   return (
     <Row align="space-between">
       <TokenTextWrapper
         data-testid={
-          isPool ? `pdp-pool-logo-${tokens[0]?.symbol}-${tokens[1]?.symbol}` : `pdp-token-logo-${tokens[0]?.symbol}`
+          isPool
+            ? `pdp-pool-logo-${tokens[0]?.symbol}-${tokens[1]?.symbol}`
+            : `pdp-token-logo-${tokens[0]?.symbol}`
         }
         isClickable={!isPool}
         onClick={handleTokenTextClick}
-        ref={onTextRender}
-      >
+        ref={onTextRender}>
         {isPool ? (
           <DoubleCurrencyLogo currencies={currencies} size={20} />
         ) : (
@@ -176,10 +186,13 @@ export function PoolDetailsLink({ address, chainId, tokens, loading }: PoolDetai
             forceShow={isCopied}
             placement="bottom"
             size={TooltipSize.Max}
-            text={t('common.copied')}
-          >
+            text={t('common.copied')}>
             <CopyAddress data-testid={`copy-address-${address}`} onClick={copy}>
-              {shortenAddress(address, truncateAddress ? 2 : undefined, truncateAddress === 'both' ? 2 : undefined)}
+              {shortenAddress(
+                address,
+                truncateAddress ? 2 : undefined,
+                truncateAddress === 'both' ? 2 : undefined
+              )}
               <StyledCopyIcon />
             </CopyAddress>
           </MouseoverTooltip>
@@ -197,5 +210,5 @@ export function PoolDetailsLink({ address, chainId, tokens, loading }: PoolDetai
         )}
       </ButtonsRow>
     </Row>
-  )
+  );
 }

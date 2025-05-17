@@ -1,5 +1,5 @@
-import { lighten } from 'polished'
-import { FlexProps, Shine, View, useSporeColors } from 'ui/src'
+import { lighten } from 'polished';
+import { FlexProps, Shine, View, useSporeColors } from 'ui/src';
 
 export const LoadingBubble = ({
   containerWidth,
@@ -10,14 +10,14 @@ export const LoadingBubble = ({
   margin,
   ...rest
 }: {
-  containerWidth?: string | number
-  height?: string | number
-  width?: string | number
-  round?: boolean
-  delay?: string
-  margin?: string
+  containerWidth?: string | number;
+  height?: string | number;
+  width?: string | number;
+  round?: boolean;
+  delay?: string;
+  margin?: string;
 } & FlexProps) => {
-  const colors = useSporeColors()
+  const colors = useSporeColors();
   return (
     <Shine $platform-web={{ animationDelay: delay, width: containerWidth ?? '100%' }}>
       <View
@@ -31,5 +31,5 @@ export const LoadingBubble = ({
         {...rest}
       />
     </Shine>
-  )
-}
+  );
+};

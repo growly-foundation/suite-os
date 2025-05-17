@@ -1,4 +1,4 @@
-import { Flex, styled } from 'ui/src'
+import { Flex, styled } from 'ui/src';
 
 export const CardContents = styled(Flex, {
   width: '100%',
@@ -18,4 +18,4 @@ export const CardContents = styled(Flex, {
   $lg: {
     opacity: 0,
   },
-})
+});

@@ -1,150 +1,166 @@
-import { useAccount } from 'hooks/useAccount'
-import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
-import useBlockNumber from 'lib/hooks/useBlockNumber'
-import ms from 'ms'
-import { useCallback, useEffect, useMemo } from 'react'
-import { CanceledError, RetryableError, retry } from 'state/activity/polling/retry'
-import { OnActivityUpdate } from 'state/activity/types'
-import { useAppDispatch } from 'state/hooks'
-import { useMultichainTransactions, useTransactionRemover } from 'state/transactions/hooks'
-import { checkedTransaction } from 'state/transactions/reducer'
-import { PendingTransactionDetails } from 'state/transactions/types'
-import { isPendingTx } from 'state/transactions/utils'
-import { TransactionStatus } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { getChainInfo } from 'uniswap/src/features/chains/chainInfo'
-import { RetryOptions, UniverseChainId } from 'uniswap/src/features/chains/types'
-import { TransactionReceipt } from 'viem'
-import { usePublicClient } from 'wagmi'
+import { useAccount } from 'hooks/useAccount';
+import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp';
+import useBlockNumber from 'lib/hooks/useBlockNumber';
+import ms from 'ms';
+import { useCallback, useEffect, useMemo } from 'react';
+import { CanceledError, RetryableError, retry } from 'state/activity/polling/retry';
+import { OnActivityUpdate } from 'state/activity/types';
+import { useAppDispatch } from 'state/hooks';
+import { useMultichainTransactions, useTransactionRemover } from 'state/transactions/hooks';
+import { checkedTransaction } from 'state/transactions/reducer';
+import { PendingTransactionDetails } from 'state/transactions/types';
+import { isPendingTx } from 'state/transactions/utils';
+import { TransactionStatus } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { getChainInfo } from 'uniswap/src/features/chains/chainInfo';
+import { RetryOptions, UniverseChainId } from 'uniswap/src/features/chains/types';
+import { TransactionReceipt } from 'viem';
+import { usePublicClient } from 'wagmi';
 
 interface Transaction {
-  addedTime: number
-  receipt?: unknown
-  lastCheckedBlockNumber?: number
+  addedTime: number;
+  receipt?: unknown;
+  lastCheckedBlockNumber?: number;
 }
 
 export function shouldCheck(lastBlockNumber: number, tx: Transaction): boolean {
   if (tx.receipt) {
-    return false
+    return false;
   }
   if (!tx.lastCheckedBlockNumber) {
-    return true
+    return true;
   }
-  const blocksSinceCheck = lastBlockNumber - tx.lastCheckedBlockNumber
+  const blocksSinceCheck = lastBlockNumber - tx.lastCheckedBlockNumber;
   if (blocksSinceCheck < 1) {
-    return false
+    return false;
   }
-  const minutesPending = (new Date().getTime() - tx.addedTime) / ms(`1m`)
+  const minutesPending = (new Date().getTime() - tx.addedTime) / ms(`1m`);
   if (minutesPending > 60) {
     // every 10 blocks if pending longer than an hour
-    return blocksSinceCheck > 9
+    return blocksSinceCheck > 9;
   } else if (minutesPending > 5) {
     // every 3 blocks if pending longer than 5 minutes
-    return blocksSinceCheck > 2
+    return blocksSinceCheck > 2;
   } else {
     // otherwise every block
-    return true
+    return true;
   }
 }
 
-const DEFAULT_RETRY_OPTIONS: RetryOptions = { n: 1, minWait: 0, maxWait: 0 }
+const DEFAULT_RETRY_OPTIONS: RetryOptions = { n: 1, minWait: 0, maxWait: 0 };
 
 function usePendingTransactions(chainId?: UniverseChainId) {
-  const multichainTransactions = useMultichainTransactions()
+  const multichainTransactions = useMultichainTransactions();
   return useMemo(() => {
     if (!chainId) {
-      return []
+      return [];
     }
     return multichainTransactions.flatMap(([tx, txChainId]) => {
       // Avoid polling for already-deposited bridge transactions, as they will be finalized by the bridge updater.
       if (isPendingTx(tx, /* skipDepositedBridgeTxs = */ true) && txChainId === chainId) {
         // Ignore batch txs which need to be polled against wallet instead of chain.
-        return tx.batchInfo ? [] : [tx]
+        return tx.batchInfo ? [] : [tx];
       } else {
-        return []
+        return [];
       }
-    })
-  }, [chainId, multichainTransactions])
+    });
+  }, [chainId, multichainTransactions]);
 }
 
 export function usePollPendingTransactions(onActivityUpdate: OnActivityUpdate) {
-  const account = useAccount()
-  const publicClient = usePublicClient()
+  const account = useAccount();
+  const publicClient = usePublicClient();
 
-  const pendingTransactions = usePendingTransactions(account.chainId)
-  const hasPending = pendingTransactions.length > 0
-  const blockTimestamp = useCurrentBlockTimestamp({ refetchInterval: !hasPending ? false : undefined })
+  const pendingTransactions = usePendingTransactions(account.chainId);
+  const hasPending = pendingTransactions.length > 0;
+  const blockTimestamp = useCurrentBlockTimestamp({
+    refetchInterval: !hasPending ? false : undefined,
+  });
 
-  const lastBlockNumber = useBlockNumber()
-  const removeTransaction = useTransactionRemover()
-  const dispatch = useAppDispatch()
+  const lastBlockNumber = useBlockNumber();
+  const removeTransaction = useTransactionRemover();
+  const dispatch = useAppDispatch();
 
   const getReceipt = useCallback(
-    (tx: PendingTransactionDetails): { promise: Promise<TransactionReceipt>; cancel: () => void } => {
+    (
+      tx: PendingTransactionDetails
+    ): { promise: Promise<TransactionReceipt>; cancel: () => void } => {
       if (!publicClient || !account.chainId) {
-        throw new Error('No publicClient or chainId')
+        throw new Error('No publicClient or chainId');
       }
-      const retryOptions = getChainInfo(account.chainId)?.pendingTransactionsRetryOptions ?? DEFAULT_RETRY_OPTIONS
+      const retryOptions =
+        getChainInfo(account.chainId)?.pendingTransactionsRetryOptions ?? DEFAULT_RETRY_OPTIONS;
       return retry(
         () =>
-          publicClient.getTransactionReceipt({ hash: tx.hash as `0x${string}` }).then(async (receipt) => {
-            if (receipt === null) {
-              if (account.isConnected) {
-                // Remove transactions past their deadline or - if there is no deadline - older than 6 hours.
-                if (tx.deadline) {
-                  // Deadlines are expressed as seconds since epoch, as they are used on-chain.
-                  if (blockTimestamp && tx.deadline < Number(blockTimestamp)) {
-                    removeTransaction(tx.hash)
+          publicClient
+            .getTransactionReceipt({ hash: tx.hash as `0x${string}` })
+            .then(async receipt => {
+              if (receipt === null) {
+                if (account.isConnected) {
+                  // Remove transactions past their deadline or - if there is no deadline - older than 6 hours.
+                  if (tx.deadline) {
+                    // Deadlines are expressed as seconds since epoch, as they are used on-chain.
+                    if (blockTimestamp && tx.deadline < Number(blockTimestamp)) {
+                      removeTransaction(tx.hash);
+                    }
+                  } else if (tx.addedTime + ms(`6h`) < Date.now()) {
+                    removeTransaction(tx.hash);
                   }
-                } else if (tx.addedTime + ms(`6h`) < Date.now()) {
-                  removeTransaction(tx.hash)
                 }
+                throw new RetryableError();
               }
-              throw new RetryableError()
-            }
-            return receipt
-          }),
-        retryOptions,
-      )
+              return receipt;
+            }),
+        retryOptions
+      );
     },
-    [account.chainId, account.isConnected, blockTimestamp, publicClient, removeTransaction],
-  )
+    [account.chainId, account.isConnected, blockTimestamp, publicClient, removeTransaction]
+  );
 
   useEffect(() => {
     if (!account.chainId || !publicClient || !lastBlockNumber || !hasPending) {
-      return undefined
+      return undefined;
     }
 
     const cancels = pendingTransactions
-      .filter((tx) => shouldCheck(lastBlockNumber, tx))
-      .map((tx) => {
-        const { promise, cancel } = getReceipt(tx)
+      .filter(tx => shouldCheck(lastBlockNumber, tx))
+      .map(tx => {
+        const { promise, cancel } = getReceipt(tx);
         promise
-          .then((receipt) => {
+          .then(receipt => {
             if (!account.chainId) {
-              return
+              return;
             }
             onActivityUpdate({
               type: 'transaction',
               chainId: account.chainId,
               original: tx,
               update: {
-                status: receipt.status === 'success' ? TransactionStatus.Confirmed : TransactionStatus.Failed,
+                status:
+                  receipt.status === 'success'
+                    ? TransactionStatus.Confirmed
+                    : TransactionStatus.Failed,
                 info: tx.info,
               },
-            })
+            });
           })
-          .catch((error) => {
+          .catch(error => {
             if (error instanceof CanceledError || !account.chainId) {
-              return
+              return;
             }
-            dispatch(checkedTransaction({ chainId: account.chainId, hash: tx.hash, blockNumber: lastBlockNumber }))
-          })
-        return cancel
-      })
+            dispatch(
+              checkedTransaction({
+                chainId: account.chainId,
+                hash: tx.hash,
+                blockNumber: lastBlockNumber,
+              })
+            );
+          });
+        return cancel;
+      });
 
     return () => {
-      cancels.forEach((cancel) => cancel())
-    }
+      cancels.forEach(cancel => cancel());
+    };
   }, [
     account.chainId,
     publicClient,
@@ -154,5 +170,5 @@ export function usePollPendingTransactions(onActivityUpdate: OnActivityUpdate) {
     hasPending,
     dispatch,
     onActivityUpdate,
-  ])
+  ]);
 }

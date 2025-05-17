@@ -1,22 +1,22 @@
-import { cleanup, render } from '@testing-library/react-native'
-import { QRCodeErrorCorrectionLevel } from 'qrcode'
-import { QRCode } from 'ui/src/components/QRCode/QRCode'
-import { SharedUIUniswapProvider } from 'ui/src/test/render'
+import { cleanup, render } from '@testing-library/react-native';
+import { QRCodeErrorCorrectionLevel } from 'qrcode';
+import { QRCode } from 'ui/src/components/QRCode/QRCode';
+import { SharedUIUniswapProvider } from 'ui/src/test/render';
 
-const qrCodeValue = ['s', 'oneSizeBiggerValue']
-const sizes = [100, 200]
-const ecls: QRCodeErrorCorrectionLevel[] = ['L', 'M', 'Q', 'H']
+const qrCodeValue = ['s', 'oneSizeBiggerValue'];
+const sizes = [100, 200];
+const ecls: QRCodeErrorCorrectionLevel[] = ['L', 'M', 'Q', 'H'];
 
 function generateQRCodeTestCases() {
-  const testCases: [string, number, QRCodeErrorCorrectionLevel][] = []
+  const testCases: [string, number, QRCodeErrorCorrectionLevel][] = [];
   for (const value of qrCodeValue) {
     for (const size of sizes) {
       for (const ecl of ecls) {
-        testCases.push([value, size, ecl])
+        testCases.push([value, size, ecl]);
       }
     }
   }
-  return testCases
+  return testCases;
 }
 
 describe('QRCode', () => {
@@ -33,10 +33,10 @@ describe('QRCode', () => {
             color="orange"
             ecl={ecl}
           />
-        </SharedUIUniswapProvider>,
-      )
-      expect(tree.toJSON()).toMatchSnapshot()
-      cleanup()
-    },
-  )
-})
+        </SharedUIUniswapProvider>
+      );
+      expect(tree.toJSON()).toMatchSnapshot();
+      cleanup();
+    }
+  );
+});

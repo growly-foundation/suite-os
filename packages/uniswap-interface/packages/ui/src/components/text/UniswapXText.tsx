@@ -1,5 +1,5 @@
-import { GetProps } from 'tamagui'
-import { Text } from 'ui/src/components/text'
+import { GetProps } from 'tamagui';
+import { Text } from 'ui/src/components/text';
 
 const gradientStyle = `
   .uniswapx-gradient {
@@ -11,7 +11,7 @@ const gradientStyle = `
       -webkit-text-fill-color: transparent;
     }
   }
-`
+`;
 
 // TODO(WEB-4313): Wrap GradientText once it works for web.
 export function UniswapXText({ children, ...props }: GetProps<typeof Text>): JSX.Element {
@@ -22,5 +22,5 @@ export function UniswapXText({ children, ...props }: GetProps<typeof Text>): JSX
         {children}
       </Text>
     </>
-  )
+  );
 }

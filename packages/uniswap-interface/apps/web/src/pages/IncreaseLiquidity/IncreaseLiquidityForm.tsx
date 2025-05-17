@@ -1,23 +1,26 @@
-import { CurrencyAmount } from '@uniswap/sdk-core'
-import { ErrorCallout } from 'components/ErrorCallout'
+import { CurrencyAmount } from '@uniswap/sdk-core';
+import { ErrorCallout } from 'components/ErrorCallout';
 import {
   IncreaseLiquidityStep,
   useIncreaseLiquidityContext,
-} from 'components/IncreaseLiquidity/IncreaseLiquidityContext'
-import { useIncreaseLiquidityTxContext } from 'components/IncreaseLiquidity/IncreaseLiquidityTxContext'
-import { DepositInputForm } from 'components/Liquidity/DepositInputForm'
-import { LiquidityModalDetailRows } from 'components/Liquidity/LiquidityModalDetailRows'
-import { LiquidityPositionInfo } from 'components/Liquidity/LiquidityPositionInfo'
-import { useUpdatedAmountsFromDependentAmount } from 'components/Liquidity/hooks/useDependentAmountFallback'
-import { canUnwrapCurrency, getCurrencyWithOptionalUnwrap } from 'pages/Pool/Positions/create/utils'
-import { useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { PositionField } from 'types/position'
-import { Button, Flex, Switch, Text } from 'ui/src'
-import { nativeOnChain } from 'uniswap/src/constants/tokens'
+} from 'components/IncreaseLiquidity/IncreaseLiquidityContext';
+import { useIncreaseLiquidityTxContext } from 'components/IncreaseLiquidity/IncreaseLiquidityTxContext';
+import { DepositInputForm } from 'components/Liquidity/DepositInputForm';
+import { LiquidityModalDetailRows } from 'components/Liquidity/LiquidityModalDetailRows';
+import { LiquidityPositionInfo } from 'components/Liquidity/LiquidityPositionInfo';
+import { useUpdatedAmountsFromDependentAmount } from 'components/Liquidity/hooks/useDependentAmountFallback';
+import {
+  canUnwrapCurrency,
+  getCurrencyWithOptionalUnwrap,
+} from 'pages/Pool/Positions/create/utils';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { PositionField } from 'types/position';
+import { Button, Flex, Switch, Text } from 'ui/src';
+import { nativeOnChain } from 'uniswap/src/constants/tokens';
 
 export function IncreaseLiquidityForm() {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const {
     setStep,
@@ -26,7 +29,7 @@ export function IncreaseLiquidityForm() {
     setIncreaseLiquidityState,
     unwrapNativeCurrency,
     setUnwrapNativeCurrency,
-  } = useIncreaseLiquidityContext()
+  } = useIncreaseLiquidityContext();
   const {
     formattedAmounts,
     currencyAmounts,
@@ -35,8 +38,8 @@ export function IncreaseLiquidityForm() {
     deposit0Disabled,
     deposit1Disabled,
     error,
-  } = derivedIncreaseLiquidityInfo
-  const { position, exactField } = increaseLiquidityState
+  } = derivedIncreaseLiquidityInfo;
+  const { position, exactField } = increaseLiquidityState;
 
   const {
     gasFeeEstimateUSD,
@@ -45,40 +48,41 @@ export function IncreaseLiquidityForm() {
     refetch,
     dependentAmount,
     fotErrorToken,
-  } = useIncreaseLiquidityTxContext()
+  } = useIncreaseLiquidityTxContext();
 
   if (!position) {
-    throw new Error('AddLiquidityModal must have an initial state when opening')
+    throw new Error('AddLiquidityModal must have an initial state when opening');
   }
 
-  const { currency0Amount: initialCurrency0Amount, currency1Amount: initialCurrency1Amount } = position
+  const { currency0Amount: initialCurrency0Amount, currency1Amount: initialCurrency1Amount } =
+    position;
 
-  const canUnwrap0 = canUnwrapCurrency(initialCurrency0Amount.currency, position.version)
-  const canUnwrap1 = canUnwrapCurrency(initialCurrency1Amount.currency, position.version)
+  const canUnwrap0 = canUnwrapCurrency(initialCurrency0Amount.currency, position.version);
+  const canUnwrap1 = canUnwrapCurrency(initialCurrency1Amount.currency, position.version);
 
   const token0 = getCurrencyWithOptionalUnwrap({
     currency: initialCurrency0Amount.currency,
     shouldUnwrap: unwrapNativeCurrency && canUnwrap0,
-  })
+  });
   const token1 = getCurrencyWithOptionalUnwrap({
     currency: initialCurrency1Amount.currency,
     shouldUnwrap: unwrapNativeCurrency && canUnwrap1,
-  })
-  const nativeCurrency = nativeOnChain(position.chainId)
+  });
+  const nativeCurrency = nativeOnChain(position.chainId);
 
   const currency0Amount = useMemo(() => {
     if (unwrapNativeCurrency && canUnwrap0) {
-      return CurrencyAmount.fromRawAmount(token0, initialCurrency0Amount.quotient)
+      return CurrencyAmount.fromRawAmount(token0, initialCurrency0Amount.quotient);
     }
-    return initialCurrency0Amount
-  }, [unwrapNativeCurrency, canUnwrap0, token0, initialCurrency0Amount])
+    return initialCurrency0Amount;
+  }, [unwrapNativeCurrency, canUnwrap0, token0, initialCurrency0Amount]);
 
   const currency1Amount = useMemo(() => {
     if (unwrapNativeCurrency && canUnwrap1) {
-      return CurrencyAmount.fromRawAmount(token1, initialCurrency1Amount.quotient)
+      return CurrencyAmount.fromRawAmount(token1, initialCurrency1Amount.quotient);
     }
-    return initialCurrency1Amount
-  }, [unwrapNativeCurrency, canUnwrap1, token1, initialCurrency1Amount])
+    return initialCurrency1Amount;
+  }, [unwrapNativeCurrency, canUnwrap1, token1, initialCurrency1Amount]);
 
   const { updatedFormattedAmounts, updatedUSDAmounts } = useUpdatedAmountsFromDependentAmount({
     token0,
@@ -90,29 +94,29 @@ export function IncreaseLiquidityForm() {
     formattedAmounts,
     deposit0Disabled: deposit0Disabled || false,
     deposit1Disabled: deposit1Disabled || false,
-  })
+  });
 
   const handleUserInput = (field: PositionField, newValue: string) => {
-    setIncreaseLiquidityState((prev) => ({
+    setIncreaseLiquidityState(prev => ({
       ...prev,
       exactField: field,
       exactAmount: newValue,
-    }))
-  }
+    }));
+  };
 
   const handleOnSetMax = (field: PositionField, amount: string) => {
-    setIncreaseLiquidityState((prev) => ({
+    setIncreaseLiquidityState(prev => ({
       ...prev,
       exactField: field,
       exactAmount: amount,
-    }))
-  }
+    }));
+  };
 
   const handleOnContinue = () => {
     if (!error) {
-      setStep(IncreaseLiquidityStep.Review)
+      setStep(IncreaseLiquidityStep.Review);
     }
-  }
+  };
 
   const UnwrapNativeCurrencyToggle = useMemo(() => {
     return (
@@ -123,12 +127,14 @@ export function IncreaseLiquidityForm() {
         <Switch
           id="add-as-weth"
           checked={unwrapNativeCurrency}
-          onCheckedChange={() => setUnwrapNativeCurrency((unwrapNativeCurrency) => !unwrapNativeCurrency)}
+          onCheckedChange={() =>
+            setUnwrapNativeCurrency(unwrapNativeCurrency => !unwrapNativeCurrency)
+          }
           variant="branded"
         />
       </Flex>
-    )
-  }, [nativeCurrency, t, unwrapNativeCurrency, setUnwrapNativeCurrency])
+    );
+  }, [nativeCurrency, t, unwrapNativeCurrency, setUnwrapNativeCurrency]);
 
   const requestLoading = Boolean(
     !dataFetchingError &&
@@ -136,8 +142,8 @@ export function IncreaseLiquidityForm() {
       currencyAmounts?.TOKEN0 &&
       currencyAmounts.TOKEN1 &&
       !txInfo?.txRequest &&
-      !fotErrorToken,
-  )
+      !fotErrorToken
+  );
 
   return (
     <Flex gap="$gap24">
@@ -180,11 +186,10 @@ export function IncreaseLiquidityForm() {
           loading={requestLoading}
           variant="branded"
           key="LoaderButton-animation-IncreaseLiquidity-continue"
-          size="large"
-        >
+          size="large">
           {error || t('common.add.label')}
         </Button>
       </Flex>
     </Flex>
-  )
+  );
 }

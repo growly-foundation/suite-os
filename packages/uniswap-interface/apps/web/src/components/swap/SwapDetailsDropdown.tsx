@@ -1,57 +1,57 @@
-import { InterfaceElementName, SwapEventName } from '@uniswap/analytics-events'
-import { Percent } from '@uniswap/sdk-core'
-import { LoadingOpacityContainer } from 'components/Loader/styled'
-import Column from 'components/deprecated/Column'
-import { RowBetween, RowFixed } from 'components/deprecated/Row'
-import GasEstimateTooltip from 'components/swap/GasEstimateTooltip'
-import SwapLineItem, { SwapLineItemType } from 'components/swap/SwapLineItem'
-import TradePrice from 'components/swap/TradePrice'
-import styled, { useTheme } from 'lib/styled-components'
-import { formatCommonPropertiesForTrade } from 'lib/utils/analytics'
-import { useState } from 'react'
-import { ChevronDown } from 'react-feather'
-import { Trans } from 'react-i18next'
-import { InterfaceTrade } from 'state/routing/types'
-import { isSubmittableTrade } from 'state/routing/utils'
-import { ThemedText } from 'theme/components'
-import { HeightAnimator } from 'ui/src'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { useTrace } from 'utilities/src/telemetry/trace/TraceContext'
-import { useFormatter } from 'utils/formatNumbers'
+import { InterfaceElementName, SwapEventName } from '@uniswap/analytics-events';
+import { Percent } from '@uniswap/sdk-core';
+import { LoadingOpacityContainer } from 'components/Loader/styled';
+import Column from 'components/deprecated/Column';
+import { RowBetween, RowFixed } from 'components/deprecated/Row';
+import GasEstimateTooltip from 'components/swap/GasEstimateTooltip';
+import SwapLineItem, { SwapLineItemType } from 'components/swap/SwapLineItem';
+import TradePrice from 'components/swap/TradePrice';
+import styled, { useTheme } from 'lib/styled-components';
+import { formatCommonPropertiesForTrade } from 'lib/utils/analytics';
+import { useState } from 'react';
+import { ChevronDown } from 'react-feather';
+import { Trans } from 'react-i18next';
+import { InterfaceTrade } from 'state/routing/types';
+import { isSubmittableTrade } from 'state/routing/utils';
+import { ThemedText } from 'theme/components';
+import { HeightAnimator } from 'ui/src';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { useTrace } from 'utilities/src/telemetry/trace/TraceContext';
+import { useFormatter } from 'utils/formatNumbers';
 
 const StyledHeaderRow = styled(RowBetween)<{ disabled: boolean; open: boolean }>`
   padding: 0;
   align-items: center;
   cursor: ${({ disabled }) => (disabled ? 'initial' : 'pointer')};
-`
+`;
 
 const RotatingArrow = styled(ChevronDown)<{ open?: boolean }>`
   transform: ${({ open }) => (open ? 'rotate(180deg)' : 'none')};
   transition: transform 0.1s linear;
-`
+`;
 
 const SwapDetailsWrapper = styled(Column)`
   padding-top: ${({ theme }) => theme.grids.md};
-`
+`;
 
 const Wrapper = styled(Column)`
   border-radius: 16px;
   padding: 12px 16px;
-`
+`;
 
 interface SwapDetailsProps {
-  trade?: InterfaceTrade
-  syncing: boolean
-  loading: boolean
-  allowedSlippage: Percent
-  priceImpact?: Percent
+  trade?: InterfaceTrade;
+  syncing: boolean;
+  loading: boolean;
+  allowedSlippage: Percent;
+  priceImpact?: Percent;
 }
 
 export default function SwapDetailsDropdown(props: SwapDetailsProps) {
-  const { trade, syncing, loading, allowedSlippage } = props
-  const theme = useTheme()
-  const [showDetails, setShowDetails] = useState(false)
-  const trace = useTrace()
+  const { trade, syncing, loading, allowedSlippage } = props;
+  const theme = useTheme();
+  const [showDetails, setShowDetails] = useState(false);
+  const trace = useTrace();
 
   return (
     <Wrapper>
@@ -63,14 +63,12 @@ export default function SwapDetailsDropdown(props: SwapDetailsProps) {
         properties={{
           ...(trade ? formatCommonPropertiesForTrade(trade, allowedSlippage) : {}),
           ...trace,
-        }}
-      >
+        }}>
         <StyledHeaderRow
           data-testid="swap-details-header-row"
           onClick={() => setShowDetails(!showDetails)}
           disabled={!trade}
-          open={showDetails}
-        >
+          open={showDetails}>
           <RowFixed>
             {trade ? (
               <LoadingOpacityContainer $loading={syncing} data-testid="trade-price-container">
@@ -86,24 +84,27 @@ export default function SwapDetailsDropdown(props: SwapDetailsProps) {
             {!showDetails && isSubmittableTrade(trade) && (
               <GasEstimateTooltip trade={trade} loading={syncing || loading} />
             )}
-            <RotatingArrow stroke={trade ? theme.neutral3 : theme.surface2} open={Boolean(trade && showDetails)} />
+            <RotatingArrow
+              stroke={trade ? theme.neutral3 : theme.surface2}
+              open={Boolean(trade && showDetails)}
+            />
           </RowFixed>
         </StyledHeaderRow>
       </Trace>
       <AdvancedSwapDetails {...props} open={showDetails} />
     </Wrapper>
-  )
+  );
 }
 
 function AdvancedSwapDetails(props: SwapDetailsProps & { open: boolean }) {
-  const { open, trade, allowedSlippage, syncing = false, priceImpact } = props
-  const format = useFormatter()
+  const { open, trade, allowedSlippage, syncing = false, priceImpact } = props;
+  const format = useFormatter();
 
   if (!trade) {
-    return null
+    return null;
   }
 
-  const lineItemProps = { trade, allowedSlippage, format, syncing, priceImpact }
+  const lineItemProps = { trade, allowedSlippage, format, syncing, priceImpact };
 
   return (
     <HeightAnimator open={open}>
@@ -118,5 +119,5 @@ function AdvancedSwapDetails(props: SwapDetailsProps & { open: boolean }) {
         <SwapLineItem {...lineItemProps} type={SwapLineItemType.ROUTING_INFO} />
       </SwapDetailsWrapper>
     </HeightAnimator>
-  )
+  );
 }

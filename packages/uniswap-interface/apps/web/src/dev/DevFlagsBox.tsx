@@ -1,43 +1,45 @@
-import { MouseoverTooltip, TooltipSize } from 'components/Tooltip'
-import { RowBetween } from 'components/deprecated/Row'
-import { useModalState } from 'hooks/useModalState'
-import { useContext, useState } from 'react'
-import { Flag, Settings } from 'react-feather'
-import { useDispatch } from 'react-redux'
-import { ThemedText } from 'theme/components'
-import { Button, Flex, useShadowPropsShort } from 'ui/src'
-import { resetUniswapBehaviorHistory } from 'uniswap/src/features/behaviorHistory/slice'
-import { StatsigContext } from 'uniswap/src/features/gating/sdk/statsig'
-import { getOverrides } from 'uniswap/src/features/gating/utils'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
-import { TestID } from 'uniswap/src/test/fixtures/testIDs'
-import { isBetaEnv, isDevEnv } from 'utilities/src/environment/env'
+import { MouseoverTooltip, TooltipSize } from 'components/Tooltip';
+import { RowBetween } from 'components/deprecated/Row';
+import { useModalState } from 'hooks/useModalState';
+import { useContext, useState } from 'react';
+import { Flag, Settings } from 'react-feather';
+import { useDispatch } from 'react-redux';
+import { ThemedText } from 'theme/components';
+import { Button, Flex, useShadowPropsShort } from 'ui/src';
+import { resetUniswapBehaviorHistory } from 'uniswap/src/features/behaviorHistory/slice';
+import { StatsigContext } from 'uniswap/src/features/gating/sdk/statsig';
+import { getOverrides } from 'uniswap/src/features/gating/utils';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
+import { TestID } from 'uniswap/src/test/fixtures/testIDs';
+import { isBetaEnv, isDevEnv } from 'utilities/src/environment/env';
 
 const Override = (name: string, value: any) => {
   return (
     <ThemedText.LabelSmall key={name}>
       {name}: {JSON.stringify(value)}
     </ThemedText.LabelSmall>
-  )
-}
+  );
+};
 
 export default function DevFlagsBox() {
-  const { client: statsigClient } = useContext(StatsigContext)
-  const { gateOverrides, configOverrides } = getOverrides(statsigClient)
-  const shadowProps = useShadowPropsShort()
+  const { client: statsigClient } = useContext(StatsigContext);
+  const { gateOverrides, configOverrides } = getOverrides(statsigClient);
+  const shadowProps = useShadowPropsShort();
 
-  const overrides = [...gateOverrides, ...configOverrides].map(([name, value]) => Override(name, value))
+  const overrides = [...gateOverrides, ...configOverrides].map(([name, value]) =>
+    Override(name, value)
+  );
 
-  const hasOverrides = overrides.some((g) => g !== null)
+  const hasOverrides = overrides.some(g => g !== null);
 
-  const [isOpen, setIsOpen] = useState(false)
-  const { toggleModal: toggleFeatureFlagsModal } = useModalState(ModalName.FeatureFlags)
+  const [isOpen, setIsOpen] = useState(false);
+  const { toggleModal: toggleFeatureFlagsModal } = useModalState(ModalName.FeatureFlags);
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const onPressReset = (): void => {
-    dispatch(resetUniswapBehaviorHistory())
-  }
+    dispatch(resetUniswapBehaviorHistory());
+  };
 
   return (
     <Flex
@@ -62,9 +64,8 @@ export default function DevFlagsBox() {
       }}
       testID={TestID.DevFlagsBox}
       onPress={() => {
-        setIsOpen((prev) => !prev)
-      }}
-    >
+        setIsOpen(prev => !prev);
+      }}>
       {isOpen ? (
         <RowBetween>
           <ThemedText.SubHeader>
@@ -73,8 +74,7 @@ export default function DevFlagsBox() {
           </ThemedText.SubHeader>
           <MouseoverTooltip
             size={TooltipSize.Small}
-            text="Protip: Set feature flags by adding '?featureFlagOverride={flag_name}' to the URL"
-          >
+            text="Protip: Set feature flags by adding '?featureFlagOverride={flag_name}' to the URL">
             <Flex
               centered
               width={30}
@@ -84,11 +84,10 @@ export default function DevFlagsBox() {
               hoverStyle={{
                 backgroundColor: '$surface1Hovered',
               }}
-              onPress={(e) => {
-                e.stopPropagation()
-                toggleFeatureFlagsModal()
-              }}
-            >
+              onPress={e => {
+                e.stopPropagation();
+                toggleFeatureFlagsModal();
+              }}>
               <Settings width={15} height={15} />
             </Flex>
           </MouseoverTooltip>
@@ -97,12 +96,18 @@ export default function DevFlagsBox() {
         <Flag />
       )}
 
-      {isOpen && (hasOverrides ? overrides : <ThemedText.LabelSmall>No overrides</ThemedText.LabelSmall>)}
+      {isOpen &&
+        (hasOverrides ? overrides : <ThemedText.LabelSmall>No overrides</ThemedText.LabelSmall>)}
       {isOpen && (
-        <Button variant="branded" emphasis="secondary" size="small" onPress={onPressReset} mt="$spacing8">
+        <Button
+          variant="branded"
+          emphasis="secondary"
+          size="small"
+          onPress={onPressReset}
+          mt="$spacing8">
           Reset behavior history
         </Button>
       )}
     </Flex>
-  )
+  );
 }

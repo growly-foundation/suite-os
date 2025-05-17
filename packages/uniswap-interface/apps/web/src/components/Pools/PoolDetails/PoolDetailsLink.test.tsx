@@ -1,12 +1,16 @@
-import 'test-utils/tokens/mocks'
+import 'test-utils/tokens/mocks';
 
-import { PoolDetailsLink } from 'components/Pools/PoolDetails/PoolDetailsLink'
-import store from 'state'
-import { usdcWethPoolAddress, validBEPoolToken0, validBEPoolToken1 } from 'test-utils/pools/fixtures'
-import { render, screen } from 'test-utils/render'
-import { USDC_MAINNET } from 'uniswap/src/constants/tokens'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { dismissTokenWarning } from 'uniswap/src/features/tokens/slice/slice'
+import { PoolDetailsLink } from 'components/Pools/PoolDetails/PoolDetailsLink';
+import store from 'state';
+import {
+  usdcWethPoolAddress,
+  validBEPoolToken0,
+  validBEPoolToken1,
+} from 'test-utils/pools/fixtures';
+import { render, screen } from 'test-utils/render';
+import { USDC_MAINNET } from 'uniswap/src/constants/tokens';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import { dismissTokenWarning } from 'uniswap/src/features/tokens/slice/slice';
 
 describe('PoolDetailsHeader', () => {
   beforeEach(() => {
@@ -19,8 +23,8 @@ describe('PoolDetailsHeader', () => {
           name: 'USD Coin',
           decimals: 6,
         },
-      }),
-    )
+      })
+    );
     store.dispatch(
       dismissTokenWarning({
         token: {
@@ -30,9 +34,9 @@ describe('PoolDetailsHeader', () => {
           name: 'Wrapped Ether',
           decimals: 18,
         },
-      }),
-    )
-  })
+      })
+    );
+  });
 
   it('renders link for pool address', async () => {
     const { asFragment } = render(
@@ -40,25 +44,33 @@ describe('PoolDetailsHeader', () => {
         address={usdcWethPoolAddress}
         chainId={UniverseChainId.Mainnet}
         tokens={[validBEPoolToken0, validBEPoolToken1]}
-      />,
-    )
-    expect(asFragment()).toMatchSnapshot()
+      />
+    );
+    expect(asFragment()).toMatchSnapshot();
 
-    expect(screen.getByText('USDC / WETH')).toBeInTheDocument()
-    expect(screen.getByTestId('pdp-pool-logo-USDC-WETH')).toBeInTheDocument()
-    expect(screen.getByTestId(`copy-address-${usdcWethPoolAddress}`)).toBeInTheDocument()
-    expect(screen.getByTestId(`explorer-url-https://etherscan.io/address/${usdcWethPoolAddress}`)).toBeInTheDocument()
-  })
+    expect(screen.getByText('USDC / WETH')).toBeInTheDocument();
+    expect(screen.getByTestId('pdp-pool-logo-USDC-WETH')).toBeInTheDocument();
+    expect(screen.getByTestId(`copy-address-${usdcWethPoolAddress}`)).toBeInTheDocument();
+    expect(
+      screen.getByTestId(`explorer-url-https://etherscan.io/address/${usdcWethPoolAddress}`)
+    ).toBeInTheDocument();
+  });
 
   it('renders link for token address', async () => {
     const { asFragment } = render(
-      <PoolDetailsLink address={USDC_MAINNET.address} chainId={UniverseChainId.Mainnet} tokens={[validBEPoolToken0]} />,
-    )
-    expect(asFragment()).toMatchSnapshot()
+      <PoolDetailsLink
+        address={USDC_MAINNET.address}
+        chainId={UniverseChainId.Mainnet}
+        tokens={[validBEPoolToken0]}
+      />
+    );
+    expect(asFragment()).toMatchSnapshot();
 
-    expect(screen.getByText('USDC')).toBeInTheDocument()
-    expect(screen.getByTestId('pdp-token-logo-USDC')).toBeInTheDocument()
-    expect(screen.getByTestId(`copy-address-${USDC_MAINNET.address}`)).toBeInTheDocument()
-    expect(screen.getByTestId(`explorer-url-https://etherscan.io/token/${USDC_MAINNET.address}`)).toBeInTheDocument()
-  })
-})
+    expect(screen.getByText('USDC')).toBeInTheDocument();
+    expect(screen.getByTestId('pdp-token-logo-USDC')).toBeInTheDocument();
+    expect(screen.getByTestId(`copy-address-${USDC_MAINNET.address}`)).toBeInTheDocument();
+    expect(
+      screen.getByTestId(`explorer-url-https://etherscan.io/token/${USDC_MAINNET.address}`)
+    ).toBeInTheDocument();
+  });
+});

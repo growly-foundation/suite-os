@@ -1,11 +1,19 @@
-import { cloneElement, useState } from 'react'
-import { AnimatePresence, ColorTokens, SpaceTokens, TabLayout, Tabs, TabsTabProps, styled } from 'tamagui'
-import { Flex } from 'ui/src/components/layout/Flex'
-import { Text } from 'ui/src/components/text/Text'
-import { assert } from 'utilities/src/errors'
-import { isMobileApp, isWeb } from 'utilities/src/platform'
+import { cloneElement, useState } from 'react';
+import {
+  AnimatePresence,
+  ColorTokens,
+  SpaceTokens,
+  TabLayout,
+  Tabs,
+  TabsTabProps,
+  styled,
+} from 'tamagui';
+import { Flex } from 'ui/src/components/layout/Flex';
+import { Text } from 'ui/src/components/text/Text';
+import { assert } from 'utilities/src/errors';
+import { isMobileApp, isWeb } from 'utilities/src/platform';
 
-const TOGGLE_PADDING = 4
+const TOGGLE_PADDING = 4;
 
 const OptionsSelector = styled(Tabs.List, {
   display: 'flex',
@@ -60,7 +68,7 @@ const OptionsSelector = styled(Tabs.List, {
       },
     },
   } as const,
-})
+});
 
 const TabsRovingIndicator = styled(Flex, {
   animation: 'fast',
@@ -88,7 +96,7 @@ const TabsRovingIndicator = styled(Flex, {
       },
     },
   } as const,
-})
+});
 
 const OptionButton = styled(Tabs.Tab, {
   unstyled: true,
@@ -146,28 +154,28 @@ const OptionButton = styled(Tabs.Tab, {
       },
     },
   } as const,
-})
+});
 
 export interface SegmentedControlOption<T extends string = string> {
   // String value to be selected/stored, used as default display value
-  value: T
+  value: T;
   // Optional custom display element
-  display?: JSX.Element
+  display?: JSX.Element;
   // Optional wrapper around the display element
-  wrapper?: JSX.Element
+  wrapper?: JSX.Element;
 }
 
-type SegmentedControlSize = 'small' | 'smallThumbnail' | 'default' | 'large' | 'largeThumbnail'
+type SegmentedControlSize = 'small' | 'smallThumbnail' | 'default' | 'large' | 'largeThumbnail';
 
 interface SegmentedControlProps<T extends string = string> {
-  options: readonly SegmentedControlOption<T>[]
-  selectedOption: T
-  onSelectOption: (option: T) => void
-  size?: SegmentedControlSize
-  disabled?: boolean
-  fullWidth?: boolean
-  outlined?: boolean
-  gap?: SpaceTokens
+  options: readonly SegmentedControlOption<T>[];
+  selectedOption: T;
+  onSelectOption: (option: T) => void;
+  size?: SegmentedControlSize;
+  disabled?: boolean;
+  fullWidth?: boolean;
+  outlined?: boolean;
+  gap?: SpaceTokens;
 }
 
 /**
@@ -200,31 +208,35 @@ export function SegmentedControl<T extends string = string>({
   outlined = true,
   gap,
 }: SegmentedControlProps<T>): JSX.Element {
-  assert(options.length >= 2 && options.length <= 6, 'Segmented control must have between 2 and 6 options, inclusive.')
+  assert(
+    options.length >= 2 && options.length <= 6,
+    'Segmented control must have between 2 and 6 options, inclusive.'
+  );
 
   const [tabState, setTabState] = useState<{
     /**
      * Layout of the Tab user selected
      */
-    activeAt: TabLayout | null
+    activeAt: TabLayout | null;
   }>({
     activeAt: null,
-  })
+  });
 
-  const [hoveredIndex, setHoveredIndex] = useState<number>()
+  const [hoveredIndex, setHoveredIndex] = useState<number>();
 
-  const setActiveIndicator = (activeAt: TabLayout | null): void => setTabState({ ...tabState, activeAt })
+  const setActiveIndicator = (activeAt: TabLayout | null): void =>
+    setTabState({ ...tabState, activeAt });
 
-  const { activeAt } = tabState
+  const { activeAt } = tabState;
 
   const handleOnInteraction: TabsTabProps['onInteraction'] = (type, layout) => {
     if (type === 'select') {
-      setActiveIndicator(layout)
+      setActiveIndicator(layout);
     }
-  }
+  };
 
-  const activeIndicatorXAdjustment = isMobileApp ? 2.5 : 0
-  const activeIndicatorYAdjustment = isMobileApp ? -1.5 : 0
+  const activeIndicatorXAdjustment = isMobileApp ? 2.5 : 0;
+  const activeIndicatorYAdjustment = isMobileApp ? -1.5 : 0;
 
   return (
     <Tabs
@@ -232,10 +244,9 @@ export function SegmentedControl<T extends string = string>({
       activationMode="manual"
       orientation="horizontal"
       value={selectedOption}
-      onValueChange={(option) => {
-        onSelectOption(option as T)
-      }}
-    >
+      onValueChange={option => {
+        onSelectOption(option as T);
+      }}>
       <OptionsSelector
         disablePassBorderRadius
         unstyled
@@ -244,10 +255,9 @@ export function SegmentedControl<T extends string = string>({
         outlined={outlined}
         loop={false}
         size={size}
-        gap={gap}
-      >
+        gap={gap}>
         {options.map((option, index) => {
-          const { value, display, wrapper } = option
+          const { value, display, wrapper } = option;
 
           const optionButton = (
             <OptionButton
@@ -261,20 +271,22 @@ export function SegmentedControl<T extends string = string>({
               onMouseEnter={() => setHoveredIndex(index)}
               onMouseLeave={() => setHoveredIndex(undefined)}
               onPress={() => {
-                onSelectOption(value)
-              }}
-            >
+                onSelectOption(value);
+              }}>
               {display ?? (
                 <Text
-                  color={getOptionTextColor(selectedOption === value, hoveredIndex === index, disabled)}
+                  color={getOptionTextColor(
+                    selectedOption === value,
+                    hoveredIndex === index,
+                    disabled
+                  )}
                   userSelect="none"
-                  variant={size === 'large' ? 'buttonLabel3' : 'buttonLabel4'}
-                >
+                  variant={size === 'large' ? 'buttonLabel3' : 'buttonLabel4'}>
                   {value}
                 </Text>
               )}
             </OptionButton>
-          )
+          );
 
           if (wrapper) {
             // To avoid perf issues, we expect the callsite to pass an instance of a component,
@@ -282,9 +294,9 @@ export function SegmentedControl<T extends string = string>({
             // to clone it here.
             return cloneElement(wrapper, {
               children: optionButton,
-            })
+            });
           }
-          return optionButton
+          return optionButton;
         })}
         <AnimatePresence>
           {activeAt && (
@@ -292,21 +304,26 @@ export function SegmentedControl<T extends string = string>({
               height={activeAt.height}
               width={activeAt.width}
               x={activeAt.x - TOGGLE_PADDING + activeIndicatorXAdjustment}
-              y={activeAt.y - TOGGLE_PADDING + activeIndicatorYAdjustment - (isWeb && !outlined ? 1 : 0)}
+              y={
+                activeAt.y -
+                TOGGLE_PADDING +
+                activeIndicatorYAdjustment -
+                (isWeb && !outlined ? 1 : 0)
+              }
             />
           )}
         </AnimatePresence>
       </OptionsSelector>
     </Tabs>
-  )
+  );
 }
 
 function getOptionTextColor(active: boolean, hovered: boolean, disabled = false): ColorTokens {
   if (disabled) {
-    return active ? '$neutral2' : '$neutral3'
+    return active ? '$neutral2' : '$neutral3';
   }
   if (active || hovered) {
-    return '$neutral1'
+    return '$neutral1';
   }
-  return '$neutral2'
+  return '$neutral2';
 }

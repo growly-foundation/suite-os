@@ -1,11 +1,11 @@
-import { G, Path, Svg } from 'react-native-svg'
+import { G, Path, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [Scan, AnimatedScan] = createIcon({
   name: 'Scan',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg stroke="currentColor" viewBox="0 0 21 21" fill="none" {...props}>
       <G transform="translate(0.5,0.5)" stroke="currentColor">
         <Path
@@ -18,4 +18,4 @@ export const [Scan, AnimatedScan] = createIcon({
       </G>
     </Svg>
   ),
-})
+});

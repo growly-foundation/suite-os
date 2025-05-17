@@ -1,14 +1,14 @@
-import { css, keyframes } from 'lib/styled-components'
+import { css, keyframes } from 'lib/styled-components';
 
 export const flexColumnNoWrap = css`
   display: flex;
   flex-flow: column nowrap;
-`
+`;
 
 export const flexRowNoWrap = css`
   display: flex;
   flex-flow: row nowrap;
-`
+`;
 
 export enum TRANSITION_DURATIONS {
   slow = 500,
@@ -28,7 +28,7 @@ export const transitions = {
     out: 'ease-out',
     inOut: 'ease-in-out',
   },
-}
+};
 
 const fadeIn = keyframes`
   from {
@@ -37,8 +37,8 @@ const fadeIn = keyframes`
   to {
     opacity: 1;
   }
-`
+`;
 
 export const textFadeIn = css`
   animation: ${fadeIn} ${transitions.duration.fast} ${transitions.timing.in};
-`
+`;

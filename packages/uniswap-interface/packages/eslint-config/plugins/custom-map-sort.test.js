@@ -1,12 +1,12 @@
-import { RuleTester } from 'eslint'
-import sortMapKeys from './custom-map-sort'
+import { RuleTester } from 'eslint';
+import sortMapKeys from './custom-map-sort';
 
 const ruleTester = new RuleTester({
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
   },
-})
+});
 
 ruleTester.run('sort-map-keys', sortMapKeys, {
   valid: [
@@ -49,4 +49,4 @@ ruleTester.run('sort-map-keys', sortMapKeys, {
       ],
     },
   ],
-})
+});

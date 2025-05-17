@@ -1,8 +1,9 @@
 import '@coinbase/onchainkit/styles.css';
+import '@rainbow-me/rainbowkit/styles.css';
 
-// Comment out the components that are causing build errors
-// export * from './components/ChatWidget';
-// export * from './components/DemoChatWidget';
-// export * from './components/StaticWidget';
 export * from './SimpleWidget';
+export * from './components/ChatWidget';
+export * from './components/DemoChatWidget';
+export * from './components/StaticWidget';
+export * from './components/GrowlyButton';
 export * as Theme from './theme';

@@ -1,13 +1,13 @@
-import AlertTriangleFilled from 'components/Icons/AlertTriangleFilled'
-import { useTranslation } from 'react-i18next'
-import { Flex, Text, TouchableArea } from 'ui/src'
+import AlertTriangleFilled from 'components/Icons/AlertTriangleFilled';
+import { useTranslation } from 'react-i18next';
+import { Flex, Text, TouchableArea } from 'ui/src';
 
 interface LimitOrdersNotSupportedBannerProps {
-  onMoreDetails: () => void
+  onMoreDetails: () => void;
 }
 
 function LimitOrdersNotSupportedBanner({ onMoreDetails }: LimitOrdersNotSupportedBannerProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <Flex row backgroundColor="$surface2" borderRadius="$rounded12" p="$padding12" gap="$spacing12">
@@ -23,7 +23,7 @@ function LimitOrdersNotSupportedBanner({ onMoreDetails }: LimitOrdersNotSupporte
         </TouchableArea>
       </Flex>
     </Flex>
-  )
+  );
 }
 
-export default LimitOrdersNotSupportedBanner
+export default LimitOrdersNotSupportedBanner;

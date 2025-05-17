@@ -1,10 +1,10 @@
-import { PositionStatus, ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb'
-import { LiquidityPositionInfo } from 'components/Liquidity/LiquidityPositionInfo'
-import { PositionInfo } from 'components/Liquidity/types'
-import { TEST_TOKEN_1, TEST_TOKEN_2, toCurrencyAmount } from 'test-utils/constants'
-import { render } from 'test-utils/render'
+import { PositionStatus, ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb';
+import { LiquidityPositionInfo } from 'components/Liquidity/LiquidityPositionInfo';
+import { PositionInfo } from 'components/Liquidity/types';
+import { TEST_TOKEN_1, TEST_TOKEN_2, toCurrencyAmount } from 'test-utils/constants';
+import { render } from 'test-utils/render';
 
-jest.mock('components/Liquidity/utils')
+jest.mock('components/Liquidity/utils');
 
 describe('LiquidityPositionInfo', () => {
   it('should render in range', () => {
@@ -18,10 +18,10 @@ describe('LiquidityPositionInfo', () => {
       tokenId: '1',
       v4hook: undefined,
       owner: '0x50EC05ADe8280758E2077fcBC08D878D4aef79C3',
-    }
-    const { getByText } = render(<LiquidityPositionInfo positionInfo={positionInfo} />)
-    expect(getByText('In range')).toBeInTheDocument()
-  })
+    };
+    const { getByText } = render(<LiquidityPositionInfo positionInfo={positionInfo} />);
+    expect(getByText('In range')).toBeInTheDocument();
+  });
 
   it('should render out of range', () => {
     const positionInfo: PositionInfo = {
@@ -34,10 +34,10 @@ describe('LiquidityPositionInfo', () => {
       tokenId: '4',
       v4hook: undefined,
       owner: '0x50EC05ADe8280758E2077fcBC08D878D4aef79C3',
-    }
-    const { getByText } = render(<LiquidityPositionInfo positionInfo={positionInfo} />)
-    expect(getByText('Out of range')).toBeInTheDocument()
-  })
+    };
+    const { getByText } = render(<LiquidityPositionInfo positionInfo={positionInfo} />);
+    expect(getByText('Out of range')).toBeInTheDocument();
+  });
 
   it('should render closed', () => {
     const positionInfo: PositionInfo = {
@@ -50,8 +50,8 @@ describe('LiquidityPositionInfo', () => {
       tokenId: '1',
       v4hook: undefined,
       owner: '0x50EC05ADe8280758E2077fcBC08D878D4aef79C3',
-    }
-    const { getByText } = render(<LiquidityPositionInfo positionInfo={positionInfo} />)
-    expect(getByText('Closed')).toBeInTheDocument()
-  })
-})
+    };
+    const { getByText } = render(<LiquidityPositionInfo positionInfo={positionInfo} />);
+    expect(getByText('Closed')).toBeInTheDocument();
+  });
+});

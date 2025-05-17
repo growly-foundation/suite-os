@@ -1,15 +1,15 @@
-jest.mock('hooks/Tokens')
+jest.mock('hooks/Tokens');
 
-import { useCurrencyInfo } from 'hooks/Tokens'
-import SendCurrencyInputForm from 'pages/Swap/Send/SendCurrencyInputForm'
-import { MultichainContext } from 'state/multichain/types'
-import { SendContext, SendContextType } from 'state/send/SendContext'
-import { SwapAndLimitContext } from 'state/swap/types'
-import { DAI_INFO } from 'test-utils/constants'
-import { mocked } from 'test-utils/mocked'
-import { render, screen, waitFor } from 'test-utils/render'
-import { DAI } from 'uniswap/src/constants/tokens'
-import { SwapTab } from 'uniswap/src/types/screens/interface'
+import { useCurrencyInfo } from 'hooks/Tokens';
+import SendCurrencyInputForm from 'pages/Swap/Send/SendCurrencyInputForm';
+import { MultichainContext } from 'state/multichain/types';
+import { SendContext, SendContextType } from 'state/send/SendContext';
+import { SwapAndLimitContext } from 'state/swap/types';
+import { DAI_INFO } from 'test-utils/constants';
+import { mocked } from 'test-utils/mocked';
+import { render, screen, waitFor } from 'test-utils/render';
+import { DAI } from 'uniswap/src/constants/tokens';
+import { SwapTab } from 'uniswap/src/types/screens/interface';
 
 const mockMultichainContextValue = {
   reset: jest.fn(),
@@ -18,7 +18,7 @@ const mockMultichainContextValue = {
   isSwapAndLimitContext: true,
   isUserSelectedToken: false,
   isMultichainContext: true,
-}
+};
 
 const mockSwapAndLimitContextValue = {
   currencyState: {
@@ -28,7 +28,7 @@ const mockSwapAndLimitContextValue = {
   setCurrencyState: jest.fn(),
   currentTab: SwapTab.Limit,
   setCurrentTab: jest.fn(),
-}
+};
 
 const mockedSendContextDefault: SendContextType = {
   sendState: {
@@ -40,7 +40,7 @@ const mockedSendContextDefault: SendContextType = {
   },
   derivedSendInfo: {},
   setSendState: jest.fn(),
-}
+};
 
 const mockedSendContextFiatInput: SendContextType = {
   sendState: {
@@ -54,7 +54,7 @@ const mockedSendContextFiatInput: SendContextType = {
     exactAmountOut: '100',
   },
   setSendState: jest.fn(),
-}
+};
 
 const mockedSendContextTokenInput: SendContextType = {
   sendState: {
@@ -68,14 +68,14 @@ const mockedSendContextTokenInput: SendContextType = {
     exactAmountOut: '100',
   },
   setSendState: jest.fn(),
-}
+};
 
 describe('SendCurrencyInputform', () => {
   beforeEach(() => {
     mocked(useCurrencyInfo).mockImplementation(() => {
-      return DAI_INFO
-    })
-  })
+      return DAI_INFO;
+    });
+  });
 
   it('should render placeholder values', async () => {
     const { container } = render(
@@ -85,13 +85,13 @@ describe('SendCurrencyInputform', () => {
             <SendCurrencyInputForm />
           </SendContext.Provider>
         </SwapAndLimitContext.Provider>
-      </MultichainContext.Provider>,
-    )
-    expect(await screen.getByPlaceholderText('0')).toBeVisible()
-    expect(screen.getByText('0 DAI')).toBeVisible()
-    expect(screen.getByText('DAI')).toBeVisible()
-    expect(container.firstChild).toMatchSnapshot()
-  })
+      </MultichainContext.Provider>
+    );
+    expect(await screen.getByPlaceholderText('0')).toBeVisible();
+    expect(screen.getByText('0 DAI')).toBeVisible();
+    expect(screen.getByText('DAI')).toBeVisible();
+    expect(container.firstChild).toMatchSnapshot();
+  });
 
   it('renders input in fiat correctly', async () => {
     const { container } = render(
@@ -101,15 +101,15 @@ describe('SendCurrencyInputform', () => {
             <SendCurrencyInputForm />
           </SendContext.Provider>
         </SwapAndLimitContext.Provider>
-      </MultichainContext.Provider>,
-    )
+      </MultichainContext.Provider>
+    );
     await waitFor(() => {
-      expect(screen.getByDisplayValue('1000')).toBeVisible()
-    })
-    expect(screen.getByText('100.00 DAI')).toBeVisible()
-    expect(screen.getByText('DAI')).toBeVisible()
-    expect(container.firstChild).toMatchSnapshot()
-  })
+      expect(screen.getByDisplayValue('1000')).toBeVisible();
+    });
+    expect(screen.getByText('100.00 DAI')).toBeVisible();
+    expect(screen.getByText('DAI')).toBeVisible();
+    expect(container.firstChild).toMatchSnapshot();
+  });
 
   it('renders input in token amount correctly', async () => {
     const { container } = render(
@@ -119,13 +119,13 @@ describe('SendCurrencyInputform', () => {
             <SendCurrencyInputForm />
           </SendContext.Provider>
         </SwapAndLimitContext.Provider>
-      </MultichainContext.Provider>,
-    )
+      </MultichainContext.Provider>
+    );
     await waitFor(() => {
-      expect(screen.getByDisplayValue('1')).toBeVisible()
-    })
-    expect(screen.getByText('$100.00 USD')).toBeVisible()
-    expect(screen.getByText('DAI')).toBeVisible()
-    expect(container.firstChild).toMatchSnapshot()
-  })
-})
+      expect(screen.getByDisplayValue('1')).toBeVisible();
+    });
+    expect(screen.getByText('$100.00 USD')).toBeVisible();
+    expect(screen.getByText('DAI')).toBeVisible();
+    expect(container.firstChild).toMatchSnapshot();
+  });
+});

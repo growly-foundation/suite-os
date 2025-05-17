@@ -1,13 +1,19 @@
-import { useTheme } from 'lib/styled-components'
-import { ComponentProps } from 'react'
+import { useTheme } from 'lib/styled-components';
+import { ComponentProps } from 'react';
 
 // NOTE: until this view is simplified / optimized, it must stay out of the initial bundle!
 export const WalletOneLinkQR = (props: ComponentProps<'svg'>) => {
-  const theme = useTheme()
-  const bg = theme.darkMode ? 'black' : 'white'
+  const theme = useTheme();
+  const bg = theme.darkMode ? 'black' : 'white';
 
   return (
-    <svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <svg
+      width="300"
+      height="300"
+      viewBox="0 0 300 300"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}>
       <g clipPath="url(#clip0_12_3375)">
         <path
           d="M277.215 0H22.7848C10.2011 0 0 10.2011 0 22.7848V277.215C0 289.799 10.2011 300 22.7848 300H277.215C289.799 300 300 289.799 300 277.215V22.7848C300 10.2011 289.799 0 277.215 0Z"
@@ -289,8 +295,7 @@ export const WalletOneLinkQR = (props: ComponentProps<'svg'>) => {
           width="51.4807"
           height="55.4637"
           filterUnits="userSpaceOnUse"
-          colorInterpolationFilters="sRGB"
-        >
+          colorInterpolationFilters="sRGB">
           <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
@@ -303,7 +308,12 @@ export const WalletOneLinkQR = (props: ComponentProps<'svg'>) => {
           <feComposite in2="hardAlpha" operator="out" />
           <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 0 0 0 0 0 0.605405 0 0 0 0.15 0" />
           <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_12_3375" />
-          <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_12_3375" result="shape" />
+          <feBlend
+            mode="normal"
+            in="SourceGraphic"
+            in2="effect1_dropShadow_12_3375"
+            result="shape"
+          />
         </filter>
         <linearGradient
           id="paint0_linear_12_3375"
@@ -311,8 +321,7 @@ export const WalletOneLinkQR = (props: ComponentProps<'svg'>) => {
           y1="167.208"
           x2="129.726"
           y2="125.988"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#FFCDF1" />
           <stop offset="0.380969" stopColor="#F436DA" />
           <stop offset="1" stopColor="#F356EF" />
@@ -323,8 +332,7 @@ export const WalletOneLinkQR = (props: ComponentProps<'svg'>) => {
           y1="167.208"
           x2="129.726"
           y2="125.988"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#FFCDF1" />
           <stop offset="0.380969" stopColor="#F436DA" />
           <stop offset="1" stopColor="#F356EF" />
@@ -335,8 +343,7 @@ export const WalletOneLinkQR = (props: ComponentProps<'svg'>) => {
           y1="167.208"
           x2="129.726"
           y2="125.988"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#FFCDF1" />
           <stop offset="0.380969" stopColor="#F436DA" />
           <stop offset="1" stopColor="#F356EF" />
@@ -347,8 +354,7 @@ export const WalletOneLinkQR = (props: ComponentProps<'svg'>) => {
           y1="167.208"
           x2="129.726"
           y2="125.988"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#FFCDF1" />
           <stop offset="0.380969" stopColor="#F436DA" />
           <stop offset="1" stopColor="#F356EF" />
@@ -359,8 +365,7 @@ export const WalletOneLinkQR = (props: ComponentProps<'svg'>) => {
           y1="167.208"
           x2="129.726"
           y2="125.988"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#FFCDF1" />
           <stop offset="0.380969" stopColor="#F436DA" />
           <stop offset="1" stopColor="#F356EF" />
@@ -371,8 +376,7 @@ export const WalletOneLinkQR = (props: ComponentProps<'svg'>) => {
           y1="167.208"
           x2="129.726"
           y2="125.988"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#FFCDF1" />
           <stop offset="0.380969" stopColor="#F436DA" />
           <stop offset="1" stopColor="#F356EF" />
@@ -383,8 +387,7 @@ export const WalletOneLinkQR = (props: ComponentProps<'svg'>) => {
           y1="167.208"
           x2="129.726"
           y2="125.988"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#FFCDF1" />
           <stop offset="0.380969" stopColor="#F436DA" />
           <stop offset="1" stopColor="#F356EF" />
@@ -395,8 +398,7 @@ export const WalletOneLinkQR = (props: ComponentProps<'svg'>) => {
           y1="167.208"
           x2="129.726"
           y2="125.988"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#FFCDF1" />
           <stop offset="0.380969" stopColor="#F436DA" />
           <stop offset="1" stopColor="#F356EF" />
@@ -407,8 +409,7 @@ export const WalletOneLinkQR = (props: ComponentProps<'svg'>) => {
           y1="167.208"
           x2="129.726"
           y2="125.988"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#FFCDF1" />
           <stop offset="0.380969" stopColor="#F436DA" />
           <stop offset="1" stopColor="#F356EF" />
@@ -421,5 +422,5 @@ export const WalletOneLinkQR = (props: ComponentProps<'svg'>) => {
         </clipPath>
       </defs>
     </svg>
-  )
-}
+  );
+};

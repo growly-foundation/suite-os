@@ -1,15 +1,15 @@
 /* eslint-disable react/forbid-elements */
-import { ImageResponse } from '@vercel/og'
+import { ImageResponse } from '@vercel/og';
 
-import { ProtocolVersion } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import getPool from 'utils/getPool'
-import { WATERMARK_URL } from '../../../constants'
-import getFont from '../../../utils/getFont'
-import getNetworkLogoUrl from '../../../utils/getNetworkLogoURL'
-import { getRequest } from '../../../utils/getRequest'
+import { ProtocolVersion } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import getPool from 'utils/getPool';
+import { WATERMARK_URL } from '../../../constants';
+import getFont from '../../../utils/getFont';
+import getNetworkLogoUrl from '../../../utils/getNetworkLogoURL';
+import { getRequest } from '../../../utils/getRequest';
 
 function UnknownTokenImage({ symbol }: { symbol?: string }) {
-  const ticker = symbol?.slice(0, 3)
+  const ticker = symbol?.slice(0, 3);
   return (
     <div
       style={{
@@ -24,11 +24,10 @@ function UnknownTokenImage({ symbol }: { symbol?: string }) {
         borderRadius: '168px 0 0 168px',
         borderRight: '4px solid #1B1B1B',
         clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0% 100%)',
-      }}
-    >
+      }}>
       {ticker ?? 'UNK'}
     </div>
-  )
+  );
 }
 
 function PoolImage({
@@ -38,16 +37,16 @@ function PoolImage({
   tokenSymbol1,
   children,
 }: {
-  token0ImageUrl?: string
-  token1ImageUrl?: string
-  tokenSymbol0?: string
-  tokenSymbol1?: string
-  children?: React.ReactNode
+  token0ImageUrl?: string;
+  token1ImageUrl?: string;
+  tokenSymbol0?: string;
+  tokenSymbol1?: string;
+  children?: React.ReactNode;
 }) {
   // ImageResponse cannot handle webp images: https://github.com/vercel/satori/issues/273#issuecomment-1296323042
   // TODO: remove this check logic once @vercel/og supports webp, which appears to be in-progress https://github.com/vercel/satori/pull/622
-  const token0Image = token0ImageUrl?.includes('.webp') ? undefined : token0ImageUrl
-  const token1Image = token1ImageUrl?.includes('.webp') ? undefined : token1ImageUrl
+  const token0Image = token0ImageUrl?.includes('.webp') ? undefined : token0ImageUrl;
+  const token1Image = token1ImageUrl?.includes('.webp') ? undefined : token1ImageUrl;
 
   return (
     <div
@@ -56,8 +55,7 @@ function PoolImage({
         width: '168px',
         height: '168px',
         position: 'relative',
-      }}
-    >
+      }}>
       {token0Image ? (
         <div
           style={{
@@ -91,29 +89,29 @@ function PoolImage({
       )}
       {children}
     </div>
-  )
+  );
 }
 
 export const onRequest: PagesFunction = async ({ params, request }) => {
   try {
-    const origin = new URL(request.url).origin
-    const { index } = params
-    const networkName = String(index[0])
-    const poolAddress = String(index[1])
+    const origin = new URL(request.url).origin;
+    const { index } = params;
+    const networkName = String(index[0]);
+    const poolAddress = String(index[1]);
 
-    const cacheUrl = origin + '/pools/' + networkName + '/' + poolAddress
+    const cacheUrl = origin + '/pools/' + networkName + '/' + poolAddress;
     const data = await getRequest(
       cacheUrl,
       () => getPool(networkName, poolAddress, cacheUrl),
-      (data): data is NonNullable<Awaited<ReturnType<typeof getPool>>> => Boolean(data.title),
-    )
+      (data): data is NonNullable<Awaited<ReturnType<typeof getPool>>> => Boolean(data.title)
+    );
 
     if (!data) {
-      return new Response('Pool not found.', { status: 404 })
+      return new Response('Pool not found.', { status: 404 });
     }
 
-    const [fontData] = await Promise.all([getFont(origin)])
-    const networkLogo = getNetworkLogoUrl(networkName.toUpperCase(), origin)
+    const [fontData] = await Promise.all([getFont(origin)]);
+    const networkLogo = getNetworkLogoUrl(networkName.toUpperCase(), origin);
 
     return new ImageResponse(
       (
@@ -123,8 +121,7 @@ export const onRequest: PagesFunction = async ({ params, request }) => {
             display: 'flex',
             width: '1200px',
             height: '630px',
-          }}
-        >
+          }}>
           <div
             style={{
               display: 'flex',
@@ -132,8 +129,7 @@ export const onRequest: PagesFunction = async ({ params, request }) => {
               alignItems: 'center',
               height: '100%',
               padding: '96px',
-            }}
-          >
+            }}>
             <div
               style={{
                 display: 'flex',
@@ -144,14 +140,12 @@ export const onRequest: PagesFunction = async ({ params, request }) => {
                 height: '100%',
                 color: 'white',
                 gap: '54px',
-              }}
-            >
+              }}>
               <PoolImage
                 token0ImageUrl={data.poolData?.token0Image}
                 token1ImageUrl={data.poolData?.token1Image}
                 tokenSymbol0={data.poolData?.token0Symbol}
-                tokenSymbol1={data.poolData?.token1Symbol}
-              >
+                tokenSymbol1={data.poolData?.token1Symbol}>
                 {networkLogo != '' && (
                   <img
                     src={networkLogo}
@@ -164,15 +158,15 @@ export const onRequest: PagesFunction = async ({ params, request }) => {
                   />
                 )}
               </PoolImage>
-              <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%' }}>
+              <div
+                style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%' }}>
                 <div style={{ display: 'flex', flexDirection: 'row', gap: '24px' }}>
                   <div
                     style={{
                       fontFamily: 'Inter',
                       fontSize: '100px',
                       lineHeight: '120px',
-                    }}
-                  >
+                    }}>
                     {data.name}
                   </div>
                   {data.poolData?.protocolVersion === ProtocolVersion.V2 && (
@@ -186,8 +180,7 @@ export const onRequest: PagesFunction = async ({ params, request }) => {
                         padding: '12px 20px',
                         color: '#9B9B9B',
                         alignSelf: 'center',
-                      }}
-                    >
+                      }}>
                       {data.poolData?.protocolVersion}
                     </div>
                   )}
@@ -199,8 +192,7 @@ export const onRequest: PagesFunction = async ({ params, request }) => {
                     justifyContent: 'space-between',
                     alignItems: 'flex-end',
                     width: '100%',
-                  }}
-                >
+                  }}>
                   <div
                     style={{
                       fontFamily: 'Inter',
@@ -211,8 +203,7 @@ export const onRequest: PagesFunction = async ({ params, request }) => {
                       whiteSpace: 'nowrap',
                       width: '100%',
                       color: '#9B9B9B',
-                    }}
-                  >
+                    }}>
                     {data.poolData?.feeTier}
                   </div>
                   <img src={WATERMARK_URL} alt="Uniswap" height="72px" width="324px" />
@@ -232,9 +223,9 @@ export const onRequest: PagesFunction = async ({ params, request }) => {
             style: 'normal',
           },
         ],
-      },
-    ) as Response
+      }
+    ) as Response;
   } catch (error: any) {
-    return new Response(error.message || error.toString(), { status: 500 })
+    return new Response(error.message || error.toString(), { status: 500 });
   }
-}
+};

@@ -1,11 +1,11 @@
-import { forwardRef } from 'react'
-import { styled, type TamaguiElement } from 'tamagui'
-import { CustomButtonFrame } from 'ui/src/components/buttons/Button/components/CustomButtonFrame/CustomButtonFrame'
-import { ThemedIcon } from 'ui/src/components/buttons/Button/components/ThemedIcon'
-import { ThemedSpinningLoader } from 'ui/src/components/buttons/Button/components/ThemedSpinnerLoader'
-import { useButtonAnimationOnChange } from 'ui/src/components/buttons/Button/hooks/useButtonAnimationOnChange'
-import type { ButtonProps } from 'ui/src/components/buttons/Button/types'
-import { getIsButtonDisabled } from 'ui/src/components/buttons/Button/utils/getIsButtonDisabled'
+import { forwardRef } from 'react';
+import { styled, type TamaguiElement } from 'tamagui';
+import { CustomButtonFrame } from 'ui/src/components/buttons/Button/components/CustomButtonFrame/CustomButtonFrame';
+import { ThemedIcon } from 'ui/src/components/buttons/Button/components/ThemedIcon';
+import { ThemedSpinningLoader } from 'ui/src/components/buttons/Button/components/ThemedSpinnerLoader';
+import { useButtonAnimationOnChange } from 'ui/src/components/buttons/Button/hooks/useButtonAnimationOnChange';
+import type { ButtonProps } from 'ui/src/components/buttons/Button/types';
+import { getIsButtonDisabled } from 'ui/src/components/buttons/Button/utils/getIsButtonDisabled';
 
 // Helper to omit keys from a type that have a certain string (lowercased) in the name
 type OmitIncludingToLowercase<T, Str extends string> = {
@@ -13,16 +13,19 @@ type OmitIncludingToLowercase<T, Str extends string> = {
     ? Lowercase<K> extends `${string}${Lowercase<Str>}${string}`
       ? never
       : K
-    : never]: T[K]
-}
+    : never]: T[K];
+};
 
 // For example, this includes `minHeight` as well as `height` (as well as ~60 other props)
-type OmittedButtonProps = OmitIncludingToLowercase<ButtonProps, 'flex' | 'icon' | 'size' | 'height' | 'width'>
+type OmittedButtonProps = OmitIncludingToLowercase<
+  ButtonProps,
+  'flex' | 'icon' | 'size' | 'height' | 'width'
+>;
 
 export type IconButtonProps = {
-  icon: Required<ButtonProps['icon']>
-  size?: ButtonProps['size']
-} & OmittedButtonProps
+  icon: Required<ButtonProps['icon']>;
+  size?: ButtonProps['size'];
+} & OmittedButtonProps;
 
 const IconButtonFrame = styled(CustomButtonFrame, {
   variants: {
@@ -49,7 +52,7 @@ const IconButtonFrame = styled(CustomButtonFrame, {
       },
     },
   } as const,
-})
+});
 
 export const IconButton = forwardRef<TamaguiElement, IconButtonProps>(function IconButton(
   {
@@ -63,14 +66,14 @@ export const IconButton = forwardRef<TamaguiElement, IconButtonProps>(function I
     focusScaling = 'equal:smaller-button',
     ...props
   },
-  ref,
+  ref
 ) {
   useButtonAnimationOnChange({
     shouldAnimateBetweenLoadingStates,
     loading,
-  })
+  });
 
-  const isDisabled = getIsButtonDisabled({ isDisabled: propDisabled, loading })
+  const isDisabled = getIsButtonDisabled({ isDisabled: propDisabled, loading });
 
   return (
     <IconButtonFrame
@@ -81,9 +84,13 @@ export const IconButton = forwardRef<TamaguiElement, IconButtonProps>(function I
       variant={variant}
       emphasis={emphasis}
       focusScaling={focusScaling}
-      {...props}
-    >
-      <ThemedIcon isDisabled={isDisabled} emphasis={emphasis} size={size} variant={variant} typeOfButton="icon">
+      {...props}>
+      <ThemedIcon
+        isDisabled={isDisabled}
+        emphasis={emphasis}
+        size={size}
+        variant={variant}
+        typeOfButton="icon">
         {loading ? undefined : icon}
       </ThemedIcon>
 
@@ -97,5 +104,5 @@ export const IconButton = forwardRef<TamaguiElement, IconButtonProps>(function I
         />
       ) : null}
     </IconButtonFrame>
-  )
-})
+  );
+});

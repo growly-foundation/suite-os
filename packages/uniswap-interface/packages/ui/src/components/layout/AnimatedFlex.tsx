@@ -1,5 +1,5 @@
-import Animated from 'react-native-reanimated'
-import { Flex } from 'ui/src/components/layout/Flex'
+import Animated from 'react-native-reanimated';
+import { Flex } from 'ui/src/components/layout/Flex';
 
 /**
  * @deprecated  Prefer <Flex animation="" />
@@ -8,5 +8,5 @@ import { Flex } from 'ui/src/components/layout/Flex'
  *
  * TODO(MOB-1948): Remove this
  */
-export const AnimatedFlex = Animated.createAnimatedComponent(Flex)
-AnimatedFlex.displayName = 'AnimatedFlex'
+export const AnimatedFlex = Animated.createAnimatedComponent(Flex);
+AnimatedFlex.displayName = 'AnimatedFlex';

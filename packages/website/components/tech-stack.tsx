@@ -21,7 +21,7 @@ export default function TechStack() {
       type: 'single',
       title: 'x402 Protocol',
       description:
-        'Growly Suite is powered by the x402 Protocol, a borderless payment protocol that enables us to charge for our services.',
+        'Growly Suite is powered by the x402 Protocol — a borderless payment system that allows us to seamlessly charge for our services.',
       accentColor: 'rgba(139, 92, 246, 0.5)',
     },
     {

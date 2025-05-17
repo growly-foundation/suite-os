@@ -1,26 +1,26 @@
-import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb'
-import { Currency, CurrencyAmount } from '@uniswap/sdk-core'
-import CurrencyLogo from 'components/Logo/CurrencyLogo'
-import { getCurrencyForProtocol } from 'pages/Pool/Positions/create/utils'
-import { Flex, Text } from 'ui/src'
-import { iconSizes } from 'ui/src/theme'
-import { useLocalizationContext } from 'uniswap/src/features/language/LocalizationContext'
-import { getSymbolDisplayText } from 'uniswap/src/utils/currency'
-import { NumberType } from 'utilities/src/format/types'
+import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb';
+import { Currency, CurrencyAmount } from '@uniswap/sdk-core';
+import CurrencyLogo from 'components/Logo/CurrencyLogo';
+import { getCurrencyForProtocol } from 'pages/Pool/Positions/create/utils';
+import { Flex, Text } from 'ui/src';
+import { iconSizes } from 'ui/src/theme';
+import { useLocalizationContext } from 'uniswap/src/features/language/LocalizationContext';
+import { getSymbolDisplayText } from 'uniswap/src/utils/currency';
+import { NumberType } from 'utilities/src/format/types';
 
 export function TokenInfo({
   currencyAmount,
   currencyUSDAmount,
   isMigrating = false,
 }: {
-  currencyAmount?: CurrencyAmount<Currency>
-  currencyUSDAmount?: CurrencyAmount<Currency>
-  isMigrating?: boolean
+  currencyAmount?: CurrencyAmount<Currency>;
+  currencyUSDAmount?: CurrencyAmount<Currency>;
+  isMigrating?: boolean;
 }) {
-  const { formatCurrencyAmount } = useLocalizationContext()
+  const { formatCurrencyAmount } = useLocalizationContext();
   const currency = isMigrating
     ? getCurrencyForProtocol(currencyAmount?.currency, ProtocolVersion.V4)
-    : currencyAmount?.currency
+    : currencyAmount?.currency;
 
   return (
     <Flex row alignItems="center">
@@ -41,5 +41,5 @@ export function TokenInfo({
       </Flex>
       <CurrencyLogo currency={currency} size={iconSizes.icon36} />
     </Flex>
-  )
+  );
 }

@@ -1,11 +1,11 @@
-import NotFoundModal from 'components/NotFoundModal/NotFoundModal'
-import { useModalState } from 'hooks/useModalState'
-import { useTranslation } from 'react-i18next'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
+import NotFoundModal from 'components/NotFoundModal/NotFoundModal';
+import { useModalState } from 'hooks/useModalState';
+import { useTranslation } from 'react-i18next';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
 
 function PoolNotFoundModal() {
-  const { t } = useTranslation()
-  const { isOpen, closeModal } = useModalState(ModalName.PoolNotFound)
+  const { t } = useTranslation();
+  const { isOpen, closeModal } = useModalState(ModalName.PoolNotFound);
 
   return (
     <NotFoundModal
@@ -14,7 +14,7 @@ function PoolNotFoundModal() {
       title={t('pool.notFound.title')}
       description={t('pool.notFound.description')}
     />
-  )
+  );
 }
 
-export default PoolNotFoundModal
+export default PoolNotFoundModal;

@@ -1,11 +1,11 @@
-import { G, Path, Svg } from 'react-native-svg'
+import { G, Path, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [CloudSlash, AnimatedCloudSlash] = createIcon({
   name: 'CloudSlash',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg viewBox="0 0 25 24" fill="none" {...props}>
       <G id="cloud-slash">
         <Path
@@ -17,4 +17,4 @@ export const [CloudSlash, AnimatedCloudSlash] = createIcon({
     </Svg>
   ),
   defaultFill: '#131313',
-})
+});

@@ -1,12 +1,12 @@
-import { ComponentProps, ReactNode } from 'react'
-import { Popover } from 'tamagui'
-import { WebBottomSheet } from 'ui/src/components/modal/AdaptiveWebModal'
+import { ComponentProps, ReactNode } from 'react';
+import { Popover } from 'tamagui';
+import { WebBottomSheet } from 'ui/src/components/modal/AdaptiveWebModal';
 
 type AdaptiveWebPopoverContentProps = Omit<ComponentProps<typeof Popover.Content>, 'children'> & {
-  children: ReactNode
-  isOpen: boolean
-  webBottomSheetProps?: Omit<ComponentProps<typeof WebBottomSheet>, 'children' | 'isOpen'>
-}
+  children: ReactNode;
+  isOpen: boolean;
+  webBottomSheetProps?: Omit<ComponentProps<typeof WebBottomSheet>, 'children' | 'isOpen'>;
+};
 
 /**
  * AdaptiveWebPopoverContent is a responsive popover component that adapts to different screen sizes.
@@ -29,5 +29,5 @@ export function AdaptiveWebPopoverContent({
         </WebBottomSheet>
       </Popover.Adapt>
     </>
-  )
+  );
 }

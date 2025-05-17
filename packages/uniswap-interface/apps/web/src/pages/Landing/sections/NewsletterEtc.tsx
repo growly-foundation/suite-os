@@ -1,8 +1,8 @@
-import { H2, H3 } from 'pages/Landing/components/Generics'
-import { BookOpen, ChatBubbles, HelpCircle } from 'pages/Landing/components/Icons'
-import { PillButton } from 'pages/Landing/components/cards/PillButton'
-import { Trans, useTranslation } from 'react-i18next'
-import { Flex, Text, styled, useSporeColors } from 'ui/src'
+import { H2, H3 } from 'pages/Landing/components/Generics';
+import { BookOpen, ChatBubbles, HelpCircle } from 'pages/Landing/components/Icons';
+import { PillButton } from 'pages/Landing/components/cards/PillButton';
+import { Trans, useTranslation } from 'react-i18next';
+import { Flex, Text, styled, useSporeColors } from 'ui/src';
 
 const SectionLayout = styled(Flex, {
   width: '100%',
@@ -17,7 +17,7 @@ const SectionLayout = styled(Flex, {
   $sm: {
     p: 24,
   },
-})
+});
 
 const Layout = styled(Flex, {
   width: '100%',
@@ -31,7 +31,7 @@ const Layout = styled(Flex, {
     gridColumnGap: '16px',
     gridRowGap: '16px',
   },
-})
+});
 
 const SectionCol = styled(Flex, {
   flex: 1,
@@ -41,7 +41,7 @@ const SectionCol = styled(Flex, {
   $lg: {
     gap: 24,
   },
-})
+});
 
 const Card = styled(Flex, {
   containerType: 'normal',
@@ -64,7 +64,7 @@ const Card = styled(Flex, {
     p: 24,
     width: '100%',
   },
-})
+});
 
 const SquareCard = styled(Card, {
   cursor: 'pointer',
@@ -81,7 +81,7 @@ const SquareCard = styled(Card, {
       gridArea: `3 / span 2 / 5 / span 2`,
     },
   },
-})
+});
 
 const RectCard = styled(Card, {
   cursor: 'pointer',
@@ -93,14 +93,14 @@ const RectCard = styled(Card, {
     gridRow: 'span 4',
     gap: 32,
   },
-})
+});
 
-const helpPrimary = '#FF4D00'
-const blogPrimary = '#8E8767'
+const helpPrimary = '#FF4D00';
+const blogPrimary = '#8E8767';
 
 export function NewsletterEtc() {
-  const { t } = useTranslation()
-  const theme = useSporeColors()
+  const { t } = useTranslation();
+  const theme = useSporeColors();
 
   return (
     <SectionLayout>
@@ -118,9 +118,12 @@ export function NewsletterEtc() {
               backgroundColor="rgba(255, 77, 0, 0.04)"
               $theme-dark={{
                 backgroundColor: 'rgba(255, 77, 0, 0.08)',
-              }}
-            >
-              <PillButton icon={<HelpCircle fill={helpPrimary} />} color={helpPrimary} label={t('common.helpCenter')} />
+              }}>
+              <PillButton
+                icon={<HelpCircle fill={helpPrimary} />}
+                color={helpPrimary}
+                label={t('common.helpCenter')}
+              />
               <H3 color={helpPrimary}>
                 <Trans i18nKey="common.getSupport.button" />
               </H3>
@@ -133,9 +136,12 @@ export function NewsletterEtc() {
               backgroundColor="rgba(98, 84, 50, 0.04)"
               $theme-dark={{
                 backgroundColor: 'rgba(98, 84, 50, 0.16)',
-              }}
-            >
-              <PillButton icon={<BookOpen fill={blogPrimary} />} color={blogPrimary} label={t('common.blog')} />
+              }}>
+              <PillButton
+                icon={<BookOpen fill={blogPrimary} />}
+                color={blogPrimary}
+                label={t('common.blog')}
+              />
               <H3 color={blogPrimary}>
                 <Trans i18nKey="landing.teamInsights" />
               </H3>
@@ -145,8 +151,7 @@ export function NewsletterEtc() {
               href="https://twitter.com/Uniswap/"
               target="_blank"
               rel="noopener noreferrer"
-              backgroundColor="$accent2"
-            >
+              backgroundColor="$accent2">
               <PillButton
                 icon={<ChatBubbles fill={theme.accent1.val} />}
                 color={theme.accent1.val}
@@ -160,5 +165,5 @@ export function NewsletterEtc() {
         </SectionCol>
       </Flex>
     </SectionLayout>
-  )
+  );
 }

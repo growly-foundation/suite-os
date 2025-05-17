@@ -1,16 +1,16 @@
-import { SwapEventName } from '@uniswap/analytics-events'
-import { SignatureType } from 'state/signatures/types'
-import { TransactionType } from 'state/transactions/types'
-import { logSwapFinalized, logUniswapXSwapFinalized } from 'tracing/swapFlowLoggers'
-import { UniswapXOrderStatus } from 'types/uniswapx'
-import { TransactionStatus } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send'
-import { maybeLogFirstSwapAction } from 'uniswap/src/features/transactions/swap/utils/maybeLogFirstSwapAction'
-import { TransactionOriginType } from 'uniswap/src/features/transactions/types/transactionDetails'
+import { SwapEventName } from '@uniswap/analytics-events';
+import { SignatureType } from 'state/signatures/types';
+import { TransactionType } from 'state/transactions/types';
+import { logSwapFinalized, logUniswapXSwapFinalized } from 'tracing/swapFlowLoggers';
+import { UniswapXOrderStatus } from 'types/uniswapx';
+import { TransactionStatus } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send';
+import { maybeLogFirstSwapAction } from 'uniswap/src/features/transactions/swap/utils/maybeLogFirstSwapAction';
+import { TransactionOriginType } from 'uniswap/src/features/transactions/types/transactionDetails';
 
 jest.mock('uniswap/src/features/telemetry/send', () => ({
   sendAnalyticsEvent: jest.fn(),
-}))
+}));
 
 jest.mock('uniswap/src/features/transactions/swap/utils/SwapEventTimestampTracker', () => ({
   ...jest.requireActual('uniswap/src/features/transactions/swap/utils/SwapEventTimestampTracker'),
@@ -19,18 +19,18 @@ jest.mock('uniswap/src/features/transactions/swap/utils/SwapEventTimestampTracke
     setElapsedTime: () => 100,
     getElapsedTime: () => 100,
   },
-}))
+}));
 
 describe('swapFlowLoggers', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-  })
+    jest.clearAllMocks();
+  });
 
   it('logSwapSuccess calls sendAnalyticsEvent with correct parameters', () => {
-    const mockHash = 'mockHash'
-    const mockBatchId = undefined
-    const mockChainId = 1
-    const mockAnalyticsContext = { page: 'mockContext' }
+    const mockHash = 'mockHash';
+    const mockBatchId = undefined;
+    const mockChainId = 1;
+    const mockAnalyticsContext = { page: 'mockContext' };
 
     logSwapFinalized(
       mockHash,
@@ -39,8 +39,8 @@ describe('swapFlowLoggers', () => {
       mockChainId,
       mockAnalyticsContext,
       TransactionStatus.Confirmed,
-      TransactionType.SWAP,
-    )
+      TransactionType.SWAP
+    );
 
     expect(sendAnalyticsEvent).toHaveBeenCalledWith(SwapEventName.SWAP_TRANSACTION_COMPLETED, {
       transactionOriginType: TransactionOriginType.Internal,
@@ -52,14 +52,14 @@ describe('swapFlowLoggers', () => {
       chain_id_in: mockChainId,
       chain_id_out: mockChainId,
       ...mockAnalyticsContext,
-    })
-  })
+    });
+  });
 
   it('logUniswapXSwapSuccess calls sendAnalyticsEvent with correct parameters', () => {
-    const mockHash = 'mockHash'
-    const mockOrderHash = 'mockOrderHash'
-    const mockChainId = 1
-    const mockAnalyticsContext = { page: 'mockContext' }
+    const mockHash = 'mockHash';
+    const mockOrderHash = 'mockOrderHash';
+    const mockChainId = 1;
+    const mockAnalyticsContext = { page: 'mockContext' };
 
     logUniswapXSwapFinalized(
       mockHash,
@@ -67,8 +67,8 @@ describe('swapFlowLoggers', () => {
       mockChainId,
       mockAnalyticsContext,
       SignatureType.SIGN_UNISWAPX_V2_ORDER,
-      UniswapXOrderStatus.FILLED,
-    )
+      UniswapXOrderStatus.FILLED
+    );
 
     expect(sendAnalyticsEvent).toHaveBeenCalledWith(SwapEventName.SWAP_TRANSACTION_COMPLETED, {
       transactionOriginType: TransactionOriginType.Internal,
@@ -79,17 +79,17 @@ describe('swapFlowLoggers', () => {
       order_hash: mockOrderHash,
       chain_id: mockChainId,
       ...mockAnalyticsContext,
-    })
-  })
+    });
+  });
 
   it('maybeLogFirstSwapAction calls sendAnalyticsEvent with correct parameters', () => {
-    const mockAnalyticsContext = { page: 'mockContext' }
+    const mockAnalyticsContext = { page: 'mockContext' };
 
-    maybeLogFirstSwapAction(mockAnalyticsContext)
+    maybeLogFirstSwapAction(mockAnalyticsContext);
 
     expect(sendAnalyticsEvent).toHaveBeenCalledWith(SwapEventName.SWAP_FIRST_ACTION, {
       time_to_first_swap_action: 100,
       ...mockAnalyticsContext,
-    })
-  })
-})
+    });
+  });
+});

@@ -1,15 +1,15 @@
-import styled, { css } from 'lib/styled-components'
-import { useBuyFormContext } from 'pages/Swap/Buy/BuyFormContext'
-import { fallbackCurrencyInfo } from 'pages/Swap/Buy/hooks'
-import { formatFiatOnRampFiatAmount } from 'pages/Swap/Buy/shared'
-import { useSporeColors } from 'ui/src'
-import { Pill } from 'uniswap/src/components/pill/Pill'
+import styled, { css } from 'lib/styled-components';
+import { useBuyFormContext } from 'pages/Swap/Buy/BuyFormContext';
+import { fallbackCurrencyInfo } from 'pages/Swap/Buy/hooks';
+import { formatFiatOnRampFiatAmount } from 'pages/Swap/Buy/shared';
+import { useSporeColors } from 'ui/src';
+import { Pill } from 'uniswap/src/components/pill/Pill';
 
 interface PredefinedAmountProps {
-  amount: number
-  currentAmount: string
-  disabled?: boolean
-  onClick: () => void
+  amount: number;
+  currentAmount: string;
+  disabled?: boolean;
+  onClick: () => void;
 }
 
 export const ClickablePill = styled(Pill)<{ $disabled: boolean; $active: boolean }>`
@@ -21,18 +21,24 @@ export const ClickablePill = styled(Pill)<{ $disabled: boolean; $active: boolean
     css`
       cursor: pointer;
       &:hover {
-        background-color: ${({ theme }) => ($active ? theme.surface3Hovered : theme.surface1Hovered)};
+        background-color: ${({ theme }) =>
+          $active ? theme.surface3Hovered : theme.surface1Hovered};
         border-color: ${({ theme }) => theme.surface3Hovered};
       }
     `}
-`
+`;
 
-export function PredefinedAmount({ currentAmount, amount, disabled = false, onClick }: PredefinedAmountProps) {
-  const colors = useSporeColors()
-  const { derivedBuyFormInfo } = useBuyFormContext()
-  const { meldSupportedFiatCurrency } = derivedBuyFormInfo
+export function PredefinedAmount({
+  currentAmount,
+  amount,
+  disabled = false,
+  onClick,
+}: PredefinedAmountProps) {
+  const colors = useSporeColors();
+  const { derivedBuyFormInfo } = useBuyFormContext();
+  const { meldSupportedFiatCurrency } = derivedBuyFormInfo;
 
-  const active = currentAmount === amount.toString()
+  const active = currentAmount === amount.toString();
   return (
     <ClickablePill
       disabled={disabled}
@@ -45,5 +51,5 @@ export function PredefinedAmount({ currentAmount, amount, disabled = false, onCl
       px="$spacing16"
       textVariant="buttonLabel2"
     />
-  )
+  );
 }

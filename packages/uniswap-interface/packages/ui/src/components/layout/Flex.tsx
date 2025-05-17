@@ -1,34 +1,35 @@
-import type { Insets } from 'react-native'
-import { GetProps, SizeTokens, View, styled } from 'tamagui'
-import { animationsEnter, animationsEnterExit, animationsExit } from 'ui/src/animations/presets'
+import type { Insets } from 'react-native';
+import { GetProps, SizeTokens, View, styled } from 'tamagui';
+import { animationsEnter, animationsEnterExit, animationsExit } from 'ui/src/animations/presets';
 
 export const flexStyles = {
   fill: { flex: 1 },
   grow: { flexGrow: 1 },
   shrink: { flexShrink: 1 },
-}
+};
 
-type SizeOrNumber = number | SizeTokens
+type SizeOrNumber = number | SizeTokens;
 
 type SizedInset = {
-  top: SizeOrNumber
-  left: SizeOrNumber
-  right: SizeOrNumber
-  bottom: SizeOrNumber
-}
+  top: SizeOrNumber;
+  left: SizeOrNumber;
+  right: SizeOrNumber;
+  bottom: SizeOrNumber;
+};
 
 const getInset = (val: SizeOrNumber): SizedInset => ({
   top: val,
   right: val,
   bottom: val,
   left: val,
-})
+});
 
 export const Flex = styled(View, {
   flexDirection: 'column',
 
   variants: {
-    inset: (size: SizeOrNumber | Insets) => (size && typeof size === 'object' ? size : getInset(size)),
+    inset: (size: SizeOrNumber | Insets) =>
+      size && typeof size === 'object' ? size : getInset(size),
 
     row: {
       true: {
@@ -68,6 +69,6 @@ export const Flex = styled(View, {
     animateExit: animationsExit,
     animateEnterExit: animationsEnterExit,
   } as const,
-})
+});
 
-export type FlexProps = GetProps<typeof Flex>
+export type FlexProps = GetProps<typeof Flex>;

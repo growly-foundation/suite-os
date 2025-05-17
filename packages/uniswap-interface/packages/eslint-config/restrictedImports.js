@@ -8,11 +8,13 @@ const sharedRules = {
     {
       name: '@uniswap/sdk-core',
       importNames: ['ChainId'],
-      message: "Don't use ChainId from @uniswap/sdk-core. Use the UniverseChainId from universe/uniswap.",
+      message:
+        "Don't use ChainId from @uniswap/sdk-core. Use the UniverseChainId from universe/uniswap.",
     },
     {
       name: 'utilities/src/telemetry/trace/Trace',
-      message: "Please use the Trace in 'uniswap/src/features/telemetry/Trace' for app level usage!",
+      message:
+        "Please use the Trace in 'uniswap/src/features/telemetry/Trace' for app level usage!",
     },
     {
       name: 'utilities/src/telemetry/analytics/analytics',
@@ -22,7 +24,8 @@ const sharedRules = {
     {
       name: '@uniswap/analytics',
       importNames: ['sendAnalyticsEvent'],
-      message: "Please use the typed `sendAnalyticsEvent` in  'uniswap/src/features/telemetry/send'?",
+      message:
+        "Please use the typed `sendAnalyticsEvent` in  'uniswap/src/features/telemetry/send'?",
     },
     {
       name: 'expo-localization',
@@ -38,7 +41,8 @@ const sharedRules = {
     {
       name: 'i18next',
       importNames: ['t'],
-      message: 'Please avoid direct imports of t, using `useTranslation` and `i18n.t` when absolutely needed outside of a React context',
+      message:
+        'Please avoid direct imports of t, using `useTranslation` and `i18n.t` when absolutely needed outside of a React context',
     },
     {
       name: 'utilities/src/format/localeBased',
@@ -57,21 +61,24 @@ const sharedRules = {
     {
       name: 'ui/src/hooks/useDeviceInsets',
       importNames: ['useDeviceInsets'],
-      message: 'Use `useAppInsets` instead.'
+      message: 'Use `useAppInsets` instead.',
     },
     {
       name: 'react-native-device-info',
       importNames: ['getUniqueId'],
-      message: 'Not supported for web/extension, use `getUniqueId` from `utilities/src/device/getUniqueId` instead.'
+      message:
+        'Not supported for web/extension, use `getUniqueId` from `utilities/src/device/getUniqueId` instead.',
     },
     {
       name: 'lodash',
-      message: 'Use specific imports (e.g. `import isEqual from \'lodash/isEqual\'`) to avoid pulling in all of lodash to web to keep bundle size down!',
+      message:
+        "Use specific imports (e.g. `import isEqual from 'lodash/isEqual'`) to avoid pulling in all of lodash to web to keep bundle size down!",
     },
     {
       name: 'uniswap/src/features/chains/chainInfo',
       importNames: ['UNIVERSE_CHAIN_INFO'],
-      message: 'Use useChainInfo or helpers in packages/uniswap/src/features/chains/utils.ts when possible!',
+      message:
+        'Use useChainInfo or helpers in packages/uniswap/src/features/chains/utils.ts when possible!',
     },
     {
       name: 'uniswap/src/features/settings/selectors',
@@ -102,11 +109,11 @@ const sharedRules = {
   patterns: [
     {
       group: ['ui/src/assets/icons/*.svg'],
-      message: "Please do not import SVG files directly from `ui/src/assets/icons/*.svg`. Use generated icon components instead, e.g., `ui/src/components/icons/{iconName}`.",
+      message:
+        'Please do not import SVG files directly from `ui/src/assets/icons/*.svg`. Use generated icon components instead, e.g., `ui/src/components/icons/{iconName}`.',
     },
   ],
-}
-
+};
 
 // Rules that should apply to native code only
 const nativeRules = {
@@ -142,11 +149,13 @@ const nativeRules = {
     {
       name: '@gorhom/bottom-sheet',
       importNames: ['BottomSheetTextInput'],
-      message: 'Use our internal `BottomSheetTextInput` wrapper from `/uniswap/src/components/modals/Modal`.',
+      message:
+        'Use our internal `BottomSheetTextInput` wrapper from `/uniswap/src/components/modals/Modal`.',
     },
     {
       name: 'expo-haptics',
-      message: "Use our internal `HapticFeedback` wrapper instead: `import { HapticFeedback } from 'mobile/src'`",
+      message:
+        "Use our internal `HapticFeedback` wrapper instead: `import { HapticFeedback } from 'mobile/src'`",
     },
     {
       name: 'react-router-dom',
@@ -154,9 +163,10 @@ const nativeRules = {
     },
   ],
   patterns: sharedRules.patterns,
-}
+};
 
-const reactNativeRuleMessage = "React Native modules should not be imported outside of .native.ts files unless they are only types (import type { ... }). If the file isn't used outside of native usage, add it to the excluded files in webPlatform.js."
+const reactNativeRuleMessage =
+  "React Native modules should not be imported outside of .native.ts files unless they are only types (import type { ... }). If the file isn't used outside of native usage, add it to the excluded files in webPlatform.js.";
 
 // Rules that should apply to any code that's run on the web (interface) platform
 const webPlatformRules = {
@@ -170,12 +180,14 @@ const webPlatformRules = {
     },
     {
       name: 'ui/src/components/icons',
-      message: "Please import icons directly from their respective files, e.g. `ui/src/components/icons/SpecificIcon`. This is to avoid importing the entire icons folder when only some icons are needed, which increases bundle size",
+      message:
+        'Please import icons directly from their respective files, e.g. `ui/src/components/icons/SpecificIcon`. This is to avoid importing the entire icons folder when only some icons are needed, which increases bundle size',
     },
     {
       name: 'ui/src/components/modal/AdaptiveWebModal',
-      message: 'Please import Modal from `uniswap/src/components/modals/Modal` instead. Modal uses AdaptiveWebModal under the hood but has extra logic for handling animation, mounting, and dismounting.',
-    }
+      message:
+        'Please import Modal from `uniswap/src/components/modals/Modal` instead. Modal uses AdaptiveWebModal under the hood but has extra logic for handling animation, mounting, and dismounting.',
+    },
   ],
   patterns: [
     ...sharedRules.patterns,
@@ -191,20 +203,20 @@ const webPlatformRules = {
       ],
       allowTypeImports: true,
       message: reactNativeRuleMessage,
-    }
+    },
   ],
-}
+};
 
 const extensionRules = {
   paths: [
     // Allow general icon path in extension
-    ...webPlatformRules.paths.filter((p) => p.name !== 'ui/src/components/icons')
+    ...webPlatformRules.paths.filter(p => p.name !== 'ui/src/components/icons'),
   ],
   patterns: [
     // Remove react native rules for extension
-    ...webPlatformRules.patterns.filter((p) => p.message !== reactNativeRuleMessage)
-  ]
-}
+    ...webPlatformRules.patterns.filter(p => p.message !== reactNativeRuleMessage),
+  ],
+};
 
 // Rules that should apply to the web interface only
 const interfaceRules = {
@@ -227,17 +239,20 @@ const interfaceRules = {
     {
       name: 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks',
       importNames: ['useActivityWebQuery'],
-      message: 'Import cached/subscription-based activity hooks from `AssetActivityProvider` instead.',
+      message:
+        'Import cached/subscription-based activity hooks from `AssetActivityProvider` instead.',
     },
     {
       name: '@uniswap/smart-order-router',
-      message: 'Only import types, unless you are in the client-side SOR, to preserve lazy-loading.',
+      message:
+        'Only import types, unless you are in the client-side SOR, to preserve lazy-loading.',
       allowTypeImports: true,
     },
     {
       name: 'moment',
       // tree-shaking for moment is not configured because it degrades performance - see craco.config.cjs.
-      message: 'moment is not configured for tree-shaking. If you use it, update the Webpack configuration.',
+      message:
+        'moment is not configured for tree-shaking. If you use it, update the Webpack configuration.',
     },
     {
       name: 'react-helmet-async',
@@ -276,16 +291,16 @@ const interfaceRules = {
       message: 'Import wrapped useBlockNumber util from `hooks/useBlockNumber` instead.',
     },
   ],
-  patterns: webPlatformRules.patterns
-}
+  patterns: webPlatformRules.patterns,
+};
 
 // Universal
-exports.shared = sharedRules
+exports.shared = sharedRules;
 
 // Platform
-exports.native = nativeRules
-exports.webPlatform = webPlatformRules
+exports.native = nativeRules;
+exports.webPlatform = webPlatformRules;
 
 // App Specific
-exports.interface = interfaceRules
-exports.extension = extensionRules
+exports.interface = interfaceRules;
+exports.extension = extensionRules;

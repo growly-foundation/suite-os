@@ -1,58 +1,63 @@
-import { skipToken } from '@reduxjs/toolkit/query/react'
-import { renderHook } from '@testing-library/react'
-import { CurrencyAmount, TradeType } from '@uniswap/sdk-core'
-import useIsWindowVisible from 'hooks/useIsWindowVisible'
-import ms from 'ms'
-import { useGetQuoteQuery, useGetQuoteQueryState } from 'state/routing/slice'
-import { GetQuoteArgs, INTERNAL_ROUTER_PREFERENCE_PRICE, RouterPreference, URAQuoteType } from 'state/routing/types'
-import { useRoutingAPITrade } from 'state/routing/useRoutingAPITrade'
-import { currencyAddressForSwapQuote } from 'state/routing/utils'
-import { useRouterPreference } from 'state/user/hooks'
-import { ETH_MAINNET } from 'test-utils/constants'
-import { mocked } from 'test-utils/mocked'
-import { USDC_MAINNET } from 'uniswap/src/constants/tokens'
-import { useIsMismatchAccountQuery } from 'uniswap/src/features/smartWallet/mismatch/hooks'
-import { AVERAGE_L1_BLOCK_TIME_MS } from 'uniswap/src/features/transactions/hooks/usePollingIntervalByChain'
+import { skipToken } from '@reduxjs/toolkit/query/react';
+import { renderHook } from '@testing-library/react';
+import { CurrencyAmount, TradeType } from '@uniswap/sdk-core';
+import useIsWindowVisible from 'hooks/useIsWindowVisible';
+import ms from 'ms';
+import { useGetQuoteQuery, useGetQuoteQueryState } from 'state/routing/slice';
+import {
+  GetQuoteArgs,
+  INTERNAL_ROUTER_PREFERENCE_PRICE,
+  RouterPreference,
+  URAQuoteType,
+} from 'state/routing/types';
+import { useRoutingAPITrade } from 'state/routing/useRoutingAPITrade';
+import { currencyAddressForSwapQuote } from 'state/routing/utils';
+import { useRouterPreference } from 'state/user/hooks';
+import { ETH_MAINNET } from 'test-utils/constants';
+import { mocked } from 'test-utils/mocked';
+import { USDC_MAINNET } from 'uniswap/src/constants/tokens';
+import { useIsMismatchAccountQuery } from 'uniswap/src/features/smartWallet/mismatch/hooks';
+import { AVERAGE_L1_BLOCK_TIME_MS } from 'uniswap/src/features/transactions/hooks/usePollingIntervalByChain';
 
-const USDCAmount = CurrencyAmount.fromRawAmount(USDC_MAINNET, '10000')
+const USDCAmount = CurrencyAmount.fromRawAmount(USDC_MAINNET, '10000');
 
-jest.mock('hooks/useIsWindowVisible')
+jest.mock('hooks/useIsWindowVisible');
 jest.mock('./slice', () => {
   return {
     useGetQuoteQuery: jest.fn(),
     useGetQuoteQueryState: jest.fn(),
-  }
-})
-jest.mock('state/user/hooks')
+  };
+});
+jest.mock('state/user/hooks');
 jest.mock('uniswap/src/features/gating/hooks', () => {
   return {
     useFeatureFlag: jest.fn(),
     useExperimentValue: jest.fn(),
-  }
-})
+  };
+});
 jest.mock('uniswap/src/features/smartWallet/mismatch/hooks', () => ({
   useIsMismatchAccountQuery: jest.fn(),
-}))
+}));
 
 beforeEach(() => {
-  mocked(useIsWindowVisible).mockReturnValue(true)
-  mocked(useRouterPreference).mockReturnValue([RouterPreference.API, () => undefined])
+  mocked(useIsWindowVisible).mockReturnValue(true);
+  mocked(useRouterPreference).mockReturnValue([RouterPreference.API, () => undefined]);
   // @ts-ignore we dont use the response from this hook in useRoutingAPITrade so fine to mock as undefined
-  mocked(useGetQuoteQuery).mockReturnValue(undefined)
+  mocked(useGetQuoteQuery).mockReturnValue(undefined);
   mocked(useGetQuoteQueryState).mockReturnValue({
     refetch: jest.fn(),
     isError: false,
     data: undefined,
     error: false,
     currentData: undefined,
-  })
+  });
 
   mocked(useIsMismatchAccountQuery).mockReturnValue({
     data: false,
     isLoading: false,
     isError: false,
-  } as any)
-})
+  } as any);
+});
 
 const MOCK_ARGS: GetQuoteArgs = {
   account: undefined,
@@ -72,63 +77,93 @@ const MOCK_ARGS: GetQuoteArgs = {
   sendPortionEnabled: true,
   protocolPreferences: undefined,
   routingType: URAQuoteType.DUTCH_V2,
-}
+};
 
 describe('#useRoutingAPITrade ExactIn', () => {
   it('does not call routing api when window is not focused for quote requests', () => {
-    mocked(useIsWindowVisible).mockReturnValue(false)
+    mocked(useIsWindowVisible).mockReturnValue(false);
 
     const { result } = renderHook(() =>
-      useRoutingAPITrade(false, TradeType.EXACT_INPUT, USDCAmount, ETH_MAINNET, RouterPreference.API),
-    )
+      useRoutingAPITrade(
+        false,
+        TradeType.EXACT_INPUT,
+        USDCAmount,
+        ETH_MAINNET,
+        RouterPreference.API
+      )
+    );
 
     expect(useGetQuoteQuery).toHaveBeenCalledWith(skipToken, {
       pollingInterval: AVERAGE_L1_BLOCK_TIME_MS,
       refetchOnMountOrArgChange: 2 * 60,
-    })
-    expect(result.current?.trade).toEqual(undefined)
-  })
+    });
+    expect(result.current?.trade).toEqual(undefined);
+  });
 
   it('does call routing api when window is focused for quote requests', () => {
-    mocked(useIsWindowVisible).mockReturnValue(true)
+    mocked(useIsWindowVisible).mockReturnValue(true);
 
-    renderHook(() => useRoutingAPITrade(false, TradeType.EXACT_INPUT, USDCAmount, ETH_MAINNET, RouterPreference.API))
+    renderHook(() =>
+      useRoutingAPITrade(
+        false,
+        TradeType.EXACT_INPUT,
+        USDCAmount,
+        ETH_MAINNET,
+        RouterPreference.API
+      )
+    );
 
     expect(useGetQuoteQuery).toHaveBeenCalledWith(MOCK_ARGS, {
       pollingInterval: AVERAGE_L1_BLOCK_TIME_MS,
       refetchOnMountOrArgChange: 2 * 60,
-    })
-  })
-})
+    });
+  });
+});
 
 describe('#useRoutingAPITrade pricing', () => {
   it('does not call routing api when window is not focused for price requests', () => {
-    mocked(useIsWindowVisible).mockReturnValue(false)
+    mocked(useIsWindowVisible).mockReturnValue(false);
 
     const { result } = renderHook(() =>
-      useRoutingAPITrade(false, TradeType.EXACT_INPUT, USDCAmount, ETH_MAINNET, INTERNAL_ROUTER_PREFERENCE_PRICE),
-    )
+      useRoutingAPITrade(
+        false,
+        TradeType.EXACT_INPUT,
+        USDCAmount,
+        ETH_MAINNET,
+        INTERNAL_ROUTER_PREFERENCE_PRICE
+      )
+    );
 
     expect(useGetQuoteQuery).toHaveBeenCalledWith(skipToken, {
       pollingInterval: ms(`1m`),
       refetchOnMountOrArgChange: 2 * 60,
-    })
-    expect(result.current?.trade).toEqual(undefined)
-  })
+    });
+    expect(result.current?.trade).toEqual(undefined);
+  });
 
   it('does call routing api when window is focused for pricing requests', () => {
-    mocked(useIsWindowVisible).mockReturnValue(true)
+    mocked(useIsWindowVisible).mockReturnValue(true);
 
     renderHook(() =>
-      useRoutingAPITrade(false, TradeType.EXACT_INPUT, USDCAmount, ETH_MAINNET, INTERNAL_ROUTER_PREFERENCE_PRICE),
-    )
+      useRoutingAPITrade(
+        false,
+        TradeType.EXACT_INPUT,
+        USDCAmount,
+        ETH_MAINNET,
+        INTERNAL_ROUTER_PREFERENCE_PRICE
+      )
+    );
 
     expect(useGetQuoteQuery).toHaveBeenCalledWith(
-      { ...MOCK_ARGS, sendPortionEnabled: false, routerPreference: INTERNAL_ROUTER_PREFERENCE_PRICE },
+      {
+        ...MOCK_ARGS,
+        sendPortionEnabled: false,
+        routerPreference: INTERNAL_ROUTER_PREFERENCE_PRICE,
+      },
       {
         pollingInterval: ms(`1m`),
         refetchOnMountOrArgChange: 2 * 60,
-      },
-    )
-  })
-})
+      }
+    );
+  });
+});

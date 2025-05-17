@@ -10,19 +10,15 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Copy } from 'lucide-react';
-import { AggregatedWorkflow } from '@growly/core';
+import { AggregatedAgent, AggregatedWorkflow } from '@growly/core';
 
 interface IntegrationGuideDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  workflow: AggregatedWorkflow;
+  agent: AggregatedAgent;
 }
 
-export function IntegrationGuideDialog({
-  open,
-  onOpenChange,
-  workflow,
-}: IntegrationGuideDialogProps) {
+export function IntegrationGuideDialog({ open, onOpenChange, agent }: IntegrationGuideDialogProps) {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
   };
@@ -32,8 +28,14 @@ import { SuiteProvider } from '@growly/suite';
 
 export default function App({ Component, pageProps }) {
   return (
-    <SuiteProvider workflowId="${workflow.id}">
-      <Component {...pageProps} />
+    <SuiteProvider context={{
+        agentId: ${agent.id},
+        organizationApiKey: ${agent.organization_id},
+        config: {
+          display: 'fullView',
+        },
+      }}>
+      <IntegrationWidget />
     </SuiteProvider>
   );
 }
@@ -42,10 +44,9 @@ export default function App({ Component, pageProps }) {
   const widgetCode = `
 import { ChatWidget } from '@growly/suite';
 
-export default function Layout({ children }) {
+export default function IntegrationWidget() {
   return (
     <div>
-      {children}
       <ChatWidget />
     </div>
   );
@@ -55,7 +56,7 @@ export default function Layout({ children }) {
   const stepCode = `
 // Example for a button that triggers a step
 <div 
-  data-growly="${workflow.steps && workflow.steps.length > 0 ? workflow.steps[0].id : 'step-id'}"
+  data-growly="${agent.workflows && agent.workflows.length > 0 ? agent.workflows[0].id : 'workflow-id'}"
 >
   Click me to trigger the step
 </div>
@@ -163,16 +164,16 @@ export default function Layout({ children }) {
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-lg font-medium">Workflow Details</h3>
+                <h3 className="text-lg font-medium">Agent Details</h3>
                 <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-md">
                   <p>
-                    <strong>Workflow ID:</strong> {workflow.id}
+                    <strong>Agent ID:</strong> {agent.id}
                   </p>
                   <p>
-                    <strong>Name:</strong> {workflow.name}
+                    <strong>Name:</strong> {agent.name}
                   </p>
                   <p>
-                    <strong>Steps:</strong> {workflow.steps?.length || 0}
+                    <strong>Workflows:</strong> {agent.workflows?.length || 0}
                   </p>
                 </div>
               </div>

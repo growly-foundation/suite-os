@@ -1,16 +1,16 @@
-import { stringify } from 'qs'
-import { useMemo } from 'react'
-import type { To } from 'react-router-dom'
-import { useLocation } from 'react-router-dom'
-import { useUrlContext } from 'uniswap/src/contexts/UrlContext'
-import { Locale } from 'uniswap/src/features/language/constants'
+import { stringify } from 'qs';
+import { useMemo } from 'react';
+import type { To } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useUrlContext } from 'uniswap/src/contexts/UrlContext';
+import { Locale } from 'uniswap/src/features/language/constants';
 
 export function useLocationLinkProps(locale: Locale | null): {
-  to?: To
+  to?: To;
 } {
-  const location = useLocation()
-  const { useParsedQueryString } = useUrlContext()
-  const qs = useParsedQueryString()
+  const location = useLocation();
+  const { useParsedQueryString } = useUrlContext();
+  const qs = useParsedQueryString();
 
   return useMemo(
     () =>
@@ -22,6 +22,6 @@ export function useLocationLinkProps(locale: Locale | null): {
               search: stringify({ ...qs, lng: locale }),
             },
           },
-    [location, qs, locale],
-  )
+    [location, qs, locale]
+  );
 }

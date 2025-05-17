@@ -1,7 +1,13 @@
-import type { SVGProps } from 'constants/icons/types'
+import type { SVGProps } from 'constants/icons/types';
 
 const KRW_ICON = (props: SVGProps) => (
-  <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+  <svg
+    width="512"
+    height="512"
+    viewBox="0 0 512 512"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}>
     <g clipPath="url(#clip0_2_35996)">
       <path fillRule="evenodd" clipRule="evenodd" d="M0 0H512V512H0V0Z" fill="white" />
       <path
@@ -10,7 +16,12 @@ const KRW_ICON = (props: SVGProps) => (
         d="M21.9756 167.546L84.3956 73.9515L99.9947 84.3549L37.5747 177.95L21.9756 167.546ZM45.3743 183.151L107.794 89.5565L123.393 99.9599L60.9734 193.555L45.3743 183.151ZM68.773 198.756L131.193 105.162L146.792 115.565L84.3721 209.16L68.773 198.756Z"
         fill="black"
       />
-      <path fillRule="evenodd" clipRule="evenodd" d="M388.567 344.421L466.563 396.437L388.567 344.421Z" fill="black" />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M388.567 344.421L466.563 396.437L388.567 344.421Z"
+        fill="black"
+      />
       <path d="M388.567 344.421L466.563 396.437" stroke="white" strokeWidth="9.375" />
       <path
         fillRule="evenodd"
@@ -49,6 +60,6 @@ const KRW_ICON = (props: SVGProps) => (
       </clipPath>
     </defs>
   </svg>
-)
+);
 
-export default KRW_ICON
+export default KRW_ICON;

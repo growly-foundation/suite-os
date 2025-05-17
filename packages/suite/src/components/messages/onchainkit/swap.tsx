@@ -8,10 +8,11 @@ import {
 } from '@coinbase/onchainkit/swap';
 import { OnchainKitSwapMessageContent } from '@growly/core';
 
-export const buildOnchainKitSwapMessage = (
-  { fromToken, swappableTokens, toToken }: OnchainKitSwapMessageContent['content'],
-  time: string
-) => {
+export const buildOnchainKitSwapMessage = ({
+  fromToken,
+  swappableTokens,
+  toToken,
+}: OnchainKitSwapMessageContent['content']) => {
   return (
     <div>
       <Swap className="w-full" headerLeftContent={''} title={''}>
@@ -28,8 +29,6 @@ export const buildOnchainKitSwapMessage = (
         <SwapMessage />
         <SwapToast />
       </Swap>
-      <br />
-      <span className="text-xs opacity-50">{time}</span>
     </div>
   );
 };

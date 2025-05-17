@@ -1,57 +1,62 @@
-import { InterfacePageName } from '@uniswap/analytics-events'
-import { Currency, CurrencyAmount, Token } from '@uniswap/sdk-core'
-import { useAccountDrawer } from 'components/AccountDrawer/MiniPortfolio/hooks'
-import { BreadcrumbNavContainer, BreadcrumbNavLink } from 'components/BreadcrumbNav'
-import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo'
-import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
-import { V2Unsupported } from 'components/V2Unsupported'
-import { useAccount } from 'hooks/useAccount'
-import { useNetworkSupportsV2 } from 'hooks/useNetworkSupportsV2'
-import { useTotalSupply } from 'hooks/useTotalSupply'
-import { useV2Pair } from 'hooks/useV2Pairs'
-import JSBI from 'jsbi'
-import ms from 'ms'
-import { CurrencySelector } from 'pages/Pool/Positions/create/SelectTokenStep'
-import { useEffect, useState } from 'react'
-import { ArrowLeft } from 'react-feather'
-import { Trans, useTranslation } from 'react-i18next'
-import { useTokenBalance } from 'state/connection/hooks'
-import { usePairAdder } from 'state/user/hooks'
-import { PositionField } from 'types/position'
-import { Button, Flex, Text } from 'ui/src'
-import { nativeOnChain } from 'uniswap/src/constants/tokens'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { useCurrencyInfo } from 'uniswap/src/features/tokens/useCurrencyInfo'
-import { useUSDCValue } from 'uniswap/src/features/transactions/hooks/useUSDCPrice'
-import { currencyId } from 'uniswap/src/utils/currencyId'
-import { NumberType, useFormatter } from 'utils/formatNumbers'
+import { InterfacePageName } from '@uniswap/analytics-events';
+import { Currency, CurrencyAmount, Token } from '@uniswap/sdk-core';
+import { useAccountDrawer } from 'components/AccountDrawer/MiniPortfolio/hooks';
+import { BreadcrumbNavContainer, BreadcrumbNavLink } from 'components/BreadcrumbNav';
+import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo';
+import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal';
+import { V2Unsupported } from 'components/V2Unsupported';
+import { useAccount } from 'hooks/useAccount';
+import { useNetworkSupportsV2 } from 'hooks/useNetworkSupportsV2';
+import { useTotalSupply } from 'hooks/useTotalSupply';
+import { useV2Pair } from 'hooks/useV2Pairs';
+import JSBI from 'jsbi';
+import ms from 'ms';
+import { CurrencySelector } from 'pages/Pool/Positions/create/SelectTokenStep';
+import { useEffect, useState } from 'react';
+import { ArrowLeft } from 'react-feather';
+import { Trans, useTranslation } from 'react-i18next';
+import { useTokenBalance } from 'state/connection/hooks';
+import { usePairAdder } from 'state/user/hooks';
+import { PositionField } from 'types/position';
+import { Button, Flex, Text } from 'ui/src';
+import { nativeOnChain } from 'uniswap/src/constants/tokens';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { useCurrencyInfo } from 'uniswap/src/features/tokens/useCurrencyInfo';
+import { useUSDCValue } from 'uniswap/src/features/transactions/hooks/useUSDCPrice';
+import { currencyId } from 'uniswap/src/utils/currencyId';
+import { NumberType, useFormatter } from 'utils/formatNumbers';
 
 export default function PoolFinder() {
-  const account = useAccount()
-  const { t } = useTranslation()
-  const accountDrawer = useAccountDrawer()
-  const { formatCurrencyAmount } = useFormatter()
-  const [success, setSuccess] = useState(false)
+  const account = useAccount();
+  const { t } = useTranslation();
+  const accountDrawer = useAccountDrawer();
+  const { formatCurrencyAmount } = useFormatter();
+  const [success, setSuccess] = useState(false);
 
   const [currency0, setCurrency0] = useState<Currency | undefined>(() =>
-    account.chainId ? nativeOnChain(account.chainId) : undefined,
-  )
-  const [currency1, setCurrency1] = useState<Currency | undefined>()
-  const [currencySearchInputState, setCurrencySearchInputState] = useState<PositionField | undefined>(undefined)
+    account.chainId ? nativeOnChain(account.chainId) : undefined
+  );
+  const [currency1, setCurrency1] = useState<Currency | undefined>();
+  const [currencySearchInputState, setCurrencySearchInputState] = useState<
+    PositionField | undefined
+  >(undefined);
 
-  const [, pair] = useV2Pair(currency0, currency1)
-  const addPair = usePairAdder()
+  const [, pair] = useV2Pair(currency0, currency1);
+  const addPair = usePairAdder();
   useEffect(() => {
     if (pair) {
-      addPair(pair)
+      addPair(pair);
     }
-  }, [pair, addPair])
+  }, [pair, addPair]);
 
-  const position: CurrencyAmount<Token> | undefined = useTokenBalance(account.address, pair?.liquidityToken)
-  const hasPosition = Boolean(position && JSBI.greaterThan(position.quotient, JSBI.BigInt(0)))
+  const position: CurrencyAmount<Token> | undefined = useTokenBalance(
+    account.address,
+    pair?.liquidityToken
+  );
+  const hasPosition = Boolean(position && JSBI.greaterThan(position.quotient, JSBI.BigInt(0)));
 
-  const userPoolBalance = useTokenBalance(account.address, pair?.liquidityToken)
-  const totalPoolTokens = useTotalSupply(pair?.liquidityToken)
+  const userPoolBalance = useTokenBalance(account.address, pair?.liquidityToken);
+  const totalPoolTokens = useTotalSupply(pair?.liquidityToken);
 
   const [token0Deposited, token1Deposited] =
     !!pair &&
@@ -63,17 +68,17 @@ export default function PoolFinder() {
           pair.getLiquidityValue(pair.token0, totalPoolTokens, userPoolBalance, false),
           pair.getLiquidityValue(pair.token1, totalPoolTokens, userPoolBalance, false),
         ]
-      : [undefined, undefined]
+      : [undefined, undefined];
 
-  const token0UsdValue = useUSDCValue(token0Deposited)
-  const token1UsdValue = useUSDCValue(token1Deposited)
+  const token0UsdValue = useUSDCValue(token0Deposited);
+  const token1UsdValue = useUSDCValue(token1Deposited);
 
-  const currency0CurrencyInfo = useCurrencyInfo(currencyId(currency0))
-  const currency1CurrencyInfo = useCurrencyInfo(currencyId(currency1))
+  const currency0CurrencyInfo = useCurrencyInfo(currencyId(currency0));
+  const currency1CurrencyInfo = useCurrencyInfo(currencyId(currency1));
 
-  const networkSupportsV2 = useNetworkSupportsV2()
+  const networkSupportsV2 = useNetworkSupportsV2();
   if (!networkSupportsV2) {
-    return <V2Unsupported />
+    return <V2Unsupported />;
   }
 
   return (
@@ -87,7 +92,12 @@ export default function PoolFinder() {
 
         <Text variant="heading2">{t('pool.import.positions.v2')}</Text>
 
-        <Flex mt="$spacing40" borderRadius="$rounded20" borderColor="$surface3" borderWidth="$spacing1" p="$spacing24">
+        <Flex
+          mt="$spacing40"
+          borderRadius="$rounded20"
+          borderColor="$surface3"
+          borderWidth="$spacing1"
+          p="$spacing24">
           <Text variant="subheading1">{t('pool.selectPair')}</Text>
           <Text variant="body3" mt="$gap4">
             {t('pool.import.positions.v2.selectPair.description')}
@@ -125,8 +135,7 @@ export default function PoolFinder() {
               borderRadius="$rounded16"
               borderWidth="$spacing1"
               borderColor="$surface3"
-              $md={{ row: false, gap: '$gap16', alignItems: 'flex-start' }}
-            >
+              $md={{ row: false, gap: '$gap16', alignItems: 'flex-start' }}>
               <Flex row alignItems="center" gap="$gap16" $md={{ justifyContent: 'space-between' }}>
                 <DoubleCurrencyLogo currencies={[currency0, currency1]} size={40} />
                 <Text variant="subheading1">
@@ -140,8 +149,7 @@ export default function PoolFinder() {
                   alignItems: 'center',
                   flexDirection: 'row-reverse',
                   justifyContent: 'space-between',
-                }}
-              >
+                }}>
                 <Text variant="body2" textAlign="right">
                   {formatCurrencyAmount({
                     amount: token0UsdValue.add(token1UsdValue),
@@ -167,15 +175,18 @@ export default function PoolFinder() {
                 isDisabled={!hasPosition || success}
                 onPress={() => {
                   if (hasPosition && pair) {
-                    addPair(pair)
-                    setSuccess(true)
+                    addPair(pair);
+                    setSuccess(true);
                     setTimeout(() => {
-                      setSuccess(false)
-                    }, ms('3s'))
+                      setSuccess(false);
+                    }, ms('3s'));
                   }
-                }}
-              >
-                {hasPosition ? (success ? t('pool.import.success') : t('pool.import')) : t('common.button.continue')}
+                }}>
+                {hasPosition
+                  ? success
+                    ? t('pool.import.success')
+                    : t('pool.import')
+                  : t('common.button.continue')}
               </Button>
             )}
           </Flex>
@@ -184,16 +195,16 @@ export default function PoolFinder() {
         <CurrencySearchModal
           isOpen={currencySearchInputState !== undefined}
           onDismiss={() => setCurrencySearchInputState(undefined)}
-          onCurrencySelect={(currency) => {
+          onCurrencySelect={currency => {
             if (currencySearchInputState === PositionField.TOKEN0) {
-              setCurrency0(currency)
+              setCurrency0(currency);
             } else if (currencySearchInputState === PositionField.TOKEN1) {
-              setCurrency1(currency)
+              setCurrency1(currency);
             }
-            setCurrencySearchInputState(undefined)
+            setCurrencySearchInputState(undefined);
           }}
         />
       </Flex>
     </Trace>
-  )
+  );
 }

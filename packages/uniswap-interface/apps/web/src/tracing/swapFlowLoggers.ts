@@ -1,20 +1,23 @@
-import { SwapEventName } from '@uniswap/analytics-events'
-import { SignatureType } from 'state/signatures/types'
-import { ConfirmedTransactionDetails, TransactionType } from 'state/transactions/types'
-import { UniswapXOrderStatus } from 'types/uniswapx'
-import { TransactionStatus } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send'
-import { SwapRouting } from 'uniswap/src/features/telemetry/types'
-import { SwapEventType, timestampTracker } from 'uniswap/src/features/transactions/swap/utils/SwapEventTimestampTracker'
-import { TransactionOriginType } from 'uniswap/src/features/transactions/types/transactionDetails'
-import { logger } from 'utilities/src/logger/logger'
-import { ITraceContext } from 'utilities/src/telemetry/trace/TraceContext'
+import { SwapEventName } from '@uniswap/analytics-events';
+import { SignatureType } from 'state/signatures/types';
+import { ConfirmedTransactionDetails, TransactionType } from 'state/transactions/types';
+import { UniswapXOrderStatus } from 'types/uniswapx';
+import { TransactionStatus } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send';
+import { SwapRouting } from 'uniswap/src/features/telemetry/types';
+import {
+  SwapEventType,
+  timestampTracker,
+} from 'uniswap/src/features/transactions/swap/utils/SwapEventTimestampTracker';
+import { TransactionOriginType } from 'uniswap/src/features/transactions/types/transactionDetails';
+import { logger } from 'utilities/src/logger/logger';
+import { ITraceContext } from 'utilities/src/telemetry/trace/TraceContext';
 
-type OnChainSwapTransactionType = TransactionType.SWAP | TransactionType.BRIDGE
+type OnChainSwapTransactionType = TransactionType.SWAP | TransactionType.BRIDGE;
 const TRANSACTION_TYPE_TO_SWAP_ROUTING: Record<OnChainSwapTransactionType, SwapRouting> = {
   [TransactionType.SWAP]: 'classic',
   [TransactionType.BRIDGE]: 'bridge',
-}
+};
 
 export function logSwapFinalized(
   hash: string,
@@ -23,15 +26,15 @@ export function logSwapFinalized(
   chainOutId: number,
   analyticsContext: ITraceContext,
   status: ConfirmedTransactionDetails['status'],
-  type: OnChainSwapTransactionType,
+  type: OnChainSwapTransactionType
 ) {
-  const hasSetSwapSuccess = timestampTracker.hasTimestamp(SwapEventType.FirstSwapSuccess)
-  const elapsedTime = timestampTracker.setElapsedTime(SwapEventType.FirstSwapSuccess)
+  const hasSetSwapSuccess = timestampTracker.hasTimestamp(SwapEventType.FirstSwapSuccess);
+  const elapsedTime = timestampTracker.setElapsedTime(SwapEventType.FirstSwapSuccess);
 
   const event =
     status === TransactionStatus.Confirmed
       ? SwapEventName.SWAP_TRANSACTION_COMPLETED
-      : SwapEventName.SWAP_TRANSACTION_FAILED
+      : SwapEventName.SWAP_TRANSACTION_FAILED;
 
   sendAnalyticsEvent(event, {
     routing: TRANSACTION_TYPE_TO_SWAP_ROUTING[type],
@@ -40,7 +43,10 @@ export function logSwapFinalized(
     time_to_swap: hasSetSwapSuccess ? undefined : elapsedTime,
     time_to_swap_since_first_input: hasSetSwapSuccess
       ? undefined
-      : timestampTracker.getElapsedTime(SwapEventType.FirstSwapSuccess, SwapEventType.FirstSwapAction),
+      : timestampTracker.getElapsedTime(
+          SwapEventType.FirstSwapSuccess,
+          SwapEventType.FirstSwapAction
+        ),
     hash,
     batch_id: batchId,
     chain_id: chainInId,
@@ -48,14 +54,14 @@ export function logSwapFinalized(
     chain_id_out: chainOutId,
     transactionOriginType: TransactionOriginType.Internal,
     ...analyticsContext,
-  })
+  });
 
   // log failed swaps to datadog
   if (status === TransactionStatus.Failed && type === TransactionType.SWAP) {
     logger.warn('swapFlowLoggers', 'logSwapFinalized', 'Onchain Swap Failure', {
       hash,
       chainId: chainInId,
-    })
+    });
   }
 }
 
@@ -65,7 +71,7 @@ const SIGNATURE_TYPE_TO_SWAP_ROUTING: Record<SignatureType, SwapRouting> = {
   [SignatureType.SIGN_UNISWAPX_V2_ORDER]: 'uniswap_x_v2',
   [SignatureType.SIGN_UNISWAPX_V3_ORDER]: 'uniswap_x_v3',
   [SignatureType.SIGN_UNISWAPX_ORDER]: 'uniswap_x',
-}
+};
 
 export function logUniswapXSwapFinalized(
   hash: string | undefined,
@@ -73,15 +79,15 @@ export function logUniswapXSwapFinalized(
   chainId: number,
   analyticsContext: ITraceContext,
   signatureType: SignatureType,
-  status: UniswapXOrderStatus.FILLED | UniswapXOrderStatus.CANCELLED | UniswapXOrderStatus.EXPIRED,
+  status: UniswapXOrderStatus.FILLED | UniswapXOrderStatus.CANCELLED | UniswapXOrderStatus.EXPIRED
 ) {
-  const hasSetSwapSuccess = timestampTracker.hasTimestamp(SwapEventType.FirstSwapSuccess)
-  const elapsedTime = timestampTracker.setElapsedTime(SwapEventType.FirstSwapSuccess)
+  const hasSetSwapSuccess = timestampTracker.hasTimestamp(SwapEventType.FirstSwapSuccess);
+  const elapsedTime = timestampTracker.setElapsedTime(SwapEventType.FirstSwapSuccess);
 
   const event =
     status === UniswapXOrderStatus.FILLED
       ? SwapEventName.SWAP_TRANSACTION_COMPLETED
-      : SwapEventName.SWAP_TRANSACTION_FAILED
+      : SwapEventName.SWAP_TRANSACTION_FAILED;
 
   sendAnalyticsEvent(event, {
     routing: SIGNATURE_TYPE_TO_SWAP_ROUTING[signatureType],
@@ -92,9 +98,12 @@ export function logUniswapXSwapFinalized(
     time_to_swap: hasSetSwapSuccess ? undefined : elapsedTime,
     time_to_swap_since_first_input: hasSetSwapSuccess
       ? undefined
-      : timestampTracker.getElapsedTime(SwapEventType.FirstSwapSuccess, SwapEventType.FirstSwapAction),
+      : timestampTracker.getElapsedTime(
+          SwapEventType.FirstSwapSuccess,
+          SwapEventType.FirstSwapAction
+        ),
     hash,
     chain_id: chainId,
     ...analyticsContext,
-  })
+  });
 }

@@ -1,18 +1,18 @@
-import { TFunction } from 'i18next'
-import { logger } from 'utilities/src/logger/logger'
-import { UserRejectedRequestError } from 'utils/errors'
+import { TFunction } from 'i18next';
+import { logger } from 'utilities/src/logger/logger';
+import { UserRejectedRequestError } from 'utils/errors';
 
 function getReason(error: any): string | undefined {
-  let reason: string | undefined
+  let reason: string | undefined;
   while (error) {
-    reason = error.reason ?? error.message ?? reason
-    error = error.error ?? error.data?.originalError
+    reason = error.reason ?? error.message ?? reason;
+    error = error.error ?? error.data?.originalError;
   }
-  return reason
+  return reason;
 }
 
 export function didUserReject(error: any): boolean {
-  const reason = getReason(error)
+  const reason = getReason(error);
   if (
     error?.code === 4001 ||
     // eip-5792 upgrade rejected error https://eips.ethereum.org/EIPS/eip-5792#error-codes
@@ -33,9 +33,9 @@ export function didUserReject(error: any): boolean {
     reason?.match(/user rejected/i) ||
     error instanceof UserRejectedRequestError
   ) {
-    return true
+    return true;
   }
-  return false
+  return false;
 }
 
 /**
@@ -45,42 +45,42 @@ export function didUserReject(error: any): boolean {
  */
 export function swapErrorToUserReadableMessage(t: TFunction, error: any): string {
   if (didUserReject(error)) {
-    return t('swap.error.rejected')
+    return t('swap.error.rejected');
   }
 
-  let reason = getReason(error)
+  let reason = getReason(error);
   if (reason?.indexOf('execution reverted: ') === 0) {
-    reason = reason.substr('execution reverted: '.length)
+    reason = reason.substr('execution reverted: '.length);
   }
 
   switch (reason) {
     case 'UniswapV2Router: EXPIRED':
-      return t('swap.error.v2.expired')
+      return t('swap.error.v2.expired');
     case 'UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT':
     case 'UniswapV2Router: EXCESSIVE_INPUT_AMOUNT':
-      return t('swap.error.v2.slippage')
+      return t('swap.error.v2.slippage');
     case 'TransferHelper: TRANSFER_FROM_FAILED':
-      return t('swap.error.v2.transferInput')
+      return t('swap.error.v2.transferInput');
     case 'UniswapV2: TRANSFER_FAILED':
-      return t('swap.error.v2.transferOutput')
+      return t('swap.error.v2.transferOutput');
     case 'UniswapV2: K':
-      return t('swap.error.v2.k')
+      return t('swap.error.v2.k');
     case 'Too little received':
     case 'Too much requested':
     case 'STF':
-      return t('swap.error.v3.slippage')
+      return t('swap.error.v3.slippage');
     case 'TF':
-      return t('swap.error.v3.transferOutput')
+      return t('swap.error.v3.transferOutput');
     default:
       if (reason?.indexOf('undefined is not an object') !== -1) {
         logger.warn(
           'swapErrorToUserReadableMessage',
           'swapErrorToUserReadableMessage',
           'Undefined object error',
-          reason,
-        )
-        return t('swap.error.undefinedObject')
+          reason
+        );
+        return t('swap.error.undefinedObject');
       }
-      return `${reason ?? t('swap.error.unknown')} ${t('swap.error.default')}`
+      return `${reason ?? t('swap.error.unknown')} ${t('swap.error.default')}`;
   }
 }

@@ -1,7 +1,13 @@
-import { SVGProps } from 'constants/icons/types'
+import { SVGProps } from 'constants/icons/types';
 
 const EUR_ICON = (props: SVGProps) => (
-  <svg width="49" height="49" viewBox="0 0 49 49" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+  <svg
+    width="49"
+    height="49"
+    viewBox="0 0 49 49"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}>
     <g clipPath="url(#clip0_1942_61766)">
       <path d="M0 0H48.5142V48.6368H0V0Z" fill="#003399" />
       <path
@@ -62,6 +68,6 @@ const EUR_ICON = (props: SVGProps) => (
       </clipPath>
     </defs>
   </svg>
-)
+);
 
-export default EUR_ICON
+export default EUR_ICON;

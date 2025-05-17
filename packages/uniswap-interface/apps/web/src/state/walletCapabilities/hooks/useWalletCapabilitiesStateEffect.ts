@@ -1,9 +1,12 @@
-import { useEffect } from 'react'
-import { useAppDispatch, useAppSelector } from 'state/hooks'
-import { useWalletGetCapabilitiesMutation } from 'state/walletCapabilities/hooks/useWalletGetCapabilitiesMutation'
-import { handleResetWalletCapabilitiesState, selectNeedsToCheckCapabilities } from 'state/walletCapabilities/reducer'
-import { useEvent } from 'utilities/src/react/hooks'
-import { useAccount, useAccountEffect } from 'wagmi'
+import { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from 'state/hooks';
+import { useWalletGetCapabilitiesMutation } from 'state/walletCapabilities/hooks/useWalletGetCapabilitiesMutation';
+import {
+  handleResetWalletCapabilitiesState,
+  selectNeedsToCheckCapabilities,
+} from 'state/walletCapabilities/reducer';
+import { useEvent } from 'utilities/src/react/hooks';
+import { useAccount, useAccountEffect } from 'wagmi';
 
 /**
  * [public] useWalletCapabilitiesStateEffect -- handles the effect of getting wallet metadata (eg capabilities) for the
@@ -11,33 +14,34 @@ import { useAccount, useAccountEffect } from 'wagmi'
  */
 
 export function useWalletCapabilitiesStateEffect(): void {
-  const dispatch = useAppDispatch()
-  const { mutate: getCapabilities, isPending: isCheckingCapabilities } = useWalletGetCapabilitiesMutation()
-  const needsToCheckCapabilities = useAppSelector(selectNeedsToCheckCapabilities)
+  const dispatch = useAppDispatch();
+  const { mutate: getCapabilities, isPending: isCheckingCapabilities } =
+    useWalletGetCapabilitiesMutation();
+  const needsToCheckCapabilities = useAppSelector(selectNeedsToCheckCapabilities);
 
-  const account = useAccount()
+  const account = useAccount();
 
   const onConnect = useEvent(() => {
     if (!isCheckingCapabilities) {
-      getCapabilities()
+      getCapabilities();
     }
-  })
+  });
 
   const onDisconnect = useEvent(() => {
-    dispatch(handleResetWalletCapabilitiesState())
-  })
+    dispatch(handleResetWalletCapabilitiesState());
+  });
 
   useAccountEffect({
     onConnect,
     onDisconnect,
-  })
+  });
 
   useEffect(() => {
     // only check capabilities if we haven't checked yet and we have an account
     // this is needed if the user has already connected but we haven't checked capabilities yet
     // (eg when the app is updated but they were already connected)
     if (needsToCheckCapabilities && account.address && !isCheckingCapabilities) {
-      getCapabilities()
+      getCapabilities();
     }
-  }, [needsToCheckCapabilities, account.address, getCapabilities, isCheckingCapabilities])
+  }, [needsToCheckCapabilities, account.address, getCapabilities, isCheckingCapabilities]);
 }

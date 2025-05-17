@@ -1,34 +1,37 @@
-import { CreditCardIcon } from 'components/Icons/CreditCard'
-import { Limit } from 'components/Icons/Limit'
-import { Send } from 'components/Icons/Send'
-import { SwapV2 } from 'components/Icons/SwapV2'
-import { MenuItem } from 'components/NavBar/CompanyMenu/Content'
-import { useTheme } from 'lib/styled-components'
-import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router-dom'
+import { CreditCardIcon } from 'components/Icons/CreditCard';
+import { Limit } from 'components/Icons/Limit';
+import { Send } from 'components/Icons/Send';
+import { SwapV2 } from 'components/Icons/SwapV2';
+import { MenuItem } from 'components/NavBar/CompanyMenu/Content';
+import { useTheme } from 'lib/styled-components';
+import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 
 export type TabsSection = {
-  title: string
-  href: string
-  isActive?: boolean
-  items?: TabsItem[]
-  closeMenu?: () => void
-}
+  title: string;
+  href: string;
+  isActive?: boolean;
+  items?: TabsItem[];
+  closeMenu?: () => void;
+};
 
 export type TabsItem = MenuItem & {
-  icon?: JSX.Element
-}
+  icon?: JSX.Element;
+};
 
 export const useTabsContent = (): TabsSection[] => {
-  const { t } = useTranslation()
-  const { pathname } = useLocation()
-  const theme = useTheme()
+  const { t } = useTranslation();
+  const { pathname } = useLocation();
+  const theme = useTheme();
 
   return [
     {
       title: t('common.trade'),
       href: '/swap',
-      isActive: pathname.startsWith('/swap') || pathname.startsWith('/limit') || pathname.startsWith('/send'),
+      isActive:
+        pathname.startsWith('/swap') ||
+        pathname.startsWith('/limit') ||
+        pathname.startsWith('/send'),
       items: [
         {
           label: t('common.swap'),
@@ -87,5 +90,5 @@ export const useTabsContent = (): TabsSection[] => {
         },
       ],
     },
-  ]
-}
+  ];
+};

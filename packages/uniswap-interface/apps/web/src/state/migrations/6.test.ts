@@ -1,12 +1,12 @@
-import { createMigrate } from 'redux-persist'
-import { migration1 } from 'state/migrations/1'
-import { migration2 } from 'state/migrations/2'
-import { migration3 } from 'state/migrations/3'
-import { migration4 } from 'state/migrations/4'
-import { migration5 } from 'state/migrations/5'
-import { migration6, PersistAppStateV6 } from 'state/migrations/6'
-import { RouterPreference } from 'state/routing/types'
-import { SlippageTolerance } from 'state/user/types'
+import { createMigrate } from 'redux-persist';
+import { migration1 } from 'state/migrations/1';
+import { migration2 } from 'state/migrations/2';
+import { migration3 } from 'state/migrations/3';
+import { migration4 } from 'state/migrations/4';
+import { migration5 } from 'state/migrations/5';
+import { migration6, PersistAppStateV6 } from 'state/migrations/6';
+import { RouterPreference } from 'state/routing/types';
+import { SlippageTolerance } from 'state/user/types';
 
 const persistUserState: PersistAppStateV6['user'] = {
   userRouterPreference: RouterPreference.X,
@@ -18,7 +18,7 @@ const persistUserState: PersistAppStateV6['user'] = {
   tokens: {},
   pairs: {},
   timestamp: Date.now(),
-}
+};
 
 const previousStateUnselected: PersistAppStateV6 = {
   user: {
@@ -29,7 +29,7 @@ const previousStateUnselected: PersistAppStateV6 = {
     version: 5,
     rehydrated: true,
   },
-}
+};
 
 const previousStateSelected: PersistAppStateV6 = {
   user: {
@@ -40,7 +40,7 @@ const previousStateSelected: PersistAppStateV6 = {
     version: 5,
     rehydrated: true,
   },
-}
+};
 
 describe('migration to v6', () => {
   it('should migrate users who have undefined selectedWallet in user state', async () => {
@@ -53,12 +53,12 @@ describe('migration to v6', () => {
         5: migration5,
         6: migration6,
       },
-      { debug: false },
-    )
-    const result: any = await migrator(previousStateUnselected, 6)
-    expect(Object.keys(result)).not.toContain('selectedWallet')
-    expect(result?.user?.recentConnectionMeta).toBeUndefined()
-  })
+      { debug: false }
+    );
+    const result: any = await migrator(previousStateUnselected, 6);
+    expect(Object.keys(result)).not.toContain('selectedWallet');
+    expect(result?.user?.recentConnectionMeta).toBeUndefined();
+  });
 
   it('should migrate users who have defined selectedWallet in user state', async () => {
     const migrator = createMigrate(
@@ -70,10 +70,10 @@ describe('migration to v6', () => {
         5: migration5,
         6: migration6,
       },
-      { debug: false },
-    )
-    const result: any = await migrator(previousStateSelected, 6)
-    expect(Object.keys(result)).not.toContain('selectedWallet')
-    expect(result?.user?.recentConnectionMeta).toMatchObject({ type: 'Injected' })
-  })
-})
+      { debug: false }
+    );
+    const result: any = await migrator(previousStateSelected, 6);
+    expect(Object.keys(result)).not.toContain('selectedWallet');
+    expect(result?.user?.recentConnectionMeta).toMatchObject({ type: 'Injected' });
+  });
+});

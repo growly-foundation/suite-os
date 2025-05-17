@@ -1,6 +1,6 @@
-import { ethCurrencyInfo } from 'pages/Swap/Buy/BuyFormContext'
+import { ethCurrencyInfo } from 'pages/Swap/Buy/BuyFormContext';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import { getFiatCurrencyComponents } from 'utilities/src/format/localeBased'
+import { getFiatCurrencyComponents } from 'utilities/src/format/localeBased';
 
 export const mockServiceProvider = {
   serviceProvider: 'test-provider',
@@ -11,7 +11,7 @@ export const mockServiceProvider = {
     lightLogo: 'test-provider-logo-light',
   },
   paymentMethods: ['Credit Card'],
-}
+};
 
 export const mockBuyFormContext = {
   buyFormState: {
@@ -41,4 +41,4 @@ export const mockBuyFormContext = {
     fetchingQuotes: false,
   },
   setBuyFormState: jest.fn(),
-}
+};

@@ -7,4 +7,4 @@ export const Sign = () => (
       fill="white"
     />
   </svg>
-)
+);

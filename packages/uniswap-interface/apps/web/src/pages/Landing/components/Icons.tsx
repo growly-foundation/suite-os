@@ -1,11 +1,16 @@
 type IconProps = {
-  fill?: string
-  size?: string
-}
+  fill?: string;
+  size?: string;
+};
 
 export function Wallet(props: IconProps) {
   return (
-    <svg width={props.size} height={props.size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={props.size}
+      height={props.size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg">
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -13,7 +18,7 @@ export function Wallet(props: IconProps) {
         fill={props.fill}
       />
     </svg>
-  )
+  );
 }
 
 export function HelpCircle(props: IconProps) {
@@ -24,7 +29,7 @@ export function HelpCircle(props: IconProps) {
         fill={props.fill}
       />
     </svg>
-  )
+  );
 }
 
 export function BookOpen(props: IconProps) {
@@ -35,7 +40,7 @@ export function BookOpen(props: IconProps) {
         fill={props.fill}
       />
     </svg>
-  )
+  );
 }
 
 export function ChatBubbles(props: IconProps) {
@@ -46,7 +51,7 @@ export function ChatBubbles(props: IconProps) {
         fill={props.fill}
       />
     </svg>
-  )
+  );
 }
 
 export function Computer(props: IconProps) {
@@ -57,7 +62,7 @@ export function Computer(props: IconProps) {
         fill={props.fill}
       />
     </svg>
-  )
+  );
 }
 
 export function ArrowRight(props: IconProps) {
@@ -68,8 +73,7 @@ export function ArrowRight(props: IconProps) {
       height="24"
       viewBox="0 0 24 24"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+      xmlns="http://www.w3.org/2000/svg">
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -77,12 +81,16 @@ export function ArrowRight(props: IconProps) {
         fill={props.fill}
       />
     </svg>
-  )
+  );
 }
 
 export function Github(props: IconProps) {
   return (
-    <svg width={props.size ?? '41'} height={props.size ?? '41'} viewBox="0 0 41 41" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={props.size ?? '41'}
+      height={props.size ?? '41'}
+      viewBox="0 0 41 41"
+      xmlns="http://www.w3.org/2000/svg">
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -90,29 +98,37 @@ export function Github(props: IconProps) {
         fill={props.fill}
       />
     </svg>
-  )
+  );
 }
 
 export function Twitter(props: IconProps) {
   return (
-    <svg width={props.size ?? '41'} height={props.size ?? '41'} viewBox="0 0 41 41" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={props.size ?? '41'}
+      height={props.size ?? '41'}
+      viewBox="0 0 41 41"
+      xmlns="http://www.w3.org/2000/svg">
       <path
         d="M28.2 8h4.6L22.5 19l11.5 15H25.6L18.7 24.5 10.5 34H5.9L16.1 22.1 5.1 8h10.8l6.1 7.6L28.2 8zm-2 24h2.1L11.1 10H8.7L26.2 32z"
         fill={props.fill}
       />
     </svg>
-  )
+  );
 }
 
 export function Discord(props: IconProps) {
   return (
-    <svg width={props.size ?? '41'} height={props.size ?? '41'} viewBox="0 0 41 41" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={props.size ?? '41'}
+      height={props.size ?? '41'}
+      viewBox="0 0 41 41"
+      xmlns="http://www.w3.org/2000/svg">
       <path
         d="M32.3019 11.3373C30.1352 10.354 27.8186 9.6373 25.4186 9.2373C25.1186 9.75397 24.7852 10.454 24.5519 11.004C21.9852 10.6373 19.4519 10.6373 16.9186 11.004C16.6852 10.454 16.3352 9.75397 16.0519 9.2373C13.6352 9.6373 11.3186 10.354 9.16857 11.3373C4.8019 17.704 3.61856 23.9206 4.21856 30.054C7.11856 32.1373 9.91858 33.404 12.6686 34.2373C13.3352 33.3373 13.9519 32.3706 14.4686 31.354C13.4686 30.9873 12.5186 30.5373 11.6186 30.004C11.8519 29.8373 12.0852 29.654 12.3019 29.4707C17.7852 31.954 23.7519 31.954 29.1686 29.4707C29.4019 29.654 29.6186 29.8373 29.8519 30.004C28.9519 30.5373 28.0019 30.9873 27.0019 31.354C27.5185 32.3706 28.1352 33.3373 28.8019 34.2373C31.5519 33.404 34.3686 32.1373 37.2519 30.054C37.9852 22.954 36.1019 16.7873 32.3352 11.3373H32.3019ZM15.1852 26.1873C13.5352 26.1873 12.1852 24.6873 12.1852 22.854C12.1852 21.0207 13.5019 19.5207 15.1852 19.5207C16.8685 19.5207 18.2186 21.0207 18.1852 22.854C18.1852 24.6873 16.8519 26.1873 15.1852 26.1873ZM26.2519 26.1873C24.6019 26.1873 23.2519 24.6873 23.2519 22.854C23.2519 21.0207 24.5686 19.5207 26.2519 19.5207C27.9352 19.5207 29.2852 21.0207 29.2519 22.854C29.2519 24.6873 27.9352 26.1873 26.2519 26.1873Z"
         fill={props.fill}
       />
     </svg>
-  )
+  );
 }
 
 export function Bars(props: IconProps) {
@@ -123,7 +139,7 @@ export function Bars(props: IconProps) {
         fill={props.fill}
       />
     </svg>
-  )
+  );
 }
 
 export function CodeBrackets(props: IconProps) {
@@ -134,5 +150,5 @@ export function CodeBrackets(props: IconProps) {
         fill={props.fill}
       />
     </svg>
-  )
+  );
 }

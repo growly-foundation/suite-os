@@ -1,49 +1,60 @@
-import { ErrorCallout } from 'components/ErrorCallout'
-import { LiquidityModalDetailRows } from 'components/Liquidity/LiquidityModalDetailRows'
-import { LiquidityPositionInfo } from 'components/Liquidity/LiquidityPositionInfo'
-import { StyledPercentInput } from 'components/PercentInput'
+import { ErrorCallout } from 'components/ErrorCallout';
+import { LiquidityModalDetailRows } from 'components/Liquidity/LiquidityModalDetailRows';
+import { LiquidityPositionInfo } from 'components/Liquidity/LiquidityPositionInfo';
+import { StyledPercentInput } from 'components/PercentInput';
 import {
   DecreaseLiquidityStep,
   useRemoveLiquidityModalContext,
-} from 'components/RemoveLiquidity/RemoveLiquidityModalContext'
-import { useRemoveLiquidityTxContext } from 'components/RemoveLiquidity/RemoveLiquidityTxContext'
-import { canUnwrapCurrency } from 'pages/Pool/Positions/create/utils'
-import { ClickablePill } from 'pages/Swap/Buy/PredefinedAmount'
-import { NumericalInputMimic, NumericalInputSymbolContainer, NumericalInputWrapper } from 'pages/Swap/common/shared'
-import { useMemo } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
-import { Button, Flex, Switch, Text, useSporeColors } from 'ui/src'
-import { nativeOnChain } from 'uniswap/src/constants/tokens'
-import useResizeObserver from 'use-resize-observer'
+} from 'components/RemoveLiquidity/RemoveLiquidityModalContext';
+import { useRemoveLiquidityTxContext } from 'components/RemoveLiquidity/RemoveLiquidityTxContext';
+import { canUnwrapCurrency } from 'pages/Pool/Positions/create/utils';
+import { ClickablePill } from 'pages/Swap/Buy/PredefinedAmount';
+import {
+  NumericalInputMimic,
+  NumericalInputSymbolContainer,
+  NumericalInputWrapper,
+} from 'pages/Swap/common/shared';
+import { useMemo } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { Button, Flex, Switch, Text, useSporeColors } from 'ui/src';
+import { nativeOnChain } from 'uniswap/src/constants/tokens';
+import useResizeObserver from 'use-resize-observer';
 
 const isValidPercentageInput = (value: string): boolean => {
-  const numValue = Number(value)
-  return !isNaN(numValue) && numValue <= 100
-}
+  const numValue = Number(value);
+  return !isNaN(numValue) && numValue <= 100;
+};
 
 export function RemoveLiquidityForm() {
-  const hiddenObserver = useResizeObserver<HTMLElement>()
-  const { t } = useTranslation()
-  const colors = useSporeColors()
+  const hiddenObserver = useResizeObserver<HTMLElement>();
+  const { t } = useTranslation();
+  const colors = useSporeColors();
 
-  const { percent, positionInfo, setPercent, setStep, percentInvalid, unwrapNativeCurrency, setUnwrapNativeCurrency } =
-    useRemoveLiquidityModalContext()
-  const { gasFeeEstimateUSD, txContext, error, refetch } = useRemoveLiquidityTxContext()
+  const {
+    percent,
+    positionInfo,
+    setPercent,
+    setStep,
+    percentInvalid,
+    unwrapNativeCurrency,
+    setUnwrapNativeCurrency,
+  } = useRemoveLiquidityModalContext();
+  const { gasFeeEstimateUSD, txContext, error, refetch } = useRemoveLiquidityTxContext();
 
   if (!positionInfo) {
-    throw new Error('RemoveLiquidityModal must have an initial state when opening')
+    throw new Error('RemoveLiquidityModal must have an initial state when opening');
   }
 
-  const { currency0Amount, currency1Amount } = positionInfo
-  const canUnwrap0 = canUnwrapCurrency(currency0Amount.currency, positionInfo.version)
-  const canUnwrap1 = canUnwrapCurrency(currency1Amount.currency, positionInfo.version)
-  const nativeCurrency = nativeOnChain(positionInfo.chainId)
+  const { currency0Amount, currency1Amount } = positionInfo;
+  const canUnwrap0 = canUnwrapCurrency(currency0Amount.currency, positionInfo.version);
+  const canUnwrap1 = canUnwrapCurrency(currency1Amount.currency, positionInfo.version);
+  const nativeCurrency = nativeOnChain(positionInfo.chainId);
 
-  const canUnwrap = canUnwrap0 || canUnwrap1
+  const canUnwrap = canUnwrap0 || canUnwrap1;
 
   const unwrapUnderCard = useMemo(() => {
     if (!canUnwrap) {
-      return null
+      return null;
     }
 
     return (
@@ -55,20 +66,24 @@ export function RemoveLiquidityForm() {
         justifyContent="space-between"
         alignItems="center"
         py="$padding8"
-        px="$padding16"
-      >
+        px="$padding16">
         <Text variant="body3" color="$neutral2">
-          <Trans i18nKey="pool.withdrawAs" values={{ nativeWrappedSymbol: nativeCurrency.symbol }} />
+          <Trans
+            i18nKey="pool.withdrawAs"
+            values={{ nativeWrappedSymbol: nativeCurrency.symbol }}
+          />
         </Text>
         <Switch
           id="add-as-weth"
           checked={unwrapNativeCurrency}
-          onCheckedChange={() => setUnwrapNativeCurrency((unwrapNativeCurrency) => !unwrapNativeCurrency)}
+          onCheckedChange={() =>
+            setUnwrapNativeCurrency(unwrapNativeCurrency => !unwrapNativeCurrency)
+          }
           variant="branded"
         />
       </Flex>
-    )
-  }, [canUnwrap, nativeCurrency, unwrapNativeCurrency, setUnwrapNativeCurrency])
+    );
+  }, [canUnwrap, nativeCurrency, unwrapNativeCurrency, setUnwrapNativeCurrency]);
 
   return (
     <Flex gap="$gap24">
@@ -85,8 +100,7 @@ export function RemoveLiquidityForm() {
           borderBottomLeftRadius={canUnwrap ? '$rounded0' : '$rounded12'}
           borderBottomRightRadius={canUnwrap ? '$rounded0' : '$rounded12'}
           p="$padding16"
-          gap="$gap12"
-        >
+          gap="$gap12">
           <Text variant="body3" color="$neutral2">
             <Trans i18nKey="common.withdrawal.amount" />
           </Text>
@@ -96,7 +110,7 @@ export function RemoveLiquidityForm() {
                 value={percent}
                 onUserInput={(value: string) => {
                   if (isValidPercentageInput(value)) {
-                    setPercent(value)
+                    setPercent(value);
                   }
                 }}
                 placeholder="0"
@@ -104,29 +118,33 @@ export function RemoveLiquidityForm() {
                 maxDecimals={0}
                 maxLength={3}
               />
-              <NumericalInputSymbolContainer showPlaceholder={!percent}>%</NumericalInputSymbolContainer>
+              <NumericalInputSymbolContainer showPlaceholder={!percent}>
+                %
+              </NumericalInputSymbolContainer>
               <NumericalInputMimic ref={hiddenObserver.ref}>{percent}</NumericalInputMimic>
             </NumericalInputWrapper>
           </Flex>
           <Flex row gap="$gap8" width="100%" justifyContent="center">
-            {[25, 50, 75, 100].map((option) => {
-              const active = percent === option.toString()
-              const disabled = false
+            {[25, 50, 75, 100].map(option => {
+              const active = percent === option.toString();
+              const disabled = false;
               return (
                 <ClickablePill
                   key={option}
                   onPress={() => {
-                    setPercent(option.toString())
+                    setPercent(option.toString());
                   }}
                   $disabled={disabled}
                   $active={active}
                   customBorderColor={colors.surface3.val}
-                  foregroundColor={colors[disabled ? 'neutral3' : active ? 'neutral1' : 'neutral2'].val}
+                  foregroundColor={
+                    colors[disabled ? 'neutral3' : active ? 'neutral1' : 'neutral2'].val
+                  }
                   label={option < 100 ? option + '%' : t('swap.button.max')}
                   px="$spacing16"
                   textVariant="buttonLabel2"
                 />
-              )
+              );
             })}
           </Flex>
         </Flex>
@@ -146,11 +164,10 @@ export function RemoveLiquidityForm() {
           loading={!error && !percentInvalid && !txContext?.txRequest}
           variant="branded"
           key="LoaderButton-animation-RemoveLiquidity-continue"
-          size="large"
-        >
+          size="large">
           {t('common.button.remove')}
         </Button>
       </Flex>
     </Flex>
-  )
+  );
 }

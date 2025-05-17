@@ -1,13 +1,13 @@
-import { UTCTimestamp } from 'lightweight-charts'
-import { useCallback } from 'react'
-import { useCurrentLocale } from 'uniswap/src/features/language/hooks'
+import { UTCTimestamp } from 'lightweight-charts';
+import { useCallback } from 'react';
+import { useCurrentLocale } from 'uniswap/src/features/language/hooks';
 
 export function useHeaderDateFormatter() {
-  const locale = useCurrentLocale()
+  const locale = useCurrentLocale();
   return useCallback(
     (time?: UTCTimestamp) => {
       if (!time) {
-        return '-'
+        return '-';
       }
       const headerTimeFormatOptions: Intl.DateTimeFormatOptions = {
         year: 'numeric',
@@ -15,9 +15,9 @@ export function useHeaderDateFormatter() {
         day: 'numeric',
         hour: 'numeric',
         minute: 'numeric',
-      }
-      return new Date(time * 1000).toLocaleString(locale, headerTimeFormatOptions)
+      };
+      return new Date(time * 1000).toLocaleString(locale, headerTimeFormatOptions);
     },
-    [locale],
-  )
+    [locale]
+  );
 }

@@ -1,8 +1,8 @@
-import { SerializedToken } from 'uniswap/src/features/tokens/slice/types'
+import { SerializedToken } from 'uniswap/src/features/tokens/slice/types';
 
 export interface SerializedPair {
-  token0: SerializedToken
-  token1: SerializedToken
+  token0: SerializedToken;
+  token1: SerializedToken;
 }
 
 export enum SlippageTolerance {

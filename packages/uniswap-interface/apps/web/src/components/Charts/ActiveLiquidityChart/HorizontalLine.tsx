@@ -1,5 +1,5 @@
-import { ScaleLinear } from 'd3'
-import { useSporeColors } from 'ui/src'
+import { ScaleLinear } from 'd3';
+import { useSporeColors } from 'ui/src';
 
 export const HorizontalLine = ({
   value,
@@ -8,20 +8,20 @@ export const HorizontalLine = ({
   containerWidth,
   lineStyle = 'dashed',
 }: {
-  value: number
-  yScale: ScaleLinear<number, number>
-  width: number
-  containerWidth: number
-  lineStyle?: 'solid' | 'dashed'
+  value: number;
+  yScale: ScaleLinear<number, number>;
+  width: number;
+  containerWidth: number;
+  lineStyle?: 'solid' | 'dashed';
 }) => {
-  const lineStart = containerWidth - width
-  const colors = useSporeColors()
+  const lineStart = containerWidth - width;
+  const colors = useSporeColors();
 
   if (isNaN(lineStart)) {
-    return null
+    return null;
   }
 
-  const strokeDasharray = lineStyle === 'dashed' ? '1, 4' : 'none'
+  const strokeDasharray = lineStyle === 'dashed' ? '1, 4' : 'none';
 
   return (
     <line
@@ -35,5 +35,5 @@ export const HorizontalLine = ({
       y2={yScale(value)}
       x2={lineStart + width}
     />
-  )
-}
+  );
+};

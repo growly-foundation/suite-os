@@ -1,10 +1,14 @@
-import { useEffect, useState } from 'react'
-import { ColorTokens, Switch as TamaguiSwitch } from 'tamagui'
-import { Check } from 'ui/src/components/icons'
-import { Flex, FlexProps } from 'ui/src/components/layout'
-import { SWITCH_THUMB_HEIGHT, SWITCH_TRACK_HEIGHT, SWITCH_TRACK_WIDTH } from 'ui/src/components/switch/shared'
-import { SwitchProps } from 'ui/src/components/switch/types'
-import { useSporeColors } from 'ui/src/hooks/useSporeColors'
+import { useEffect, useState } from 'react';
+import { ColorTokens, Switch as TamaguiSwitch } from 'tamagui';
+import { Check } from 'ui/src/components/icons';
+import { Flex, FlexProps } from 'ui/src/components/layout';
+import {
+  SWITCH_THUMB_HEIGHT,
+  SWITCH_TRACK_HEIGHT,
+  SWITCH_TRACK_WIDTH,
+} from 'ui/src/components/switch/shared';
+import { SwitchProps } from 'ui/src/components/switch/types';
+import { useSporeColors } from 'ui/src/hooks/useSporeColors';
 
 const animationProp = {
   animation: [
@@ -15,7 +19,7 @@ const animationProp = {
       },
     },
   ] satisfies FlexProps['animation'],
-}
+};
 
 export function Switch({
   checked: checkedProp,
@@ -25,13 +29,13 @@ export function Switch({
   disabledStyle,
   ...rest
 }: SwitchProps): JSX.Element {
-  const [checked, setChecked] = useState(checkedProp)
-  const colors = useSporeColors()
-  const isBranded = variant === 'branded'
+  const [checked, setChecked] = useState(checkedProp);
+  const colors = useSporeColors();
+  const isBranded = variant === 'branded';
 
   useEffect(() => {
-    setChecked(checkedProp)
-  }, [checkedProp])
+    setChecked(checkedProp);
+  }, [checkedProp]);
 
   const onCheckedChange = (val: boolean): void => {
     // If the checked prop is undefined, we are in an uncontrolled state
@@ -39,52 +43,52 @@ export function Switch({
     // Otherwise, we are in a controlled state and should not update the internal state
     // (because the checked prop will be updated from the outside)
     if (typeof checkedProp === 'undefined') {
-      setChecked(val)
+      setChecked(val);
     }
-    onCheckedChangeProp?.(val)
-  }
+    onCheckedChangeProp?.(val);
+  };
 
-  const isDisabledStyling = disabled && !checked
+  const isDisabledStyling = disabled && !checked;
 
   const frameBackgroundColor = ((): ColorTokens => {
     if (isDisabledStyling) {
-      return '$surface3'
+      return '$surface3';
     }
     if (isBranded) {
-      return checked ? '$accent1' : '$neutral3'
+      return checked ? '$accent1' : '$neutral3';
     }
-    return checked ? '$accent3' : '$neutral3'
-  })()
+    return checked ? '$accent3' : '$neutral3';
+  })();
 
   const thumbBackgroundColor = ((): ColorTokens => {
     if (isDisabledStyling) {
       if (isBranded) {
-        return checked ? '$neutral2' : '$neutral3'
+        return checked ? '$neutral2' : '$neutral3';
       }
-      return checked ? '$neutral2' : '$neutral3'
+      return checked ? '$neutral2' : '$neutral3';
     }
-    return '$white'
-  })()
+    return '$white';
+  })();
 
   const iconColor = ((): string => {
     if (isDisabledStyling) {
-      return colors.white.val
+      return colors.white.val;
     }
-    return isBranded ? colors.accent1.val : colors.neutral1.val
-  })()
+    return isBranded ? colors.accent1.val : colors.neutral1.val;
+  })();
 
   // Switch is a bit performance sensitive on native, memo to help here
   const frameActiveStyle = {
     x: checked ? -2 : 0,
-  }
+  };
 
   const outerActiveStyle = {
     width: 28,
     x: checked ? -4 : 0,
-  }
+  };
 
-  const OUTER_RING_DISTANCE = -6
-  const INNER_RING_DISTANCE = -5
+  const OUTER_RING_DISTANCE = -6;
+  const INNER_RING_DISTANCE = -5;
 
   return (
     <TamaguiSwitch
@@ -117,22 +121,19 @@ export function Switch({
         ...disabledStyle,
       }}
       onCheckedChange={disabled ? undefined : onCheckedChange}
-      {...rest}
-    >
+      {...rest}>
       <TamaguiSwitch.Thumb
         alignItems="center"
         {...animationProp}
         backgroundColor={thumbBackgroundColor}
         justifyContent="center"
         minHeight={SWITCH_THUMB_HEIGHT}
-        width="$spacing24"
-      >
+        width="$spacing24">
         <Flex
           $group-item-hover={frameActiveStyle}
           $group-item-press={frameActiveStyle}
           animation="100ms"
-          opacity={checked ? 1 : 0}
-        >
+          opacity={checked ? 1 : 0}>
           <Check color={iconColor} size={14} />
         </Flex>
 
@@ -191,5 +192,5 @@ export function Switch({
         />
       </>
     </TamaguiSwitch>
-  )
+  );
 }

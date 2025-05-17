@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: ['main']
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -15,11 +15,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Enable pnpm
+        run: corepack enable pnpm
 
       - name: Template Install dependencies
-        run: bun install
+        run: pnpm install
 
       - name: Template Lint
-        run: bun run lint
+        run: pnpm run lint

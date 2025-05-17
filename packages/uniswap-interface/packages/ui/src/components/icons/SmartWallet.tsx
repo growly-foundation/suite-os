@@ -1,11 +1,11 @@
-import { ClipPath, Defs, G, Path, Rect, Svg } from 'react-native-svg'
+import { ClipPath, Defs, G, Path, Rect, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [SmartWallet, AnimatedSmartWallet] = createIcon({
   name: 'SmartWallet',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg viewBox="0 0 25 24" fill="none" {...props}>
       <G clipPath="url(#clip0_2048_10941)">
         <Path
@@ -25,4 +25,4 @@ export const [SmartWallet, AnimatedSmartWallet] = createIcon({
     </Svg>
   ),
   defaultFill: '#FF37C7',
-})
+});

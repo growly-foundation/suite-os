@@ -1,5 +1,5 @@
-import { LoadingBubble } from 'components/Tokens/loading'
-import { Flex, FlexProps } from 'ui/src'
+import { LoadingBubble } from 'components/Tokens/loading';
+import { Flex, FlexProps } from 'ui/src';
 
 const PortfolioRowWrapper = ({ children, className, ...rest }: FlexProps) => (
   <Flex
@@ -12,11 +12,10 @@ const PortfolioRowWrapper = ({ children, className, ...rest }: FlexProps) => (
     cursor="pointer"
     alignItems="center"
     className={`portfolio-row-wrapper ${className}`}
-    {...rest}
-  >
+    {...rest}>
     {children}
   </Flex>
-)
+);
 
 export default function PortfolioRow({
   ['data-testid']: testId,
@@ -28,14 +27,14 @@ export default function PortfolioRow({
   className,
   ...props
 }: {
-  'data-testid'?: string
-  left: React.ReactNode
-  title: React.ReactNode
-  descriptor?: React.ReactNode
-  right?: React.ReactNode
-  setIsHover?: (b: boolean) => void
-  onClick?: () => void
-  className?: string
+  'data-testid'?: string;
+  left: React.ReactNode;
+  title: React.ReactNode;
+  descriptor?: React.ReactNode;
+  right?: React.ReactNode;
+  setIsHover?: (b: boolean) => void;
+  onClick?: () => void;
+  className?: string;
 } & Omit<FlexProps, 'left' | 'right'>) {
   return (
     <PortfolioRowWrapper data-testid={testId} onPress={onClick} className={className} {...props}>
@@ -46,7 +45,7 @@ export default function PortfolioRow({
       </Flex>
       {right && <Flex alignItems="flex-end">{right}</Flex>}
     </PortfolioRowWrapper>
-  )
+  );
 }
 
 function PortfolioSkeletonRow({ shrinkRight }: { shrinkRight?: boolean }) {
@@ -68,7 +67,7 @@ function PortfolioSkeletonRow({ shrinkRight }: { shrinkRight?: boolean }) {
         )}
       </Flex>
     </PortfolioRowWrapper>
-  )
+  );
 }
 
 export function PortfolioSkeleton({ shrinkRight = false }: { shrinkRight?: boolean }) {
@@ -78,5 +77,5 @@ export function PortfolioSkeleton({ shrinkRight = false }: { shrinkRight?: boole
         <PortfolioSkeletonRow shrinkRight={shrinkRight} key={`portfolio loading row${i}`} />
       ))}
     </>
-  )
+  );
 }

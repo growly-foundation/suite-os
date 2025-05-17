@@ -1,8 +1,14 @@
-import { ComponentProps } from 'react'
+import { ComponentProps } from 'react';
 
 export function MobileAppLogo(props: ComponentProps<'svg'>) {
   return (
-    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <svg
+      width="64"
+      height="64"
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}>
       <rect width="64" height="64" rx="8" fill="url(#paint0_linear_5_3293)" />
       <rect
         x="0.25"
@@ -61,8 +67,7 @@ export function MobileAppLogo(props: ComponentProps<'svg'>) {
           y1="64"
           x2="24.5333"
           y2="0"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#FFF1FF" />
           <stop offset="1" stopColor="white" />
         </linearGradient>
@@ -72,8 +77,7 @@ export function MobileAppLogo(props: ComponentProps<'svg'>) {
           y1="48.3169"
           x2="23.4667"
           y2="23.4669"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#FC72FF" />
           <stop offset="1" stopColor="#FF41F4" />
         </linearGradient>
@@ -83,8 +87,7 @@ export function MobileAppLogo(props: ComponentProps<'svg'>) {
           y1="48.3169"
           x2="23.4667"
           y2="23.4669"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#FC72FF" />
           <stop offset="1" stopColor="#FF41F4" />
         </linearGradient>
@@ -94,8 +97,7 @@ export function MobileAppLogo(props: ComponentProps<'svg'>) {
           y1="48.3169"
           x2="23.4667"
           y2="23.4669"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#FC72FF" />
           <stop offset="1" stopColor="#FF41F4" />
         </linearGradient>
@@ -105,8 +107,7 @@ export function MobileAppLogo(props: ComponentProps<'svg'>) {
           y1="48.3169"
           x2="23.4667"
           y2="23.4669"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#FC72FF" />
           <stop offset="1" stopColor="#FF41F4" />
         </linearGradient>
@@ -116,8 +117,7 @@ export function MobileAppLogo(props: ComponentProps<'svg'>) {
           y1="48.3169"
           x2="23.4667"
           y2="23.4669"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#FC72FF" />
           <stop offset="1" stopColor="#FF41F4" />
         </linearGradient>
@@ -127,8 +127,7 @@ export function MobileAppLogo(props: ComponentProps<'svg'>) {
           y1="48.3169"
           x2="23.4667"
           y2="23.4669"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#FC72FF" />
           <stop offset="1" stopColor="#FF41F4" />
         </linearGradient>
@@ -138,8 +137,7 @@ export function MobileAppLogo(props: ComponentProps<'svg'>) {
           y1="48.3169"
           x2="23.4667"
           y2="23.4669"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#FC72FF" />
           <stop offset="1" stopColor="#FF41F4" />
         </linearGradient>
@@ -149,8 +147,7 @@ export function MobileAppLogo(props: ComponentProps<'svg'>) {
           y1="48.3169"
           x2="23.4667"
           y2="23.4669"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#FC72FF" />
           <stop offset="1" stopColor="#FF41F4" />
         </linearGradient>
@@ -160,12 +157,11 @@ export function MobileAppLogo(props: ComponentProps<'svg'>) {
           y1="48.3169"
           x2="23.4667"
           y2="23.4669"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#FC72FF" />
           <stop offset="1" stopColor="#FF41F4" />
         </linearGradient>
       </defs>
     </svg>
-  )
+  );
 }

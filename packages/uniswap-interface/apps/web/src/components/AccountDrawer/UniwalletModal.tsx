@@ -1,53 +1,53 @@
-import { InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events'
-import MobileAppLogo from 'assets/svg/uniswap_app_logo.svg'
-import { useConnect } from 'hooks/useConnect'
-import { useCallback, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Button, Flex, Image, QRCodeDisplay, Separator, Text, useSporeColors } from 'ui/src'
-import { CloseIconWithHover } from 'ui/src/components/icons/CloseIconWithHover'
-import { Modal } from 'uniswap/src/components/modals/Modal'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
-import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send'
-import { isWebAndroid, isWebIOS } from 'utilities/src/platform'
-import { openDownloadApp } from 'utils/openDownloadApp'
+import { InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events';
+import MobileAppLogo from 'assets/svg/uniswap_app_logo.svg';
+import { useConnect } from 'hooks/useConnect';
+import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Button, Flex, Image, QRCodeDisplay, Separator, Text, useSporeColors } from 'ui/src';
+import { CloseIconWithHover } from 'ui/src/components/icons/CloseIconWithHover';
+import { Modal } from 'uniswap/src/components/modals/Modal';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
+import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send';
+import { isWebAndroid, isWebIOS } from 'utilities/src/platform';
+import { openDownloadApp } from 'utils/openDownloadApp';
 
 export default function UniwalletModal() {
-  const { t } = useTranslation()
-  const [uri, setUri] = useState<string>()
-  const connection = useConnect()
+  const { t } = useTranslation();
+  const [uri, setUri] = useState<string>();
+  const connection = useConnect();
 
   // Displays the modal if not on iOS/Android, a Uniswap Wallet Connection is pending, & qrcode URI is available
-  const onLaunchedMobilePlatform = isWebIOS || isWebAndroid
-  const open = !onLaunchedMobilePlatform && !!uri && connection.isPending
+  const onLaunchedMobilePlatform = isWebIOS || isWebAndroid;
+  const open = !onLaunchedMobilePlatform && !!uri && connection.isPending;
 
   useEffect(() => {
     function listener({ type, data }: { type: string; data?: unknown }) {
       if (type === 'display_uniswap_uri' && typeof data === 'string') {
-        setUri(data)
+        setUri(data);
       }
     }
 
-    window.addEventListener('display_uniswap_uri', listener)
+    window.addEventListener('display_uniswap_uri', listener);
 
     return () => {
-      window.removeEventListener('display_uniswap_uri', listener)
-    }
-  }, [])
+      window.removeEventListener('display_uniswap_uri', listener);
+    };
+  }, []);
 
   const close = useCallback(() => {
-    connection?.reset()
-    setUri(undefined)
-  }, [connection])
+    connection?.reset();
+    setUri(undefined);
+  }, [connection]);
 
   useEffect(() => {
     if (open) {
-      sendAnalyticsEvent(InterfaceEventName.UNIWALLET_CONNECT_MODAL_OPENED)
+      sendAnalyticsEvent(InterfaceEventName.UNIWALLET_CONNECT_MODAL_OPENED);
     } else {
-      setUri(undefined)
+      setUri(undefined);
     }
-  }, [open])
+  }, [open]);
 
-  const colors = useSporeColors()
+  const colors = useSporeColors();
   return (
     <Modal name={ModalName.UniWalletConnect} isModalOpen={open} onClose={close} padding={0}>
       <Flex shrink grow p="$spacing20">
@@ -63,8 +63,7 @@ export default function UniwalletModal() {
               color={colors.accent1.val}
               containerBackgroundColor={colors.surface1.val}
               encodedValue={uri}
-              size={370}
-            >
+              size={370}>
               <Flex borderRadius="$rounded32" borderWidth="$spacing8" borderColor="$surface2">
                 <Image src={MobileAppLogo} width={81} height={81} />
               </Flex>
@@ -84,13 +83,16 @@ export default function UniwalletModal() {
               size="small"
               emphasis="primary"
               variant="branded"
-              onPress={() => openDownloadApp({ element: InterfaceElementName.UNISWAP_WALLET_MODAL_DOWNLOAD_BUTTON })}
-            >
+              onPress={() =>
+                openDownloadApp({
+                  element: InterfaceElementName.UNISWAP_WALLET_MODAL_DOWNLOAD_BUTTON,
+                })
+              }>
               {t('common.download')}
             </Button>
           </Flex>
         </Flex>
       </Flex>
     </Modal>
-  )
+  );
 }

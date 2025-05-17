@@ -1,6 +1,6 @@
-import { SVGProps, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Flex, styled, useSporeColors } from 'ui/src'
+import { SVGProps, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Flex, styled, useSporeColors } from 'ui/src';
 
 function Logo({ color, onClick }: { color: string; onClick?: () => void }) {
   return (
@@ -11,8 +11,7 @@ function Logo({ color, onClick }: { color: string; onClick?: () => void }) {
       viewBox="0 0 20 22"
       fill="none"
       onClick={onClick}
-      cursor="pointer"
-    >
+      cursor="pointer">
       <path
         d="M6.04898 1.5328C5.77502 1.49053 5.76347 1.48557 5.89239 1.46587C6.13945 1.42808 6.72283 1.47958 7.12484 1.57466C8.06336 1.79654 8.91735 2.36494 9.82894 3.37442L10.0711 3.64261L10.4176 3.58721C11.8771 3.35393 13.3619 3.53933 14.6038 4.10994C14.9454 4.26692 15.4841 4.5794 15.5514 4.6597C15.5728 4.6853 15.6122 4.85003 15.6389 5.02582C15.7311 5.63398 15.6849 6.10014 15.4979 6.44831C15.3962 6.63778 15.3905 6.69782 15.4589 6.85997C15.5135 6.98936 15.6658 7.08513 15.8166 7.08492C16.1252 7.08451 16.4574 6.58831 16.6113 5.89789L16.6724 5.62364L16.7935 5.76009C17.4579 6.5087 17.9796 7.52962 18.0693 8.25631L18.0926 8.44578L17.981 8.27353C17.7888 7.97714 17.5957 7.77537 17.3484 7.61264C16.9027 7.31931 16.4314 7.21948 15.1833 7.15406C14.056 7.09498 13.418 6.99921 12.7854 6.79404C11.709 6.445 11.1664 5.98015 9.88789 4.31174C9.31999 3.57068 8.96899 3.16067 8.61984 2.83048C7.82646 2.08022 7.04689 1.68675 6.04898 1.5328Z"
         fill={color}
@@ -54,12 +53,12 @@ function Logo({ color, onClick }: { color: string; onClick?: () => void }) {
         fill={color}
       />
     </svg>
-  )
+  );
 }
 
 function HolidayLogo({ color, onClick }: { color: string; onClick?: () => void }) {
-  const { t } = useTranslation()
-  const size = 32
+  const { t } = useTranslation();
+  const size = 32;
 
   return (
     <svg
@@ -70,8 +69,7 @@ function HolidayLogo({ color, onClick }: { color: string; onClick?: () => void }
       xmlns="http://www.w3.org/2000/svg"
       onClick={onClick}
       cursor="pointer"
-      aria-label={t('common.happyHolidays')}
-    >
+      aria-label={t('common.happyHolidays')}>
       <g clipPath="url(#clip0_38_2)">
         <path
           d="M16.4448 0.5C16.4448 0.22386 16.221 0 15.9448 0C15.6687 0 15.4448 0.22386 15.4448 0.5V2.0673L14.0876 1.2837C13.8484 1.14562 13.5426 1.22756 13.4046 1.46671C13.2665 1.70585 13.3484 2.01165 13.5876 2.14972L14.9453 2.9336L13.5888 3.7168C13.3496 3.85487 13.2677 4.16067 13.4058 4.39981C13.5438 4.63896 13.8496 4.7209 14.0888 4.58283L15.4448 3.79991V5.36622C15.4448 5.64236 15.6687 5.86622 15.9448 5.86622C16.221 5.86622 16.4448 5.64236 16.4448 5.36622V3.79935L17.8018 4.58283C18.041 4.7209 18.3468 4.63896 18.4849 4.39981C18.6229 4.16067 18.541 3.85487 18.3018 3.7168L16.9453 2.9336L18.303 2.14972C18.5422 2.01165 18.6241 1.70585 18.486 1.46671C18.348 1.22756 18.0422 1.14562 17.803 1.2837L16.4448 2.06786V0.5Z"
@@ -126,7 +124,7 @@ function HolidayLogo({ color, onClick }: { color: string; onClick?: () => void }
         </clipPath>
       </defs>
     </svg>
-  )
+  );
 }
 
 const Container = styled(Flex, {
@@ -139,22 +137,22 @@ const Container = styled(Flex, {
       true: { cursor: 'pointer' },
     },
   },
-})
+});
 
 type NavIconProps = SVGProps<SVGSVGElement> & {
-  clickable?: boolean
-  onClick?: () => void
-}
+  clickable?: boolean;
+  onClick?: () => void;
+};
 
 export const NavIcon = ({ clickable, onClick }: NavIconProps) => {
-  const colors = useSporeColors()
+  const colors = useSporeColors();
   const showHolidayUni = useMemo(() => {
-    const date = new Date()
+    const date = new Date();
     // months in javascript are 0 indexed...
-    const month = date.getMonth() + 1
-    const day = date.getDate()
-    return month === 12 || (month === 1 && day <= 7)
-  }, [])
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return month === 12 || (month === 1 && day <= 7);
+  }, []);
 
   return (
     <Container clickable={clickable}>
@@ -164,5 +162,5 @@ export const NavIcon = ({ clickable, onClick }: NavIconProps) => {
         <Logo color={colors.accent1.val} onClick={onClick} />
       )}
     </Container>
-  )
-}
+  );
+};

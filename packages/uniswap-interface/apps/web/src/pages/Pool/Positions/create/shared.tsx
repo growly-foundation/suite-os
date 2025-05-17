@@ -1,14 +1,14 @@
-import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb'
-import { MouseoverTooltip } from 'components/Tooltip'
-import { PriceRangeInfo } from 'pages/Pool/Positions/create/types'
-import { useTranslation } from 'react-i18next'
-import { ClickableTamaguiStyle } from 'theme/components/styles'
-import { Flex, GeneratedIcon, Text, styled } from 'ui/src'
-import { InfoCircleFilled } from 'ui/src/components/icons/InfoCircleFilled'
-import { FormatNumberOrStringInput } from 'uniswap/src/features/language/formatter'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { ElementNameType } from 'uniswap/src/features/telemetry/constants'
-import { NumberType } from 'utilities/src/format/types'
+import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb';
+import { MouseoverTooltip } from 'components/Tooltip';
+import { PriceRangeInfo } from 'pages/Pool/Positions/create/types';
+import { useTranslation } from 'react-i18next';
+import { ClickableTamaguiStyle } from 'theme/components/styles';
+import { Flex, GeneratedIcon, Text, styled } from 'ui/src';
+import { InfoCircleFilled } from 'ui/src/components/icons/InfoCircleFilled';
+import { FormatNumberOrStringInput } from 'uniswap/src/features/language/formatter';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { ElementNameType } from 'uniswap/src/features/telemetry/constants';
+import { NumberType } from 'utilities/src/format/types';
 
 export const Container = styled(Flex, {
   gap: 32,
@@ -21,7 +21,7 @@ export const Container = styled(Flex, {
   $lg: {
     p: '$spacing16',
   },
-})
+});
 
 export function AdvancedButton({
   title,
@@ -30,13 +30,13 @@ export function AdvancedButton({
   onPress,
   elementName,
 }: {
-  title: string
-  tooltipText?: string
-  Icon: GeneratedIcon
-  onPress: () => void
-  elementName?: ElementNameType
+  title: string;
+  tooltipText?: string;
+  Icon: GeneratedIcon;
+  onPress: () => void;
+  elementName?: ElementNameType;
 }) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   return (
     <Flex row gap="$spacing8" alignItems="center">
       <Flex row gap="$spacing4" alignItems="center">
@@ -48,8 +48,7 @@ export function AdvancedButton({
             textDecorationLine="underline"
             textDecorationStyle="dashed"
             onPress={onPress}
-            {...ClickableTamaguiStyle}
-          >
+            {...ClickableTamaguiStyle}>
             {title}
           </Text>
         </Trace>
@@ -65,39 +64,44 @@ export function AdvancedButton({
         </MouseoverTooltip>
       )}
     </Flex>
-  )
+  );
 }
 
 export function formatPrices(
   derivedPriceRangeInfo: PriceRangeInfo,
-  formatter: (input: FormatNumberOrStringInput) => string,
+  formatter: (input: FormatNumberOrStringInput) => string
 ): {
-  formattedPrices: [string, string]
-  isFullRange: boolean
+  formattedPrices: [string, string];
+  isFullRange: boolean;
 } {
   if (derivedPriceRangeInfo.protocolVersion === ProtocolVersion.V2) {
-    return { formattedPrices: ['', ''], isFullRange: true }
+    return { formattedPrices: ['', ''], isFullRange: true };
   }
 
-  const { ticksAtLimit, isSorted, prices, invertPrice } = derivedPriceRangeInfo
+  const { ticksAtLimit, isSorted, prices, invertPrice } = derivedPriceRangeInfo;
 
-  const isLowerAtLimit = ticksAtLimit[isSorted ? 0 : 1]
-  const [lowerPrice, upperPrice] = isSorted ? [prices?.[0], prices?.[1]] : [prices?.[1], prices?.[0]]
+  const isLowerAtLimit = ticksAtLimit[isSorted ? 0 : 1];
+  const [lowerPrice, upperPrice] = isSorted
+    ? [prices?.[0], prices?.[1]]
+    : [prices?.[1], prices?.[0]];
 
   const lowerPriceFormatted = isLowerAtLimit
     ? '0'
     : formatter({
         value: (invertPrice ? lowerPrice?.invert() : lowerPrice)?.toSignificant(),
         type: NumberType.TokenTx,
-      })
+      });
 
-  const isUpperAtLimit = ticksAtLimit[isSorted ? 1 : 0]
+  const isUpperAtLimit = ticksAtLimit[isSorted ? 1 : 0];
   const upperPriceFormatted = isUpperAtLimit
     ? '∞'
     : formatter({
         value: (invertPrice ? upperPrice?.invert() : upperPrice)?.toSignificant(),
         type: NumberType.TokenTx,
-      })
+      });
 
-  return { formattedPrices: [lowerPriceFormatted, upperPriceFormatted], isFullRange: isLowerAtLimit && isUpperAtLimit }
+  return {
+    formattedPrices: [lowerPriceFormatted, upperPriceFormatted],
+    isFullRange: isLowerAtLimit && isUpperAtLimit,
+  };
 }

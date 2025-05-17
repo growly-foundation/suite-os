@@ -1,4 +1,4 @@
-import { PersistedState } from 'redux-persist'
+import { PersistedState } from 'redux-persist';
 
 /**
  * Initial migration as a proof of concept.
@@ -6,5 +6,5 @@ import { PersistedState } from 'redux-persist'
  * Legacy migration from redux-localstorage-simple happens in legacy.ts
  */
 export const migration0 = (state: PersistedState) => {
-  return state
-}
+  return state;
+};

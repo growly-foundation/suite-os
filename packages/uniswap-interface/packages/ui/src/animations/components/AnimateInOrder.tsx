@@ -1,5 +1,5 @@
-import { PropsWithChildren, useEffect, useState } from 'react'
-import { Flex, FlexProps } from 'ui/src/components/layout'
+import { PropsWithChildren, useEffect, useState } from 'react';
+import { Flex, FlexProps } from 'ui/src/components/layout';
 
 export const AnimateInOrder = ({
   children,
@@ -11,29 +11,34 @@ export const AnimateInOrder = ({
   ...rest
 }: PropsWithChildren<
   {
-    index: number
-    delayMs?: number
+    index: number;
+    delayMs?: number;
   } & Pick<FlexProps, 'animation' | 'enterStyle' | 'exitStyle'> &
     FlexProps
 >): JSX.Element => {
   return (
     <Delay by={index * delayMs}>
-      <Flex key={`animate-${index}`} animation={animation} enterStyle={enterStyle} exitStyle={exitStyle} {...rest}>
+      <Flex
+        key={`animate-${index}`}
+        animation={animation}
+        enterStyle={enterStyle}
+        exitStyle={exitStyle}
+        {...rest}>
         {children}
       </Flex>
     </Delay>
-  )
-}
+  );
+};
 
 const Delay = ({ children, by }: PropsWithChildren<{ by: number }>): JSX.Element | null => {
-  const [done, setDone] = useState(false)
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
     const showTimer = setTimeout(async () => {
-      setDone(true)
-    }, by)
-    return () => clearTimeout(showTimer)
-  }, [by])
+      setDone(true);
+    }, by);
+    return () => clearTimeout(showTimer);
+  }, [by]);
 
-  return done ? <>{children}</> : null
-}
+  return done ? <>{children}</> : null;
+};

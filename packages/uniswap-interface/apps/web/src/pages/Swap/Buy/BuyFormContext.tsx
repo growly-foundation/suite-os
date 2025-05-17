@@ -1,16 +1,24 @@
-import { skipToken } from '@reduxjs/toolkit/query/react'
-import { useUSDTokenUpdater } from 'hooks/useUSDTokenUpdater'
-import { useFiatOnRampSupportedTokens, useMeldFiatCurrencyInfo } from 'pages/Swap/Buy/hooks'
-import { formatFiatOnRampFiatAmount } from 'pages/Swap/Buy/shared'
-import { Dispatch, PropsWithChildren, SetStateAction, createContext, useContext, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { buildPartialCurrencyInfo } from 'uniswap/src/constants/routing'
-import { nativeOnChain } from 'uniswap/src/constants/tokens'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
+import { skipToken } from '@reduxjs/toolkit/query/react';
+import { useUSDTokenUpdater } from 'hooks/useUSDTokenUpdater';
+import { useFiatOnRampSupportedTokens, useMeldFiatCurrencyInfo } from 'pages/Swap/Buy/hooks';
+import { formatFiatOnRampFiatAmount } from 'pages/Swap/Buy/shared';
+import {
+  Dispatch,
+  PropsWithChildren,
+  SetStateAction,
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
+import { useTranslation } from 'react-i18next';
+import { buildPartialCurrencyInfo } from 'uniswap/src/constants/routing';
+import { nativeOnChain } from 'uniswap/src/constants/tokens';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
 import {
   useFiatOnRampAggregatorCountryListQuery,
   useFiatOnRampAggregatorCryptoQuoteQuery,
-} from 'uniswap/src/features/fiatOnRamp/api'
+} from 'uniswap/src/features/fiatOnRamp/api';
 import {
   FORCountry,
   FORQuoteResponse,
@@ -18,49 +26,49 @@ import {
   FiatCurrencyInfo,
   FiatOnRampCurrency,
   RampDirection,
-} from 'uniswap/src/features/fiatOnRamp/types'
+} from 'uniswap/src/features/fiatOnRamp/types';
 import {
   InvalidRequestAmountTooLow,
   isFiatOnRampApiError,
   isInvalidRequestAmountTooHigh,
   isInvalidRequestAmountTooLow,
-} from 'uniswap/src/features/fiatOnRamp/utils'
-import { useAccount } from 'wagmi'
+} from 'uniswap/src/features/fiatOnRamp/utils';
+import { useAccount } from 'wagmi';
 
 class BuyFormError extends Error {
   constructor(public readonly message: string) {
-    super(message)
+    super(message);
   }
 }
 
 type BuyFormState = {
-  readonly inputAmount: string
-  readonly quoteCurrency: Maybe<FiatOnRampCurrency>
-  readonly selectedCountry?: FORCountry
-  readonly countryModalOpen: boolean
-  readonly currencyModalOpen: boolean
-  readonly providerModalOpen: boolean
-}
+  readonly inputAmount: string;
+  readonly quoteCurrency: Maybe<FiatOnRampCurrency>;
+  readonly selectedCountry?: FORCountry;
+  readonly countryModalOpen: boolean;
+  readonly currencyModalOpen: boolean;
+  readonly providerModalOpen: boolean;
+};
 
 type BuyInfo = {
-  readonly meldSupportedFiatCurrency?: FiatCurrencyInfo
-  readonly notAvailableInThisRegion: boolean
-  readonly countryOptionsResult?: FORSupportedCountriesResponse
-  readonly supportedTokens?: FiatOnRampCurrency[]
-  readonly amountOut?: string
-  readonly amountOutLoading?: boolean
-  readonly quotes?: FORQuoteResponse
-  readonly fetchingQuotes: boolean
-  readonly error?: BuyFormError
-}
+  readonly meldSupportedFiatCurrency?: FiatCurrencyInfo;
+  readonly notAvailableInThisRegion: boolean;
+  readonly countryOptionsResult?: FORSupportedCountriesResponse;
+  readonly supportedTokens?: FiatOnRampCurrency[];
+  readonly amountOut?: string;
+  readonly amountOutLoading?: boolean;
+  readonly quotes?: FORQuoteResponse;
+  readonly fetchingQuotes: boolean;
+  readonly error?: BuyFormError;
+};
 
 type BuyFormContextType = {
-  buyFormState: BuyFormState
-  setBuyFormState: Dispatch<SetStateAction<BuyFormState>>
-  derivedBuyFormInfo: BuyInfo
-}
+  buyFormState: BuyFormState;
+  setBuyFormState: Dispatch<SetStateAction<BuyFormState>>;
+  derivedBuyFormInfo: BuyInfo;
+};
 
-export const ethCurrencyInfo = buildPartialCurrencyInfo(nativeOnChain(UniverseChainId.Mainnet))
+export const ethCurrencyInfo = buildPartialCurrencyInfo(nativeOnChain(UniverseChainId.Mainnet));
 const DEFAULT_BUY_FORM_STATE: BuyFormState = {
   inputAmount: '',
   quoteCurrency: undefined,
@@ -68,7 +76,7 @@ const DEFAULT_BUY_FORM_STATE: BuyFormState = {
   countryModalOpen: false,
   currencyModalOpen: false,
   providerModalOpen: false,
-}
+};
 
 export const BuyFormContext = createContext<BuyFormContextType>({
   buyFormState: DEFAULT_BUY_FORM_STATE,
@@ -84,27 +92,32 @@ export const BuyFormContext = createContext<BuyFormContextType>({
     fetchingQuotes: false,
     error: undefined,
   },
-})
+});
 
 export function useBuyFormContext() {
-  return useContext(BuyFormContext)
+  return useContext(BuyFormContext);
 }
 
 function useDerivedBuyFormInfo(state: BuyFormState): BuyInfo {
-  const { t } = useTranslation()
-  const account = useAccount()
+  const { t } = useTranslation();
+  const account = useAccount();
   const { formattedAmount: amountOut, loading: amountOutLoading } = useUSDTokenUpdater(
     true /* inputInFiat */,
     state.inputAmount,
-    state.quoteCurrency?.currencyInfo?.currency,
-  )
+    state.quoteCurrency?.currencyInfo?.currency
+  );
 
-  const { meldSupportedFiatCurrency, notAvailableInThisRegion } = useMeldFiatCurrencyInfo(state.selectedCountry)
+  const { meldSupportedFiatCurrency, notAvailableInThisRegion } = useMeldFiatCurrencyInfo(
+    state.selectedCountry
+  );
 
   const { data: countryOptionsResult } = useFiatOnRampAggregatorCountryListQuery({
     rampDirection: RampDirection.ONRAMP,
-  })
-  const supportedTokens = useFiatOnRampSupportedTokens(meldSupportedFiatCurrency, state.selectedCountry?.countryCode)
+  });
+  const supportedTokens = useFiatOnRampSupportedTokens(
+    meldSupportedFiatCurrency,
+    state.selectedCountry?.countryCode
+  );
 
   const {
     data: quotes,
@@ -128,32 +141,32 @@ function useDerivedBuyFormInfo(state: BuyFormState): BuyInfo {
       : skipToken,
     {
       refetchOnMountOrArgChange: true,
-    },
-  )
+    }
+  );
 
   const error = useMemo(() => {
     if (quotesError && isFiatOnRampApiError(quotesError)) {
       if (isInvalidRequestAmountTooLow(quotesError)) {
         const formattedAmount = formatFiatOnRampFiatAmount(
           (quotesError as InvalidRequestAmountTooLow).data.context.minimumAllowed,
-          meldSupportedFiatCurrency,
-        )
-        return new BuyFormError(t(`fiatOnRamp.error.min`, { amount: formattedAmount }))
+          meldSupportedFiatCurrency
+        );
+        return new BuyFormError(t(`fiatOnRamp.error.min`, { amount: formattedAmount }));
       }
       if (isInvalidRequestAmountTooHigh(quotesError)) {
         const formattedAmount = formatFiatOnRampFiatAmount(
           quotesError.data.context.maximumAllowed,
-          meldSupportedFiatCurrency,
-        )
-        return new BuyFormError(t(`fiatOnRamp.error.max`, { amount: formattedAmount }))
+          meldSupportedFiatCurrency
+        );
+        return new BuyFormError(t(`fiatOnRamp.error.max`, { amount: formattedAmount }));
       }
-      return new BuyFormError(t('common.card.error.description'))
+      return new BuyFormError(t('common.card.error.description'));
     }
     if (quotes?.quotes && quotes.quotes.length === 0) {
-      return new BuyFormError(t('fiatOnRamp.noQuotes.error'))
+      return new BuyFormError(t('fiatOnRamp.noQuotes.error'));
     }
-    return undefined
-  }, [meldSupportedFiatCurrency, quotes?.quotes, quotesError, t])
+    return undefined;
+  }, [meldSupportedFiatCurrency, quotes?.quotes, quotesError, t]);
 
   return useMemo(
     () => ({
@@ -177,13 +190,13 @@ function useDerivedBuyFormInfo(state: BuyFormState): BuyInfo {
       notAvailableInThisRegion,
       quotes,
       supportedTokens,
-    ],
-  )
+    ]
+  );
 }
 
 export function BuyFormContextProvider({ children }: PropsWithChildren) {
-  const [buyFormState, setBuyFormState] = useState<BuyFormState>({ ...DEFAULT_BUY_FORM_STATE })
-  const derivedBuyFormInfo = useDerivedBuyFormInfo(buyFormState)
+  const [buyFormState, setBuyFormState] = useState<BuyFormState>({ ...DEFAULT_BUY_FORM_STATE });
+  const derivedBuyFormInfo = useDerivedBuyFormInfo(buyFormState);
 
   const value = useMemo(
     () => ({
@@ -191,8 +204,8 @@ export function BuyFormContextProvider({ children }: PropsWithChildren) {
       setBuyFormState,
       derivedBuyFormInfo,
     }),
-    [buyFormState, derivedBuyFormInfo],
-  )
+    [buyFormState, derivedBuyFormInfo]
+  );
 
-  return <BuyFormContext.Provider value={value}>{children}</BuyFormContext.Provider>
+  return <BuyFormContext.Provider value={value}>{children}</BuyFormContext.Provider>;
 }

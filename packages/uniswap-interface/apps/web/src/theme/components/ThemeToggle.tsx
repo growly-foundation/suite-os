@@ -1,16 +1,16 @@
-import { atom, useAtom } from 'jotai'
-import { atomWithStorage, useAtomValue, useUpdateAtom } from 'jotai/utils'
-import ms from 'ms'
-import { useCallback, useEffect, useMemo } from 'react'
-import { Moon, Sun } from 'react-feather'
-import { Trans, useTranslation } from 'react-i18next'
-import { Flex, SegmentedControl, Text, styled, useSporeColors } from 'ui/src'
-import { Moon as MoonFilled } from 'ui/src/components/icons/Moon'
-import { Sun as SunFilled } from 'ui/src/components/icons/Sun'
-import { addMediaQueryListener, removeMediaQueryListener } from 'utils/matchMedia'
+import { atom, useAtom } from 'jotai';
+import { atomWithStorage, useAtomValue, useUpdateAtom } from 'jotai/utils';
+import ms from 'ms';
+import { useCallback, useEffect, useMemo } from 'react';
+import { Moon, Sun } from 'react-feather';
+import { Trans, useTranslation } from 'react-i18next';
+import { Flex, SegmentedControl, Text, styled, useSporeColors } from 'ui/src';
+import { Moon as MoonFilled } from 'ui/src/components/icons/Moon';
+import { Sun as SunFilled } from 'ui/src/components/icons/Sun';
+import { addMediaQueryListener, removeMediaQueryListener } from 'utils/matchMedia';
 
-const THEME_UPDATE_DELAY = ms(`0.1s`)
-const DARKMODE_MEDIA_QUERY = window.matchMedia('(prefers-color-scheme: dark)')
+const THEME_UPDATE_DELAY = ms(`0.1s`);
+const DARKMODE_MEDIA_QUERY = window.matchMedia('(prefers-color-scheme: dark)');
 
 export enum ThemeMode {
   LIGHT = 'Light',
@@ -24,75 +24,75 @@ const OptionPill = styled(Flex, {
   row: true,
   justifyContent: 'center',
   alignItems: 'center',
-})
+});
 
 const CompactOptionPill = styled(Flex, {
   px: '$padding8',
   height: '$spacing28',
   justifyContent: 'center',
   alignItems: 'center',
-})
+});
 
 // Tracks the device theme
 const systemThemeAtom = atom<ThemeMode.LIGHT | ThemeMode.DARK>(
-  DARKMODE_MEDIA_QUERY.matches ? ThemeMode.DARK : ThemeMode.LIGHT,
-)
+  DARKMODE_MEDIA_QUERY.matches ? ThemeMode.DARK : ThemeMode.LIGHT
+);
 
 // Tracks the user's selected theme mode
-const themeModeAtom = atomWithStorage<ThemeMode>('interface_color_theme', ThemeMode.AUTO)
+const themeModeAtom = atomWithStorage<ThemeMode>('interface_color_theme', ThemeMode.AUTO);
 
 export function SystemThemeUpdater() {
-  const setSystemTheme = useUpdateAtom(systemThemeAtom)
+  const setSystemTheme = useUpdateAtom(systemThemeAtom);
 
   const listener = useCallback(
     (event: MediaQueryListEvent) => {
-      setSystemTheme(event.matches ? ThemeMode.DARK : ThemeMode.LIGHT)
+      setSystemTheme(event.matches ? ThemeMode.DARK : ThemeMode.LIGHT);
     },
-    [setSystemTheme],
-  )
+    [setSystemTheme]
+  );
 
   useEffect(() => {
-    addMediaQueryListener(DARKMODE_MEDIA_QUERY, listener)
-    return () => removeMediaQueryListener(DARKMODE_MEDIA_QUERY, listener)
-  }, [setSystemTheme, listener])
+    addMediaQueryListener(DARKMODE_MEDIA_QUERY, listener);
+    return () => removeMediaQueryListener(DARKMODE_MEDIA_QUERY, listener);
+  }, [setSystemTheme, listener]);
 
-  return null
+  return null;
 }
 
 export function ThemeColorMetaUpdater() {
-  const isDark = useIsDarkMode()
+  const isDark = useIsDarkMode();
 
   useEffect(() => {
-    const meta = document.querySelector('meta[name=theme-color]')
+    const meta = document.querySelector('meta[name=theme-color]');
     if (!meta) {
-      return
+      return;
     }
 
     if (isDark) {
       // this color comes from #background-radial-gradient
-      meta.setAttribute('content', 'rgb(19, 19, 19)')
+      meta.setAttribute('content', 'rgb(19, 19, 19)');
     } else {
-      meta.setAttribute('content', '#fff')
+      meta.setAttribute('content', '#fff');
     }
-  }, [isDark])
+  }, [isDark]);
 
-  return null
+  return null;
 }
 
 export function useIsDarkMode(): boolean {
-  const mode = useAtomValue(themeModeAtom)
-  const systemTheme = useAtomValue(systemThemeAtom)
+  const mode = useAtomValue(themeModeAtom);
+  const systemTheme = useAtomValue(systemThemeAtom);
 
-  return (mode === ThemeMode.AUTO ? systemTheme : mode) === ThemeMode.DARK
+  return (mode === ThemeMode.AUTO ? systemTheme : mode) === ThemeMode.DARK;
 }
 
 export function useDarkModeManager(): [boolean, (mode: ThemeMode) => void] {
-  const isDarkMode = useIsDarkMode()
-  const setMode = useUpdateAtom(themeModeAtom)
+  const isDarkMode = useIsDarkMode();
+  const setMode = useUpdateAtom(themeModeAtom);
 
   return useMemo(() => {
-    return [isDarkMode, setMode]
-  }, [isDarkMode, setMode])
+    return [isDarkMode, setMode];
+  }, [isDarkMode, setMode]);
 }
 
 export function ThemeSelector({
@@ -100,20 +100,20 @@ export function ThemeSelector({
   compact = false,
   fullWidth = false,
 }: {
-  disabled?: boolean
-  compact?: boolean
-  fullWidth?: boolean
+  disabled?: boolean;
+  compact?: boolean;
+  fullWidth?: boolean;
 }) {
-  const { t } = useTranslation()
-  const colors = useSporeColors()
-  const [mode, setMode] = useAtom(themeModeAtom)
+  const { t } = useTranslation();
+  const colors = useSporeColors();
+  const [mode, setMode] = useAtom(themeModeAtom);
   const switchMode = useCallback(
     (mode: string | number) => {
       // Switch feels less jittery with short delay
-      !disabled && setTimeout(() => setMode(mode as ThemeMode), THEME_UPDATE_DELAY)
+      !disabled && setTimeout(() => setMode(mode as ThemeMode), THEME_UPDATE_DELAY);
     },
-    [disabled, setMode],
-  )
+    [disabled, setMode]
+  );
 
   const compactOptions = [
     {
@@ -140,7 +140,7 @@ export function ThemeSelector({
         </CompactOptionPill>
       ),
     },
-  ]
+  ];
 
   const defaultOptions = [
     {
@@ -167,7 +167,7 @@ export function ThemeSelector({
         </OptionPill>
       ),
     },
-  ]
+  ];
 
   return (
     <Flex width={fullWidth ? '100%' : 'fit'}>
@@ -179,7 +179,7 @@ export function ThemeSelector({
         size="large"
       />
     </Flex>
-  )
+  );
 }
 
 export default function ThemeToggle({ disabled }: { disabled?: boolean }) {
@@ -192,5 +192,5 @@ export default function ThemeToggle({ disabled }: { disabled?: boolean }) {
       </Flex>
       <ThemeSelector disabled={disabled} />
     </Flex>
-  )
+  );
 }

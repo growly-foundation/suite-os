@@ -1,1 +1,1 @@
-export type TypeOfButton = 'button' | 'icon'
+export type TypeOfButton = 'button' | 'icon';

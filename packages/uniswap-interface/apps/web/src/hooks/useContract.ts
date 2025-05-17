@@ -1,73 +1,82 @@
-import { Contract } from '@ethersproject/contracts'
-import { InterfaceEventName } from '@uniswap/analytics-events'
+import { Contract } from '@ethersproject/contracts';
+import { InterfaceEventName } from '@uniswap/analytics-events';
 import {
   CHAIN_TO_ADDRESSES_MAP,
   MULTICALL_ADDRESSES,
   NONFUNGIBLE_POSITION_MANAGER_ADDRESSES,
   V3_MIGRATOR_ADDRESSES,
-} from '@uniswap/sdk-core'
-import IUniswapV2PairJson from '@uniswap/v2-core/build/IUniswapV2Pair.json'
-import NonfungiblePositionManagerJson from '@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
-import V3MigratorJson from '@uniswap/v3-periphery/artifacts/contracts/V3Migrator.sol/V3Migrator.json'
-import UniswapInterfaceMulticallJson from '@uniswap/v3-periphery/artifacts/contracts/lens/UniswapInterfaceMulticall.sol/UniswapInterfaceMulticall.json'
-import { useAccount } from 'hooks/useAccount'
-import { useEthersProvider } from 'hooks/useEthersProvider'
-import { useEffect, useMemo } from 'react'
-import ERC20_ABI from 'uniswap/src/abis/erc20.json'
-import { Erc20, Erc721, Weth } from 'uniswap/src/abis/types'
-import { NonfungiblePositionManager, UniswapInterfaceMulticall } from 'uniswap/src/abis/types/v3'
-import { V3Migrator } from 'uniswap/src/abis/types/v3/V3Migrator'
-import WETH_ABI from 'uniswap/src/abis/weth.json'
-import { WRAPPED_NATIVE_CURRENCY } from 'uniswap/src/constants/tokens'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send'
-import { getContract } from 'utilities/src/contracts/getContract'
-import { logger } from 'utilities/src/logger/logger'
+} from '@uniswap/sdk-core';
+import IUniswapV2PairJson from '@uniswap/v2-core/build/IUniswapV2Pair.json';
+import NonfungiblePositionManagerJson from '@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json';
+import V3MigratorJson from '@uniswap/v3-periphery/artifacts/contracts/V3Migrator.sol/V3Migrator.json';
+import UniswapInterfaceMulticallJson from '@uniswap/v3-periphery/artifacts/contracts/lens/UniswapInterfaceMulticall.sol/UniswapInterfaceMulticall.json';
+import { useAccount } from 'hooks/useAccount';
+import { useEthersProvider } from 'hooks/useEthersProvider';
+import { useEffect, useMemo } from 'react';
+import ERC20_ABI from 'uniswap/src/abis/erc20.json';
+import { Erc20, Erc721, Weth } from 'uniswap/src/abis/types';
+import { NonfungiblePositionManager, UniswapInterfaceMulticall } from 'uniswap/src/abis/types/v3';
+import { V3Migrator } from 'uniswap/src/abis/types/v3/V3Migrator';
+import WETH_ABI from 'uniswap/src/abis/weth.json';
+import { WRAPPED_NATIVE_CURRENCY } from 'uniswap/src/constants/tokens';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send';
+import { getContract } from 'utilities/src/contracts/getContract';
+import { logger } from 'utilities/src/logger/logger';
 
-const { abi: IUniswapV2PairABI } = IUniswapV2PairJson
-const { abi: MulticallABI } = UniswapInterfaceMulticallJson
-const { abi: NFTPositionManagerABI } = NonfungiblePositionManagerJson
-const { abi: V2MigratorABI } = V3MigratorJson
+const { abi: IUniswapV2PairABI } = IUniswapV2PairJson;
+const { abi: MulticallABI } = UniswapInterfaceMulticallJson;
+const { abi: NFTPositionManagerABI } = NonfungiblePositionManagerJson;
+const { abi: V2MigratorABI } = V3MigratorJson;
 
 // returns null on errors
 export function useContract<T extends Contract = Contract>(
   address: string | undefined,
   ABI: any,
   withSignerIfPossible = true,
-  chainId?: UniverseChainId,
+  chainId?: UniverseChainId
 ): T | null {
-  const account = useAccount()
-  const provider = useEthersProvider({ chainId: chainId ?? account.chainId })
+  const account = useAccount();
+  const provider = useEthersProvider({ chainId: chainId ?? account.chainId });
 
   return useMemo(() => {
     if (!address || !ABI || !provider) {
-      return null
+      return null;
     }
     try {
-      return getContract(address, ABI, provider, withSignerIfPossible && account.address ? account.address : undefined)
+      return getContract(
+        address,
+        ABI,
+        provider,
+        withSignerIfPossible && account.address ? account.address : undefined
+      );
     } catch (error) {
-      const wrappedError = new Error('failed to get contract', { cause: error })
+      const wrappedError = new Error('failed to get contract', { cause: error });
       logger.warn('useContract', 'useContract', wrappedError.message, {
         error: wrappedError,
         contractAddress: address,
         accountAddress: account.address,
-      })
-      return null
+      });
+      return null;
     }
-  }, [address, ABI, provider, withSignerIfPossible, account.address]) as T
+  }, [address, ABI, provider, withSignerIfPossible, account.address]) as T;
 }
 
 export function useV2MigratorContract() {
-  const account = useAccount()
+  const account = useAccount();
   return useContract<V3Migrator>(
     account.chainId ? V3_MIGRATOR_ADDRESSES[account.chainId] : undefined,
     V2MigratorABI,
-    true,
-  )
+    true
+  );
 }
 
-export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: boolean, chainId?: UniverseChainId) {
-  return useContract<Erc20>(tokenAddress, ERC20_ABI, withSignerIfPossible, chainId)
+export function useTokenContract(
+  tokenAddress?: string,
+  withSignerIfPossible?: boolean,
+  chainId?: UniverseChainId
+) {
+  return useContract<Erc20>(tokenAddress, ERC20_ABI, withSignerIfPossible, chainId);
 }
 
 export function useWETHContract(withSignerIfPossible?: boolean, chainId?: UniverseChainId) {
@@ -75,37 +84,40 @@ export function useWETHContract(withSignerIfPossible?: boolean, chainId?: Univer
     chainId ? WRAPPED_NATIVE_CURRENCY[chainId]?.address : undefined,
     WETH_ABI,
     withSignerIfPossible,
-    chainId,
-  )
+    chainId
+  );
 }
 
-export function usePairContract(pairAddress?: string, withSignerIfPossible?: boolean): Contract | null {
-  return useContract(pairAddress, IUniswapV2PairABI, withSignerIfPossible)
+export function usePairContract(
+  pairAddress?: string,
+  withSignerIfPossible?: boolean
+): Contract | null {
+  return useContract(pairAddress, IUniswapV2PairABI, withSignerIfPossible);
 }
 
 export function useInterfaceMulticall(chainId?: UniverseChainId) {
-  const account = useAccount()
-  const chain = chainId ?? account.chainId
+  const account = useAccount();
+  const chain = chainId ?? account.chainId;
   return useContract<UniswapInterfaceMulticall>(
     chain ? MULTICALL_ADDRESSES[chain] : undefined,
     MulticallABI,
     false,
-    chain,
-  ) as UniswapInterfaceMulticall
+    chain
+  ) as UniswapInterfaceMulticall;
 }
 
 export function useV3NFTPositionManagerContract(
   withSignerIfPossible?: boolean,
-  chainId?: UniverseChainId,
+  chainId?: UniverseChainId
 ): NonfungiblePositionManager | null {
-  const account = useAccount()
-  const chainIdToUse = chainId ?? account.chainId
+  const account = useAccount();
+  const chainIdToUse = chainId ?? account.chainId;
   const contract = useContract<NonfungiblePositionManager>(
     chainIdToUse ? NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainIdToUse] : undefined,
     NFTPositionManagerABI,
     withSignerIfPossible,
-    chainIdToUse,
-  )
+    chainIdToUse
+  );
   useEffect(() => {
     if (contract && account.isConnected) {
       sendAnalyticsEvent(InterfaceEventName.WALLET_PROVIDER_USED, {
@@ -116,10 +128,10 @@ export function useV3NFTPositionManagerContract(
           withSignerIfPossible,
           chainId: chainIdToUse,
         },
-      })
+      });
     }
-  }, [account.isConnected, chainIdToUse, contract, withSignerIfPossible])
-  return contract
+  }, [account.isConnected, chainIdToUse, contract, withSignerIfPossible]);
+  return contract;
 }
 
 /**
@@ -128,10 +140,10 @@ export function useV3NFTPositionManagerContract(
  */
 export function useV4NFTPositionManagerContract(
   withSignerIfPossible?: boolean,
-  chainId?: UniverseChainId,
+  chainId?: UniverseChainId
 ): Erc721 | null {
-  const account = useAccount()
-  const chainIdToUse = chainId ?? account.chainId
+  const account = useAccount();
+  const chainIdToUse = chainId ?? account.chainId;
 
   const contract = useContract<Erc721>(
     // monad testnet does not have v4 support
@@ -140,8 +152,8 @@ export function useV4NFTPositionManagerContract(
       : undefined,
     NFTPositionManagerABI,
     withSignerIfPossible,
-    chainIdToUse,
-  )
+    chainIdToUse
+  );
   useEffect(() => {
     if (contract && account.isConnected) {
       sendAnalyticsEvent(InterfaceEventName.WALLET_PROVIDER_USED, {
@@ -152,8 +164,8 @@ export function useV4NFTPositionManagerContract(
           withSignerIfPossible,
           chainId: chainIdToUse,
         },
-      })
+      });
     }
-  }, [account.isConnected, chainIdToUse, contract, withSignerIfPossible])
-  return contract
+  }, [account.isConnected, chainIdToUse, contract, withSignerIfPossible]);
+  return contract;
 }

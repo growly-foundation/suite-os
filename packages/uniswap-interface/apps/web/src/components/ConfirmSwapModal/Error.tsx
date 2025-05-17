@@ -1,14 +1,14 @@
-import { TradeSummary } from 'components/ConfirmSwapModal/TradeSummary'
-import { DialogButtonType, DialogContent } from 'components/Dialog/Dialog'
-import AlertTriangleFilled from 'components/Icons/AlertTriangleFilled'
-import { ColumnCenter } from 'components/deprecated/Column'
-import { SwapResult } from 'hooks/useSwapCallback'
-import { Trans } from 'react-i18next'
-import { InterfaceTrade, TradeFillType } from 'state/routing/types'
-import { isLimitTrade, isUniswapXTrade } from 'state/routing/utils'
-import { ExternalLink } from 'theme/components/Links'
-import { uniswapUrls } from 'uniswap/src/constants/urls'
-import { ExplorerDataType, getExplorerLink } from 'uniswap/src/utils/linking'
+import { TradeSummary } from 'components/ConfirmSwapModal/TradeSummary';
+import { DialogButtonType, DialogContent } from 'components/Dialog/Dialog';
+import AlertTriangleFilled from 'components/Icons/AlertTriangleFilled';
+import { ColumnCenter } from 'components/deprecated/Column';
+import { SwapResult } from 'hooks/useSwapCallback';
+import { Trans } from 'react-i18next';
+import { InterfaceTrade, TradeFillType } from 'state/routing/types';
+import { isLimitTrade, isUniswapXTrade } from 'state/routing/utils';
+import { ExternalLink } from 'theme/components/Links';
+import { uniswapUrls } from 'uniswap/src/constants/urls';
+import { ExplorerDataType, getExplorerLink } from 'uniswap/src/utils/linking';
 
 export enum PendingModalError {
   TOKEN_APPROVAL_ERROR = 0,
@@ -19,17 +19,23 @@ export enum PendingModalError {
 }
 
 interface ErrorModalContentProps {
-  errorType: PendingModalError
-  trade?: InterfaceTrade
-  showTrade?: boolean
-  swapResult?: SwapResult
-  onRetry: () => void
+  errorType: PendingModalError;
+  trade?: InterfaceTrade;
+  showTrade?: boolean;
+  swapResult?: SwapResult;
+  onRetry: () => void;
 }
 
-function getErrorContent({ errorType, trade }: { errorType: PendingModalError; trade?: InterfaceTrade }): {
-  title: JSX.Element
-  message?: JSX.Element
-  supportArticleURL?: string
+function getErrorContent({
+  errorType,
+  trade,
+}: {
+  errorType: PendingModalError;
+  trade?: InterfaceTrade;
+}): {
+  title: JSX.Element;
+  message?: JSX.Element;
+  supportArticleURL?: string;
 } {
   switch (errorType) {
     case PendingModalError.TOKEN_APPROVAL_ERROR:
@@ -37,25 +43,25 @@ function getErrorContent({ errorType, trade }: { errorType: PendingModalError; t
         title: <Trans i18nKey="error.tokenApproval" />,
         message: <Trans i18nKey="error.access.expiry" />,
         supportArticleURL: uniswapUrls.helpArticleUrls.approvalsExplainer,
-      }
+      };
     case PendingModalError.PERMIT_ERROR:
       return {
         title: <Trans i18nKey="permit.approval.fail" />,
         message: <Trans i18nKey="permit.approval.fail.message" />,
         supportArticleURL: uniswapUrls.helpArticleUrls.approvalsExplainer,
-      }
+      };
     case PendingModalError.XV2_HARD_QUOTE_ERROR:
       return {
         title: <Trans i18nKey="common.swap.failed" />,
         message: <Trans i18nKey="swap.fail.uniswapX" />,
         supportArticleURL: uniswapUrls.helpArticleUrls.uniswapXFailure,
-      }
+      };
     case PendingModalError.CONFIRMATION_ERROR:
       if (isLimitTrade(trade)) {
         return {
           title: <Trans i18nKey="common.limit.failed" />,
           supportArticleURL: uniswapUrls.helpArticleUrls.limitsFailure,
-        }
+        };
       } else {
         return {
           title: <Trans i18nKey="common.swap.failed" />,
@@ -63,24 +69,30 @@ function getErrorContent({ errorType, trade }: { errorType: PendingModalError; t
           supportArticleURL: isUniswapXTrade(trade)
             ? uniswapUrls.helpArticleUrls.uniswapXFailure
             : uniswapUrls.helpArticleUrls.transactionFailure,
-        }
+        };
       }
     case PendingModalError.WRAP_ERROR:
       return {
         title: <Trans i18nKey="common.wrap.failed" />,
         message: <Trans i18nKey="token.wrap.fail.message" />,
         supportArticleURL: uniswapUrls.helpArticleUrls.wethExplainer,
-      }
+      };
     default:
       return {
         title: <Trans i18nKey="common.unknownError.error" />,
         message: <Trans i18nKey="common.swap.failed" />,
-      }
+      };
   }
 }
 
-export default function Error({ errorType, trade, showTrade, swapResult, onRetry }: ErrorModalContentProps) {
-  const { title, message, supportArticleURL } = getErrorContent({ errorType, trade })
+export default function Error({
+  errorType,
+  trade,
+  showTrade,
+  swapResult,
+  onRetry,
+}: ErrorModalContentProps) {
+  const { title, message, supportArticleURL } = getErrorContent({ errorType, trade });
 
   return (
     <DialogContent
@@ -101,10 +113,9 @@ export default function Error({ errorType, trade, showTrade, swapResult, onRetry
               href={getExplorerLink(
                 swapResult.response.chainId,
                 swapResult.response.hash,
-                ExplorerDataType.TRANSACTION,
+                ExplorerDataType.TRANSACTION
               )}
-              color="neutral2"
-            >
+              color="neutral2">
               <Trans i18nKey="common.viewOnExplorer" />
             </ExternalLink>
           )}
@@ -119,5 +130,5 @@ export default function Error({ errorType, trade, showTrade, swapResult, onRetry
       }}
       onCancel={() => null}
     />
-  )
+  );
 }

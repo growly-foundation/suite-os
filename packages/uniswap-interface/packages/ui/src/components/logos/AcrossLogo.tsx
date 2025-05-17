@@ -1,11 +1,11 @@
-import { ClipPath, Defs, G, Path, Rect, Svg } from 'react-native-svg'
+import { ClipPath, Defs, G, Path, Rect, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [AcrossLogo, AnimatedAcrossLogo] = createIcon({
   name: 'AcrossLogo',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg viewBox="0 0 16 16" fill="none" {...props}>
       <G clipPath="url(#clip0_3093_68949)">
         <Path
@@ -27,4 +27,4 @@ export const [AcrossLogo, AnimatedAcrossLogo] = createIcon({
     </Svg>
   ),
   defaultFill: '#6CF9D8',
-})
+});

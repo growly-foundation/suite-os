@@ -1,23 +1,23 @@
-import { useModalState } from 'hooks/useModalState'
-import styledDep from 'lib/styled-components'
-import { useExternallyConnectableExtensionId } from 'pages/ExtensionPasskeyAuthPopUp/useExternallyConnectableExtensionId'
-import { ChangeEvent, PropsWithChildren, useCallback } from 'react'
-import { Button, Flex, ModalCloseIcon, Text, styled } from 'ui/src'
-import { LayerRow } from 'uniswap/src/components/gating/Rows'
-import { Modal } from 'uniswap/src/components/modals/Modal'
+import { useModalState } from 'hooks/useModalState';
+import styledDep from 'lib/styled-components';
+import { useExternallyConnectableExtensionId } from 'pages/ExtensionPasskeyAuthPopUp/useExternallyConnectableExtensionId';
+import { ChangeEvent, PropsWithChildren, useCallback } from 'react';
+import { Button, Flex, ModalCloseIcon, Text, styled } from 'ui/src';
+import { LayerRow } from 'uniswap/src/components/gating/Rows';
+import { Modal } from 'uniswap/src/components/modals/Modal';
 import {
   DynamicConfigKeys,
   DynamicConfigs,
   ExternallyConnectableExtensionConfigKey,
   NetworkRequestsConfigKey,
-} from 'uniswap/src/features/gating/configs'
-import { Layers } from 'uniswap/src/features/gating/experiments'
-import { FeatureFlags, getFeatureFlagName } from 'uniswap/src/features/gating/flags'
-import { useFeatureFlagWithExposureLoggingDisabled } from 'uniswap/src/features/gating/hooks'
-import { getOverrideAdapter } from 'uniswap/src/features/gating/sdk/statsig'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
-import { isPlaywrightEnv } from 'utilities/src/environment/env'
-import { TRUSTED_CHROME_EXTENSION_IDS } from 'utilities/src/environment/extensionId'
+} from 'uniswap/src/features/gating/configs';
+import { Layers } from 'uniswap/src/features/gating/experiments';
+import { FeatureFlags, getFeatureFlagName } from 'uniswap/src/features/gating/flags';
+import { useFeatureFlagWithExposureLoggingDisabled } from 'uniswap/src/features/gating/hooks';
+import { getOverrideAdapter } from 'uniswap/src/features/gating/sdk/statsig';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
+import { isPlaywrightEnv } from 'utilities/src/environment/env';
+import { TRUSTED_CHROME_EXTENSION_IDS } from 'utilities/src/environment/extensionId';
 
 const CenteredRow = styled(Flex, {
   flexDirection: 'row',
@@ -26,16 +26,16 @@ const CenteredRow = styled(Flex, {
   py: '$gap8',
   maxWidth: '100%',
   gap: '$gap4',
-})
+});
 
 const FlagInfo = styled(Flex, {
   pl: '$padding8',
   flexShrink: 1,
-})
+});
 
 interface FeatureFlagProps {
-  label: string
-  flag: FeatureFlags
+  label: string;
+  flag: FeatureFlags;
 }
 
 function FeatureFlagGroup({ name, children }: PropsWithChildren<{ name: string }>) {
@@ -46,7 +46,7 @@ function FeatureFlagGroup({ name, children }: PropsWithChildren<{ name: string }
       </CenteredRow>
       {children}
     </>
-  )
+  );
 }
 
 const FlagVariantSelection = styledDep.select`
@@ -61,22 +61,22 @@ const FlagVariantSelection = styledDep.select`
   :hover {
     background: ${({ theme }) => theme.surface3};
   }
-`
+`;
 
 function Variant({ option }: { option: string }) {
-  return <option value={option}>{option}</option>
+  return <option value={option}>{option}</option>;
 }
 
 function FeatureFlagOption({ flag, label }: FeatureFlagProps) {
-  const enabled = useFeatureFlagWithExposureLoggingDisabled(flag)
-  const name = getFeatureFlagName(flag)
+  const enabled = useFeatureFlagWithExposureLoggingDisabled(flag);
+  const name = getFeatureFlagName(flag);
 
   const onFlagVariantChange = useCallback(
     (e: ChangeEvent<HTMLSelectElement>) => {
-      getOverrideAdapter().overrideGate(name, e.target.value === 'Enabled' ? true : false)
+      getOverrideAdapter().overrideGate(name, e.target.value === 'Enabled' ? true : false);
     },
-    [name],
-  )
+    [name]
+  );
 
   return (
     <CenteredRow key={flag}>
@@ -86,13 +86,16 @@ function FeatureFlagOption({ flag, label }: FeatureFlagProps) {
           {label}
         </Text>
       </FlagInfo>
-      <FlagVariantSelection id={name} onChange={onFlagVariantChange} value={enabled ? 'Enabled' : 'Disabled'}>
-        {['Enabled', 'Disabled'].map((variant) => (
+      <FlagVariantSelection
+        id={name}
+        onChange={onFlagVariantChange}
+        value={enabled ? 'Enabled' : 'Disabled'}>
+        {['Enabled', 'Disabled'].map(variant => (
           <Variant key={variant} option={variant} />
         ))}
       </FlagVariantSelection>
     </CenteredRow>
-  )
+  );
 }
 
 function DynamicConfigDropdown<
@@ -107,23 +110,23 @@ function DynamicConfigDropdown<
   parser,
   allowMultiple = true,
 }: {
-  config: Conf
-  configKey: Key
-  label: string
-  options: Array<string | number> | Record<string, string | number>
-  selected: unknown[]
-  parser: (opt: string) => any
-  allowMultiple?: boolean
+  config: Conf;
+  configKey: Key;
+  label: string;
+  options: Array<string | number> | Record<string, string | number>;
+  selected: unknown[];
+  parser: (opt: string) => any;
+  allowMultiple?: boolean;
 }) {
   const handleSelectChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const selectedValues = Array.from(e.target.selectedOptions, (opt) => parser(opt.value))
+      const selectedValues = Array.from(e.target.selectedOptions, opt => parser(opt.value));
       getOverrideAdapter().overrideDynamicConfig(config, {
         [configKey]: allowMultiple ? selectedValues : selectedValues[0],
-      })
+      });
     },
-    [allowMultiple, config, configKey, parser],
-  )
+    [allowMultiple, config, configKey, parser]
+  );
   return (
     <CenteredRow key={config}>
       <FlagInfo>
@@ -134,7 +137,7 @@ function DynamicConfigDropdown<
       </FlagInfo>
       <select multiple={allowMultiple} onChange={handleSelectChange}>
         {Array.isArray(options)
-          ? options.map((opt) => (
+          ? options.map(opt => (
               <option key={opt} value={opt} selected={selected.includes(opt)}>
                 {opt}
               </option>
@@ -146,14 +149,14 @@ function DynamicConfigDropdown<
             ))}
       </select>
     </CenteredRow>
-  )
+  );
 }
 
 export default function FeatureFlagModal() {
-  const { isOpen, closeModal } = useModalState(ModalName.FeatureFlags)
+  const { isOpen, closeModal } = useModalState(ModalName.FeatureFlags);
   const removeAllOverrides = () => {
-    getOverrideAdapter().removeAllOverrides()
-  }
+    getOverrideAdapter().removeAllOverrides();
+  };
   return (
     <Modal name={ModalName.FeatureFlags} isModalOpen={isOpen} onClose={closeModal} padding={0}>
       <Flex py="$gap20" px="$gap16" gap="$gap8">
@@ -175,17 +178,32 @@ export default function FeatureFlagModal() {
           </FeatureFlagGroup>
           <FeatureFlagGroup name="Swap Features">
             <FeatureFlagOption flag={FeatureFlags.BatchedSwaps} label="Enable Batched Swaps" />
-            <FeatureFlagOption flag={FeatureFlags.IndicativeSwapQuotes} label="Enable Quick Routes" />
+            <FeatureFlagOption
+              flag={FeatureFlags.IndicativeSwapQuotes}
+              label="Enable Quick Routes"
+            />
             <FeatureFlagOption flag={FeatureFlags.UniquoteEnabled} label="Enable Uniquote" />
-            <FeatureFlagOption flag={FeatureFlags.ViemProviderEnabled} label="Enable Viem Provider" />
-            <FeatureFlagOption flag={FeatureFlags.InstantTokenBalanceUpdate} label="Instant token balance update" />
+            <FeatureFlagOption
+              flag={FeatureFlags.ViemProviderEnabled}
+              label="Enable Viem Provider"
+            />
+            <FeatureFlagOption
+              flag={FeatureFlags.InstantTokenBalanceUpdate}
+              label="Instant token balance update"
+            />
             <FeatureFlagOption flag={FeatureFlags.LimitsFees} label="Enable Limits fees" />
-            <FeatureFlagOption flag={FeatureFlags.EnablePermitMismatchUX} label="Enable Permit2 mismatch detection" />
+            <FeatureFlagOption
+              flag={FeatureFlags.EnablePermitMismatchUX}
+              label="Enable Permit2 mismatch detection"
+            />
             <FeatureFlagOption
               flag={FeatureFlags.ForcePermitTransactions}
               label="Force Permit2 transaction instead of signatures, always"
             />
-            <FeatureFlagOption flag={FeatureFlags.SwapSettingsV4HooksToggle} label="Swap Settings V4 Hooks Toggle" />
+            <FeatureFlagOption
+              flag={FeatureFlags.SwapSettingsV4HooksToggle}
+              label="Swap Settings V4 Hooks Toggle"
+            />
             <FeatureFlagOption
               flag={FeatureFlags.ForceDisableWalletGetCapabilities}
               label="Force disable wallet get capabilities result"
@@ -201,18 +219,24 @@ export default function FeatureFlagModal() {
               flag={FeatureFlags.UniswapXPriorityOrdersUnichain}
               label="UniswapX Priority Orders (on Unichain)"
             />
-            <FeatureFlagOption flag={FeatureFlags.ArbitrumDutchV3} label="Enable Dutch V3 on Arbitrum" />
+            <FeatureFlagOption
+              flag={FeatureFlags.ArbitrumDutchV3}
+              label="Enable Dutch V3 on Arbitrum"
+            />
           </FeatureFlagGroup>
           <FeatureFlagGroup name="LP">
             <FeatureFlagOption flag={FeatureFlags.LpIncentives} label="Enable LP Incentives" />
             <FeatureFlagOption flag={FeatureFlags.PositionPageV2} label="Enable Position Page V2" />
           </FeatureFlagGroup>
           <FeatureFlagGroup name="Embedded Wallet">
-            <FeatureFlagOption flag={FeatureFlags.EmbeddedWallet} label="Add internal embedded wallet functionality" />
+            <FeatureFlagOption
+              flag={FeatureFlags.EmbeddedWallet}
+              label="Add internal embedded wallet functionality"
+            />
             <DynamicConfigDropdown
               selected={[useExternallyConnectableExtensionId()]}
               options={TRUSTED_CHROME_EXTENSION_IDS}
-              parser={(id) => id}
+              parser={id => id}
               config={DynamicConfigs.ExternallyConnectableExtension}
               configKey={ExternallyConnectableExtensionConfigKey.ExtensionId}
               label="Which Extension the web app will communicate with"
@@ -229,7 +253,10 @@ export default function FeatureFlagModal() {
           <FeatureFlagGroup name="New Chains">
             <FeatureFlagOption flag={FeatureFlags.MonadTestnet} label="Enable Monad Testnet" />
             <FeatureFlagOption flag={FeatureFlags.Soneium} label="Enable Soneium" />
-            <FeatureFlagOption flag={FeatureFlags.MonadTestnetDown} label="Enable Monad Testnet Down Banner" />
+            <FeatureFlagOption
+              flag={FeatureFlags.MonadTestnetDown}
+              label="Enable Monad Testnet Down Banner"
+            />
           </FeatureFlagGroup>
           <FeatureFlagGroup name="Network Requests">
             <DynamicConfigDropdown
@@ -244,7 +271,9 @@ export default function FeatureFlagModal() {
           <FeatureFlagGroup name="Debug">
             <FeatureFlagOption flag={FeatureFlags.TraceJsonRpc} label="Enables JSON-RPC tracing" />
             <FeatureFlagOption flag={FeatureFlags.AATestWeb} label="A/A Test for Web" />
-            {isPlaywrightEnv() && <FeatureFlagOption flag={FeatureFlags.DummyFlagTest} label="Dummy Flag Test" />}
+            {isPlaywrightEnv() && (
+              <FeatureFlagOption flag={FeatureFlags.DummyFlagTest} label="Dummy Flag Test" />
+            )}
           </FeatureFlagGroup>
           <FeatureFlagGroup name="Misc"></FeatureFlagGroup>
           <FeatureFlagGroup name="Experiments">
@@ -256,10 +285,15 @@ export default function FeatureFlagModal() {
             </Flex>
           </FeatureFlagGroup>
         </Flex>
-        <Button onPress={window.location.reload} variant="default" emphasis="secondary" size="small" fill={false}>
+        <Button
+          onPress={window.location.reload}
+          variant="default"
+          emphasis="secondary"
+          size="small"
+          fill={false}>
           Reload
         </Button>
       </Flex>
     </Modal>
-  )
+  );
 }

@@ -1,21 +1,34 @@
-import { Currency, Token, TradeType } from '@uniswap/sdk-core'
-import { GetQuoteArgs, PoolType, RouterPreference, TokenInRoute, URAQuoteType } from 'state/routing/types'
-import { computeRoutes } from 'state/routing/utils'
-import { nativeOnChain } from 'uniswap/src/constants/tokens'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
+import { Currency, Token, TradeType } from '@uniswap/sdk-core';
+import {
+  GetQuoteArgs,
+  PoolType,
+  RouterPreference,
+  TokenInRoute,
+  URAQuoteType,
+} from 'state/routing/types';
+import { computeRoutes } from 'state/routing/utils';
+import { nativeOnChain } from 'uniswap/src/constants/tokens';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
 
-const USDC = new Token(1, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', undefined, false)
-const USDC_IN_ROUTE = toTokenInRoute(USDC)
-const DAI = new Token(1, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 6, 'DAI', undefined, false)
-const DAI_IN_ROUTE = toTokenInRoute(DAI)
-const MKR = new Token(1, '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2', 6, 'MKR', undefined, false)
-const MKR_IN_ROUTE = toTokenInRoute(MKR)
+const USDC = new Token(
+  1,
+  '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  6,
+  'USDC',
+  undefined,
+  false
+);
+const USDC_IN_ROUTE = toTokenInRoute(USDC);
+const DAI = new Token(1, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 6, 'DAI', undefined, false);
+const DAI_IN_ROUTE = toTokenInRoute(DAI);
+const MKR = new Token(1, '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2', 6, 'MKR', undefined, false);
+const MKR_IN_ROUTE = toTokenInRoute(MKR);
 
-const ETH = nativeOnChain(UniverseChainId.Mainnet)
-const WETH_IN_ROUTE = toTokenInRoute(ETH.wrapped)
+const ETH = nativeOnChain(UniverseChainId.Mainnet);
+const WETH_IN_ROUTE = toTokenInRoute(ETH.wrapped);
 
 // helper function to make amounts more readable
-const amount = (raw: TemplateStringsArray) => (parseInt(raw[0]) * 1e6).toString()
+const amount = (raw: TemplateStringsArray) => (parseInt(raw[0]) * 1e6).toString();
 
 const BASE_ARGS = {
   amount: '100',
@@ -24,9 +37,13 @@ const BASE_ARGS = {
   needsWrapIfUniswapX: false,
   uniswapXForceSyntheticQuotes: false,
   sendPortionEnabled: true,
-}
+};
 
-function constructArgs(currencyIn: Currency, currencyOut: Currency, routingType: URAQuoteType): GetQuoteArgs {
+function constructArgs(
+  currencyIn: Currency,
+  currencyOut: Currency,
+  routingType: URAQuoteType
+): GetQuoteArgs {
   return {
     ...BASE_ARGS,
     tokenInAddress: currencyIn.isNative ? 'ETH' : currencyIn.address,
@@ -38,7 +55,7 @@ function constructArgs(currencyIn: Currency, currencyOut: Currency, routingType:
     tokenOutDecimals: currencyOut.decimals,
     tokenOutSymbol: currencyOut.symbol,
     routingType,
-  }
+  };
 }
 
 function toTokenInRoute(token: Token): TokenInRoute {
@@ -49,14 +66,14 @@ function toTokenInRoute(token: Token): TokenInRoute {
     decimals: token.decimals,
     buyFeeBps: token.buyFeeBps?.toString(),
     sellFeeBps: token.sellFeeBps?.toString(),
-  }
+  };
 }
 
 describe('#useRoute', () => {
   it('handles empty edges and nodes', () => {
-    const result = computeRoutes(constructArgs(USDC, DAI, URAQuoteType.CLASSIC), [])
-    expect(result).toEqual([])
-  })
+    const result = computeRoutes(constructArgs(USDC, DAI, URAQuoteType.CLASSIC), []);
+    expect(result).toEqual([]);
+  });
 
   it('handles a single route trade from DAI to USDC from v3', () => {
     const result = computeRoutes(constructArgs(DAI, USDC, URAQuoteType.CLASSIC), [
@@ -74,19 +91,19 @@ describe('#useRoute', () => {
           tokenOut: toTokenInRoute(USDC),
         },
       ],
-    ])
+    ]);
 
-    const r = result?.[0]
+    const r = result?.[0];
 
-    expect(result).toBeDefined()
-    expect(result?.length).toBe(1)
-    expect(r?.routev3?.input).toStrictEqual(DAI)
-    expect(r?.routev3?.output).toStrictEqual(USDC)
-    expect(r?.routev3?.tokenPath).toStrictEqual([DAI, USDC])
-    expect(r?.routev2).toBeNull()
-    expect(r?.inputAmount.toSignificant()).toBe('1')
-    expect(r?.outputAmount.toSignificant()).toBe('5')
-  })
+    expect(result).toBeDefined();
+    expect(result?.length).toBe(1);
+    expect(r?.routev3?.input).toStrictEqual(DAI);
+    expect(r?.routev3?.output).toStrictEqual(USDC);
+    expect(r?.routev3?.tokenPath).toStrictEqual([DAI, USDC]);
+    expect(r?.routev2).toBeNull();
+    expect(r?.inputAmount.toSignificant()).toBe('1');
+    expect(r?.outputAmount.toSignificant()).toBe('5');
+  });
 
   it('handles a single route trade from DAI to USDC from v2', () => {
     const result = computeRoutes(constructArgs(DAI, USDC, URAQuoteType.CLASSIC), [
@@ -108,19 +125,19 @@ describe('#useRoute', () => {
           },
         },
       ],
-    ])
+    ]);
 
-    const r = result?.[0]
+    const r = result?.[0];
 
-    expect(result).toBeDefined()
-    expect(result?.length).toBe(1)
-    expect(r?.routev2?.input).toStrictEqual(DAI)
-    expect(r?.routev2?.output).toStrictEqual(USDC)
-    expect(r?.routev2?.path).toStrictEqual([DAI, USDC])
-    expect(r?.routev3).toBeNull()
-    expect(r?.inputAmount.toSignificant()).toBe('1')
-    expect(r?.outputAmount.toSignificant()).toBe('5')
-  })
+    expect(result).toBeDefined();
+    expect(result?.length).toBe(1);
+    expect(r?.routev2?.input).toStrictEqual(DAI);
+    expect(r?.routev2?.output).toStrictEqual(USDC);
+    expect(r?.routev2?.path).toStrictEqual([DAI, USDC]);
+    expect(r?.routev3).toBeNull();
+    expect(r?.inputAmount.toSignificant()).toBe('1');
+    expect(r?.outputAmount.toSignificant()).toBe('5');
+  });
 
   it('handles a multi-route trade from DAI to USDC', () => {
     const result = computeRoutes(constructArgs(DAI, USDC, URAQuoteType.CLASSIC), [
@@ -168,26 +185,26 @@ describe('#useRoute', () => {
           tickCurrent: '-69633',
         },
       ],
-    ])
+    ]);
 
-    expect(result).toBeDefined()
-    expect(result?.length).toBe(2)
+    expect(result).toBeDefined();
+    expect(result?.length).toBe(2);
 
     // first route is v2
-    expect(result?.[0].routev2?.input).toStrictEqual(DAI)
-    expect(result?.[0].routev2?.output).toStrictEqual(USDC)
-    expect(result?.[0].routev2?.path).toEqual([DAI, USDC])
-    expect(result?.[0].routev3).toBeNull()
+    expect(result?.[0].routev2?.input).toStrictEqual(DAI);
+    expect(result?.[0].routev2?.output).toStrictEqual(USDC);
+    expect(result?.[0].routev2?.path).toEqual([DAI, USDC]);
+    expect(result?.[0].routev3).toBeNull();
 
     // second route is v3
-    expect(result?.[1].routev3?.input).toStrictEqual(DAI)
-    expect(result?.[1].routev3?.output).toStrictEqual(USDC)
-    expect(result?.[1].routev3?.tokenPath).toEqual([DAI, MKR, USDC])
-    expect(result?.[1].routev2).toBeNull()
+    expect(result?.[1].routev3?.input).toStrictEqual(DAI);
+    expect(result?.[1].routev3?.output).toStrictEqual(USDC);
+    expect(result?.[1].routev3?.tokenPath).toEqual([DAI, MKR, USDC]);
+    expect(result?.[1].routev2).toBeNull();
 
-    expect(result?.[0].outputAmount.toSignificant()).toBe('6')
-    expect(result?.[1].outputAmount.toSignificant()).toBe('200')
-  })
+    expect(result?.[0].outputAmount.toSignificant()).toBe('6');
+    expect(result?.[1].outputAmount.toSignificant()).toBe('200');
+  });
 
   it('handles a single route trade with same token pair, different fee tiers', () => {
     const result = computeRoutes(constructArgs(DAI, USDC, URAQuoteType.CLASSIC), [
@@ -219,15 +236,15 @@ describe('#useRoute', () => {
           tickCurrent: '-69633',
         },
       ],
-    ])
+    ]);
 
-    expect(result).toBeDefined()
-    expect(result?.length).toBe(2)
-    expect(result?.[0].routev3?.input).toStrictEqual(DAI)
-    expect(result?.[0].routev3?.output).toStrictEqual(USDC)
-    expect(result?.[0].routev3?.tokenPath).toEqual([DAI, USDC])
-    expect(result?.[0].inputAmount.toSignificant()).toBe('1')
-  })
+    expect(result).toBeDefined();
+    expect(result?.length).toBe(2);
+    expect(result?.[0].routev3?.input).toStrictEqual(DAI);
+    expect(result?.[0].routev3?.output).toStrictEqual(USDC);
+    expect(result?.[0].routev3?.tokenPath).toEqual([DAI, USDC]);
+    expect(result?.[0].inputAmount.toSignificant()).toBe('1');
+  });
 
   it('computes mixed routes correctly', () => {
     const result = computeRoutes(constructArgs(DAI, MKR, URAQuoteType.CLASSIC), [
@@ -261,19 +278,19 @@ describe('#useRoute', () => {
           },
         },
       ],
-    ])
+    ]);
 
-    expect(result).toBeDefined()
-    expect(result?.length).toBe(1)
-    expect(result?.[0].routev3).toBeNull()
-    expect(result?.[0].routev2).toBeNull()
-    expect(result?.[0].mixedRoute?.output).toStrictEqual(MKR)
-    expect(result?.[0].inputAmount.toSignificant()).toBe('1')
-  })
+    expect(result).toBeDefined();
+    expect(result?.length).toBe(1);
+    expect(result?.[0].routev3).toBeNull();
+    expect(result?.[0].routev2).toBeNull();
+    expect(result?.[0].mixedRoute?.output).toStrictEqual(MKR);
+    expect(result?.[0].inputAmount.toSignificant()).toBe('1');
+  });
 
   describe('with ETH', () => {
     it('outputs native ETH as input currency', () => {
-      const WETH = ETH.wrapped
+      const WETH = ETH.wrapped;
 
       const result = computeRoutes(constructArgs(ETH, USDC, URAQuoteType.CLASSIC), [
         [
@@ -290,18 +307,18 @@ describe('#useRoute', () => {
             tokenOut: USDC_IN_ROUTE,
           },
         ],
-      ])
+      ]);
 
-      expect(result).toBeDefined()
-      expect(result?.length).toBe(1)
-      expect(result?.[0].routev3?.input).toStrictEqual(ETH)
-      expect(result?.[0].routev3?.output).toStrictEqual(USDC)
-      expect(result?.[0].routev3?.tokenPath).toStrictEqual([WETH, USDC])
-      expect(result && result[0].outputAmount.toSignificant()).toBe('5')
-    })
+      expect(result).toBeDefined();
+      expect(result?.length).toBe(1);
+      expect(result?.[0].routev3?.input).toStrictEqual(ETH);
+      expect(result?.[0].routev3?.output).toStrictEqual(USDC);
+      expect(result?.[0].routev3?.tokenPath).toStrictEqual([WETH, USDC]);
+      expect(result && result[0].outputAmount.toSignificant()).toBe('5');
+    });
 
     it('outputs native ETH as output currency', () => {
-      const WETH = new Token(1, ETH.wrapped.address, 18, 'WETH')
+      const WETH = new Token(1, ETH.wrapped.address, 18, 'WETH');
       const result = computeRoutes(constructArgs(USDC, ETH, URAQuoteType.CLASSIC), [
         [
           {
@@ -317,17 +334,17 @@ describe('#useRoute', () => {
             tokenOut: WETH_IN_ROUTE,
           },
         ],
-      ])
+      ]);
 
-      expect(result?.length).toBe(1)
-      expect(result?.[0].routev3?.input).toStrictEqual(USDC)
-      expect(result?.[0].routev3?.output).toStrictEqual(ETH)
-      expect(result?.[0].routev3?.tokenPath).toStrictEqual([USDC, WETH])
-      expect(result?.[0].outputAmount.toSignificant()).toBe('1')
-    })
+      expect(result?.length).toBe(1);
+      expect(result?.[0].routev3?.input).toStrictEqual(USDC);
+      expect(result?.[0].routev3?.output).toStrictEqual(ETH);
+      expect(result?.[0].routev3?.tokenPath).toStrictEqual([USDC, WETH]);
+      expect(result?.[0].outputAmount.toSignificant()).toBe('1');
+    });
 
     it('outputs native ETH as input currency for v2 routes', () => {
-      const WETH = ETH.wrapped
+      const WETH = ETH.wrapped;
 
       const result = computeRoutes(constructArgs(ETH, USDC, URAQuoteType.CLASSIC), [
         [
@@ -348,18 +365,18 @@ describe('#useRoute', () => {
             },
           },
         ],
-      ])
+      ]);
 
-      expect(result).toBeDefined()
-      expect(result?.length).toBe(1)
-      expect(result?.[0].routev2?.input).toStrictEqual(ETH)
-      expect(result?.[0].routev2?.output).toStrictEqual(USDC)
-      expect(result?.[0].routev2?.path).toStrictEqual([WETH, USDC])
-      expect(result && result[0].outputAmount.toSignificant()).toBe('5')
-    })
+      expect(result).toBeDefined();
+      expect(result?.length).toBe(1);
+      expect(result?.[0].routev2?.input).toStrictEqual(ETH);
+      expect(result?.[0].routev2?.output).toStrictEqual(USDC);
+      expect(result?.[0].routev2?.path).toStrictEqual([WETH, USDC]);
+      expect(result && result[0].outputAmount.toSignificant()).toBe('5');
+    });
 
     it('outputs native ETH as output currency for v2 routes', () => {
-      const WETH = new Token(1, ETH.wrapped.address, 18, 'WETH')
+      const WETH = new Token(1, ETH.wrapped.address, 18, 'WETH');
       const result = computeRoutes(constructArgs(USDC, ETH, URAQuoteType.CLASSIC), [
         [
           {
@@ -379,22 +396,22 @@ describe('#useRoute', () => {
             },
           },
         ],
-      ])
+      ]);
 
-      expect(result?.length).toBe(1)
-      expect(result?.[0].routev2?.input).toStrictEqual(USDC)
-      expect(result?.[0].routev2?.output).toStrictEqual(ETH)
-      expect(result?.[0].routev2?.path).toStrictEqual([USDC, WETH])
-      expect(result?.[0].outputAmount.toSignificant()).toBe('1')
-    })
-  })
-})
+      expect(result?.length).toBe(1);
+      expect(result?.[0].routev2?.input).toStrictEqual(USDC);
+      expect(result?.[0].routev2?.output).toStrictEqual(ETH);
+      expect(result?.[0].routev2?.path).toStrictEqual([USDC, WETH]);
+      expect(result?.[0].outputAmount.toSignificant()).toBe('1');
+    });
+  });
+});
 
 describe('#useRoute X v2', () => {
   it('handles empty edges and nodes', () => {
-    const result = computeRoutes(constructArgs(USDC, DAI, URAQuoteType.DUTCH_V2), [])
-    expect(result).toEqual([])
-  })
+    const result = computeRoutes(constructArgs(USDC, DAI, URAQuoteType.DUTCH_V2), []);
+    expect(result).toEqual([]);
+  });
 
   it('handles a single route trade from DAI to USDC from v3', () => {
     const result = computeRoutes(constructArgs(DAI, USDC, URAQuoteType.DUTCH_V2), [
@@ -412,19 +429,19 @@ describe('#useRoute X v2', () => {
           tokenOut: toTokenInRoute(USDC),
         },
       ],
-    ])
+    ]);
 
-    const r = result?.[0]
+    const r = result?.[0];
 
-    expect(result).toBeDefined()
-    expect(result?.length).toBe(1)
-    expect(r?.routev3?.input).toStrictEqual(DAI)
-    expect(r?.routev3?.output).toStrictEqual(USDC)
-    expect(r?.routev3?.tokenPath).toStrictEqual([DAI, USDC])
-    expect(r?.routev2).toBeNull()
-    expect(r?.inputAmount.toSignificant()).toBe('1')
-    expect(r?.outputAmount.toSignificant()).toBe('5')
-  })
+    expect(result).toBeDefined();
+    expect(result?.length).toBe(1);
+    expect(r?.routev3?.input).toStrictEqual(DAI);
+    expect(r?.routev3?.output).toStrictEqual(USDC);
+    expect(r?.routev3?.tokenPath).toStrictEqual([DAI, USDC]);
+    expect(r?.routev2).toBeNull();
+    expect(r?.inputAmount.toSignificant()).toBe('1');
+    expect(r?.outputAmount.toSignificant()).toBe('5');
+  });
 
   it('handles a single route trade from DAI to USDC from v2', () => {
     const result = computeRoutes(constructArgs(DAI, USDC, URAQuoteType.DUTCH_V2), [
@@ -446,19 +463,19 @@ describe('#useRoute X v2', () => {
           },
         },
       ],
-    ])
+    ]);
 
-    const r = result?.[0]
+    const r = result?.[0];
 
-    expect(result).toBeDefined()
-    expect(result?.length).toBe(1)
-    expect(r?.routev2?.input).toStrictEqual(DAI)
-    expect(r?.routev2?.output).toStrictEqual(USDC)
-    expect(r?.routev2?.path).toStrictEqual([DAI, USDC])
-    expect(r?.routev3).toBeNull()
-    expect(r?.inputAmount.toSignificant()).toBe('1')
-    expect(r?.outputAmount.toSignificant()).toBe('5')
-  })
+    expect(result).toBeDefined();
+    expect(result?.length).toBe(1);
+    expect(r?.routev2?.input).toStrictEqual(DAI);
+    expect(r?.routev2?.output).toStrictEqual(USDC);
+    expect(r?.routev2?.path).toStrictEqual([DAI, USDC]);
+    expect(r?.routev3).toBeNull();
+    expect(r?.inputAmount.toSignificant()).toBe('1');
+    expect(r?.outputAmount.toSignificant()).toBe('5');
+  });
 
   it('handles a multi-route trade from DAI to USDC', () => {
     const result = computeRoutes(constructArgs(DAI, USDC, URAQuoteType.DUTCH_V2), [
@@ -506,26 +523,26 @@ describe('#useRoute X v2', () => {
           tickCurrent: '-69633',
         },
       ],
-    ])
+    ]);
 
-    expect(result).toBeDefined()
-    expect(result?.length).toBe(2)
+    expect(result).toBeDefined();
+    expect(result?.length).toBe(2);
 
     // first route is v2
-    expect(result?.[0].routev2?.input).toStrictEqual(DAI)
-    expect(result?.[0].routev2?.output).toStrictEqual(USDC)
-    expect(result?.[0].routev2?.path).toEqual([DAI, USDC])
-    expect(result?.[0].routev3).toBeNull()
+    expect(result?.[0].routev2?.input).toStrictEqual(DAI);
+    expect(result?.[0].routev2?.output).toStrictEqual(USDC);
+    expect(result?.[0].routev2?.path).toEqual([DAI, USDC]);
+    expect(result?.[0].routev3).toBeNull();
 
     // second route is v3
-    expect(result?.[1].routev3?.input).toStrictEqual(DAI)
-    expect(result?.[1].routev3?.output).toStrictEqual(USDC)
-    expect(result?.[1].routev3?.tokenPath).toEqual([DAI, MKR, USDC])
-    expect(result?.[1].routev2).toBeNull()
+    expect(result?.[1].routev3?.input).toStrictEqual(DAI);
+    expect(result?.[1].routev3?.output).toStrictEqual(USDC);
+    expect(result?.[1].routev3?.tokenPath).toEqual([DAI, MKR, USDC]);
+    expect(result?.[1].routev2).toBeNull();
 
-    expect(result?.[0].outputAmount.toSignificant()).toBe('6')
-    expect(result?.[1].outputAmount.toSignificant()).toBe('200')
-  })
+    expect(result?.[0].outputAmount.toSignificant()).toBe('6');
+    expect(result?.[1].outputAmount.toSignificant()).toBe('200');
+  });
 
   it('handles a single route trade with same token pair, different fee tiers', () => {
     const result = computeRoutes(constructArgs(DAI, USDC, URAQuoteType.DUTCH_V2), [
@@ -557,15 +574,15 @@ describe('#useRoute X v2', () => {
           tickCurrent: '-69633',
         },
       ],
-    ])
+    ]);
 
-    expect(result).toBeDefined()
-    expect(result?.length).toBe(2)
-    expect(result?.[0].routev3?.input).toStrictEqual(DAI)
-    expect(result?.[0].routev3?.output).toStrictEqual(USDC)
-    expect(result?.[0].routev3?.tokenPath).toEqual([DAI, USDC])
-    expect(result?.[0].inputAmount.toSignificant()).toBe('1')
-  })
+    expect(result).toBeDefined();
+    expect(result?.length).toBe(2);
+    expect(result?.[0].routev3?.input).toStrictEqual(DAI);
+    expect(result?.[0].routev3?.output).toStrictEqual(USDC);
+    expect(result?.[0].routev3?.tokenPath).toEqual([DAI, USDC]);
+    expect(result?.[0].inputAmount.toSignificant()).toBe('1');
+  });
 
   it('computes mixed routes correctly', () => {
     const result = computeRoutes(constructArgs(DAI, MKR, URAQuoteType.DUTCH_V2), [
@@ -599,19 +616,19 @@ describe('#useRoute X v2', () => {
           },
         },
       ],
-    ])
+    ]);
 
-    expect(result).toBeDefined()
-    expect(result?.length).toBe(1)
-    expect(result?.[0].routev3).toBeNull()
-    expect(result?.[0].routev2).toBeNull()
-    expect(result?.[0].mixedRoute?.output).toStrictEqual(MKR)
-    expect(result?.[0].inputAmount.toSignificant()).toBe('1')
-  })
+    expect(result).toBeDefined();
+    expect(result?.length).toBe(1);
+    expect(result?.[0].routev3).toBeNull();
+    expect(result?.[0].routev2).toBeNull();
+    expect(result?.[0].mixedRoute?.output).toStrictEqual(MKR);
+    expect(result?.[0].inputAmount.toSignificant()).toBe('1');
+  });
 
   describe('with ETH', () => {
     it('outputs native ETH as input currency', () => {
-      const WETH = ETH.wrapped
+      const WETH = ETH.wrapped;
 
       const result = computeRoutes(constructArgs(ETH, USDC, URAQuoteType.DUTCH_V2), [
         [
@@ -628,18 +645,18 @@ describe('#useRoute X v2', () => {
             tokenOut: USDC_IN_ROUTE,
           },
         ],
-      ])
+      ]);
 
-      expect(result).toBeDefined()
-      expect(result?.length).toBe(1)
-      expect(result?.[0].routev3?.input).toStrictEqual(ETH)
-      expect(result?.[0].routev3?.output).toStrictEqual(USDC)
-      expect(result?.[0].routev3?.tokenPath).toStrictEqual([WETH, USDC])
-      expect(result && result[0].outputAmount.toSignificant()).toBe('5')
-    })
+      expect(result).toBeDefined();
+      expect(result?.length).toBe(1);
+      expect(result?.[0].routev3?.input).toStrictEqual(ETH);
+      expect(result?.[0].routev3?.output).toStrictEqual(USDC);
+      expect(result?.[0].routev3?.tokenPath).toStrictEqual([WETH, USDC]);
+      expect(result && result[0].outputAmount.toSignificant()).toBe('5');
+    });
 
     it('outputs native ETH as output currency', () => {
-      const WETH = new Token(1, ETH.wrapped.address, 18, 'WETH')
+      const WETH = new Token(1, ETH.wrapped.address, 18, 'WETH');
       const result = computeRoutes(constructArgs(USDC, ETH, URAQuoteType.DUTCH_V2), [
         [
           {
@@ -655,17 +672,17 @@ describe('#useRoute X v2', () => {
             tokenOut: WETH_IN_ROUTE,
           },
         ],
-      ])
+      ]);
 
-      expect(result?.length).toBe(1)
-      expect(result?.[0].routev3?.input).toStrictEqual(USDC)
-      expect(result?.[0].routev3?.output).toStrictEqual(ETH)
-      expect(result?.[0].routev3?.tokenPath).toStrictEqual([USDC, WETH])
-      expect(result?.[0].outputAmount.toSignificant()).toBe('1')
-    })
+      expect(result?.length).toBe(1);
+      expect(result?.[0].routev3?.input).toStrictEqual(USDC);
+      expect(result?.[0].routev3?.output).toStrictEqual(ETH);
+      expect(result?.[0].routev3?.tokenPath).toStrictEqual([USDC, WETH]);
+      expect(result?.[0].outputAmount.toSignificant()).toBe('1');
+    });
 
     it('outputs native ETH as input currency for v2 routes', () => {
-      const WETH = ETH.wrapped
+      const WETH = ETH.wrapped;
 
       const result = computeRoutes(constructArgs(ETH, USDC, URAQuoteType.DUTCH_V2), [
         [
@@ -686,18 +703,18 @@ describe('#useRoute X v2', () => {
             },
           },
         ],
-      ])
+      ]);
 
-      expect(result).toBeDefined()
-      expect(result?.length).toBe(1)
-      expect(result?.[0].routev2?.input).toStrictEqual(ETH)
-      expect(result?.[0].routev2?.output).toStrictEqual(USDC)
-      expect(result?.[0].routev2?.path).toStrictEqual([WETH, USDC])
-      expect(result && result[0].outputAmount.toSignificant()).toBe('5')
-    })
+      expect(result).toBeDefined();
+      expect(result?.length).toBe(1);
+      expect(result?.[0].routev2?.input).toStrictEqual(ETH);
+      expect(result?.[0].routev2?.output).toStrictEqual(USDC);
+      expect(result?.[0].routev2?.path).toStrictEqual([WETH, USDC]);
+      expect(result && result[0].outputAmount.toSignificant()).toBe('5');
+    });
 
     it('outputs native ETH as output currency for v2 routes', () => {
-      const WETH = new Token(1, ETH.wrapped.address, 18, 'WETH')
+      const WETH = new Token(1, ETH.wrapped.address, 18, 'WETH');
       const result = computeRoutes(constructArgs(USDC, ETH, URAQuoteType.DUTCH_V2), [
         [
           {
@@ -717,13 +734,13 @@ describe('#useRoute X v2', () => {
             },
           },
         ],
-      ])
+      ]);
 
-      expect(result?.length).toBe(1)
-      expect(result?.[0].routev2?.input).toStrictEqual(USDC)
-      expect(result?.[0].routev2?.output).toStrictEqual(ETH)
-      expect(result?.[0].routev2?.path).toStrictEqual([USDC, WETH])
-      expect(result?.[0].outputAmount.toSignificant()).toBe('1')
-    })
-  })
-})
+      expect(result?.length).toBe(1);
+      expect(result?.[0].routev2?.input).toStrictEqual(USDC);
+      expect(result?.[0].routev2?.output).toStrictEqual(ETH);
+      expect(result?.[0].routev2?.path).toStrictEqual([USDC, WETH]);
+      expect(result?.[0].outputAmount.toSignificant()).toBe('1');
+    });
+  });
+});

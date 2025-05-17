@@ -1,14 +1,14 @@
-import { useHeaderDateFormatter } from 'components/Charts/hooks'
-import { PROTOCOL_LEGEND_ELEMENT_ID } from 'components/Charts/types'
-import { getProtocolColor, getProtocolName } from 'graphql/data/util'
-import { UTCTimestamp } from 'lightweight-charts'
-import { ReactElement, ReactNode } from 'react'
-import { EllipsisTamaguiStyle } from 'theme/components/styles'
-import { Flex, Text, styled } from 'ui/src'
-import { PriceSource } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { NumberType, useFormatter } from 'utils/formatNumbers'
+import { useHeaderDateFormatter } from 'components/Charts/hooks';
+import { PROTOCOL_LEGEND_ELEMENT_ID } from 'components/Charts/types';
+import { getProtocolColor, getProtocolName } from 'graphql/data/util';
+import { UTCTimestamp } from 'lightweight-charts';
+import { ReactElement, ReactNode } from 'react';
+import { EllipsisTamaguiStyle } from 'theme/components/styles';
+import { Flex, Text, styled } from 'ui/src';
+import { PriceSource } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { NumberType, useFormatter } from 'utils/formatNumbers';
 
-type ChartHeaderProtocolInfo = { protocol: PriceSource; value?: number }
+type ChartHeaderProtocolInfo = { protocol: PriceSource; value?: number };
 
 const ProtocolLegendWrapper = styled(Flex, {
   position: 'absolute',
@@ -32,75 +32,90 @@ const ProtocolLegendWrapper = styled(Flex, {
       },
     },
   },
-})
+});
 
 function ProtocolLegend({ protocolData }: { protocolData?: ChartHeaderProtocolInfo[] }) {
-  const { formatFiatPrice } = useFormatter()
+  const { formatFiatPrice } = useFormatter();
 
   return (
     <ProtocolLegendWrapper id={PROTOCOL_LEGEND_ELEMENT_ID} hover={true}>
       {protocolData
         ?.map(({ value, protocol }) => {
-          const display = value ? formatFiatPrice({ price: value, type: NumberType.ChartFiatValue }) : null
+          const display = value
+            ? formatFiatPrice({ price: value, type: NumberType.ChartFiatValue })
+            : null;
           return (
             !!display && (
-              <Flex row gap={8} justifyContent="flex-end" key={protocol + '_blip'} width="max-content">
+              <Flex
+                row
+                gap={8}
+                justifyContent="flex-end"
+                key={protocol + '_blip'}
+                width="max-content">
                 <Text variant="body4" textAlign="right" color="$neutral2" lineHeight={12}>
                   {getProtocolName(protocol)}
                 </Text>
 
-                <Flex borderRadius="$rounded4" width={12} height={12} backgroundColor={getProtocolColor(protocol)} />
+                <Flex
+                  borderRadius="$rounded4"
+                  width={12}
+                  height={12}
+                  backgroundColor={getProtocolColor(protocol)}
+                />
                 <Text variant="body4" textAlign="right" lineHeight={12} {...EllipsisTamaguiStyle}>
                   {display}
                 </Text>
               </Flex>
             )
-          )
+          );
         })
         .reverse()}
     </ProtocolLegendWrapper>
-  )
+  );
 }
 
 interface HeaderValueDisplayProps {
   /** The number to be formatted and displayed, or the ReactElement to be displayed */
-  value?: number | ReactElement
+  value?: number | ReactElement;
   /** Used to override default format NumberType (ChartFiatValue) */
-  valueFormatterType?: NumberType
+  valueFormatterType?: NumberType;
 }
 
-function HeaderValueDisplay({ value, valueFormatterType = NumberType.ChartFiatValue }: HeaderValueDisplayProps) {
-  const { formatFiatPrice } = useFormatter()
+function HeaderValueDisplay({
+  value,
+  valueFormatterType = NumberType.ChartFiatValue,
+}: HeaderValueDisplayProps) {
+  const { formatFiatPrice } = useFormatter();
 
   if (typeof value !== 'number' && typeof value !== 'undefined') {
-    return <>{value}</>
+    return <>{value}</>;
   }
 
   return (
     <Text variant="heading2" {...EllipsisTamaguiStyle}>
       {formatFiatPrice({ price: value, type: valueFormatterType })}
     </Text>
-  )
+  );
 }
 
 interface HeaderTimeDisplayProps {
-  time?: UTCTimestamp
+  time?: UTCTimestamp;
   /** Optional string to display when time is undefined */
-  timePlaceholder?: string
+  timePlaceholder?: string;
 }
 
 function HeaderTimeDisplay({ time, timePlaceholder }: HeaderTimeDisplayProps) {
-  const headerDateFormatter = useHeaderDateFormatter()
+  const headerDateFormatter = useHeaderDateFormatter();
   return (
     <Text variant="subheading2" display="flex" alignItems="center" color="neutral2">
       {time ? headerDateFormatter(time) : timePlaceholder}
     </Text>
-  )
+  );
 }
 
 interface ChartHeaderProps extends HeaderValueDisplayProps, HeaderTimeDisplayProps {
-  protocolData?: ChartHeaderProtocolInfo[]
-  additionalFields?: ReactNode
+  protocolData?: ChartHeaderProtocolInfo[];
+  additionalFields?: ReactNode;
 }
 
 export function ChartHeader({
@@ -111,7 +126,7 @@ export function ChartHeader({
   protocolData,
   additionalFields,
 }: ChartHeaderProps) {
-  const isHovered = !!time
+  const isHovered = !!time;
   return (
     <Flex
       row
@@ -121,8 +136,7 @@ export function ChartHeader({
       alignItems="flex-start"
       animation="fast"
       zIndex="$default"
-      id="chart-header"
-    >
+      id="chart-header">
       <Flex position="absolute" gap="$gap4" pb={14} pointerEvents="none" width="80%">
         <HeaderValueDisplay value={value} valueFormatterType={valueFormatterType} />
         <Flex row gap="$gap8" {...EllipsisTamaguiStyle}>
@@ -132,5 +146,5 @@ export function ChartHeader({
       </Flex>
       {isHovered && protocolData && <ProtocolLegend protocolData={protocolData} />}
     </Flex>
-  )
+  );
 }

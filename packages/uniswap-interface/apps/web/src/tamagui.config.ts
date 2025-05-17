@@ -1,12 +1,12 @@
-import { createTamagui } from 'ui/src'
-import { animations } from 'ui/src/theme/animations'
-import { TamaguiGroupNames, configWithoutAnimations } from 'ui/src/theme/config'
+import { createTamagui } from 'ui/src';
+import { animations } from 'ui/src/theme/animations';
+import { TamaguiGroupNames, configWithoutAnimations } from 'ui/src/theme/config';
 
 const {
   // web has specific settings (see below)
   settings: _settings,
   ...defaultConfig
-} = configWithoutAnimations
+} = configWithoutAnimations;
 
 export const config = createTamagui({
   ...defaultConfig,
@@ -16,17 +16,17 @@ export const config = createTamagui({
     // styles (so you can use "1rem", "calc(...)" and other CSS goodies):
     autocompleteSpecificTokens: 'except-special',
   },
-})
+});
 
-type Conf = typeof config
+type Conf = typeof config;
 
 declare module '@tamagui/core' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface TamaguiCustomConfig extends Conf {}
 
   interface TypeOverride {
-    groupNames(): TamaguiGroupNames
+    groupNames(): TamaguiGroupNames;
   }
 }
 
-export default config
+export default config;

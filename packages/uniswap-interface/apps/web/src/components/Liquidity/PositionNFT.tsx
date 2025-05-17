@@ -1,28 +1,28 @@
-import { useRef, useState } from 'react'
+import { useRef, useState } from 'react';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 // snapshots a src img into a canvas
 function getSnapshot(src: HTMLImageElement, canvas: HTMLCanvasElement, targetHeight: number) {
-  const context = canvas.getContext('2d')
+  const context = canvas.getContext('2d');
 
   if (context) {
-    let { width, height } = src
+    let { width, height } = src;
 
     // src may be hidden and not have the target dimensions
-    const ratio = width / height
-    height = targetHeight
-    width = Math.round(ratio * targetHeight)
+    const ratio = width / height;
+    height = targetHeight;
+    width = Math.round(ratio * targetHeight);
 
     // Ensure crispness at high DPIs
-    canvas.width = width * devicePixelRatio
-    canvas.height = height * devicePixelRatio
-    canvas.style.width = width + 'px'
-    canvas.style.height = height + 'px'
-    context.scale(devicePixelRatio, devicePixelRatio)
+    canvas.width = width * devicePixelRatio;
+    canvas.height = height * devicePixelRatio;
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    context.scale(devicePixelRatio, devicePixelRatio);
 
-    context.clearRect(0, 0, width, height)
-    context.drawImage(src, 0, 0, width, height)
+    context.clearRect(0, 0, width, height);
+    context.drawImage(src, 0, 0, width, height);
   }
 }
 
@@ -30,38 +30,37 @@ const NFTGrid = styled.div`
   display: grid;
   grid-template: 'overlap';
   min-height: 400px;
-`
+`;
 
 const NFTCanvas = styled.canvas`
   grid-area: overlap;
-`
+`;
 
 const NFTImage = styled.img`
   grid-area: overlap;
   height: 400px;
   /* Ensures SVG appears on top of canvas. */
   z-index: 1;
-`
+`;
 
 export function PositionNFT({ image, height: targetHeight }: { image: string; height: number }) {
-  const [animate, setAnimate] = useState(false)
+  const [animate, setAnimate] = useState(false);
 
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const imageRef = useRef<HTMLImageElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
 
   return (
     <NFTGrid
       onMouseEnter={() => {
-        setAnimate(true)
+        setAnimate(true);
       }}
       onMouseLeave={() => {
         // snapshot the current frame so the transition to the canvas is smooth
         if (imageRef.current && canvasRef.current) {
-          getSnapshot(imageRef.current, canvasRef.current, targetHeight)
+          getSnapshot(imageRef.current, canvasRef.current, targetHeight);
         }
-        setAnimate(false)
-      }}
-    >
+        setAnimate(false);
+      }}>
       <NFTCanvas ref={canvasRef} />
       <NFTImage
         ref={imageRef}
@@ -70,10 +69,10 @@ export function PositionNFT({ image, height: targetHeight }: { image: string; he
         onLoad={() => {
           // snapshot for the canvas
           if (imageRef.current && canvasRef.current) {
-            getSnapshot(imageRef.current, canvasRef.current, targetHeight)
+            getSnapshot(imageRef.current, canvasRef.current, targetHeight);
           }
         }}
       />
     </NFTGrid>
-  )
+  );
 }

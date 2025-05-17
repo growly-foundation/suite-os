@@ -1,26 +1,26 @@
-import { parseEther } from 'ethers/lib/utils'
-import { GenieCollection, WalletAsset } from 'nft/types'
-import { wrapScientificNotation } from 'nft/utils'
-import { useCallback, useMemo } from 'react'
-import { BIPS_BASE } from 'uniswap/src/constants/misc'
+import { parseEther } from 'ethers/lib/utils';
+import { GenieCollection, WalletAsset } from 'nft/types';
+import { wrapScientificNotation } from 'nft/utils';
+import { useCallback, useMemo } from 'react';
+import { BIPS_BASE } from 'uniswap/src/constants/misc';
 import {
   Chain,
   NftAsset,
   useNftBalanceQuery,
-} from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { useHideSpamTokensSetting } from 'uniswap/src/features/settings/hooks'
+} from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { useHideSpamTokensSetting } from 'uniswap/src/features/settings/hooks';
 
 type UseNftBalanceParams = {
-  ownerAddress: string
-  collectionFilters?: string[]
-  assetsFilter?: { address: string; tokenId: string }[]
-  first?: number
-  after?: string
-  last?: number
-  before?: string
-  skip?: boolean
-  chains?: Chain[]
-}
+  ownerAddress: string;
+  collectionFilters?: string[];
+  assetsFilter?: { address: string; tokenId: string }[];
+  first?: number;
+  after?: string;
+  last?: number;
+  before?: string;
+  skip?: boolean;
+  chains?: Chain[];
+};
 
 export function useNftBalance({
   ownerAddress,
@@ -51,10 +51,10 @@ export function useNftBalance({
       before,
     },
     skip,
-  })
-  const hideSpam = useHideSpamTokensSetting()
+  });
+  const hideSpam = useHideSpamTokensSetting();
 
-  const hasNext = data?.nftBalances?.pageInfo?.hasNextPage
+  const hasNext = data?.nftBalances?.pageInfo?.hasNextPage;
   const loadMore = useCallback(
     () =>
       fetchMore({
@@ -62,17 +62,21 @@ export function useNftBalance({
           after: data?.nftBalances?.pageInfo?.endCursor,
         },
       }),
-    [data?.nftBalances?.pageInfo?.endCursor, fetchMore],
-  )
+    [data?.nftBalances?.pageInfo?.endCursor, fetchMore]
+  );
 
   // If hideSpam is true, filter out spam NFTs
   const filteredQueryAssets = hideSpam
-    ? data?.nftBalances?.edges?.filter((queryAsset) => !(queryAsset?.node.ownedAsset as NonNullable<NftAsset>).isSpam)
-    : data?.nftBalances?.edges
+    ? data?.nftBalances?.edges?.filter(
+        queryAsset => !(queryAsset?.node.ownedAsset as NonNullable<NftAsset>).isSpam
+      )
+    : data?.nftBalances?.edges;
 
-  const walletAssets: WalletAsset[] | undefined = filteredQueryAssets?.map((queryAsset) => {
-    const asset = queryAsset?.node.ownedAsset as NonNullable<NftAsset>
-    const ethPrice = parseEther(wrapScientificNotation(asset?.listings?.edges[0]?.node.price.value ?? 0)).toString()
+  const walletAssets: WalletAsset[] | undefined = filteredQueryAssets?.map(queryAsset => {
+    const asset = queryAsset?.node.ownedAsset as NonNullable<NftAsset>;
+    const ethPrice = parseEther(
+      wrapScientificNotation(asset?.listings?.edges[0]?.node.price.value ?? 0)
+    ).toString();
     return {
       id: asset?.id,
       imageUrl: asset?.image?.url,
@@ -111,7 +115,10 @@ export function useNftBalance({
       sellOrders: asset?.listings?.edges.map((edge: any) => edge.node),
       floor_sell_order_price: asset?.listings?.edges?.[0]?.node?.price?.value,
       chain: asset.chain,
-    }
-  })
-  return useMemo(() => ({ walletAssets, hasNext, loadMore, loading }), [hasNext, loadMore, loading, walletAssets])
+    };
+  });
+  return useMemo(
+    () => ({ walletAssets, hasNext, loadMore, loading }),
+    [hasNext, loadMore, loading, walletAssets]
+  );
 }

@@ -1,15 +1,15 @@
-import { AddressDisplay } from 'components/AccountDetails/AddressDisplay'
-import StatusIcon from 'components/Identicon/StatusIcon'
-import styled from 'lib/styled-components'
-import { ThemedText } from 'theme/components'
-import { CopyHelper } from 'theme/components/CopyHelper'
-import { Text } from 'ui/src'
-import { shortenAddress } from 'utilities/src/addresses'
+import { AddressDisplay } from 'components/AccountDetails/AddressDisplay';
+import StatusIcon from 'components/Identicon/StatusIcon';
+import styled from 'lib/styled-components';
+import { ThemedText } from 'theme/components';
+import { CopyHelper } from 'theme/components/CopyHelper';
+import { Text } from 'ui/src';
+import { shortenAddress } from 'utilities/src/addresses';
 
 const Container = styled.div`
   display: flex;
   padding-right: 8px;
-`
+`;
 const Identifiers = styled.div`
   white-space: nowrap;
   display: flex;
@@ -19,7 +19,7 @@ const Identifiers = styled.div`
   user-select: none;
   overflow: hidden;
   flex: 1 1 auto;
-`
+`;
 
 export function Status({
   account,
@@ -27,10 +27,10 @@ export function Status({
   uniswapUsername,
   showAddressCopy = true,
 }: {
-  account: string
-  ensUsername?: string | null
-  uniswapUsername?: string
-  showAddressCopy?: boolean
+  account: string;
+  ensUsername?: string | null;
+  uniswapUsername?: string;
+  showAddressCopy?: boolean;
 }) {
   return (
     <Container data-testid="account-drawer-status">
@@ -48,5 +48,5 @@ export function Status({
         )}
       </Identifiers>
     </Container>
-  )
+  );
 }

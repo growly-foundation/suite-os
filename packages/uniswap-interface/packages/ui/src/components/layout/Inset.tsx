@@ -1,11 +1,11 @@
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import { SpaceTokens } from '@tamagui/core'
-import { PropsWithChildren } from 'react'
-import { Flex } from 'ui/src/components/layout/Flex'
+import { SpaceTokens } from '@tamagui/core';
+import { PropsWithChildren } from 'react';
+import { Flex } from 'ui/src/components/layout/Flex';
 
 interface InsetProps {
   /** applies consistent padding to each side */
-  all?: SpaceTokens
+  all?: SpaceTokens;
 }
 
 /**
@@ -17,6 +17,9 @@ interface InsetProps {
  *  API can be expanded to specific sides
  *  Debug options to color bg to debug spacing
  */
-export function Inset({ all = '$spacing16', children }: PropsWithChildren<InsetProps>): JSX.Element {
-  return <Flex p={all}>{children}</Flex>
+export function Inset({
+  all = '$spacing16',
+  children,
+}: PropsWithChildren<InsetProps>): JSX.Element {
+  return <Flex p={all}>{children}</Flex>;
 }

@@ -1,11 +1,11 @@
-import { Path, Svg } from 'react-native-svg'
+import { Path, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [VerticalDotLine, AnimatedVerticalDotLine] = createIcon({
   name: 'VerticalDotLine',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg viewBox="0 0 2 13" fill="none" {...props}>
       <Path
         d="M1 1L1 12"
@@ -17,4 +17,4 @@ export const [VerticalDotLine, AnimatedVerticalDotLine] = createIcon({
       />
     </Svg>
   ),
-})
+});

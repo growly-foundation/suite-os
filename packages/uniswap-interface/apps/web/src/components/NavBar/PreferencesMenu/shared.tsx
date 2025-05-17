@@ -1,4 +1,4 @@
-import { Flex, styled } from 'ui/src'
+import { Flex, styled } from 'ui/src';
 
 export enum PreferencesView {
   SETTINGS = 'Settings',
@@ -8,4 +8,4 @@ export enum PreferencesView {
 
 export const SettingsColumn = styled(Flex, {
   width: '100%',
-})
+});

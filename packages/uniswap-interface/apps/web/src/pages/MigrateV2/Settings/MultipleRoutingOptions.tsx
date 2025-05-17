@@ -1,28 +1,28 @@
-import { Protocol } from '@uniswap/router-sdk'
-import UniswapXBrandMark from 'components/Logo/UniswapXBrandMark'
-import QuestionHelper from 'components/QuestionHelper'
-import Column from 'components/deprecated/Column'
-import Row, { RowBetween } from 'components/deprecated/Row'
-import { useIsUniswapXSupportedChain } from 'hooks/useIsUniswapXSupportedChain'
-import { atom, useAtom } from 'jotai'
-import styled from 'lib/styled-components'
-import { ReactNode, useCallback } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
-import { RouterPreference } from 'state/routing/types'
-import { ThemedText } from 'theme/components'
-import { ExternalLink } from 'theme/components/Links'
-import { Flex, Switch } from 'ui/src'
-import { uniswapUrls } from 'uniswap/src/constants/urls'
-import { useV4SwapEnabled } from 'uniswap/src/features/transactions/swap/hooks/useV4SwapEnabled'
+import { Protocol } from '@uniswap/router-sdk';
+import UniswapXBrandMark from 'components/Logo/UniswapXBrandMark';
+import QuestionHelper from 'components/QuestionHelper';
+import Column from 'components/deprecated/Column';
+import Row, { RowBetween } from 'components/deprecated/Row';
+import { useIsUniswapXSupportedChain } from 'hooks/useIsUniswapXSupportedChain';
+import { atom, useAtom } from 'jotai';
+import styled from 'lib/styled-components';
+import { ReactNode, useCallback } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { RouterPreference } from 'state/routing/types';
+import { ThemedText } from 'theme/components';
+import { ExternalLink } from 'theme/components/Links';
+import { Flex, Switch } from 'ui/src';
+import { uniswapUrls } from 'uniswap/src/constants/urls';
+import { useV4SwapEnabled } from 'uniswap/src/features/transactions/swap/hooks/useV4SwapEnabled';
 
 const LabelWrapper = styled(Column)`
   height: 100%;
   justify-content: center;
-`
+`;
 
 interface RoutingPreference {
-  router: RouterPreference
-  protocols: Protocol[]
+  router: RouterPreference;
+  protocols: Protocol[];
 }
 
 enum RoutePreferenceOption {
@@ -34,31 +34,33 @@ enum RoutePreferenceOption {
 
 type RoutePreferenceOptionsType =
   | {
-      [RoutePreferenceOption.Optimal]: false
-      [RoutePreferenceOption.UniswapX]: boolean
-      [RoutePreferenceOption.v3]: boolean
-      [RoutePreferenceOption.v2]: boolean
+      [RoutePreferenceOption.Optimal]: false;
+      [RoutePreferenceOption.UniswapX]: boolean;
+      [RoutePreferenceOption.v3]: boolean;
+      [RoutePreferenceOption.v2]: boolean;
     }
   | {
-      [RoutePreferenceOption.Optimal]: true
-      [RoutePreferenceOption.UniswapX]: false
-      [RoutePreferenceOption.v3]: false
-      [RoutePreferenceOption.v2]: false
-    }
+      [RoutePreferenceOption.Optimal]: true;
+      [RoutePreferenceOption.UniswapX]: false;
+      [RoutePreferenceOption.v3]: false;
+      [RoutePreferenceOption.v2]: false;
+    };
 
 const DEFAULT_ROUTE_PREFERENCE_OPTIONS: RoutePreferenceOptionsType = {
   [RoutePreferenceOption.Optimal]: true,
   [RoutePreferenceOption.UniswapX]: false,
   [RoutePreferenceOption.v3]: false,
   [RoutePreferenceOption.v2]: false,
-}
+};
 const DEFAULT_ROUTING_PREFERENCE: RoutingPreference = {
   router: RouterPreference.X,
   protocols: [Protocol.V2, Protocol.V3, Protocol.MIXED],
-}
+};
 
-const routingPreferencesAtom = atom(DEFAULT_ROUTING_PREFERENCE)
-const routePreferenceOptionsAtom = atom<RoutePreferenceOptionsType>(DEFAULT_ROUTE_PREFERENCE_OPTIONS)
+const routingPreferencesAtom = atom(DEFAULT_ROUTING_PREFERENCE);
+const routePreferenceOptionsAtom = atom<RoutePreferenceOptionsType>(
+  DEFAULT_ROUTE_PREFERENCE_OPTIONS
+);
 
 function UniswapXPreferenceLabel() {
   return (
@@ -76,7 +78,7 @@ function UniswapXPreferenceLabel() {
         placement="right"
       />
     </Flex>
-  )
+  );
 }
 
 function RoutePreferenceToggle({
@@ -87,21 +89,21 @@ function RoutePreferenceToggle({
   disabled,
   toggle,
 }: {
-  preference: RoutePreferenceOption
-  isActive: boolean
-  text?: ReactNode
-  subheading?: ReactNode
-  disabled?: boolean
-  toggle: () => void
+  preference: RoutePreferenceOption;
+  isActive: boolean;
+  text?: ReactNode;
+  subheading?: ReactNode;
+  disabled?: boolean;
+  toggle: () => void;
 }) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const ROUTE_PREFERENCE_TO_LABEL: Record<RoutePreferenceOption, ReactNode> = {
     [RoutePreferenceOption.Optimal]: t('common.defaultTradeOptions'),
     [RoutePreferenceOption.UniswapX]: <UniswapXPreferenceLabel />,
     [RoutePreferenceOption.v3]: t('pool.v3'),
     [RoutePreferenceOption.v2]: t('pool.v2'),
-  }
+  };
 
   return (
     <RowBetween gap="md" padding="2px 0px" align="start">
@@ -118,46 +120,47 @@ function RoutePreferenceToggle({
         onCheckedChange={toggle}
       />
     </RowBetween>
-  )
+  );
 }
 
 export default function MultipleRoutingOptions({ chainId }: { chainId?: number }) {
-  const { t } = useTranslation()
-  const v4Enabled = useV4SwapEnabled(chainId)
-  const [routePreferenceOptions, setRoutePreferenceOptions] = useAtom(routePreferenceOptionsAtom)
-  const [, setRoutingPreferences] = useAtom(routingPreferencesAtom)
+  const { t } = useTranslation();
+  const v4Enabled = useV4SwapEnabled(chainId);
+  const [routePreferenceOptions, setRoutePreferenceOptions] = useAtom(routePreferenceOptionsAtom);
+  const [, setRoutingPreferences] = useAtom(routingPreferencesAtom);
   const shouldDisableProtocolOptionToggle =
-    !routePreferenceOptions[RoutePreferenceOption.v2] || !routePreferenceOptions[RoutePreferenceOption.v3]
-  const uniswapXSupportedChain = useIsUniswapXSupportedChain(chainId)
+    !routePreferenceOptions[RoutePreferenceOption.v2] ||
+    !routePreferenceOptions[RoutePreferenceOption.v3];
+  const uniswapXSupportedChain = useIsUniswapXSupportedChain(chainId);
   const handleSetRoutePreferenceOptions = useCallback(
     (options: RoutePreferenceOptionsType) => {
       if (options[RoutePreferenceOption.Optimal]) {
-        setRoutePreferenceOptions(options)
+        setRoutePreferenceOptions(options);
         setRoutingPreferences({
           router: RouterPreference.X,
           protocols: [Protocol.V2, Protocol.V3, Protocol.MIXED],
-        })
-        return
+        });
+        return;
       }
 
       const routingPreferences: RoutingPreference = {
         router: options[RoutePreferenceOption.UniswapX] ? RouterPreference.X : RouterPreference.API,
         protocols: [],
-      }
+      };
 
       if (options[RoutePreferenceOption.v2] && options[RoutePreferenceOption.v3]) {
-        routingPreferences.protocols = [Protocol.V2, Protocol.V3, Protocol.MIXED]
+        routingPreferences.protocols = [Protocol.V2, Protocol.V3, Protocol.MIXED];
       } else if (options[RoutePreferenceOption.v2]) {
-        routingPreferences.protocols = [Protocol.V2]
+        routingPreferences.protocols = [Protocol.V2];
       } else if (options[RoutePreferenceOption.v3]) {
-        routingPreferences.protocols = [Protocol.V3]
+        routingPreferences.protocols = [Protocol.V3];
       }
 
-      setRoutePreferenceOptions(options)
-      setRoutingPreferences(routingPreferences)
+      setRoutePreferenceOptions(options);
+      setRoutingPreferences(routingPreferences);
     },
-    [setRoutePreferenceOptions, setRoutingPreferences],
-  )
+    [setRoutePreferenceOptions, setRoutingPreferences]
+  );
 
   const handleRoutePreferenceToggle = useCallback(
     (toggledPreferenceOption: RoutePreferenceOption) => {
@@ -174,20 +177,20 @@ export default function MultipleRoutingOptions({ chainId }: { chainId?: number }
               [RoutePreferenceOption.UniswapX]: false,
               [RoutePreferenceOption.v2]: false,
               [RoutePreferenceOption.v3]: false,
-            })
-        return
+            });
+        return;
       }
 
       handleSetRoutePreferenceOptions({
         ...routePreferenceOptions,
         [toggledPreferenceOption]: !routePreferenceOptions[toggledPreferenceOption],
-      })
+      });
     },
-    [handleSetRoutePreferenceOptions, routePreferenceOptions],
-  )
+    [handleSetRoutePreferenceOptions, routePreferenceOptions]
+  );
 
-  const routingCheapestText = t('routing.cheapest')
-  const routingCheapestTextV4 = t('routing.cheapest.v4')
+  const routingCheapestText = t('routing.cheapest');
+  const routingCheapestTextV4 = t('routing.cheapest.v4');
 
   return (
     <Column gap="sm">
@@ -207,25 +210,27 @@ export default function MultipleRoutingOptions({ chainId }: { chainId?: number }
         toggle={() => handleRoutePreferenceToggle(RoutePreferenceOption.Optimal)}
       />
       {!routePreferenceOptions[RoutePreferenceOption.Optimal] &&
-        [RoutePreferenceOption.UniswapX, RoutePreferenceOption.v3, RoutePreferenceOption.v2].map((preference) => {
-          if (preference === RoutePreferenceOption.UniswapX && !uniswapXSupportedChain) {
-            return null
-          }
+        [RoutePreferenceOption.UniswapX, RoutePreferenceOption.v3, RoutePreferenceOption.v2].map(
+          preference => {
+            if (preference === RoutePreferenceOption.UniswapX && !uniswapXSupportedChain) {
+              return null;
+            }
 
-          return (
-            <RoutePreferenceToggle
-              key={preference}
-              preference={preference}
-              isActive={routePreferenceOptions[preference]}
-              disabled={
-                preference !== RoutePreferenceOption.UniswapX &&
-                routePreferenceOptions[preference] &&
-                shouldDisableProtocolOptionToggle
-              }
-              toggle={() => handleRoutePreferenceToggle(preference)}
-            />
-          )
-        })}
+            return (
+              <RoutePreferenceToggle
+                key={preference}
+                preference={preference}
+                isActive={routePreferenceOptions[preference]}
+                disabled={
+                  preference !== RoutePreferenceOption.UniswapX &&
+                  routePreferenceOptions[preference] &&
+                  shouldDisableProtocolOptionToggle
+                }
+                toggle={() => handleRoutePreferenceToggle(preference)}
+              />
+            );
+          }
+        )}
     </Column>
-  )
+  );
 }

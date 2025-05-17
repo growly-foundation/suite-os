@@ -3,5 +3,5 @@
  */
 
 export const useEnableFontScaling = (_allowFontScaling?: boolean): boolean => {
-  return false
-}
+  return false;
+};

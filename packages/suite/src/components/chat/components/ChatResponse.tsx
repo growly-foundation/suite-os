@@ -11,44 +11,51 @@ import { buildSystemErrorMessage } from '@/components/messages/system';
 import { border, text } from '@/styles/theme';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
+import { buildMarkdownMessage } from '@/components/messages/system/markdown';
+import { buildTextMessage } from '@/components/messages/system/text';
 
 const MessageContent = ({ message }: { message: ParsedMessage }) => {
-  const { config, integration } = useSuite();
+  const { integration } = useSuite();
   const onchainKitEnabled = integration?.onchainKit?.enabled;
   const [time, setTime] = useState(moment(message.created_at).fromNow());
+
+  const buildMessage = () => {
+    if (message.type === 'text') {
+      if (message.sender === ConversationRole.User) {
+        return buildTextMessage(message.content);
+      }
+      return buildMarkdownMessage(message.content);
+    }
+    if (message.type === 'system:error') {
+      return buildSystemErrorMessage(message.content);
+    }
+    if (message.type.startsWith('onchainkit:')) {
+      if (!onchainKitEnabled) {
+        return (
+          <span className="text-sm font-semibold">
+            ⚠️ OnchainKit feature must be enabled to display this message.
+          </span>
+        );
+      }
+      if (message.type === 'onchainkit:swap') {
+        return buildOnchainKitSwapMessage(message.content);
+      }
+      if (message.type === 'onchainkit:token') {
+        return buildOnchainKitTokenChipMessage(message.content);
+      }
+    }
+  };
 
   useEffect(() => {
     setTime(moment(message.created_at).fromNow());
   }, [moment(message.created_at).minutes()]);
 
-  if (message.type === 'text') {
-    return (
-      <p className="text-sm">
-        {message.content}
-        <br />
-        <span className="text-xs opacity-50">{time}</span>
-      </p>
-    );
-  }
-  if (message.type === 'system:error') {
-    return buildSystemErrorMessage(message.content, time);
-  }
-  if (message.type.startsWith('onchainkit:')) {
-    if (!onchainKitEnabled) {
-      return (
-        <span className="text-sm font-semibold">
-          ⚠️ OnchainKit feature must be enabled to display this message.
-        </span>
-      );
-    }
-    if (message.type === 'onchainkit:swap') {
-      return buildOnchainKitSwapMessage(message.content, time);
-    }
-    if (message.type === 'onchainkit:token') {
-      return buildOnchainKitTokenChipMessage(message.content, time);
-    }
-  }
-  return <></>;
+  return (
+    <>
+      {buildMessage()}
+      <span className="text-xs opacity-50">{time}</span>
+    </>
+  );
 };
 
 const AgentResponse = ({ message }: { message: ParsedMessage }) => {
@@ -63,12 +70,7 @@ const AgentResponse = ({ message }: { message: ParsedMessage }) => {
       style={{ marginBottom: 10 }}>
       {/* <AgentAvatar width={30} height={30} /> */}
       <Card
-        className={cn(
-          'p-3 bg-muted',
-          message.type === 'onchainkit:swap' ? 'w-full' : 'max-w-[75%]',
-          text.body,
-          border.default
-        )}
+        className={cn('p-3 bg-muted', 'max-w-[75%]', text.body, border.default)}
         style={{
           backgroundColor: config?.theme?.backgroundForeground,
           color: config?.theme?.textForeground,
@@ -114,7 +116,11 @@ const ChatResponse = ({
     ) : (
       <AgentResponse key={message.id} message={message} />
     );
-  return <div ref={ref}>{innerResponse}</div>;
+  return (
+    <div ref={ref} className="w-full">
+      {innerResponse}
+    </div>
+  );
 };
 
 export default ChatResponse;

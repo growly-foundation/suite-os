@@ -1,27 +1,35 @@
-import { ModalContent } from 'components/NavBar/DownloadApp/Modal/Content'
-import { useModalState } from 'hooks/useModalState'
-import { usePasskeyAuthWithHelpModal } from 'hooks/usePasskeyAuthWithHelpModal'
-import ms from 'ms'
-import { useEffect, useRef, useState } from 'react'
-import { X } from 'react-feather'
-import { useTranslation } from 'react-i18next'
-import { CopyHelper } from 'theme/components/CopyHelper'
-import { ClickableTamaguiStyle } from 'theme/components/styles'
-import { Flex, Loader, Text, styled } from 'ui/src'
-import { EyeSlash } from 'ui/src/components/icons/EyeSlash'
-import { LockedDocument } from 'ui/src/components/icons/LockedDocument'
-import { Modal } from 'uniswap/src/components/modals/Modal'
-import { exportSeedPhrase } from 'uniswap/src/features/passkey/utils'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
-import { useOnClickOutside } from 'utilities/src/react/hooks'
+import { ModalContent } from 'components/NavBar/DownloadApp/Modal/Content';
+import { useModalState } from 'hooks/useModalState';
+import { usePasskeyAuthWithHelpModal } from 'hooks/usePasskeyAuthWithHelpModal';
+import ms from 'ms';
+import { useEffect, useRef, useState } from 'react';
+import { X } from 'react-feather';
+import { useTranslation } from 'react-i18next';
+import { CopyHelper } from 'theme/components/CopyHelper';
+import { ClickableTamaguiStyle } from 'theme/components/styles';
+import { Flex, Loader, Text, styled } from 'ui/src';
+import { EyeSlash } from 'ui/src/components/icons/EyeSlash';
+import { LockedDocument } from 'ui/src/components/icons/LockedDocument';
+import { Modal } from 'uniswap/src/components/modals/Modal';
+import { exportSeedPhrase } from 'uniswap/src/features/passkey/utils';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
+import { useOnClickOutside } from 'utilities/src/react/hooks';
 
 const StyledX = styled(X, {
   color: '$neutral2',
   zIndex: 1,
   ...ClickableTamaguiStyle,
-})
+});
 
-function Seed({ seed, position, revealed }: { seed?: string; position: number; revealed?: boolean }) {
+function Seed({
+  seed,
+  position,
+  revealed,
+}: {
+  seed?: string;
+  position: number;
+  revealed?: boolean;
+}) {
   return seed ? (
     revealed ? (
       <Flex flexDirection="row" gap="$gap8">
@@ -44,45 +52,45 @@ function Seed({ seed, position, revealed }: { seed?: string; position: number; r
     )
   ) : (
     <Loader.Box flexShrink={0} width="100%" height="18px" mb="$padding8" />
-  )
+  );
 }
 
 export function RecoveryPhraseModal() {
-  const { t } = useTranslation()
-  const { isOpen, closeModal } = useModalState(ModalName.RecoveryPhrase)
-  const [seedPhrase, setSeedPhrase] = useState<string[] | undefined>(undefined)
-  const [isRevealed, setIsRevealed] = useState(false)
+  const { t } = useTranslation();
+  const { isOpen, closeModal } = useModalState(ModalName.RecoveryPhrase);
+  const [seedPhrase, setSeedPhrase] = useState<string[] | undefined>(undefined);
+  const [isRevealed, setIsRevealed] = useState(false);
   const handleClose = () => {
-    closeModal()
-    setIsRevealed(false)
-    setSeedPhrase(undefined)
-  }
-  const seedPhraseContentRef = useRef<HTMLDivElement>(null)
-  useOnClickOutside(seedPhraseContentRef, () => setIsRevealed(false))
+    closeModal();
+    setIsRevealed(false);
+    setSeedPhrase(undefined);
+  };
+  const seedPhraseContentRef = useRef<HTMLDivElement>(null);
+  useOnClickOutside(seedPhraseContentRef, () => setIsRevealed(false));
   const { mutate: exportSeedPhraseWithHelpModal } = usePasskeyAuthWithHelpModal(
     async (): Promise<string | undefined> => {
-      return await exportSeedPhrase()
+      return await exportSeedPhrase();
     },
     {
-      onSuccess: (seedPhrase) => {
-        setSeedPhrase(seedPhrase?.split(' '))
+      onSuccess: seedPhrase => {
+        setSeedPhrase(seedPhrase?.split(' '));
       },
-    },
-  )
+    }
+  );
 
   // After revealing passphrase, hide it after 1 minute
   const handleReveal = () => {
-    setIsRevealed(true)
+    setIsRevealed(true);
     setTimeout(() => {
-      setIsRevealed(false)
-    }, ms('1m'))
-  }
+      setIsRevealed(false);
+    }, ms('1m'));
+  };
 
   useEffect(() => {
     if (isOpen) {
-      exportSeedPhraseWithHelpModal()
+      exportSeedPhraseWithHelpModal();
     }
-  }, [exportSeedPhraseWithHelpModal, isOpen])
+  }, [exportSeedPhraseWithHelpModal, isOpen]);
 
   return (
     <Modal
@@ -90,8 +98,7 @@ export function RecoveryPhraseModal() {
       name={ModalName.RecoveryPhrase}
       isModalOpen={isOpen}
       onClose={handleClose}
-      maxWidth={464}
-    >
+      maxWidth={464}>
       <Flex position="absolute" top="32px" right="32px">
         <StyledX onClick={handleClose} />
       </Flex>
@@ -103,8 +110,7 @@ export function RecoveryPhraseModal() {
             <LockedDocument size="$icon.24" />
           </Flex>
         }
-        maxWidth={undefined}
-      >
+        maxWidth={undefined}>
         <Flex
           p="$spacing32"
           gap="$spacing36"
@@ -116,12 +122,11 @@ export function RecoveryPhraseModal() {
           width="100%"
           position="relative"
           backgroundColor="$surface2"
-          ref={seedPhraseContentRef}
-        >
+          ref={seedPhraseContentRef}>
           {Array.from({ length: 3 }).map((_, i) => (
             <Flex flexShrink={0} key={`recovery-phrase-cover-col-${i}`} gap="$gap16" width="88px">
               {Array.from({ length: 4 }).map((_, j) => {
-                const index = i * 4 + j + 1
+                const index = i * 4 + j + 1;
                 return (
                   <Seed
                     key={`recovery-phrase-item-${index}`}
@@ -129,7 +134,7 @@ export function RecoveryPhraseModal() {
                     position={index}
                     revealed={isRevealed}
                   />
-                )
+                );
               })}
             </Flex>
           ))}
@@ -152,8 +157,7 @@ export function RecoveryPhraseModal() {
               cursor="pointer"
               userSelect="none"
               transform="translate(-50%, -50%)" // ClickableTamaguiStyle (animate) breaks this transform
-              onPress={handleReveal}
-            >
+              onPress={handleReveal}>
               <EyeSlash minHeight={20} minWidth={20} color="$accent1" />
               <Text variant="buttonLabel3" color="$accent1">
                 {t('common.button.reveal')}
@@ -181,10 +185,9 @@ export function RecoveryPhraseModal() {
               userSelect="none"
               onPress={() => {
                 setTimeout(() => {
-                  setIsRevealed(false)
-                }, 500) // Allows Copy animation to finish before hiding
-              }}
-            >
+                  setIsRevealed(false);
+                }, 500); // Allows Copy animation to finish before hiding
+              }}>
               <CopyHelper iconSize={20} iconPosition="left" toCopy={seedPhrase?.join(' ')}>
                 {t('common.button.copy')}
               </CopyHelper>
@@ -193,5 +196,5 @@ export function RecoveryPhraseModal() {
         </Flex>
       </ModalContent>
     </Modal>
-  )
+  );
 }

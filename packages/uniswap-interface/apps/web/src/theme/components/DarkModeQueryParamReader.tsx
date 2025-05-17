@@ -1,37 +1,37 @@
-import { parse } from 'qs'
-import { useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
-import { ThemeMode, useDarkModeManager } from 'theme/components/ThemeToggle'
+import { parse } from 'qs';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { ThemeMode, useDarkModeManager } from 'theme/components/ThemeToggle';
 
 export default function DarkModeQueryParamReader(): null {
-  const { search } = useLocation()
-  const [, updateMode] = useDarkModeManager()
+  const { search } = useLocation();
+  const [, updateMode] = useDarkModeManager();
 
   useEffect(() => {
     if (!search) {
-      return
+      return;
     }
     if (search.length < 2) {
-      return
+      return;
     }
 
     const parsed = parse(search, {
       parseArrays: false,
       ignoreQueryPrefix: true,
-    })
+    });
 
-    const theme = parsed.theme
+    const theme = parsed.theme;
 
     if (typeof theme !== 'string') {
-      return
+      return;
     }
 
     if (theme.toLowerCase() === 'light') {
-      updateMode(ThemeMode.LIGHT)
+      updateMode(ThemeMode.LIGHT);
     } else if (theme.toLowerCase() === 'dark') {
-      updateMode(ThemeMode.DARK)
+      updateMode(ThemeMode.DARK);
     }
-  }, [search, updateMode])
+  }, [search, updateMode]);
 
-  return null
+  return null;
 }

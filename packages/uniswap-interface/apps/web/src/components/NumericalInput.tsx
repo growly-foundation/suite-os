@@ -1,11 +1,16 @@
-import { loadingOpacityMixin } from 'components/Loader/styled'
-import styled from 'lib/styled-components'
-import React, { forwardRef } from 'react'
-import { Locale } from 'uniswap/src/features/language/constants'
-import { useCurrentLocale } from 'uniswap/src/features/language/hooks'
-import { escapeRegExp } from 'utils/escapeRegExp'
+import { loadingOpacityMixin } from 'components/Loader/styled';
+import styled from 'lib/styled-components';
+import React, { forwardRef } from 'react';
+import { Locale } from 'uniswap/src/features/language/constants';
+import { useCurrentLocale } from 'uniswap/src/features/language/hooks';
+import { escapeRegExp } from 'utils/escapeRegExp';
 
-export const StyledInput = styled.input<{ error?: boolean; fontSize?: string; align?: string; disabled?: boolean }>`
+export const StyledInput = styled.input<{
+  error?: boolean;
+  fontSize?: string;
+  align?: string;
+  disabled?: boolean;
+}>`
   color: ${({ error, theme }) => (error ? theme.critical : theme.neutral1)};
   pointer-events: ${({ disabled }) => (disabled ? 'none' : 'auto')};
   width: 0;
@@ -40,72 +45,80 @@ export const StyledInput = styled.input<{ error?: boolean; fontSize?: string; al
   ::placeholder {
     color: ${({ theme }) => theme.neutral3};
   }
-`
+`;
 
 export function localeUsesComma(locale: Locale): boolean {
-  const decimalSeparator = new Intl.NumberFormat(locale).format(1.1)[1]
+  const decimalSeparator = new Intl.NumberFormat(locale).format(1.1)[1];
 
-  return decimalSeparator === ','
+  return decimalSeparator === ',';
 }
 
-const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`) // match escaped "." characters via in a non-capturing group
+const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
 
-export interface InputProps extends Omit<React.HTMLProps<HTMLInputElement>, 'ref' | 'onChange' | 'as'> {
-  value: string | number
-  onUserInput: (input: string) => void
-  error?: boolean
-  fontSize?: string
-  align?: 'right' | 'left'
-  prependSymbol?: string
-  maxDecimals?: number
-  testId?: string
+export interface InputProps
+  extends Omit<React.HTMLProps<HTMLInputElement>, 'ref' | 'onChange' | 'as'> {
+  value: string | number;
+  onUserInput: (input: string) => void;
+  error?: boolean;
+  fontSize?: string;
+  align?: 'right' | 'left';
+  prependSymbol?: string;
+  maxDecimals?: number;
+  testId?: string;
 }
 
 export function isInputGreaterThanDecimals(value: string, maxDecimals?: number): boolean {
-  const decimalGroups = value.split('.')
-  return !!maxDecimals && decimalGroups.length > 1 && decimalGroups[1].length > maxDecimals
+  const decimalGroups = value.split('.');
+  return !!maxDecimals && decimalGroups.length > 1 && decimalGroups[1].length > maxDecimals;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ value, onUserInput, placeholder, prependSymbol, maxDecimals, testId, ...rest }: InputProps, ref) => {
-    const locale = useCurrentLocale()
+  (
+    { value, onUserInput, placeholder, prependSymbol, maxDecimals, testId, ...rest }: InputProps,
+    ref
+  ) => {
+    const locale = useCurrentLocale();
 
     const enforcer = (nextUserInput: string) => {
       if (nextUserInput === '' || inputRegex.test(escapeRegExp(nextUserInput))) {
         if (isInputGreaterThanDecimals(nextUserInput, maxDecimals)) {
-          return
+          return;
         }
 
-        onUserInput(nextUserInput)
+        onUserInput(nextUserInput);
       }
-    }
+    };
 
     const formatValueWithLocale = (value: string | number) => {
-      const [searchValue, replaceValue] = localeUsesComma(locale) ? [/\./g, ','] : [/,/g, '.']
-      return value.toString().replace(searchValue, replaceValue)
-    }
+      const [searchValue, replaceValue] = localeUsesComma(locale) ? [/\./g, ','] : [/,/g, '.'];
+      return value.toString().replace(searchValue, replaceValue);
+    };
 
-    const valueFormattedWithLocale = formatValueWithLocale(value)
+    const valueFormattedWithLocale = formatValueWithLocale(value);
 
     return (
       <StyledInput
         {...rest}
         ref={ref}
-        value={prependSymbol && value ? prependSymbol + valueFormattedWithLocale : valueFormattedWithLocale}
+        value={
+          prependSymbol && value
+            ? prependSymbol + valueFormattedWithLocale
+            : valueFormattedWithLocale
+        }
         data-testid={testId}
-        onChange={(event) => {
+        onChange={event => {
           if (prependSymbol) {
-            const value = event.target.value
+            const value = event.target.value;
 
             // cut off prepended symbol
             const formattedValue = value.toString().includes(prependSymbol)
               ? value.toString().slice(prependSymbol.length, value.toString().length + 1)
-              : value
+              : value;
 
             // replace commas with periods, because uniswap exclusively uses period as the decimal separator
-            enforcer(formattedValue.replace(/,/g, '.'))
+            enforcer(formattedValue.replace(/,/g, '.'));
           } else {
-            enforcer(event.target.value.replace(/,/g, '.'))
+            enforcer(event.target.value.replace(/,/g, '.'));
           }
         }}
         // universal input options
@@ -120,14 +133,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         maxLength={79}
         spellCheck="false"
       />
-    )
-  },
-)
+    );
+  }
+);
 
-Input.displayName = 'Input'
+Input.displayName = 'Input';
 
-const MemoizedInput = React.memo(Input)
-export { MemoizedInput as Input }
+const MemoizedInput = React.memo(Input);
+export { MemoizedInput as Input };
 // const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`) // match escaped "." characters via in a non-capturing group
 
 export const StyledNumericalInput = styled(MemoizedInput)<{ $loading: boolean }>`
@@ -136,4 +149,4 @@ export const StyledNumericalInput = styled(MemoizedInput)<{ $loading: boolean }>
   font-size: 36px;
   font-weight: 485;
   max-height: 44px;
-`
+`;

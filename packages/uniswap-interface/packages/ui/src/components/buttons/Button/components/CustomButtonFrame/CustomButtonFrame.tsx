@@ -1,11 +1,11 @@
-import { GetProps, XStack, styled } from 'tamagui'
-import { FOCUS_SCALE } from 'ui/src/components/buttons/Button/components/CustomButtonFrame/constants'
-import { withCommonPressStyle } from 'ui/src/components/buttons/Button/components/CustomButtonFrame/utils'
-import { variantEmphasisHash } from 'ui/src/components/buttons/Button/components/CustomButtonFrame/variantEmphasisHash'
-import { buttonStyledContext } from 'ui/src/components/buttons/Button/constants'
-import type { ButtonVariantProps } from 'ui/src/components/buttons/Button/types'
-import { getMaybeHexOrRGBColor } from 'ui/src/components/buttons/Button/utils/getMaybeHexOrRGBColor'
-import { getHoverCssFilter } from 'ui/src/utils/colors'
+import { GetProps, XStack, styled } from 'tamagui';
+import { FOCUS_SCALE } from 'ui/src/components/buttons/Button/components/CustomButtonFrame/constants';
+import { withCommonPressStyle } from 'ui/src/components/buttons/Button/components/CustomButtonFrame/utils';
+import { variantEmphasisHash } from 'ui/src/components/buttons/Button/components/CustomButtonFrame/variantEmphasisHash';
+import { buttonStyledContext } from 'ui/src/components/buttons/Button/constants';
+import type { ButtonVariantProps } from 'ui/src/components/buttons/Button/types';
+import { getMaybeHexOrRGBColor } from 'ui/src/components/buttons/Button/utils/getMaybeHexOrRGBColor';
+import { getHoverCssFilter } from 'ui/src/utils/colors';
 
 const CustomButtonFrameWithoutCustomProps = styled(XStack, {
   context: buttonStyledContext,
@@ -72,18 +72,18 @@ const CustomButtonFrameWithoutCustomProps = styled(XStack, {
       // https://arc.net/l/quote/lpoqmiea
 
       ':string': (untypedVariant, { props }) => {
-        const variant = (untypedVariant || 'default') as NonNullable<ButtonVariantProps['variant']>
+        const variant = (untypedVariant || 'default') as NonNullable<ButtonVariantProps['variant']>;
 
         const emphasis =
           // @ts-expect-error we know emphasis will be ButtonEmphasis
-          (props.emphasis || 'primary') as NonNullable<ButtonVariantProps['emphasis']>
+          (props.emphasis || 'primary') as NonNullable<ButtonVariantProps['emphasis']>;
 
         // TODO(WEB-6347): change name back to `disabled`
         // @ts-expect-error we know isDisabled will be ButtonVariantProps['isDisabled']
         if (props.isDisabled && !props.onDisabledPress) {
           return {
             backgroundColor: '$surface2',
-          }
+          };
         }
 
         // @ts-expect-error we know this will potentially be on `props`
@@ -91,19 +91,19 @@ const CustomButtonFrameWithoutCustomProps = styled(XStack, {
           return {
             backgroundColor: '$surface2',
             pressStyle: withCommonPressStyle({}),
-          }
+          };
         }
 
-        const maybeHexOrRGBColorFromProps = getMaybeHexOrRGBColor(props.backgroundColor)
+        const maybeHexOrRGBColorFromProps = getMaybeHexOrRGBColor(props.backgroundColor);
         // @ts-expect-error we know primary-color will be a string
         // We're unable to directly inject the props of a component created using `styled`, so we've typecasted it below, resulting in `primary-color` being an accepted prop when using `CustomButtonFrame` directly
-        const maybePrimaryColor = getMaybeHexOrRGBColor(props['primary-color'])
+        const maybePrimaryColor = getMaybeHexOrRGBColor(props['primary-color']);
 
         // When a `backgroundColor` is passed in as a prop, we automatically use it to set the other states
         // This is also passed via `buttonStyledContext` and is available on `props` to components created using `styled` that also use `buttonStyledContext`, for example `CustomButtonText`
         if (maybeHexOrRGBColorFromProps) {
-          const DARK_FILTER = getHoverCssFilter({ isDarkMode: true, differenceFrom1: 0.25 })
-          const LIGHT_FILTER = getHoverCssFilter({ isDarkMode: true, differenceFrom1: 0.25 })
+          const DARK_FILTER = getHoverCssFilter({ isDarkMode: true, differenceFrom1: 0.25 });
+          const LIGHT_FILTER = getHoverCssFilter({ isDarkMode: true, differenceFrom1: 0.25 });
 
           return {
             borderColor: maybeHexOrRGBColorFromProps,
@@ -136,10 +136,10 @@ const CustomButtonFrameWithoutCustomProps = styled(XStack, {
                 filter: LIGHT_FILTER,
               },
             },
-          }
+          };
         }
 
-        return variantEmphasisHash[variant][emphasis]
+        return variantEmphasisHash[variant][emphasis];
       },
     },
     iconPosition: {
@@ -194,7 +194,7 @@ const CustomButtonFrameWithoutCustomProps = styled(XStack, {
       // @ts-expect-error we know this will potentially be on `props`
       if (props.onDisabledPress) {
         // `onDisabledPress` takes priority over `isDisabled` here; we still want to show the button as being interactive on hover, click, focus, etc.
-        return {}
+        return {};
       }
 
       if (untypedIsDisabled) {
@@ -204,10 +204,10 @@ const CustomButtonFrameWithoutCustomProps = styled(XStack, {
           userSelect: 'none',
           tabIndex: -1,
           cursor: 'default',
-        }
+        };
       }
 
-      return {}
+      return {};
     },
     emphasis: {
       primary: {},
@@ -223,15 +223,15 @@ const CustomButtonFrameWithoutCustomProps = styled(XStack, {
     fill: true,
     size: 'medium',
   },
-})
+});
 
 type CustomProps = {
-  'primary-color'?: string
-  onDisabledPress?: () => void
-}
+  'primary-color'?: string;
+  onDisabledPress?: () => void;
+};
 
 type CustomButtonWithExtraProps = typeof CustomButtonFrameWithoutCustomProps & {
-  (props: CustomProps & GetProps<typeof CustomButtonFrameWithoutCustomProps>): JSX.Element | null
-}
+  (props: CustomProps & GetProps<typeof CustomButtonFrameWithoutCustomProps>): JSX.Element | null;
+};
 
-export const CustomButtonFrame = CustomButtonFrameWithoutCustomProps as CustomButtonWithExtraProps
+export const CustomButtonFrame = CustomButtonFrameWithoutCustomProps as CustomButtonWithExtraProps;

@@ -1,15 +1,15 @@
-import { ErrorBoundary as DatadogErrorBoundary } from '@datadog/browser-rum-react'
-import { useIsMobile } from 'hooks/screenSize/useIsMobile'
-import styled from 'lib/styled-components'
-import { PropsWithChildren, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { ThemedText } from 'theme/components'
-import { CopyToClipboard } from 'theme/components/CopyHelper'
-import { ExternalLink } from 'theme/components/Links'
-import { Button, Flex, TouchableArea } from 'ui/src'
-import { CopyAlt } from 'ui/src/components/icons/CopyAlt'
-import { RotatableChevron } from 'ui/src/components/icons/RotatableChevron'
-import { uniswapUrls } from 'uniswap/src/constants/urls'
+import { ErrorBoundary as DatadogErrorBoundary } from '@datadog/browser-rum-react';
+import { useIsMobile } from 'hooks/screenSize/useIsMobile';
+import styled from 'lib/styled-components';
+import { PropsWithChildren, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ThemedText } from 'theme/components';
+import { CopyToClipboard } from 'theme/components/CopyHelper';
+import { ExternalLink } from 'theme/components/Links';
+import { Button, Flex, TouchableArea } from 'ui/src';
+import { CopyAlt } from 'ui/src/components/icons/CopyAlt';
+import { RotatableChevron } from 'ui/src/components/icons/RotatableChevron';
+import { uniswapUrls } from 'uniswap/src/constants/urls';
 
 const Code = styled.code`
   font-weight: 485;
@@ -22,31 +22,42 @@ const Code = styled.code`
   overflow: scroll;
   max-height: calc(100vh - 450px);
   -webkit-overflow-scrolling: touch;
-`
+`;
 
 const Separator = styled.div`
   border-bottom: 1px solid ${({ theme }) => theme.surface3};
-`
+`;
 
 const Fallback = ({ error, eventId }: { error: Error; eventId: string | null }) => {
-  const { t } = useTranslation()
-  const isMobile = useIsMobile()
+  const { t } = useTranslation();
+  const isMobile = useIsMobile();
 
-  const errorDetails = error.stack || error.message
+  const errorDetails = error.stack || error.message;
 
   return (
-    <Flex height="100%" width="100%" position="absolute" centered top={0} left={0} right={0} bottom={0}>
+    <Flex
+      height="100%"
+      width="100%"
+      position="absolute"
+      centered
+      top={0}
+      left={0}
+      right={0}
+      bottom={0}>
       <Flex
         gap="$gap24"
         width="100%"
         p={isMobile ? '$spacing16' : '$spacing1'}
         maxWidth={isMobile ? '100%' : 500}
-        centered
-      >
+        centered>
         <ErrorDetailsSection errorDetails={errorDetails} eventId={eventId} />
         <Flex width="100%" row gap="$gap12">
           <Flex row flexBasis={0} flexGrow={1}>
-            <Button emphasis="primary" size="small" variant="branded" onPress={() => window.location.reload()}>
+            <Button
+              emphasis="primary"
+              size="small"
+              variant="branded"
+              onPress={() => window.location.reload()}>
               {t('common.reload.label')}
             </Button>
           </Flex>
@@ -54,8 +65,7 @@ const Fallback = ({ error, eventId }: { error: Error; eventId: string | null }) 
             style={{ flexGrow: 1, flexBasis: 0 }}
             id="get-support-on-discord"
             href={uniswapUrls.helpRequestUrl}
-            target="_blank"
-          >
+            target="_blank">
             <Flex row>
               <Button emphasis="secondary" size="small" variant="branded">
                 {t('common.getSupport.button')}
@@ -65,18 +75,24 @@ const Fallback = ({ error, eventId }: { error: Error; eventId: string | null }) 
         </Flex>
       </Flex>
     </Flex>
-  )
-}
+  );
+};
 
-function ErrorDetailsSection({ errorDetails, eventId }: { errorDetails: string; eventId: string | null }): JSX.Element {
-  const { t } = useTranslation()
-  const [isExpanded, setExpanded] = useState(false)
-  const isMobile = useIsMobile()
+function ErrorDetailsSection({
+  errorDetails,
+  eventId,
+}: {
+  errorDetails: string;
+  eventId: string | null;
+}): JSX.Element {
+  const { t } = useTranslation();
+  const [isExpanded, setExpanded] = useState(false);
+  const isMobile = useIsMobile();
 
   // @todo: ThemedText components should be responsive by default
   const [Title, Description] = isMobile
     ? [ThemedText.HeadlineSmall, ThemedText.BodySmall]
-    : [ThemedText.HeadlineLarge, ThemedText.BodySecondary]
+    : [ThemedText.HeadlineLarge, ThemedText.BodySecondary];
 
   return (
     <>
@@ -91,8 +107,7 @@ function ErrorDetailsSection({ errorDetails, eventId }: { errorDetails: string; 
         backgroundColor="$surface2"
         gap="$spacing8"
         p={isMobile ? '$spacing16' : '$spacing24'}
-        borderRadius="$rounded24"
-      >
+        borderRadius="$rounded24">
         <Flex row gap="$gap16" alignItems="center" justifyContent="space-between">
           <ThemedText.SubHeader>
             {eventId ? t('error.id', { eventId }) : t('common.error.details')}
@@ -106,15 +121,22 @@ function ErrorDetailsSection({ errorDetails, eventId }: { errorDetails: string; 
           <Code>{errorDetails.split('\n').slice(0, isExpanded ? undefined : 4)}</Code>
           <Separator />
         </Flex>
-        <TouchableArea flexDirection="row" justifyContent="space-between" onPress={() => setExpanded((s) => !s)}>
+        <TouchableArea
+          flexDirection="row"
+          justifyContent="space-between"
+          onPress={() => setExpanded(s => !s)}>
           <ThemedText.Link color="neutral2">
             {isExpanded ? t('common.showLess.button') : t('common.showMore.button')}
           </ThemedText.Link>
-          <RotatableChevron width="$icon.20" height="$icon.20" direction={isExpanded ? 'up' : 'down'} />
+          <RotatableChevron
+            width="$icon.20"
+            height="$icon.20"
+            direction={isExpanded ? 'up' : 'down'}
+          />
         </TouchableArea>
       </Flex>
     </>
-  )
+  );
 }
 
 export default function ErrorBoundary({
@@ -122,13 +144,14 @@ export default function ErrorBoundary({
   fallback,
 }: PropsWithChildren & {
   fallback?: React.ComponentType<{
-    error: Error
-    resetError: () => void
-  }>
+    error: Error;
+    resetError: () => void;
+  }>;
 }): JSX.Element {
   return (
-    <DatadogErrorBoundary fallback={fallback ?? (({ error }) => <Fallback error={error} eventId={null} />)}>
+    <DatadogErrorBoundary
+      fallback={fallback ?? (({ error }) => <Fallback error={error} eventId={null} />)}>
       {children}
     </DatadogErrorBoundary>
-  )
+  );
 }

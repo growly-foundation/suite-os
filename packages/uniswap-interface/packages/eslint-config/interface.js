@@ -1,4 +1,4 @@
-let { interface: restrictedImports } = require('@uniswap/eslint-config/restrictedImports')
+let { interface: restrictedImports } = require('@uniswap/eslint-config/restrictedImports');
 
 module.exports = {
   extends: [require.resolve('./base.js')],
@@ -37,4 +37,4 @@ module.exports = {
       },
     },
   ],
-}
+};

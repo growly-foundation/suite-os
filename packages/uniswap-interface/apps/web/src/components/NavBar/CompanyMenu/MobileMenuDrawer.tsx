@@ -1,34 +1,34 @@
-import { useMenuContent } from 'components/NavBar/CompanyMenu/Content'
-import { DownloadApp } from 'components/NavBar/CompanyMenu/DownloadAppCTA'
-import { MenuLink } from 'components/NavBar/CompanyMenu/MenuDropdown'
-import { LegalAndPrivacyMenu } from 'components/NavBar/LegalAndPrivacyMenu'
-import { NavDropdown } from 'components/NavBar/NavDropdown'
-import { getSettingsViewIndex } from 'components/NavBar/PreferencesMenu'
-import { CurrencySettings } from 'components/NavBar/PreferencesMenu/Currency'
-import { LanguageSettings } from 'components/NavBar/PreferencesMenu/Language'
-import { PreferenceSettings } from 'components/NavBar/PreferencesMenu/Preferences'
-import { PreferencesView } from 'components/NavBar/PreferencesMenu/shared'
-import { useTabsContent } from 'components/NavBar/Tabs/TabsContent'
-import { useTheme } from 'lib/styled-components'
-import { Socials } from 'pages/Landing/sections/Footer'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { ChevronDown } from 'react-feather'
-import { useTranslation } from 'react-i18next'
-import { Accordion, AnimateTransition, Flex, Square, Text } from 'ui/src'
-import { FeatureFlags } from 'uniswap/src/features/gating/flags'
-import { useFeatureFlag } from 'uniswap/src/features/gating/hooks'
-import { TestID } from 'uniswap/src/test/fixtures/testIDs'
+import { useMenuContent } from 'components/NavBar/CompanyMenu/Content';
+import { DownloadApp } from 'components/NavBar/CompanyMenu/DownloadAppCTA';
+import { MenuLink } from 'components/NavBar/CompanyMenu/MenuDropdown';
+import { LegalAndPrivacyMenu } from 'components/NavBar/LegalAndPrivacyMenu';
+import { NavDropdown } from 'components/NavBar/NavDropdown';
+import { getSettingsViewIndex } from 'components/NavBar/PreferencesMenu';
+import { CurrencySettings } from 'components/NavBar/PreferencesMenu/Currency';
+import { LanguageSettings } from 'components/NavBar/PreferencesMenu/Language';
+import { PreferenceSettings } from 'components/NavBar/PreferencesMenu/Preferences';
+import { PreferencesView } from 'components/NavBar/PreferencesMenu/shared';
+import { useTabsContent } from 'components/NavBar/Tabs/TabsContent';
+import { useTheme } from 'lib/styled-components';
+import { Socials } from 'pages/Landing/sections/Footer';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ChevronDown } from 'react-feather';
+import { useTranslation } from 'react-i18next';
+import { Accordion, AnimateTransition, Flex, Square, Text } from 'ui/src';
+import { FeatureFlags } from 'uniswap/src/features/gating/flags';
+import { useFeatureFlag } from 'uniswap/src/features/gating/hooks';
+import { TestID } from 'uniswap/src/test/fixtures/testIDs';
 
 function MenuSection({
   title,
   children,
   collapsible = true,
 }: {
-  title: string
-  children: JSX.Element | JSX.Element[]
-  collapsible?: boolean
+  title: string;
+  children: JSX.Element | JSX.Element[];
+  collapsible?: boolean;
 }) {
-  const theme = useTheme()
+  const theme = useTheme();
 
   return (
     <Accordion.Item value={title} disabled={!collapsible}>
@@ -52,51 +52,61 @@ function MenuSection({
         </Accordion.Content>
       </Flex>
     </Accordion.Item>
-  )
+  );
 }
 
-export function MobileMenuDrawer({ isOpen, closeMenu }: { isOpen: boolean; closeMenu: () => void }) {
-  const [openSections, setOpenSections] = useState<string[]>()
-  const [settingsView, setSettingsView] = useState<PreferencesView>(PreferencesView.SETTINGS)
-  const isConversionTrackingEnabled = useFeatureFlag(FeatureFlags.ConversionTracking)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+export function MobileMenuDrawer({
+  isOpen,
+  closeMenu,
+}: {
+  isOpen: boolean;
+  closeMenu: () => void;
+}) {
+  const [openSections, setOpenSections] = useState<string[]>();
+  const [settingsView, setSettingsView] = useState<PreferencesView>(PreferencesView.SETTINGS);
+  const isConversionTrackingEnabled = useFeatureFlag(FeatureFlags.ConversionTracking);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const changeView = useCallback(
     (view: PreferencesView) => {
-      setSettingsView(view)
+      setSettingsView(view);
       if (dropdownRef?.current) {
         dropdownRef.current.scroll({
           top: 0,
-        })
+        });
       }
     },
-    [setSettingsView, dropdownRef],
-  )
-  const onExitPreferencesMenu = useCallback(() => changeView(PreferencesView.SETTINGS), [changeView])
-  const { t } = useTranslation()
-  const tabsContent = useTabsContent()
-  const menuContent = useMenuContent()
+    [setSettingsView, dropdownRef]
+  );
+  const onExitPreferencesMenu = useCallback(
+    () => changeView(PreferencesView.SETTINGS),
+    [changeView]
+  );
+  const { t } = useTranslation();
+  const tabsContent = useTabsContent();
+  const menuContent = useMenuContent();
 
   // Collapse sections on close
   useEffect(() => {
     if (!isOpen) {
-      setTimeout(() => setOpenSections([]), 300)
+      setTimeout(() => setOpenSections([]), 300);
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   return (
-    <NavDropdown dropdownRef={dropdownRef} isOpen={isOpen} dataTestId={TestID.CompanyMenuMobileDrawer}>
+    <NavDropdown
+      dropdownRef={dropdownRef}
+      isOpen={isOpen}
+      dataTestId={TestID.CompanyMenuMobileDrawer}>
       <Flex pt="$spacing12" pb="$spacing32" px="$spacing24">
         <AnimateTransition
           currentIndex={getSettingsViewIndex(settingsView)}
-          animationType={settingsView === PreferencesView.SETTINGS ? 'forward' : 'backward'}
-        >
+          animationType={settingsView === PreferencesView.SETTINGS ? 'forward' : 'backward'}>
           <Accordion
             overflow="hidden"
             width="100%"
             type="multiple"
             value={openSections}
-            onValueChange={setOpenSections}
-          >
+            onValueChange={setOpenSections}>
             <Flex gap="$spacing24">
               <MenuSection title={t('common.app')} collapsible={false}>
                 {tabsContent.map((tab, index) => (
@@ -125,7 +135,11 @@ export function MobileMenuDrawer({ isOpen, closeMenu }: { isOpen: boolean; close
               ))}
 
               <MenuSection title={t('common.displaySettings')}>
-                <PreferenceSettings showHeader={false} showThemeLabel={false} setSettingsView={changeView} />
+                <PreferenceSettings
+                  showHeader={false}
+                  showThemeLabel={false}
+                  setSettingsView={changeView}
+                />
               </MenuSection>
 
               <DownloadApp onClick={closeMenu} />
@@ -139,5 +153,5 @@ export function MobileMenuDrawer({ isOpen, closeMenu }: { isOpen: boolean; close
         </AnimateTransition>
       </Flex>
     </NavDropdown>
-  )
+  );
 }

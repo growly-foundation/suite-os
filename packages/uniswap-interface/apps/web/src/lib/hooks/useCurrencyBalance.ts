@@ -1,14 +1,14 @@
-import { Currency, CurrencyAmount, Token } from '@uniswap/sdk-core'
-import { useAccount } from 'hooks/useAccount'
-import { useTokenBalances } from 'hooks/useTokenBalances'
-import JSBI from 'jsbi'
-import { useMemo } from 'react'
-import { ValueType, getCurrencyAmount } from 'uniswap/src/features/tokens/getCurrencyAmount'
-import { isAddress } from 'utilities/src/addresses'
-import { currencyKey } from 'utils/currencyKey'
-import { assume0xAddress } from 'utils/wagmi'
-import { erc20Abi } from 'viem'
-import { useBalance, useReadContracts } from 'wagmi'
+import { Currency, CurrencyAmount, Token } from '@uniswap/sdk-core';
+import { useAccount } from 'hooks/useAccount';
+import { useTokenBalances } from 'hooks/useTokenBalances';
+import JSBI from 'jsbi';
+import { useMemo } from 'react';
+import { ValueType, getCurrencyAmount } from 'uniswap/src/features/tokens/getCurrencyAmount';
+import { isAddress } from 'utilities/src/addresses';
+import { currencyKey } from 'utils/currencyKey';
+import { assume0xAddress } from 'utils/wagmi';
+import { erc20Abi } from 'viem';
+import { useBalance, useReadContracts } from 'wagmi';
 
 /**
  * Returns a map of token addresses to their eventually consistent token balances for a single account.
@@ -16,98 +16,106 @@ import { useBalance, useReadContracts } from 'wagmi'
 export function useRpcTokenBalancesWithLoadingIndicator(
   address?: string,
   tokens?: (Token | undefined)[],
-  skip?: boolean,
+  skip?: boolean
 ): [{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }, boolean] {
-  const { chainId } = useAccount()
+  const { chainId } = useAccount();
   const validatedTokens: Token[] = useMemo(
     () =>
       skip
         ? []
-        : tokens?.filter((t?: Token): t is Token => isAddress(t?.address) !== false && t?.chainId === chainId) ?? [],
-    [chainId, tokens, skip],
-  )
+        : (tokens?.filter(
+            (t?: Token): t is Token => isAddress(t?.address) !== false && t?.chainId === chainId
+          ) ?? []),
+    [chainId, tokens, skip]
+  );
 
   const { data, isLoading: balancesLoading } = useReadContracts({
     contracts: useMemo(
       () =>
         validatedTokens.map(
-          (token) =>
+          token =>
             ({
               address: assume0xAddress(token.address),
               chainId,
               abi: erc20Abi,
               functionName: 'balanceOf',
               args: [address],
-            }) as const,
+            }) as const
         ),
-      [address, chainId, validatedTokens],
+      [address, chainId, validatedTokens]
     ),
     query: { enabled: !!address },
-  })
+  });
 
   return useMemo(
     () => [
       address && validatedTokens.length > 0
-        ? validatedTokens.reduce<{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }>((memo, token, i) => {
-            const value = data?.[i].result
-            if (!value) {
-              return memo
-            }
+        ? validatedTokens.reduce<{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }>(
+            (memo, token, i) => {
+              const value = data?.[i].result;
+              if (!value) {
+                return memo;
+              }
 
-            const amount = value ? JSBI.BigInt(value.toString()) : undefined
-            if (amount) {
-              memo[token.address] = CurrencyAmount.fromRawAmount(token, amount)
-            }
-            return memo
-          }, {})
+              const amount = value ? JSBI.BigInt(value.toString()) : undefined;
+              if (amount) {
+                memo[token.address] = CurrencyAmount.fromRawAmount(token, amount);
+              }
+              return memo;
+            },
+            {}
+          )
         : {},
       balancesLoading,
     ],
-    [address, validatedTokens, balancesLoading, data],
-  )
+    [address, validatedTokens, balancesLoading, data]
+  );
 }
 
 function useRpcTokenBalances(
   address?: string,
-  tokens?: (Token | undefined)[],
+  tokens?: (Token | undefined)[]
 ): { [tokenAddress: string]: CurrencyAmount<Token> | undefined } {
-  return useRpcTokenBalancesWithLoadingIndicator(address, tokens)[0]
+  return useRpcTokenBalancesWithLoadingIndicator(address, tokens)[0];
 }
 
 function useRpcCurrencyBalances(
   account?: string,
-  currencies?: (Currency | undefined)[],
+  currencies?: (Currency | undefined)[]
 ): (CurrencyAmount<Currency> | undefined)[] {
   const tokens = useMemo(
     () => currencies?.filter((currency): currency is Token => currency?.isToken ?? false) ?? [],
-    [currencies],
-  )
+    [currencies]
+  );
 
-  const { chainId } = useAccount()
-  const tokenBalances = useRpcTokenBalances(account, tokens)
-  const containsETH: boolean = useMemo(() => currencies?.some((currency) => currency?.isNative) ?? false, [currencies])
+  const { chainId } = useAccount();
+  const tokenBalances = useRpcTokenBalances(account, tokens);
+  const containsETH: boolean = useMemo(
+    () => currencies?.some(currency => currency?.isNative) ?? false,
+    [currencies]
+  );
   const { data: nativeBalance } = useBalance({
     address: assume0xAddress(account),
     chainId,
     query: { enabled: containsETH && !!account },
-  })
+  });
 
   return useMemo(
     () =>
-      currencies?.map((currency) => {
+      currencies?.map(currency => {
         if (!account || !currency || currency.chainId !== chainId) {
-          return undefined
+          return undefined;
         }
         if (currency.isToken) {
-          return tokenBalances[currency.address]
+          return tokenBalances[currency.address];
         }
         if (currency.isNative && nativeBalance?.value) {
-          return CurrencyAmount.fromRawAmount(currency, nativeBalance.value.toString())
+          return CurrencyAmount.fromRawAmount(currency, nativeBalance.value.toString());
         }
-        return undefined
+        return undefined;
       }) ?? [],
-    [account, chainId, currencies, nativeBalance?.value, tokenBalances],
-  )
+    [account, chainId, currencies, nativeBalance?.value, tokenBalances]
+  );
 }
 
 /**
@@ -117,38 +125,38 @@ function useRpcCurrencyBalances(
  */
 function useGqlCurrencyBalances(
   account?: string,
-  currencies?: (Currency | undefined)[],
+  currencies?: (Currency | undefined)[]
 ): (CurrencyAmount<Currency> | undefined)[] {
-  const { balanceMap } = useTokenBalances({ cacheOnly: true })
+  const { balanceMap } = useTokenBalances({ cacheOnly: true });
 
   return useMemo(() => {
     if (!account || !currencies) {
-      return []
+      return [];
     }
 
-    return currencies.map((currency) => {
+    return currencies.map(currency => {
       if (!currency) {
-        return undefined
+        return undefined;
       }
 
-      const key = currencyKey(currency)
-      const balance = balanceMap[key]
+      const key = currencyKey(currency);
+      const balance = balanceMap[key];
 
       if (balance) {
         const currencyAmount = getCurrencyAmount({
           value: balance.balance.toString(),
           valueType: ValueType.Exact,
           currency,
-        })
+        });
         if (!currencyAmount) {
-          return undefined
+          return undefined;
         }
-        return currencyAmount
+        return currencyAmount;
       } else {
-        return CurrencyAmount.fromRawAmount(currency, 0)
+        return CurrencyAmount.fromRawAmount(currency, 0);
       }
-    })
-  }, [account, balanceMap, currencies])
+    });
+  }, [account, balanceMap, currencies]);
 }
 
 /**
@@ -157,35 +165,38 @@ function useGqlCurrencyBalances(
  */
 export function useCurrencyBalances(
   account?: string,
-  currencies?: (Currency | undefined)[],
+  currencies?: (Currency | undefined)[]
 ): (CurrencyAmount<Currency> | undefined)[] {
-  const { chainId: providerChainId } = useAccount()
-  const chainId = useMemo(() => currencies?.[0]?.chainId, [currencies])
-  const isSynced = !chainId || chainId === providerChainId
+  const { chainId: providerChainId } = useAccount();
+  const chainId = useMemo(() => currencies?.[0]?.chainId, [currencies]);
+  const isSynced = !chainId || chainId === providerChainId;
 
-  const gqlCurrencyBalances = useGqlCurrencyBalances(account, currencies)
-  const rpcCurrencyBalances = useRpcCurrencyBalances(account, currencies)
+  const gqlCurrencyBalances = useGqlCurrencyBalances(account, currencies);
+  const rpcCurrencyBalances = useRpcCurrencyBalances(account, currencies);
 
   return useMemo(() => {
     if (!account || !currencies) {
-      return []
+      return [];
     }
 
-    return isSynced ? rpcCurrencyBalances : gqlCurrencyBalances
-  }, [account, currencies, isSynced, gqlCurrencyBalances, rpcCurrencyBalances])
+    return isSynced ? rpcCurrencyBalances : gqlCurrencyBalances;
+  }, [account, currencies, isSynced, gqlCurrencyBalances, rpcCurrencyBalances]);
 }
 
 // get the balance for a single token/account combo
-export function useTokenBalance(account?: string, token?: Token): CurrencyAmount<Token> | undefined {
-  return useCurrencyBalance(account, token) as CurrencyAmount<Token> | undefined
+export function useTokenBalance(
+  account?: string,
+  token?: Token
+): CurrencyAmount<Token> | undefined {
+  return useCurrencyBalance(account, token) as CurrencyAmount<Token> | undefined;
 }
 
 export default function useCurrencyBalance(
   account?: string,
-  currency?: Currency,
+  currency?: Currency
 ): CurrencyAmount<Currency> | undefined {
   return useCurrencyBalances(
     account,
-    useMemo(() => [currency], [currency]),
-  )[0]
+    useMemo(() => [currency], [currency])
+  )[0];
 }

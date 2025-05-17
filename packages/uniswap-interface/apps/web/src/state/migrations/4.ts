@@ -1,10 +1,10 @@
-import { PersistState } from 'redux-persist'
-import { PreV16UserState } from 'state/migrations/oldTypes'
-import { DEFAULT_LOCALE } from 'uniswap/src/features/language/constants'
+import { PersistState } from 'redux-persist';
+import { PreV16UserState } from 'state/migrations/oldTypes';
+import { DEFAULT_LOCALE } from 'uniswap/src/features/language/constants';
 
 export type PersistAppStateV4 = {
-  _persist: PersistState
-} & { user?: PreV16UserState }
+  _persist: PersistState;
+} & { user?: PreV16UserState };
 
 /**
  * Migration to set german locale to default locale, after
@@ -13,7 +13,7 @@ export type PersistAppStateV4 = {
 export const migration4 = (state: PersistAppStateV4 | undefined) => {
   if (state?.user) {
     if (state.user.userLocale === 'de-DE') {
-      state.user.userLocale = DEFAULT_LOCALE
+      state.user.userLocale = DEFAULT_LOCALE;
     }
 
     return {
@@ -22,7 +22,7 @@ export const migration4 = (state: PersistAppStateV4 | undefined) => {
         ...state._persist,
         version: 4,
       },
-    }
+    };
   }
-  return state
-}
+  return state;
+};

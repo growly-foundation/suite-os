@@ -1,5 +1,5 @@
-import { colors } from 'theme/colors'
-import { opacify } from 'ui/src/theme'
+import { colors } from 'theme/colors';
+import { opacify } from 'ui/src/theme';
 
 function getDeprecatedTheme(darkMode: boolean) {
   return {
@@ -8,7 +8,10 @@ function getDeprecatedTheme(darkMode: boolean) {
 
     deprecated_accentWarning: colors.gold200,
 
-    deprecated_accentFailureSoft: opacify(12, darkMode ? colors.critical_dark : colors.critical_light),
+    deprecated_accentFailureSoft: opacify(
+      12,
+      darkMode ? colors.critical_dark : colors.critical_light
+    ),
 
     deprecated_accentTextLightPrimary: colors.gray50,
     deprecated_deepShadow: darkMode
@@ -21,8 +24,8 @@ function getDeprecatedTheme(darkMode: boolean) {
     deprecated_stateOverlayHover: opacify(8, colors.gray300),
     deprecated_stateOverlayPressed: opacify(24, colors.gray200),
     deprecated_hoverDefault: opacify(8, colors.gray300),
-  }
+  };
 }
 
-export const lightDeprecatedTheme = getDeprecatedTheme(false)
-export const darkDeprecatedTheme = getDeprecatedTheme(true)
+export const lightDeprecatedTheme = getDeprecatedTheme(false);
+export const darkDeprecatedTheme = getDeprecatedTheme(true);

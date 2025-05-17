@@ -1,7 +1,7 @@
-import { MissingDataIcon } from 'components/Table/icons'
-import styled from 'lib/styled-components'
-import { ThemedText } from 'theme/components'
-import { Flex } from 'ui/src'
+import { MissingDataIcon } from 'components/Table/icons';
+import styled from 'lib/styled-components';
+import { ThemedText } from 'theme/components';
+import { Flex } from 'ui/src';
 
 const ErrorModalContainer = styled.div`
   display: flex;
@@ -23,9 +23,15 @@ const ErrorModalContainer = styled.div`
 
   border: 1px ${({ theme }) => theme.surface3} solid;
   border-radius: 20px;
-`
+`;
 
-export const ErrorModal = ({ header, subtitle }: { header: React.ReactNode; subtitle: React.ReactNode }) => (
+export const ErrorModal = ({
+  header,
+  subtitle,
+}: {
+  header: React.ReactNode;
+  subtitle: React.ReactNode;
+}) => (
   <ErrorModalContainer data-testid="table-error-modal">
     <Flex>
       <MissingDataIcon />
@@ -35,4 +41,4 @@ export const ErrorModal = ({ header, subtitle }: { header: React.ReactNode; subt
       <ThemedText.LabelSmall>{subtitle}</ThemedText.LabelSmall>
     </Flex>
   </ErrorModalContainer>
-)
+);

@@ -1,11 +1,11 @@
-import { Path, Rect, Svg } from 'react-native-svg'
+import { Path, Rect, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [Moonpay, AnimatedMoonpay] = createIcon({
   name: 'Moonpay',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg viewBox="0 0 36 36" fill="none" {...props}>
       <Rect width="36" height="36" rx="18" fill={'currentColor' ?? '#7D00FF'} />
       <Path
@@ -15,4 +15,4 @@ export const [Moonpay, AnimatedMoonpay] = createIcon({
     </Svg>
   ),
   defaultFill: '#7D00FF',
-})
+});

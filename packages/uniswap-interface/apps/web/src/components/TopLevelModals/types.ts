@@ -1,17 +1,17 @@
-import { ComponentProps, ComponentType } from 'react'
-import { ModalNameType } from 'uniswap/src/features/telemetry/constants'
+import { ComponentProps, ComponentType } from 'react';
+import { ModalNameType } from 'uniswap/src/features/telemetry/constants';
 
-type ModalComponent = React.LazyExoticComponent<ComponentType<any>>
+type ModalComponent = React.LazyExoticComponent<ComponentType<any>>;
 
 interface ModalConfig {
-  component: ModalComponent
-  shouldMount: (state: any) => boolean
-  isAlwaysMounted?: boolean
+  component: ModalComponent;
+  shouldMount: (state: any) => boolean;
+  isAlwaysMounted?: boolean;
 }
 
 export interface ModalWrapperProps {
-  Component: ModalComponent
-  componentProps?: ComponentProps<ModalComponent>
+  Component: ModalComponent;
+  componentProps?: ComponentProps<ModalComponent>;
 }
 
-export type ModalRegistry = Partial<Record<ModalNameType, ModalConfig>>
+export type ModalRegistry = Partial<Record<ModalNameType, ModalConfig>>;

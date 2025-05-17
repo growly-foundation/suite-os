@@ -1,13 +1,13 @@
-import { ArrowRight } from 'pages/Landing/components/Icons'
-import { Flex, Text } from 'ui/src'
+import { ArrowRight } from 'pages/Landing/components/Icons';
+import { Flex, Text } from 'ui/src';
 
 type PillButtonProps = {
-  label: string
-  icon: React.ReactNode
-  color?: string
-  cursor?: 'pointer' | 'default'
-  onClick?: () => void
-}
+  label: string;
+  icon: React.ReactNode;
+  color?: string;
+  cursor?: 'pointer' | 'default';
+  onClick?: () => void;
+};
 
 export function PillButton({ label, icon, color, onClick, cursor }: PillButtonProps) {
   return (
@@ -22,8 +22,7 @@ export function PillButton({ label, icon, color, onClick, cursor }: PillButtonPr
       backgroundColor="$surface1"
       overflow="hidden"
       onPress={onClick}
-      userSelect="none"
-    >
+      userSelect="none">
       <Flex
         animation="quick"
         row
@@ -34,8 +33,7 @@ export function PillButton({ label, icon, color, onClick, cursor }: PillButtonPr
         }}
         hoverStyle={{
           x: -24,
-        }}
-      >
+        }}>
         <Flex animation="quick" opacity={1} $group-card-hover={{ opacity: 0 }}>
           {icon}
         </Flex>
@@ -46,8 +44,7 @@ export function PillButton({ label, icon, color, onClick, cursor }: PillButtonPr
           color={color}
           $xl={{
             fontSize: 18,
-          }}
-        >
+          }}>
           {label}
         </Text>
         <Flex
@@ -57,13 +54,12 @@ export function PillButton({ label, icon, color, onClick, cursor }: PillButtonPr
           mr={-24}
           $group-card-hover={{
             opacity: 1,
-          }}
-        >
+          }}>
           <Flex overflow="visible">
             <ArrowRight size="24" fill={color} />
           </Flex>
         </Flex>
       </Flex>
     </Flex>
-  )
+  );
 }

@@ -1,10 +1,26 @@
-import type { SVGProps } from 'constants/icons/types'
+import type { SVGProps } from 'constants/icons/types';
 
 const UAH_ICON = (props: SVGProps) => (
-  <svg width="49" height="50" viewBox="0 0 49 50" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+  <svg
+    width="49"
+    height="50"
+    viewBox="0 0 49 50"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}>
     <g clipPath="url(#clip0_1969_48723)">
-      <path fillRule="evenodd" clipRule="evenodd" d="M0 0.870972H48.5142V49.5077H0V0.870972Z" fill="#FFD700" />
-      <path fillRule="evenodd" clipRule="evenodd" d="M0 0.870972H48.5142V25.1894H0V0.870972Z" fill="#0057B8" />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M0 0.870972H48.5142V49.5077H0V0.870972Z"
+        fill="#FFD700"
+      />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M0 0.870972H48.5142V25.1894H0V0.870972Z"
+        fill="#0057B8"
+      />
     </g>
     <defs>
       <clipPath id="clip0_1969_48723">
@@ -15,6 +31,6 @@ const UAH_ICON = (props: SVGProps) => (
       </clipPath>
     </defs>
   </svg>
-)
+);
 
-export default UAH_ICON
+export default UAH_ICON;

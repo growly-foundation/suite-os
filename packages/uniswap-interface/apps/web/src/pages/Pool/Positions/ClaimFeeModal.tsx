@@ -1,57 +1,63 @@
-import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb'
-import { CurrencyAmount } from '@uniswap/sdk-core'
-import { ErrorCallout } from 'components/ErrorCallout'
-import { getLPBaseAnalyticsProperties } from 'components/Liquidity/analytics'
-import { useModalLiquidityInitialState, usePositionDerivedInfo } from 'components/Liquidity/hooks'
-import { getProtocolItems } from 'components/Liquidity/utils'
-import { GetHelpHeader } from 'components/Modal/GetHelpHeader'
-import { ZERO_ADDRESS } from 'constants/misc'
-import { useAccount } from 'hooks/useAccount'
-import { useModalState } from 'hooks/useModalState'
-import useSelectChain from 'hooks/useSelectChain'
-import { canUnwrapCurrency, getCurrencyWithOptionalUnwrap } from 'pages/Pool/Positions/create/utils'
-import { Dispatch, SetStateAction, useMemo, useState } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
-import { useAppDispatch } from 'state/hooks'
-import { liquiditySaga } from 'state/sagas/liquidity/liquiditySaga'
-import { Button, Flex, Switch, Text } from 'ui/src'
-import { iconSizes } from 'ui/src/theme'
-import { CurrencyLogo } from 'uniswap/src/components/CurrencyLogo/CurrencyLogo'
-import { Modal } from 'uniswap/src/components/modals/Modal'
-import { nativeOnChain } from 'uniswap/src/constants/tokens'
-import { uniswapUrls } from 'uniswap/src/constants/urls'
-import { useAccountMeta } from 'uniswap/src/contexts/UniswapContext'
-import { useClaimLpFeesCalldataQuery } from 'uniswap/src/data/apiClients/tradingApi/useClaimLpFeesCalldataQuery'
-import { ClaimLPFeesRequest } from 'uniswap/src/data/tradingApi/__generated__'
-import { AccountType } from 'uniswap/src/features/accounts/types'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { useLocalizationContext } from 'uniswap/src/features/language/LocalizationContext'
-import { InterfaceEventNameLocal, ModalName } from 'uniswap/src/features/telemetry/constants'
-import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send'
-import { useCurrencyInfo } from 'uniswap/src/features/tokens/useCurrencyInfo'
+import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb';
+import { CurrencyAmount } from '@uniswap/sdk-core';
+import { ErrorCallout } from 'components/ErrorCallout';
+import { getLPBaseAnalyticsProperties } from 'components/Liquidity/analytics';
+import { useModalLiquidityInitialState, usePositionDerivedInfo } from 'components/Liquidity/hooks';
+import { getProtocolItems } from 'components/Liquidity/utils';
+import { GetHelpHeader } from 'components/Modal/GetHelpHeader';
+import { ZERO_ADDRESS } from 'constants/misc';
+import { useAccount } from 'hooks/useAccount';
+import { useModalState } from 'hooks/useModalState';
+import useSelectChain from 'hooks/useSelectChain';
+import {
+  canUnwrapCurrency,
+  getCurrencyWithOptionalUnwrap,
+} from 'pages/Pool/Positions/create/utils';
+import { Dispatch, SetStateAction, useMemo, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { useAppDispatch } from 'state/hooks';
+import { liquiditySaga } from 'state/sagas/liquidity/liquiditySaga';
+import { Button, Flex, Switch, Text } from 'ui/src';
+import { iconSizes } from 'ui/src/theme';
+import { CurrencyLogo } from 'uniswap/src/components/CurrencyLogo/CurrencyLogo';
+import { Modal } from 'uniswap/src/components/modals/Modal';
+import { nativeOnChain } from 'uniswap/src/constants/tokens';
+import { uniswapUrls } from 'uniswap/src/constants/urls';
+import { useAccountMeta } from 'uniswap/src/contexts/UniswapContext';
+import { useClaimLpFeesCalldataQuery } from 'uniswap/src/data/apiClients/tradingApi/useClaimLpFeesCalldataQuery';
+import { ClaimLPFeesRequest } from 'uniswap/src/data/tradingApi/__generated__';
+import { AccountType } from 'uniswap/src/features/accounts/types';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import { useLocalizationContext } from 'uniswap/src/features/language/LocalizationContext';
+import { InterfaceEventNameLocal, ModalName } from 'uniswap/src/features/telemetry/constants';
+import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send';
+import { useCurrencyInfo } from 'uniswap/src/features/tokens/useCurrencyInfo';
 import {
   CollectFeesTxAndGasInfo,
   LiquidityTransactionType,
   isValidLiquidityTxContext,
-} from 'uniswap/src/features/transactions/liquidity/types'
-import { getErrorMessageToDisplay, parseErrorMessageTitle } from 'uniswap/src/features/transactions/liquidity/utils'
-import { TransactionStep } from 'uniswap/src/features/transactions/steps/types'
-import { validateTransactionRequest } from 'uniswap/src/features/transactions/swap/utils/trade'
-import { currencyId } from 'uniswap/src/utils/currencyId'
-import { NumberType } from 'utilities/src/format/types'
-import { logger } from 'utilities/src/logger/logger'
-import { useTrace } from 'utilities/src/telemetry/trace/TraceContext'
+} from 'uniswap/src/features/transactions/liquidity/types';
+import {
+  getErrorMessageToDisplay,
+  parseErrorMessageTitle,
+} from 'uniswap/src/features/transactions/liquidity/utils';
+import { TransactionStep } from 'uniswap/src/features/transactions/steps/types';
+import { validateTransactionRequest } from 'uniswap/src/features/transactions/swap/utils/trade';
+import { currencyId } from 'uniswap/src/utils/currencyId';
+import { NumberType } from 'utilities/src/format/types';
+import { logger } from 'utilities/src/logger/logger';
+import { useTrace } from 'utilities/src/telemetry/trace/TraceContext';
 
 function UnwrapUnderCard({
   unwrapNativeCurrency,
   setUnwrapNativeCurrency,
   chainId,
 }: {
-  unwrapNativeCurrency: boolean
-  chainId?: UniverseChainId
-  setUnwrapNativeCurrency: Dispatch<SetStateAction<boolean>>
+  unwrapNativeCurrency: boolean;
+  chainId?: UniverseChainId;
+  setUnwrapNativeCurrency: Dispatch<SetStateAction<boolean>>;
 }) {
-  const nativeCurrency = chainId ? nativeOnChain(chainId) : undefined
+  const nativeCurrency = chainId ? nativeOnChain(chainId) : undefined;
 
   return (
     <Flex
@@ -62,65 +68,66 @@ function UnwrapUnderCard({
       justifyContent="space-between"
       alignItems="center"
       py="$padding8"
-      px="$padding16"
-    >
+      px="$padding16">
       <Text variant="body3" color="$neutral2">
         <Trans i18nKey="pool.collectAs" values={{ nativeWrappedSymbol: nativeCurrency?.symbol }} />
       </Text>
       <Switch
         id="collect-as-weth"
         checked={unwrapNativeCurrency}
-        onCheckedChange={() => setUnwrapNativeCurrency((unwrapNativeCurrency) => !unwrapNativeCurrency)}
+        onCheckedChange={() =>
+          setUnwrapNativeCurrency(unwrapNativeCurrency => !unwrapNativeCurrency)
+        }
         variant="default"
       />
     </Flex>
-  )
+  );
 }
 
 export function ClaimFeeModal() {
-  const { t } = useTranslation()
-  const trace = useTrace()
-  const { formatCurrencyAmount } = useLocalizationContext()
-  const positionInfo = useModalLiquidityInitialState()
-  const account = useAccountMeta()
+  const { t } = useTranslation();
+  const trace = useTrace();
+  const { formatCurrencyAmount } = useLocalizationContext();
+  const positionInfo = useModalLiquidityInitialState();
+  const account = useAccountMeta();
   const [currentTransactionStep, setCurrentTransactionStep] = useState<
     { step: TransactionStep; accepted: boolean } | undefined
-  >()
-  const [unwrapNativeCurrency, setUnwrapNativeCurrency] = useState(true)
+  >();
+  const [unwrapNativeCurrency, setUnwrapNativeCurrency] = useState(true);
 
-  const { currency0Amount, currency1Amount, chainId } = positionInfo || {}
-  const canUnwrap0 = canUnwrapCurrency(currency0Amount?.currency, positionInfo?.version)
-  const canUnwrap1 = canUnwrapCurrency(currency1Amount?.currency, positionInfo?.version)
-  const canUnwrap = positionInfo && chainId && (canUnwrap0 || canUnwrap1)
+  const { currency0Amount, currency1Amount, chainId } = positionInfo || {};
+  const canUnwrap0 = canUnwrapCurrency(currency0Amount?.currency, positionInfo?.version);
+  const canUnwrap1 = canUnwrapCurrency(currency1Amount?.currency, positionInfo?.version);
+  const canUnwrap = positionInfo && chainId && (canUnwrap0 || canUnwrap1);
 
-  const { closeModal } = useModalState(ModalName.ClaimFee)
+  const { closeModal } = useModalState(ModalName.ClaimFee);
   const {
     feeValue0: token0Fees,
     feeValue1: token1Fees,
     fiatFeeValue0: token0FeesUsd,
     fiatFeeValue1: token1FeesUsd,
-  } = usePositionDerivedInfo(positionInfo)
+  } = usePositionDerivedInfo(positionInfo);
 
   const currency0 = getCurrencyWithOptionalUnwrap({
     currency: token0Fees?.currency,
     shouldUnwrap: unwrapNativeCurrency && canUnwrap0,
-  })
+  });
   const currency1 = getCurrencyWithOptionalUnwrap({
     currency: token1Fees?.currency,
     shouldUnwrap: unwrapNativeCurrency && canUnwrap1,
-  })
-  const currencyInfo0 = useCurrencyInfo(currencyId(currency0))
-  const currencyInfo1 = useCurrencyInfo(currencyId(currency1))
+  });
+  const currencyInfo0 = useCurrencyInfo(currencyId(currency0));
+  const currencyInfo1 = useCurrencyInfo(currencyId(currency1));
 
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
 
-  const selectChain = useSelectChain()
-  const connectedAccount = useAccount()
-  const startChainId = connectedAccount.chainId
+  const selectChain = useSelectChain();
+  const connectedAccount = useAccount();
+  const startChainId = connectedAccount.chainId;
 
   const claimLpFeesParams = useMemo(() => {
     if (!positionInfo || !currency0 || !currency1) {
-      return undefined
+      return undefined;
     }
 
     return {
@@ -144,8 +151,9 @@ export function ClaimFeeModal() {
         positionInfo.version !== ProtocolVersion.V4 ? token0Fees?.quotient.toString() : undefined,
       expectedTokenOwed1RawAmount:
         positionInfo.version !== ProtocolVersion.V4 ? token1Fees?.quotient.toString() : undefined,
-      collectAsWETH: positionInfo.version !== ProtocolVersion.V4 ? !unwrapNativeCurrency : undefined,
-    } satisfies ClaimLPFeesRequest
+      collectAsWETH:
+        positionInfo.version !== ProtocolVersion.V4 ? !unwrapNativeCurrency : undefined,
+    } satisfies ClaimLPFeesRequest;
   }, [
     account?.address,
     currency0,
@@ -154,7 +162,7 @@ export function ClaimFeeModal() {
     token0Fees?.quotient,
     token1Fees?.quotient,
     unwrapNativeCurrency,
-  ])
+  ]);
 
   const {
     data,
@@ -164,28 +172,30 @@ export function ClaimFeeModal() {
   } = useClaimLpFeesCalldataQuery({
     params: claimLpFeesParams,
     enabled: Boolean(claimLpFeesParams),
-  })
+  });
 
   // prevent logging of the empty error object for now since those are burying signals
   if (error && Object.keys(error).length > 0) {
-    const message = parseErrorMessageTitle(error, { defaultTitle: 'unknown ClaimLPFeesCalldataQuery' })
+    const message = parseErrorMessageTitle(error, {
+      defaultTitle: 'unknown ClaimLPFeesCalldataQuery',
+    });
     logger.error(message, {
       tags: {
         file: 'ClaimFeeModal',
         function: 'useEffect',
       },
-    })
+    });
 
     sendAnalyticsEvent(InterfaceEventNameLocal.CollectLiquidityFailed, {
       message,
-    })
+    });
   }
 
   const txInfo = useMemo((): CollectFeesTxAndGasInfo | undefined => {
-    const validatedTxRequest = validateTransactionRequest(data?.claim)
+    const validatedTxRequest = validateTransactionRequest(data?.claim);
 
     if (!positionInfo || !validatedTxRequest) {
-      return undefined
+      return undefined;
     }
 
     return {
@@ -193,17 +203,19 @@ export function ClaimFeeModal() {
       protocolVersion: positionInfo?.version,
       action: {
         type: LiquidityTransactionType.Collect,
-        currency0Amount: token0Fees || CurrencyAmount.fromRawAmount(positionInfo.currency0Amount.currency, 0),
-        currency1Amount: token1Fees || CurrencyAmount.fromRawAmount(positionInfo.currency1Amount.currency, 0),
+        currency0Amount:
+          token0Fees || CurrencyAmount.fromRawAmount(positionInfo.currency0Amount.currency, 0),
+        currency1Amount:
+          token1Fees || CurrencyAmount.fromRawAmount(positionInfo.currency1Amount.currency, 0),
       },
       txRequest: validatedTxRequest,
-    }
-  }, [data?.claim, token0Fees, token1Fees, positionInfo])
+    };
+  }, [data?.claim, token0Fees, token1Fees, positionInfo]);
 
   const onPressConfirm = async () => {
-    const isValidTx = isValidLiquidityTxContext(txInfo)
+    const isValidTx = isValidLiquidityTxContext(txInfo);
     if (!account || account?.type !== AccountType.SignerMnemonic || !isValidTx) {
-      return
+      return;
     }
 
     dispatch(
@@ -215,10 +227,10 @@ export function ClaimFeeModal() {
         setCurrentStep: setCurrentTransactionStep,
         setSteps: () => undefined,
         onSuccess: () => {
-          closeModal()
+          closeModal();
         },
         onFailure: () => {
-          setCurrentTransactionStep(undefined)
+          setCurrentTransactionStep(undefined);
         },
         analytics:
           positionInfo && token0Fees?.currency && token1Fees?.currency
@@ -234,9 +246,9 @@ export function ClaimFeeModal() {
                 }),
               }
             : undefined,
-      }),
-    )
-  }
+      })
+    );
+  };
 
   return (
     <Modal name={ModalName.ClaimFee} onClose={closeModal} isDismissible>
@@ -256,8 +268,7 @@ export function ClaimFeeModal() {
               borderBottomLeftRadius={canUnwrap ? '$rounded0' : '$rounded12'}
               borderBottomRightRadius={canUnwrap ? '$rounded0' : '$rounded12'}
               p="$padding16"
-              gap="$gap12"
-            >
+              gap="$gap12">
               <Flex row alignItems="center" justifyContent="space-between">
                 <Flex row gap="$gap8" alignItems="center">
                   <CurrencyLogo currencyInfo={currencyInfo0} size={iconSizes.icon24} />
@@ -271,7 +282,12 @@ export function ClaimFeeModal() {
                   </Text>
                   {token0FeesUsd && (
                     <Text variant="body1" color="$neutral2">
-                      ({formatCurrencyAmount({ value: token0FeesUsd, type: NumberType.FiatTokenPrice })})
+                      (
+                      {formatCurrencyAmount({
+                        value: token0FeesUsd,
+                        type: NumberType.FiatTokenPrice,
+                      })}
+                      )
                     </Text>
                   )}
                 </Flex>
@@ -289,7 +305,12 @@ export function ClaimFeeModal() {
                   </Text>
                   {token1FeesUsd && (
                     <Text variant="body1" color="$neutral2">
-                      ({formatCurrencyAmount({ value: token1FeesUsd, type: NumberType.FiatTokenPrice })})
+                      (
+                      {formatCurrencyAmount({
+                        value: token1FeesUsd,
+                        type: NumberType.FiatTokenPrice,
+                      })}
+                      )
                     </Text>
                   )}
                 </Flex>
@@ -304,7 +325,10 @@ export function ClaimFeeModal() {
             )}
           </Flex>
         )}
-        <ErrorCallout errorMessage={getErrorMessageToDisplay({ calldataError: error })} onPress={refetch} />
+        <ErrorCallout
+          errorMessage={getErrorMessageToDisplay({ calldataError: error })}
+          onPress={refetch}
+        />
         <Flex row>
           <Button
             key="LoaderButton-animation-ClaimFeeModal-button"
@@ -312,12 +336,11 @@ export function ClaimFeeModal() {
             loading={calldataLoading || Boolean(currentTransactionStep)}
             size="large"
             variant="branded"
-            onPress={onPressConfirm}
-          >
+            onPress={onPressConfirm}>
             {currentTransactionStep ? t('common.confirmWallet') : t('common.collect.button')}
           </Button>
         </Flex>
       </Flex>
     </Modal>
-  )
+  );
 }

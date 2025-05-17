@@ -1,13 +1,13 @@
-import { createReducer } from '@reduxjs/toolkit'
-import { Field, resetMintState, typeInput } from 'state/mint/actions'
+import { createReducer } from '@reduxjs/toolkit';
+import { Field, resetMintState, typeInput } from 'state/mint/actions';
 
 export interface MintState {
-  readonly independentField: Field
-  readonly typedValue: string
-  readonly otherTypedValue: string // for the case when there's no liquidity
-  readonly startPriceTypedValue: string // for the case when there's no liquidity
-  readonly leftRangeTypedValue: string
-  readonly rightRangeTypedValue: string
+  readonly independentField: Field;
+  readonly typedValue: string;
+  readonly otherTypedValue: string; // for the case when there's no liquidity
+  readonly startPriceTypedValue: string; // for the case when there's no liquidity
+  readonly leftRangeTypedValue: string;
+  readonly rightRangeTypedValue: string;
 }
 
 export const initialState: MintState = {
@@ -17,9 +17,9 @@ export const initialState: MintState = {
   startPriceTypedValue: '',
   leftRangeTypedValue: '',
   rightRangeTypedValue: '',
-}
+};
 
-export default createReducer<MintState>(initialState, (builder) =>
+export default createReducer<MintState>(initialState, builder =>
   builder
     .addCase(resetMintState, () => initialState)
     .addCase(typeInput, (state, { payload: { field, typedValue, noLiquidity } }) => {
@@ -30,7 +30,7 @@ export default createReducer<MintState>(initialState, (builder) =>
             ...state,
             independentField: field,
             typedValue,
-          }
+          };
         }
         // they're typing into a new field, store the other value
         else {
@@ -39,7 +39,7 @@ export default createReducer<MintState>(initialState, (builder) =>
             independentField: field,
             typedValue,
             otherTypedValue: state.typedValue,
-          }
+          };
         }
       } else {
         return {
@@ -47,7 +47,7 @@ export default createReducer<MintState>(initialState, (builder) =>
           independentField: field,
           typedValue,
           otherTypedValue: '',
-        }
+        };
       }
-    }),
-)
+    })
+);

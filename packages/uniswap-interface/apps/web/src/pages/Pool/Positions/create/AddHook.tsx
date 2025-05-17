@@ -1,22 +1,22 @@
-import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb'
-import { HookModal } from 'components/Liquidity/HookModal'
-import { isDynamicFeeTier } from 'components/Liquidity/utils'
-import { useCreatePositionContext } from 'pages/Pool/Positions/create/CreatePositionContext'
-import { useInitialPoolInputs } from 'pages/Pool/Positions/create/hooks'
-import { AdvancedButton } from 'pages/Pool/Positions/create/shared'
-import { DEFAULT_POSITION_STATE } from 'pages/Pool/Positions/create/types'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { IconButton, Text, TouchableArea, styled } from 'ui/src'
-import { DocumentList } from 'ui/src/components/icons/DocumentList'
-import { X } from 'ui/src/components/icons/X'
-import { Flex } from 'ui/src/components/layout/Flex'
-import { fonts } from 'ui/src/theme'
-import { TextInput } from 'uniswap/src/components/input/TextInput'
-import { ElementName } from 'uniswap/src/features/telemetry/constants'
-import { getValidAddress } from 'uniswap/src/utils/addresses'
-import { shortenAddress } from 'utilities/src/addresses'
-import { useOnClickOutside, usePrevious } from 'utilities/src/react/hooks'
+import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb';
+import { HookModal } from 'components/Liquidity/HookModal';
+import { isDynamicFeeTier } from 'components/Liquidity/utils';
+import { useCreatePositionContext } from 'pages/Pool/Positions/create/CreatePositionContext';
+import { useInitialPoolInputs } from 'pages/Pool/Positions/create/hooks';
+import { AdvancedButton } from 'pages/Pool/Positions/create/shared';
+import { DEFAULT_POSITION_STATE } from 'pages/Pool/Positions/create/types';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { IconButton, Text, TouchableArea, styled } from 'ui/src';
+import { DocumentList } from 'ui/src/components/icons/DocumentList';
+import { X } from 'ui/src/components/icons/X';
+import { Flex } from 'ui/src/components/layout/Flex';
+import { fonts } from 'ui/src/theme';
+import { TextInput } from 'uniswap/src/components/input/TextInput';
+import { ElementName } from 'uniswap/src/features/telemetry/constants';
+import { getValidAddress } from 'uniswap/src/utils/addresses';
+import { shortenAddress } from 'utilities/src/addresses';
+import { useOnClickOutside, usePrevious } from 'utilities/src/react/hooks';
 
 const MenuFlyout = styled(Flex, {
   animation: 'fastHeavy',
@@ -36,11 +36,17 @@ const MenuFlyout = styled(Flex, {
   shadowOffset: { width: 0, height: 25 },
   shadowOpacity: 0.2,
   shadowRadius: 50,
-})
+});
 
-function AutocompleteFlyout({ address, handleSelectAddress }: { address: string; handleSelectAddress: () => void }) {
-  const { t } = useTranslation()
-  const validAddress = getValidAddress(address)
+function AutocompleteFlyout({
+  address,
+  handleSelectAddress,
+}: {
+  address: string;
+  handleSelectAddress: () => void;
+}) {
+  const { t } = useTranslation();
+  const validAddress = getValidAddress(address);
 
   return (
     <MenuFlyout>
@@ -54,73 +60,73 @@ function AutocompleteFlyout({ address, handleSelectAddress }: { address: string;
         </Text>
       )}
     </MenuFlyout>
-  )
+  );
 }
 
 export function AddHook() {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
-  const [isFocusing, setFocus] = useState(false)
-  const handleFocus = useCallback((focus: boolean) => setFocus(focus), [])
+  const [isFocusing, setFocus] = useState(false);
+  const handleFocus = useCallback((focus: boolean) => setFocus(focus), []);
 
-  const inputWrapperNode = useRef<HTMLDivElement | null>(null)
-  useOnClickOutside(inputWrapperNode, isFocusing ? () => handleFocus(false) : undefined)
+  const inputWrapperNode = useRef<HTMLDivElement | null>(null);
+  useOnClickOutside(inputWrapperNode, isFocusing ? () => handleFocus(false) : undefined);
 
-  const [hookModalOpen, setHookModalOpen] = useState(false)
+  const [hookModalOpen, setHookModalOpen] = useState(false);
 
-  const { hook: initialHook } = useInitialPoolInputs()
+  const { hook: initialHook } = useInitialPoolInputs();
   const {
     positionState: { hook, fee, protocolVersion },
     setPositionState,
-  } = useCreatePositionContext()
-  const [hookInputEnabled, setHookInputEnabled] = useState(!!hook)
-  const [hookValue, setHookValue] = useState(hook ?? '')
+  } = useCreatePositionContext();
+  const [hookInputEnabled, setHookInputEnabled] = useState(!!hook);
+  const [hookValue, setHookValue] = useState(hook ?? '');
 
   const onSelectHook = useCallback(
     (value: string | undefined) => {
-      setPositionState((state) => ({
+      setPositionState(state => ({
         ...state,
         hook: value,
         userApprovedHook: value,
-      }))
+      }));
     },
-    [setPositionState],
-  )
+    [setPositionState]
+  );
 
   useEffect(() => {
     if (initialHook && protocolVersion === ProtocolVersion.V4) {
-      setPositionState((state) => ({
+      setPositionState(state => ({
         ...state,
         hook: initialHook,
-      }))
-      setHookInputEnabled(true)
+      }));
+      setHookInputEnabled(true);
     }
-  }, [initialHook, protocolVersion, setPositionState])
+  }, [initialHook, protocolVersion, setPositionState]);
 
   const onClearHook = useCallback(() => {
     if (isDynamicFeeTier(fee)) {
-      setPositionState((state) => ({
+      setPositionState(state => ({
         ...state,
         fee: DEFAULT_POSITION_STATE.fee,
-      }))
+      }));
     }
 
-    setHookInputEnabled(false)
-    setHookValue('')
-    onSelectHook(undefined)
-  }, [fee, onSelectHook, setPositionState])
+    setHookInputEnabled(false);
+    setHookValue('');
+    onSelectHook(undefined);
+  }, [fee, onSelectHook, setPositionState]);
 
   // In the case that the user clears a hook that was filled in from a url
   // this ensures the input is cleared again
-  const previousHook = usePrevious(hook)
+  const previousHook = usePrevious(hook);
   useEffect(() => {
     if (previousHook && !hook) {
-      onClearHook()
+      onClearHook();
     }
-  }, [hook, onClearHook, previousHook])
+  }, [hook, onClearHook, previousHook]);
 
   if (hookInputEnabled) {
-    const showFlyout = isFocusing && hookValue
+    const showFlyout = isFocusing && hookValue;
 
     return (
       <>
@@ -131,8 +137,8 @@ export function AddHook() {
             address={hookValue}
             onClose={() => setHookModalOpen(false)}
             onClearHook={() => {
-              setHookInputEnabled(false)
-              setHookValue('')
+              setHookInputEnabled(false);
+              setHookValue('');
             }}
             onContinue={() => onSelectHook(hookValue)}
           />
@@ -141,10 +147,9 @@ export function AddHook() {
           <Flex row alignItems="center" gap="$spacing12">
             <TouchableArea
               onPress={() => {
-                setHookInputEnabled(true)
-                onSelectHook(undefined)
-              }}
-            >
+                setHookInputEnabled(true);
+                onSelectHook(undefined);
+              }}>
               <Flex
                 row
                 alignItems="center"
@@ -152,8 +157,7 @@ export function AddHook() {
                 borderRadius="$rounded12"
                 gap="$gap8"
                 py="$padding8"
-                px="$padding12"
-              >
+                px="$padding12">
                 <DocumentList size="$icon.20" color="$neutral1" />
                 <Text variant="buttonLabel3">{shortenAddress(hook)}</Text>
               </Flex>
@@ -198,18 +202,21 @@ export function AddHook() {
               size="xsmall"
               emphasis="secondary"
               onPress={() => {
-                setHookInputEnabled(false)
-                setHookValue('')
+                setHookInputEnabled(false);
+                setHookValue('');
               }}
               icon={<X />}
             />
             {showFlyout && (
-              <AutocompleteFlyout address={hookValue} handleSelectAddress={() => setHookModalOpen(true)} />
+              <AutocompleteFlyout
+                address={hookValue}
+                handleSelectAddress={() => setHookModalOpen(true)}
+              />
             )}
           </Flex>
         )}
       </>
-    )
+    );
   }
 
   return (
@@ -220,5 +227,5 @@ export function AddHook() {
       tooltipText={t('position.addHook.tooltip')}
       elementName={ElementName.AddHook}
     />
-  )
+  );
 }

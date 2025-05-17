@@ -1,7 +1,7 @@
-import { AutoColumn } from 'components/deprecated/Column'
-import styled from 'lib/styled-components'
-import { Trans } from 'react-i18next'
-import { ThemedText } from 'theme/components'
+import { AutoColumn } from 'components/deprecated/Column';
+import styled from 'lib/styled-components';
+import { Trans } from 'react-i18next';
+import { ThemedText } from 'theme/components';
 
 const TextWrapper = styled.div`
   border: 1px solid ${({ theme }) => theme.neutral3};
@@ -11,7 +11,7 @@ const TextWrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-`
+`;
 
 export function V2Unsupported() {
   return (
@@ -24,5 +24,5 @@ export function V2Unsupported() {
         </TextWrapper>
       </AutoColumn>
     </AutoColumn>
-  )
+  );
 }

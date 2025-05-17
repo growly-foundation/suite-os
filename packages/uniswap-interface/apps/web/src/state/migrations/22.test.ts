@@ -1,47 +1,49 @@
-import { createMigrate } from 'redux-persist'
-import { migration1 } from 'state/migrations/1'
-import { migration10 } from 'state/migrations/10'
-import { migration11 } from 'state/migrations/11'
-import { migration12 } from 'state/migrations/12'
-import { migration13 } from 'state/migrations/13'
-import { migration14 } from 'state/migrations/14'
-import { migration15 } from 'state/migrations/15'
-import { migration16 } from 'state/migrations/16'
-import { migration17 } from 'state/migrations/17'
-import { migration18 } from 'state/migrations/18'
-import { migration19 } from 'state/migrations/19'
-import { migration2 } from 'state/migrations/2'
-import { migration20 } from 'state/migrations/20'
-import { migration21 } from 'state/migrations/21'
-import { migration22 } from 'state/migrations/22'
-import { migration3 } from 'state/migrations/3'
-import { migration4 } from 'state/migrations/4'
-import { migration5 } from 'state/migrations/5'
-import { migration6 } from 'state/migrations/6'
-import { migration7 } from 'state/migrations/7'
-import { migration8 } from 'state/migrations/8'
-import { migration9 } from 'state/migrations/9'
-import { FiatCurrency } from 'uniswap/src/features/fiatCurrency/constants'
-import { Language } from 'uniswap/src/features/language/constants'
-import * as languageUtils from 'uniswap/src/features/language/utils'
+import { createMigrate } from 'redux-persist';
+import { migration1 } from 'state/migrations/1';
+import { migration10 } from 'state/migrations/10';
+import { migration11 } from 'state/migrations/11';
+import { migration12 } from 'state/migrations/12';
+import { migration13 } from 'state/migrations/13';
+import { migration14 } from 'state/migrations/14';
+import { migration15 } from 'state/migrations/15';
+import { migration16 } from 'state/migrations/16';
+import { migration17 } from 'state/migrations/17';
+import { migration18 } from 'state/migrations/18';
+import { migration19 } from 'state/migrations/19';
+import { migration2 } from 'state/migrations/2';
+import { migration20 } from 'state/migrations/20';
+import { migration21 } from 'state/migrations/21';
+import { migration22 } from 'state/migrations/22';
+import { migration3 } from 'state/migrations/3';
+import { migration4 } from 'state/migrations/4';
+import { migration5 } from 'state/migrations/5';
+import { migration6 } from 'state/migrations/6';
+import { migration7 } from 'state/migrations/7';
+import { migration8 } from 'state/migrations/8';
+import { migration9 } from 'state/migrations/9';
+import { FiatCurrency } from 'uniswap/src/features/fiatCurrency/constants';
+import { Language } from 'uniswap/src/features/language/constants';
+import * as languageUtils from 'uniswap/src/features/language/utils';
 
 jest.mock('utilities/src/platform', () => ({
   isInterface: true,
-}))
+}));
 
 jest.mock('uniswap/src/features/language/utils', () => ({
   getCurrentLanguageFromNavigator: jest.fn().mockReturnValue('en'),
-}))
+}));
 
-const mockGetCurrentLanguageFromNavigator = jest.mocked(languageUtils.getCurrentLanguageFromNavigator)
+const mockGetCurrentLanguageFromNavigator = jest.mocked(
+  languageUtils.getCurrentLanguageFromNavigator
+);
 
 jest.mock('utilities/src/platform', () => ({
   isInterface: true,
-}))
+}));
 
 jest.mock('uniswap/src/features/language/hooks', () => ({
   navigatorLocale: jest.fn().mockReturnValue('en-US'),
-}))
+}));
 
 const previousState = {
   _persist: {
@@ -54,7 +56,7 @@ const previousState = {
     hideSmallBalances: true,
     hideSpamTokens: true,
   },
-}
+};
 
 const migrator = createMigrate(
   {
@@ -81,35 +83,35 @@ const migrator = createMigrate(
     21: migration21,
     22: migration22,
   },
-  { debug: false },
-)
+  { debug: false }
+);
 
 describe('migration to v22', () => {
   beforeEach(() => {
-    mockGetCurrentLanguageFromNavigator.mockClear()
-    mockGetCurrentLanguageFromNavigator.mockReturnValue(Language.English)
-  })
+    mockGetCurrentLanguageFromNavigator.mockClear();
+    mockGetCurrentLanguageFromNavigator.mockReturnValue(Language.English);
+  });
 
   it('should preserve English language settings if user locale and current language are both English', async () => {
-    const result: any = await migrator(previousState, 22)
-    expect(result.userSettings.currentLanguage).toEqual(Language.English)
-  })
+    const result: any = await migrator(previousState, 22);
+    expect(result.userSettings.currentLanguage).toEqual(Language.English);
+  });
 
   it('should preserve non-English language settings if user language is not set to English', async () => {
     const japaneseState = {
       ...previousState,
       userSettings: { currentLanguage: Language.Japanese },
-    }
-    const result: any = await migrator(japaneseState, 22)
-    expect(result.userSettings.currentLanguage).toEqual(Language.Japanese)
-  })
+    };
+    const result: any = await migrator(japaneseState, 22);
+    expect(result.userSettings.currentLanguage).toEqual(Language.Japanese);
+  });
 
   it('should update current language if state is set to English but navigator language is not English', async () => {
-    mockGetCurrentLanguageFromNavigator.mockReturnValue(Language.French)
+    mockGetCurrentLanguageFromNavigator.mockReturnValue(Language.French);
 
-    const result: any = await migrator(previousState, 22)
+    const result: any = await migrator(previousState, 22);
 
-    expect(mockGetCurrentLanguageFromNavigator).toHaveBeenCalled()
-    expect(result.userSettings.currentLanguage).toEqual(Language.French)
-  })
-})
+    expect(mockGetCurrentLanguageFromNavigator).toHaveBeenCalled();
+    expect(result.userSettings.currentLanguage).toEqual(Language.French);
+  });
+});

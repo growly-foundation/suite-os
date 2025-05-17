@@ -1,1 +1,1 @@
-export { ThemedText } from './text'
+export { ThemedText } from './text';

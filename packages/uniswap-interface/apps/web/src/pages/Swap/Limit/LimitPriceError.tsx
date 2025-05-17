@@ -1,20 +1,20 @@
-import { Currency } from '@uniswap/sdk-core'
-import { LimitPriceErrorType } from 'components/CurrencyInputPanel/LimitPriceInputPanel/useCurrentPriceAdjustment'
-import Column from 'components/deprecated/Column'
-import Row from 'components/deprecated/Row'
-import styled, { useTheme } from 'lib/styled-components'
-import { ReactNode } from 'react'
-import { AlertTriangle } from 'react-feather'
-import { Trans } from 'react-i18next'
-import { ThemedText } from 'theme/components'
-import { FadePresence, FadePresenceAnimationType } from 'theme/components/FadePresence'
+import { Currency } from '@uniswap/sdk-core';
+import { LimitPriceErrorType } from 'components/CurrencyInputPanel/LimitPriceInputPanel/useCurrentPriceAdjustment';
+import Column from 'components/deprecated/Column';
+import Row from 'components/deprecated/Row';
+import styled, { useTheme } from 'lib/styled-components';
+import { ReactNode } from 'react';
+import { AlertTriangle } from 'react-feather';
+import { Trans } from 'react-i18next';
+import { ThemedText } from 'theme/components';
+import { FadePresence, FadePresenceAnimationType } from 'theme/components/FadePresence';
 
 const Container = styled(Row)`
   padding: 12px;
   border: 1px solid ${({ theme }) => theme.surface3};
   border-radius: 16px;
   margin-top: 4px;
-`
+`;
 
 const LogoContainer = styled.div`
   height: 40px;
@@ -26,64 +26,78 @@ const LogoContainer = styled.div`
   border-radius: 12px;
   background-color: ${({ theme }) => theme.critical2};
   flex-shrink: 0;
-`
+`;
 
 interface LimitPriceErrorProps {
-  priceError: LimitPriceErrorType
-  inputCurrency: Currency
-  outputCurrency: Currency
-  priceInverted: boolean
-  priceAdjustmentPercentage?: number
+  priceError: LimitPriceErrorType;
+  inputCurrency: Currency;
+  outputCurrency: Currency;
+  priceInverted: boolean;
+  priceAdjustmentPercentage?: number;
 }
 
-function getTitle({ inputCurrency, outputCurrency, priceInverted, priceError }: LimitPriceErrorProps): ReactNode {
+function getTitle({
+  inputCurrency,
+  outputCurrency,
+  priceInverted,
+  priceError,
+}: LimitPriceErrorProps): ReactNode {
   if (priceError === LimitPriceErrorType.CALCULATION_ERROR) {
-    return <Trans i18nKey="limitPrice.marketPriceNotAvailable.error.title" />
+    return <Trans i18nKey="limitPrice.marketPriceNotAvailable.error.title" />;
   } else if (priceInverted) {
     return (
-      <Trans i18nKey="limitPrice.buyingAboveMarketPrice.error.title" values={{ tokenSymbol: outputCurrency.symbol }} />
-    )
+      <Trans
+        i18nKey="limitPrice.buyingAboveMarketPrice.error.title"
+        values={{ tokenSymbol: outputCurrency.symbol }}
+      />
+    );
   } else {
     return (
-      <Trans i18nKey="limitPrice.sellingBelowMarketPrice.error.title" values={{ tokenSymbol: inputCurrency.symbol }} />
-    )
+      <Trans
+        i18nKey="limitPrice.sellingBelowMarketPrice.error.title"
+        values={{ tokenSymbol: inputCurrency.symbol }}
+      />
+    );
   }
 }
 
-function getDescription({ priceInverted, priceAdjustmentPercentage, priceError }: LimitPriceErrorProps): ReactNode {
+function getDescription({
+  priceInverted,
+  priceAdjustmentPercentage,
+  priceError,
+}: LimitPriceErrorProps): ReactNode {
   if (priceError === LimitPriceErrorType.CALCULATION_ERROR) {
     return (
       <Trans i18nKey="limitPrice.marketPriceNotAvailable.error.description">
-        We are unable to calculate the current market price. To avoid submitting an order below market price, please
-        check your network connection and try again.
+        We are unable to calculate the current market price. To avoid submitting an order below
+        market price, please check your network connection and try again.
       </Trans>
-    )
+    );
   } else if (priceInverted && !!priceAdjustmentPercentage) {
     return (
       <Trans
         i18nKey="limitPrice.buyingAboveMarketPrice.error.description"
         values={{ percentage: Math.abs(priceAdjustmentPercentage) }}
       />
-    )
+    );
   } else if (priceAdjustmentPercentage) {
     return (
       <Trans
         i18nKey="limitPrice.sellingBelowMarketPrice.error.description"
         values={{ percentage: Math.abs(priceAdjustmentPercentage) }}
       />
-    )
+    );
   }
-  return null
+  return null;
 }
 
 export function LimitPriceError(props: LimitPriceErrorProps) {
-  const theme = useTheme()
+  const theme = useTheme();
   return (
     <FadePresence
       $transitionDuration={theme.transition.duration.fast}
       $delay={theme.transition.duration.fast}
-      animationType={FadePresenceAnimationType.FadeAndTranslate}
-    >
+      animationType={FadePresenceAnimationType.FadeAndTranslate}>
       <Container gap="md">
         <LogoContainer>
           <AlertTriangle strokeWidth={1} color={theme.critical} size="20px" />
@@ -94,5 +108,5 @@ export function LimitPriceError(props: LimitPriceErrorProps) {
         </Column>
       </Container>
     </FadePresence>
-  )
+  );
 }

@@ -1,69 +1,76 @@
-import { GetHelpHeader } from 'components/Modal/GetHelpHeader'
-import { useAccount } from 'hooks/useAccount'
-import ms from 'ms'
-import { useBuyFormContext } from 'pages/Swap/Buy/BuyFormContext'
-import { ProviderConnectedView } from 'pages/Swap/Buy/ProviderConnectedView'
-import { ProviderConnectionError } from 'pages/Swap/Buy/ProviderConnectionError'
-import { ProviderOption } from 'pages/Swap/Buy/ProviderOption'
-import { ContentWrapper } from 'pages/Swap/Buy/shared'
-import { useMemo, useState } from 'react'
-import { Trans } from 'react-i18next'
-import { Flex, Separator, Text } from 'ui/src'
-import { TimePast } from 'ui/src/components/icons/TimePast'
-import { Modal } from 'uniswap/src/components/modals/Modal'
-import { uniswapUrls } from 'uniswap/src/constants/urls'
-import { FORQuote, FORServiceProvider } from 'uniswap/src/features/fiatOnRamp/types'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
-import { logger } from 'utilities/src/logger/logger'
-import { useInterval } from 'utilities/src/time/timing'
+import { GetHelpHeader } from 'components/Modal/GetHelpHeader';
+import { useAccount } from 'hooks/useAccount';
+import ms from 'ms';
+import { useBuyFormContext } from 'pages/Swap/Buy/BuyFormContext';
+import { ProviderConnectedView } from 'pages/Swap/Buy/ProviderConnectedView';
+import { ProviderConnectionError } from 'pages/Swap/Buy/ProviderConnectionError';
+import { ProviderOption } from 'pages/Swap/Buy/ProviderOption';
+import { ContentWrapper } from 'pages/Swap/Buy/shared';
+import { useMemo, useState } from 'react';
+import { Trans } from 'react-i18next';
+import { Flex, Separator, Text } from 'ui/src';
+import { TimePast } from 'ui/src/components/icons/TimePast';
+import { Modal } from 'uniswap/src/components/modals/Modal';
+import { uniswapUrls } from 'uniswap/src/constants/urls';
+import { FORQuote, FORServiceProvider } from 'uniswap/src/features/fiatOnRamp/types';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
+import { logger } from 'utilities/src/logger/logger';
+import { useInterval } from 'utilities/src/time/timing';
 
 interface ChooseProviderModal {
-  isOpen: boolean
-  closeModal: () => void
+  isOpen: boolean;
+  closeModal: () => void;
 }
 
 function ChooseProviderModalContent({ closeModal }: ChooseProviderModal) {
-  const { derivedBuyFormInfo, buyFormState } = useBuyFormContext()
-  const { quoteCurrency, selectedCountry, inputAmount } = buyFormState
-  const { quotes, meldSupportedFiatCurrency } = derivedBuyFormInfo
-  const [errorProvider, setErrorProvider] = useState<FORServiceProvider>()
-  const [connectedProvider, setConnectedProvider] = useState<FORServiceProvider>()
+  const { derivedBuyFormInfo, buyFormState } = useBuyFormContext();
+  const { quoteCurrency, selectedCountry, inputAmount } = buyFormState;
+  const { quotes, meldSupportedFiatCurrency } = derivedBuyFormInfo;
+  const [errorProvider, setErrorProvider] = useState<FORServiceProvider>();
+  const [connectedProvider, setConnectedProvider] = useState<FORServiceProvider>();
 
-  const account = useAccount()
+  const account = useAccount();
 
   const [mostRecentlyUsedProvider, otherProviders] = useMemo(() => {
     if (!quotes || !quotes.quotes) {
-      return [undefined, []] as const
+      return [undefined, []] as const;
     }
-    const mostRecent = quotes.quotes.find((q: FORQuote) => q.isMostRecentlyUsedProvider)
+    const mostRecent = quotes.quotes.find((q: FORQuote) => q.isMostRecentlyUsedProvider);
     if (mostRecent) {
-      return [mostRecent, quotes.quotes.filter((q: FORQuote) => !q.isMostRecentlyUsedProvider)] as const
+      return [
+        mostRecent,
+        quotes.quotes.filter((q: FORQuote) => !q.isMostRecentlyUsedProvider),
+      ] as const;
     }
-    return [undefined, quotes.quotes] as const
-  }, [quotes])
+    return [undefined, quotes.quotes] as const;
+  }, [quotes]);
 
   const onClose = () => {
-    closeModal()
+    closeModal();
     // Delay the state reset until the modal finishes animating away:
     setTimeout(() => {
-      setErrorProvider(undefined)
-      setConnectedProvider(undefined)
-    }, ms('500ms'))
-  }
+      setErrorProvider(undefined);
+      setConnectedProvider(undefined);
+    }, ms('500ms'));
+  };
 
   // close modal after 5 minutes because some provider link have expirations and we don't want to keep generating these if the user is not active
   useInterval(() => {
     if (!errorProvider && !connectedProvider) {
-      onClose()
+      onClose();
     }
-  }, ms('5m'))
+  }, ms('5m'));
 
-  const quoteCurrencyCode = quoteCurrency?.meldCurrencyCode
-  const recipientAddress = account.address
+  const quoteCurrencyCode = quoteCurrency?.meldCurrencyCode;
+  const recipientAddress = account.address;
   if (!selectedCountry || !quoteCurrencyCode || !meldSupportedFiatCurrency || !recipientAddress) {
-    logger.debug('ChooseProviderModal', 'ChooseProviderModalContent', 'Modal opened with invalid state. Closing modal.')
-    onClose()
-    return null
+    logger.debug(
+      'ChooseProviderModal',
+      'ChooseProviderModalContent',
+      'Modal opened with invalid state. Closing modal.'
+    );
+    onClose();
+    return null;
   }
 
   if (errorProvider) {
@@ -73,15 +80,21 @@ function ChooseProviderModalContent({ closeModal }: ChooseProviderModal) {
         closeModal={onClose}
         selectedServiceProvider={errorProvider}
       />
-    )
+    );
   }
 
   if (connectedProvider) {
-    return <ProviderConnectedView closeModal={onClose} selectedServiceProvider={connectedProvider} />
+    return (
+      <ProviderConnectedView closeModal={onClose} selectedServiceProvider={connectedProvider} />
+    );
   }
 
   return (
-    <Flex gap="$spacing24" pb="$spacing8" $sm={{ px: '$spacing8', pb: '$spacing16' }} id="ChooseProviderModal">
+    <Flex
+      gap="$spacing24"
+      pb="$spacing8"
+      $sm={{ px: '$spacing8', pb: '$spacing16' }}
+      id="ChooseProviderModal">
       <GetHelpHeader
         title={<Trans i18nKey="fiatOnRamp.checkoutWith" />}
         link={uniswapUrls.helpArticleUrls.fiatOnRampHelp}
@@ -133,22 +146,26 @@ function ChooseProviderModalContent({ closeModal }: ChooseProviderModal) {
               setConnectedProvider={setConnectedProvider}
               setErrorProvider={setErrorProvider}
             />
-          )
+          );
         })}
         <Text variant="body3" textAlign="center" color="$neutral2">
           <Trans i18nKey="fiatOnRamp.chooseProvider.description" />
         </Text>
       </Flex>
     </Flex>
-  )
+  );
 }
 
 export function ChooseProviderModal(props: ChooseProviderModal) {
   return (
-    <Modal name={ModalName.FiatOnramp} isModalOpen={props.isOpen} onClose={props.closeModal} maxWidth={420}>
+    <Modal
+      name={ModalName.FiatOnramp}
+      isModalOpen={props.isOpen}
+      onClose={props.closeModal}
+      maxWidth={420}>
       <ContentWrapper>
         <ChooseProviderModalContent {...props} />
       </ContentWrapper>
     </Modal>
-  )
+  );
 }

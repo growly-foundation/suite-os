@@ -1,40 +1,43 @@
-import { InterfaceEventName } from '@uniswap/analytics-events'
-import QueryTokenLogo from 'components/Logo/QueryTokenLogo'
-import { DeltaArrow, DeltaText } from 'components/Tokens/TokenDetails/Delta'
-import { LoadingBubble } from 'components/Tokens/loading'
-import Column from 'components/deprecated/Column'
-import { NATIVE_CHAIN_ID } from 'constants/tokens'
-import { GqlSearchToken } from 'graphql/data/SearchTokens'
-import { gqlTokenToCurrencyInfo } from 'graphql/data/types'
-import { getTokenDetailsURL } from 'graphql/data/util'
-import styled, { css } from 'lib/styled-components'
-import { searchTokenToTokenSearchResult } from 'lib/utils/searchBar'
-import { GenieCollection } from 'nft/types'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
-import { useDispatch } from 'react-redux'
-import { Link, useNavigate } from 'react-router-dom'
-import { ThemedText } from 'theme/components'
-import { EllipsisStyle } from 'theme/components/styles'
-import { Flex } from 'ui/src'
-import { Verified } from 'ui/src/components/icons/Verified'
-import WarningIcon from 'uniswap/src/components/warnings/WarningIcon'
-import { getWarningIconColors } from 'uniswap/src/components/warnings/utils'
-import { Token, TokenStandard } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { fromGraphQLChain } from 'uniswap/src/features/chains/utils'
-import { addToSearchHistory } from 'uniswap/src/features/search/searchHistorySlice'
-import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send'
-import { InterfaceSearchResultSelectionProperties } from 'uniswap/src/features/telemetry/types'
-import { getTokenWarningSeverity } from 'uniswap/src/features/tokens/safetyUtils'
-import { shortenAddress } from 'utilities/src/addresses'
-import { NumberType, useFormatter } from 'utils/formatNumbers'
+import { InterfaceEventName } from '@uniswap/analytics-events';
+import QueryTokenLogo from 'components/Logo/QueryTokenLogo';
+import { DeltaArrow, DeltaText } from 'components/Tokens/TokenDetails/Delta';
+import { LoadingBubble } from 'components/Tokens/loading';
+import Column from 'components/deprecated/Column';
+import { NATIVE_CHAIN_ID } from 'constants/tokens';
+import { GqlSearchToken } from 'graphql/data/SearchTokens';
+import { gqlTokenToCurrencyInfo } from 'graphql/data/types';
+import { getTokenDetailsURL } from 'graphql/data/util';
+import styled, { css } from 'lib/styled-components';
+import { searchTokenToTokenSearchResult } from 'lib/utils/searchBar';
+import { GenieCollection } from 'nft/types';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { useDispatch } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { ThemedText } from 'theme/components';
+import { EllipsisStyle } from 'theme/components/styles';
+import { Flex } from 'ui/src';
+import { Verified } from 'ui/src/components/icons/Verified';
+import WarningIcon from 'uniswap/src/components/warnings/WarningIcon';
+import { getWarningIconColors } from 'uniswap/src/components/warnings/utils';
+import {
+  Token,
+  TokenStandard,
+} from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { fromGraphQLChain } from 'uniswap/src/features/chains/utils';
+import { addToSearchHistory } from 'uniswap/src/features/search/searchHistorySlice';
+import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send';
+import { InterfaceSearchResultSelectionProperties } from 'uniswap/src/features/telemetry/types';
+import { getTokenWarningSeverity } from 'uniswap/src/features/tokens/safetyUtils';
+import { shortenAddress } from 'utilities/src/addresses';
+import { NumberType, useFormatter } from 'utils/formatNumbers';
 
 const PriceChangeContainer = styled.div`
   display: flex;
   align-items: center;
   padding-top: 4px;
   gap: 2px;
-`
+`;
 const SuggestionRowStyles = css<{ $isFocused: boolean }>`
   display: flex;
   flex-direction: row;
@@ -52,46 +55,48 @@ const SuggestionRowStyles = css<{ $isFocused: boolean }>`
     `
   background: ${theme.surface2};
 `}
-`
+`;
 
 const StyledLink = styled(Link)`
   ${SuggestionRowStyles}
-`
+`;
 const SkeletonSuggestionRow = styled.div`
   ${SuggestionRowStyles}
-`
+`;
 const CollectionImageStyles = css`
   width: 36px;
   height: 36px;
   border-radius: 9999px;
   background: ${({ theme }) => theme.surface3};
   flex-shrink: 0;
-`
+`;
 const CollectionImage = styled.img`
   ${CollectionImageStyles}
-`
+`;
 const BrokenCollectionImage = styled.div`
   ${CollectionImageStyles}
-`
+`;
 const PrimaryText = styled(ThemedText.SubHeader)`
   ${EllipsisStyle}
-`
+`;
 const SecondaryContainer = styled(Column)`
   text-align: right;
   align-items: flex-end;
-`
+`;
 
 interface SuggestionRowProps {
-  suggestion: GenieCollection | GqlSearchToken
-  isHovered: boolean
-  setHoveredIndex: (index: number | undefined) => void
-  toggleOpen: () => void
-  index: number
-  eventProperties: InterfaceSearchResultSelectionProperties
+  suggestion: GenieCollection | GqlSearchToken;
+  isHovered: boolean;
+  setHoveredIndex: (index: number | undefined) => void;
+  toggleOpen: () => void;
+  index: number;
+  eventProperties: InterfaceSearchResultSelectionProperties;
 }
 
-export function suggestionIsToken(suggestion: GenieCollection | GqlSearchToken): suggestion is GqlSearchToken {
-  return (suggestion as GqlSearchToken).decimals !== undefined
+export function suggestionIsToken(
+  suggestion: GenieCollection | GqlSearchToken
+): suggestion is GqlSearchToken {
+  return (suggestion as GqlSearchToken).decimals !== undefined;
 }
 
 export function SuggestionRow({
@@ -102,58 +107,62 @@ export function SuggestionRow({
   index,
   eventProperties,
 }: SuggestionRowProps) {
-  const { t } = useTranslation()
-  const isToken = suggestionIsToken(suggestion)
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const { formatFiatPrice, formatDelta, formatNumberOrString } = useFormatter()
-  const [brokenCollectionImage, setBrokenCollectionImage] = useState(false)
+  const { t } = useTranslation();
+  const isToken = suggestionIsToken(suggestion);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { formatFiatPrice, formatDelta, formatNumberOrString } = useFormatter();
+  const [brokenCollectionImage, setBrokenCollectionImage] = useState(false);
 
   const tokenWarningSeverity = isToken
     ? getTokenWarningSeverity(gqlTokenToCurrencyInfo(suggestion as Token)) // casting GqlSearchToken to Token
-    : undefined
+    : undefined;
   // in search, we only show the warning icon if token is >=Medium severity
-  const { colorSecondary: warningIconColor } = getWarningIconColors(tokenWarningSeverity)
+  const { colorSecondary: warningIconColor } = getWarningIconColors(tokenWarningSeverity);
 
   const handleClick = useCallback(() => {
     const address =
-      !suggestion.address && suggestion.standard === TokenStandard.Native ? NATIVE_CHAIN_ID : suggestion.address
+      !suggestion.address && suggestion.standard === TokenStandard.Native
+        ? NATIVE_CHAIN_ID
+        : suggestion.address;
 
     if (isToken && address) {
-      const chainId = fromGraphQLChain(suggestion.chain)
+      const chainId = fromGraphQLChain(suggestion.chain);
       if (chainId) {
-        const searchResult = searchTokenToTokenSearchResult({ ...suggestion, address, chainId })
-        dispatch(addToSearchHistory({ searchResult }))
+        const searchResult = searchTokenToTokenSearchResult({ ...suggestion, address, chainId });
+        dispatch(addToSearchHistory({ searchResult }));
       }
     }
 
-    toggleOpen()
-    sendAnalyticsEvent(InterfaceEventName.NAVBAR_RESULT_SELECTED, { ...eventProperties })
-  }, [suggestion, isToken, toggleOpen, eventProperties, dispatch])
+    toggleOpen();
+    sendAnalyticsEvent(InterfaceEventName.NAVBAR_RESULT_SELECTED, { ...eventProperties });
+  }, [suggestion, isToken, toggleOpen, eventProperties, dispatch]);
 
-  const path = isToken ? getTokenDetailsURL({ ...suggestion }) : `/nfts/collection/${suggestion.address}`
+  const path = isToken
+    ? getTokenDetailsURL({ ...suggestion })
+    : `/nfts/collection/${suggestion.address}`;
   // Close the modal on escape
   useEffect(() => {
     const keyDownHandler = (event: KeyboardEvent) => {
       if (event.key === 'Enter' && isHovered) {
-        event.preventDefault()
-        navigate(path)
-        handleClick()
+        event.preventDefault();
+        navigate(path);
+        handleClick();
       }
-    }
-    document.addEventListener('keydown', keyDownHandler)
+    };
+    document.addEventListener('keydown', keyDownHandler);
     return () => {
-      document.removeEventListener('keydown', keyDownHandler)
-    }
-  }, [toggleOpen, isHovered, suggestion, navigate, handleClick, path])
+      document.removeEventListener('keydown', keyDownHandler);
+    };
+  }, [toggleOpen, isHovered, suggestion, navigate, handleClick, path]);
 
   const shortenedAddress = useMemo<string | null>(() => {
     if (isToken && suggestion.address && suggestion.address !== NATIVE_CHAIN_ID) {
-      return shortenAddress(suggestion.address)
+      return shortenAddress(suggestion.address);
     }
 
-    return null
-  }, [suggestion, isToken])
+    return null;
+  }, [suggestion, isToken]);
 
   return (
     <StyledLink
@@ -162,8 +171,11 @@ export function SuggestionRow({
       $isFocused={isHovered}
       onMouseEnter={() => !isHovered && setHoveredIndex(index)}
       onMouseLeave={() => isHovered && setHoveredIndex(undefined)}
-      data-testid={isToken ? `searchbar-token-row-${suggestion.chain}-${suggestion.address ?? NATIVE_CHAIN_ID}` : ''}
-    >
+      data-testid={
+        isToken
+          ? `searchbar-token-row-${suggestion.chain}-${suggestion.address ?? NATIVE_CHAIN_ID}`
+          : ''
+      }>
       <Flex row gap="$spacing8" shrink grow overflow="hidden">
         {isToken ? (
           <QueryTokenLogo
@@ -243,12 +255,12 @@ export function SuggestionRow({
         </PriceChangeContainer>
       </SecondaryContainer>
     </StyledLink>
-  )
+  );
 }
 
 const SkeletonContent = styled(Column)`
   width: 100%;
-`
+`;
 
 export function SkeletonRow() {
   return (
@@ -268,5 +280,5 @@ export function SkeletonRow() {
         </SkeletonContent>
       </Flex>
     </SkeletonSuggestionRow>
-  )
+  );
 }

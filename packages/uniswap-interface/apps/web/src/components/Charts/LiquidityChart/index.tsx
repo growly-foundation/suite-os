@@ -1,38 +1,46 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb'
-import { Currency, CurrencyAmount, Token } from '@uniswap/sdk-core'
-import { FeeAmount, Pool as PoolV3, TICK_SPACINGS, TickMath as TickMathV3, tickToPrice } from '@uniswap/v3-sdk'
-import { Pool as PoolV4, tickToPrice as tickToPriceV4 } from '@uniswap/v4-sdk'
-import { ChartHoverData, ChartModel, ChartModelParams } from 'components/Charts/ChartModel'
-import { LiquidityBarSeries } from 'components/Charts/LiquidityChart/liquidity-bar-series'
+import { BigNumber } from '@ethersproject/bignumber';
+import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb';
+import { Currency, CurrencyAmount, Token } from '@uniswap/sdk-core';
+import {
+  FeeAmount,
+  Pool as PoolV3,
+  TICK_SPACINGS,
+  TickMath as TickMathV3,
+  tickToPrice,
+} from '@uniswap/v3-sdk';
+import { Pool as PoolV4, tickToPrice as tickToPriceV4 } from '@uniswap/v4-sdk';
+import { ChartHoverData, ChartModel, ChartModelParams } from 'components/Charts/ChartModel';
+import { LiquidityBarSeries } from 'components/Charts/LiquidityChart/liquidity-bar-series';
 import {
   LiquidityBarData,
   LiquidityBarProps,
   LiquidityBarSeriesOptions,
-} from 'components/Charts/LiquidityChart/renderer'
-import { ZERO_ADDRESS } from 'constants/misc'
-import { usePoolActiveLiquidity } from 'hooks/usePoolTickData'
-import JSBI from 'jsbi'
-import { ISeriesApi, UTCTimestamp } from 'lightweight-charts'
-import { useEffect, useState } from 'react'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { TickProcessed } from 'utils/computeSurroundingTicks'
-import { NumberType, useFormatter } from 'utils/formatNumbers'
+} from 'components/Charts/LiquidityChart/renderer';
+import { ZERO_ADDRESS } from 'constants/misc';
+import { usePoolActiveLiquidity } from 'hooks/usePoolTickData';
+import JSBI from 'jsbi';
+import { ISeriesApi, UTCTimestamp } from 'lightweight-charts';
+import { useEffect, useState } from 'react';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import { TickProcessed } from 'utils/computeSurroundingTicks';
+import { NumberType, useFormatter } from 'utils/formatNumbers';
 
-interface LiquidityBarChartModelParams extends ChartModelParams<LiquidityBarData>, LiquidityBarProps {}
+interface LiquidityBarChartModelParams
+  extends ChartModelParams<LiquidityBarData>,
+    LiquidityBarProps {}
 
 export class LiquidityBarChartModel extends ChartModel<LiquidityBarData> {
-  protected series: ISeriesApi<'Custom'>
-  private activeTick?: number
+  protected series: ISeriesApi<'Custom'>;
+  private activeTick?: number;
 
   constructor(chartDiv: HTMLDivElement, params: LiquidityBarChartModelParams) {
-    super(chartDiv, params)
-    this.series = this.api.addCustomSeries(new LiquidityBarSeries(params))
+    super(chartDiv, params);
+    this.series = this.api.addCustomSeries(new LiquidityBarSeries(params));
 
-    this.series.setData(this.data)
+    this.series.setData(this.data);
 
-    this.updateOptions(params)
-    this.fitContent()
+    this.updateOptions(params);
+    this.fitContent();
   }
 
   updateOptions(params: LiquidityBarChartModelParams) {
@@ -73,15 +81,15 @@ export class LiquidityBarChartModel extends ChartModel<LiquidityBarData> {
           visible: false,
         },
       },
-    })
-    const { data, activeTick } = params
+    });
+    const { data, activeTick } = params;
 
-    this.activeTick = activeTick
+    this.activeTick = activeTick;
 
     if (this.data !== data) {
-      this.data = data
-      this.series.setData(data)
-      this.fitContent()
+      this.data = data;
+      this.series.setData(data);
+      this.fitContent();
     }
 
     this.series.applyOptions({
@@ -90,36 +98,41 @@ export class LiquidityBarChartModel extends ChartModel<LiquidityBarData> {
       },
       priceLineVisible: false,
       lastValueVisible: false,
-    })
+    });
 
-    this.series.applyOptions(params)
+    this.series.applyOptions(params);
   }
 
   override onSeriesHover(hoverData?: ChartHoverData<LiquidityBarData>) {
-    super.onSeriesHover(hoverData)
-    const updatedOptions: Partial<LiquidityBarSeriesOptions> = { hoveredTick: hoverData?.item.tick ?? this.activeTick }
-    this.series.applyOptions(updatedOptions)
+    super.onSeriesHover(hoverData);
+    const updatedOptions: Partial<LiquidityBarSeriesOptions> = {
+      hoveredTick: hoverData?.item.tick ?? this.activeTick,
+    };
+    this.series.applyOptions(updatedOptions);
   }
 
   activeTickIndex() {
-    return this.data.findIndex((bar) => bar.tick === this.activeTick)
+    return this.data.findIndex(bar => bar.tick === this.activeTick);
   }
 
   fitContent() {
-    const length = this.data.length
-    const activeTickIndex = this.data.findIndex((bar) => bar.tick === this.activeTick)
-    const midPoint = activeTickIndex !== -1 ? activeTickIndex : length / 2
+    const length = this.data.length;
+    const activeTickIndex = this.data.findIndex(bar => bar.tick === this.activeTick);
+    const midPoint = activeTickIndex !== -1 ? activeTickIndex : length / 2;
 
     this.api
       .timeScale()
-      .setVisibleLogicalRange({ from: Math.max(midPoint - 50, 0), to: Math.min(midPoint + 50, this.data.length) })
+      .setVisibleLogicalRange({
+        from: Math.max(midPoint - 50, 0),
+        to: Math.min(midPoint + 50, this.data.length),
+      });
   }
 }
 
-const MAX_UINT128 = BigNumber.from(2).pow(128).sub(1)
+const MAX_UINT128 = BigNumber.from(2).pow(128).sub(1);
 
 function maxAmount(token: Token) {
-  return CurrencyAmount.fromRawAmount(token, MAX_UINT128.toString())
+  return CurrencyAmount.fromRawAmount(token, MAX_UINT128.toString());
 }
 
 /** Calculates tokens locked in the active tick range based on the current tick */
@@ -130,19 +143,19 @@ async function calculateActiveRangeTokensLocked(
   feeTier: FeeAmount,
   tick: TickProcessed,
   poolData: {
-    sqrtPriceX96?: JSBI
-    currentTick?: number
-    liquidity?: JSBI
-  },
+    sqrtPriceX96?: JSBI;
+    currentTick?: number;
+    liquidity?: JSBI;
+  }
 ): Promise<{ amount0Locked: number; amount1Locked: number } | undefined> {
   if (!poolData.currentTick || !poolData.sqrtPriceX96 || !poolData.liquidity) {
-    return undefined
+    return undefined;
   }
 
   try {
     const liqGross = JSBI.greaterThan(tick.liquidityNet, JSBI.BigInt(0))
       ? tick.liquidityNet
-      : JSBI.multiply(tick.liquidityNet, JSBI.BigInt('-1'))
+      : JSBI.multiply(tick.liquidityNet, JSBI.BigInt('-1'));
 
     const mockTicks = [
       {
@@ -155,7 +168,7 @@ async function calculateActiveRangeTokensLocked(
         liquidityGross: liqGross,
         liquidityNet: tick.liquidityNet,
       },
-    ]
+    ];
     // Initialize pool containing only the active range
     const pool1 = new PoolV3(
       token0,
@@ -164,21 +177,21 @@ async function calculateActiveRangeTokensLocked(
       poolData.sqrtPriceX96,
       tick.liquidityActive,
       poolData.currentTick,
-      mockTicks,
-    )
+      mockTicks
+    );
     // Calculate amount of token0 that would need to be swapped to reach the bottom of the range
-    const bottomOfRangePrice = TickMathV3.getSqrtRatioAtTick(mockTicks[0].index)
-    const token1Amount = (await pool1.getOutputAmount(maxAmount(token0), bottomOfRangePrice))[0]
-    const amount0Locked = parseFloat(tick.sdkPrice.invert().quote(token1Amount).toExact())
+    const bottomOfRangePrice = TickMathV3.getSqrtRatioAtTick(mockTicks[0].index);
+    const token1Amount = (await pool1.getOutputAmount(maxAmount(token0), bottomOfRangePrice))[0];
+    const amount0Locked = parseFloat(tick.sdkPrice.invert().quote(token1Amount).toExact());
 
     // Calculate amount of token1 that would need to be swapped to reach the top of the range
-    const topOfRangePrice = TickMathV3.getSqrtRatioAtTick(mockTicks[1].index)
-    const token0Amount = (await pool1.getOutputAmount(maxAmount(token1), topOfRangePrice))[0]
-    const amount1Locked = parseFloat(tick.sdkPrice.quote(token0Amount).toExact())
+    const topOfRangePrice = TickMathV3.getSqrtRatioAtTick(mockTicks[1].index);
+    const token0Amount = (await pool1.getOutputAmount(maxAmount(token1), topOfRangePrice))[0];
+    const amount1Locked = parseFloat(tick.sdkPrice.quote(token0Amount).toExact());
 
-    return { amount0Locked, amount1Locked }
+    return { amount0Locked, amount1Locked };
   } catch {
-    return { amount0Locked: 0, amount1Locked: 0 }
+    return { amount0Locked: 0, amount1Locked: 0 };
   }
 }
 
@@ -187,15 +200,15 @@ export async function calculateTokensLockedV3(
   token0: Token,
   token1: Token,
   feeTier: FeeAmount,
-  tick: TickProcessed,
+  tick: TickProcessed
 ): Promise<{ amount0Locked: number; amount1Locked: number }> {
   try {
-    const tickSpacing = TICK_SPACINGS[feeTier]
+    const tickSpacing = TICK_SPACINGS[feeTier];
     const liqGross = JSBI.greaterThan(tick.liquidityNet, JSBI.BigInt(0))
       ? tick.liquidityNet
-      : JSBI.multiply(tick.liquidityNet, JSBI.BigInt('-1'))
+      : JSBI.multiply(tick.liquidityNet, JSBI.BigInt('-1'));
 
-    const sqrtPriceX96 = TickMathV3.getSqrtRatioAtTick(tick.tick)
+    const sqrtPriceX96 = TickMathV3.getSqrtRatioAtTick(tick.tick);
     const mockTicks = [
       {
         index: tick.tick,
@@ -207,21 +220,29 @@ export async function calculateTokensLockedV3(
         liquidityGross: liqGross,
         liquidityNet: tick.liquidityNet,
       },
-    ]
+    ];
 
     // Initialize pool containing only the current range
-    const pool = new PoolV3(token0, token1, Number(feeTier), sqrtPriceX96, tick.liquidityActive, tick.tick, mockTicks)
+    const pool = new PoolV3(
+      token0,
+      token1,
+      Number(feeTier),
+      sqrtPriceX96,
+      tick.liquidityActive,
+      tick.tick,
+      mockTicks
+    );
 
     // Calculate token amounts that would need to be swapped to reach the next range
-    const nextSqrtX96 = TickMathV3.getSqrtRatioAtTick(tick.tick - tickSpacing)
-    const maxAmountToken0 = CurrencyAmount.fromRawAmount(token0, MAX_UINT128.toString())
-    const token1Amount = (await pool.getOutputAmount(maxAmountToken0, nextSqrtX96))[0]
-    const amount0Locked = parseFloat(tick.sdkPrice.invert().quote(token1Amount).toExact())
-    const amount1Locked = parseFloat(token1Amount.toExact())
+    const nextSqrtX96 = TickMathV3.getSqrtRatioAtTick(tick.tick - tickSpacing);
+    const maxAmountToken0 = CurrencyAmount.fromRawAmount(token0, MAX_UINT128.toString());
+    const token1Amount = (await pool.getOutputAmount(maxAmountToken0, nextSqrtX96))[0];
+    const amount0Locked = parseFloat(tick.sdkPrice.invert().quote(token1Amount).toExact());
+    const amount1Locked = parseFloat(token1Amount.toExact());
 
-    return { amount0Locked, amount1Locked }
+    return { amount0Locked, amount1Locked };
   } catch {
-    return { amount0Locked: 0, amount1Locked: 0 }
+    return { amount0Locked: 0, amount1Locked: 0 };
   }
 }
 
@@ -232,14 +253,14 @@ export async function calculateTokensLockedV4(
   feeTier: FeeAmount,
   tickSpacing: number,
   hooks: string,
-  tick: TickProcessed,
+  tick: TickProcessed
 ): Promise<{ amount0Locked: number; amount1Locked: number }> {
   try {
     const liqGross = JSBI.greaterThan(tick.liquidityNet, JSBI.BigInt(0))
       ? tick.liquidityNet
-      : JSBI.multiply(tick.liquidityNet, JSBI.BigInt('-1'))
+      : JSBI.multiply(tick.liquidityNet, JSBI.BigInt('-1'));
 
-    const sqrtPriceX96 = TickMathV3.getSqrtRatioAtTick(tick.tick)
+    const sqrtPriceX96 = TickMathV3.getSqrtRatioAtTick(tick.tick);
     const mockTicks = [
       {
         index: tick.tick,
@@ -251,7 +272,7 @@ export async function calculateTokensLockedV4(
         liquidityGross: liqGross,
         liquidityNet: tick.liquidityNet,
       },
-    ]
+    ];
 
     // Initialize pool containing only the current range
     const pool = new PoolV4(
@@ -263,19 +284,19 @@ export async function calculateTokensLockedV4(
       sqrtPriceX96,
       tick.liquidityActive,
       tick.tick,
-      mockTicks,
-    )
+      mockTicks
+    );
 
     // Calculate token amounts that would need to be swapped to reach the next range
-    const nextSqrtX96 = TickMathV3.getSqrtRatioAtTick(tick.tick - tickSpacing)
-    const maxAmountToken0 = CurrencyAmount.fromRawAmount(token0, MAX_UINT128.toString())
-    const token1Amount = (await pool.getOutputAmount(maxAmountToken0, nextSqrtX96))[0]
-    const amount0Locked = parseFloat(tick.sdkPrice.invert().quote(token1Amount).toExact())
-    const amount1Locked = parseFloat(token1Amount.toExact())
+    const nextSqrtX96 = TickMathV3.getSqrtRatioAtTick(tick.tick - tickSpacing);
+    const maxAmountToken0 = CurrencyAmount.fromRawAmount(token0, MAX_UINT128.toString());
+    const token1Amount = (await pool.getOutputAmount(maxAmountToken0, nextSqrtX96))[0];
+    const amount0Locked = parseFloat(tick.sdkPrice.invert().quote(token1Amount).toExact());
+    const amount1Locked = parseFloat(token1Amount.toExact());
 
-    return { amount0Locked, amount1Locked }
+    return { amount0Locked, amount1Locked };
   } catch {
-    return { amount0Locked: 0, amount1Locked: 0 }
+    return { amount0Locked: 0, amount1Locked: 0 };
   }
 }
 
@@ -290,22 +311,22 @@ export function useLiquidityBarData({
   hooks,
   poolId,
 }: {
-  currencyA: Currency
-  currencyB: Currency
-  feeTier: FeeAmount
-  isReversed: boolean
-  chainId: UniverseChainId
-  version: ProtocolVersion
-  tickSpacing?: number
-  hooks?: string
-  poolId?: string
+  currencyA: Currency;
+  currencyB: Currency;
+  feeTier: FeeAmount;
+  isReversed: boolean;
+  chainId: UniverseChainId;
+  version: ProtocolVersion;
+  tickSpacing?: number;
+  hooks?: string;
+  poolId?: string;
 }) {
-  const { formatNumber, formatPrice } = useFormatter()
+  const { formatNumber, formatPrice } = useFormatter();
 
   // Determine the correct tokens to use based on the protocol version
   // V3 requires tokens, V4 can handle native or tokens
-  const tokenAWrapped = currencyA.wrapped
-  const tokenBWrapped = currencyB.wrapped
+  const tokenAWrapped = currencyA.wrapped;
+  const tokenBWrapped = currencyB.wrapped;
 
   const activePoolData = usePoolActiveLiquidity({
     currencyA,
@@ -316,44 +337,46 @@ export function useLiquidityBarData({
     chainId,
     tickSpacing: tickSpacing ?? TICK_SPACINGS[feeTier],
     hooks,
-  })
+  });
 
   const [tickData, setTickData] = useState<{
-    barData: LiquidityBarData[]
-    activeRangeData?: LiquidityBarData
-    activeRangePercentage?: number
-  }>()
+    barData: LiquidityBarData[];
+    activeRangeData?: LiquidityBarData;
+    activeRangePercentage?: number;
+  }>();
 
   useEffect(() => {
     async function formatData() {
-      const ticksProcessed = activePoolData.data
+      const ticksProcessed = activePoolData.data;
       if (!ticksProcessed) {
-        return
+        return;
       }
 
-      let activeRangePercentage: number | undefined = undefined
-      let activeRangeIndex: number | undefined = undefined
+      let activeRangePercentage: number | undefined = undefined;
+      let activeRangeIndex: number | undefined = undefined;
 
-      const barData: LiquidityBarData[] = []
+      const barData: LiquidityBarData[] = [];
       for (let index = 0; index < ticksProcessed.length; index++) {
-        const t = ticksProcessed[index]
+        const t = ticksProcessed[index];
 
         // Lightweight-charts require the x-axis to be time; a fake time base on index is provided
-        const fakeTime = (isReversed ? index * 1000 : (ticksProcessed.length - index) * 1000) as UTCTimestamp
-        const isActive = activePoolData.activeTick === t.tick
+        const fakeTime = (
+          isReversed ? index * 1000 : (ticksProcessed.length - index) * 1000
+        ) as UTCTimestamp;
+        const isActive = activePoolData.activeTick === t.tick;
 
-        let price0 = t.sdkPrice
-        let price1 = t.sdkPrice.invert()
+        let price0 = t.sdkPrice;
+        let price1 = t.sdkPrice.invert();
 
         if (isActive && activePoolData.activeTick && activePoolData.currentTick) {
-          activeRangeIndex = index
-          activeRangePercentage = (activePoolData.currentTick - t.tick) / TICK_SPACINGS[feeTier]
+          activeRangeIndex = index;
+          activeRangePercentage = (activePoolData.currentTick - t.tick) / TICK_SPACINGS[feeTier];
 
           price0 =
             version === ProtocolVersion.V3
               ? tickToPrice(tokenAWrapped, tokenBWrapped, t.tick)
-              : tickToPriceV4(currencyA, currencyB, t.tick)
-          price1 = price0.invert()
+              : tickToPriceV4(currencyA, currencyB, t.tick);
+          price1 = price0.invert();
         }
 
         const { amount0Locked, amount1Locked } = await (version === ProtocolVersion.V3
@@ -364,8 +387,8 @@ export function useLiquidityBarData({
               feeTier,
               tickSpacing ?? TICK_SPACINGS[feeTier],
               hooks ?? ZERO_ADDRESS,
-              t,
-            ))
+              t
+            ));
 
         barData.push({
           tick: t.tick,
@@ -375,18 +398,19 @@ export function useLiquidityBarData({
           time: fakeTime,
           amount0Locked,
           amount1Locked,
-        })
+        });
       }
 
       // offset the values to line off bars with TVL used to swap across bar
       barData?.map((entry, i) => {
         if (i > 0) {
-          barData[i - 1].amount0Locked = entry.amount0Locked
-          barData[i - 1].amount1Locked = entry.amount1Locked
+          barData[i - 1].amount0Locked = entry.amount0Locked;
+          barData[i - 1].amount1Locked = entry.amount1Locked;
         }
-      })
+      });
 
-      const activeRangeData = activeRangeIndex !== undefined ? barData[activeRangeIndex] : undefined
+      const activeRangeData =
+        activeRangeIndex !== undefined ? barData[activeRangeIndex] : undefined;
       // For active range, adjust amounts locked to adjust for where current tick/price is within the range
       if (activeRangeIndex !== undefined && activeRangeData) {
         const activeTickTvl = await calculateActiveRangeTokensLocked(
@@ -394,21 +418,25 @@ export function useLiquidityBarData({
           tokenBWrapped,
           feeTier,
           ticksProcessed[activeRangeIndex],
-          activePoolData,
-        )
-        barData[activeRangeIndex] = { ...activeRangeData, ...activeTickTvl }
+          activePoolData
+        );
+        barData[activeRangeIndex] = { ...activeRangeData, ...activeTickTvl };
       }
 
       // Reverse data so that token0 is on the left by default
       if (!isReversed) {
-        barData.reverse()
+        barData.reverse();
       }
 
       // TODO(WEB-3672): investigate why negative/inaccurate liquidity values that are appearing from computeSurroundingTicks
-      setTickData({ barData: barData.filter((t) => t.liquidity > 0), activeRangeData, activeRangePercentage })
+      setTickData({
+        barData: barData.filter(t => t.liquidity > 0),
+        activeRangeData,
+        activeRangePercentage,
+      });
     }
 
-    formatData()
+    formatData();
   }, [
     activePoolData,
     currencyA,
@@ -422,7 +450,11 @@ export function useLiquidityBarData({
     version,
     tickSpacing,
     hooks,
-  ])
+  ]);
 
-  return { tickData, activeTick: activePoolData.activeTick, loading: activePoolData.isLoading || !tickData }
+  return {
+    tickData,
+    activeTick: activePoolData.activeTick,
+    loading: activePoolData.isLoading || !tickData,
+  };
 }

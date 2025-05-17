@@ -1,12 +1,20 @@
-import { useState } from 'react'
-import { Image } from 'react-native'
-import { PlainImageProps } from 'ui/src/components/UniversalImage/types'
+import { useState } from 'react';
+import { Image } from 'react-native';
+import { PlainImageProps } from 'ui/src/components/UniversalImage/types';
 
-export function PlainImage({ uri, size, fallback, resizeMode, style, testID, onLoad }: PlainImageProps): JSX.Element {
-  const [hasError, setHasError] = useState(false)
+export function PlainImage({
+  uri,
+  size,
+  fallback,
+  resizeMode,
+  style,
+  testID,
+  onLoad,
+}: PlainImageProps): JSX.Element {
+  const [hasError, setHasError] = useState(false);
 
   if (hasError && fallback) {
-    return fallback
+    return fallback;
   }
 
   return (
@@ -18,9 +26,9 @@ export function PlainImage({ uri, size, fallback, resizeMode, style, testID, onL
       testID={testID}
       width={size.width}
       onError={() => {
-        setHasError(true)
+        setHasError(true);
       }}
       onLoad={onLoad}
     />
-  )
+  );
 }

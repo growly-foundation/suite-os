@@ -1,26 +1,27 @@
-import { useNavigate } from 'react-router-dom'
-import { Flex, FlexProps, Text } from 'ui/src'
+import { useNavigate } from 'react-router-dom';
+import { Flex, FlexProps, Text } from 'ui/src';
 
 type ValuePropCardProps = FlexProps & {
-  smaller?: boolean
-  children?: React.ReactNode
-  button?: React.ReactNode
-  titleText?: string
-  alignTextToBottom?: boolean
-  href?: string
-  to?: string
-  color?: string
-}
+  smaller?: boolean;
+  children?: React.ReactNode;
+  button?: React.ReactNode;
+  titleText?: string;
+  alignTextToBottom?: boolean;
+  href?: string;
+  to?: string;
+  color?: string;
+};
 
 export default function ValuePropCard(props: ValuePropCardProps) {
-  const { color, alignTextToBottom, href, to, button, children, titleText, smaller, ...rest } = props
-  const navigate = useNavigate()
+  const { color, alignTextToBottom, href, to, button, children, titleText, smaller, ...rest } =
+    props;
+  const navigate = useNavigate();
 
   const handleClick = () => {
     if (to) {
-      navigate(to)
+      navigate(to);
     }
-  }
+  };
 
   return (
     <Flex
@@ -64,8 +65,7 @@ export default function ValuePropCard(props: ValuePropCardProps) {
           height: 'auto',
         },
       })}
-      {...rest}
-    >
+      {...rest}>
       <Flex
         width="100%"
         height="100%"
@@ -77,8 +77,7 @@ export default function ValuePropCard(props: ValuePropCardProps) {
         justifyContent={alignTextToBottom ? 'space-between' : 'flex-start'}
         $xs={{
           p: 20,
-        }}
-      >
+        }}>
         {button}
         <Text
           className="text-wrap-pretty"
@@ -97,12 +96,11 @@ export default function ValuePropCard(props: ValuePropCardProps) {
           $md={{
             fontSize: 24,
             lineHeight: 32,
-          }}
-        >
+          }}>
           {titleText}
         </Text>
       </Flex>
       {children}
     </Flex>
-  )
+  );
 }

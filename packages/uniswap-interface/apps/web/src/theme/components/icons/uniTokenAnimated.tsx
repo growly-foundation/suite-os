@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import styled, { keyframes } from 'styled-components'
+import styled, { keyframes } from 'styled-components';
 
 const rotateImg = keyframes`
   0% {
@@ -9,10 +9,10 @@ const rotateImg = keyframes`
   100% {
     transform: perspective(1000px) rotateY(360deg);
   }
-`
+`;
 
 export const UniTokenAnimated = styled.img`
   animation: ${rotateImg} 5s cubic-bezier(0.83, 0, 0.17, 1) infinite;
   padding: 2rem 0 0 0;
   filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.15));
-`
+`;

@@ -1,29 +1,29 @@
-import { ReactElement, useMemo, useState } from 'react'
+import { ReactElement, useMemo, useState } from 'react';
 import {
   AnimatePresence,
   GetThemeValueForKey,
   Checkbox as TamaguiCheckbox,
   CheckboxProps as TamaguiCheckboxPops,
   getTokenValue,
-} from 'tamagui'
-import { Check } from 'ui/src/components/icons'
-import { Flex, FlexProps } from 'ui/src/components/layout'
-import { SporeComponentVariant } from 'ui/src/components/types'
-import { IconSizeTokens } from 'ui/src/theme'
-import { isTestEnv } from 'utilities/src/environment/env'
-import { v4 as uuid } from 'uuid'
+} from 'tamagui';
+import { Check } from 'ui/src/components/icons';
+import { Flex, FlexProps } from 'ui/src/components/layout';
+import { SporeComponentVariant } from 'ui/src/components/types';
+import { IconSizeTokens } from 'ui/src/theme';
+import { isTestEnv } from 'utilities/src/environment/env';
+import { v4 as uuid } from 'uuid';
 
 type CheckboxSizes = {
-  FocusRing: number
-  CheckboxButton: number
-  CheckSizeDefault: number
-  CheckSizePressed: number
-  UnselectedHoverIndicator: number
-  UnselectedPressedIndicator: number
-}
+  FocusRing: number;
+  CheckboxButton: number;
+  CheckSizeDefault: number;
+  CheckSizePressed: number;
+  UnselectedHoverIndicator: number;
+  UnselectedPressedIndicator: number;
+};
 
 function getSizes(size?: IconSizeTokens): CheckboxSizes {
-  const buttonSize = size ? getTokenValue(size) : 20
+  const buttonSize = size ? getTokenValue(size) : 20;
   return {
     FocusRing: Math.round(buttonSize * 1.3),
     CheckboxButton: buttonSize, // Default 20
@@ -31,18 +31,20 @@ function getSizes(size?: IconSizeTokens): CheckboxSizes {
     CheckSizePressed: buttonSize - 2,
     UnselectedHoverIndicator: Math.round(buttonSize * 0.2),
     UnselectedPressedIndicator: Math.round(buttonSize * 0.3),
-  }
+  };
 }
 
-export type CheckboxSizeTokens = '$icon.16' | '$icon.18' | '$icon.20'
+export type CheckboxSizeTokens = '$icon.16' | '$icon.18' | '$icon.20';
 
 type CheckboxProps = {
-  variant?: SporeComponentVariant
-  checked: boolean
-  size?: CheckboxSizeTokens
-} & Omit<TamaguiCheckboxPops, 'size'>
+  variant?: SporeComponentVariant;
+  checked: boolean;
+  size?: CheckboxSizeTokens;
+} & Omit<TamaguiCheckboxPops, 'size'>;
 
-const animationProp = isTestEnv() ? undefined : ({ animation: 'simple' } satisfies FlexProps['animation'])
+const animationProp = isTestEnv()
+  ? undefined
+  : ({ animation: 'simple' } satisfies FlexProps['animation']);
 
 /**
  * Spore Checkbox
@@ -52,13 +54,18 @@ const animationProp = isTestEnv() ? undefined : ({ animation: 'simple' } satisfi
  * @param size - determines size of the checkbox - currently supports $icon.16 $icon.18 $icon.20
  * @returns
  */
-export function Checkbox({ checked, variant = 'default', size = '$icon.20', ...rest }: CheckboxProps): ReactElement {
-  const [isHovered, setIsHovered] = useState(false)
-  const [isFocused, setIsFocused] = useState(false)
-  const [isPressed, setIsPressed] = useState(false)
+export function Checkbox({
+  checked,
+  variant = 'default',
+  size = '$icon.20',
+  ...rest
+}: CheckboxProps): ReactElement {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
 
-  const accentColor = getAccentColor(variant, isHovered)
-  const sizes = useMemo(() => getSizes(size), [size])
+  const accentColor = getAccentColor(variant, isHovered);
+  const sizes = useMemo(() => getSizes(size), [size]);
 
   return (
     // This outer ring is only shown when the button is focused.
@@ -71,8 +78,7 @@ export function Checkbox({ checked, variant = 'default', size = '$icon.20', ...r
       height={sizes.FocusRing}
       justifyContent="center"
       width={sizes.FocusRing}
-      testID={rest.testID}
-    >
+      testID={rest.testID}>
       <TamaguiCheckbox
         {...rest}
         unstyled
@@ -99,8 +105,7 @@ export function Checkbox({ checked, variant = 'default', size = '$icon.20', ...r
         onMouseDown={() => setIsPressed(true)}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        onMouseUp={() => setIsPressed(false)}
-      >
+        onMouseUp={() => setIsPressed(false)}>
         {/* TamaguiCheckbox.Indicator is a container around the inner checkmark icon which is shown when the item is selected. */}
         <TamaguiCheckbox.Indicator
           unstyled
@@ -109,8 +114,7 @@ export function Checkbox({ checked, variant = 'default', size = '$icon.20', ...r
           backgroundColor={rest.disabled ? '$neutral3' : accentColor}
           height={sizes.CheckSizePressed}
           justifyContent="center"
-          width={sizes.CheckSizePressed}
-        >
+          width={sizes.CheckSizePressed}>
           <Check
             color={rest.disabled ? '$neutral2' : variant === 'branded' ? 'white' : '$surface1'}
             size={isPressed ? sizes.CheckSizePressed : sizes.CheckSizeDefault}
@@ -127,36 +131,43 @@ export function Checkbox({ checked, variant = 'default', size = '$icon.20', ...r
                 borderRadius="$roundedFull"
                 enterStyle={{ scale: 0 }}
                 exitStyle={{ scale: 0 }}
-                height={isPressed ? sizes.UnselectedPressedIndicator : sizes.UnselectedHoverIndicator}
+                height={
+                  isPressed ? sizes.UnselectedPressedIndicator : sizes.UnselectedHoverIndicator
+                }
                 position="absolute"
-                width={isPressed ? sizes.UnselectedPressedIndicator : sizes.UnselectedHoverIndicator}
+                width={
+                  isPressed ? sizes.UnselectedPressedIndicator : sizes.UnselectedHoverIndicator
+                }
               />
             )}
           </AnimatePresence>
         )}
       </TamaguiCheckbox>
     </Flex>
-  )
+  );
 }
 
-function getAccentColor(variant: SporeComponentVariant, isHovered: boolean): GetThemeValueForKey<'backgroundColor'> {
+function getAccentColor(
+  variant: SporeComponentVariant,
+  isHovered: boolean
+): GetThemeValueForKey<'backgroundColor'> {
   if (variant === 'branded') {
-    return isHovered ? '$accent1Hovered' : '$accent1'
+    return isHovered ? '$accent1Hovered' : '$accent1';
   }
-  return isHovered ? '$accent3Hovered' : '$accent3'
+  return isHovered ? '$accent3Hovered' : '$accent3';
 }
 
 function getFocusedRingColor(
   variant: SporeComponentVariant,
   isFocused: boolean,
   isSelected: boolean,
-  accentColor: GetThemeValueForKey<'backgroundColor'>,
+  accentColor: GetThemeValueForKey<'backgroundColor'>
 ): GetThemeValueForKey<'borderColor'> {
   if (!isFocused) {
-    return 'transparent'
+    return 'transparent';
   }
   if (variant === 'branded') {
-    return isSelected ? accentColor : '$neutral3'
+    return isSelected ? accentColor : '$neutral3';
   }
-  return '$neutral3'
+  return '$neutral3';
 }

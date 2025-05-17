@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import { useTheme } from 'next-themes';
 
-interface FrostedGlassIconProps {
+interface FrostedGlassIconDefiProps {
   icon: ReactNode;
   color?: string;
   size?: 'sm' | 'md' | 'lg';
@@ -15,7 +15,7 @@ export default function FrostedGlassIcon({
   color = 'rgba(36, 101, 237, 0.8)',
   size = 'md',
   className = '',
-}: FrostedGlassIconProps) {
+}: FrostedGlassIconDefiProps) {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
 

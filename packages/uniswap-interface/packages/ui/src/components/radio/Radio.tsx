@@ -1,12 +1,18 @@
-import { PropsWithChildren, ReactElement, createContext, useContext, useState } from 'react'
-import { AnimatePresence, GetThemeValueForKey, RadioGroup, RadioGroupItemProps, RadioGroupProps } from 'tamagui'
-import { Flex } from 'ui/src/components/layout'
-import { SporeComponentVariant } from 'ui/src/components/types'
+import { PropsWithChildren, ReactElement, createContext, useContext, useState } from 'react';
+import {
+  AnimatePresence,
+  GetThemeValueForKey,
+  RadioGroup,
+  RadioGroupItemProps,
+  RadioGroupProps,
+} from 'tamagui';
+import { Flex } from 'ui/src/components/layout';
+import { SporeComponentVariant } from 'ui/src/components/types';
 
 // Used to pass the selected value of the RadioGroup down to the RadioButtons.
-const RadioButtonGroupContext = createContext<string | undefined>(undefined)
+const RadioButtonGroupContext = createContext<string | undefined>(undefined);
 
-type RadioButtonGroupProps = PropsWithChildren<RadioGroupProps>
+type RadioButtonGroupProps = PropsWithChildren<RadioGroupProps>;
 
 /**
  * The container for RadioButtons that handles the state of the selected button.
@@ -14,21 +20,20 @@ type RadioButtonGroupProps = PropsWithChildren<RadioGroupProps>
  * @param orientation - the direction in which the radio buttons are laid out
  */
 export function RadioButtonGroup(props: RadioButtonGroupProps): ReactElement {
-  const [selectedValue, setSelectedValue] = useState<string | undefined>(props.defaultValue)
+  const [selectedValue, setSelectedValue] = useState<string | undefined>(props.defaultValue);
   return (
     <RadioButtonGroupContext.Provider value={selectedValue}>
       <RadioGroup
         {...props}
         flexDirection={props.orientation === 'horizontal' ? 'row' : 'column'}
-        onValueChange={(selected) => {
-          props.onValueChange?.(selected)
-          setSelectedValue(selected)
-        }}
-      >
+        onValueChange={selected => {
+          props.onValueChange?.(selected);
+          setSelectedValue(selected);
+        }}>
         {props.children}
       </RadioGroup>
     </RadioButtonGroupContext.Provider>
-  )
+  );
 }
 
 const sizes = {
@@ -39,11 +44,11 @@ const sizes = {
   IndicatorSizePressed: 14,
   UnselectedHoverIndicator: 4,
   UnselectedPressedIndicator: 6,
-}
+};
 
 type RadioButtonProps = {
-  variant?: SporeComponentVariant
-} & RadioGroupItemProps
+  variant?: SporeComponentVariant;
+} & RadioGroupItemProps;
 
 /**
  * Spore Radio Button
@@ -65,23 +70,29 @@ type RadioButtonProps = {
  * @param variant - determines the color of the button in the selected state (branded is pink)
  * @returns
  */
-export function RadioButton({ value, variant = 'default', ...rest }: RadioButtonProps): ReactElement {
-  const id = `radiogroup-${value}`
+export function RadioButton({
+  value,
+  variant = 'default',
+  ...rest
+}: RadioButtonProps): ReactElement {
+  const id = `radiogroup-${value}`;
 
-  const selectedValue = useContext(RadioButtonGroupContext)
-  const isSelected = selectedValue === value
-  const [isHovered, setIsHovered] = useState(false)
-  const [isFocused, setIsFocused] = useState(false)
-  const [isPressed, setIsPressed] = useState(false)
+  const selectedValue = useContext(RadioButtonGroupContext);
+  const isSelected = selectedValue === value;
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
 
-  const accentColor = getAccentColor(variant, isHovered)
+  const accentColor = getAccentColor(variant, isHovered);
 
   const indicatorSize = isPressed
     ? sizes.IndicatorSizePressed
     : isHovered
       ? sizes.IndicatorSizeHovered
-      : sizes.IndicatorSizeDefault
-  const unselectedHoverIndicatorSize = isPressed ? sizes.UnselectedPressedIndicator : sizes.UnselectedHoverIndicator
+      : sizes.IndicatorSizeDefault;
+  const unselectedHoverIndicatorSize = isPressed
+    ? sizes.UnselectedPressedIndicator
+    : sizes.UnselectedHoverIndicator;
 
   // RadioGroup.Item is the outer container of the button.
   return (
@@ -111,8 +122,7 @@ export function RadioButton({ value, variant = 'default', ...rest }: RadioButton
       onMouseDown={() => setIsPressed(true)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onMouseUp={() => setIsPressed(false)}
-    >
+      onMouseUp={() => setIsPressed(false)}>
       {/* RadioGroup.Indicator is the inner dot which is shown when the item is selected. */}
       <RadioGroup.Indicator
         unstyled
@@ -153,27 +163,30 @@ export function RadioButton({ value, variant = 'default', ...rest }: RadioButton
         width={sizes.FocusRing}
       />
     </RadioGroup.Item>
-  )
+  );
 }
 
-function getAccentColor(variant: SporeComponentVariant, isHovered: boolean): GetThemeValueForKey<'backgroundColor'> {
+function getAccentColor(
+  variant: SporeComponentVariant,
+  isHovered: boolean
+): GetThemeValueForKey<'backgroundColor'> {
   if (variant === 'branded') {
-    return isHovered ? '$accent1Hovered' : '$accent1'
+    return isHovered ? '$accent1Hovered' : '$accent1';
   }
-  return isHovered ? '$accent3Hovered' : '$accent3'
+  return isHovered ? '$accent3Hovered' : '$accent3';
 }
 
 function getFocusedRingColor(
   variant: SporeComponentVariant,
   isFocused: boolean,
   isSelected: boolean,
-  accentColor: GetThemeValueForKey<'backgroundColor'>,
+  accentColor: GetThemeValueForKey<'backgroundColor'>
 ): GetThemeValueForKey<'borderColor'> {
   if (!isFocused) {
-    return 'transparent'
+    return 'transparent';
   }
   if (variant === 'branded') {
-    return isSelected ? accentColor : '$neutral3'
+    return isSelected ? accentColor : '$neutral3';
   }
-  return '$neutral3'
+  return '$neutral3';
 }

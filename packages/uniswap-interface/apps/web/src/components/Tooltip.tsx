@@ -1,9 +1,17 @@
-import Popover, { PopoverProps } from 'components/Popover'
-import styled from 'lib/styled-components'
-import { transparentize } from 'polished'
-import { Fragment, PropsWithChildren, ReactNode, memo, useCallback, useEffect, useState } from 'react'
-import { Flex } from 'ui/src'
-import noop from 'utilities/src/react/noop'
+import Popover, { PopoverProps } from 'components/Popover';
+import styled from 'lib/styled-components';
+import { transparentize } from 'polished';
+import {
+  Fragment,
+  PropsWithChildren,
+  ReactNode,
+  memo,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
+import { Flex } from 'ui/src';
+import noop from 'utilities/src/react/noop';
 
 export enum TooltipSize {
   ExtraSmall = '200px',
@@ -17,19 +25,20 @@ const getPaddingForSize = (size: TooltipSize) => {
   switch (size) {
     case TooltipSize.ExtraSmall:
     case TooltipSize.Max:
-      return '8px'
+      return '8px';
     case TooltipSize.Small:
-      return '12px'
+      return '12px';
     case TooltipSize.Large:
-      return '16px 20px'
+      return '16px 20px';
   }
-}
+};
 
 const TooltipContainer = styled.div<{ size: TooltipSize; padding?: number }>`
   max-width: ${({ size }) => size};
   width: ${({ size }) => (size === TooltipSize.Max ? 'auto' : `calc(100vw - 16px)`)};
   cursor: default;
-  padding: ${({ size, padding }) => (padding !== undefined ? `${padding}px` : getPaddingForSize(size))};
+  padding: ${({ size, padding }) =>
+    padding !== undefined ? `${padding}px` : getPaddingForSize(size)};
   pointer-events: auto;
 
   color: ${({ theme }) => theme.neutral1};
@@ -44,44 +53,44 @@ const TooltipContainer = styled.div<{ size: TooltipSize; padding?: number }>`
   box-shadow:
     0px 6px 12px -3px ${({ theme }) => transparentize(0.95, theme.shadow1)},
     0px 2px 5px -2px ${({ theme }) => transparentize(0.97, theme.shadow1)};
-`
+`;
 
 type MouseoverTooltipProps = Omit<PopoverProps, 'content' | 'show'> &
   PropsWithChildren<{
-    text: ReactNode
-    size?: TooltipSize
-    disabled?: boolean
-    timeout?: number
-    placement?: PopoverProps['placement']
-    onOpen?: () => void
-    forceShow?: boolean
-    padding?: number
-  }>
+    text: ReactNode;
+    size?: TooltipSize;
+    disabled?: boolean;
+    timeout?: number;
+    placement?: PopoverProps['placement'];
+    onOpen?: () => void;
+    forceShow?: boolean;
+    padding?: number;
+  }>;
 
 export const MouseoverTooltip = memo(function MouseoverTooltip(props: MouseoverTooltipProps) {
-  const { text, disabled, children, onOpen, forceShow, timeout, padding, ...rest } = props
-  const [show, setShow] = useState(false)
+  const { text, disabled, children, onOpen, forceShow, timeout, padding, ...rest } = props;
+  const [show, setShow] = useState(false);
   const open = () => {
-    setShow(true)
-    onOpen?.()
-  }
-  const close = () => setShow(false)
+    setShow(true);
+    onOpen?.();
+  };
+  const close = () => setShow(false);
 
   useEffect(() => {
     if (show && timeout) {
       const tooltipTimer = setTimeout(() => {
-        setShow(false)
-      }, timeout)
+        setShow(false);
+      }, timeout);
 
       return () => {
-        clearTimeout(tooltipTimer)
-      }
+        clearTimeout(tooltipTimer);
+      };
     }
-    return undefined
-  }, [timeout, show])
+    return undefined;
+  }, [timeout, show]);
 
   if (disabled) {
-    return <Fragment>{children}</Fragment>
+    return <Fragment>{children}</Fragment>;
   }
 
   return (
@@ -92,53 +101,51 @@ export const MouseoverTooltip = memo(function MouseoverTooltip(props: MouseoverT
             padding={padding}
             size={props.size ?? TooltipSize.Small}
             onMouseEnter={disabled ? noop : open}
-            onMouseLeave={disabled ? noop : close}
-          >
+            onMouseLeave={disabled ? noop : close}>
             {text}
           </TooltipContainer>
         )
       }
       show={forceShow || show}
-      {...rest}
-    >
+      {...rest}>
       <Flex onMouseEnter={disabled ? noop : open} onMouseLeave={disabled || timeout ? noop : close}>
         {children}
       </Flex>
     </Popover>
-  )
-})
+  );
+});
 
 const CursorFollowerContainer = styled.div`
   position: fixed;
   pointer-events: none;
   transform: translate(-50%, -50%);
-`
+`;
 
-type MouseFollowTooltipProps = Omit<MouseoverTooltipProps, 'timeout'>
+type MouseFollowTooltipProps = Omit<MouseoverTooltipProps, 'timeout'>;
 
 export function MouseFollowTooltip(props: MouseFollowTooltipProps) {
   const [position, setPosition] = useState<{ x?: number; y?: number }>({
     x: undefined,
     y: undefined,
-  })
-  const { text, disabled, children, onOpen, forceShow, ...rest } = props
-  const [show, setShow] = useState(false)
+  });
+  const { text, disabled, children, onOpen, forceShow, ...rest } = props;
+  const [show, setShow] = useState(false);
   const open = () => {
-    setShow(true)
-    onOpen?.()
-  }
-  const close = () => setShow(false)
+    setShow(true);
+    onOpen?.();
+  };
+  const close = () => setShow(false);
 
   const handleMouseMove = useCallback((event: MouseEvent) => {
-    setPosition({ x: event.clientX, y: event.clientY })
-  }, [])
+    setPosition({ x: event.clientX, y: event.clientY });
+  }, []);
 
   useEffect(() => {
     if (show && !disabled) {
-      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mousemove', handleMouseMove);
     }
-    return () => document.removeEventListener('mousemove', handleMouseMove)
-  }, [disabled, handleMouseMove, show])
+    return () => document.removeEventListener('mousemove', handleMouseMove);
+  }, [disabled, handleMouseMove, show]);
 
   return (
     <>
@@ -146,13 +153,12 @@ export function MouseFollowTooltip(props: MouseFollowTooltipProps) {
         style={{
           left: position.x ? `${position.x}px` : undefined,
           top: position.y ? `${position.y + 16}px` : undefined,
-        }}
-      >
+        }}>
         <MouseoverTooltip {...rest} text={disabled ? null : text} forceShow={forceShow} />
       </CursorFollowerContainer>
       <Flex onMouseEnter={disabled ? noop : open} onMouseLeave={disabled ? noop : close}>
         {children}
       </Flex>
     </>
-  )
+  );
 }

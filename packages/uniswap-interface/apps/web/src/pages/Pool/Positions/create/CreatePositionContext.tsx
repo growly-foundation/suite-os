@@ -1,16 +1,16 @@
-import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb'
-import { Currency, CurrencyAmount } from '@uniswap/sdk-core'
-import { DepositContextType, DepositState } from 'components/Liquidity/types'
+import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb';
+import { Currency, CurrencyAmount } from '@uniswap/sdk-core';
+import { DepositContextType, DepositState } from 'components/Liquidity/types';
 import {
   CreatePositionContextType,
   DEFAULT_POSITION_STATE,
   PositionFlowStep,
   PriceRangeContextType,
   PriceRangeState,
-} from 'pages/Pool/Positions/create/types'
-import React, { useContext } from 'react'
-import { PositionField } from 'types/position'
-import { CreatePositionTxAndGasInfo } from 'uniswap/src/features/transactions/liquidity/types'
+} from 'pages/Pool/Positions/create/types';
+import React, { useContext } from 'react';
+import { PositionField } from 'types/position';
+import { CreatePositionTxAndGasInfo } from 'uniswap/src/features/transactions/liquidity/types';
 
 export const CreatePositionContext = React.createContext<CreatePositionContextType>({
   reset: () => undefined,
@@ -35,11 +35,11 @@ export const CreatePositionContext = React.createContext<CreatePositionContextTy
   setDynamicFeeTierSpeedbumpData: () => undefined,
   currentTransactionStep: undefined,
   setCurrentTransactionStep: () => undefined,
-})
+});
 
 export const useCreatePositionContext = () => {
-  return useContext(CreatePositionContext)
-}
+  return useContext(CreatePositionContext);
+};
 
 export const DEFAULT_PRICE_RANGE_STATE: PriceRangeState = {
   priceInverted: false,
@@ -47,7 +47,7 @@ export const DEFAULT_PRICE_RANGE_STATE: PriceRangeState = {
   minPrice: '',
   maxPrice: '',
   initialPrice: '',
-}
+};
 
 export const PriceRangeContext = React.createContext<PriceRangeContextType>({
   reset: () => undefined,
@@ -69,36 +69,36 @@ export const PriceRangeContext = React.createContext<PriceRangeContextType>({
     pricesAtLimit: [undefined, undefined],
     pricesAtTicks: [undefined, undefined],
   },
-})
+});
 
 export const usePriceRangeContext = () => {
-  return useContext(PriceRangeContext)
-}
+  return useContext(PriceRangeContext);
+};
 
 export const DEFAULT_DEPOSIT_STATE: DepositState = {
   exactField: PositionField.TOKEN0,
   exactAmounts: {},
-}
+};
 
 export const DepositContext = React.createContext<DepositContextType>({
   reset: () => undefined,
   depositState: DEFAULT_DEPOSIT_STATE,
   setDepositState: () => undefined,
   derivedDepositInfo: {},
-})
+});
 
 export const useDepositContext = () => {
-  return useContext(DepositContext)
-}
+  return useContext(DepositContext);
+};
 
 export const CreateTxContext = React.createContext<{
-  txInfo?: CreatePositionTxAndGasInfo
-  gasFeeEstimateUSD?: CurrencyAmount<Currency> | null
-  error: boolean | string
-  refetch?: () => void
-  dependentAmount?: string
-}>({ error: false })
+  txInfo?: CreatePositionTxAndGasInfo;
+  gasFeeEstimateUSD?: CurrencyAmount<Currency> | null;
+  error: boolean | string;
+  refetch?: () => void;
+  dependentAmount?: string;
+}>({ error: false });
 
 export const useCreateTxContext = () => {
-  return useContext(CreateTxContext)
-}
+  return useContext(CreateTxContext);
+};

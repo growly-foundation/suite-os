@@ -1,37 +1,40 @@
-import { InterfaceElementName } from '@uniswap/analytics-events'
-import { Currency } from '@uniswap/sdk-core'
-import { PortfolioLogo } from 'components/AccountDrawer/MiniPortfolio/PortfolioLogo'
-import { LoadingOpacityContainer } from 'components/Loader/styled'
-import { isInputGreaterThanDecimals } from 'components/NumericalInput'
-import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
-import { PrefetchBalancesWrapper } from 'graphql/data/apollo/AdaptiveTokenBalancesProvider'
+import { InterfaceElementName } from '@uniswap/analytics-events';
+import { Currency } from '@uniswap/sdk-core';
+import { PortfolioLogo } from 'components/AccountDrawer/MiniPortfolio/PortfolioLogo';
+import { LoadingOpacityContainer } from 'components/Loader/styled';
+import { isInputGreaterThanDecimals } from 'components/NumericalInput';
+import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal';
+import { PrefetchBalancesWrapper } from 'graphql/data/apollo/AdaptiveTokenBalancesProvider';
 import {
   NumericalInputMimic,
   NumericalInputSymbolContainer,
   NumericalInputWrapper,
   StyledNumericalInput,
-} from 'pages/Swap/common/shared'
-import { useCallback, useMemo, useState } from 'react'
-import { Trans } from 'react-i18next'
-import { useMultichainContext } from 'state/multichain/useMultichainContext'
-import { useSendContext } from 'state/send/SendContext'
-import { SendInputError } from 'state/send/hooks'
-import { CurrencyState } from 'state/swap/types'
-import { ThemedText } from 'theme/components'
-import { ClickableTamaguiStyle } from 'theme/components/styles'
-import { Button, Flex, Text, styled, type ButtonProps } from 'ui/src'
-import { ArrowUpDown } from 'ui/src/components/icons/ArrowUpDown'
-import { RotatableChevron } from 'ui/src/components/icons/RotatableChevron'
-import { getChainInfo } from 'uniswap/src/features/chains/chainInfo'
-import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains'
-import { useSupportedChainId } from 'uniswap/src/features/chains/hooks/useSupportedChainId'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { useAppFiatCurrency, useFiatCurrencyComponents } from 'uniswap/src/features/fiatCurrency/hooks'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { useUSDCValue } from 'uniswap/src/features/transactions/hooks/useUSDCPrice'
-import useResizeObserver from 'use-resize-observer'
-import { NumberType, useFormatter } from 'utils/formatNumbers'
-import { maxAmountSpend } from 'utils/maxAmountSpend'
+} from 'pages/Swap/common/shared';
+import { useCallback, useMemo, useState } from 'react';
+import { Trans } from 'react-i18next';
+import { useMultichainContext } from 'state/multichain/useMultichainContext';
+import { useSendContext } from 'state/send/SendContext';
+import { SendInputError } from 'state/send/hooks';
+import { CurrencyState } from 'state/swap/types';
+import { ThemedText } from 'theme/components';
+import { ClickableTamaguiStyle } from 'theme/components/styles';
+import { Button, Flex, Text, styled, type ButtonProps } from 'ui/src';
+import { ArrowUpDown } from 'ui/src/components/icons/ArrowUpDown';
+import { RotatableChevron } from 'ui/src/components/icons/RotatableChevron';
+import { getChainInfo } from 'uniswap/src/features/chains/chainInfo';
+import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains';
+import { useSupportedChainId } from 'uniswap/src/features/chains/hooks/useSupportedChainId';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import {
+  useAppFiatCurrency,
+  useFiatCurrencyComponents,
+} from 'uniswap/src/features/fiatCurrency/hooks';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { useUSDCValue } from 'uniswap/src/features/transactions/hooks/useUSDCPrice';
+import useResizeObserver from 'use-resize-observer';
+import { NumberType, useFormatter } from 'utils/formatNumbers';
+import { maxAmountSpend } from 'utils/maxAmountSpend';
 
 const Wrapper = styled(Flex, {
   opacity: 1,
@@ -45,7 +48,7 @@ const Wrapper = styled(Flex, {
       },
     },
   },
-})
+});
 
 const CurrencyInputWrapper = styled(Flex, {
   backgroundColor: '$surface2',
@@ -55,7 +58,7 @@ const CurrencyInputWrapper = styled(Flex, {
   height: '64px',
   justifyContent: 'center',
   position: 'relative',
-})
+});
 
 const InputWrapper = styled(Flex, {
   position: 'relative',
@@ -68,7 +71,7 @@ const InputWrapper = styled(Flex, {
   gap: '$gap4',
   borderTopLeftRadius: '$rounded16',
   borderTopRightRadius: '$rounded16',
-})
+});
 
 const ErrorContainer = styled(Flex, {
   position: 'absolute',
@@ -77,23 +80,29 @@ const ErrorContainer = styled(Flex, {
   alignItems: 'center',
   left: '0',
   bottom: '32px',
-})
+});
 
 const MaxButton = ({ onPress }: { onPress: ButtonProps['onPress'] }) => {
   return (
     <Button variant="branded" emphasis="secondary" size="xxsmall" onPress={onPress}>
       <Trans i18nKey="common.max" />
     </Button>
-  )
-}
+  );
+};
 
-const AlternateCurrencyDisplay = ({ disabled, onToggle }: { disabled: boolean; onToggle: () => void }) => {
-  const { formatConvertedFiatNumberOrString, formatNumberOrString } = useFormatter()
-  const activeCurrency = useAppFiatCurrency()
+const AlternateCurrencyDisplay = ({
+  disabled,
+  onToggle,
+}: {
+  disabled: boolean;
+  onToggle: () => void;
+}) => {
+  const { formatConvertedFiatNumberOrString, formatNumberOrString } = useFormatter();
+  const activeCurrency = useAppFiatCurrency();
 
-  const { sendState, derivedSendInfo } = useSendContext()
-  const { inputCurrency, inputInFiat } = sendState
-  const { exactAmountOut } = derivedSendInfo
+  const { sendState, derivedSendInfo } = useSendContext();
+  const { inputCurrency, inputInFiat } = sendState;
+  const { exactAmountOut } = derivedSendInfo;
 
   const formattedAmountOut = inputInFiat
     ? formatNumberOrString({
@@ -103,13 +112,13 @@ const AlternateCurrencyDisplay = ({ disabled, onToggle }: { disabled: boolean; o
     : formatConvertedFiatNumberOrString({
         input: exactAmountOut || '0',
         type: NumberType.PortfolioBalance,
-      })
+      });
 
-  const displayCurrency = inputInFiat ? inputCurrency?.symbol ?? '' : activeCurrency
-  const formattedAlternateCurrency = formattedAmountOut + ' ' + displayCurrency
+  const displayCurrency = inputInFiat ? (inputCurrency?.symbol ?? '') : activeCurrency;
+  const formattedAlternateCurrency = formattedAmountOut + ' ' + displayCurrency;
 
   if (!inputCurrency) {
-    return null
+    return null;
   }
 
   return (
@@ -120,28 +129,29 @@ const AlternateCurrencyDisplay = ({ disabled, onToggle }: { disabled: boolean; o
         justifyContent="center"
         gap="$gap4"
         onPress={disabled ? undefined : onToggle}
-        {...(!disabled ? ClickableTamaguiStyle : {})}
-      >
+        {...(!disabled ? ClickableTamaguiStyle : {})}>
         <ThemedText.BodySecondary fontSize="16px" lineHeight="24px" color="neutral3">
           {formattedAlternateCurrency}
         </ThemedText.BodySecondary>
         <ArrowUpDown color="$neutral3" size="$icon.16" />
       </Flex>
     </LoadingOpacityContainer>
-  )
-}
+  );
+};
 
 const InputErrorLookup = {
   [SendInputError.INSUFFICIENT_FUNDS]: <Trans i18nKey="common.insufficient.funds" />,
-  [SendInputError.INSUFFICIENT_FUNDS_FOR_GAS]: <Trans i18nKey="common.insufficientFundsForNetworkFee.error" />,
-}
+  [SendInputError.INSUFFICIENT_FUNDS_FOR_GAS]: (
+    <Trans i18nKey="common.insufficientFundsForNetworkFee.error" />
+  ),
+};
 
 const InputError = () => {
-  const { derivedSendInfo } = useSendContext()
-  const { inputError } = derivedSendInfo
+  const { derivedSendInfo } = useSendContext();
+  const { inputError } = derivedSendInfo;
 
   if (!inputError) {
-    return null
+    return null;
   }
 
   return (
@@ -150,66 +160,68 @@ const InputError = () => {
         {InputErrorLookup[inputError]}
       </Text>
     </ErrorContainer>
-  )
-}
+  );
+};
 
 export default function SendCurrencyInputForm({
   disabled = false,
   onCurrencyChange,
 }: {
-  disabled?: boolean
-  onCurrencyChange?: (selected: CurrencyState) => void
+  disabled?: boolean;
+  onCurrencyChange?: (selected: CurrencyState) => void;
 }) {
-  const { chainId } = useMultichainContext()
-  const { defaultChainId } = useEnabledChains()
-  const supportedChainId = useSupportedChainId(chainId)
-  const { isTestnetModeEnabled } = useEnabledChains()
-  const { formatCurrencyAmount } = useFormatter()
-  const appFiatCurrency = useAppFiatCurrency()
-  const { symbol: fiatSymbol } = useFiatCurrencyComponents(appFiatCurrency)
+  const { chainId } = useMultichainContext();
+  const { defaultChainId } = useEnabledChains();
+  const supportedChainId = useSupportedChainId(chainId);
+  const { isTestnetModeEnabled } = useEnabledChains();
+  const { formatCurrencyAmount } = useFormatter();
+  const appFiatCurrency = useAppFiatCurrency();
+  const { symbol: fiatSymbol } = useFiatCurrencyComponents(appFiatCurrency);
 
-  const { sendState, setSendState, derivedSendInfo } = useSendContext()
-  const { inputInFiat, exactAmountToken, exactAmountFiat, inputCurrency } = sendState
-  const { currencyBalance, exactAmountOut, parsedTokenAmount } = derivedSendInfo
-  const maxInputAmount = maxAmountSpend(currencyBalance)
-  const showMaxButton = Boolean(maxInputAmount?.greaterThan(0) && !parsedTokenAmount?.equalTo(maxInputAmount))
+  const { sendState, setSendState, derivedSendInfo } = useSendContext();
+  const { inputInFiat, exactAmountToken, exactAmountFiat, inputCurrency } = sendState;
+  const { currencyBalance, exactAmountOut, parsedTokenAmount } = derivedSendInfo;
+  const maxInputAmount = maxAmountSpend(currencyBalance);
+  const showMaxButton = Boolean(
+    maxInputAmount?.greaterThan(0) && !parsedTokenAmount?.equalTo(maxInputAmount)
+  );
 
-  const [tokenSelectorOpen, setTokenSelectorOpen] = useState(false)
+  const [tokenSelectorOpen, setTokenSelectorOpen] = useState(false);
   const fiatCurrency = useMemo(
     () => getChainInfo(supportedChainId ?? defaultChainId).spotPriceStablecoinAmount.currency,
-    [defaultChainId, supportedChainId],
-  )
-  const fiatCurrencyEqualsTransferCurrency = !!inputCurrency && fiatCurrency.equals(inputCurrency)
+    [defaultChainId, supportedChainId]
+  );
+  const fiatCurrencyEqualsTransferCurrency = !!inputCurrency && fiatCurrency.equals(inputCurrency);
 
   const formattedBalance = formatCurrencyAmount({
     amount: currencyBalance,
     type: NumberType.TokenNonTx,
-  })
+  });
 
-  const fiatBalanceValue = useUSDCValue(currencyBalance)
-  const displayValue = inputInFiat ? exactAmountFiat : exactAmountToken
-  const hiddenObserver = useResizeObserver<HTMLElement>()
+  const fiatBalanceValue = useUSDCValue(currencyBalance);
+  const displayValue = inputInFiat ? exactAmountFiat : exactAmountToken;
+  const hiddenObserver = useResizeObserver<HTMLElement>();
 
   const handleUserInput = useCallback(
     (newValue: string) => {
-      setSendState((prev) => ({
+      setSendState(prev => ({
         ...prev,
         [inputInFiat ? 'exactAmountFiat' : 'exactAmountToken']: newValue,
-      }))
+      }));
     },
-    [inputInFiat, setSendState],
-  )
+    [inputInFiat, setSendState]
+  );
 
   const handleSelectCurrency = useCallback(
     (currency: Currency) => {
-      onCurrencyChange?.({ inputCurrency: currency, outputCurrency: undefined })
+      onCurrencyChange?.({ inputCurrency: currency, outputCurrency: undefined });
 
       if (fiatCurrency.equals(currency)) {
-        setSendState((prev) => {
-          let updatedExactAmountToken = exactAmountToken ?? exactAmountFiat
-          const maxDecimals = inputInFiat ? 6 : currency.decimals
+        setSendState(prev => {
+          let updatedExactAmountToken = exactAmountToken ?? exactAmountFiat;
+          const maxDecimals = inputInFiat ? 6 : currency.decimals;
           if (isInputGreaterThanDecimals(updatedExactAmountToken, maxDecimals)) {
-            updatedExactAmountToken = parseFloat(updatedExactAmountToken).toFixed(maxDecimals)
+            updatedExactAmountToken = parseFloat(updatedExactAmountToken).toFixed(maxDecimals);
           }
           return {
             ...prev,
@@ -217,52 +229,52 @@ export default function SendCurrencyInputForm({
             exactAmountFiat: undefined,
             inputInFiat: false,
             inputCurrency: currency,
-          }
-        })
-        return
+          };
+        });
+        return;
       }
 
-      setSendState((prev) => ({
+      setSendState(prev => ({
         ...prev,
         inputCurrency: currency,
-      }))
+      }));
     },
-    [exactAmountFiat, exactAmountToken, fiatCurrency, inputInFiat, onCurrencyChange, setSendState],
-  )
+    [exactAmountFiat, exactAmountToken, fiatCurrency, inputInFiat, onCurrencyChange, setSendState]
+  );
 
   const toggleFiatInputAmountEnabled = useCallback(() => {
     if (inputInFiat) {
-      setSendState((prev) => ({
+      setSendState(prev => ({
         ...prev,
         exactAmountToken: exactAmountOut ?? '',
         exactAmountFiat: undefined,
         inputInFiat: false,
-      }))
+      }));
     } else {
-      setSendState((prev) => ({
+      setSendState(prev => ({
         ...prev,
         exactAmountToken: undefined,
         exactAmountFiat: exactAmountOut ?? '',
         inputInFiat: true,
-      }))
+      }));
     }
-  }, [exactAmountOut, inputInFiat, setSendState])
+  }, [exactAmountOut, inputInFiat, setSendState]);
 
   const handleMaxInput = useCallback(
     (e: Parameters<NonNullable<ButtonProps['onPress']>>[0]) => {
-      e.stopPropagation()
+      e.stopPropagation();
 
       if (maxInputAmount) {
-        setSendState((prev) => ({
+        setSendState(prev => ({
           ...prev,
           exactAmountToken: maxInputAmount.toExact(),
           exactAmountFiat: undefined,
           inputInFiat: false,
-        }))
+        }));
       }
     },
-    [maxInputAmount, setSendState],
-  )
+    [maxInputAmount, setSendState]
+  );
 
   return (
     <Wrapper disabled={disabled}>
@@ -274,7 +286,9 @@ export default function SendCurrencyInputForm({
         </Flex>
         <NumericalInputWrapper>
           {inputInFiat && (
-            <NumericalInputSymbolContainer showPlaceholder={!displayValue}>{fiatSymbol}</NumericalInputSymbolContainer>
+            <NumericalInputSymbolContainer showPlaceholder={!displayValue}>
+              {fiatSymbol}
+            </NumericalInputSymbolContainer>
           )}
           <StyledNumericalInput
             value={displayValue}
@@ -303,12 +317,20 @@ export default function SendCurrencyInputForm({
             row
             justifyContent="space-between"
             {...ClickableTamaguiStyle}
-            onPress={() => setTokenSelectorOpen(true)}
-          >
+            onPress={() => setTokenSelectorOpen(true)}>
             <Flex row alignItems="center" gap="$gap12">
-              <Flex alignItems="center" row width="100%" gap="$gap12" onPress={() => setTokenSelectorOpen(true)}>
+              <Flex
+                alignItems="center"
+                row
+                width="100%"
+                gap="$gap12"
+                onPress={() => setTokenSelectorOpen(true)}>
                 {inputCurrency && (
-                  <PortfolioLogo currencies={[inputCurrency]} size={36} chainId={chainId ?? UniverseChainId.Mainnet} />
+                  <PortfolioLogo
+                    currencies={[inputCurrency]}
+                    size={36}
+                    chainId={chainId ?? UniverseChainId.Mainnet}
+                  />
                 )}
                 <Flex row width="100%">
                   <Flex>
@@ -320,7 +342,9 @@ export default function SendCurrencyInputForm({
                         <ThemedText.LabelMicro lineHeight="16px">{`Balance: ${formattedBalance}`}</ThemedText.LabelMicro>
                       )}
                       {Boolean(fiatBalanceValue) && (
-                        <ThemedText.LabelMicro lineHeight="16px" color="neutral3">{`(${formatCurrencyAmount({
+                        <ThemedText.LabelMicro
+                          lineHeight="16px"
+                          color="neutral3">{`(${formatCurrencyAmount({
                           amount: fiatBalanceValue,
                           type: NumberType.FiatTokenPrice,
                         })})`}</ThemedText.LabelMicro>
@@ -352,5 +376,5 @@ export default function SendCurrencyInputForm({
         selectedCurrency={inputCurrency}
       />
     </Wrapper>
-  )
+  );
 }

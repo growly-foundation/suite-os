@@ -1,11 +1,11 @@
-import { G, Path, Svg } from 'react-native-svg'
+import { G, Path, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [Walletconnect, AnimatedWalletconnect] = createIcon({
   name: 'Walletconnect',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg width="300" height="185" viewBox="0 0 300 185" {...props}>
       <G id="Page-1" stroke="currentColor" fill="none" strokeWidth="1" fillRule="evenodd">
         <G id="walletconnect-logo-alt" fill={'currentColor' ?? '#3B99FC'} fillRule="nonzero">
@@ -18,4 +18,4 @@ export const [Walletconnect, AnimatedWalletconnect] = createIcon({
     </Svg>
   ),
   defaultFill: '#3B99FC',
-})
+});

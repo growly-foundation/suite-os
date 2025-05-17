@@ -1,6 +1,12 @@
-import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb'
-import { Currency, CurrencyAmount, Price, Token, V3_CORE_FACTORY_ADDRESSES } from '@uniswap/sdk-core'
-import { Pair } from '@uniswap/v2-sdk'
+import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb';
+import {
+  Currency,
+  CurrencyAmount,
+  Price,
+  Token,
+  V3_CORE_FACTORY_ADDRESSES,
+} from '@uniswap/sdk-core';
+import { Pair } from '@uniswap/v2-sdk';
 import {
   FeeAmount,
   TickMath,
@@ -9,14 +15,18 @@ import {
   encodeSqrtRatioX96,
   nearestUsableTick,
   priceToClosestTick as priceToClosestV3Tick,
-} from '@uniswap/v3-sdk'
-import { Pool as V4Pool, Position as V4Position, priceToClosestTick as priceToClosestV4Tick } from '@uniswap/v4-sdk'
-import { DepositInfo } from 'components/Liquidity/types'
-import { getProtocolItems } from 'components/Liquidity/utils'
-import { ZERO_ADDRESS } from 'constants/misc'
-import { PoolCache } from 'hooks/usePools'
-import JSBI from 'jsbi'
-import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
+} from '@uniswap/v3-sdk';
+import {
+  Pool as V4Pool,
+  Position as V4Position,
+  priceToClosestTick as priceToClosestV4Tick,
+} from '@uniswap/v4-sdk';
+import { DepositInfo } from 'components/Liquidity/types';
+import { getProtocolItems } from 'components/Liquidity/utils';
+import { ZERO_ADDRESS } from 'constants/misc';
+import { PoolCache } from 'hooks/usePools';
+import JSBI from 'jsbi';
+import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount';
 import {
   CreatePositionInfo,
   CreateV2PositionInfo,
@@ -33,187 +43,233 @@ import {
   V2PriceRangeInfo,
   V3PriceRangeInfo,
   V4PriceRangeInfo,
-} from 'pages/Pool/Positions/create/types'
-import { tryParsePrice, tryParseTick } from 'state/mint/v3/utils'
-import { PositionField } from 'types/position'
-import { WarningSeverity } from 'uniswap/src/components/modals/WarningModal/types'
-import { WRAPPED_NATIVE_CURRENCY, nativeOnChain } from 'uniswap/src/constants/tokens'
+} from 'pages/Pool/Positions/create/types';
+import { tryParsePrice, tryParseTick } from 'state/mint/v3/utils';
+import { PositionField } from 'types/position';
+import { WarningSeverity } from 'uniswap/src/components/modals/WarningModal/types';
+import { WRAPPED_NATIVE_CURRENCY, nativeOnChain } from 'uniswap/src/constants/tokens';
 import type {
   CheckApprovalLPRequest,
   CheckApprovalLPResponse,
   CreateLPPositionRequest,
   CreateLPPositionResponse,
-} from 'uniswap/src/data/tradingApi/__generated__'
-import { IndependentToken } from 'uniswap/src/data/tradingApi/__generated__'
-import { AccountMeta } from 'uniswap/src/features/accounts/types'
-import { CreatePositionTxAndGasInfo, LiquidityTransactionType } from 'uniswap/src/features/transactions/liquidity/types'
-import { PermitMethod } from 'uniswap/src/features/transactions/swap/types/swapTxAndGasInfo'
-import { validatePermit, validateTransactionRequest } from 'uniswap/src/features/transactions/swap/utils/trade'
-import { areCurrenciesEqual } from 'uniswap/src/utils/currencyId'
-import { getTickToPrice, getV4TickToPrice } from 'utils/getTickToPrice'
+} from 'uniswap/src/data/tradingApi/__generated__';
+import { IndependentToken } from 'uniswap/src/data/tradingApi/__generated__';
+import { AccountMeta } from 'uniswap/src/features/accounts/types';
+import {
+  CreatePositionTxAndGasInfo,
+  LiquidityTransactionType,
+} from 'uniswap/src/features/transactions/liquidity/types';
+import { PermitMethod } from 'uniswap/src/features/transactions/swap/types/swapTxAndGasInfo';
+import {
+  validatePermit,
+  validateTransactionRequest,
+} from 'uniswap/src/features/transactions/swap/utils/trade';
+import { areCurrenciesEqual } from 'uniswap/src/utils/currencyId';
+import { getTickToPrice, getV4TickToPrice } from 'utils/getTickToPrice';
 
-type OptionalToken = Token | undefined
-export function getSortedCurrenciesTuple(a: Token, b: Token): [Token, Token]
-export function getSortedCurrenciesTuple(a: OptionalToken, b: OptionalToken): [OptionalToken, OptionalToken]
-export function getSortedCurrenciesTuple(a: OptionalCurrency, b: OptionalCurrency): [OptionalCurrency, OptionalCurrency]
+type OptionalToken = Token | undefined;
+export function getSortedCurrenciesTuple(a: Token, b: Token): [Token, Token];
+export function getSortedCurrenciesTuple(
+  a: OptionalToken,
+  b: OptionalToken
+): [OptionalToken, OptionalToken];
 export function getSortedCurrenciesTuple(
   a: OptionalCurrency,
-  b: OptionalCurrency,
+  b: OptionalCurrency
+): [OptionalCurrency, OptionalCurrency];
+export function getSortedCurrenciesTuple(
+  a: OptionalCurrency,
+  b: OptionalCurrency
 ): [OptionalCurrency, OptionalCurrency] {
   if (a?.isNative || !b) {
-    return [a, b]
+    return [a, b];
   }
 
   if (b?.isNative || !a) {
-    return [b, a]
+    return [b, a];
   }
 
-  return a.sortsBefore(b) ? [a, b] : [b, a]
+  return a.sortsBefore(b) ? [a, b] : [b, a];
 }
 
 export function getSortedCurrenciesTupleWithWrap(
   a: Currency,
   b: Currency,
-  protocolVersion: ProtocolVersion,
-): [Currency, Currency]
+  protocolVersion: ProtocolVersion
+): [Currency, Currency];
 export function getSortedCurrenciesTupleWithWrap(
   a: OptionalCurrency,
   b: OptionalCurrency,
-  protocolVersion: ProtocolVersion,
-): [OptionalCurrency, OptionalCurrency]
+  protocolVersion: ProtocolVersion
+): [OptionalCurrency, OptionalCurrency];
 export function getSortedCurrenciesTupleWithWrap(
   a: OptionalCurrency,
   b: OptionalCurrency,
-  protocolVersion: ProtocolVersion,
+  protocolVersion: ProtocolVersion
 ): [OptionalCurrency, OptionalCurrency] {
-  return getSortedCurrenciesTuple(getCurrencyWithWrap(a, protocolVersion), getCurrencyWithWrap(b, protocolVersion))
+  return getSortedCurrenciesTuple(
+    getCurrencyWithWrap(a, protocolVersion),
+    getCurrencyWithWrap(b, protocolVersion)
+  );
 }
 
 export function getCurrencyForProtocol(
   currency: Currency,
-  protocolVersion: ProtocolVersion.V2 | ProtocolVersion.V3,
-): Token
+  protocolVersion: ProtocolVersion.V2 | ProtocolVersion.V3
+): Token;
 export function getCurrencyForProtocol(
   currency: OptionalCurrency,
-  protocolVersion: ProtocolVersion.V2 | ProtocolVersion.V3,
-): Token | undefined
-export function getCurrencyForProtocol(currency: Currency, protocolVersion: ProtocolVersion.V4): Currency
+  protocolVersion: ProtocolVersion.V2 | ProtocolVersion.V3
+): Token | undefined;
+export function getCurrencyForProtocol(
+  currency: Currency,
+  protocolVersion: ProtocolVersion.V4
+): Currency;
 export function getCurrencyForProtocol(
   currency: OptionalCurrency,
-  protocolVersion: ProtocolVersion.V4,
-): OptionalCurrency
+  protocolVersion: ProtocolVersion.V4
+): OptionalCurrency;
 export function getCurrencyForProtocol(
   currency: OptionalCurrency,
-  protocolVersion: ProtocolVersion.UNSPECIFIED | ProtocolVersion.V2 | ProtocolVersion.V3 | ProtocolVersion.V4,
-): OptionalCurrency
+  protocolVersion:
+    | ProtocolVersion.UNSPECIFIED
+    | ProtocolVersion.V2
+    | ProtocolVersion.V3
+    | ProtocolVersion.V4
+): OptionalCurrency;
 /**
  * Gets the currency or token that each protocol expects. For v2 + v3 if the native currency is passed then we return the wrapped version.
  * For v4 is a wrapped native token is passed then we return the native currency.
  */
 export function getCurrencyForProtocol(
   currency: OptionalCurrency,
-  protocolVersion: ProtocolVersion,
+  protocolVersion: ProtocolVersion
 ): Currency | Token | undefined {
   if (!currency) {
-    return undefined
+    return undefined;
   }
 
   if (protocolVersion === ProtocolVersion.V4) {
-    const wrappedNative = WRAPPED_NATIVE_CURRENCY[currency.chainId]
+    const wrappedNative = WRAPPED_NATIVE_CURRENCY[currency.chainId];
     if (areCurrenciesEqual(wrappedNative, currency)) {
-      return nativeOnChain(currency.chainId)
+      return nativeOnChain(currency.chainId);
     }
 
-    return currency
+    return currency;
   }
 
   if (currency.isToken) {
-    return currency
+    return currency;
   }
 
-  return currency.wrapped
+  return currency.wrapped;
 }
 
-export function getCurrencyWithWrap(currency: Currency, protocolVersion: ProtocolVersion.V2 | ProtocolVersion.V3): Token
+export function getCurrencyWithWrap(
+  currency: Currency,
+  protocolVersion: ProtocolVersion.V2 | ProtocolVersion.V3
+): Token;
 export function getCurrencyWithWrap(
   currency: OptionalCurrency,
-  protocolVersion: ProtocolVersion.V2 | ProtocolVersion.V3,
-): Token | undefined
-export function getCurrencyWithWrap(currency: Currency, protocolVersion: ProtocolVersion.V4): Currency
-export function getCurrencyWithWrap(currency: OptionalCurrency, protocolVersion: ProtocolVersion.V4): OptionalCurrency
+  protocolVersion: ProtocolVersion.V2 | ProtocolVersion.V3
+): Token | undefined;
+export function getCurrencyWithWrap(
+  currency: Currency,
+  protocolVersion: ProtocolVersion.V4
+): Currency;
 export function getCurrencyWithWrap(
   currency: OptionalCurrency,
-  protocolVersion: ProtocolVersion.UNSPECIFIED | ProtocolVersion.V2 | ProtocolVersion.V3 | ProtocolVersion.V4,
-): OptionalCurrency
+  protocolVersion: ProtocolVersion.V4
+): OptionalCurrency;
 export function getCurrencyWithWrap(
   currency: OptionalCurrency,
-  protocolVersion: ProtocolVersion,
+  protocolVersion:
+    | ProtocolVersion.UNSPECIFIED
+    | ProtocolVersion.V2
+    | ProtocolVersion.V3
+    | ProtocolVersion.V4
+): OptionalCurrency;
+export function getCurrencyWithWrap(
+  currency: OptionalCurrency,
+  protocolVersion: ProtocolVersion
 ): Currency | Token | undefined {
   if (protocolVersion === ProtocolVersion.V4 || currency?.isToken) {
-    return currency
+    return currency;
   }
 
-  return currency?.wrapped
+  return currency?.wrapped;
 }
 
-export function getCurrencyAddressWithWrap(currency: Currency, protocolVersion: ProtocolVersion): string
+export function getCurrencyAddressWithWrap(
+  currency: Currency,
+  protocolVersion: ProtocolVersion
+): string;
 export function getCurrencyAddressWithWrap(
   currency: OptionalCurrency,
-  protocolVersion: ProtocolVersion,
-): string | undefined
+  protocolVersion: ProtocolVersion
+): string | undefined;
 export function getCurrencyAddressWithWrap(
   currency: OptionalCurrency,
-  protocolVersion: ProtocolVersion,
+  protocolVersion: ProtocolVersion
 ): string | undefined {
   if (currency?.isToken) {
-    return currency.address
+    return currency.address;
   }
 
   if (protocolVersion === ProtocolVersion.V4) {
-    return ZERO_ADDRESS
+    return ZERO_ADDRESS;
   }
 
-  return currency?.wrapped.address
+  return currency?.wrapped.address;
 }
 
-export function getCurrencyAddressForTradingApi(currency: Currency): string
-export function getCurrencyAddressForTradingApi(currency: OptionalCurrency): string
+export function getCurrencyAddressForTradingApi(currency: Currency): string;
+export function getCurrencyAddressForTradingApi(currency: OptionalCurrency): string;
 export function getCurrencyAddressForTradingApi(currency: OptionalCurrency): string {
-  return currency?.isToken ? currency.address : ZERO_ADDRESS
+  return currency?.isToken ? currency.address : ZERO_ADDRESS;
 }
 
 export function poolEnabledProtocolVersion(
-  protocolVersion: ProtocolVersion,
+  protocolVersion: ProtocolVersion
 ): protocolVersion is ProtocolVersion.V3 | ProtocolVersion.V4 {
-  return protocolVersion === ProtocolVersion.V3 || protocolVersion === ProtocolVersion.V4
+  return protocolVersion === ProtocolVersion.V3 || protocolVersion === ProtocolVersion.V4;
 }
 
-export function pairEnabledProtocolVersion(protocolVersion: ProtocolVersion): protocolVersion is ProtocolVersion.V2 {
-  return protocolVersion === ProtocolVersion.V2
+export function pairEnabledProtocolVersion(
+  protocolVersion: ProtocolVersion
+): protocolVersion is ProtocolVersion.V2 {
+  return protocolVersion === ProtocolVersion.V2;
 }
 
-export function validateCurrencyInput(currencies: [OptionalToken, OptionalToken]): currencies is [Token, Token]
 export function validateCurrencyInput(
-  currencies: [OptionalCurrency, OptionalCurrency],
-): currencies is [Currency, Currency]
+  currencies: [OptionalToken, OptionalToken]
+): currencies is [Token, Token];
 export function validateCurrencyInput(
-  currencies: [OptionalCurrency, OptionalCurrency],
+  currencies: [OptionalCurrency, OptionalCurrency]
+): currencies is [Currency, Currency];
+export function validateCurrencyInput(
+  currencies: [OptionalCurrency, OptionalCurrency]
 ): currencies is [Currency, Currency] {
-  return !!currencies[0] && !!currencies[1]
+  return !!currencies[0] && !!currencies[1];
 }
 
 export function getPairFromPositionStateAndRangeState({
   derivedPositionInfo,
   derivedPriceRangeInfo,
 }: {
-  derivedPositionInfo: CreatePositionInfo
-  derivedPriceRangeInfo: PriceRangeInfo
+  derivedPositionInfo: CreatePositionInfo;
+  derivedPriceRangeInfo: PriceRangeInfo;
 }): Pair | undefined {
   if (derivedPositionInfo.creatingPoolOrPair) {
-    return derivedPriceRangeInfo.protocolVersion === ProtocolVersion.V2 ? derivedPriceRangeInfo.mockPair : undefined
+    return derivedPriceRangeInfo.protocolVersion === ProtocolVersion.V2
+      ? derivedPriceRangeInfo.mockPair
+      : undefined;
   }
 
-  return derivedPositionInfo.protocolVersion === ProtocolVersion.V2 ? derivedPositionInfo.pair : undefined
+  return derivedPositionInfo.protocolVersion === ProtocolVersion.V2
+    ? derivedPositionInfo.pair
+    : undefined;
 }
 
 /** Attempts to return a pool from the position state. If no pool is found it returns the range state's mocked pool. */
@@ -221,25 +277,25 @@ export function getPoolFromPositionStateAndRangeState({
   derivedPositionInfo,
   derivedPriceRangeInfo,
 }: {
-  derivedPositionInfo: CreatePositionInfo
-  derivedPriceRangeInfo: V3PriceRangeInfo
-}): V3Pool | undefined
+  derivedPositionInfo: CreatePositionInfo;
+  derivedPriceRangeInfo: V3PriceRangeInfo;
+}): V3Pool | undefined;
 export function getPoolFromPositionStateAndRangeState({
   derivedPositionInfo,
   derivedPriceRangeInfo,
 }: {
-  derivedPositionInfo: CreatePositionInfo
-  derivedPriceRangeInfo: V4PriceRangeInfo
-}): V4Pool | undefined
+  derivedPositionInfo: CreatePositionInfo;
+  derivedPriceRangeInfo: V4PriceRangeInfo;
+}): V4Pool | undefined;
 export function getPoolFromPositionStateAndRangeState({
   derivedPositionInfo,
   derivedPriceRangeInfo,
 }: {
-  derivedPositionInfo: CreatePositionInfo
-  derivedPriceRangeInfo: PriceRangeInfo
+  derivedPositionInfo: CreatePositionInfo;
+  derivedPriceRangeInfo: PriceRangeInfo;
 }): V3Pool | V4Pool | undefined {
   if (derivedPositionInfo.protocolVersion === ProtocolVersion.V2) {
-    return undefined
+    return undefined;
   }
 
   if (derivedPositionInfo.creatingPoolOrPair) {
@@ -247,38 +303,41 @@ export function getPoolFromPositionStateAndRangeState({
       derivedPositionInfo.protocolVersion === derivedPriceRangeInfo.protocolVersion &&
       derivedPriceRangeInfo.protocolVersion === ProtocolVersion.V4
     ) {
-      return derivedPriceRangeInfo.mockPool
+      return derivedPriceRangeInfo.mockPool;
     }
 
     if (
       derivedPositionInfo.protocolVersion === derivedPriceRangeInfo.protocolVersion &&
       derivedPriceRangeInfo.protocolVersion === ProtocolVersion.V3
     ) {
-      return derivedPriceRangeInfo.mockPool
+      return derivedPriceRangeInfo.mockPool;
     }
 
-    return undefined
+    return undefined;
   }
 
   if (
     derivedPositionInfo.protocolVersion === derivedPriceRangeInfo.protocolVersion &&
     derivedPositionInfo.protocolVersion === ProtocolVersion.V4
   ) {
-    return derivedPositionInfo.pool
+    return derivedPositionInfo.pool;
   }
 
   if (
     derivedPositionInfo.protocolVersion === derivedPriceRangeInfo.protocolVersion &&
     derivedPositionInfo.protocolVersion === ProtocolVersion.V3
   ) {
-    return derivedPositionInfo.pool
+    return derivedPositionInfo.pool;
   }
 
-  return undefined
+  return undefined;
 }
 
-export function getInvertedTuple<T extends OptionalCurrency>(tuple: [T, T], inverted: boolean): [T, T] {
-  return inverted ? [tuple[1], tuple[0]] : tuple
+export function getInvertedTuple<T extends OptionalCurrency>(
+  tuple: [T, T],
+  inverted: boolean
+): [T, T] {
+  return inverted ? [tuple[1], tuple[0]] : tuple;
 }
 
 function getPrices<T extends Currency>({
@@ -288,20 +347,20 @@ function getPrices<T extends Currency>({
   pricesAtTicks,
   state,
 }: {
-  baseCurrency?: T
-  quoteCurrency?: T
-  pricesAtLimit: (Price<T, T> | undefined)[]
-  pricesAtTicks: (Price<T, T> | undefined)[]
-  state: PriceRangeState
+  baseCurrency?: T;
+  quoteCurrency?: T;
+  pricesAtLimit: (Price<T, T> | undefined)[];
+  pricesAtTicks: (Price<T, T> | undefined)[];
+  state: PriceRangeState;
 }): [OptionalCurrencyPrice, OptionalCurrencyPrice] {
   if (!baseCurrency || !quoteCurrency) {
-    return [undefined, undefined]
+    return [undefined, undefined];
   }
 
-  const lowerPrice = state.fullRange ? pricesAtLimit[0] : pricesAtTicks[0]
-  const upperPrice = state.fullRange ? pricesAtLimit[1] : pricesAtTicks[1]
+  const lowerPrice = state.fullRange ? pricesAtLimit[0] : pricesAtTicks[0];
+  const upperPrice = state.fullRange ? pricesAtLimit[1] : pricesAtTicks[1];
 
-  return [lowerPrice, upperPrice]
+  return [lowerPrice, upperPrice];
 }
 
 /**
@@ -313,50 +372,58 @@ function getInitialPrice({
   sortedCurrencies,
   initialPrice,
 }: {
-  baseCurrency: OptionalCurrency
-  sortedCurrencies: [OptionalCurrency, OptionalCurrency]
-  initialPrice: string
+  baseCurrency: OptionalCurrency;
+  sortedCurrencies: [OptionalCurrency, OptionalCurrency];
+  initialPrice: string;
 }) {
-  const [currency0, currency1] = sortedCurrencies
-  const invertPrice = Boolean(baseCurrency && currency0 && !baseCurrency.equals(currency0))
+  const [currency0, currency1] = sortedCurrencies;
+  const invertPrice = Boolean(baseCurrency && currency0 && !baseCurrency.equals(currency0));
 
-  const parsedQuoteAmount = tryParseCurrencyAmount(initialPrice, invertPrice ? currency0 : currency1)
+  const parsedQuoteAmount = tryParseCurrencyAmount(
+    initialPrice,
+    invertPrice ? currency0 : currency1
+  );
   if (!parsedQuoteAmount) {
-    return undefined
+    return undefined;
   }
 
-  const baseAmount = tryParseCurrencyAmount('1', invertPrice ? currency1 : currency0)
+  const baseAmount = tryParseCurrencyAmount('1', invertPrice ? currency1 : currency0);
   const price =
     baseAmount && parsedQuoteAmount
-      ? new Price(baseAmount.currency, parsedQuoteAmount.currency, baseAmount.quotient, parsedQuoteAmount.quotient)
-      : undefined
+      ? new Price(
+          baseAmount.currency,
+          parsedQuoteAmount.currency,
+          baseAmount.quotient,
+          parsedQuoteAmount.quotient
+        )
+      : undefined;
 
-  return invertPrice ? price?.invert() : price
+  return invertPrice ? price?.invert() : price;
 }
 
 function getPrice(
   opts:
     | {
-        type: ProtocolVersion.V4
-        pool?: V4Pool
-        currency0?: Currency
+        type: ProtocolVersion.V4;
+        pool?: V4Pool;
+        currency0?: Currency;
       }
     | {
-        type: ProtocolVersion.V3
-        pool?: V3Pool
-        currency0?: Token
-      },
+        type: ProtocolVersion.V3;
+        pool?: V3Pool;
+        currency0?: Token;
+      }
 ) {
-  const { type, pool, currency0 } = opts
+  const { type, pool, currency0 } = opts;
   if (!pool || !currency0) {
-    return undefined
+    return undefined;
   }
 
-  return type === ProtocolVersion.V4 ? pool.priceOf(currency0) : pool.priceOf(currency0)
+  return type === ProtocolVersion.V4 ? pool.priceOf(currency0) : pool.priceOf(currency0);
 }
 
 function isInvalidPrice(price?: Price<Currency, Currency>) {
-  const sqrtRatioX96 = price ? encodeSqrtRatioX96(price.numerator, price.denominator) : undefined
+  const sqrtRatioX96 = price ? encodeSqrtRatioX96(price.numerator, price.denominator) : undefined;
   return (
     !!price &&
     !!sqrtRatioX96 &&
@@ -364,7 +431,7 @@ function isInvalidPrice(price?: Price<Currency, Currency>) {
       JSBI.greaterThanOrEqual(sqrtRatioX96, TickMath.MIN_SQRT_RATIO) &&
       JSBI.lessThan(sqrtRatioX96, TickMath.MAX_SQRT_RATIO)
     )
-  )
+  );
 }
 
 function createMockV3Pool({
@@ -374,31 +441,31 @@ function createMockV3Pool({
   price,
   invalidPrice,
 }: {
-  baseToken?: Token
-  quoteToken?: Token
-  fee: FeeAmount
-  price?: Price<Currency, Currency>
-  invalidPrice?: boolean
+  baseToken?: Token;
+  quoteToken?: Token;
+  fee: FeeAmount;
+  price?: Price<Currency, Currency>;
+  invalidPrice?: boolean;
 }) {
   if (!baseToken || !quoteToken || !fee || !price || invalidPrice) {
-    return undefined
+    return undefined;
   }
 
   const wrappedPrice = new Price(
     price.baseCurrency.wrapped,
     price.quoteCurrency.wrapped,
     price.denominator,
-    price.numerator,
-  )
+    price.numerator
+  );
 
   const invertedPrice = wrappedPrice.baseCurrency.sortsBefore(wrappedPrice.quoteCurrency)
     ? wrappedPrice
-    : wrappedPrice.invert()
-  const currentTick = priceToClosestV3Tick(invertedPrice)
-  const currentSqrt = TickMath.getSqrtRatioAtTick(currentTick)
+    : wrappedPrice.invert();
+  const currentTick = priceToClosestV3Tick(invertedPrice);
+  const currentSqrt = TickMath.getSqrtRatioAtTick(currentTick);
 
-  const pool = new V3Pool(baseToken, quoteToken, fee, currentSqrt, JSBI.BigInt(0), currentTick, [])
-  return pool
+  const pool = new V3Pool(baseToken, quoteToken, fee, currentSqrt, JSBI.BigInt(0), currentTick, []);
+  return pool;
 }
 
 function createMockV4Pool({
@@ -409,19 +476,19 @@ function createMockV4Pool({
   price,
   invalidPrice,
 }: {
-  baseToken?: Currency
-  quoteToken?: Currency
-  fee: FeeData
-  hook?: string
-  price?: Price<Currency, Currency>
-  invalidPrice?: boolean
+  baseToken?: Currency;
+  quoteToken?: Currency;
+  fee: FeeData;
+  hook?: string;
+  price?: Price<Currency, Currency>;
+  invalidPrice?: boolean;
 }): V4Pool | undefined {
   if (!baseToken || !quoteToken || !price || invalidPrice) {
-    return undefined
+    return undefined;
   }
 
-  const currentTick = priceToClosestV4Tick(price)
-  const currentSqrt = TickMath.getSqrtRatioAtTick(currentTick)
+  const currentTick = priceToClosestV4Tick(price);
+  const currentSqrt = TickMath.getSqrtRatioAtTick(currentTick);
   const pool = new V4Pool(
     baseToken,
     quoteToken,
@@ -430,19 +497,19 @@ function createMockV4Pool({
     hook ?? ZERO_ADDRESS,
     currentSqrt,
     JSBI.BigInt(0),
-    currentTick,
-  )
-  return pool
+    currentTick
+  );
+  return pool;
 }
 
 function createMockPair(price?: Price<Currency, Currency>) {
   if (price) {
     return new Pair(
       CurrencyAmount.fromRawAmount(price.quoteCurrency.wrapped, price.numerator),
-      CurrencyAmount.fromRawAmount(price.baseCurrency.wrapped, price.denominator),
-    )
+      CurrencyAmount.fromRawAmount(price.baseCurrency.wrapped, price.denominator)
+    );
   } else {
-    return undefined
+    return undefined;
   }
 }
 
@@ -455,34 +522,34 @@ export function getDependentAmountFromV2Pair({
   token1,
   dependentToken,
 }: {
-  independentAmount?: CurrencyAmount<Currency>
-  otherAmount?: CurrencyAmount<Currency>
-  pair?: Pair
-  exactField: PositionField
-  token0?: Currency
-  token1?: Currency
-  dependentToken?: Currency
+  independentAmount?: CurrencyAmount<Currency>;
+  otherAmount?: CurrencyAmount<Currency>;
+  pair?: Pair;
+  exactField: PositionField;
+  token0?: Currency;
+  token1?: Currency;
+  dependentToken?: Currency;
 }): CurrencyAmount<Currency> | undefined {
-  const [token0Wrapped, token1Wrapped] = [token0?.wrapped, token1?.wrapped]
+  const [token0Wrapped, token1Wrapped] = [token0?.wrapped, token1?.wrapped];
   if (!token0Wrapped || !token1Wrapped || !independentAmount || !pair) {
-    return undefined
+    return undefined;
   }
 
   try {
     const dependentTokenAmount =
       exactField === PositionField.TOKEN0
         ? pair.priceOf(token0Wrapped).quote(independentAmount.wrapped)
-        : pair.priceOf(token1Wrapped).quote(independentAmount.wrapped)
+        : pair.priceOf(token1Wrapped).quote(independentAmount.wrapped);
 
     return dependentToken
       ? dependentToken?.isNative
         ? CurrencyAmount.fromRawAmount(dependentToken, dependentTokenAmount.quotient)
         : dependentTokenAmount
-      : undefined
+      : undefined;
   } catch (e) {
     // in some cases there can be an initialized pool but there is no liquidity in which case
     // the user can enter whatever they want for the dependent amount and that pool will be created
-    return otherAmount
+    return otherAmount;
   }
 }
 
@@ -492,13 +559,13 @@ export function getDependentAmountFromV3Position({
   tickLower,
   tickUpper,
 }: {
-  independentAmount: CurrencyAmount<Currency>
-  pool: V3Pool
-  tickLower: number
-  tickUpper: number
+  independentAmount: CurrencyAmount<Currency>;
+  pool: V3Pool;
+  tickLower: number;
+  tickUpper: number;
 }): CurrencyAmount<Currency> {
-  const wrappedIndependentAmount = independentAmount.wrapped
-  const independentTokenIsFirstToken = wrappedIndependentAmount.currency.equals(pool.token0)
+  const wrappedIndependentAmount = independentAmount.wrapped;
+  const independentTokenIsFirstToken = wrappedIndependentAmount.currency.equals(pool.token0);
 
   if (independentTokenIsFirstToken) {
     return V3Position.fromAmount0({
@@ -507,7 +574,7 @@ export function getDependentAmountFromV3Position({
       tickUpper,
       amount0: wrappedIndependentAmount.quotient,
       useFullPrecision: true,
-    }).amount1
+    }).amount1;
   }
 
   return V3Position.fromAmount1({
@@ -515,7 +582,7 @@ export function getDependentAmountFromV3Position({
     tickLower,
     tickUpper,
     amount1: wrappedIndependentAmount.quotient,
-  }).amount0
+  }).amount0;
 }
 
 export function getDependentAmountFromV4Position({
@@ -524,12 +591,12 @@ export function getDependentAmountFromV4Position({
   tickLower,
   tickUpper,
 }: {
-  independentAmount: CurrencyAmount<Currency>
-  pool: V4Pool
-  tickLower: number
-  tickUpper: number
+  independentAmount: CurrencyAmount<Currency>;
+  pool: V4Pool;
+  tickLower: number;
+  tickUpper: number;
 }): CurrencyAmount<Currency> {
-  const independentTokenIsFirstToken = independentAmount.currency.equals(pool.token0)
+  const independentTokenIsFirstToken = independentAmount.currency.equals(pool.token0);
 
   if (independentTokenIsFirstToken) {
     return V4Position.fromAmount0({
@@ -538,7 +605,7 @@ export function getDependentAmountFromV4Position({
       tickUpper,
       amount0: independentAmount.quotient,
       useFullPrecision: true,
-    }).amount1
+    }).amount1;
   }
 
   return V4Position.fromAmount1({
@@ -546,37 +613,37 @@ export function getDependentAmountFromV4Position({
     tickLower,
     tickUpper,
     amount1: independentAmount.quotient,
-  }).amount0
+  }).amount0;
 }
 
 export function getV2PriceRangeInfo({
   state,
   derivedPositionInfo,
 }: {
-  state: PriceRangeState
-  derivedPositionInfo: CreateV2PositionInfo
+  state: PriceRangeState;
+  derivedPositionInfo: CreateV2PositionInfo;
 }): V2PriceRangeInfo {
-  const { currencies } = derivedPositionInfo
-  const [baseCurrency] = getInvertedTuple(currencies, state.priceInverted)
+  const { currencies } = derivedPositionInfo;
+  const [baseCurrency] = getInvertedTuple(currencies, state.priceInverted);
 
-  const baseToken = getCurrencyWithWrap(baseCurrency, ProtocolVersion.V2)
+  const baseToken = getCurrencyWithWrap(baseCurrency, ProtocolVersion.V2);
   const sortedTokens = getSortedCurrenciesTuple(
     getCurrencyWithWrap(currencies[0], ProtocolVersion.V2),
-    getCurrencyWithWrap(currencies[1], ProtocolVersion.V2),
-  )
+    getCurrencyWithWrap(currencies[1], ProtocolVersion.V2)
+  );
   const priceDifference = getPriceDifference({
     initialPrice: state.initialPrice,
     defaultInitialPrice: derivedPositionInfo.defaultInitialPrice,
     priceInverted: state.priceInverted,
-  })
+  });
 
   const price = getInitialPrice({
     baseCurrency: baseToken,
     sortedCurrencies: sortedTokens,
     initialPrice: state.initialPrice,
-  })
+  });
 
-  const invertPrice = Boolean(baseToken && sortedTokens[0] && !baseToken.equals(sortedTokens[0]))
+  const invertPrice = Boolean(baseToken && sortedTokens[0] && !baseToken.equals(sortedTokens[0]));
 
   return {
     protocolVersion: ProtocolVersion.V2,
@@ -586,7 +653,7 @@ export function getV2PriceRangeInfo({
     deposit1Disabled: false,
     invertPrice,
     priceDifference,
-  } satisfies V2PriceRangeInfo
+  } satisfies V2PriceRangeInfo;
 }
 
 export function getV3PriceRangeInfo({
@@ -594,35 +661,38 @@ export function getV3PriceRangeInfo({
   positionState,
   derivedPositionInfo,
 }: {
-  state: PriceRangeState
-  positionState: PositionState
-  derivedPositionInfo: CreateV3PositionInfo
+  state: PriceRangeState;
+  positionState: PositionState;
+  derivedPositionInfo: CreateV3PositionInfo;
 }): V3PriceRangeInfo {
-  const { fee } = positionState
-  const { protocolVersion, currencies } = derivedPositionInfo
-  const pool = derivedPositionInfo.pool
+  const { fee } = positionState;
+  const { protocolVersion, currencies } = derivedPositionInfo;
+  const pool = derivedPositionInfo.pool;
 
-  const tokenA = getCurrencyWithWrap(currencies[0], protocolVersion)
-  const tokenB = getCurrencyWithWrap(currencies[1], protocolVersion)
-  const sortedTokens = getSortedCurrenciesTuple(tokenA, tokenB)
-  const [sortedToken0, sortedToken1] = sortedTokens
+  const tokenA = getCurrencyWithWrap(currencies[0], protocolVersion);
+  const tokenB = getCurrencyWithWrap(currencies[1], protocolVersion);
+  const sortedTokens = getSortedCurrenciesTuple(tokenA, tokenB);
+  const [sortedToken0, sortedToken1] = sortedTokens;
 
-  const [baseCurrency, quoteCurrency] = getInvertedTuple(currencies, state.priceInverted)
+  const [baseCurrency, quoteCurrency] = getInvertedTuple(currencies, state.priceInverted);
   const [baseToken, quoteToken] = [
     getCurrencyWithWrap(baseCurrency, protocolVersion),
     getCurrencyWithWrap(quoteCurrency, protocolVersion),
-  ]
+  ];
 
   const priceDifference = getPriceDifference({
     initialPrice: state.initialPrice,
     defaultInitialPrice: derivedPositionInfo.defaultInitialPrice,
     priceInverted: state.priceInverted,
-  })
+  });
 
   const initialPriceTokens = getInvertedTuple(
-    [getCurrencyWithWrap(currencies[0], protocolVersion), getCurrencyWithWrap(currencies[1], protocolVersion)],
-    state.priceInverted,
-  )
+    [
+      getCurrencyWithWrap(currencies[0], protocolVersion),
+      getCurrencyWithWrap(currencies[1], protocolVersion),
+    ],
+    state.priceInverted
+  );
 
   const price = derivedPositionInfo.creatingPoolOrPair
     ? getInitialPrice({
@@ -634,91 +704,97 @@ export function getV3PriceRangeInfo({
         type: ProtocolVersion.V3,
         pool,
         currency0: sortedToken0,
-      })
-  const invalidPrice = isInvalidPrice(price)
+      });
+  const invalidPrice = isInvalidPrice(price);
   const mockPool = createMockV3Pool({
     baseToken,
     quoteToken,
     fee: fee.feeAmount,
     price,
     invalidPrice,
-  })
+  });
 
-  const poolForPosition = pool ?? mockPool
+  const poolForPosition = pool ?? mockPool;
   const tickSpaceLimits: [number, number] = [
     nearestUsableTick(TickMath.MIN_TICK, fee.tickSpacing),
     nearestUsableTick(TickMath.MAX_TICK, fee.tickSpacing),
-  ]
+  ];
 
-  const invertPrice = Boolean(baseToken && sortedToken0 && !baseToken.equals(sortedToken0))
+  const invertPrice = Boolean(baseToken && sortedToken0 && !baseToken.equals(sortedToken0));
   const [baseRangeInput, quoteRangeInput] = invertPrice
     ? [state.maxPrice, state.minPrice]
-    : [state.minPrice, state.maxPrice]
+    : [state.minPrice, state.maxPrice];
 
   const lowerTick =
     baseRangeInput === ''
       ? tickSpaceLimits[0]
       : invertPrice
         ? tryParseTick(sortedToken1, sortedToken0, fee.feeAmount, state.maxPrice)
-        : tryParseTick(sortedToken0, sortedToken1, fee.feeAmount, state.minPrice)
+        : tryParseTick(sortedToken0, sortedToken1, fee.feeAmount, state.minPrice);
   const upperTick =
     quoteRangeInput === ''
       ? tickSpaceLimits[1]
       : invertPrice
         ? tryParseTick(sortedToken1, sortedToken0, fee.feeAmount, state.minPrice)
-        : tryParseTick(sortedToken0, sortedToken1, fee.feeAmount, state.maxPrice)
+        : tryParseTick(sortedToken0, sortedToken1, fee.feeAmount, state.maxPrice);
 
-  const ticks: [OptionalNumber, OptionalNumber] = [lowerTick, upperTick]
-  const invalidRange = Boolean(lowerTick !== undefined && upperTick !== undefined && lowerTick >= upperTick)
+  const ticks: [OptionalNumber, OptionalNumber] = [lowerTick, upperTick];
+  const invalidRange = Boolean(
+    lowerTick !== undefined && upperTick !== undefined && lowerTick >= upperTick
+  );
 
   const ticksAtLimit: [boolean, boolean] = state.fullRange
     ? [true, true]
-    : [lowerTick === tickSpaceLimits[0], upperTick === tickSpaceLimits[1]]
+    : [lowerTick === tickSpaceLimits[0], upperTick === tickSpaceLimits[1]];
 
   const pricesAtLimit: [OptionalCurrencyPrice, OptionalCurrencyPrice] = [
     getTickToPrice(sortedToken0, sortedToken1, tickSpaceLimits[0]),
     getTickToPrice(sortedToken0, sortedToken1, tickSpaceLimits[1]),
-  ]
+  ];
 
   const pricesAtTicks: [OptionalCurrencyPrice, OptionalCurrencyPrice] = [
     getTickToPrice(sortedToken0, sortedToken1, ticks[0]),
     getTickToPrice(sortedToken0, sortedToken1, ticks[1]),
-  ]
+  ];
 
-  const isSorted = areCurrenciesEqual(baseToken, sortedToken0)
+  const isSorted = areCurrenciesEqual(baseToken, sortedToken0);
   const prices = getPrices({
     baseCurrency: baseToken,
     quoteCurrency: quoteToken,
     pricesAtLimit,
     pricesAtTicks,
     state,
-  })
+  });
 
   const outOfRange = Boolean(
-    !invalidRange && price && prices[0] && prices[1] && (price.lessThan(prices[0]) || price.greaterThan(prices[1])),
-  )
+    !invalidRange &&
+      price &&
+      prices[0] &&
+      prices[1] &&
+      (price.lessThan(prices[0]) || price.greaterThan(prices[1]))
+  );
 
   // This is in terms of the sorted tokens
   const deposit0Disabled = Boolean(
-    upperTick !== undefined && poolForPosition && poolForPosition.tickCurrent >= upperTick,
-  )
+    upperTick !== undefined && poolForPosition && poolForPosition.tickCurrent >= upperTick
+  );
   const deposit1Disabled = Boolean(
-    lowerTick !== undefined && poolForPosition && poolForPosition.tickCurrent <= lowerTick,
-  )
+    lowerTick !== undefined && poolForPosition && poolForPosition.tickCurrent <= lowerTick
+  );
 
   const depositADisabled =
     invalidRange ||
     Boolean(
       (deposit0Disabled && poolForPosition && tokenA && poolForPosition.token0.equals(tokenA)) ||
-        (deposit1Disabled && poolForPosition && tokenA && poolForPosition.token1.equals(tokenA)),
-    )
+        (deposit1Disabled && poolForPosition && tokenA && poolForPosition.token1.equals(tokenA))
+    );
 
   const depositBDisabled =
     invalidRange ||
     Boolean(
       (deposit0Disabled && poolForPosition && tokenB && poolForPosition.token0.equals(tokenB)) ||
-        (deposit1Disabled && poolForPosition && tokenB && poolForPosition.token1.equals(tokenB)),
-    )
+        (deposit1Disabled && poolForPosition && tokenB && poolForPosition.token1.equals(tokenB))
+    );
 
   return {
     protocolVersion,
@@ -738,40 +814,40 @@ export function getV3PriceRangeInfo({
     deposit0Disabled: depositADisabled,
     deposit1Disabled: depositBDisabled,
     mockPool,
-  } satisfies V3PriceRangeInfo
+  } satisfies V3PriceRangeInfo;
 }
 
 function tryParseV4Tick(
   baseToken?: Currency,
   quoteToken?: Currency,
   value?: string,
-  tickSpacing?: number,
+  tickSpacing?: number
 ): number | undefined {
   if (!baseToken || !quoteToken || !value || !tickSpacing) {
-    return undefined
+    return undefined;
   }
 
-  const price = tryParsePrice(baseToken, quoteToken, value)
+  const price = tryParsePrice(baseToken, quoteToken, value);
 
   if (!price) {
-    return undefined
+    return undefined;
   }
 
-  let tick: number
+  let tick: number;
 
   // check price is within min/max bounds, if outside return min/max
-  const sqrtRatioX96 = encodeSqrtRatioX96(price.numerator, price.denominator)
+  const sqrtRatioX96 = encodeSqrtRatioX96(price.numerator, price.denominator);
 
   if (JSBI.greaterThanOrEqual(sqrtRatioX96, TickMath.MAX_SQRT_RATIO)) {
-    tick = TickMath.MAX_TICK
+    tick = TickMath.MAX_TICK;
   } else if (JSBI.lessThanOrEqual(sqrtRatioX96, TickMath.MIN_SQRT_RATIO)) {
-    tick = TickMath.MIN_TICK
+    tick = TickMath.MIN_TICK;
   } else {
     // this function is agnostic to the base, will always return the correct tick
-    tick = priceToClosestV4Tick(price)
+    tick = priceToClosestV4Tick(price);
   }
 
-  return nearestUsableTick(tick, tickSpacing)
+  return nearestUsableTick(tick, tickSpacing);
 }
 
 export function getV4PriceRangeInfo({
@@ -779,23 +855,23 @@ export function getV4PriceRangeInfo({
   positionState,
   derivedPositionInfo,
 }: {
-  state: PriceRangeState
-  positionState: PositionState
-  derivedPositionInfo: CreateV4PositionInfo
+  state: PriceRangeState;
+  positionState: PositionState;
+  derivedPositionInfo: CreateV4PositionInfo;
 }): V4PriceRangeInfo {
-  const { fee, hook, initialPosition } = positionState
-  const { protocolVersion, currencies, pool } = derivedPositionInfo
+  const { fee, hook, initialPosition } = positionState;
+  const { protocolVersion, currencies, pool } = derivedPositionInfo;
 
-  const sortedCurrencies = getSortedCurrenciesTuple(currencies[0], currencies[1])
-  const [sortedCurrency0, sortedCurrency1] = sortedCurrencies
-  const [baseCurrency, quoteCurrency] = getInvertedTuple(currencies, state.priceInverted)
-  const [initialPriceBaseCurrency] = getInvertedTuple(currencies, state.priceInverted)
+  const sortedCurrencies = getSortedCurrenciesTuple(currencies[0], currencies[1]);
+  const [sortedCurrency0, sortedCurrency1] = sortedCurrencies;
+  const [baseCurrency, quoteCurrency] = getInvertedTuple(currencies, state.priceInverted);
+  const [initialPriceBaseCurrency] = getInvertedTuple(currencies, state.priceInverted);
 
   const priceDifference = getPriceDifference({
     initialPrice: state.initialPrice,
     defaultInitialPrice: derivedPositionInfo.defaultInitialPrice,
     priceInverted: state.priceInverted,
-  })
+  });
 
   const price = derivedPositionInfo.creatingPoolOrPair
     ? getInitialPrice({
@@ -807,8 +883,8 @@ export function getV4PriceRangeInfo({
         type: ProtocolVersion.V4,
         pool,
         currency0: sortedCurrency0,
-      })
-  const invalidPrice = isInvalidPrice(price)
+      });
+  const invalidPrice = isInvalidPrice(price);
   const mockPool = createMockV4Pool({
     baseToken: baseCurrency,
     quoteToken: quoteCurrency,
@@ -816,83 +892,127 @@ export function getV4PriceRangeInfo({
     hook,
     price,
     invalidPrice,
-  })
+  });
 
-  const poolForPosition = pool ?? mockPool
+  const poolForPosition = pool ?? mockPool;
   const tickSpaceLimits: [OptionalNumber, OptionalNumber] =
     initialPosition?.tickLower && initialPosition?.tickUpper
       ? [initialPosition.tickLower, initialPosition.tickUpper]
       : [
-          poolForPosition ? nearestUsableTick(TickMath.MIN_TICK, poolForPosition.tickSpacing) : undefined,
-          poolForPosition ? nearestUsableTick(TickMath.MAX_TICK, poolForPosition.tickSpacing) : undefined,
-        ]
+          poolForPosition
+            ? nearestUsableTick(TickMath.MIN_TICK, poolForPosition.tickSpacing)
+            : undefined,
+          poolForPosition
+            ? nearestUsableTick(TickMath.MAX_TICK, poolForPosition.tickSpacing)
+            : undefined,
+        ];
 
-  const invertPrice = Boolean(baseCurrency && sortedCurrency0 && !baseCurrency.equals(sortedCurrency0))
+  const invertPrice = Boolean(
+    baseCurrency && sortedCurrency0 && !baseCurrency.equals(sortedCurrency0)
+  );
   const [baseRangeInput, quoteRangeInput] = invertPrice
     ? [state.maxPrice, state.minPrice]
-    : [state.minPrice, state.maxPrice]
+    : [state.minPrice, state.maxPrice];
   const lowerTick =
     baseRangeInput === '' || initialPosition?.isOutOfRange
       ? tickSpaceLimits[0]
       : invertPrice
-        ? tryParseV4Tick(sortedCurrency1, sortedCurrency0, state.maxPrice, poolForPosition?.tickSpacing)
-        : tryParseV4Tick(sortedCurrency0, sortedCurrency1, state.minPrice, poolForPosition?.tickSpacing)
+        ? tryParseV4Tick(
+            sortedCurrency1,
+            sortedCurrency0,
+            state.maxPrice,
+            poolForPosition?.tickSpacing
+          )
+        : tryParseV4Tick(
+            sortedCurrency0,
+            sortedCurrency1,
+            state.minPrice,
+            poolForPosition?.tickSpacing
+          );
   const upperTick =
     quoteRangeInput === '' || initialPosition?.isOutOfRange
       ? tickSpaceLimits[1]
       : invertPrice
-        ? tryParseV4Tick(sortedCurrency1, sortedCurrency0, state.minPrice, poolForPosition?.tickSpacing)
-        : tryParseV4Tick(sortedCurrency0, sortedCurrency1, state.maxPrice, poolForPosition?.tickSpacing)
-  const ticks: [OptionalNumber, OptionalNumber] = [lowerTick, upperTick]
-  const invalidRange = Boolean(lowerTick !== undefined && upperTick !== undefined && lowerTick >= upperTick)
+        ? tryParseV4Tick(
+            sortedCurrency1,
+            sortedCurrency0,
+            state.minPrice,
+            poolForPosition?.tickSpacing
+          )
+        : tryParseV4Tick(
+            sortedCurrency0,
+            sortedCurrency1,
+            state.maxPrice,
+            poolForPosition?.tickSpacing
+          );
+  const ticks: [OptionalNumber, OptionalNumber] = [lowerTick, upperTick];
+  const invalidRange = Boolean(
+    lowerTick !== undefined && upperTick !== undefined && lowerTick >= upperTick
+  );
 
   const ticksAtLimit: [boolean, boolean] = state.fullRange
     ? [true, true]
-    : [lowerTick === tickSpaceLimits[0], upperTick === tickSpaceLimits[1]]
+    : [lowerTick === tickSpaceLimits[0], upperTick === tickSpaceLimits[1]];
 
   const pricesAtLimit: [OptionalCurrencyPrice, OptionalCurrencyPrice] = [
     getV4TickToPrice(sortedCurrency0, sortedCurrency1, tickSpaceLimits[0]),
     getV4TickToPrice(sortedCurrency0, sortedCurrency1, tickSpaceLimits[1]),
-  ]
+  ];
 
   const pricesAtTicks: [OptionalCurrencyPrice, OptionalCurrencyPrice] = [
     getV4TickToPrice(sortedCurrency0, sortedCurrency1, ticks[0]),
     getV4TickToPrice(sortedCurrency0, sortedCurrency1, ticks[1]),
-  ]
+  ];
 
-  const isSorted = areCurrenciesEqual(baseCurrency, sortedCurrency0)
+  const isSorted = areCurrenciesEqual(baseCurrency, sortedCurrency0);
   const prices: [OptionalCurrencyPrice, OptionalCurrencyPrice] = getPrices({
     baseCurrency,
     quoteCurrency,
     pricesAtLimit,
     pricesAtTicks,
     state,
-  })
+  });
 
   const outOfRange: boolean = Boolean(
-    !invalidRange && price && prices[0] && prices[1] && (price.lessThan(prices[0]) || price.greaterThan(prices[1])),
-  )
+    !invalidRange &&
+      price &&
+      prices[0] &&
+      prices[1] &&
+      (price.lessThan(prices[0]) || price.greaterThan(prices[1]))
+  );
 
   // This is in terms of the sorted tokens
   const deposit0Disabled = Boolean(
-    upperTick !== undefined && poolForPosition && poolForPosition.tickCurrent >= upperTick,
-  )
+    upperTick !== undefined && poolForPosition && poolForPosition.tickCurrent >= upperTick
+  );
   const deposit1Disabled = Boolean(
-    lowerTick !== undefined && poolForPosition && poolForPosition.tickCurrent <= lowerTick,
-  )
+    lowerTick !== undefined && poolForPosition && poolForPosition.tickCurrent <= lowerTick
+  );
 
   const depositADisabled =
     invalidRange ||
     Boolean(
-      (deposit0Disabled && poolForPosition && currencies[0] && poolForPosition.token0.equals(currencies[0])) ||
-        (deposit1Disabled && poolForPosition && currencies[0] && poolForPosition.token1.equals(currencies[0])),
-    )
+      (deposit0Disabled &&
+        poolForPosition &&
+        currencies[0] &&
+        poolForPosition.token0.equals(currencies[0])) ||
+        (deposit1Disabled &&
+          poolForPosition &&
+          currencies[0] &&
+          poolForPosition.token1.equals(currencies[0]))
+    );
   const depositBDisabled =
     invalidRange ||
     Boolean(
-      (deposit0Disabled && poolForPosition && currencies[1] && poolForPosition.token0.equals(currencies[1])) ||
-        (deposit1Disabled && poolForPosition && currencies[1] && poolForPosition.token1.equals(currencies[1])),
-    )
+      (deposit0Disabled &&
+        poolForPosition &&
+        currencies[1] &&
+        poolForPosition.token0.equals(currencies[1])) ||
+        (deposit1Disabled &&
+          poolForPosition &&
+          currencies[1] &&
+          poolForPosition.token1.equals(currencies[1]))
+    );
 
   return {
     protocolVersion,
@@ -912,7 +1032,7 @@ export function getV4PriceRangeInfo({
     deposit0Disabled: depositADisabled,
     deposit1Disabled: depositBDisabled,
     mockPool,
-  } satisfies V4PriceRangeInfo
+  } satisfies V4PriceRangeInfo;
 }
 
 export function generateAddLiquidityApprovalParams({
@@ -922,15 +1042,15 @@ export function generateAddLiquidityApprovalParams({
   derivedDepositInfo,
   generatePermitAsTransaction,
 }: {
-  account?: AccountMeta
-  positionState: PositionState
-  derivedPositionInfo: CreatePositionInfo
-  derivedDepositInfo: DepositInfo
-  generatePermitAsTransaction?: boolean
+  account?: AccountMeta;
+  positionState: PositionState;
+  derivedPositionInfo: CreatePositionInfo;
+  derivedDepositInfo: DepositInfo;
+  generatePermitAsTransaction?: boolean;
 }): CheckApprovalLPRequest | undefined {
-  const apiProtocolItems = getProtocolItems(positionState.protocolVersion)
-  const currencies = derivedPositionInfo.currencies
-  const { currencyAmounts } = derivedDepositInfo
+  const apiProtocolItems = getProtocolItems(positionState.protocolVersion);
+  const currencies = derivedPositionInfo.currencies;
+  const { currencyAmounts } = derivedDepositInfo;
 
   if (
     !account?.address ||
@@ -939,7 +1059,7 @@ export function generateAddLiquidityApprovalParams({
     !currencyAmounts?.TOKEN1 ||
     !validateCurrencyInput(currencies)
   ) {
-    return undefined
+    return undefined;
   }
 
   return {
@@ -952,8 +1072,10 @@ export function generateAddLiquidityApprovalParams({
     amount0: currencyAmounts?.TOKEN0?.quotient.toString(),
     amount1: currencyAmounts?.TOKEN1?.quotient.toString(),
     generatePermitAsTransaction:
-      positionState.protocolVersion === ProtocolVersion.V4 ? generatePermitAsTransaction : undefined,
-  } satisfies CheckApprovalLPRequest
+      positionState.protocolVersion === ProtocolVersion.V4
+        ? generatePermitAsTransaction
+        : undefined,
+  } satisfies CheckApprovalLPRequest;
 }
 
 // Returns the sorted token that is independent.
@@ -969,20 +1091,22 @@ function getIndependentToken({
   independentField,
   protocolVersion,
 }: {
-  unsortedCurrencies: [Currency, Currency]
-  sortedToken0: Currency
-  sortedToken1: Currency
-  independentField: PositionField
-  protocolVersion: ProtocolVersion
+  unsortedCurrencies: [Currency, Currency];
+  sortedToken0: Currency;
+  sortedToken1: Currency;
+  independentField: PositionField;
+  protocolVersion: ProtocolVersion;
 }): {
-  independentToken: IndependentToken.TOKEN_0 | IndependentToken.TOKEN_1
-  token0Index: PositionField
-  token1Index: PositionField
+  independentToken: IndependentToken.TOKEN_0 | IndependentToken.TOKEN_1;
+  token0Index: PositionField;
+  token1Index: PositionField;
 } {
-  const tokenA = getCurrencyWithWrap(unsortedCurrencies[0], protocolVersion)
-  const tokenB = getCurrencyWithWrap(unsortedCurrencies[1], protocolVersion)
-  const token0Index = tokenA && sortedToken0.equals(tokenA) ? PositionField.TOKEN0 : PositionField.TOKEN1
-  const token1Index = tokenB && sortedToken1.equals(tokenB) ? PositionField.TOKEN1 : PositionField.TOKEN0
+  const tokenA = getCurrencyWithWrap(unsortedCurrencies[0], protocolVersion);
+  const tokenB = getCurrencyWithWrap(unsortedCurrencies[1], protocolVersion);
+  const token0Index =
+    tokenA && sortedToken0.equals(tokenA) ? PositionField.TOKEN0 : PositionField.TOKEN1;
+  const token1Index =
+    tokenB && sortedToken1.equals(tokenB) ? PositionField.TOKEN1 : PositionField.TOKEN0;
 
   const independentToken =
     independentField === PositionField.TOKEN0
@@ -991,13 +1115,13 @@ function getIndependentToken({
         : IndependentToken.TOKEN_1
       : token1Index === PositionField.TOKEN1
         ? IndependentToken.TOKEN_1
-        : IndependentToken.TOKEN_0
+        : IndependentToken.TOKEN_0;
 
   return {
     independentToken,
     token0Index,
     token1Index,
-  }
+  };
 }
 
 export function generateCreateCalldataQueryParams({
@@ -1011,19 +1135,19 @@ export function generateCreateCalldataQueryParams({
   independentField,
   slippageTolerance,
 }: {
-  account?: AccountMeta
-  approvalCalldata?: CheckApprovalLPResponse
-  positionState: PositionState
-  derivedPositionInfo: CreatePositionInfo
-  priceRangeState: PriceRangeState
-  derivedPriceRangeInfo: PriceRangeInfo
-  derivedDepositInfo: DepositInfo
-  independentField: PositionField
-  slippageTolerance?: number
+  account?: AccountMeta;
+  approvalCalldata?: CheckApprovalLPResponse;
+  positionState: PositionState;
+  derivedPositionInfo: CreatePositionInfo;
+  priceRangeState: PriceRangeState;
+  derivedPriceRangeInfo: PriceRangeInfo;
+  derivedDepositInfo: DepositInfo;
+  independentField: PositionField;
+  slippageTolerance?: number;
 }): CreateLPPositionRequest | undefined {
-  const apiProtocolItems = getProtocolItems(positionState.protocolVersion)
-  const currencies = derivedPositionInfo.currencies
-  const { currencyAmounts } = derivedDepositInfo
+  const apiProtocolItems = getProtocolItems(positionState.protocolVersion);
+  const currencies = derivedPositionInfo.currencies;
+  const { currencyAmounts } = derivedDepositInfo;
 
   if (
     !account?.address ||
@@ -1032,7 +1156,7 @@ export function generateCreateCalldataQueryParams({
     !currencyAmounts?.TOKEN1 ||
     !validateCurrencyInput(currencies)
   ) {
-    return undefined
+    return undefined;
   }
 
   const {
@@ -1042,23 +1166,23 @@ export function generateCreateCalldataQueryParams({
     permitData,
     token0PermitTransaction,
     token1PermitTransaction,
-  } = approvalCalldata ?? {}
+  } = approvalCalldata ?? {};
 
   if (derivedPositionInfo.protocolVersion === ProtocolVersion.V2) {
     if (derivedPositionInfo.protocolVersion !== derivedPriceRangeInfo.protocolVersion) {
-      return undefined
+      return undefined;
     }
 
-    const pair = derivedPositionInfo.pair ?? derivedPriceRangeInfo.mockPair
+    const pair = derivedPositionInfo.pair ?? derivedPriceRangeInfo.mockPair;
 
     if (!pair) {
-      return undefined
+      return undefined;
     }
 
     // token0 and token1 from the sdk are automatically sorted and we need to ensure the values we send
     // to the trading API are also sorted
-    const sortedToken0 = pair.token0
-    const sortedToken1 = pair.token1
+    const sortedToken0 = pair.token0;
+    const sortedToken1 = pair.token1;
 
     const { independentToken, token0Index, token1Index } = getIndependentToken({
       unsortedCurrencies: currencies,
@@ -1066,10 +1190,11 @@ export function generateCreateCalldataQueryParams({
       sortedToken1,
       independentField,
       protocolVersion: derivedPositionInfo.protocolVersion,
-    })
-    const dependentField = independentField === PositionField.TOKEN0 ? PositionField.TOKEN1 : PositionField.TOKEN0
-    const independentAmount = currencyAmounts[independentField]
-    const dependentAmount = currencyAmounts[dependentField]
+    });
+    const dependentField =
+      independentField === PositionField.TOKEN0 ? PositionField.TOKEN1 : PositionField.TOKEN0;
+    const independentAmount = currencyAmounts[independentField];
+    const dependentAmount = currencyAmounts[dependentField];
 
     return {
       simulateTransaction: !(
@@ -1093,37 +1218,37 @@ export function generateCreateCalldataQueryParams({
           token1: getCurrencyAddressForTradingApi(currencyAmounts[token1Index]?.currency),
         },
       },
-    } satisfies CreateLPPositionRequest
+    } satisfies CreateLPPositionRequest;
   }
 
   if (derivedPositionInfo.protocolVersion !== derivedPriceRangeInfo.protocolVersion) {
-    return undefined
+    return undefined;
   }
 
-  const pool = derivedPositionInfo.pool ?? derivedPriceRangeInfo.mockPool
+  const pool = derivedPositionInfo.pool ?? derivedPriceRangeInfo.mockPool;
   if (!pool) {
-    return undefined
+    return undefined;
   }
 
   const tickLower = priceRangeState.fullRange
     ? derivedPriceRangeInfo.tickSpaceLimits[0]
-    : derivedPriceRangeInfo.ticks?.[0]
+    : derivedPriceRangeInfo.ticks?.[0];
   const tickUpper = priceRangeState.fullRange
     ? derivedPriceRangeInfo.tickSpaceLimits[1]
-    : derivedPriceRangeInfo.ticks?.[1]
+    : derivedPriceRangeInfo.ticks?.[1];
 
   if (tickLower === undefined || tickUpper === undefined) {
-    return undefined
+    return undefined;
   }
 
-  const creatingPool = derivedPositionInfo.creatingPoolOrPair
-  const initialPrice = creatingPool ? pool.sqrtRatioX96.toString() : undefined
-  const tickSpacing = pool.tickSpacing
+  const creatingPool = derivedPositionInfo.creatingPoolOrPair;
+  const initialPrice = creatingPool ? pool.sqrtRatioX96.toString() : undefined;
+  const tickSpacing = pool.tickSpacing;
 
   // token0 and token1 from the sdk are automatically sorted and we need to ensure the values we send
   // to the trading API are also sorted
-  const sortedToken0 = pool.token0
-  const sortedToken1 = pool.token1
+  const sortedToken0 = pool.token0;
+  const sortedToken1 = pool.token1;
 
   const { independentToken, token0Index, token1Index } = getIndependentToken({
     sortedToken0,
@@ -1131,10 +1256,11 @@ export function generateCreateCalldataQueryParams({
     unsortedCurrencies: currencies,
     independentField,
     protocolVersion: derivedPositionInfo.protocolVersion,
-  })
-  const dependentField = independentField === PositionField.TOKEN0 ? PositionField.TOKEN1 : PositionField.TOKEN0
-  const independentAmount = currencyAmounts[independentField]
-  const dependentAmount = currencyAmounts[dependentField]
+  });
+  const dependentField =
+    independentField === PositionField.TOKEN0 ? PositionField.TOKEN1 : PositionField.TOKEN0;
+  const independentAmount = currencyAmounts[independentField];
+  const dependentAmount = currencyAmounts[dependentField];
 
   return {
     simulateTransaction: !(
@@ -1164,7 +1290,7 @@ export function generateCreateCalldataQueryParams({
         hooks: positionState.hook,
       },
     },
-  } satisfies CreateLPPositionRequest
+  } satisfies CreateLPPositionRequest;
 }
 
 export function generateCreatePositionTxRequest({
@@ -1174,56 +1300,60 @@ export function generateCreatePositionTxRequest({
   derivedPositionInfo,
   derivedDepositInfo,
 }: {
-  approvalCalldata?: CheckApprovalLPResponse
-  createCalldata?: CreateLPPositionResponse
-  createCalldataQueryParams?: CreateLPPositionRequest
-  derivedPositionInfo: CreatePositionInfo
-  derivedDepositInfo: DepositInfo
+  approvalCalldata?: CheckApprovalLPResponse;
+  createCalldata?: CreateLPPositionResponse;
+  createCalldataQueryParams?: CreateLPPositionRequest;
+  derivedPositionInfo: CreatePositionInfo;
+  derivedDepositInfo: DepositInfo;
 }): CreatePositionTxAndGasInfo | undefined {
-  const { currencyAmounts } = derivedDepositInfo
+  const { currencyAmounts } = derivedDepositInfo;
 
   if (!createCalldata || !currencyAmounts?.TOKEN0 || !currencyAmounts?.TOKEN1) {
-    return undefined
+    return undefined;
   }
 
-  const validatedApprove0Request = validateTransactionRequest(approvalCalldata?.token0Approval)
+  const validatedApprove0Request = validateTransactionRequest(approvalCalldata?.token0Approval);
   if (approvalCalldata?.token0Approval && !validatedApprove0Request) {
-    return undefined
+    return undefined;
   }
 
-  const validatedApprove1Request = validateTransactionRequest(approvalCalldata?.token1Approval)
+  const validatedApprove1Request = validateTransactionRequest(approvalCalldata?.token1Approval);
   if (approvalCalldata?.token1Approval && !validatedApprove1Request) {
-    return undefined
+    return undefined;
   }
 
-  const validatedRevoke0Request = validateTransactionRequest(approvalCalldata?.token0Cancel)
+  const validatedRevoke0Request = validateTransactionRequest(approvalCalldata?.token0Cancel);
   if (approvalCalldata?.token0Cancel && !validatedRevoke0Request) {
-    return undefined
+    return undefined;
   }
 
-  const validatedRevoke1Request = validateTransactionRequest(approvalCalldata?.token1Cancel)
+  const validatedRevoke1Request = validateTransactionRequest(approvalCalldata?.token1Cancel);
   if (approvalCalldata?.token1Cancel && !validatedRevoke1Request) {
-    return undefined
+    return undefined;
   }
 
-  const validatedPermitRequest = validatePermit(approvalCalldata?.permitData)
+  const validatedPermitRequest = validatePermit(approvalCalldata?.permitData);
   if (approvalCalldata?.permitData && !validatedPermitRequest) {
-    return undefined
+    return undefined;
   }
 
-  const validatedToken0PermitTransaction = validateTransactionRequest(approvalCalldata?.token0PermitTransaction)
-  const validatedToken1PermitTransaction = validateTransactionRequest(approvalCalldata?.token1PermitTransaction)
+  const validatedToken0PermitTransaction = validateTransactionRequest(
+    approvalCalldata?.token0PermitTransaction
+  );
+  const validatedToken1PermitTransaction = validateTransactionRequest(
+    approvalCalldata?.token1PermitTransaction
+  );
 
-  const txRequest = validateTransactionRequest(createCalldata.create)
+  const txRequest = validateTransactionRequest(createCalldata.create);
   if (!txRequest && !(validatedToken0PermitTransaction || validatedToken1PermitTransaction)) {
     // Allow missing txRequest if mismatched (unsigned flow using token0PermitTransaction/2)
-    return undefined
+    return undefined;
   }
 
   const queryParams: CreateLPPositionRequest | undefined =
     derivedPositionInfo.protocolVersion === ProtocolVersion.V4
       ? { ...createCalldataQueryParams, batchPermitData: validatedPermitRequest }
-      : createCalldataQueryParams
+      : createCalldataQueryParams;
 
   return {
     type: LiquidityTransactionType.Create,
@@ -1245,17 +1375,21 @@ export function generateCreatePositionTxRequest({
     approvePositionTokenRequest: undefined,
     revokeToken0Request: validatedRevoke0Request,
     revokeToken1Request: validatedRevoke1Request,
-    permit: validatedPermitRequest ? { method: PermitMethod.TypedData, typedData: validatedPermitRequest } : undefined,
+    permit: validatedPermitRequest
+      ? { method: PermitMethod.TypedData, typedData: validatedPermitRequest }
+      : undefined,
     token0PermitTransaction: validatedToken0PermitTransaction,
     token1PermitTransaction: validatedToken1PermitTransaction,
     positionTokenPermitTransaction: undefined,
-  } satisfies CreatePositionTxAndGasInfo
+  } satisfies CreatePositionTxAndGasInfo;
 }
 
-export function getPoolIdOrAddressFromCreatePositionInfo(positionInfo: CreatePositionInfo): string | undefined {
+export function getPoolIdOrAddressFromCreatePositionInfo(
+  positionInfo: CreatePositionInfo
+): string | undefined {
   switch (positionInfo.protocolVersion) {
     case ProtocolVersion.V2:
-      return positionInfo.pair?.liquidityToken.address
+      return positionInfo.pair?.liquidityToken.address;
     case ProtocolVersion.V3:
       return positionInfo.pool?.chainId && positionInfo.currencies[0] && positionInfo.currencies[1]
         ? PoolCache.getPoolAddress(
@@ -1263,97 +1397,100 @@ export function getPoolIdOrAddressFromCreatePositionInfo(positionInfo: CreatePos
             positionInfo.currencies[0].wrapped,
             positionInfo.currencies[1].wrapped,
             positionInfo.pool.fee,
-            positionInfo.pool.chainId,
+            positionInfo.pool.chainId
           )
-        : undefined
+        : undefined;
     case ProtocolVersion.V4:
     default:
-      return positionInfo.pool?.poolId
+      return positionInfo.pool?.poolId;
   }
 }
 
-export function canUnwrapCurrency(currency: OptionalCurrency, protocolVersion?: ProtocolVersion): boolean {
+export function canUnwrapCurrency(
+  currency: OptionalCurrency,
+  protocolVersion?: ProtocolVersion
+): boolean {
   if (protocolVersion === ProtocolVersion.V4 || !currency) {
-    return false
+    return false;
   }
 
-  const wrappedNative = WRAPPED_NATIVE_CURRENCY[currency?.chainId]
-  return areCurrenciesEqual(wrappedNative, currency)
+  const wrappedNative = WRAPPED_NATIVE_CURRENCY[currency?.chainId];
+  return areCurrenciesEqual(wrappedNative, currency);
 }
 
 export function getCurrencyWithOptionalUnwrap({
   currency,
   shouldUnwrap,
 }: {
-  currency: Currency
-  shouldUnwrap: boolean
-}): Currency
+  currency: Currency;
+  shouldUnwrap: boolean;
+}): Currency;
 export function getCurrencyWithOptionalUnwrap({
   currency,
   shouldUnwrap,
 }: {
-  currency: OptionalCurrency
-  shouldUnwrap: boolean
-}): OptionalCurrency
+  currency: OptionalCurrency;
+  shouldUnwrap: boolean;
+}): OptionalCurrency;
 export function getCurrencyWithOptionalUnwrap({
   currency,
   shouldUnwrap,
 }: {
-  currency: OptionalCurrency
-  shouldUnwrap: boolean
+  currency: OptionalCurrency;
+  shouldUnwrap: boolean;
 }) {
   if (!currency) {
-    return undefined
+    return undefined;
   }
 
-  const wrappedNative = WRAPPED_NATIVE_CURRENCY[currency.chainId]
-  const isWrappedNative = areCurrenciesEqual(wrappedNative, currency)
+  const wrappedNative = WRAPPED_NATIVE_CURRENCY[currency.chainId];
+  const isWrappedNative = areCurrenciesEqual(wrappedNative, currency);
 
   if (!isWrappedNative || !shouldUnwrap) {
-    return currency
+    return currency;
   }
 
-  return nativeOnChain(currency.chainId)
+  return nativeOnChain(currency.chainId);
 }
 
-const WARNING_PRICE_DIFFERENCE_PERCENTAGE = 5
-const CRITICAL_PRICE_DIFFERENCE_PERCENTAGE = 10
+const WARNING_PRICE_DIFFERENCE_PERCENTAGE = 5;
+const CRITICAL_PRICE_DIFFERENCE_PERCENTAGE = 10;
 
 function getPriceDifference({
   initialPrice,
   defaultInitialPrice,
   priceInverted,
 }: {
-  initialPrice: string
-  defaultInitialPrice?: Price<Currency, Currency>
-  priceInverted: boolean
+  initialPrice: string;
+  defaultInitialPrice?: Price<Currency, Currency>;
+  priceInverted: boolean;
 }): PriceDifference | undefined {
   // Roughly estimate the price difference between the initialPrice (user input)
   // and the defaultInitialPrice (derived from a quote) if we have both.
-  const initialPriceNumber = Number(initialPrice)
+  const initialPriceNumber = Number(initialPrice);
   const defaultInitialPriceNumber = priceInverted
     ? Number(defaultInitialPrice?.invert().toSignificant(8))
-    : Number(defaultInitialPrice?.toSignificant(8))
+    : Number(defaultInitialPrice?.toSignificant(8));
 
   if (!initialPriceNumber || !defaultInitialPriceNumber) {
-    return undefined
+    return undefined;
   }
 
-  const priceDifference = initialPriceNumber - defaultInitialPriceNumber
-  const priceDifferencePercentage = (priceDifference / defaultInitialPriceNumber) * 100
-  const priceDifferencePercentageRounded = Math.round(priceDifferencePercentage)
-  const priceDifferencePercentageAbsolute = Math.abs(priceDifferencePercentageRounded)
+  const priceDifference = initialPriceNumber - defaultInitialPriceNumber;
+  const priceDifferencePercentage = (priceDifference / defaultInitialPriceNumber) * 100;
+  const priceDifferencePercentageRounded = Math.round(priceDifferencePercentage);
+  const priceDifferencePercentageAbsolute = Math.abs(priceDifferencePercentageRounded);
 
-  let warning: WarningSeverity | undefined
+  let warning: WarningSeverity | undefined;
   if (priceDifferencePercentageAbsolute > CRITICAL_PRICE_DIFFERENCE_PERCENTAGE) {
-    warning = WarningSeverity.High
+    warning = WarningSeverity.High;
   } else if (priceDifferencePercentageAbsolute > WARNING_PRICE_DIFFERENCE_PERCENTAGE) {
-    warning = WarningSeverity.Medium
+    warning = WarningSeverity.Medium;
   }
 
   return {
     value: priceDifferencePercentageRounded,
     absoluteValue: priceDifferencePercentageAbsolute,
     warning,
-  }
+  };
 }

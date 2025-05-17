@@ -1,9 +1,9 @@
-import { Currency, CurrencyAmount, Price } from '@uniswap/sdk-core'
-import { FlexProps } from 'ui/src/components/layout/Flex'
+import { Currency, CurrencyAmount, Price } from '@uniswap/sdk-core';
+import { FlexProps } from 'ui/src/components/layout/Flex';
 
 export function getCrosshairProps(
   color: any,
-  { yCoordinate, xCoordinate }: { yCoordinate: number; xCoordinate: number },
+  { yCoordinate, xCoordinate }: { yCoordinate: number; xCoordinate: number }
 ): FlexProps {
   return {
     position: 'absolute',
@@ -13,30 +13,34 @@ export function getCrosshairProps(
     height: 6,
     borderRadius: '$roundedFull',
     backgroundColor: color,
-  }
+  };
 }
 
 export function isEffectivelyInfinity(value: number): boolean {
-  return Math.abs(value) >= 1e20 || Math.abs(value) <= 1e-20
+  return Math.abs(value) >= 1e20 || Math.abs(value) <= 1e-20;
 }
 
-export function priceToNumber(price: Price<Currency, Currency> | undefined, defaultValue: number): number {
-  const baseCurrency = price?.baseCurrency
+export function priceToNumber(
+  price: Price<Currency, Currency> | undefined,
+  defaultValue: number
+): number {
+  const baseCurrency = price?.baseCurrency;
   if (!baseCurrency) {
-    return defaultValue
+    return defaultValue;
   }
 
-  const sigFigs = Boolean(baseCurrency.decimals) && baseCurrency.decimals > 0 ? baseCurrency.decimals : 6
+  const sigFigs =
+    Boolean(baseCurrency.decimals) && baseCurrency.decimals > 0 ? baseCurrency.decimals : 6;
 
   const numPrice = Number(
     price
       .quote(CurrencyAmount.fromRawAmount(baseCurrency, Math.pow(10, baseCurrency.decimals)))
-      ?.toSignificant(sigFigs) ?? 0,
-  )
+      ?.toSignificant(sigFigs) ?? 0
+  );
 
   if (isEffectivelyInfinity(numPrice)) {
-    return defaultValue
+    return defaultValue;
   }
 
-  return numPrice
+  return numPrice;
 }

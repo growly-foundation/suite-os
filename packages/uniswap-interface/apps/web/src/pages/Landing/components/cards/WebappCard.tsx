@@ -1,21 +1,21 @@
-import { PortfolioLogo } from 'components/AccountDrawer/MiniPortfolio/PortfolioLogo'
-import { DeltaArrow } from 'components/Tokens/TokenDetails/Delta'
-import { NATIVE_CHAIN_ID } from 'constants/tokens'
-import { getTokenDetailsURL } from 'graphql/data/util'
-import { useCurrency } from 'hooks/Tokens'
-import { Computer } from 'pages/Landing/components/Icons'
-import { PillButton } from 'pages/Landing/components/cards/PillButton'
-import ValuePropCard from 'pages/Landing/components/cards/ValuePropCard'
-import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
-import { Flex, Text, useMedia } from 'ui/src'
-import { LDO, UNI, USDC_BASE } from 'uniswap/src/constants/tokens'
-import { useTokenPromoQuery } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { toGraphQLChain } from 'uniswap/src/features/chains/utils'
-import { NumberType, useFormatter } from 'utils/formatNumbers'
+import { PortfolioLogo } from 'components/AccountDrawer/MiniPortfolio/PortfolioLogo';
+import { DeltaArrow } from 'components/Tokens/TokenDetails/Delta';
+import { NATIVE_CHAIN_ID } from 'constants/tokens';
+import { getTokenDetailsURL } from 'graphql/data/util';
+import { useCurrency } from 'hooks/Tokens';
+import { Computer } from 'pages/Landing/components/Icons';
+import { PillButton } from 'pages/Landing/components/cards/PillButton';
+import ValuePropCard from 'pages/Landing/components/cards/ValuePropCard';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { Flex, Text, useMedia } from 'ui/src';
+import { LDO, UNI, USDC_BASE } from 'uniswap/src/constants/tokens';
+import { useTokenPromoQuery } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import { toGraphQLChain } from 'uniswap/src/features/chains/utils';
+import { NumberType, useFormatter } from 'utils/formatNumbers';
 
-const primary = '#2ABDFF'
+const primary = '#2ABDFF';
 
 const tokens: { chainId: UniverseChainId; address: string }[] = [
   {
@@ -34,23 +34,23 @@ const tokens: { chainId: UniverseChainId; address: string }[] = [
     chainId: UniverseChainId.Mainnet,
     address: LDO.address,
   },
-]
+];
 
 function Token({ chainId, address }: { chainId: UniverseChainId; address: string }) {
-  const media = useMedia()
-  const isSmallScreen = media.md
+  const media = useMedia();
+  const isSmallScreen = media.md;
 
-  const navigate = useNavigate()
-  const { formatFiatPrice, formatDelta } = useFormatter()
-  const currency = useCurrency(address, chainId)
+  const navigate = useNavigate();
+  const { formatFiatPrice, formatDelta } = useFormatter();
+  const currency = useCurrency(address, chainId);
   const tokenPromoQuery = useTokenPromoQuery({
     variables: {
       address: currency?.wrapped.address,
       chain: toGraphQLChain(chainId),
     },
-  })
-  const price = tokenPromoQuery.data?.token?.market?.price?.value ?? 0
-  const pricePercentChange = tokenPromoQuery.data?.token?.market?.pricePercentChange?.value ?? 0
+  });
+  const price = tokenPromoQuery.data?.token?.market?.price?.value ?? 0;
+  const pricePercentChange = tokenPromoQuery.data?.token?.market?.pricePercentChange?.value ?? 0;
 
   return (
     <Flex
@@ -64,14 +64,14 @@ function Token({ chainId, address }: { chainId: UniverseChainId; address: string
       gap="$gap16"
       borderRadius="$rounded20"
       backgroundColor="$surface1"
-      onPress={(e) => {
-        e.stopPropagation()
+      onPress={e => {
+        e.stopPropagation();
         navigate(
           getTokenDetailsURL({
             address: address === 'ETH' ? NATIVE_CHAIN_ID : address,
             chain: toGraphQLChain(chainId),
-          }),
-        )
+          })
+        );
       }}
       $platform-web={{
         transition: 'background-color 125ms ease-in, transform 125ms ease-in',
@@ -92,8 +92,7 @@ function Token({ chainId, address }: { chainId: UniverseChainId; address: string
         height: 48,
         p: 12,
         borderRadius: 16,
-      }}
-    >
+      }}>
       <PortfolioLogo currencies={[currency]} chainId={chainId} size={isSmallScreen ? 24 : 32} />
       <Flex row flex={1} justifyContent="space-between" gap="$gap16">
         <Flex row width="auto" gap="$gap8" alignItems="center" overflow="hidden">
@@ -113,8 +112,7 @@ function Token({ chainId, address }: { chainId: UniverseChainId; address: string
               fontSize: 16,
               lineHeight: 20,
               display: 'none',
-            }}
-          >
+            }}>
             {currency?.name}
           </Text>
           <Text
@@ -130,8 +128,7 @@ function Token({ chainId, address }: { chainId: UniverseChainId; address: string
               fontSize: 16,
               lineHeight: 20,
               color: '$neutral1',
-            }}
-          >
+            }}>
             {currency?.symbol}
           </Text>
         </Flex>
@@ -148,8 +145,7 @@ function Token({ chainId, address }: { chainId: UniverseChainId; address: string
             $xs={{
               fontSize: 16,
               lineHeight: 20,
-            }}
-          >
+            }}>
             {formatFiatPrice({
               price,
               type: NumberType.FiatTokenPrice,
@@ -165,9 +161,11 @@ function Token({ chainId, address }: { chainId: UniverseChainId; address: string
             }}
             $lg={{
               display: 'none',
-            }}
-          >
-            <DeltaArrow delta={pricePercentChange} formattedDelta={formatDelta(pricePercentChange)} />
+            }}>
+            <DeltaArrow
+              delta={pricePercentChange}
+              formattedDelta={formatDelta(pricePercentChange)}
+            />
             <Text
               textAlign="right"
               fontSize={24}
@@ -183,19 +181,18 @@ function Token({ chainId, address }: { chainId: UniverseChainId; address: string
                 fontSize: 16,
                 lineHeight: 20,
                 width: 50,
-              }}
-            >
+              }}>
               {formatDelta(pricePercentChange)}
             </Text>
           </Flex>
         </Flex>
       </Flex>
     </Flex>
-  )
+  );
 }
 
 export function WebappCard() {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   return (
     <ValuePropCard
       to="/tokens/ethereum"
@@ -207,9 +204,14 @@ export function WebappCard() {
       $theme-light={{
         backgroundColor: 'rgba(0, 102, 255, 0.04)',
       }}
-      button={<PillButton color={primary} label={t('common.webApp')} icon={<Computer size="24px" fill={primary} />} />}
-      titleText={t('landing.swapSimple')}
-    >
+      button={
+        <PillButton
+          color={primary}
+          label={t('common.webApp')}
+          icon={<Computer size="24px" fill={primary} />}
+        />
+      }
+      titleText={t('landing.swapSimple')}>
       <Flex
         gap="$gap8"
         alignItems="center"
@@ -225,12 +227,15 @@ export function WebappCard() {
         $xs={{
           p: 16,
           pb: 24,
-        }}
-      >
-        {tokens.map((token) => (
-          <Token key={`tokenRow-${token.address}`} chainId={token.chainId} address={token.address} />
+        }}>
+        {tokens.map(token => (
+          <Token
+            key={`tokenRow-${token.address}`}
+            chainId={token.chainId}
+            address={token.address}
+          />
         ))}
       </Flex>
     </ValuePropCard>
-  )
+  );
 }

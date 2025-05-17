@@ -1,19 +1,19 @@
-import { YStack, styled, type YStackProps } from 'tamagui'
-import { FOCUS_SCALE } from 'ui/src/components/buttons/Button/components/CustomButtonFrame/constants'
-import { withCommonPressStyle } from 'ui/src/components/buttons/Button/components/CustomButtonFrame/utils'
-import { isTestEnv } from 'utilities/src/environment/env'
-import { isWeb } from 'utilities/src/platform'
+import { YStack, styled, type YStackProps } from 'tamagui';
+import { FOCUS_SCALE } from 'ui/src/components/buttons/Button/components/CustomButtonFrame/constants';
+import { withCommonPressStyle } from 'ui/src/components/buttons/Button/components/CustomButtonFrame/utils';
+import { isTestEnv } from 'utilities/src/environment/env';
+import { isWeb } from 'utilities/src/platform';
 
-type TouchableAreaVariant = 'unstyled' | 'none' | 'outlined' | 'filled' | 'raised' | 'floating'
+type TouchableAreaVariant = 'unstyled' | 'none' | 'outlined' | 'filled' | 'raised' | 'floating';
 
 // This comes from the `hoverable` variant of the `TouchableAreaFrame`
 // But it can't circularly reference itself, so we need to define it here
 type PropsWithHoverableAndDisabled = {
   props: {
-    hoverable?: boolean
-    disabled?: boolean
-  }
-}
+    hoverable?: boolean;
+    disabled?: boolean;
+  };
+};
 
 export const TouchableAreaFrame = styled(YStack, {
   name: 'TouchableArea',
@@ -79,7 +79,10 @@ export const TouchableAreaFrame = styled(YStack, {
           outlineColor: '$neutral3',
         },
       },
-      none: (_: unknown, { props: { hoverable } }: PropsWithHoverableAndDisabled): Partial<YStackProps> => ({
+      none: (
+        _: unknown,
+        { props: { hoverable } }: PropsWithHoverableAndDisabled
+      ): Partial<YStackProps> => ({
         hoverStyle: hoverable
           ? {
               backgroundColor: '$surface2Hovered',
@@ -90,7 +93,10 @@ export const TouchableAreaFrame = styled(YStack, {
           outlineColor: '$neutral3',
         },
       }),
-      outlined: (_: unknown, { props: { hoverable } }: PropsWithHoverableAndDisabled): Partial<YStackProps> => ({
+      outlined: (
+        _: unknown,
+        { props: { hoverable } }: PropsWithHoverableAndDisabled
+      ): Partial<YStackProps> => ({
         borderWidth: 1,
         borderColor: '$surface3',
         hoverStyle: hoverable
@@ -105,7 +111,10 @@ export const TouchableAreaFrame = styled(YStack, {
           outlineColor: '$neutral3',
         },
       }),
-      filled: (_: unknown, { props: { hoverable } }: PropsWithHoverableAndDisabled): Partial<YStackProps> => ({
+      filled: (
+        _: unknown,
+        { props: { hoverable } }: PropsWithHoverableAndDisabled
+      ): Partial<YStackProps> => ({
         backgroundColor: '$surface3',
         hoverStyle: hoverable
           ? {
@@ -119,7 +128,10 @@ export const TouchableAreaFrame = styled(YStack, {
           outlineColor: '$neutral3',
         },
       }),
-      raised: (_: unknown, { props: { hoverable, disabled } }: PropsWithHoverableAndDisabled): Partial<YStackProps> => {
+      raised: (
+        _: unknown,
+        { props: { hoverable, disabled } }: PropsWithHoverableAndDisabled
+      ): Partial<YStackProps> => {
         return {
           // We can't nest `$theme-[dark/light]` within `$platform-web` because Tamagui doesn't support it
           '$theme-dark': {
@@ -163,9 +175,12 @@ export const TouchableAreaFrame = styled(YStack, {
             outlineColor: '$neutral3',
           },
           backgroundColor: disabled ? '$surface2' : undefined,
-        }
+        };
       },
-      floating: (_: unknown, { props: { hoverable } }: PropsWithHoverableAndDisabled): Partial<YStackProps> => ({
+      floating: (
+        _: unknown,
+        { props: { hoverable } }: PropsWithHoverableAndDisabled
+      ): Partial<YStackProps> => ({
         backgroundColor: '$surface5',
         '$platform-web': {
           backdropFilter: 'blur(12px)',
@@ -189,4 +204,4 @@ export const TouchableAreaFrame = styled(YStack, {
     hoverable: true,
     row: false,
   },
-})
+});

@@ -1,4 +1,4 @@
-import { createReducer } from '@reduxjs/toolkit'
+import { createReducer } from '@reduxjs/toolkit';
 import {
   Field,
   resetMintState,
@@ -7,16 +7,16 @@ import {
   typeLeftRangeInput,
   typeRightRangeInput,
   typeStartPriceInput,
-} from 'state/mint/v3/actions'
+} from 'state/mint/v3/actions';
 
-export type FullRange = true
+export type FullRange = true;
 
 export interface MintState {
-  readonly independentField: Field
-  readonly typedValue: string
-  readonly startPriceTypedValue: string // for the case when there's no liquidity
-  readonly leftRangeTypedValue: string | FullRange
-  readonly rightRangeTypedValue: string | FullRange
+  readonly independentField: Field;
+  readonly typedValue: string;
+  readonly startPriceTypedValue: string; // for the case when there's no liquidity
+  readonly leftRangeTypedValue: string | FullRange;
+  readonly rightRangeTypedValue: string | FullRange;
 }
 
 const initialState: MintState = {
@@ -25,35 +25,35 @@ const initialState: MintState = {
   startPriceTypedValue: '',
   leftRangeTypedValue: '',
   rightRangeTypedValue: '',
-}
+};
 
-export default createReducer<MintState>(initialState, (builder) =>
+export default createReducer<MintState>(initialState, builder =>
   builder
     .addCase(resetMintState, () => initialState)
-    .addCase(setFullRange, (state) => {
+    .addCase(setFullRange, state => {
       return {
         ...state,
         leftRangeTypedValue: true,
         rightRangeTypedValue: true,
-      }
+      };
     })
     .addCase(typeStartPriceInput, (state, { payload: { typedValue } }) => {
       return {
         ...state,
         startPriceTypedValue: typedValue,
-      }
+      };
     })
     .addCase(typeLeftRangeInput, (state, { payload: { typedValue } }) => {
       return {
         ...state,
         leftRangeTypedValue: typedValue,
-      }
+      };
     })
     .addCase(typeRightRangeInput, (state, { payload: { typedValue } }) => {
       return {
         ...state,
         rightRangeTypedValue: typedValue,
-      }
+      };
     })
     .addCase(typeInput, (state, { payload: { field, typedValue, noLiquidity } }) => {
       if (noLiquidity) {
@@ -63,7 +63,7 @@ export default createReducer<MintState>(initialState, (builder) =>
             ...state,
             independentField: field,
             typedValue,
-          }
+          };
         }
         // they're typing into a new field, store the other value
         else {
@@ -71,14 +71,14 @@ export default createReducer<MintState>(initialState, (builder) =>
             ...state,
             independentField: field,
             typedValue,
-          }
+          };
         }
       } else {
         return {
           ...state,
           independentField: field,
           typedValue,
-        }
+        };
       }
-    }),
-)
+    })
+);

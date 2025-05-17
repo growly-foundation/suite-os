@@ -1,68 +1,80 @@
-import type { TransactionResponse } from '@ethersproject/providers'
-import { LiquidityEventName, LiquiditySource } from '@uniswap/analytics-events'
-import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb'
-import { CurrencyAmount, Fraction, Percent, Price, Token, V2_FACTORY_ADDRESSES, type Currency } from '@uniswap/sdk-core'
-import { FeeAmount, Pool, Position, TickMath, priceToClosestTick } from '@uniswap/v3-sdk'
-import { BlueCard, DarkGrayCard, LightCard, YellowCard } from 'components/Card/cards'
-import FeeSelector from 'components/FeeSelector'
-import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
-import { getLPBaseAnalyticsProperties } from 'components/Liquidity/analytics'
-import CurrencyLogo from 'components/Logo/CurrencyLogo'
-import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo'
-import RangeSelector from 'components/RangeSelector'
-import RateToggle from 'components/RateToggle'
-import { V2Unsupported } from 'components/V2Unsupported'
-import { Dots } from 'components/swap/styled'
-import { useToken } from 'hooks/Tokens'
-import { useAccount } from 'hooks/useAccount'
-import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
-import { usePairContract, useV2MigratorContract } from 'hooks/useContract'
-import useIsArgentWallet from 'hooks/useIsArgentWallet'
-import { useNetworkSupportsV2 } from 'hooks/useNetworkSupportsV2'
-import { PoolState, usePool } from 'hooks/usePools'
-import { usePositionOwnerV2 } from 'hooks/usePositionOwnerV2'
-import { useTotalSupply } from 'hooks/useTotalSupply'
-import { useGetTransactionDeadline } from 'hooks/useTransactionDeadline'
-import { useV2LiquidityTokenPermit } from 'hooks/useV2LiquidityTokenPermit'
-import JSBI from 'jsbi'
-import { BodyWrapper } from 'pages/App/AppBody'
-import MigrateV2SettingsTab from 'pages/MigrateV2/Settings'
-import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
-import { AlertCircle, AlertTriangle } from 'react-feather'
-import { Trans, useTranslation } from 'react-i18next'
-import { Navigate, useNavigate, useParams } from 'react-router-dom'
-import { useTokenBalance } from 'state/connection/hooks'
-import { useAppDispatch } from 'state/hooks'
-import { Bound, resetMintState } from 'state/mint/v3/actions'
-import { useRangeHopCallbacks, useV3DerivedMintInfo, useV3MintActionHandlers } from 'state/mint/v3/hooks'
-import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
-import { TransactionType } from 'state/transactions/types'
-import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
-import { ExternalLink } from 'theme/components/Links'
-import { Button, Flex, Text, TouchableArea, useSporeColors } from 'ui/src'
-import { Arrow } from 'ui/src/components/arrow/Arrow'
-import { iconSizes } from 'ui/src/theme'
-import Badge from 'uniswap/src/components/badge/Badge'
-import { WRAPPED_NATIVE_CURRENCY } from 'uniswap/src/constants/tokens'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { InterfacePageNameLocal } from 'uniswap/src/features/telemetry/constants'
-import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send'
-import { useUSDCValue } from 'uniswap/src/features/transactions/hooks/useUSDCPrice'
-import { ExplorerDataType, getExplorerLink } from 'uniswap/src/utils/linking'
-import { isAddress } from 'utilities/src/addresses'
-import { logger } from 'utilities/src/logger/logger'
-import { useTrace } from 'utilities/src/telemetry/trace/TraceContext'
-import { calculateGasMargin } from 'utils/calculateGasMargin'
-import { currencyId } from 'utils/currencyId'
-import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
-import { unwrappedToken } from 'utils/unwrappedToken'
-import { assume0xAddress } from 'utils/wagmi'
-import { useReadContract, useReadContracts } from 'wagmi'
+import type { TransactionResponse } from '@ethersproject/providers';
+import { LiquidityEventName, LiquiditySource } from '@uniswap/analytics-events';
+import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb';
+import {
+  CurrencyAmount,
+  Fraction,
+  Percent,
+  Price,
+  Token,
+  V2_FACTORY_ADDRESSES,
+  type Currency,
+} from '@uniswap/sdk-core';
+import { FeeAmount, Pool, Position, TickMath, priceToClosestTick } from '@uniswap/v3-sdk';
+import { BlueCard, DarkGrayCard, LightCard, YellowCard } from 'components/Card/cards';
+import FeeSelector from 'components/FeeSelector';
+import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount';
+import { getLPBaseAnalyticsProperties } from 'components/Liquidity/analytics';
+import CurrencyLogo from 'components/Logo/CurrencyLogo';
+import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo';
+import RangeSelector from 'components/RangeSelector';
+import RateToggle from 'components/RateToggle';
+import { V2Unsupported } from 'components/V2Unsupported';
+import { Dots } from 'components/swap/styled';
+import { useToken } from 'hooks/Tokens';
+import { useAccount } from 'hooks/useAccount';
+import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback';
+import { usePairContract, useV2MigratorContract } from 'hooks/useContract';
+import useIsArgentWallet from 'hooks/useIsArgentWallet';
+import { useNetworkSupportsV2 } from 'hooks/useNetworkSupportsV2';
+import { PoolState, usePool } from 'hooks/usePools';
+import { usePositionOwnerV2 } from 'hooks/usePositionOwnerV2';
+import { useTotalSupply } from 'hooks/useTotalSupply';
+import { useGetTransactionDeadline } from 'hooks/useTransactionDeadline';
+import { useV2LiquidityTokenPermit } from 'hooks/useV2LiquidityTokenPermit';
+import JSBI from 'jsbi';
+import { BodyWrapper } from 'pages/App/AppBody';
+import MigrateV2SettingsTab from 'pages/MigrateV2/Settings';
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { AlertCircle, AlertTriangle } from 'react-feather';
+import { Trans, useTranslation } from 'react-i18next';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { useTokenBalance } from 'state/connection/hooks';
+import { useAppDispatch } from 'state/hooks';
+import { Bound, resetMintState } from 'state/mint/v3/actions';
+import {
+  useRangeHopCallbacks,
+  useV3DerivedMintInfo,
+  useV3MintActionHandlers,
+} from 'state/mint/v3/hooks';
+import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks';
+import { TransactionType } from 'state/transactions/types';
+import { useUserSlippageToleranceWithDefault } from 'state/user/hooks';
+import { ExternalLink } from 'theme/components/Links';
+import { Button, Flex, Text, TouchableArea, useSporeColors } from 'ui/src';
+import { Arrow } from 'ui/src/components/arrow/Arrow';
+import { iconSizes } from 'ui/src/theme';
+import Badge from 'uniswap/src/components/badge/Badge';
+import { WRAPPED_NATIVE_CURRENCY } from 'uniswap/src/constants/tokens';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { InterfacePageNameLocal } from 'uniswap/src/features/telemetry/constants';
+import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send';
+import { useUSDCValue } from 'uniswap/src/features/transactions/hooks/useUSDCPrice';
+import { ExplorerDataType, getExplorerLink } from 'uniswap/src/utils/linking';
+import { isAddress } from 'utilities/src/addresses';
+import { logger } from 'utilities/src/logger/logger';
+import { useTrace } from 'utilities/src/telemetry/trace/TraceContext';
+import { calculateGasMargin } from 'utils/calculateGasMargin';
+import { currencyId } from 'utils/currencyId';
+import { formatCurrencyAmount } from 'utils/formatCurrencyAmount';
+import { unwrappedToken } from 'utils/unwrappedToken';
+import { assume0xAddress } from 'utils/wagmi';
+import { useReadContract, useReadContracts } from 'wagmi';
 
-const ZERO = JSBI.BigInt(0)
+const ZERO = JSBI.BigInt(0);
 
-const DEFAULT_MIGRATE_SLIPPAGE_TOLERANCE = new Percent(75, 10_000)
+const DEFAULT_MIGRATE_SLIPPAGE_TOLERANCE = new Percent(75, 10_000);
 
 const MIGRATE_V2_ABI = [
   {
@@ -135,14 +147,14 @@ const MIGRATE_V2_ABI = [
     stateMutability: 'view',
     type: 'function',
   },
-] as const
+] as const;
 
 function EmptyState({ message }: { message: ReactNode }) {
   return (
     <Flex alignItems="center" justifyContent="center" minHeight={200}>
       <Text variant="body2">{message}</Text>
     </Flex>
-  )
+  );
 }
 
 const TokenPairHeader = ({
@@ -151,10 +163,10 @@ const TokenPairHeader = ({
   currency1,
   badgeText,
 }: {
-  children: React.ReactNode
-  currency0: Currency
-  currency1: Currency
-  badgeText: string
+  children: React.ReactNode;
+  currency0: Currency;
+  currency1: Currency;
+  badgeText: string;
 }) => {
   return (
     <Flex row justifyContent="space-between">
@@ -166,15 +178,15 @@ const TokenPairHeader = ({
       </Flex>
       <Badge placement="only">{badgeText}</Badge>
     </Flex>
-  )
-}
+  );
+};
 
 function LiquidityInfo({
   token0Amount,
   token1Amount,
 }: {
-  token0Amount: CurrencyAmount<Token>
-  token1Amount: CurrencyAmount<Token>
+  token0Amount: CurrencyAmount<Token>;
+  token1Amount: CurrencyAmount<Token>;
 }) {
   const currencyPairs = [
     {
@@ -185,7 +197,7 @@ function LiquidityInfo({
       currency: unwrappedToken(token1Amount.currency),
       amount: token1Amount,
     },
-  ]
+  ];
 
   return (
     <Flex gap="$gap8">
@@ -203,11 +215,11 @@ function LiquidityInfo({
         </Flex>
       ))}
     </Flex>
-  )
+  );
 }
 
 // hard-code this for now
-const percentageToMigrate = 100
+const percentageToMigrate = 100;
 
 function V2PairMigration({
   pairAddress,
@@ -218,104 +230,104 @@ function V2PairMigration({
   token0,
   token1,
 }: {
-  pairAddress: string
-  pairBalance: CurrencyAmount<Token>
-  totalSupply: CurrencyAmount<Token>
-  reserve0: CurrencyAmount<Token>
-  reserve1: CurrencyAmount<Token>
-  token0: Token
-  token1: Token
+  pairAddress: string;
+  pairBalance: CurrencyAmount<Token>;
+  totalSupply: CurrencyAmount<Token>;
+  reserve0: CurrencyAmount<Token>;
+  reserve1: CurrencyAmount<Token>;
+  token0: Token;
+  token1: Token;
 }) {
-  const { t } = useTranslation()
-  const account = useAccount()
-  const colors = useSporeColors()
-  const v2FactoryAddress = account.chainId ? V2_FACTORY_ADDRESSES[account.chainId] : undefined
-  const trace = useTrace()
+  const { t } = useTranslation();
+  const account = useAccount();
+  const colors = useSporeColors();
+  const v2FactoryAddress = account.chainId ? V2_FACTORY_ADDRESSES[account.chainId] : undefined;
+  const trace = useTrace();
 
   const { data: pairFactory } = useReadContract({
     address: assume0xAddress(pairAddress),
     functionName: 'factory',
     abi: MIGRATE_V2_ABI,
-  })
+  });
 
-  const isNotUniswap = !!pairFactory && pairFactory !== v2FactoryAddress
+  const isNotUniswap = !!pairFactory && pairFactory !== v2FactoryAddress;
 
-  const getDeadline = useGetTransactionDeadline() // custom from users settings
-  const allowedSlippage = useUserSlippageToleranceWithDefault(DEFAULT_MIGRATE_SLIPPAGE_TOLERANCE) // custom from users
+  const getDeadline = useGetTransactionDeadline(); // custom from users settings
+  const allowedSlippage = useUserSlippageToleranceWithDefault(DEFAULT_MIGRATE_SLIPPAGE_TOLERANCE); // custom from users
 
-  const currency0 = unwrappedToken(token0)
-  const currency1 = unwrappedToken(token1)
+  const currency0 = unwrappedToken(token0);
+  const currency1 = unwrappedToken(token1);
 
   // this is just getLiquidityValue with the fee off, but for the passed pair
   const token0Value = useMemo(
     () =>
       CurrencyAmount.fromRawAmount(
         token0,
-        JSBI.divide(JSBI.multiply(pairBalance.quotient, reserve0.quotient), totalSupply.quotient),
+        JSBI.divide(JSBI.multiply(pairBalance.quotient, reserve0.quotient), totalSupply.quotient)
       ),
-    [token0, pairBalance, reserve0, totalSupply],
-  )
+    [token0, pairBalance, reserve0, totalSupply]
+  );
   const token1Value = useMemo(
     () =>
       CurrencyAmount.fromRawAmount(
         token1,
-        JSBI.divide(JSBI.multiply(pairBalance.quotient, reserve1.quotient), totalSupply.quotient),
+        JSBI.divide(JSBI.multiply(pairBalance.quotient, reserve1.quotient), totalSupply.quotient)
       ),
-    [token1, pairBalance, reserve1, totalSupply],
-  )
+    [token1, pairBalance, reserve1, totalSupply]
+  );
 
   // get token0 and token1 usdc values
-  const token0USD = useUSDCValue(token0Value)
-  const token1USD = useUSDCValue(token1Value)
+  const token0USD = useUSDCValue(token0Value);
+  const token1USD = useUSDCValue(token1Value);
 
   // set up v3 pool
-  const [feeAmount, setFeeAmount] = useState(FeeAmount.MEDIUM)
-  const [poolState, pool] = usePool(token0, token1, feeAmount)
-  const noLiquidity = poolState === PoolState.NOT_EXISTS
+  const [feeAmount, setFeeAmount] = useState(FeeAmount.MEDIUM);
+  const [poolState, pool] = usePool(token0, token1, feeAmount);
+  const noLiquidity = poolState === PoolState.NOT_EXISTS;
 
   // get spot prices + price difference
   const v2SpotPrice = useMemo(
     () => new Price(token0, token1, reserve0.quotient, reserve1.quotient),
-    [token0, token1, reserve0, reserve1],
-  )
-  const v3SpotPrice = poolState === PoolState.EXISTS ? pool?.token0Price : undefined
+    [token0, token1, reserve0, reserve1]
+  );
+  const v3SpotPrice = poolState === PoolState.EXISTS ? pool?.token0Price : undefined;
 
   let priceDifferenceFraction: Fraction | undefined =
-    v2SpotPrice && v3SpotPrice ? v3SpotPrice.divide(v2SpotPrice).subtract(1).multiply(100) : undefined
+    v2SpotPrice && v3SpotPrice
+      ? v3SpotPrice.divide(v2SpotPrice).subtract(1).multiply(100)
+      : undefined;
   if (priceDifferenceFraction?.lessThan(ZERO)) {
-    priceDifferenceFraction = priceDifferenceFraction.multiply(-1)
+    priceDifferenceFraction = priceDifferenceFraction.multiply(-1);
   }
 
-  const largePriceDifference = priceDifferenceFraction && !priceDifferenceFraction?.lessThan(JSBI.BigInt(2))
+  const largePriceDifference =
+    priceDifferenceFraction && !priceDifferenceFraction?.lessThan(JSBI.BigInt(2));
 
   // the following is a small hack to get access to price range data/input handlers
-  const [baseToken, setBaseToken] = useState(token0)
-  const { ticks, pricesAtTicks, invertPrice, invalidRange, outOfRange, ticksAtLimit } = useV3DerivedMintInfo(
-    token0,
-    token1,
-    feeAmount,
-    baseToken,
-  )
+  const [baseToken, setBaseToken] = useState(token0);
+  const { ticks, pricesAtTicks, invertPrice, invalidRange, outOfRange, ticksAtLimit } =
+    useV3DerivedMintInfo(token0, token1, feeAmount, baseToken);
 
   // get value and prices at ticks
-  const { [Bound.LOWER]: tickLower, [Bound.UPPER]: tickUpper } = ticks
-  const { [Bound.LOWER]: priceLower, [Bound.UPPER]: priceUpper } = pricesAtTicks
+  const { [Bound.LOWER]: tickLower, [Bound.UPPER]: tickUpper } = ticks;
+  const { [Bound.LOWER]: priceLower, [Bound.UPPER]: priceUpper } = pricesAtTicks;
 
-  const { getDecrementLower, getIncrementLower, getDecrementUpper, getIncrementUpper } = useRangeHopCallbacks({
-    baseCurrency: baseToken,
-    quoteCurrency: baseToken.equals(token0) ? token1 : token0,
-    feeAmount,
-    tickLower,
-    tickUpper,
-    pool,
-  })
+  const { getDecrementLower, getIncrementLower, getDecrementUpper, getIncrementUpper } =
+    useRangeHopCallbacks({
+      baseCurrency: baseToken,
+      quoteCurrency: baseToken.equals(token0) ? token1 : token0,
+      feeAmount,
+      tickLower,
+      tickUpper,
+      pool,
+    });
 
-  const { onLeftRangeInput, onRightRangeInput } = useV3MintActionHandlers(noLiquidity)
+  const { onLeftRangeInput, onRightRangeInput } = useV3MintActionHandlers(noLiquidity);
 
   // the v3 tick is either the pool's tickCurrent, or the tick closest to the v2 spot price
-  const tick = pool?.tickCurrent ?? priceToClosestTick(v2SpotPrice)
+  const tick = pool?.tickCurrent ?? priceToClosestTick(v2SpotPrice);
   // the price is either the current v3 price, or the price at the tick
-  const sqrtPrice = pool?.sqrtRatioX96 ?? TickMath.getSqrtRatioAtTick(tick)
+  const sqrtPrice = pool?.sqrtRatioX96 ?? TickMath.getSqrtRatioAtTick(tick);
   const position =
     typeof tickLower === 'number' && typeof tickUpper === 'number' && !invalidRange
       ? Position.fromAmounts({
@@ -326,57 +338,71 @@ function V2PairMigration({
           amount1: token1Value.quotient,
           useFullPrecision: true, // we want full precision for the theoretical position
         })
-      : undefined
+      : undefined;
 
   const { amount0: v3Amount0Min, amount1: v3Amount1Min } = useMemo(
-    () => (position ? position.mintAmountsWithSlippage(allowedSlippage) : { amount0: undefined, amount1: undefined }),
-    [position, allowedSlippage],
-  )
+    () =>
+      position
+        ? position.mintAmountsWithSlippage(allowedSlippage)
+        : { amount0: undefined, amount1: undefined },
+    [position, allowedSlippage]
+  );
 
   const refund0 = useMemo(
     () =>
-      position && CurrencyAmount.fromRawAmount(token0, JSBI.subtract(token0Value.quotient, position.amount0.quotient)),
-    [token0Value, position, token0],
-  )
+      position &&
+      CurrencyAmount.fromRawAmount(
+        token0,
+        JSBI.subtract(token0Value.quotient, position.amount0.quotient)
+      ),
+    [token0Value, position, token0]
+  );
   const refund1 = useMemo(
     () =>
-      position && CurrencyAmount.fromRawAmount(token1, JSBI.subtract(token1Value.quotient, position.amount1.quotient)),
-    [token1Value, position, token1],
-  )
+      position &&
+      CurrencyAmount.fromRawAmount(
+        token1,
+        JSBI.subtract(token1Value.quotient, position.amount1.quotient)
+      ),
+    [token1Value, position, token1]
+  );
 
-  const [confirmingMigration, setConfirmingMigration] = useState<boolean>(false)
-  const [pendingMigrationHash, setPendingMigrationHash] = useState<string | null>(null)
+  const [confirmingMigration, setConfirmingMigration] = useState<boolean>(false);
+  const [pendingMigrationHash, setPendingMigrationHash] = useState<string | null>(null);
 
-  const migrator = useV2MigratorContract()
+  const migrator = useV2MigratorContract();
 
   // approvals
-  const [approval, approveManually] = useApproveCallback(pairBalance, migrator?.address)
-  const { signatureData, gatherPermitSignature } = useV2LiquidityTokenPermit(pairBalance, migrator?.address)
+  const [approval, approveManually] = useApproveCallback(pairBalance, migrator?.address);
+  const { signatureData, gatherPermitSignature } = useV2LiquidityTokenPermit(
+    pairBalance,
+    migrator?.address
+  );
 
-  const isArgentWallet = useIsArgentWallet()
+  const isArgentWallet = useIsArgentWallet();
 
   const approve = useCallback(async () => {
     if (isNotUniswap || isArgentWallet) {
       // sushi has to be manually approved
-      await approveManually()
+      await approveManually();
     } else if (gatherPermitSignature) {
       try {
-        await gatherPermitSignature()
+        await gatherPermitSignature();
       } catch (error) {
         // try to approve if gatherPermitSignature failed for any reason other than the user rejecting it
         if (error?.code !== 4001) {
-          await approveManually()
+          await approveManually();
         }
       }
     } else {
-      await approveManually()
+      await approveManually();
     }
-  }, [isNotUniswap, isArgentWallet, gatherPermitSignature, approveManually])
+  }, [isNotUniswap, isArgentWallet, gatherPermitSignature, approveManually]);
 
-  const addTransaction = useTransactionAdder()
-  const isMigrationPending = useIsTransactionPending(pendingMigrationHash ?? undefined)
+  const addTransaction = useTransactionAdder();
+  const isMigrationPending = useIsTransactionPending(pendingMigrationHash ?? undefined);
 
-  const networkSupportsV2 = useNetworkSupportsV2()
+  const networkSupportsV2 = useNetworkSupportsV2();
 
   const migrate = useCallback(async () => {
     if (
@@ -389,15 +415,15 @@ function V2PairMigration({
       !account.chainId ||
       !networkSupportsV2
     ) {
-      return
+      return;
     }
 
-    const deadline = signatureData?.deadline ?? (await getDeadline())
+    const deadline = signatureData?.deadline ?? (await getDeadline());
     if (!deadline) {
-      throw new Error('could not get deadline')
+      throw new Error('could not get deadline');
     }
 
-    const data: string[] = []
+    const data: string[] = [];
 
     // permit if necessary
     if (signatureData) {
@@ -409,8 +435,8 @@ function V2PairMigration({
           signatureData.v,
           signatureData.r,
           signatureData.s,
-        ]),
-      )
+        ])
+      );
     }
 
     // create/initialize pool if necessary
@@ -421,8 +447,8 @@ function V2PairMigration({
           token1.address,
           feeAmount,
           `0x${sqrtPrice.toString(16)}`,
-        ]),
-      )
+        ])
+      );
     }
 
     // TODO could save gas by not doing this in multicall
@@ -443,14 +469,14 @@ function V2PairMigration({
           deadline,
           refundAsETH: true, // hard-code this for now
         },
-      ]),
-    )
+      ])
+    );
 
-    setConfirmingMigration(true)
+    setConfirmingMigration(true);
 
     migrator.estimateGas
       .multicall(data)
-      .then((gasEstimate) => {
+      .then(gasEstimate => {
         return migrator
           .multicall(data, { gasLimit: calculateGasMargin(gasEstimate) })
           .then((response: TransactionResponse) => {
@@ -467,20 +493,20 @@ function V2PairMigration({
               }),
               action: `${isNotUniswap ? LiquiditySource.SUSHISWAP : LiquiditySource.V2}->${LiquiditySource.V3}`,
               transaction_hash: response.hash,
-            })
+            });
 
             addTransaction(response, {
               type: TransactionType.MIGRATE_LIQUIDITY_V2_TO_V3,
               baseCurrencyId: currencyId(currency0),
               quoteCurrencyId: currencyId(currency1),
               isFork: isNotUniswap,
-            })
-            setPendingMigrationHash(response.hash)
-          })
+            });
+            setPendingMigrationHash(response.hash);
+          });
       })
       .catch(() => {
-        setConfirmingMigration(false)
-      })
+        setConfirmingMigration(false);
+      });
   }, [
     migrator,
     account.address,
@@ -507,12 +533,12 @@ function V2PairMigration({
     addTransaction,
     currency0,
     currency1,
-  ])
+  ]);
 
-  const isSuccessfullyMigrated = !!pendingMigrationHash && JSBI.equal(pairBalance.quotient, ZERO)
+  const isSuccessfullyMigrated = !!pendingMigrationHash && JSBI.equal(pairBalance.quotient, ZERO);
 
   if (!networkSupportsV2) {
-    return <V2Unsupported />
+    return <V2Unsupported />;
   }
 
   return (
@@ -522,16 +548,14 @@ function V2PairMigration({
           i18nKey="migrate.v2Description"
           values={{
             source: isNotUniswap ? 'SushiSwap' : 'V2',
-          }}
-        >
+          }}>
           <ExternalLink
             key="migration-contract"
             href={getExplorerLink(
               account.chainId ?? UniverseChainId.Mainnet,
               migrator?.address ?? '',
-              ExplorerDataType.ADDRESS,
-            )}
-          >
+              ExplorerDataType.ADDRESS
+            )}>
             <Text color="$accent1" display="inline">
               <Trans i18nKey="migrate.contract" /> ↗
             </Text>
@@ -542,7 +566,10 @@ function V2PairMigration({
 
       <LightCard>
         <Flex gap="$spacing16">
-          <TokenPairHeader currency0={currency0} currency1={currency1} badgeText={isNotUniswap ? 'Sushi' : 'V2'}>
+          <TokenPairHeader
+            currency0={currency0}
+            currency1={currency1}
+            badgeText={isNotUniswap ? 'Sushi' : 'V2'}>
             <Trans
               i18nKey="migrate.lpTokens"
               values={{
@@ -578,7 +605,10 @@ function V2PairMigration({
           />
           {noLiquidity && (
             <BlueCard style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <AlertCircle color={colors.neutral1.val} style={{ marginBottom: '12px', opacity: 0.8 }} />
+              <AlertCircle
+                color={colors.neutral1.val}
+                style={{ marginBottom: '12px', opacity: 0.8 }}
+              />
               <Text variant="body3" opacity={0.8} mb="$spacing8" textAlign="center">
                 <Trans
                   i18nKey="migrate.firstLP"
@@ -650,8 +680,7 @@ function V2PairMigration({
                   alignItems="center"
                   $platform-web={{
                     color: colors.statusWarning.val,
-                  }}
-                >
+                  }}>
                   <Text variant="body3" color="inherit">
                     <Trans i18nKey="migrate.priceDifference" />
                   </Text>
@@ -667,7 +696,10 @@ function V2PairMigration({
           ) : !noLiquidity && v3SpotPrice ? (
             <Flex row justifyContent="space-between" alignItems="center">
               <Text variant="body3">
-                <Trans i18nKey="migrate.v3Price" values={{ sym: invertPrice ? currency1.symbol : currency0.symbol }} />
+                <Trans
+                  i18nKey="migrate.v3Price"
+                  values={{ sym: invertPrice ? currency1.symbol : currency0.symbol }}
+                />
               </Text>
               <Text variant="body3">
                 {invertPrice
@@ -685,9 +717,9 @@ function V2PairMigration({
               currencyA={invertPrice ? currency1 : currency0}
               currencyB={invertPrice ? currency0 : currency1}
               handleRateToggle={() => {
-                onLeftRangeInput('')
-                onRightRangeInput('')
-                setBaseToken((base) => (base.equals(token0) ? token1 : token0))
+                onLeftRangeInput('');
+                onRightRangeInput('');
+                setBaseToken(base => (base.equals(token0) ? token1 : token0));
               }}
             />
           </Flex>
@@ -740,12 +772,14 @@ function V2PairMigration({
                       values={{
                         amtA: formatCurrencyAmount(refund0, 4),
                         symA:
-                          account.chainId && WRAPPED_NATIVE_CURRENCY[account.chainId]?.equals(token0)
+                          account.chainId &&
+                          WRAPPED_NATIVE_CURRENCY[account.chainId]?.equals(token0)
                             ? 'ETH'
                             : token0.symbol,
                         amtB: formatCurrencyAmount(refund1, 4),
                         symB:
-                          account.chainId && WRAPPED_NATIVE_CURRENCY[account.chainId]?.equals(token1)
+                          account.chainId &&
+                          WRAPPED_NATIVE_CURRENCY[account.chainId]?.equals(token1)
                             ? 'ETH'
                             : token1.symbol,
                       }}
@@ -768,8 +802,7 @@ function V2PairMigration({
                     invalidRange ||
                     confirmingMigration
                   }
-                  onPress={approve}
-                >
+                  onPress={approve}>
                   {approval === ApprovalState.PENDING ? (
                     <Dots>
                       <Trans i18nKey="common.approving" />
@@ -793,8 +826,7 @@ function V2PairMigration({
                   isMigrationPending ||
                   isSuccessfullyMigrated
                 }
-                onPress={migrate}
-              >
+                onPress={migrate}>
                 {isSuccessfullyMigrated ? (
                   'Success!'
                 ) : isMigrationPending ? (
@@ -810,79 +842,95 @@ function V2PairMigration({
         </Flex>
       </LightCard>
     </Flex>
-  )
+  );
 }
 
 export default function MigrateV2Pair() {
-  const { address } = useParams<{ address: string }>()
+  const { address } = useParams<{ address: string }>();
   // reset mint state on component mount, and as a cleanup (on unmount)
-  const dispatch = useAppDispatch()
-  const navigate = useNavigate()
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   useEffect(() => {
-    dispatch(resetMintState())
+    dispatch(resetMintState());
     return () => {
-      dispatch(resetMintState())
-    }
-  }, [dispatch])
+      dispatch(resetMintState());
+    };
+  }, [dispatch]);
 
-  const account = useAccount()
+  const account = useAccount();
 
   // get pair contract
-  const validatedAddress = isAddress(address)
-  const pair = usePairContract(validatedAddress ? validatedAddress : undefined)
+  const validatedAddress = isAddress(address);
+  const pair = usePairContract(validatedAddress ? validatedAddress : undefined);
 
   const { data: pairAddresses, isLoading: pairAddressesLoading } = useReadContracts({
     contracts: [
       { address: validatedAddress || undefined, functionName: 'token0', abi: MIGRATE_V2_ABI },
       { address: validatedAddress || undefined, functionName: 'token1', abi: MIGRATE_V2_ABI },
     ],
-  })
+  });
 
-  const token0Address = pairAddresses?.[0].result
-  const token1Address = pairAddresses?.[1].result
+  const token0Address = pairAddresses?.[0].result;
+  const token1Address = pairAddresses?.[1].result;
 
   // get tokens
-  const token0 = useToken(token0Address)
-  const token1 = useToken(token1Address)
+  const token0 = useToken(token0Address);
+  const token1 = useToken(token1Address);
 
   // get liquidity token balance
   const liquidityToken: Token | undefined = useMemo(
-    () => (account.chainId && validatedAddress ? new Token(account.chainId, validatedAddress, 18) : undefined),
-    [account.chainId, validatedAddress],
-  )
+    () =>
+      account.chainId && validatedAddress
+        ? new Token(account.chainId, validatedAddress, 18)
+        : undefined,
+    [account.chainId, validatedAddress]
+  );
 
   // get data required for V2 pair migration
-  const pairBalance = useTokenBalance(account.address, liquidityToken)
-  const isOwner = usePositionOwnerV2(account?.address, liquidityToken?.address, token0?.chainId)
-  const totalSupply = useTotalSupply(liquidityToken)
+  const pairBalance = useTokenBalance(account.address, liquidityToken);
+  const isOwner = usePositionOwnerV2(account?.address, liquidityToken?.address, token0?.chainId);
+  const totalSupply = useTotalSupply(liquidityToken);
 
   const [reserve0Raw, reserve1Raw] =
-    useReadContract({ address: validatedAddress || undefined, functionName: 'getReserves', abi: MIGRATE_V2_ABI })
-      .data ?? []
+    useReadContract({
+      address: validatedAddress || undefined,
+      functionName: 'getReserves',
+      abi: MIGRATE_V2_ABI,
+    }).data ?? [];
 
   const reserve0 = useMemo(
-    () => (token0 && reserve0Raw ? CurrencyAmount.fromRawAmount(token0, reserve0Raw.toString()) : undefined),
-    [token0, reserve0Raw],
-  )
+    () =>
+      token0 && reserve0Raw
+        ? CurrencyAmount.fromRawAmount(token0, reserve0Raw.toString())
+        : undefined,
+    [token0, reserve0Raw]
+  );
   const reserve1 = useMemo(
-    () => (token1 && reserve1Raw ? CurrencyAmount.fromRawAmount(token1, reserve1Raw.toString()) : undefined),
-    [token1, reserve1Raw],
-  )
+    () =>
+      token1 && reserve1Raw
+        ? CurrencyAmount.fromRawAmount(token1, reserve1Raw.toString())
+        : undefined,
+    [token1, reserve1Raw]
+  );
 
-  const MIGRATE_PAGE_URL = '/migrate/v2'
+  const MIGRATE_PAGE_URL = '/migrate/v2';
 
   const handleNavigateBackToMigrate = useCallback(() => {
-    navigate(MIGRATE_PAGE_URL)
-  }, [navigate])
+    navigate(MIGRATE_PAGE_URL);
+  }, [navigate]);
 
   // redirect for invalid url params
-  if (!validatedAddress || !pair || (pair && !pairAddressesLoading && !token0Address && !account.isConnecting)) {
+  if (
+    !validatedAddress ||
+    !pair ||
+    (pair && !pairAddressesLoading && !token0Address && !account.isConnecting)
+  ) {
     logger.warn('MigrateV2Pair', 'MigrateV2Pair', 'Invalid pair address', {
       token0Address,
       token1Address,
       chainId: account.chainId,
-    })
-    return <Navigate to={MIGRATE_PAGE_URL} replace />
+    });
+    return <Navigate to={MIGRATE_PAGE_URL} replace />;
   }
 
   return (
@@ -895,8 +943,7 @@ export default function MigrateV2Pair() {
         label: [token0?.symbol, token1?.symbol].join('/'),
         token0Address,
         token1Address,
-      }}
-    >
+      }}>
       <BodyWrapper style={{ padding: 24 }}>
         <Flex gap="$gap16">
           <Flex row alignItems="center" justifyContent="space-between" gap="$gap8">
@@ -907,14 +954,16 @@ export default function MigrateV2Pair() {
               hoverable
               hoverStyle={{
                 backgroundColor: '$backgroundHover',
-              }}
-            >
+              }}>
               <Arrow direction="w" color="$neutral1" size={iconSizes.icon24} />
             </TouchableArea>
             <Text variant="heading3" tag="h1" fontWeight="$medium">
               <Trans i18nKey="migrate.v2Title" />
             </Text>
-            <MigrateV2SettingsTab autoSlippage={DEFAULT_MIGRATE_SLIPPAGE_TOLERANCE} chainId={account.chainId} />
+            <MigrateV2SettingsTab
+              autoSlippage={DEFAULT_MIGRATE_SLIPPAGE_TOLERANCE}
+              chainId={account.chainId}
+            />
           </Flex>
 
           {!account.isConnected || !isOwner ? (
@@ -937,5 +986,5 @@ export default function MigrateV2Pair() {
         </Flex>
       </BodyWrapper>
     </Trace>
-  )
+  );
 }

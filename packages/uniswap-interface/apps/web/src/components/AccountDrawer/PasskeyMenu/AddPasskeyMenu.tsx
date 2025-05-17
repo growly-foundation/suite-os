@@ -1,19 +1,25 @@
-import { GenericPasskeyMenuModal, PasskeyMenuModalState } from 'components/AccountDrawer/PasskeyMenu/PasskeyMenuModal'
-import { useAccount } from 'hooks/useAccount'
-import { usePasskeyAuthWithHelpModal } from 'hooks/usePasskeyAuthWithHelpModal'
-import { Dispatch, SetStateAction } from 'react'
-import { useTranslation } from 'react-i18next'
-import { ClickableTamaguiStyle } from 'theme/components/styles'
-import { Flex, Loader, Text, TouchableArea } from 'ui/src'
-import { Chevron } from 'ui/src/components/icons/Chevron'
-import { Cloud } from 'ui/src/components/icons/Cloud'
-import { Mobile } from 'ui/src/components/icons/Mobile'
-import { Passkey } from 'ui/src/components/icons/Passkey'
-import { colors } from 'ui/src/theme'
-import { AuthenticatorAttachment, registerNewAuthenticator } from 'uniswap/src/features/passkey/embeddedWallet'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { ElementName, ModalName } from 'uniswap/src/features/telemetry/constants'
-import { useUnitagByAddress } from 'uniswap/src/features/unitags/hooks'
+import {
+  GenericPasskeyMenuModal,
+  PasskeyMenuModalState,
+} from 'components/AccountDrawer/PasskeyMenu/PasskeyMenuModal';
+import { useAccount } from 'hooks/useAccount';
+import { usePasskeyAuthWithHelpModal } from 'hooks/usePasskeyAuthWithHelpModal';
+import { Dispatch, SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ClickableTamaguiStyle } from 'theme/components/styles';
+import { Flex, Loader, Text, TouchableArea } from 'ui/src';
+import { Chevron } from 'ui/src/components/icons/Chevron';
+import { Cloud } from 'ui/src/components/icons/Cloud';
+import { Mobile } from 'ui/src/components/icons/Mobile';
+import { Passkey } from 'ui/src/components/icons/Passkey';
+import { colors } from 'ui/src/theme';
+import {
+  AuthenticatorAttachment,
+  registerNewAuthenticator,
+} from 'uniswap/src/features/passkey/embeddedWallet';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { ElementName, ModalName } from 'uniswap/src/features/telemetry/constants';
+import { useUnitagByAddress } from 'uniswap/src/features/unitags/hooks';
 
 export function AddPasskeyMenu({
   show,
@@ -22,16 +28,18 @@ export function AddPasskeyMenu({
   credential,
   numAuthenticators,
 }: {
-  show: boolean
-  setPasskeyMenuModalState: Dispatch<SetStateAction<PasskeyMenuModalState | undefined>>
-  refreshAuthenticators: () => void
-  credential?: string
-  numAuthenticators: number
+  show: boolean;
+  setPasskeyMenuModalState: Dispatch<SetStateAction<PasskeyMenuModalState | undefined>>;
+  refreshAuthenticators: () => void;
+  credential?: string;
+  numAuthenticators: number;
 }) {
-  const { t } = useTranslation()
-  const account = useAccount()
-  const { unitag, loading: unitagLoading } = useUnitagByAddress(account.address)
-  const newPasskeyUsername = unitag?.username ? `${unitag.username} (${numAuthenticators + 1})` : undefined
+  const { t } = useTranslation();
+  const account = useAccount();
+  const { unitag, loading: unitagLoading } = useUnitagByAddress(account.address);
+  const newPasskeyUsername = unitag?.username
+    ? `${unitag.username} (${numAuthenticators + 1})`
+    : undefined;
 
   const { mutate: registerAuthenticator } = usePasskeyAuthWithHelpModal(
     async (authenticatorAttachment: AuthenticatorAttachment) => {
@@ -39,15 +47,15 @@ export function AddPasskeyMenu({
         authenticatorAttachment,
         existingCredential: credential,
         username: newPasskeyUsername,
-      })
+      });
     },
     {
       onSettled: async () => {
-        await refreshAuthenticators()
-        setPasskeyMenuModalState(undefined)
+        await refreshAuthenticators();
+        setPasskeyMenuModalState(undefined);
       },
-    },
-  )
+    }
+  );
 
   return (
     <Trace logImpression modal={ModalName.AddPasskey}>
@@ -58,8 +66,7 @@ export function AddPasskeyMenu({
           background="$surface2"
           borderRadius="$rounded12"
           p="$padding12"
-          width="min-content"
-        >
+          width="min-content">
           <Passkey size="$icon.24" color="$neutral1" />
         </Flex>
         <Flex gap="$gap8" pb="$padding8">
@@ -74,8 +81,7 @@ export function AddPasskeyMenu({
           <TouchableArea
             onPress={() => registerAuthenticator(AuthenticatorAttachment.PLATFORM)}
             width="100%"
-            disabled={unitagLoading}
-          >
+            disabled={unitagLoading}>
             {unitagLoading ? (
               <Loader.Box height={40} width={250} />
             ) : (
@@ -85,9 +91,12 @@ export function AddPasskeyMenu({
                 justifyContent="center"
                 alignItems="center"
                 width="100%"
-                {...ClickableTamaguiStyle}
-              >
-                <Flex p="$padding6" background={colors.pinkLight} borderRadius="$rounded6" height="min-content">
+                {...ClickableTamaguiStyle}>
+                <Flex
+                  p="$padding6"
+                  background={colors.pinkLight}
+                  borderRadius="$rounded6"
+                  height="min-content">
                   <Cloud size="$icon.20" color="$accent1" />
                 </Flex>
                 <Flex>
@@ -105,8 +114,7 @@ export function AddPasskeyMenu({
           <TouchableArea
             onPress={() => registerAuthenticator(AuthenticatorAttachment.CROSS_PLATFORM)}
             width="100%"
-            disabled={unitagLoading}
-          >
+            disabled={unitagLoading}>
             {unitagLoading ? (
               <Loader.Box height={40} width={250} />
             ) : (
@@ -116,9 +124,12 @@ export function AddPasskeyMenu({
                 justifyContent="center"
                 alignItems="center"
                 width="100%"
-                {...ClickableTamaguiStyle}
-              >
-                <Flex p="$padding6" background={colors.pinkLight} borderRadius="$rounded6" height="min-content">
+                {...ClickableTamaguiStyle}>
+                <Flex
+                  p="$padding6"
+                  background={colors.pinkLight}
+                  borderRadius="$rounded6"
+                  height="min-content">
                   <Mobile size="$icon.20" color="$accent1" />
                 </Flex>
                 <Flex>
@@ -134,5 +145,5 @@ export function AddPasskeyMenu({
         </Trace>
       </GenericPasskeyMenuModal>
     </Trace>
-  )
+  );
 }

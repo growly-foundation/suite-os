@@ -1,23 +1,23 @@
-import { Percent } from '@uniswap/sdk-core'
-import { Scrim } from 'components/AccountDrawer/Scrim'
-import { useIsMobile } from 'hooks/screenSize/useIsMobile'
-import useDisableScrolling from 'hooks/useDisableScrolling'
-import { useModalState } from 'hooks/useModalState'
-import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import { Portal } from 'nft/components/common/Portal'
-import MaxSlippageSettings from 'pages/MigrateV2/Settings/MaxSlippageSettings'
-import MenuButton from 'pages/MigrateV2/Settings/MenuButton'
-import TransactionDeadlineSettings from 'pages/MigrateV2/Settings/TransactionDeadlineSettings'
-import { useCallback, useMemo, useRef } from 'react'
-import { X } from 'react-feather'
-import { Trans } from 'react-i18next'
-import { ThemedText } from 'theme/components'
-import { transitions } from 'theme/styles'
-import { Z_INDEX } from 'theme/zIndex'
-import { Flex, HeightAnimator, TouchableArea, styled } from 'ui/src'
-import { useIsSupportedChainId } from 'uniswap/src/features/chains/hooks/useSupportedChainId'
-import { isL2ChainId } from 'uniswap/src/features/chains/utils'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
+import { Percent } from '@uniswap/sdk-core';
+import { Scrim } from 'components/AccountDrawer/Scrim';
+import { useIsMobile } from 'hooks/screenSize/useIsMobile';
+import useDisableScrolling from 'hooks/useDisableScrolling';
+import { useModalState } from 'hooks/useModalState';
+import { useOnClickOutside } from 'hooks/useOnClickOutside';
+import { Portal } from 'nft/components/common/Portal';
+import MaxSlippageSettings from 'pages/MigrateV2/Settings/MaxSlippageSettings';
+import MenuButton from 'pages/MigrateV2/Settings/MenuButton';
+import TransactionDeadlineSettings from 'pages/MigrateV2/Settings/TransactionDeadlineSettings';
+import { useCallback, useMemo, useRef } from 'react';
+import { X } from 'react-feather';
+import { Trans } from 'react-i18next';
+import { ThemedText } from 'theme/components';
+import { transitions } from 'theme/styles';
+import { Z_INDEX } from 'theme/zIndex';
+import { Flex, HeightAnimator, TouchableArea, styled } from 'ui/src';
+import { useIsSupportedChainId } from 'uniswap/src/features/chains/hooks/useSupportedChainId';
+import { isL2ChainId } from 'uniswap/src/features/chains/utils';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
 
 const MenuFlyout = styled(Flex, {
   minWidth: '20.125rem',
@@ -34,7 +34,7 @@ const MenuFlyout = styled(Flex, {
   zIndex: 100,
   userSelect: 'none',
   p: 16,
-})
+});
 
 // @deprecated
 // Should use <SwapFormSettings settings={[Slippage, Deadline]} ... /> from packages/uniswap/src/features/transactions/swap/form/SwapFormSettings
@@ -43,25 +43,25 @@ export default function MigrateV2SettingsTab({
   chainId,
   compact = false,
 }: {
-  autoSlippage: Percent
-  chainId?: number
-  compact?: boolean
+  autoSlippage: Percent;
+  chainId?: number;
+  compact?: boolean;
 }) {
-  const showDeadlineSettings = !isL2ChainId(chainId)
-  const toggleButtonNode = useRef<HTMLDivElement | null>(null)
-  const menuNode = useRef<HTMLDivElement | null>(null)
-  const { isOpen, closeModal, toggleModal } = useModalState(ModalName.Settings)
+  const showDeadlineSettings = !isL2ChainId(chainId);
+  const toggleButtonNode = useRef<HTMLDivElement | null>(null);
+  const menuNode = useRef<HTMLDivElement | null>(null);
+  const { isOpen, closeModal, toggleModal } = useModalState(ModalName.Settings);
 
-  const closeMenu = useCallback(() => closeModal(), [closeModal])
+  const closeMenu = useCallback(() => closeModal(), [closeModal]);
 
-  const isMobile = useIsMobile()
-  const isOpenMobile = isOpen && isMobile
-  const isOpenDesktop = isOpen && !isMobile
+  const isMobile = useIsMobile();
+  const isOpenMobile = isOpen && isMobile;
+  const isOpenDesktop = isOpen && !isMobile;
 
-  useOnClickOutside(menuNode, isOpenDesktop ? closeMenu : undefined, [toggleButtonNode])
-  useDisableScrolling(isOpen)
+  useOnClickOutside(menuNode, isOpenDesktop ? closeMenu : undefined, [toggleButtonNode]);
+  useDisableScrolling(isOpen);
 
-  const isChainSupported = useIsSupportedChainId(chainId)
+  const isChainSupported = useIsSupportedChainId(chainId);
   const Settings = useMemo(
     () => (
       <HeightAnimator open>
@@ -71,12 +71,17 @@ export default function MigrateV2SettingsTab({
         </Flex>
       </HeightAnimator>
     ),
-    [autoSlippage, showDeadlineSettings],
-  )
+    [autoSlippage, showDeadlineSettings]
+  );
 
   return (
     <Flex position="relative" ref={toggleButtonNode}>
-      <MenuButton disabled={!isChainSupported} isActive={isOpen} compact={compact} onClick={toggleModal} />
+      <MenuButton
+        disabled={!isChainSupported}
+        isActive={isOpen}
+        compact={compact}
+        onClick={toggleModal}
+      />
       {isOpenDesktop && <MenuFlyout ref={menuNode}>{Settings}</MenuFlyout>}
       {isOpenMobile && (
         <Portal>
@@ -93,8 +98,7 @@ export default function MigrateV2SettingsTab({
             right="0"
             width="100%"
             zIndex={Z_INDEX.fixed}
-            overflow="visible"
-          >
+            overflow="visible">
             <Scrim onClick={closeMenu} $open />
             <Flex
               height="min-content"
@@ -113,8 +117,7 @@ export default function MigrateV2SettingsTab({
               borderBottomRightRadius={0}
               borderBottomLeftRadius={0}
               boxShadow="unset"
-              zIndex={Z_INDEX.modal}
-            >
+              zIndex={Z_INDEX.modal}>
               <Flex row pt={8} pb={4} mb={16}>
                 <TouchableArea data-testid="mobile-settings-close" onPress={closeMenu}>
                   <X size={24} />
@@ -131,5 +134,5 @@ export default function MigrateV2SettingsTab({
         </Portal>
       )}
     </Flex>
-  )
+  );
 }

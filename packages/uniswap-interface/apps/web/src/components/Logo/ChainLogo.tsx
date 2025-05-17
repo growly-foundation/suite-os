@@ -1,19 +1,19 @@
-import { CSSProperties } from 'react'
+import { CSSProperties } from 'react';
 
-import { getChainInfo } from 'uniswap/src/features/chains/chainInfo'
-import { UniverseChainId, isUniverseChainId } from 'uniswap/src/features/chains/types'
+import { getChainInfo } from 'uniswap/src/features/chains/chainInfo';
+import { UniverseChainId, isUniverseChainId } from 'uniswap/src/features/chains/types';
 
-const getDefaultBorderRadius = (size: number) => size / 2 - 4
+const getDefaultBorderRadius = (size: number) => size / 2 - 4;
 
 type ChainLogoProps = {
-  chainId: UniverseChainId
-  className?: string
-  size?: number
-  borderRadius?: number
-  style?: CSSProperties
-  testId?: string
-  fillContainer?: boolean
-}
+  chainId: UniverseChainId;
+  className?: string;
+  size?: number;
+  borderRadius?: number;
+  style?: CSSProperties;
+  testId?: string;
+  fillContainer?: boolean;
+};
 export function ChainLogo({
   chainId,
   style,
@@ -22,14 +22,14 @@ export function ChainLogo({
   testId,
   fillContainer = false,
 }: ChainLogoProps) {
-  const isSupportedChain = isUniverseChainId(chainId)
+  const isSupportedChain = isUniverseChainId(chainId);
 
   if (!isSupportedChain) {
-    return null
+    return null;
   }
 
-  const { label, logo } = getChainInfo(chainId)
-  const iconSize = fillContainer ? '100%' : size + 'px'
+  const { label, logo } = getChainInfo(chainId);
+  const iconSize = fillContainer ? '100%' : size + 'px';
 
   return (
     <img
@@ -41,5 +41,5 @@ export function ChainLogo({
       style={{ ...style, borderRadius: borderRadius + 'px' }}
       alt={`${label} logo`}
     />
-  )
+  );
 }

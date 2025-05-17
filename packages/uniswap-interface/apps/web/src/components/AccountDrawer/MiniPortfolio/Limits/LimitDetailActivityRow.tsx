@@ -1,64 +1,78 @@
-import { CurrencyAmount, Price } from '@uniswap/sdk-core'
+import { CurrencyAmount, Price } from '@uniswap/sdk-core';
 import {
   useOpenOffchainActivityModal,
   useOrderAmounts,
-} from 'components/AccountDrawer/MiniPortfolio/Activity/OffchainActivityModal'
-import { Activity } from 'components/AccountDrawer/MiniPortfolio/Activity/types'
-import PortfolioRow from 'components/AccountDrawer/MiniPortfolio/PortfolioRow'
-import { FormatType, formatTimestamp } from 'components/AccountDrawer/MiniPortfolio/formatTimestamp'
-import { parseUnits } from 'ethers/lib/utils'
-import { useCurrencyInfo } from 'hooks/Tokens'
-import { useMemo, useState } from 'react'
-import { ArrowRight } from 'react-feather'
-import { Trans } from 'react-i18next'
-import { EllipsisTamaguiStyle } from 'theme/components/styles'
-import { UniswapXOrderStatus } from 'types/uniswapx'
-import { Checkbox, Flex, Image, Text, useMedia, useSporeColors } from 'ui/src'
-import { useFormatter } from 'utils/formatNumbers'
+} from 'components/AccountDrawer/MiniPortfolio/Activity/OffchainActivityModal';
+import { Activity } from 'components/AccountDrawer/MiniPortfolio/Activity/types';
+import PortfolioRow from 'components/AccountDrawer/MiniPortfolio/PortfolioRow';
+import {
+  FormatType,
+  formatTimestamp,
+} from 'components/AccountDrawer/MiniPortfolio/formatTimestamp';
+import { parseUnits } from 'ethers/lib/utils';
+import { useCurrencyInfo } from 'hooks/Tokens';
+import { useMemo, useState } from 'react';
+import { ArrowRight } from 'react-feather';
+import { Trans } from 'react-i18next';
+import { EllipsisTamaguiStyle } from 'theme/components/styles';
+import { UniswapXOrderStatus } from 'types/uniswapx';
+import { Checkbox, Flex, Image, Text, useMedia, useSporeColors } from 'ui/src';
+import { useFormatter } from 'utils/formatNumbers';
 
 interface LimitDetailActivityRowProps {
-  order: Activity
-  onToggleSelect: (order: Activity) => void
-  selected: boolean
+  order: Activity;
+  onToggleSelect: (order: Activity) => void;
+  selected: boolean;
 }
 
-export function LimitDetailActivityRow({ order, onToggleSelect, selected }: LimitDetailActivityRowProps) {
-  const colors = useSporeColors()
-  const media = useMedia()
-  const { logos, currencies, offchainOrderDetails } = order
-  const inputCurrencyInfo = useCurrencyInfo(currencies?.[0])
-  const outputCurrencyInfo = useCurrencyInfo(currencies?.[1])
-  const openOffchainActivityModal = useOpenOffchainActivityModal()
-  const { formatReviewSwapCurrencyAmount } = useFormatter()
-  const [hovered, setHovered] = useState(false)
+export function LimitDetailActivityRow({
+  order,
+  onToggleSelect,
+  selected,
+}: LimitDetailActivityRowProps) {
+  const colors = useSporeColors();
+  const media = useMedia();
+  const { logos, currencies, offchainOrderDetails } = order;
+  const inputCurrencyInfo = useCurrencyInfo(currencies?.[0]);
+  const outputCurrencyInfo = useCurrencyInfo(currencies?.[1]);
+  const openOffchainActivityModal = useOpenOffchainActivityModal();
+  const { formatReviewSwapCurrencyAmount } = useFormatter();
+  const [hovered, setHovered] = useState(false);
 
-  const amounts = useOrderAmounts(order.offchainOrderDetails)
-  const amountsDefined = !!amounts?.inputAmount?.currency && !!amounts?.outputAmount?.currency
+  const amounts = useOrderAmounts(order.offchainOrderDetails);
+  const amountsDefined = !!amounts?.inputAmount?.currency && !!amounts?.outputAmount?.currency;
 
   const displayPrice = useMemo(() => {
     if (!amountsDefined) {
-      return undefined
+      return undefined;
     }
-    const tradePrice = new Price({ baseAmount: amounts?.inputAmount, quoteAmount: amounts?.outputAmount })
+    const tradePrice = new Price({
+      baseAmount: amounts?.inputAmount,
+      quoteAmount: amounts?.outputAmount,
+    });
     return tradePrice.quote(
       CurrencyAmount.fromRawAmount(
         amounts.inputAmount.currency,
-        parseUnits('1', amounts.inputAmount.currency.decimals).toString(),
-      ),
-    )
-  }, [amounts?.inputAmount, amounts?.outputAmount, amountsDefined])
+        parseUnits('1', amounts.inputAmount.currency.decimals).toString()
+      )
+    );
+  }, [amounts?.inputAmount, amounts?.outputAmount, amountsDefined]);
 
   if (!offchainOrderDetails || !amountsDefined) {
-    return null
+    return null;
   }
 
-  const inputLogo = logos?.[0] ?? inputCurrencyInfo?.logoUrl
-  const outputLogo = logos?.[1] ?? outputCurrencyInfo?.logoUrl
+  const inputLogo = logos?.[0] ?? inputCurrencyInfo?.logoUrl;
+  const outputLogo = logos?.[1] ?? outputCurrencyInfo?.logoUrl;
 
-  const cancelling = offchainOrderDetails.status === UniswapXOrderStatus.PENDING_CANCELLATION
+  const cancelling = offchainOrderDetails.status === UniswapXOrderStatus.PENDING_CANCELLATION;
 
   return (
-    <Flex row alignItems="center" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+    <Flex
+      row
+      alignItems="center"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}>
       <PortfolioRow
         height="unset"
         justifyContent="space-between"
@@ -74,7 +88,13 @@ export function LimitDetailActivityRow({ order, onToggleSelect, selected }: Limi
             <Text variant="body4" color="$neutral2">
               <Trans
                 i18nKey="common.limits.expires"
-                values={{ timestamp: formatTimestamp(offchainOrderDetails.expiry * 1000, true, FormatType.Short) }}
+                values={{
+                  timestamp: formatTimestamp(
+                    offchainOrderDetails.expiry * 1000,
+                    true,
+                    FormatType.Short
+                  ),
+                }}
               />
             </Text>
           ) : undefined
@@ -82,14 +102,20 @@ export function LimitDetailActivityRow({ order, onToggleSelect, selected }: Limi
         descriptor={
           <Flex>
             <Flex row gap="$gap4" alignItems="center">
-              {inputLogo && <Image src={inputLogo} height={16} width={16} borderRadius="$roundedFull" />}
+              {inputLogo && (
+                <Image src={inputLogo} height={16} width={16} borderRadius="$roundedFull" />
+              )}
               <Text variant="subheading2" color="neutral1">
-                {formatReviewSwapCurrencyAmount(amounts.inputAmount)} {amounts.inputAmount.currency.symbol}
+                {formatReviewSwapCurrencyAmount(amounts.inputAmount)}{' '}
+                {amounts.inputAmount.currency.symbol}
               </Text>
               <ArrowRight color={colors.neutral1.val} size="12px" />
-              {outputLogo && <Image src={outputLogo} height={16} width={16} borderRadius="$roundedFull" />}
+              {outputLogo && (
+                <Image src={outputLogo} height={16} width={16} borderRadius="$roundedFull" />
+              )}
               <Text variant="subheading2" color="neutral1">
-                {formatReviewSwapCurrencyAmount(amounts.outputAmount)} {amounts.outputAmount.currency.symbol}
+                {formatReviewSwapCurrencyAmount(amounts.outputAmount)}{' '}
+                {amounts.outputAmount.currency.symbol}
               </Text>
             </Flex>
             {displayPrice && (
@@ -111,7 +137,7 @@ export function LimitDetailActivityRow({ order, onToggleSelect, selected }: Limi
           openOffchainActivityModal(offchainOrderDetails, {
             inputLogo: inputLogo ?? undefined,
             outputLogo: outputLogo ?? undefined,
-          })
+          });
         }}
       />
       {!cancelling && (
@@ -124,5 +150,5 @@ export function LimitDetailActivityRow({ order, onToggleSelect, selected }: Limi
         />
       )}
     </Flex>
-  )
+  );
 }

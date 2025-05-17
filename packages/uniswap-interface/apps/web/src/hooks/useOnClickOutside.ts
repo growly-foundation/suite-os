@@ -1,50 +1,53 @@
-import { RefObject, useEffect, useRef } from 'react'
+import { RefObject, useEffect, useRef } from 'react';
 
 function nodeContainsClick<T extends HTMLElement>(node: RefObject<T | undefined>, e: MouseEvent) {
   if (node.current?.contains(e.target as Node)) {
-    return true
+    return true;
   }
 
   // Also check bounding rectangle to handle portal'd elements not caught by `contains`.
-  const rect = node.current?.getBoundingClientRect()
+  const rect = node.current?.getBoundingClientRect();
   if (!rect) {
-    return false
+    return false;
   }
 
-  const withinX = e.clientX >= rect.left && e.clientX <= rect.right
-  const withinY = e.clientY >= rect.top && e.clientY <= rect.bottom
+  const withinX = e.clientX >= rect.left && e.clientX <= rect.right;
+  const withinY = e.clientY >= rect.top && e.clientY <= rect.bottom;
 
-  return withinX && withinY
+  return withinX && withinY;
 }
 
 export function useOnClickOutside<T extends HTMLElement>(
   node: RefObject<T | undefined>,
   handler: undefined | (() => void),
-  ignoredNodes: Array<RefObject<HTMLElement | undefined>> = [],
+  ignoredNodes: Array<RefObject<HTMLElement | undefined>> = []
 ) {
-  const handlerRef = useRef<undefined | (() => void)>(handler)
+  const handlerRef = useRef<undefined | (() => void)>(handler);
 
   useEffect(() => {
-    handlerRef.current = handler
-  }, [handler])
+    handlerRef.current = handler;
+  }, [handler]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
         !node.current ||
         nodeContainsClick(node, e) ||
-        ignoredNodes.reduce((reducer, val) => reducer || !!val.current?.contains(e.target as Node), false)
+        ignoredNodes.reduce(
+          (reducer, val) => reducer || !!val.current?.contains(e.target as Node),
+          false
+        )
       ) {
-        return
+        return;
       }
 
-      handlerRef.current?.()
-    }
+      handlerRef.current?.();
+    };
 
-    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('mousedown', handleClickOutside);
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [node, ignoredNodes])
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [node, ignoredNodes]);
 }

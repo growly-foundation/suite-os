@@ -1,26 +1,26 @@
-import { createMigrate } from 'redux-persist'
-import { migration1 } from 'state/migrations/1'
-import { migration10 } from 'state/migrations/10'
-import { migration11 } from 'state/migrations/11'
-import { migration12 } from 'state/migrations/12'
-import { migration13 } from 'state/migrations/13'
-import { migration14 } from 'state/migrations/14'
-import { PersistAppStateV15, migration15 } from 'state/migrations/15'
-import { migration2 } from 'state/migrations/2'
-import { migration3 } from 'state/migrations/3'
-import { migration4 } from 'state/migrations/4'
-import { migration5 } from 'state/migrations/5'
-import { migration6 } from 'state/migrations/6'
-import { migration7 } from 'state/migrations/7'
-import { migration8 } from 'state/migrations/8'
-import { migration9 } from 'state/migrations/9'
+import { createMigrate } from 'redux-persist';
+import { migration1 } from 'state/migrations/1';
+import { migration10 } from 'state/migrations/10';
+import { migration11 } from 'state/migrations/11';
+import { migration12 } from 'state/migrations/12';
+import { migration13 } from 'state/migrations/13';
+import { migration14 } from 'state/migrations/14';
+import { PersistAppStateV15, migration15 } from 'state/migrations/15';
+import { migration2 } from 'state/migrations/2';
+import { migration3 } from 'state/migrations/3';
+import { migration4 } from 'state/migrations/4';
+import { migration5 } from 'state/migrations/5';
+import { migration6 } from 'state/migrations/6';
+import { migration7 } from 'state/migrations/7';
+import { migration8 } from 'state/migrations/8';
+import { migration9 } from 'state/migrations/9';
 
 const previousState: PersistAppStateV15 = {
   _persist: {
     version: 14,
     rehydrated: true,
   },
-}
+};
 
 const migrator = createMigrate(
   {
@@ -40,16 +40,16 @@ const migrator = createMigrate(
     14: migration14,
     15: migration15,
   },
-  { debug: false },
-)
+  { debug: false }
+);
 
 describe('migration to v15', () => {
   it('should set searchHistory object', async () => {
-    const result: any = await migrator(previousState, 15)
+    const result: any = await migrator(previousState, 15);
     expect(result.searchHistory).toMatchObject({
       results: [],
-    })
-  })
+    });
+  });
 
   it('migrates recentlySearchedAssets atom to searchHistory', async () => {
     localStorage.setItem(
@@ -64,7 +64,8 @@ describe('migration to v15', () => {
           name: 'Polygon',
           isToken: false,
           isNative: false,
-          logoUrl: 'https://coin-images.coingecko.com/coins/images/4713/large/polygon.png?1698233745',
+          logoUrl:
+            'https://coin-images.coingecko.com/coins/images/4713/large/polygon.png?1698233745',
         },
         {
           type: 1,
@@ -75,7 +76,8 @@ describe('migration to v15', () => {
           name: 'Matic Token',
           isToken: true,
           isNative: false,
-          logoUrl: 'https://coin-images.coingecko.com/coins/images/4713/large/polygon.png?1698233745',
+          logoUrl:
+            'https://coin-images.coingecko.com/coins/images/4713/large/polygon.png?1698233745',
         },
         {
           type: 1,
@@ -99,10 +101,10 @@ describe('migration to v15', () => {
           isNative: true,
           logoUrl: 'https://token-icons.s3.amazonaws.com/eth.png',
         },
-      ]),
-    )
+      ])
+    );
 
-    const result: any = await migrator(previousState, 15)
+    const result: any = await migrator(previousState, 15);
 
     expect(result.searchHistory.results).toEqual([
       {
@@ -137,6 +139,6 @@ describe('migration to v15', () => {
         symbol: 'ETH',
         type: 1,
       },
-    ])
-  })
-})
+    ]);
+  });
+});

@@ -1,9 +1,12 @@
-import { AdaptiveDropdown, SharedDropdownProps } from 'components/DropdownSelector/AdaptiveDropdown'
-import FilterButton from 'components/DropdownSelector/FilterButton'
-import { useMemo } from 'react'
-import { Flex, FlexProps, Text, styled } from 'ui/src'
-import { RotatableChevron } from 'ui/src/components/icons/RotatableChevron'
-import { iconSizes } from 'ui/src/theme/iconSizes'
+import {
+  AdaptiveDropdown,
+  SharedDropdownProps,
+} from 'components/DropdownSelector/AdaptiveDropdown';
+import FilterButton from 'components/DropdownSelector/FilterButton';
+import { useMemo } from 'react';
+import { Flex, FlexProps, Text, styled } from 'ui/src';
+import { RotatableChevron } from 'ui/src/components/icons/RotatableChevron';
+import { iconSizes } from 'ui/src/theme/iconSizes';
 
 export const InternalMenuItem = styled(Text, {
   display: 'flex',
@@ -28,14 +31,14 @@ export const InternalMenuItem = styled(Text, {
       },
     },
   } as const,
-})
+});
 
 type DropdownSelectorProps = SharedDropdownProps & {
-  menuLabel: JSX.Element | string
-  dataTestId?: string
-  hideChevron?: boolean
-  buttonStyle?: FlexProps
-}
+  menuLabel: JSX.Element | string;
+  dataTestId?: string;
+  hideChevron?: boolean;
+  buttonStyle?: FlexProps;
+};
 
 export function DropdownSelector({
   menuLabel,
@@ -53,8 +56,7 @@ export function DropdownSelector({
         active={isOpen}
         aria-label={dataTestId}
         data-testid={dataTestId}
-        {...buttonStyle}
-      >
+        {...buttonStyle}>
         <Flex row justifyContent="space-between" alignItems="center" gap="$gap8" width="100%">
           {typeof menuLabel === 'string' ? <Text>{menuLabel}</Text> : menuLabel}
           {!hideChevron && (
@@ -69,7 +71,7 @@ export function DropdownSelector({
         </Flex>
       </FilterButton>
     ),
-    [toggleOpen, isOpen, dataTestId, buttonStyle, menuLabel, hideChevron],
-  )
-  return <AdaptiveDropdown isOpen={isOpen} toggleOpen={toggleOpen} trigger={Trigger} {...rest} />
+    [toggleOpen, isOpen, dataTestId, buttonStyle, menuLabel, hideChevron]
+  );
+  return <AdaptiveDropdown isOpen={isOpen} toggleOpen={toggleOpen} trigger={Trigger} {...rest} />;
 }

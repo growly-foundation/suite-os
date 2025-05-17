@@ -1,11 +1,11 @@
-import { Path, Svg } from 'react-native-svg'
+import { Path, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [OnboardingUnicon, AnimatedOnboardingUnicon] = createIcon({
   name: 'Unicon',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg fill="none" viewBox="0 0 29 29" {...props}>
       <Path
         clipRule="evenodd"
@@ -17,4 +17,4 @@ export const [OnboardingUnicon, AnimatedOnboardingUnicon] = createIcon({
     </Svg>
   ),
   defaultFill: '#767BFB',
-})
+});

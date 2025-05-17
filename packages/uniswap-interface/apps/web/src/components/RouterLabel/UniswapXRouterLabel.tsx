@@ -1,7 +1,7 @@
-import styled from 'lib/styled-components'
-import { useRef } from 'react'
-import { Flex, FlexProps } from 'ui/src'
-import { v4 as uuid } from 'uuid'
+import styled from 'lib/styled-components';
+import { useRef } from 'react';
+import { Flex, FlexProps } from 'ui/src';
+import { v4 as uuid } from 'uuid';
 
 // Gradient with a fallback to solid color.
 const Gradient = styled.div`
@@ -12,19 +12,25 @@ const Gradient = styled.div`
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
-`
+`;
 
-export { Gradient as UniswapXGradient }
+export { Gradient as UniswapXGradient };
 
 // Uniswap X SVG icon with gradient, copied from Figma.
 // In order for gradient to work, we must give its definition a unique ID that does not collide
 // with other occurences of this component on the page.
 export const UniswapXRouterIcon = ({ testId }: { testId?: string }) => {
-  const componentIdRef = useRef(uuid())
-  const componentId = `AutoRouterIconGradient${componentIdRef.current}`
+  const componentIdRef = useRef(uuid());
+  const componentId = `AutoRouterIconGradient${componentIdRef.current}`;
 
   return (
-    <svg width="10" height="14" viewBox="0 0 10 14" fill="none" xmlns="http://www.w3.org/2000/svg" data-testid={testId}>
+    <svg
+      width="10"
+      height="14"
+      viewBox="0 0 10 14"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      data-testid={testId}>
       <defs>
         <linearGradient
           id={componentId}
@@ -32,8 +38,7 @@ export const UniswapXRouterIcon = ({ testId }: { testId?: string }) => {
           y1="-12.0006"
           x2="10.6573"
           y2="-11.6017"
-          gradientUnits="userSpaceOnUse"
-        >
+          gradientUnits="userSpaceOnUse">
           <stop stopColor="#4673FA" />
           <stop offset="1" stopColor="#9646FA" />
         </linearGradient>
@@ -43,13 +48,13 @@ export const UniswapXRouterIcon = ({ testId }: { testId?: string }) => {
         fill={`url(#${componentId})`}
       />
     </svg>
-  )
-}
+  );
+};
 
 export type UnswapXRouterLabelProps = FlexProps & {
-  disableTextGradient?: boolean
-  testId?: string
-}
+  disableTextGradient?: boolean;
+  testId?: string;
+};
 
 export default function UniswapXRouterLabel({
   children,
@@ -62,5 +67,5 @@ export default function UniswapXRouterLabel({
       <UniswapXRouterIcon testId={testId} />
       {disableTextGradient ? children : <Gradient>{children}</Gradient>}
     </Flex>
-  )
+  );
 }

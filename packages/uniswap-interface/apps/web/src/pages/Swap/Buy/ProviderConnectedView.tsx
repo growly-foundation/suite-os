@@ -1,26 +1,29 @@
-import styled, { useTheme } from 'lib/styled-components'
-import { ConnectingViewWrapper } from 'pages/Swap/Buy/shared'
-import { Trans, useTranslation } from 'react-i18next'
-import { ExternalLink } from 'theme/components/Links'
-import { Flex, Text, useIsDarkMode } from 'ui/src'
-import { ServiceProviderLogoStyles } from 'uniswap/src/features/fiatOnRamp/constants'
-import { FORServiceProvider } from 'uniswap/src/features/fiatOnRamp/types'
-import { getOptionalServiceProviderLogo } from 'uniswap/src/features/fiatOnRamp/utils'
+import styled, { useTheme } from 'lib/styled-components';
+import { ConnectingViewWrapper } from 'pages/Swap/Buy/shared';
+import { Trans, useTranslation } from 'react-i18next';
+import { ExternalLink } from 'theme/components/Links';
+import { Flex, Text, useIsDarkMode } from 'ui/src';
+import { ServiceProviderLogoStyles } from 'uniswap/src/features/fiatOnRamp/constants';
+import { FORServiceProvider } from 'uniswap/src/features/fiatOnRamp/types';
+import { getOptionalServiceProviderLogo } from 'uniswap/src/features/fiatOnRamp/utils';
 
 const StyledLink = styled(ExternalLink)`
   font-weight: 535;
   color: ${({ theme }) => theme.neutral3};
-`
+`;
 
 interface ProviderConnectedViewProps {
-  closeModal?: () => void
-  selectedServiceProvider: FORServiceProvider
+  closeModal?: () => void;
+  selectedServiceProvider: FORServiceProvider;
 }
 
-export function ProviderConnectedView({ closeModal, selectedServiceProvider }: ProviderConnectedViewProps) {
-  const isDarkMode = useIsDarkMode()
-  const theme = useTheme()
-  const { t } = useTranslation()
+export function ProviderConnectedView({
+  closeModal,
+  selectedServiceProvider,
+}: ProviderConnectedViewProps) {
+  const isDarkMode = useIsDarkMode();
+  const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <ConnectingViewWrapper closeModal={closeModal}>
@@ -40,7 +43,10 @@ export function ProviderConnectedView({ closeModal, selectedServiceProvider }: P
               />
             </Text>
             <Text variant="body2" textAlign="center" color="$neutral2">
-              <Trans i18nKey="fiatOnRamp.continueInTab" values={{ serviceProvider: selectedServiceProvider.name }} />
+              <Trans
+                i18nKey="fiatOnRamp.continueInTab"
+                values={{ serviceProvider: selectedServiceProvider.name }}
+              />
             </Text>
           </Flex>
         </Flex>
@@ -66,5 +72,5 @@ export function ProviderConnectedView({ closeModal, selectedServiceProvider }: P
         </Text>
       </Flex>
     </ConnectingViewWrapper>
-  )
+  );
 }

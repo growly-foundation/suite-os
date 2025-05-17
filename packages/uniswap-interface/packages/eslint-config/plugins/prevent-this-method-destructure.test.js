@@ -1,5 +1,5 @@
-const { RuleTester } = require('eslint')
-const rule = require('./prevent-this-method-destructure')
+const { RuleTester } = require('eslint');
+const rule = require('./prevent-this-method-destructure');
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
@@ -9,7 +9,7 @@ const ruleTester = new RuleTester({
     ecmaVersion: 2020,
     sourceType: 'module',
   },
-})
+});
 
 ruleTester.run('prevent-this-method-destructure', rule, {
   valid: [
@@ -78,7 +78,8 @@ ruleTester.run('prevent-this-method-destructure', rule, {
       filename: __filename,
       errors: [
         {
-          message: "Destructuring method 'method' will cause it to lose 'this' context. Use object.method() instead.",
+          message:
+            "Destructuring method 'method' will cause it to lose 'this' context. Use object.method() instead.",
         },
       ],
     },
@@ -93,7 +94,8 @@ ruleTester.run('prevent-this-method-destructure', rule, {
       filename: __filename,
       errors: [
         {
-          message: "Destructuring method 'method' will cause it to lose 'this' context. Use object.method() instead.",
+          message:
+            "Destructuring method 'method' will cause it to lose 'this' context. Use object.method() instead.",
         },
       ],
     },
@@ -108,9 +110,10 @@ ruleTester.run('prevent-this-method-destructure', rule, {
       filename: __filename,
       errors: [
         {
-          message: "Destructuring method 'method' will cause it to lose 'this' context. Use object.method() instead.",
+          message:
+            "Destructuring method 'method' will cause it to lose 'this' context. Use object.method() instead.",
         },
       ],
     },
   ],
-})
+});

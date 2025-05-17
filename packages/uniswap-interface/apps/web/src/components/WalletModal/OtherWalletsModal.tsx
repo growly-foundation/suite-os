@@ -1,23 +1,23 @@
-import { MenuState, miniPortfolioMenuStateAtom } from 'components/AccountDrawer/constants'
-import { useShowMoonpayText } from 'components/AccountDrawer/MiniPortfolio/hooks'
-import ConnectionErrorView from 'components/WalletModal/ConnectionErrorView'
-import { Option } from 'components/WalletModal/Option'
-import PrivacyPolicyNotice from 'components/WalletModal/PrivacyPolicyNotice'
-import { useOrderedConnections } from 'components/WalletModal/useOrderedConnections'
-import { useRecentConnectorId } from 'components/Web3Provider/constants'
-import { useAtom } from 'jotai'
-import React from 'react'
-import { Trans } from 'react-i18next'
-import { transitions } from 'theme/styles'
-import { Flex, Separator, Text } from 'ui/src'
-import { BackArrow } from 'ui/src/components/icons/BackArrow'
-import { CONNECTION_PROVIDER_IDS } from 'uniswap/src/constants/web3'
+import { MenuState, miniPortfolioMenuStateAtom } from 'components/AccountDrawer/constants';
+import { useShowMoonpayText } from 'components/AccountDrawer/MiniPortfolio/hooks';
+import ConnectionErrorView from 'components/WalletModal/ConnectionErrorView';
+import { Option } from 'components/WalletModal/Option';
+import PrivacyPolicyNotice from 'components/WalletModal/PrivacyPolicyNotice';
+import { useOrderedConnections } from 'components/WalletModal/useOrderedConnections';
+import { useRecentConnectorId } from 'components/Web3Provider/constants';
+import { useAtom } from 'jotai';
+import React from 'react';
+import { Trans } from 'react-i18next';
+import { transitions } from 'theme/styles';
+import { Flex, Separator, Text } from 'ui/src';
+import { BackArrow } from 'ui/src/components/icons/BackArrow';
+import { CONNECTION_PROVIDER_IDS } from 'uniswap/src/constants/web3';
 
 export function OtherWalletsModal() {
-  const showMoonpayText = useShowMoonpayText()
-  const [, setMenu] = useAtom(miniPortfolioMenuStateAtom)
-  const connectors = useOrderedConnections({ showSecondaryConnectors: true })
-  const recentConnectorId = useRecentConnectorId()
+  const showMoonpayText = useShowMoonpayText();
+  const [, setMenu] = useAtom(miniPortfolioMenuStateAtom);
+  const connectors = useOrderedConnections({ showSecondaryConnectors: true });
+  const recentConnectorId = useRecentConnectorId();
 
   return (
     <Flex
@@ -27,8 +27,7 @@ export function OtherWalletsModal() {
       pb="$spacing20"
       flex={1}
       gap="$gap16"
-      data-testid="other-wallet-modal"
-    >
+      data-testid="other-wallet-modal">
       <ConnectionErrorView />
       <Flex row justifyContent="center" width="100%">
         <BackArrow
@@ -51,8 +50,7 @@ export function OtherWalletsModal() {
             overflow="hidden"
             width="100%"
             transition={`${transitions.duration.fast} ${transitions.timing.inOut}`}
-            data-testid="option-grid"
-          >
+            data-testid="option-grid">
             {/* If uniswap mobile was the last used connector it will be show on the primary window */}
             {recentConnectorId !== CONNECTION_PROVIDER_IDS.UNISWAP_WALLET_CONNECT_CONNECTOR_ID && (
               <>
@@ -82,5 +80,5 @@ export function OtherWalletsModal() {
         </Flex>
       </Flex>
     </Flex>
-  )
+  );
 }

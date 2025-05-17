@@ -1,11 +1,11 @@
-import { G, Path, Svg } from 'react-native-svg'
+import { G, Path, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [Bank, AnimatedBank] = createIcon({
   name: 'Bank',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg viewBox="0 0 24 24" fill="none" {...props}>
       <G id="bank">
         <Path
@@ -18,4 +18,4 @@ export const [Bank, AnimatedBank] = createIcon({
       </G>
     </Svg>
   ),
-})
+});

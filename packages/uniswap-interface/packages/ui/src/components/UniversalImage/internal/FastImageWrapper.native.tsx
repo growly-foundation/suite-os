@@ -1,9 +1,9 @@
-import { useEffect } from 'react'
-import { StyleSheet } from 'react-native'
-import FastImage from 'react-native-fast-image'
-import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated'
-import { FastImageWrapperProps } from 'ui/src/components/UniversalImage/types'
-import { logger } from 'utilities/src/logger/logger'
+import { useEffect } from 'react';
+import { StyleSheet } from 'react-native';
+import FastImage from 'react-native-fast-image';
+import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import { FastImageWrapperProps } from 'ui/src/components/UniversalImage/types';
+import { logger } from 'utilities/src/logger/logger';
 
 export function FastImageWrapper({
   uri,
@@ -12,10 +12,11 @@ export function FastImageWrapper({
   style,
   setError,
 }: FastImageWrapperProps): JSX.Element | null {
-  const isLoaded = useSharedValue(false)
+  const isLoaded = useSharedValue(false);
 
   const aspectRatio =
-    size.aspectRatio ?? (size.width !== undefined && size.height !== undefined ? size.width / size.height : undefined)
+    size.aspectRatio ??
+    (size.width !== undefined && size.height !== undefined ? size.width / size.height : undefined);
 
   // Ensure that the image is displayed together with styles applied
   // to the container only after it has been loaded (e.g. to prevent
@@ -24,11 +25,11 @@ export function FastImageWrapper({
   const animatedImageContainerStyle = useAnimatedStyle(() => ({
     opacity: +isLoaded.value,
     ...(isLoaded.value ? style : {}),
-  }))
+  }));
 
   useEffect(() => {
-    isLoaded.value = false
-  }, [isLoaded, uri])
+    isLoaded.value = false;
+  }, [isLoaded, uri]);
 
   if (!aspectRatio) {
     logger.error(new Error('insufficient size information'), {
@@ -36,8 +37,8 @@ export function FastImageWrapper({
         file: 'FastImageWrapper',
         function: 'FastImageWrapper',
       },
-    })
-    return null
+    });
+    return null;
   }
 
   return (
@@ -48,14 +49,18 @@ export function FastImageWrapper({
           uri,
           cache: FastImage.cacheControl.immutable,
         }}
-        style={[styles.image, [styles.fullWidth, { maxHeight: size.height ?? '100%' }, style], { aspectRatio }]}
+        style={[
+          styles.image,
+          [styles.fullWidth, { maxHeight: size.height ?? '100%' }, style],
+          { aspectRatio },
+        ]}
         onError={setError}
         onLoad={(): void => {
-          isLoaded.value = true
+          isLoaded.value = true;
         }}
       />
     </Animated.View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -70,4 +75,4 @@ const styles = StyleSheet.create({
     // has the same dimensions as the container
     transform: [{ scale: 1.01 }],
   },
-})
+});

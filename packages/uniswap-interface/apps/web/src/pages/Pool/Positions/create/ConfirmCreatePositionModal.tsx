@@ -1,10 +1,10 @@
-import { GetHelpHeader } from 'components/Modal/GetHelpHeader'
-import { PriceDifference } from 'pages/Pool/Positions/create/types'
-import { useTranslation } from 'react-i18next'
-import { Button, Flex, Text } from 'ui/src'
-import { AlertTriangleFilled } from 'ui/src/components/icons/AlertTriangleFilled'
-import { Modal } from 'uniswap/src/components/modals/Modal'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
+import { GetHelpHeader } from 'components/Modal/GetHelpHeader';
+import { PriceDifference } from 'pages/Pool/Positions/create/types';
+import { useTranslation } from 'react-i18next';
+import { Button, Flex, Text } from 'ui/src';
+import { AlertTriangleFilled } from 'ui/src/components/icons/AlertTriangleFilled';
+import { Modal } from 'uniswap/src/components/modals/Modal';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
 
 export default function ConfirmCreatePositionModal({
   isOpen,
@@ -12,12 +12,12 @@ export default function ConfirmCreatePositionModal({
   onContinue,
   priceDifference,
 }: {
-  isOpen: boolean
-  onClose: () => void
-  onContinue: () => void
-  priceDifference: PriceDifference
+  isOpen: boolean;
+  onClose: () => void;
+  onContinue: () => void;
+  priceDifference: PriceDifference;
 }) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <Modal
@@ -27,13 +27,16 @@ export default function ConfirmCreatePositionModal({
       gap="$gap24"
       padding="$padding16"
       isModalOpen={isOpen}
-      maxWidth={420}
-    >
+      maxWidth={420}>
       <Flex row justifyContent="flex-end" alignItems="center" gap="$spacing8" width="100%">
         <GetHelpHeader closeModal={onClose} />
       </Flex>
       <Flex flexDirection="column" alignItems="center" gap="$spacing16">
-        <Flex gap="$gap16" backgroundColor="$statusCritical2" borderRadius="$rounded12" p="$spacing12">
+        <Flex
+          gap="$gap16"
+          backgroundColor="$statusCritical2"
+          borderRadius="$rounded12"
+          p="$spacing12">
           <AlertTriangleFilled size={20} color="$statusCritical" />
         </Flex>
         <Flex centered rowGap="$spacing8">
@@ -59,5 +62,5 @@ export default function ConfirmCreatePositionModal({
         </Flex>
       </Flex>
     </Modal>
-  )
+  );
 }

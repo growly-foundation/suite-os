@@ -1,8 +1,8 @@
 /* eslint-env node */
-require('@uniswap/eslint-config/load')
+require('@uniswap/eslint-config/load');
 
-const rulesDirPlugin = require('eslint-plugin-rulesdir')
-rulesDirPlugin.RULES_DIR = 'eslint_rules'
+const rulesDirPlugin = require('eslint-plugin-rulesdir');
+rulesDirPlugin.RULES_DIR = 'eslint_rules';
 
 module.exports = {
   root: true,
@@ -110,7 +110,8 @@ module.exports = {
           {
             selector:
               'ImportDeclaration[source.value="src/nft/components/icons"], ImportDeclaration[source.value="nft/components/icons"]',
-            message: 'Please import icons from nft/components/iconExports instead of directly from icons.tsx',
+            message:
+              'Please import icons from nft/components/iconExports instead of directly from icons.tsx',
           },
           // TODO(WEB-4251) - remove useWeb3React rules once web3 react is removed
           {
@@ -155,4 +156,4 @@ module.exports = {
       rules: {},
     },
   ],
-}
+};

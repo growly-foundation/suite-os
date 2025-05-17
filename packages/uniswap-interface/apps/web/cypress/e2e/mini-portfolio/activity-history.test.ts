@@ -1,15 +1,15 @@
-import { USDC_MAINNET } from 'uniswap/src/constants/tokens'
-import { getTestSelector } from '../../utils'
+import { USDC_MAINNET } from 'uniswap/src/constants/tokens';
+import { getTestSelector } from '../../utils';
 
 describe('mini-portfolio activity history', () => {
   // Turn off automine so that intermediate screens are available to assert on.
-  before(() => cy.hardhat({ automine: false }))
+  before(() => cy.hardhat({ automine: false }));
 
   beforeEach(() =>
     cy
       .hardhat()
-      .then((hardhat) => hardhat.wallet.getTransactionCount())
-      .then((nonce) => {
+      .then(hardhat => hardhat.wallet.getTransactionCount())
+      .then(nonce => {
         // Mock graphql response to include specific nonces.
         cy.intercept(
           {
@@ -93,26 +93,26 @@ describe('mini-portfolio activity history', () => {
               },
             },
           }
-        ).as('graphql')
+        ).as('graphql');
       })
-  )
+  );
 
   it('should deduplicate activity history by nonce', () => {
-    cy.visit(`/swap?inputCurrency=ETH&outputCurrency=${USDC_MAINNET.address}`)
+    cy.visit(`/swap?inputCurrency=ETH&outputCurrency=${USDC_MAINNET.address}`);
 
     // Input swap info.
-    cy.get('#swap-currency-input .token-amount-input').clear().type('1').should('have.value', '1')
-    cy.get('#swap-currency-output .token-amount-input').should('not.have.value', '')
+    cy.get('#swap-currency-input .token-amount-input').clear().type('1').should('have.value', '1');
+    cy.get('#swap-currency-output .token-amount-input').should('not.have.value', '');
 
-    cy.get('#swap-button').click()
-    cy.get('#confirm-swap-or-send').click()
-    cy.get(getTestSelector('confirmation-close-icon')).click()
+    cy.get('#swap-button').click();
+    cy.get('#confirm-swap-or-send').click();
+    cy.get(getTestSelector('confirmation-close-icon')).click();
 
     // Check activity history tab.
-    cy.get(getTestSelector('web3-status-connected')).click()
-    cy.get(getTestSelector('mini-portfolio-navbar')).contains('Activity').click()
+    cy.get(getTestSelector('web3-status-connected')).click();
+    cy.get(getTestSelector('mini-portfolio-navbar')).contains('Activity').click();
 
     // Assert that the local pending transaction is replaced by a remote transaction with the same nonce.
-    cy.get(getTestSelector('mini-portfolio-page')).contains('Swapping').should('not.exist')
-  })
-})
+    cy.get(getTestSelector('mini-portfolio-page')).contains('Swapping').should('not.exist');
+  });
+});

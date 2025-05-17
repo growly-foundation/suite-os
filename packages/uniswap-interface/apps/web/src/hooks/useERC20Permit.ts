@@ -1,16 +1,16 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import { splitSignature } from '@ethersproject/bytes'
-import { Currency, CurrencyAmount } from '@uniswap/sdk-core'
-import { useAccount } from 'hooks/useAccount'
-import { useEthersWeb3Provider } from 'hooks/useEthersProvider'
-import useIsArgentWallet from 'hooks/useIsArgentWallet'
-import JSBI from 'jsbi'
-import { useMemo, useState } from 'react'
-import { EIP2612_ABI } from 'uniswap/src/abis/eip_2612'
-import { DAI, UNI, USDC_MAINNET } from 'uniswap/src/constants/tokens'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { assume0xAddress } from 'utils/wagmi'
-import { useReadContract } from 'wagmi'
+import { BigNumber } from '@ethersproject/bignumber';
+import { splitSignature } from '@ethersproject/bytes';
+import { Currency, CurrencyAmount } from '@uniswap/sdk-core';
+import { useAccount } from 'hooks/useAccount';
+import { useEthersWeb3Provider } from 'hooks/useEthersProvider';
+import useIsArgentWallet from 'hooks/useIsArgentWallet';
+import JSBI from 'jsbi';
+import { useMemo, useState } from 'react';
+import { EIP2612_ABI } from 'uniswap/src/abis/eip_2612';
+import { DAI, UNI, USDC_MAINNET } from 'uniswap/src/constants/tokens';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import { assume0xAddress } from 'utils/wagmi';
+import { useReadContract } from 'wagmi';
 
 export enum PermitType {
   AMOUNT = 1,
@@ -18,20 +18,20 @@ export enum PermitType {
 }
 
 // 20 minutes to submit after signing
-const PERMIT_VALIDITY_BUFFER = 20 * 60
+const PERMIT_VALIDITY_BUFFER = 20 * 60;
 
 export interface PermitInfo {
-  type: PermitType
-  name: string
+  type: PermitType;
+  name: string;
   // version is optional, and if omitted, will not be included in the domain
-  version?: string
+  version?: string;
 }
 
 // todo: read this information from extensions on token lists or elsewhere (permit registry?)
 const PERMITTABLE_TOKENS: {
   [chainId: number]: {
-    [checksummedTokenAddress: string]: PermitInfo
-  }
+    [checksummedTokenAddress: string]: PermitInfo;
+  };
 } = {
   [UniverseChainId.Mainnet]: {
     [USDC_MAINNET.address]: { type: PermitType.AMOUNT, name: 'USD Coin', version: '2' },
@@ -41,7 +41,7 @@ const PERMITTABLE_TOKENS: {
   [UniverseChainId.Sepolia]: {
     [UNI[UniverseChainId.Sepolia].address]: { type: PermitType.AMOUNT, name: 'Uniswap' },
   },
-}
+};
 
 enum UseERC20PermitState {
   // returned for any reason, e.g. it is an argent wallet, or the currency does not support it
@@ -52,40 +52,40 @@ enum UseERC20PermitState {
 }
 
 interface BaseSignatureData {
-  v: number
-  r: string
-  s: string
-  deadline: number
-  nonce: number
-  owner: string
-  spender: string
-  chainId: number
-  tokenAddress: string
-  permitType: PermitType
+  v: number;
+  r: string;
+  s: string;
+  deadline: number;
+  nonce: number;
+  owner: string;
+  spender: string;
+  chainId: number;
+  tokenAddress: string;
+  permitType: PermitType;
 }
 
 interface StandardSignatureData extends BaseSignatureData {
-  amount: string
+  amount: string;
 }
 
 interface AllowedSignatureData extends BaseSignatureData {
-  allowed: true
+  allowed: true;
 }
 
-type SignatureData = StandardSignatureData | AllowedSignatureData
+type SignatureData = StandardSignatureData | AllowedSignatureData;
 
 const EIP712_DOMAIN_TYPE = [
   { name: 'name', type: 'string' },
   { name: 'version', type: 'string' },
   { name: 'chainId', type: 'uint256' },
   { name: 'verifyingContract', type: 'address' },
-]
+];
 
 const EIP712_DOMAIN_TYPE_NO_VERSION = [
   { name: 'name', type: 'string' },
   { name: 'chainId', type: 'uint256' },
   { name: 'verifyingContract', type: 'address' },
-]
+];
 
 const EIP2612_TYPE = [
   { name: 'owner', type: 'address' },
@@ -93,7 +93,7 @@ const EIP2612_TYPE = [
   { name: 'value', type: 'uint256' },
   { name: 'nonce', type: 'uint256' },
   { name: 'deadline', type: 'uint256' },
-]
+];
 
 const PERMIT_ALLOWED_TYPE = [
   { name: 'holder', type: 'address' },
@@ -101,22 +101,24 @@ const PERMIT_ALLOWED_TYPE = [
   { name: 'nonce', type: 'uint256' },
   { name: 'expiry', type: 'uint256' },
   { name: 'allowed', type: 'bool' },
-]
+];
 
 export function useERC20Permit(
   currencyAmount: CurrencyAmount<Currency> | null | undefined,
   spender: string | null | undefined,
   transactionDeadline: BigNumber | undefined,
-  overridePermitInfo: PermitInfo | undefined | null,
+  overridePermitInfo: PermitInfo | undefined | null
 ): {
-  signatureData: SignatureData | null
-  state: UseERC20PermitState
-  gatherPermitSignature: null | (() => Promise<void>)
+  signatureData: SignatureData | null;
+  state: UseERC20PermitState;
+  gatherPermitSignature: null | (() => Promise<void>);
 } {
-  const account = useAccount()
-  const provider = useEthersWeb3Provider()
-  const tokenAddress = currencyAmount?.currency?.isToken ? currencyAmount.currency.address : undefined
-  const isArgentWallet = useIsArgentWallet()
+  const account = useAccount();
+  const provider = useEthersWeb3Provider();
+  const tokenAddress = currencyAmount?.currency?.isToken
+    ? currencyAmount.currency.address
+    : undefined;
+  const isArgentWallet = useIsArgentWallet();
 
   const { data: nonce, isLoading: nonceLoading } = useReadContract({
     address: assume0xAddress(tokenAddress),
@@ -125,15 +127,15 @@ export function useERC20Permit(
     functionName: 'nonces',
     args: account.address ? [assume0xAddress(account.address)] : undefined,
     query: { enabled: !!account.address },
-  })
+  });
 
   const permitInfo =
     overridePermitInfo ??
     (account.isConnected && account.chainId && tokenAddress
       ? PERMITTABLE_TOKENS[account.chainId]?.[tokenAddress]
-      : undefined)
+      : undefined);
 
-  const [signatureData, setSignatureData] = useState<SignatureData | null>(null)
+  const [signatureData, setSignatureData] = useState<SignatureData | null>(null);
 
   return useMemo(() => {
     if (
@@ -152,16 +154,16 @@ export function useERC20Permit(
         state: UseERC20PermitState.NOT_APPLICABLE,
         signatureData: null,
         gatherPermitSignature: null,
-      }
+      };
     }
 
-    const nonceNumber = Number(nonce)
+    const nonceNumber = Number(nonce);
     if (nonceLoading || typeof nonceNumber !== 'number') {
       return {
         state: UseERC20PermitState.LOADING,
         signatureData: null,
         gatherPermitSignature: null,
-      }
+      };
     }
 
     const isSignatureDataValid =
@@ -172,15 +174,15 @@ export function useERC20Permit(
       signatureData.nonce === nonceNumber &&
       signatureData.spender === spender &&
       ('allowed' in signatureData ||
-        JSBI.greaterThanOrEqual(JSBI.BigInt(signatureData.amount), currencyAmount.quotient))
+        JSBI.greaterThanOrEqual(JSBI.BigInt(signatureData.amount), currencyAmount.quotient));
 
     return {
       state: isSignatureDataValid ? UseERC20PermitState.SIGNED : UseERC20PermitState.NOT_SIGNED,
       signatureData: isSignatureDataValid ? signatureData : null,
       gatherPermitSignature: async function gatherPermitSignature() {
-        const allowed = permitInfo.type === PermitType.ALLOWED
-        const signatureDeadline = transactionDeadline.toNumber() + PERMIT_VALIDITY_BUFFER
-        const value = currencyAmount.quotient.toString()
+        const allowed = permitInfo.type === PermitType.ALLOWED;
+        const signatureDeadline = transactionDeadline.toNumber() + PERMIT_VALIDITY_BUFFER;
+        const value = currencyAmount.quotient.toString();
 
         const message = allowed
           ? {
@@ -196,7 +198,7 @@ export function useERC20Permit(
               value,
               nonce: nonceNumber,
               deadline: signatureDeadline,
-            }
+            };
         const domain = permitInfo.version
           ? {
               name: permitInfo.name,
@@ -208,7 +210,7 @@ export function useERC20Permit(
               name: permitInfo.name,
               verifyingContract: tokenAddress,
               chainId: account.chainId,
-            }
+            };
         const data = JSON.stringify({
           types: {
             EIP712Domain: permitInfo.version ? EIP712_DOMAIN_TYPE : EIP712_DOMAIN_TYPE_NO_VERSION,
@@ -217,12 +219,12 @@ export function useERC20Permit(
           domain,
           primaryType: 'Permit',
           message,
-        })
+        });
 
         return provider
           .send('eth_signTypedData_v4', [account.address, data])
           .then(splitSignature)
-          .then((signature) => {
+          .then(signature => {
             setSignatureData({
               v: signature.v,
               r: signature.r,
@@ -235,10 +237,10 @@ export function useERC20Permit(
               spender,
               tokenAddress,
               permitType: permitInfo.type,
-            })
-          })
+            });
+          });
       },
-    }
+    };
   }, [
     isArgentWallet,
     currencyAmount,
@@ -252,5 +254,5 @@ export function useERC20Permit(
     spender,
     permitInfo,
     signatureData,
-  ])
+  ]);
 }

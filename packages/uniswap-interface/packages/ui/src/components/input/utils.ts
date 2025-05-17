@@ -8,4 +8,4 @@ export const inputStyles = {
     outlineWidth: 0,
   },
   inputHover: { borderWidth: 1, borderColor: '$surface3', outlineWidth: 0 },
-} as const
+} as const;

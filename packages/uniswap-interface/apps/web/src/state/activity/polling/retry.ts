@@ -1,22 +1,22 @@
-import { RetryOptions } from 'uniswap/src/features/chains/types'
+import { RetryOptions } from 'uniswap/src/features/chains/types';
 
 function wait(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function waitRandom(min: number, max: number): Promise<void> {
-  return wait(min + Math.round(Math.random() * Math.max(0, max - min)))
+  return wait(min + Math.round(Math.random() * Math.max(0, max - min)));
 }
 
 /** Thrown if the function is canceled before resolving. */
 export class CanceledError extends Error {
-  name = 'CanceledError'
-  message = 'Retryable was canceled'
+  name = 'CanceledError';
+  message = 'Retryable was canceled';
 }
 
 /** May be thrown to force a retry. */
 export class RetryableError extends Error {
-  name = 'RetryableError'
+  name = 'RetryableError';
 }
 
 /**
@@ -28,45 +28,45 @@ export class RetryableError extends Error {
  */
 export function retry<T>(
   fn: () => Promise<T>,
-  { n, minWait, maxWait }: RetryOptions,
+  { n, minWait, maxWait }: RetryOptions
 ): { promise: Promise<T>; cancel: () => void } {
-  let completed = false
-  let rejectCancelled: (error: Error) => void
+  let completed = false;
+  let rejectCancelled: (error: Error) => void;
   // eslint-disable-next-line no-async-promise-executor
   const promise = new Promise<T>(async (resolve, reject) => {
-    rejectCancelled = reject
+    rejectCancelled = reject;
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      let result: T
+      let result: T;
       try {
-        result = await fn()
+        result = await fn();
         if (!completed) {
-          resolve(result)
-          completed = true
+          resolve(result);
+          completed = true;
         }
-        break
+        break;
       } catch (error) {
         if (completed) {
-          break
+          break;
         }
         if (n <= 0 || !(error instanceof RetryableError)) {
-          reject(error)
-          completed = true
-          break
+          reject(error);
+          completed = true;
+          break;
         }
-        n--
+        n--;
       }
-      await waitRandom(minWait, maxWait)
+      await waitRandom(minWait, maxWait);
     }
-  })
+  });
   return {
     promise,
     cancel: () => {
       if (completed) {
-        return
+        return;
       }
-      completed = true
-      rejectCancelled(new CanceledError())
+      completed = true;
+      rejectCancelled(new CanceledError());
     },
-  }
+  };
 }

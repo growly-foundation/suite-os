@@ -1,12 +1,12 @@
-import { useCallback, useMemo, useState } from 'react'
-import type { Insets, LayoutChangeEvent } from 'react-native'
-import { isIOS } from 'utilities/src/platform'
+import { useCallback, useMemo, useState } from 'react';
+import type { Insets, LayoutChangeEvent } from 'react-native';
+import { isIOS } from 'utilities/src/platform';
 
-type FrameSize = { width: number; height: number }
+type FrameSize = { width: number; height: number };
 
 // Per iOS/Android guidelines
-const MIN_WIDTH = isIOS ? 44 : 48
-const MIN_HEIGHT = MIN_WIDTH
+const MIN_WIDTH = isIOS ? 44 : 48;
+const MIN_HEIGHT = MIN_WIDTH;
 
 /**
  *
@@ -19,11 +19,11 @@ const MIN_HEIGHT = MIN_WIDTH
  *
  */
 export const getHitSlop = ({ width, height }: FrameSize): Insets | undefined => {
-  const additionalWidth = width < MIN_WIDTH ? MIN_WIDTH - width : 0
-  const additionalHeight = height < MIN_HEIGHT ? MIN_HEIGHT - height : 0
+  const additionalWidth = width < MIN_WIDTH ? MIN_WIDTH - width : 0;
+  const additionalHeight = height < MIN_HEIGHT ? MIN_HEIGHT - height : 0;
 
   if (additionalWidth === 0 && additionalHeight === 0) {
-    return undefined
+    return undefined;
   }
 
   return {
@@ -31,8 +31,8 @@ export const getHitSlop = ({ width, height }: FrameSize): Insets | undefined => 
     right: additionalWidth / 2,
     bottom: additionalHeight / 2,
     left: additionalWidth / 2,
-  }
-}
+  };
+};
 
 /**
  * A hook that automatically calculates and applies hit slop to touchable elements to meet minimum touch target size requirements.
@@ -69,37 +69,41 @@ export const getHitSlop = ({ width, height }: FrameSize): Insets | undefined => 
  * ```
  */
 export const useAutoHitSlop = (
-  onLayoutArg?: (e: LayoutChangeEvent) => void,
+  onLayoutArg?: (e: LayoutChangeEvent) => void
 ): [Insets | undefined, (e: LayoutChangeEvent) => void] => {
-  const [frameSize, setFrameSize] = useState<FrameSize | undefined>(undefined)
+  const [frameSize, setFrameSize] = useState<FrameSize | undefined>(undefined);
 
   const onLayout = useCallback(
     (event: LayoutChangeEvent) => {
-      onLayoutArg?.(event)
+      onLayoutArg?.(event);
 
       const {
         nativeEvent: { layout },
-      } = event
+      } = event;
 
       // Use functional update to prevent stale state issues if onLayout changes
-      setFrameSize((prevFrameSize) => {
-        if (!prevFrameSize || layout.width !== prevFrameSize.width || layout.height !== prevFrameSize.height) {
-          return { width: layout.width, height: layout.height }
+      setFrameSize(prevFrameSize => {
+        if (
+          !prevFrameSize ||
+          layout.width !== prevFrameSize.width ||
+          layout.height !== prevFrameSize.height
+        ) {
+          return { width: layout.width, height: layout.height };
         }
-        return prevFrameSize
-      })
+        return prevFrameSize;
+      });
     },
-    [onLayoutArg],
-  )
+    [onLayoutArg]
+  );
 
   const finalHitSlop = useMemo(() => {
     // Calculate only if frameSize is not undefined
     if (!frameSize) {
-      return undefined
+      return undefined;
     }
 
-    return getHitSlop(frameSize)
-  }, [frameSize])
+    return getHitSlop(frameSize);
+  }, [frameSize]);
 
-  return [finalHitSlop, onLayout] as const
-}
+  return [finalHitSlop, onLayout] as const;
+};

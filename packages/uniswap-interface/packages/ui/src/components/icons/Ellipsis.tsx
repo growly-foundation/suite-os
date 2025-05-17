@@ -1,11 +1,11 @@
-import { Path, Svg } from 'react-native-svg'
+import { Path, Svg } from 'react-native-svg';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
-import { createIcon } from '../factories/createIcon'
+import { createIcon } from '../factories/createIcon';
 
 export const [Ellipsis, AnimatedEllipsis] = createIcon({
   name: 'Ellipsis',
-  getIcon: (props) => (
+  getIcon: props => (
     <Svg viewBox="0 0 18 4" fill="none" {...props}>
       <Path
         d="M9 3C9.55228 3 10 2.55228 10 2C10 1.44772 9.55228 1 9 1C8.44772 1 8 1.44772 8 2C8 2.55228 8.44772 3 9 3Z"
@@ -30,4 +30,4 @@ export const [Ellipsis, AnimatedEllipsis] = createIcon({
       />
     </Svg>
   ),
-})
+});

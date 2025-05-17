@@ -1,14 +1,17 @@
-import { TradeType } from '@uniswap/sdk-core'
-import { parseUnits } from 'ethers/lib/utils'
-import { gqlToCurrency, supportedChainIdFromGQLChain } from 'graphql/data/util'
-import store from 'state'
-import { addSignature } from 'state/signatures/reducer'
-import { OrderActivity, SignatureDetails, SignatureType } from 'state/signatures/types'
-import { TransactionType as LocalTransactionType } from 'state/transactions/types'
-import { UniswapXOrderStatus } from 'types/uniswapx'
-import { SwapOrderStatus, SwapOrderType } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { logger } from 'utilities/src/logger/logger'
-import { currencyId } from 'utils/currencyId'
+import { TradeType } from '@uniswap/sdk-core';
+import { parseUnits } from 'ethers/lib/utils';
+import { gqlToCurrency, supportedChainIdFromGQLChain } from 'graphql/data/util';
+import store from 'state';
+import { addSignature } from 'state/signatures/reducer';
+import { OrderActivity, SignatureDetails, SignatureType } from 'state/signatures/types';
+import { TransactionType as LocalTransactionType } from 'state/transactions/types';
+import { UniswapXOrderStatus } from 'types/uniswapx';
+import {
+  SwapOrderStatus,
+  SwapOrderType,
+} from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { logger } from 'utilities/src/logger/logger';
+import { currencyId } from 'utils/currencyId';
 
 const SIGNATURE_TYPE_MAP: { [key in SwapOrderType]: SignatureType } = {
   [SwapOrderType.Limit]: SignatureType.SIGN_LIMIT,
@@ -16,7 +19,7 @@ const SIGNATURE_TYPE_MAP: { [key in SwapOrderType]: SignatureType } = {
   [SwapOrderType.DutchV2]: SignatureType.SIGN_UNISWAPX_V2_ORDER,
   [SwapOrderType.Priority]: SignatureType.SIGN_PRIORITY_ORDER,
   // [SwapOrderType.DutchV3]: SignatureType.SIGN_UNISWAPX_V3_ORDER, TODO: Backend needs to support this
-}
+};
 
 const ORDER_STATUS_MAP: { [key in SwapOrderStatus]: UniswapXOrderStatus } = {
   [SwapOrderStatus.Open]: UniswapXOrderStatus.OPEN,
@@ -25,31 +28,37 @@ const ORDER_STATUS_MAP: { [key in SwapOrderStatus]: UniswapXOrderStatus } = {
   [SwapOrderStatus.InsufficientFunds]: UniswapXOrderStatus.INSUFFICIENT_FUNDS,
   [SwapOrderStatus.Filled]: UniswapXOrderStatus.FILLED,
   [SwapOrderStatus.Cancelled]: UniswapXOrderStatus.CANCELLED,
-}
+};
 
 export function parseRemote({ chain, details, timestamp }: OrderActivity): SignatureDetails {
-  const chainId = supportedChainIdFromGQLChain(chain)
+  const chainId = supportedChainIdFromGQLChain(chain);
   if (!chainId) {
-    const error = new Error('Invalid activity from unsupported chain received from GQL')
+    const error = new Error('Invalid activity from unsupported chain received from GQL');
     logger.error(error, {
       tags: {
         file: 'parseRemote',
         function: 'parseRemote',
       },
       extra: { details },
-    })
-    throw error
+    });
+    throw error;
   }
 
-  const status = ORDER_STATUS_MAP[details.orderStatus]
-  const isFilled = status === UniswapXOrderStatus.FILLED
+  const status = ORDER_STATUS_MAP[details.orderStatus];
+  const isFilled = status === UniswapXOrderStatus.FILLED;
 
-  const inputTokenQuantity = parseUnits(details.inputTokenQuantity, details.inputToken.decimals).toString()
-  const outputTokenQuantity = parseUnits(details.outputTokenQuantity, details.outputToken.decimals).toString()
+  const inputTokenQuantity = parseUnits(
+    details.inputTokenQuantity,
+    details.inputToken.decimals
+  ).toString();
+  const outputTokenQuantity = parseUnits(
+    details.outputTokenQuantity,
+    details.outputToken.decimals
+  ).toString();
 
   if (inputTokenQuantity === '0' || outputTokenQuantity === '0') {
     // TODO(WEB-3765): This is a temporary mitigation for a bug where the backend sends "0.000000" for small amounts.
-    throw new Error('Invalid activity received from GQL')
+    throw new Error('Invalid activity received from GQL');
   }
 
   const signature: SignatureDetails = {
@@ -83,14 +92,14 @@ export function parseRemote({ chain, details, timestamp }: OrderActivity): Signa
       minimumOutputCurrencyAmountRaw: outputTokenQuantity,
       settledOutputCurrencyAmountRaw: isFilled ? outputTokenQuantity : undefined,
     },
-  }
+  };
 
   if (status === UniswapXOrderStatus.OPEN) {
     // Update this asynchronously to avoid updating other components during this render cycle.
     setTimeout(() => {
-      store.dispatch(addSignature(signature))
-    }, 0)
+      store.dispatch(addSignature(signature));
+    }, 0);
   }
 
-  return signature
+  return signature;
 }

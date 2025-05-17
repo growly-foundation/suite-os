@@ -1,7 +1,13 @@
-import type { SVGProps } from 'constants/icons/types'
+import type { SVGProps } from 'constants/icons/types';
 
 const GBP_ICON = (props: SVGProps) => (
-  <svg width="49" height="49" viewBox="0 0 49 49" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+  <svg
+    width="49"
+    height="49"
+    viewBox="0 0 49 49"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}>
     <g clipPath="url(#clip0_1942_61803)">
       <path d="M0 0H48.6368V48.5142H0V0Z" fill="#012169" />
       <path
@@ -12,8 +18,14 @@ const GBP_ICON = (props: SVGProps) => (
         d="M17.4788 30.7004L18.5238 33.9221L3.98973 48.5142H0V48.23L17.4788 30.7004ZM29.258 29.5634L34.3877 30.3214L48.6368 44.2503V48.5142L29.258 29.5634ZM48.6368 0L30.398 18.5719L30.018 14.4027L44.267 0H48.6368ZM0 0.0947544L18.3338 18.0033L12.7292 17.2453L0 4.64297V0.0947544Z"
         fill="#C8102E"
       />
-      <path d="M16.7189 0V48.5142H31.9179V0H16.7189ZM0 16.6768V31.8375H48.6368V16.6768H0Z" fill="white" />
-      <path d="M0 19.7089V28.8053H48.6368V19.7089H0ZM19.7587 0V48.5142H28.8781V0H19.7587Z" fill="#C8102E" />
+      <path
+        d="M16.7189 0V48.5142H31.9179V0H16.7189ZM0 16.6768V31.8375H48.6368V16.6768H0Z"
+        fill="white"
+      />
+      <path
+        d="M0 19.7089V28.8053H48.6368V19.7089H0ZM19.7587 0V48.5142H28.8781V0H19.7587Z"
+        fill="#C8102E"
+      />
     </g>
     <defs>
       <clipPath id="clip0_1942_61803">
@@ -24,6 +36,6 @@ const GBP_ICON = (props: SVGProps) => (
       </clipPath>
     </defs>
   </svg>
-)
+);
 
-export default GBP_ICON
+export default GBP_ICON;

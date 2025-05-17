@@ -1,25 +1,25 @@
-import 'test-utils/tokens/mocks'
+import 'test-utils/tokens/mocks';
 
-import { WETH9 } from '@uniswap/sdk-core'
-import { OrderContent } from 'components/AccountDrawer/MiniPortfolio/Activity/OffchainActivityModal'
-import { formatTimestamp } from 'components/AccountDrawer/MiniPortfolio/formatTimestamp'
-import { SignatureType } from 'state/signatures/types'
-import { mocked } from 'test-utils/mocked'
-import { render } from 'test-utils/render'
-import { UniswapXOrderStatus } from 'types/uniswapx'
-import { DAI } from 'uniswap/src/constants/tokens'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
+import { WETH9 } from '@uniswap/sdk-core';
+import { OrderContent } from 'components/AccountDrawer/MiniPortfolio/Activity/OffchainActivityModal';
+import { formatTimestamp } from 'components/AccountDrawer/MiniPortfolio/formatTimestamp';
+import { SignatureType } from 'state/signatures/types';
+import { mocked } from 'test-utils/mocked';
+import { render } from 'test-utils/render';
+import { UniswapXOrderStatus } from 'types/uniswapx';
+import { DAI } from 'uniswap/src/constants/tokens';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
 
 jest.mock('components/AccountDrawer/MiniPortfolio/formatTimestamp', () => ({
   formatTimestamp: jest.fn(),
-}))
+}));
 
 describe('OrderContent', () => {
   beforeEach(() => {
     mocked(formatTimestamp).mockImplementation(() => {
-      return 'Mock Date' // This ensures consistent test behavior across local and CI
-    })
-  })
+      return 'Mock Date'; // This ensures consistent test behavior across local and CI
+    });
+  });
   it('should render without error, filled order', () => {
     const { container } = render(
       <OrderContent
@@ -44,11 +44,11 @@ describe('OrderContent', () => {
             settledOutputCurrencyAmountRaw: '106841079134757921',
           },
         }}
-      />,
-    )
-    expect(container).toMatchSnapshot()
-    expect(container).toHaveTextContent('Order executed')
-  })
+      />
+    );
+    expect(container).toMatchSnapshot();
+    expect(container).toHaveTextContent('Order executed');
+  });
   it('should render without error, open order', () => {
     const { container } = render(
       <OrderContent
@@ -73,12 +73,12 @@ describe('OrderContent', () => {
             settledOutputCurrencyAmountRaw: '106841079134757921',
           },
         }}
-      />,
-    )
-    expect(container).toMatchSnapshot()
-    expect(container).toHaveTextContent('Order pending')
-    expect(container).toHaveTextContent('Cancel order')
-  })
+      />
+    );
+    expect(container).toMatchSnapshot();
+    expect(container).toHaveTextContent('Order pending');
+    expect(container).toHaveTextContent('Cancel order');
+  });
 
   it('should render without error, limit order', () => {
     const { container } = render(
@@ -104,10 +104,10 @@ describe('OrderContent', () => {
             settledOutputCurrencyAmountRaw: '106841079134757921',
           },
         }}
-      />,
-    )
-    expect(container).toMatchSnapshot()
-    expect(container).toHaveTextContent('Limit pending')
-    expect(container).toHaveTextContent('Cancel limit')
-  })
-})
+      />
+    );
+    expect(container).toMatchSnapshot();
+    expect(container).toHaveTextContent('Limit pending');
+    expect(container).toHaveTextContent('Cancel limit');
+  });
+});

@@ -17,10 +17,11 @@ export class SuiteCoreService {
       if (!fn || typeof fn !== 'function') {
         throw new Error(`Method ${String(method)} not found on service ${String(service)}`);
       }
+      const boundFn = fn.bind(this.suiteCore[service]); // Bind the context of the function
       if (!args) {
-        return fn();
+        return boundFn();
       } else {
-        return fn(...args);
+        return boundFn(...args);
       }
     } catch (error) {
       this.logger.error(`Error calling core service ${service}: ${error.message}`, error.stack);

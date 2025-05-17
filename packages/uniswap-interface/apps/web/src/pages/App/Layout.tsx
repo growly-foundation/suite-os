@@ -1,9 +1,9 @@
-import { GrowlySuiteWidget } from 'components/GrowlySuiteWidget'
-import styled from 'lib/styled-components'
-import { Body } from 'pages/App/Body'
-import { Header } from 'pages/App/Header'
-import { GRID_AREAS } from 'pages/App/utils/shared'
-import { breakpoints } from 'ui/src/theme'
+import { GrowlySuiteWidget } from 'components/GrowlySuiteWidget';
+import styled from 'lib/styled-components';
+import { Body } from 'pages/App/Body';
+import { Header } from 'pages/App/Header';
+import { GRID_AREAS } from 'pages/App/utils/shared';
+import { breakpoints } from 'ui/src/theme';
 
 const AppContainer = styled.div`
   min-height: 100vh;
@@ -14,7 +14,7 @@ const AppContainer = styled.div`
   grid-template-columns: 1fr;
   grid-template-rows: auto auto 1fr;
   grid-template-areas: '${GRID_AREAS.HEADER}' '${GRID_AREAS.MAIN}' '${GRID_AREAS.MOBILE_BOTTOM_BAR}';
-`
+`;
 const AppBody = styled.div`
   grid-area: ${GRID_AREAS.MAIN};
   width: 100vw;
@@ -32,7 +32,7 @@ const AppBody = styled.div`
     padding-left: 10px;
     padding-right: 10px;
   }
-`
+`;
 
 export function AppLayout() {
   return (
@@ -43,5 +43,5 @@ export function AppLayout() {
       </AppBody>
       <GrowlySuiteWidget />
     </AppContainer>
-  )
+  );
 }

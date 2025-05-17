@@ -1,5 +1,5 @@
-import { PredefinedAmount } from 'pages/Swap/Buy/PredefinedAmount'
-import { render, screen } from 'test-utils/render'
+import { PredefinedAmount } from 'pages/Swap/Buy/PredefinedAmount';
+import { render, screen } from 'test-utils/render';
 
 describe('PredefinedAmount', () => {
   it.each([
@@ -10,14 +10,19 @@ describe('PredefinedAmount', () => {
   ])(
     'renders correctly with amount= %p , currentAmount= %p , disabled= %p',
     async (amount, currentAmount, disabled) => {
-      const clickHandler = jest.fn()
+      const clickHandler = jest.fn();
       const { container } = render(
-        <PredefinedAmount amount={amount} currentAmount={currentAmount} disabled={disabled} onClick={clickHandler} />,
-      )
-      screen.getByText('$' + amount).click()
-      expect(clickHandler).toHaveBeenCalledTimes(disabled ? 0 : 1)
+        <PredefinedAmount
+          amount={amount}
+          currentAmount={currentAmount}
+          disabled={disabled}
+          onClick={clickHandler}
+        />
+      );
+      screen.getByText('$' + amount).click();
+      expect(clickHandler).toHaveBeenCalledTimes(disabled ? 0 : 1);
 
-      expect(container.firstChild).toMatchSnapshot()
-    },
-  )
-})
+      expect(container.firstChild).toMatchSnapshot();
+    }
+  );
+});

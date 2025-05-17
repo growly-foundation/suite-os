@@ -1,4 +1,4 @@
-import { styled, Text } from 'ui/src'
+import { styled, Text } from 'ui/src';
 
 const FilterButton = styled(Text, {
   display: 'flex',
@@ -35,6 +35,6 @@ const FilterButton = styled(Text, {
       },
     },
   } as const,
-})
+});
 
-export default FilterButton
+export default FilterButton;

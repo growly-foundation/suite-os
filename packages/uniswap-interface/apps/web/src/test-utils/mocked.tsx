@@ -14,7 +14,7 @@
 // Instead, we use this utility function to improve readability and add a check to ensure the function is a mock.
 export function mocked<T extends (...args: any) => any>(fn: T) {
   if (!jest.isMockFunction(fn)) {
-    throw new Error('fn is not a mock')
+    throw new Error('fn is not a mock');
   }
-  return fn as jest.MockedFunction<T>
+  return fn as jest.MockedFunction<T>;
 }

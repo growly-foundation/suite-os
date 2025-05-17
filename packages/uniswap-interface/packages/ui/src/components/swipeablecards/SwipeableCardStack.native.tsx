@@ -1,6 +1,6 @@
-import { GestureHandlerRootView } from 'react-native-gesture-handler'
-import { BaseSwipeableCardStack } from 'ui/src/components/swipeablecards/BaseSwipeableCardStack'
-import { PickedCardProps, SwipeableCardStackProps } from 'ui/src/components/swipeablecards/props'
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BaseSwipeableCardStack } from 'ui/src/components/swipeablecards/BaseSwipeableCardStack';
+import { PickedCardProps, SwipeableCardStackProps } from 'ui/src/components/swipeablecards/props';
 
 export function SwipeableCardStack<T extends PickedCardProps>({
   cards,
@@ -19,5 +19,5 @@ export function SwipeableCardStack<T extends PickedCardProps>({
         onSwiped={onSwiped}
       />
     </GestureHandlerRootView>
-  )
+  );
 }

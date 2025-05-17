@@ -1,15 +1,21 @@
-import { Trans } from 'react-i18next'
-import { ExternalLink } from 'theme/components/Links'
-import { Flex, FlexProps, Text, styled } from 'ui/src'
+import { Trans } from 'react-i18next';
+import { ExternalLink } from 'theme/components/Links';
+import { Flex, FlexProps, Text, styled } from 'ui/src';
 
 const DisclaimerText = styled(Text, {
   variant: 'body4',
   color: '$neutral2',
-})
+});
 
 export function LimitDisclaimer(props: FlexProps) {
   return (
-    <Flex backgroundColor="$surface2" borderRadius="$rounded12" p="$spacing12" mt="$spacing12" gap="$gap4" {...props}>
+    <Flex
+      backgroundColor="$surface2"
+      borderRadius="$rounded12"
+      p="$spacing12"
+      mt="$spacing12"
+      gap="$gap4"
+      {...props}>
       <DisclaimerText>
         <Trans i18nKey="pool.limitFluctuation.warning" />
       </DisclaimerText>
@@ -20,5 +26,5 @@ export function LimitDisclaimer(props: FlexProps) {
         </ExternalLink>
       </DisclaimerText>
     </Flex>
-  )
+  );
 }

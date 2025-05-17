@@ -1,29 +1,29 @@
-import { Currency } from '@uniswap/sdk-core'
-import CurrencyLogo from 'components/Logo/CurrencyLogo'
-import { DetailBubble } from 'components/Pools/PoolDetails/shared'
-import { DeltaArrow } from 'components/Tokens/TokenDetails/Delta'
-import { LoadingBubble } from 'components/Tokens/loading'
-import Column from 'components/deprecated/Column'
-import Row from 'components/deprecated/Row'
-import { NATIVE_CHAIN_ID } from 'constants/tokens'
-import { PoolData } from 'graphql/data/pools/usePoolData'
-import { getTokenDetailsURL, unwrapToken } from 'graphql/data/util'
-import { useCurrency } from 'hooks/Tokens'
-import styled, { css, useTheme } from 'lib/styled-components'
-import { ReactNode, useMemo } from 'react'
-import { Trans } from 'react-i18next'
-import { Link } from 'react-router-dom'
-import { Text } from 'rebass'
-import { ThemedText } from 'theme/components'
-import { ClickableStyle } from 'theme/components/styles'
-import { Flex, useMedia } from 'ui/src'
-import { breakpoints } from 'ui/src/theme'
-import { nativeOnChain } from 'uniswap/src/constants/tokens'
-import { Token } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { toGraphQLChain } from 'uniswap/src/features/chains/utils'
-import { NumberType, useFormatter } from 'utils/formatNumbers'
+import { Currency } from '@uniswap/sdk-core';
+import CurrencyLogo from 'components/Logo/CurrencyLogo';
+import { DetailBubble } from 'components/Pools/PoolDetails/shared';
+import { DeltaArrow } from 'components/Tokens/TokenDetails/Delta';
+import { LoadingBubble } from 'components/Tokens/loading';
+import Column from 'components/deprecated/Column';
+import Row from 'components/deprecated/Row';
+import { NATIVE_CHAIN_ID } from 'constants/tokens';
+import { PoolData } from 'graphql/data/pools/usePoolData';
+import { getTokenDetailsURL, unwrapToken } from 'graphql/data/util';
+import { useCurrency } from 'hooks/Tokens';
+import styled, { css, useTheme } from 'lib/styled-components';
+import { ReactNode, useMemo } from 'react';
+import { Trans } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import { Text } from 'rebass';
+import { ThemedText } from 'theme/components';
+import { ClickableStyle } from 'theme/components/styles';
+import { Flex, useMedia } from 'ui/src';
+import { breakpoints } from 'ui/src/theme';
+import { nativeOnChain } from 'uniswap/src/constants/tokens';
+import { Token } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import { toGraphQLChain } from 'uniswap/src/features/chains/utils';
+import { NumberType, useFormatter } from 'utils/formatNumbers';
 
 const HeaderText = styled(Text)`
   font-weight: 485;
@@ -32,7 +32,7 @@ const HeaderText = styled(Text)`
   @media (max-width: ${breakpoints.xl}px) {
     width: 100%;
   }
-`
+`;
 
 const StatsWrapper = styled(Column)<{ loaded?: boolean }>`
   gap: 24px;
@@ -51,7 +51,7 @@ const StatsWrapper = styled(Column)<{ loaded?: boolean }>`
     justify-content: space-between;
     margin-top: 0px;
   }
-`
+`;
 
 const StatItemColumn = styled(Column)`
   gap: 8px;
@@ -61,7 +61,7 @@ const StatItemColumn = styled(Column)`
   @media (max-width: ${breakpoints.md}px) {
     min-width: 150px;
   }
-`
+`;
 
 const PoolBalanceSymbols = styled(Row)`
   justify-content: space-between;
@@ -69,7 +69,7 @@ const PoolBalanceSymbols = styled(Row)`
   @media (max-width: ${breakpoints.xl}px) {
     flex-direction: column;
   }
-`
+`;
 
 const PoolBalanceTokenNamesContainer = styled(Row)`
   font-weight: 485;
@@ -82,60 +82,66 @@ const PoolBalanceTokenNamesContainer = styled(Row)`
     line-height: 28px;
     width: 100%;
   }
-`
+`;
 
 const StyledLink = styled(Link)`
   display: flex;
   align-items: center;
   color: ${({ theme }) => theme.neutral1};
   ${ClickableStyle}
-`
+`;
 
 const leftBarChartStyles = css`
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
   border-right: 1px solid ${({ theme }) => theme.surface2};
-`
+`;
 
 const rightBarChartStyles = css`
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
   border-left: 1px solid ${({ theme }) => theme.surface2};
-`
+`;
 
 const BalanceChartSide = styled.div<{ percent: number; $color: string; isLeft: boolean }>`
   height: 8px;
   width: ${({ percent }) => percent * 100}%;
   background: ${({ $color }) => $color};
   ${({ isLeft }) => (isLeft ? leftBarChartStyles : rightBarChartStyles)}
-`
+`;
 
 const StatSectionBubble = styled(LoadingBubble)`
   width: 180px;
   height: 40px;
-`
+`;
 
 const StatHeaderBubble = styled(LoadingBubble)`
   width: 116px;
   height: 24px;
   border-radius: 8px;
-`
+`;
 
 type TokenFullData = Token & {
-  price: number
-  tvl: number
-  percent: number
-  currency?: Currency
-}
+  price: number;
+  tvl: number;
+  percent: number;
+  currency?: Currency;
+};
 
-const PoolBalanceTokenNames = ({ token, chainId }: { token: TokenFullData; chainId?: UniverseChainId }) => {
-  const media = useMedia()
-  const isLargeScreen = !media.xl
-  const { formatNumber } = useFormatter()
-  const unwrappedToken = chainId ? unwrapToken(chainId, token) : token
-  const isNative = unwrappedToken?.address === NATIVE_CHAIN_ID
-  const currency = isNative && chainId ? nativeOnChain(chainId) : token.currency
-  const { defaultChainId } = useEnabledChains()
+const PoolBalanceTokenNames = ({
+  token,
+  chainId,
+}: {
+  token: TokenFullData;
+  chainId?: UniverseChainId;
+}) => {
+  const media = useMedia();
+  const isLargeScreen = !media.xl;
+  const { formatNumber } = useFormatter();
+  const unwrappedToken = chainId ? unwrapToken(chainId, token) : token;
+  const isNative = unwrappedToken?.address === NATIVE_CHAIN_ID;
+  const currency = isNative && chainId ? nativeOnChain(chainId) : token.currency;
+  const { defaultChainId } = useEnabledChains();
 
   return (
     <PoolBalanceTokenNamesContainer>
@@ -149,52 +155,63 @@ const PoolBalanceTokenNames = ({ token, chainId }: { token: TokenFullData; chain
           to={getTokenDetailsURL({
             address: unwrappedToken.address,
             chain: toGraphQLChain(chainId ?? defaultChainId),
-          })}
-        >
+          })}>
           {unwrappedToken.symbol}
         </StyledLink>
       </Flex>
     </PoolBalanceTokenNamesContainer>
-  )
-}
+  );
+};
 
 interface PoolDetailsStatsProps {
-  poolData?: PoolData
-  isReversed?: boolean
-  chainId?: number
-  loading?: boolean
+  poolData?: PoolData;
+  isReversed?: boolean;
+  chainId?: number;
+  loading?: boolean;
 }
 
-export function PoolDetailsStats({ poolData, isReversed, chainId, loading }: PoolDetailsStatsProps) {
-  const media = useMedia()
-  const isLargeScreen = !media.xl
-  const theme = useTheme()
+export function PoolDetailsStats({
+  poolData,
+  isReversed,
+  chainId,
+  loading,
+}: PoolDetailsStatsProps) {
+  const media = useMedia();
+  const isLargeScreen = !media.xl;
+  const theme = useTheme();
 
-  const currency0 = useCurrency(poolData?.token0?.address, chainId)
-  const currency1 = useCurrency(poolData?.token1?.address, chainId)
+  const currency0 = useCurrency(poolData?.token0?.address, chainId);
+  const currency1 = useCurrency(poolData?.token1?.address, chainId);
 
   const [token0, token1] = useMemo(() => {
-    if (poolData && poolData.tvlToken0 && poolData.token0Price && poolData.tvlToken1 && poolData.token1Price) {
-      const fullWidth = poolData?.tvlToken0 * poolData?.token0Price + poolData?.tvlToken1 * poolData?.token1Price
+    if (
+      poolData &&
+      poolData.tvlToken0 &&
+      poolData.token0Price &&
+      poolData.tvlToken1 &&
+      poolData.token1Price
+    ) {
+      const fullWidth =
+        poolData?.tvlToken0 * poolData?.token0Price + poolData?.tvlToken1 * poolData?.token1Price;
       const token0FullData: TokenFullData = {
         ...poolData?.token0,
         price: poolData?.token0Price,
         tvl: poolData?.tvlToken0,
         percent: (poolData?.tvlToken0 * poolData?.token0Price) / fullWidth,
         currency: currency0,
-      }
+      };
       const token1FullData: TokenFullData = {
         ...poolData?.token1,
         price: poolData?.token1Price,
         tvl: poolData?.tvlToken1,
         percent: (poolData?.tvlToken1 * poolData?.token1Price) / fullWidth,
         currency: currency1,
-      }
-      return isReversed ? [token1FullData, token0FullData] : [token0FullData, token1FullData]
+      };
+      return isReversed ? [token1FullData, token0FullData] : [token0FullData, token1FullData];
     } else {
-      return [undefined, undefined]
+      return [undefined, undefined];
     }
-  }, [currency0, currency1, isReversed, poolData])
+  }, [currency0, currency1, isReversed, poolData]);
 
   if (loading || !token0 || !token1 || !poolData) {
     return (
@@ -209,7 +226,7 @@ export function PoolDetailsStats({ poolData, isReversed, chainId, loading }: Poo
           </Column>
         ))}
       </StatsWrapper>
-    )
+    );
   }
 
   return (
@@ -253,7 +270,7 @@ export function PoolDetailsStats({ poolData, isReversed, chainId, loading }: Poo
         />
       )}
     </StatsWrapper>
-  )
+  );
 }
 
 const StatsTextContainer = styled(Row)`
@@ -266,7 +283,7 @@ const StatsTextContainer = styled(Row)`
     gap: 0px;
     align-items: flex-start;
   }
-`
+`;
 
 const StatItemText = styled(Text)`
   color: ${({ theme }) => theme.neutral1};
@@ -278,10 +295,10 @@ const StatItemText = styled(Text)`
     font-size: 20px;
     line-height: 28px;
   }
-`
+`;
 
 function StatItem({ title, value, delta }: { title: ReactNode; value: number; delta?: number }) {
-  const { formatNumber, formatDelta } = useFormatter()
+  const { formatNumber, formatDelta } = useFormatter();
 
   return (
     <StatItemColumn>
@@ -301,5 +318,5 @@ function StatItem({ title, value, delta }: { title: ReactNode; value: number; de
         )}
       </StatsTextContainer>
     </StatItemColumn>
-  )
+  );
 }

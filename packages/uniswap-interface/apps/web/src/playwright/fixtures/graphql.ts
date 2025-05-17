@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import { test as base } from '@playwright/test'
-import path from 'path'
-import { Mocks } from 'playwright/mocks/mocks'
+import { test as base } from '@playwright/test';
+import path from 'path';
+import { Mocks } from 'playwright/mocks/mocks';
 
 type GraphqlFixture = {
   graphql: {
@@ -15,82 +15,92 @@ type GraphqlFixture = {
      * If no variables are provided, all operations with the specified operationName will match and return the mock response.
      * If variables are provided, the request will only match if all variables match (case insensitive).
      */
-    intercept: (operationName: string, mockPath: string, variables?: Record<string, unknown>) => Promise<void>
-    waitForResponse: (operationName: string) => Promise<void>
-  }
-  interceptLongRunning: void
-}
+    intercept: (
+      operationName: string,
+      mockPath: string,
+      variables?: Record<string, unknown>
+    ) => Promise<void>;
+    waitForResponse: (operationName: string) => Promise<void>;
+  };
+  interceptLongRunning: void;
+};
 
 type InterceptConfig = {
-  mockPath: string
-  variables?: Record<string, unknown>
-}
+  mockPath: string;
+  variables?: Record<string, unknown>;
+};
 
-const interceptConfigs = new Map<string, InterceptConfig>()
+const interceptConfigs = new Map<string, InterceptConfig>();
 
 export const test = base.extend<GraphqlFixture>({
   async graphql({ page }, use) {
-    interceptConfigs.clear()
+    interceptConfigs.clear();
 
-    const intercept = async (operationName: string, mockPath: string, variables?: Record<string, unknown>) => {
-      interceptConfigs.set(operationName, { mockPath, variables })
-    }
+    const intercept = async (
+      operationName: string,
+      mockPath: string,
+      variables?: Record<string, unknown>
+    ) => {
+      interceptConfigs.set(operationName, { mockPath, variables });
+    };
 
     const waitForResponse = async (operationName: string) => {
-      await page.waitForResponse((response) => {
+      await page.waitForResponse(response => {
         if (!response.request().url().includes('graphql')) {
-          return false
+          return false;
         }
 
-        const postDataBuffer = response.request().postDataBuffer?.()
+        const postDataBuffer = response.request().postDataBuffer?.();
         if (!postDataBuffer) {
-          return false
+          return false;
         }
-        const postData = postDataBuffer.toString('utf-8')
-        const data = JSON.parse(postData)
-        return data.operationName === operationName
-      })
-    }
+        const postData = postDataBuffer.toString('utf-8');
+        const data = JSON.parse(postData);
+        return data.operationName === operationName;
+      });
+    };
 
-    await page.route(/(?:interface|beta).(gateway|api).uniswap.org\/v1\/graphql/, async (route) => {
-      const request = route.request()
-      const postData = request.postData()
+    await page.route(/(?:interface|beta).(gateway|api).uniswap.org\/v1\/graphql/, async route => {
+      const request = route.request();
+      const postData = request.postData();
       if (!postData) {
-        return route.continue()
+        return route.continue();
       }
 
       try {
-        const { operationName, variables } = JSON.parse(postData)
-        const config = interceptConfigs.get(operationName)
+        const { operationName, variables } = JSON.parse(postData);
+        const config = interceptConfigs.get(operationName);
 
         if (config?.variables) {
           const matches = Object.keys(config.variables).every(
-            (key) => variables[key]?.toString().toLowerCase() === config.variables?.[key]?.toString().toLowerCase(),
-          )
+            key =>
+              variables[key]?.toString().toLowerCase() ===
+              config.variables?.[key]?.toString().toLowerCase()
+          );
           if (matches) {
-            return route.fulfill({ path: path.resolve(__dirname, config.mockPath) })
+            return route.fulfill({ path: path.resolve(__dirname, config.mockPath) });
           }
         } else if (config) {
-          return route.fulfill({ path: path.resolve(__dirname, config.mockPath) })
+          return route.fulfill({ path: path.resolve(__dirname, config.mockPath) });
         }
 
-        return route.continue()
+        return route.continue();
       } catch (error) {
         // eslint-disable-next-line no-console
-        console.warn('GraphQL intercept error:', error)
-        return route.continue()
+        console.warn('GraphQL intercept error:', error);
+        return route.continue();
       }
-    })
+    });
 
-    await use({ intercept, waitForResponse })
+    await use({ intercept, waitForResponse });
   },
   // Intercept long running graphql requests here:
   interceptLongRunning: [
     // eslint-disable-next-line no-empty-pattern
     async ({ graphql }, use) => {
-      graphql.intercept('PortfolioBalances', Mocks.PortfolioBalances.test_wallet)
-      await use(undefined)
+      graphql.intercept('PortfolioBalances', Mocks.PortfolioBalances.test_wallet);
+      await use(undefined);
     },
     { auto: true },
   ],
-})
+});

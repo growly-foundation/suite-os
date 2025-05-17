@@ -1,34 +1,37 @@
-import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb'
-import { BreadcrumbNavContainer, BreadcrumbNavLink } from 'components/BreadcrumbNav'
-import { LiquidityPositionInfo, LiquidityPositionInfoLoader } from 'components/Liquidity/LiquidityPositionInfo'
-import { useGetPoolTokenPercentage } from 'components/Liquidity/hooks'
-import { parseRestPosition } from 'components/Liquidity/utils'
-import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo'
-import { ZERO_ADDRESS } from 'constants/misc'
-import { usePositionOwnerV2 } from 'hooks/usePositionOwnerV2'
-import { useV2Pair } from 'hooks/useV2Pairs'
-import NotFound from 'pages/NotFound'
-import { TextLoader } from 'pages/Pool/Positions/shared'
-import { useMemo } from 'react'
-import { ChevronRight } from 'react-feather'
-import { Helmet } from 'react-helmet-async/lib/index'
-import { Trans, useTranslation } from 'react-i18next'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { setOpenModal } from 'state/application/reducer'
-import { useAppDispatch, useAppSelector } from 'state/hooks'
-import { MultichainContextProvider } from 'state/multichain/MultichainContext'
-import { usePendingLPTransactionsChangeListener } from 'state/transactions/hooks'
-import { usePairAdder } from 'state/user/hooks'
-import { Button, Circle, Flex, Main, Shine, Text, styled } from 'ui/src'
-import { useGetPositionQuery } from 'uniswap/src/data/rest/getPosition'
-import { useSupportedChainId } from 'uniswap/src/features/chains/hooks/useSupportedChainId'
-import { useLocalizationContext } from 'uniswap/src/features/language/LocalizationContext'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
-import { useUSDCValue } from 'uniswap/src/features/transactions/hooks/useUSDCPrice'
-import { shortenAddress } from 'utilities/src/addresses'
-import { NumberType } from 'utilities/src/format/types'
-import { useChainIdFromUrlParam } from 'utils/chainParams'
-import { useAccount } from 'wagmi'
+import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb';
+import { BreadcrumbNavContainer, BreadcrumbNavLink } from 'components/BreadcrumbNav';
+import {
+  LiquidityPositionInfo,
+  LiquidityPositionInfoLoader,
+} from 'components/Liquidity/LiquidityPositionInfo';
+import { useGetPoolTokenPercentage } from 'components/Liquidity/hooks';
+import { parseRestPosition } from 'components/Liquidity/utils';
+import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo';
+import { ZERO_ADDRESS } from 'constants/misc';
+import { usePositionOwnerV2 } from 'hooks/usePositionOwnerV2';
+import { useV2Pair } from 'hooks/useV2Pairs';
+import NotFound from 'pages/NotFound';
+import { TextLoader } from 'pages/Pool/Positions/shared';
+import { useMemo } from 'react';
+import { ChevronRight } from 'react-feather';
+import { Helmet } from 'react-helmet-async/lib/index';
+import { Trans, useTranslation } from 'react-i18next';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { setOpenModal } from 'state/application/reducer';
+import { useAppDispatch, useAppSelector } from 'state/hooks';
+import { MultichainContextProvider } from 'state/multichain/MultichainContext';
+import { usePendingLPTransactionsChangeListener } from 'state/transactions/hooks';
+import { usePairAdder } from 'state/user/hooks';
+import { Button, Circle, Flex, Main, Shine, Text, styled } from 'ui/src';
+import { useGetPositionQuery } from 'uniswap/src/data/rest/getPosition';
+import { useSupportedChainId } from 'uniswap/src/features/chains/hooks/useSupportedChainId';
+import { useLocalizationContext } from 'uniswap/src/features/language/LocalizationContext';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
+import { useUSDCValue } from 'uniswap/src/features/transactions/hooks/useUSDCPrice';
+import { shortenAddress } from 'utilities/src/addresses';
+import { NumberType } from 'utilities/src/format/types';
+import { useChainIdFromUrlParam } from 'utils/chainParams';
+import { useAccount } from 'wagmi';
 
 const BodyWrapper = styled(Main, {
   backgroundColor: '$surface1',
@@ -44,7 +47,7 @@ const BodyWrapper = styled(Main, {
   $lg: {
     px: '$padding20',
   },
-})
+});
 
 function RowLoader({ withIcon }: { withIcon?: boolean }) {
   return (
@@ -59,24 +62,24 @@ function RowLoader({ withIcon }: { withIcon?: boolean }) {
         <TextLoader variant="body2" width={72} />
       )}
     </Flex>
-  )
+  );
 }
 
 export default function V2PositionPageWrapper() {
-  const chainId = useChainIdFromUrlParam()
+  const chainId = useChainIdFromUrlParam();
 
   return (
     <MultichainContextProvider initialChainId={chainId}>
       <V2PositionPage />
     </MultichainContextProvider>
-  )
+  );
 }
 
 function V2PositionPage() {
-  const { pairAddress } = useParams<{ pairAddress: string }>()
-  const chainId = useChainIdFromUrlParam()
-  const account = useAccount()
-  const supportedAccountChainId = useSupportedChainId(account.chainId)
+  const { pairAddress } = useParams<{ pairAddress: string }>();
+  const chainId = useChainIdFromUrlParam();
+  const account = useAccount();
+  const supportedAccountChainId = useSupportedChainId(account.chainId);
 
   const {
     data,
@@ -87,30 +90,42 @@ function V2PositionPage() {
     protocolVersion: ProtocolVersion.V2,
     pairAddress,
     chainId: chainId ?? supportedAccountChainId,
-  })
-  const position = data?.position
-  const positionInfo = useMemo(() => parseRestPosition(position), [position])
-  const dispatch = useAppDispatch()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const { formatCurrencyAmount, formatPercent } = useLocalizationContext()
-  const { t } = useTranslation()
+  });
+  const position = data?.position;
+  const positionInfo = useMemo(() => parseRestPosition(position), [position]);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { formatCurrencyAmount, formatPercent } = useLocalizationContext();
+  const { t } = useTranslation();
 
-  const savedSerializedPairs = useAppSelector(({ user: { pairs } }) => pairs)
-  const [, pair] = useV2Pair(positionInfo?.currency0Amount.currency, positionInfo?.currency1Amount.currency)
-  const addPair = usePairAdder()
+  const savedSerializedPairs = useAppSelector(({ user: { pairs } }) => pairs);
+  const [, pair] = useV2Pair(
+    positionInfo?.currency0Amount.currency,
+    positionInfo?.currency1Amount.currency
+  );
+  const addPair = usePairAdder();
 
-  usePendingLPTransactionsChangeListener(refetch)
+  usePendingLPTransactionsChangeListener(refetch);
 
-  const { currency0Amount, currency1Amount, liquidityAmount } = positionInfo ?? {}
+  const { currency0Amount, currency1Amount, liquidityAmount } = positionInfo ?? {};
 
-  const token0USDValue = useUSDCValue(currency0Amount)
-  const token1USDValue = useUSDCValue(currency1Amount)
-  const poolTokenPercentage = useGetPoolTokenPercentage(positionInfo)
-  const liquidityTokenAddress = positionInfo?.liquidityToken?.isToken ? positionInfo.liquidityToken.address : undefined
-  const isOwner = usePositionOwnerV2(account?.address, liquidityTokenAddress, positionInfo?.chainId)
+  const token0USDValue = useUSDCValue(currency0Amount);
+  const token1USDValue = useUSDCValue(currency1Amount);
+  const poolTokenPercentage = useGetPoolTokenPercentage(positionInfo);
+  const liquidityTokenAddress = positionInfo?.liquidityToken?.isToken
+    ? positionInfo.liquidityToken.address
+    : undefined;
+  const isOwner = usePositionOwnerV2(
+    account?.address,
+    liquidityTokenAddress,
+    positionInfo?.chainId
+  );
 
-  if (!positionLoading && (!positionInfo || !liquidityAmount || !currency0Amount || !currency1Amount)) {
+  if (
+    !positionLoading &&
+    (!positionInfo || !liquidityAmount || !currency0Amount || !currency1Amount)
+  ) {
     return (
       <NotFound
         title={<Text variant="heading2">{t('position.notFound')}</Text>}
@@ -129,7 +144,7 @@ function V2PositionPage() {
           </Flex>
         }
       />
-    )
+    );
   }
 
   return (
@@ -149,7 +164,9 @@ function V2PositionPage() {
               <BreadcrumbNavLink to="/positions">
                 <Trans i18nKey="pool.positions.title" /> <ChevronRight size={14} />
               </BreadcrumbNavLink>
-              {positionInfo && <Text variant="subheading2">{shortenAddress(positionInfo.poolId)}</Text>}
+              {positionInfo && (
+                <Text variant="subheading2">{shortenAddress(positionInfo.poolId)}</Text>
+              )}
             </BreadcrumbNavContainer>
           </Flex>
 
@@ -168,16 +185,20 @@ function V2PositionPage() {
                 $sm={{ width: '100%' }}
                 isDisabled={positionLoading}
                 onPress={() => {
-                  if (pair && chainId && pairAddress && !savedSerializedPairs[chainId]?.[pairAddress]) {
-                    addPair(pair)
+                  if (
+                    pair &&
+                    chainId &&
+                    pairAddress &&
+                    !savedSerializedPairs[chainId]?.[pairAddress]
+                  ) {
+                    addPair(pair);
                   }
                   navigate('/migrate/v2', {
                     state: {
                       from: location.pathname,
                     },
-                  })
-                }}
-              >
+                  });
+                }}>
                 {t('common.migrate.v3')}
               </Button>
               <Button
@@ -186,9 +207,10 @@ function V2PositionPage() {
                 $sm={{ width: '100%' }}
                 isDisabled={positionLoading}
                 onPress={() => {
-                  dispatch(setOpenModal({ name: ModalName.AddLiquidity, initialState: positionInfo }))
-                }}
-              >
+                  dispatch(
+                    setOpenModal({ name: ModalName.AddLiquidity, initialState: positionInfo })
+                  );
+                }}>
                 {t('common.addLiquidity')}
               </Button>
               <Button
@@ -196,14 +218,20 @@ function V2PositionPage() {
                 $sm={{ width: '100%' }}
                 isDisabled={positionLoading}
                 onPress={() => {
-                  dispatch(setOpenModal({ name: ModalName.RemoveLiquidity, initialState: positionInfo }))
-                }}
-              >
+                  dispatch(
+                    setOpenModal({ name: ModalName.RemoveLiquidity, initialState: positionInfo })
+                  );
+                }}>
                 {t('pool.removeLiquidity')}
               </Button>
             </Flex>
           )}
-          <Flex borderColor="$surface3" borderWidth="$spacing1" p="$spacing24" gap="$gap12" borderRadius="$rounded20">
+          <Flex
+            borderColor="$surface3"
+            borderWidth="$spacing1"
+            p="$spacing24"
+            gap="$gap12"
+            borderRadius="$rounded20">
             {positionLoading || !currency0Amount || !currency1Amount ? (
               <Shine>
                 <Flex gap="$gap12">
@@ -235,9 +263,15 @@ function V2PositionPage() {
                   </Text>
                   <Flex row gap="$gap8">
                     <Text variant="body2">
-                      {formatCurrencyAmount({ value: liquidityAmount, type: NumberType.TokenNonTx })}
+                      {formatCurrencyAmount({
+                        value: liquidityAmount,
+                        type: NumberType.TokenNonTx,
+                      })}
                     </Text>
-                    <DoubleCurrencyLogo currencies={[currency0Amount?.currency, currency1Amount?.currency]} size={24} />
+                    <DoubleCurrencyLogo
+                      currencies={[currency0Amount?.currency, currency1Amount?.currency]}
+                      size={24}
+                    />
                   </Flex>
                 </Flex>
                 <Flex row width="100%" justifyContent="space-between">
@@ -249,7 +283,10 @@ function V2PositionPage() {
                   </Text>
                   <Flex row gap="$gap8">
                     <Text variant="body2">
-                      {formatCurrencyAmount({ value: currency0Amount, type: NumberType.TokenNonTx })}
+                      {formatCurrencyAmount({
+                        value: currency0Amount,
+                        type: NumberType.TokenNonTx,
+                      })}
                     </Text>
                     <DoubleCurrencyLogo currencies={[currency0Amount?.currency]} size={24} />
                   </Flex>
@@ -263,7 +300,10 @@ function V2PositionPage() {
                   </Text>
                   <Flex row gap="$gap8">
                     <Text variant="body2">
-                      {formatCurrencyAmount({ value: currency1Amount, type: NumberType.TokenNonTx })}
+                      {formatCurrencyAmount({
+                        value: currency1Amount,
+                        type: NumberType.TokenNonTx,
+                      })}
                     </Text>
                     <DoubleCurrencyLogo currencies={[currency1Amount?.currency]} size={24} />
                   </Flex>
@@ -272,7 +312,9 @@ function V2PositionPage() {
                   <Text variant="subheading2" color="$neutral2">
                     <Trans i18nKey="addLiquidity.shareOfPool" />
                   </Text>
-                  <Text variant="body2">{formatPercent(poolTokenPercentage?.toSignificant(6))}</Text>
+                  <Text variant="body2">
+                    {formatPercent(poolTokenPercentage?.toSignificant(6))}
+                  </Text>
                 </Flex>
               </>
             )}
@@ -280,5 +322,5 @@ function V2PositionPage() {
         </Flex>
       </BodyWrapper>
     </>
-  )
+  );
 }

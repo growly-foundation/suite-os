@@ -1,12 +1,12 @@
-import { Token } from '@uniswap/sdk-core'
-import { PersistState } from 'redux-persist'
-import { PreV16UserState } from 'state/migrations/oldTypes'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { serializeToken } from 'uniswap/src/utils/currency'
+import { Token } from '@uniswap/sdk-core';
+import { PersistState } from 'redux-persist';
+import { PreV16UserState } from 'state/migrations/oldTypes';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import { serializeToken } from 'uniswap/src/utils/currency';
 
 export type PersistAppStateV3 = {
-  _persist: PersistState
-} & { user?: PreV16UserState }
+  _persist: PersistState;
+} & { user?: PreV16UserState };
 
 /**
  * Migration to clear users' imported token lists, after
@@ -20,13 +20,13 @@ export const migration3 = (state: PersistAppStateV3 | undefined) => {
       [UniverseChainId.ArbitrumOne]: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
       [UniverseChainId.Avalanche]: '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664',
       [UniverseChainId.Polygon]: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
-    }
+    };
     for (const [chainId, address] of Object.entries(USDCe_ADDRESSES)) {
-      const chainIdKey = Number(chainId) as UniverseChainId
+      const chainIdKey = Number(chainId) as UniverseChainId;
       if (state.user.tokens?.[chainIdKey]?.[address]) {
         state.user.tokens[chainIdKey][address] = serializeToken(
-          new Token(chainIdKey, address, 6, 'USDC.e', 'Bridged USDC'),
-        )
+          new Token(chainIdKey, address, 6, 'USDC.e', 'Bridged USDC')
+        );
       }
     }
     // Update USDbC token to use the new USDbC symbol (from USDC)
@@ -35,10 +35,10 @@ export const migration3 = (state: PersistAppStateV3 | undefined) => {
       '0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA',
       6,
       'USDbC',
-      'USD Base Coin',
-    )
+      'USD Base Coin'
+    );
     if (state.user.tokens?.[UniverseChainId.Base]?.[USDbC_BASE.address]) {
-      state.user.tokens[UniverseChainId.Base][USDbC_BASE.address] = serializeToken(USDbC_BASE)
+      state.user.tokens[UniverseChainId.Base][USDbC_BASE.address] = serializeToken(USDbC_BASE);
     }
     return {
       ...state,
@@ -46,7 +46,7 @@ export const migration3 = (state: PersistAppStateV3 | undefined) => {
         ...state._persist,
         version: 3,
       },
-    }
+    };
   }
-  return state
-}
+  return state;
+};

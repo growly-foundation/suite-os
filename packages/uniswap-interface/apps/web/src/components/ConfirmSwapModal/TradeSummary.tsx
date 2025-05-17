@@ -1,14 +1,18 @@
-import CurrencyLogo from 'components/Logo/CurrencyLogo'
-import Row from 'components/deprecated/Row'
-import { useTheme } from 'lib/styled-components'
-import { ArrowRight } from 'react-feather'
-import { InterfaceTrade } from 'state/routing/types'
-import { ThemedText } from 'theme/components'
-import { useFormatter } from 'utils/formatNumbers'
+import CurrencyLogo from 'components/Logo/CurrencyLogo';
+import Row from 'components/deprecated/Row';
+import { useTheme } from 'lib/styled-components';
+import { ArrowRight } from 'react-feather';
+import { InterfaceTrade } from 'state/routing/types';
+import { ThemedText } from 'theme/components';
+import { useFormatter } from 'utils/formatNumbers';
 
-export function TradeSummary({ trade }: { trade: Pick<InterfaceTrade, 'inputAmount' | 'outputAmount'> }) {
-  const theme = useTheme()
-  const { formatReviewSwapCurrencyAmount } = useFormatter()
+export function TradeSummary({
+  trade,
+}: {
+  trade: Pick<InterfaceTrade, 'inputAmount' | 'outputAmount'>;
+}) {
+  const theme = useTheme();
+  const { formatReviewSwapCurrencyAmount } = useFormatter();
 
   return (
     <Row gap="sm" justify="center" align="center">
@@ -22,5 +26,5 @@ export function TradeSummary({ trade }: { trade: Pick<InterfaceTrade, 'inputAmou
         {formatReviewSwapCurrencyAmount(trade.outputAmount)} {trade.outputAmount.currency.symbol}
       </ThemedText.LabelSmall>
     </Row>
-  )
+  );
 }

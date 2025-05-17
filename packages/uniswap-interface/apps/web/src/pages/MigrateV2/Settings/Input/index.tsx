@@ -1,5 +1,5 @@
-import Row from 'components/deprecated/Row'
-import styled from 'lib/styled-components'
+import Row from 'components/deprecated/Row';
+import styled from 'lib/styled-components';
 
 export const Input = styled.input`
   width: 100%;
@@ -17,7 +17,7 @@ export const Input = styled.input`
   ::placeholder {
     color: ${({ theme }) => theme.neutral3};
   }
-`
+`;
 
 export const InputContainer = styled(Row)<{ error?: boolean }>`
   padding: 8px 16px;
@@ -43,4 +43,4 @@ export const InputContainer = styled(Row)<{ error?: boolean }>`
           border-color: ${theme.accent2};
         }
       `}
-`
+`;

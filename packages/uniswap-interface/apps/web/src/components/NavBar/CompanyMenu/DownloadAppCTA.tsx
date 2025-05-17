@@ -1,22 +1,22 @@
-import { InterfaceElementName } from '@uniswap/analytics-events'
-import { MobileAppLogo } from 'components/Icons/MobileAppLogo'
-import { useIsMobileDrawer } from 'components/NavBar/ScreenSizes'
-import { useAccount } from 'hooks/useAccount'
-import { useModalState } from 'hooks/useModalState'
-import { useTranslation } from 'react-i18next'
-import { Text } from 'rebass'
-import { Anchor, Flex, TextProps, styled, useIsTouchDevice } from 'ui/src'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
-import { isWebAndroid, isWebIOS } from 'utilities/src/platform'
-import { openDownloadApp } from 'utils/openDownloadApp'
+import { InterfaceElementName } from '@uniswap/analytics-events';
+import { MobileAppLogo } from 'components/Icons/MobileAppLogo';
+import { useIsMobileDrawer } from 'components/NavBar/ScreenSizes';
+import { useAccount } from 'hooks/useAccount';
+import { useModalState } from 'hooks/useModalState';
+import { useTranslation } from 'react-i18next';
+import { Text } from 'rebass';
+import { Anchor, Flex, TextProps, styled, useIsTouchDevice } from 'ui/src';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
+import { isWebAndroid, isWebIOS } from 'utilities/src/platform';
+import { openDownloadApp } from 'utils/openDownloadApp';
 
-const DOWNLOAD_PADDING_X = 8
+const DOWNLOAD_PADDING_X = 8;
 
 const PinkFilled: TextProps = {
   backgroundColor: '$accent2',
   color: '$accent1',
-}
+};
 
 const DownloadCTA = styled(Anchor, {
   display: 'flex',
@@ -41,35 +41,35 @@ const DownloadCTA = styled(Anchor, {
     transform: 'none',
     '$platform-web': { boxSizing: 'border-box' },
   },
-})
+});
 
 export function DownloadApp({ onClick }: { onClick?: () => void }) {
-  const { t } = useTranslation()
-  const { openModal: openGetTheAppModal } = useModalState(ModalName.GetTheApp)
-  const isTouchDevice = useIsTouchDevice()
-  const isMobileDrawer = useIsMobileDrawer()
-  const account = useAccount()
+  const { t } = useTranslation();
+  const { openModal: openGetTheAppModal } = useModalState(ModalName.GetTheApp);
+  const isTouchDevice = useIsTouchDevice();
+  const isMobileDrawer = useIsMobileDrawer();
+  const account = useAccount();
 
   return (
     <Trace
       logPress
       element={InterfaceElementName.UNISWAP_WALLET_NAVBAR_MENU_DOWNLOAD_BUTTON}
-      properties={{ connector_id: account?.connector?.id }}
-    >
+      properties={{ connector_id: account?.connector?.id }}>
       <DownloadCTA
         isMobile={isTouchDevice || isMobileDrawer}
         onPress={() => {
           if (onClick) {
-            onClick()
+            onClick();
           }
           if (isWebIOS || isWebAndroid) {
-            openDownloadApp({ element: InterfaceElementName.UNISWAP_WALLET_NAVBAR_MENU_DOWNLOAD_BUTTON })
+            openDownloadApp({
+              element: InterfaceElementName.UNISWAP_WALLET_NAVBAR_MENU_DOWNLOAD_BUTTON,
+            });
           } else {
-            openGetTheAppModal()
+            openGetTheAppModal();
           }
         }}
-        data-testid="nav-dropdown-download-app"
-      >
+        data-testid="nav-dropdown-download-app">
         <MobileAppLogo width={41} height={41} />
         <Flex>
           <Text lineHeight="20px">{t('common.downloadUniswap')}</Text>
@@ -79,5 +79,5 @@ export function DownloadApp({ onClick }: { onClick?: () => void }) {
         </Flex>
       </DownloadCTA>
     </Trace>
-  )
+  );
 }

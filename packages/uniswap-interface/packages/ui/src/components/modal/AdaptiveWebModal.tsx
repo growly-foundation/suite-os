@@ -1,48 +1,64 @@
-import { RemoveScroll } from '@tamagui/remove-scroll'
-import { PropsWithChildren, ReactNode, useCallback, useEffect, useState } from 'react'
-import { DimensionValue } from 'react-native'
-import { Adapt, Dialog, GetProps, Sheet, View, VisuallyHidden, styled, useIsTouchDevice, useMedia } from 'tamagui'
-import { CloseIconProps, CloseIconWithHover } from 'ui/src/components/icons/CloseIconWithHover'
-import { Flex, FlexProps } from 'ui/src/components/layout'
-import { useScrollbarStyles } from 'ui/src/styles/ScrollbarStyles'
-import { INTERFACE_NAV_HEIGHT, zIndexes } from 'ui/src/theme'
-import { useShadowPropsShort } from 'ui/src/theme/shadows'
-import { isInterface } from 'utilities/src/platform'
+import { RemoveScroll } from '@tamagui/remove-scroll';
+import { PropsWithChildren, ReactNode, useCallback, useEffect, useState } from 'react';
+import { DimensionValue } from 'react-native';
+import {
+  Adapt,
+  Dialog,
+  GetProps,
+  Sheet,
+  View,
+  VisuallyHidden,
+  styled,
+  useIsTouchDevice,
+  useMedia,
+} from 'tamagui';
+import { CloseIconProps, CloseIconWithHover } from 'ui/src/components/icons/CloseIconWithHover';
+import { Flex, FlexProps } from 'ui/src/components/layout';
+import { useScrollbarStyles } from 'ui/src/styles/ScrollbarStyles';
+import { INTERFACE_NAV_HEIGHT, zIndexes } from 'ui/src/theme';
+import { useShadowPropsShort } from 'ui/src/theme/shadows';
+import { isInterface } from 'utilities/src/platform';
 
-export const ADAPTIVE_MODAL_ANIMATION_DURATION = 200
+export const ADAPTIVE_MODAL_ANIMATION_DURATION = 200;
 
 export function ModalCloseIcon(props: CloseIconProps): JSX.Element {
   // hide close icon on bottom sheet on interface
-  const sm = useMedia().sm
-  const hideCloseIcon = isInterface && sm
-  return hideCloseIcon ? <></> : <CloseIconWithHover {...props} />
+  const sm = useMedia().sm;
+  const hideCloseIcon = isInterface && sm;
+  return hideCloseIcon ? <></> : <CloseIconWithHover {...props} />;
 }
 
-export function WebBottomSheet({ isOpen, onClose, children, gap, ...rest }: ModalProps): JSX.Element | null {
-  const isTouchDevice = useIsTouchDevice()
-  const [isHandlePressed, setHandlePressed] = useState(false)
+export function WebBottomSheet({
+  isOpen,
+  onClose,
+  children,
+  gap,
+  ...rest
+}: ModalProps): JSX.Element | null {
+  const isTouchDevice = useIsTouchDevice();
+  const [isHandlePressed, setHandlePressed] = useState(false);
 
   // TODO: https://linear.app/uniswap/issue/WEB-6258/token-selector-not-rendering-bottom-sheet-on-web
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   const handleClose = useCallback(
     (open: boolean) => {
       if (!open && onClose) {
-        onClose()
+        onClose();
       }
     },
-    [onClose],
-  )
+    [onClose]
+  );
 
   const sheetOverrideStyles: FlexProps = {
     ...(rest as FlexProps),
     width: '100%',
     maxWidth: '100%',
     minWidth: '100%',
-  }
+  };
 
   const sheetHeightStyles: FlexProps = {
     flex: 1,
@@ -50,10 +66,10 @@ export function WebBottomSheet({ isOpen, onClose, children, gap, ...rest }: Moda
     maxHeight: isInterface
       ? `calc(100vh - ${INTERFACE_NAV_HEIGHT}px)`
       : ((rest.$sm?.['$platform-web']?.maxHeight ?? '100dvh') as DimensionValue),
-  }
+  };
 
   if (!mounted) {
-    return null
+    return null;
   }
 
   return (
@@ -67,8 +83,7 @@ export function WebBottomSheet({ isOpen, onClose, children, gap, ...rest }: Moda
         open={isOpen}
         snapPointsMode="fit"
         zIndex={zIndexes.modal}
-        onOpenChange={handleClose}
-      >
+        onOpenChange={handleClose}>
         <Sheet.Frame
           borderBottomWidth="$none"
           borderColor="$surface3"
@@ -78,8 +93,7 @@ export function WebBottomSheet({ isOpen, onClose, children, gap, ...rest }: Moda
           px="$spacing8"
           zIndex={zIndexes.modal}
           {...sheetOverrideStyles}
-          {...sheetHeightStyles}
-        >
+          {...sheetHeightStyles}>
           <Sheet.Handle
             justifyContent="center"
             m={0}
@@ -88,9 +102,13 @@ export function WebBottomSheet({ isOpen, onClose, children, gap, ...rest }: Moda
             width="100%"
             backgroundColor="$transparent"
             onMouseDown={() => setHandlePressed(true)}
-            onMouseUp={() => setHandlePressed(false)}
-          >
-            <Flex backgroundColor="$neutral3" height="$spacing4" width="$spacing32" borderRadius="$roundedFull" />
+            onMouseUp={() => setHandlePressed(false)}>
+            <Flex
+              backgroundColor="$neutral3"
+              height="$spacing4"
+              width="$spacing32"
+              borderRadius="$roundedFull"
+            />
           </Sheet.Handle>
           <Flex gap={gap} $platform-web={{ overflow: 'auto' }} {...sheetHeightStyles}>
             {children}
@@ -105,7 +123,7 @@ export function WebBottomSheet({ isOpen, onClose, children, gap, ...rest }: Moda
         />
       </Sheet>
     </RemoveScroll>
-  )
+  );
 }
 
 const Overlay = styled(Dialog.Overlay, {
@@ -114,15 +132,15 @@ const Overlay = styled(Dialog.Overlay, {
   opacity: 0.5,
   enterStyle: { opacity: 0 },
   exitStyle: { opacity: 0 },
-})
+});
 
 type ModalProps = GetProps<typeof View> &
   PropsWithChildren<{
-    isOpen: boolean
-    onClose?: () => void
-    adaptToSheet?: boolean
-    alignment?: 'center' | 'top'
-  }>
+    isOpen: boolean;
+    onClose?: () => void;
+    adaptToSheet?: boolean;
+    alignment?: 'center' | 'top';
+  }>;
 
 /**
  * AdaptiveWebModal is a responsive modal component that adapts to different screen sizes.
@@ -143,9 +161,9 @@ export function AdaptiveWebModal({
   zIndex,
   ...rest
 }: ModalProps): JSX.Element {
-  const filteredRest = Object.fromEntries(Object.entries(rest).filter(([_, v]) => v !== undefined)) // Filter out undefined properties from rest
-  const scrollbarStyles = useScrollbarStyles()
-  const isTopAligned = alignment === 'top'
+  const filteredRest = Object.fromEntries(Object.entries(rest).filter(([_, v]) => v !== undefined)); // Filter out undefined properties from rest
+  const scrollbarStyles = useScrollbarStyles();
+  const isTopAligned = alignment === 'top';
 
   const topAlignedStyles: FlexProps = isTopAligned
     ? {
@@ -153,16 +171,16 @@ export function AdaptiveWebModal({
         justifyContent: 'flex-start',
         top: '$spacing16',
       }
-    : {}
+    : {};
 
   const handleClose = useCallback(
     (open: boolean) => {
       if (!open && onClose) {
-        onClose()
+        onClose();
       }
     },
-    [onClose],
-  )
+    [onClose]
+  );
 
   return (
     <Dialog modal open={isOpen} onOpenChange={handleClose}>
@@ -179,8 +197,7 @@ export function AdaptiveWebModal({
               py={py ?? p ?? '$spacing16'}
               style={style}
               onClose={onClose}
-              {...filteredRest}
-            >
+              {...filteredRest}>
               <Adapt.Contents />
             </WebBottomSheet>
           </Adapt>
@@ -197,8 +214,7 @@ export function AdaptiveWebModal({
           borderRadius="$rounded16"
           justifyContent="center"
           overflow="hidden"
-          {...topAlignedStyles}
-        >
+          {...topAlignedStyles}>
           <Dialog.Content
             key="content"
             bordered
@@ -219,14 +235,13 @@ export function AdaptiveWebModal({
             style={Object.assign({}, scrollbarStyles, style)}
             width="calc(100vw - 32px)"
             zIndex={zIndexes.modal}
-            {...filteredRest}
-          >
+            {...filteredRest}>
             {children}
           </Dialog.Content>
         </Flex>
       </Dialog.Portal>
     </Dialog>
-  )
+  );
 }
 
 /**
@@ -246,20 +261,20 @@ export function WebModalWithBottomAttachment({
   zIndex,
   ...rest
 }: ModalProps & { bottomAttachment?: ReactNode }): JSX.Element {
-  const shadowProps = useShadowPropsShort()
+  const shadowProps = useShadowPropsShort();
 
-  const filteredRest = Object.fromEntries(Object.entries(rest).filter(([_, v]) => v !== undefined)) // Filter out undefined properties from rest
+  const filteredRest = Object.fromEntries(Object.entries(rest).filter(([_, v]) => v !== undefined)); // Filter out undefined properties from rest
 
   const handleClose = useCallback(
     (open: boolean) => {
       if (!open && onClose) {
-        onClose()
+        onClose();
       }
     },
-    [onClose],
-  )
+    [onClose]
+  );
 
-  const isTopAligned = alignment === 'top'
+  const isTopAligned = alignment === 'top';
 
   return (
     <Dialog modal open={isOpen} onOpenChange={handleClose}>
@@ -292,8 +307,7 @@ export function WebModalWithBottomAttachment({
           p="$none"
           style={style}
           width="calc(100vw - 32px)"
-          zIndex={zIndexes.modal}
-        >
+          zIndex={zIndexes.modal}>
           <Flex height="100%" width="100%" gap="$spacing8">
             <Flex
               {...shadowProps}
@@ -305,8 +319,7 @@ export function WebModalWithBottomAttachment({
               py="$spacing16"
               gap={gap ?? '$gap4'}
               overflow="hidden"
-              {...filteredRest}
-            >
+              {...filteredRest}>
               {children}
             </Flex>
             {bottomAttachment && <Flex>{bottomAttachment}</Flex>}
@@ -314,5 +327,5 @@ export function WebModalWithBottomAttachment({
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog>
-  )
+  );
 }

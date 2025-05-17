@@ -1,6 +1,6 @@
-import { Percent, TradeType } from '@uniswap/sdk-core'
-import { Route } from '@uniswap/v3-sdk'
-import { ClassicTrade, QuoteMethod } from 'state/routing/types'
+import { Percent, TradeType } from '@uniswap/sdk-core';
+import { Route } from '@uniswap/v3-sdk';
+import { ClassicTrade, QuoteMethod } from 'state/routing/types';
 import {
   TEST_POOL_13,
   TEST_TOKEN_1,
@@ -8,15 +8,17 @@ import {
   TEST_TRADE_EXACT_INPUT,
   TEST_TRADE_EXACT_OUTPUT,
   toCurrencyAmount,
-} from 'test-utils/constants'
-import { tradeMeaningfullyDiffers } from 'utils/tradeMeaningFullyDiffer'
+} from 'test-utils/constants';
+import { tradeMeaningfullyDiffers } from 'utils/tradeMeaningFullyDiffer';
 
 describe('tradeMeaningfullyDiffers', () => {
-  const slippage = new Percent('1', '100') // Assuming 1% slippage for simplicity
+  const slippage = new Percent('1', '100'); // Assuming 1% slippage for simplicity
 
   it('should return true if trade types differ', () => {
-    expect(tradeMeaningfullyDiffers(TEST_TRADE_EXACT_INPUT, TEST_TRADE_EXACT_OUTPUT, slippage)).toBe(true)
-  })
+    expect(
+      tradeMeaningfullyDiffers(TEST_TRADE_EXACT_INPUT, TEST_TRADE_EXACT_OUTPUT, slippage)
+    ).toBe(true);
+  });
 
   it('should return true if input currencies differ', () => {
     const newTrade = new ClassicTrade({
@@ -32,9 +34,9 @@ describe('tradeMeaningfullyDiffers', () => {
       gasUseEstimateUSD: 1.0,
       approveInfo: { needsApprove: false },
       quoteMethod: QuoteMethod.CLIENT_SIDE_FALLBACK,
-    })
-    expect(tradeMeaningfullyDiffers(TEST_TRADE_EXACT_INPUT, newTrade, slippage)).toBe(true)
-  })
+    });
+    expect(tradeMeaningfullyDiffers(TEST_TRADE_EXACT_INPUT, newTrade, slippage)).toBe(true);
+  });
 
   it('should return true if output currencies differ', () => {
     const newTrade = new ClassicTrade({
@@ -50,21 +52,21 @@ describe('tradeMeaningfullyDiffers', () => {
       gasUseEstimateUSD: 1.0,
       approveInfo: { needsApprove: false },
       quoteMethod: QuoteMethod.CLIENT_SIDE_FALLBACK,
-    })
-    expect(tradeMeaningfullyDiffers(TEST_TRADE_EXACT_INPUT, newTrade, slippage)).toBe(true)
-  })
+    });
+    expect(tradeMeaningfullyDiffers(TEST_TRADE_EXACT_INPUT, newTrade, slippage)).toBe(true);
+  });
 
   it('should return true if new trade execution price is less than worst execution price with slippage', () => {
     // Mock price comparison
-    const newTrade = TEST_TRADE_EXACT_INPUT
-    newTrade.executionPrice.lessThan = jest.fn().mockReturnValue(true)
-    expect(tradeMeaningfullyDiffers(TEST_TRADE_EXACT_INPUT, newTrade, slippage)).toBe(true)
-  })
+    const newTrade = TEST_TRADE_EXACT_INPUT;
+    newTrade.executionPrice.lessThan = jest.fn().mockReturnValue(true);
+    expect(tradeMeaningfullyDiffers(TEST_TRADE_EXACT_INPUT, newTrade, slippage)).toBe(true);
+  });
 
   it('should return false if none of the conditions are met', () => {
-    const newTrade = TEST_TRADE_EXACT_INPUT
-    newTrade.executionPrice.lessThan = jest.fn().mockReturnValue(false)
+    const newTrade = TEST_TRADE_EXACT_INPUT;
+    newTrade.executionPrice.lessThan = jest.fn().mockReturnValue(false);
 
-    expect(tradeMeaningfullyDiffers(TEST_TRADE_EXACT_INPUT, newTrade, slippage)).toBe(false)
-  })
-})
+    expect(tradeMeaningfullyDiffers(TEST_TRADE_EXACT_INPUT, newTrade, slippage)).toBe(false);
+  });
+});

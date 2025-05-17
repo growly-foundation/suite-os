@@ -1,4 +1,4 @@
-process.env.TZ = 'America/New_York'
+process.env.TZ = 'America/New_York';
 
 module.exports = {
   globals: {
@@ -35,4 +35,4 @@ module.exports = {
     WALLETCONNECT_PROJECT_ID_DEV: 123,
     INCLUDE_PROTOTYPE_FEATURES: true,
   },
-}
+};

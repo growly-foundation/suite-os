@@ -1,1 +1,1 @@
-import 'utilities/jest-package-mocks'
+import 'utilities/jest-package-mocks';

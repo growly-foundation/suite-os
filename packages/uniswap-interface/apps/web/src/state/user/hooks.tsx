@@ -1,43 +1,46 @@
-import { Percent, Token, V2_FACTORY_ADDRESSES } from '@uniswap/sdk-core'
-import { Pair, computePairAddress } from '@uniswap/v2-sdk'
-import { L2_DEADLINE_FROM_NOW } from 'constants/misc'
-import { BASES_TO_TRACK_LIQUIDITY_FOR, PINNED_PAIRS } from 'constants/routing'
-import { gqlToCurrency } from 'graphql/data/util'
-import { useAccount } from 'hooks/useAccount'
-import JSBI from 'jsbi'
-import { useCallback, useMemo } from 'react'
-import { useAppDispatch, useAppSelector } from 'state/hooks'
-import { RouterPreference } from 'state/routing/types'
+import { Percent, Token, V2_FACTORY_ADDRESSES } from '@uniswap/sdk-core';
+import { Pair, computePairAddress } from '@uniswap/v2-sdk';
+import { L2_DEADLINE_FROM_NOW } from 'constants/misc';
+import { BASES_TO_TRACK_LIQUIDITY_FOR, PINNED_PAIRS } from 'constants/routing';
+import { gqlToCurrency } from 'graphql/data/util';
+import { useAccount } from 'hooks/useAccount';
+import JSBI from 'jsbi';
+import { useCallback, useMemo } from 'react';
+import { useAppDispatch, useAppSelector } from 'state/hooks';
+import { RouterPreference } from 'state/routing/types';
 import {
   addSerializedPair,
   updateUserDeadline,
   updateUserRouterPreference,
   updateUserSlippageTolerance,
-} from 'state/user/reducer'
-import { SerializedPair, SlippageTolerance } from 'state/user/types'
+} from 'state/user/reducer';
+import { SerializedPair, SlippageTolerance } from 'state/user/types';
 import {
   TokenSortableField,
   useTopTokensQuery,
-} from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { useGetPositionsForPairs } from 'uniswap/src/data/rest/getPositions'
-import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains'
-import { useSupportedChainId } from 'uniswap/src/features/chains/hooks/useSupportedChainId'
-import { isL2ChainId, toGraphQLChain } from 'uniswap/src/features/chains/utils'
-import { deserializeToken, serializeToken } from 'uniswap/src/utils/currency'
+} from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { useGetPositionsForPairs } from 'uniswap/src/data/rest/getPositions';
+import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains';
+import { useSupportedChainId } from 'uniswap/src/features/chains/hooks/useSupportedChainId';
+import { isL2ChainId, toGraphQLChain } from 'uniswap/src/features/chains/utils';
+import { deserializeToken, serializeToken } from 'uniswap/src/utils/currency';
 
-export function useRouterPreference(): [RouterPreference, (routerPreference: RouterPreference) => void] {
-  const dispatch = useAppDispatch()
+export function useRouterPreference(): [
+  RouterPreference,
+  (routerPreference: RouterPreference) => void,
+] {
+  const dispatch = useAppDispatch();
 
-  const routerPreference = useAppSelector((state) => state.user.userRouterPreference)
+  const routerPreference = useAppSelector(state => state.user.userRouterPreference);
 
   const setRouterPreference = useCallback(
     (newRouterPreference: RouterPreference) => {
-      dispatch(updateUserRouterPreference({ userRouterPreference: newRouterPreference }))
+      dispatch(updateUserRouterPreference({ userRouterPreference: newRouterPreference }));
     },
-    [dispatch],
-  )
+    [dispatch]
+  );
 
-  return [routerPreference, setRouterPreference]
+  return [routerPreference, setRouterPreference];
 }
 
 /**
@@ -47,40 +50,40 @@ export function useUserSlippageTolerance(): [
   Percent | SlippageTolerance.Auto,
   (slippageTolerance: Percent | SlippageTolerance.Auto) => void,
 ] {
-  const userSlippageToleranceRaw = useAppSelector((state) => {
-    return state.user.userSlippageTolerance
-  })
+  const userSlippageToleranceRaw = useAppSelector(state => {
+    return state.user.userSlippageTolerance;
+  });
 
   const userSlippageTolerance = useMemo(
     () =>
       userSlippageToleranceRaw === SlippageTolerance.Auto
         ? SlippageTolerance.Auto
         : new Percent(userSlippageToleranceRaw, 10_000),
-    [userSlippageToleranceRaw],
-  )
+    [userSlippageToleranceRaw]
+  );
 
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
   const setUserSlippageTolerance = useCallback(
     (userSlippageTolerance: Percent | SlippageTolerance.Auto) => {
-      let value: SlippageTolerance.Auto | number
+      let value: SlippageTolerance.Auto | number;
       try {
         value =
           userSlippageTolerance === SlippageTolerance.Auto
             ? SlippageTolerance.Auto
-            : JSBI.toNumber(userSlippageTolerance.multiply(10_000).quotient)
+            : JSBI.toNumber(userSlippageTolerance.multiply(10_000).quotient);
       } catch (error) {
-        value = SlippageTolerance.Auto
+        value = SlippageTolerance.Auto;
       }
       dispatch(
         updateUserSlippageTolerance({
           userSlippageTolerance: value,
-        }),
-      )
+        })
+      );
     },
-    [dispatch],
-  )
+    [dispatch]
+  );
 
-  return [userSlippageTolerance, setUserSlippageTolerance]
+  return [userSlippageTolerance, setUserSlippageTolerance];
 }
 
 /**
@@ -88,43 +91,43 @@ export function useUserSlippageTolerance(): [
  * @param defaultSlippageTolerance the value to replace auto with
  */
 export function useUserSlippageToleranceWithDefault(defaultSlippageTolerance: Percent): Percent {
-  const [allowedSlippage] = useUserSlippageTolerance()
-  return allowedSlippage === SlippageTolerance.Auto ? defaultSlippageTolerance : allowedSlippage
+  const [allowedSlippage] = useUserSlippageTolerance();
+  return allowedSlippage === SlippageTolerance.Auto ? defaultSlippageTolerance : allowedSlippage;
 }
 
 export function useUserTransactionTTL(): [number, (slippage: number) => void] {
-  const { chainId } = useAccount()
-  const dispatch = useAppDispatch()
-  const userDeadline = useAppSelector((state) => state.user.userDeadline)
-  const onL2 = isL2ChainId(chainId)
-  const deadline = onL2 ? L2_DEADLINE_FROM_NOW : userDeadline
+  const { chainId } = useAccount();
+  const dispatch = useAppDispatch();
+  const userDeadline = useAppSelector(state => state.user.userDeadline);
+  const onL2 = isL2ChainId(chainId);
+  const deadline = onL2 ? L2_DEADLINE_FROM_NOW : userDeadline;
 
   const setUserDeadline = useCallback(
     (userDeadline: number) => {
-      dispatch(updateUserDeadline({ userDeadline }))
+      dispatch(updateUserDeadline({ userDeadline }));
     },
-    [dispatch],
-  )
+    [dispatch]
+  );
 
-  return [deadline, setUserDeadline]
+  return [deadline, setUserDeadline];
 }
 
 function serializePair(pair: Pair): SerializedPair {
   return {
     token0: serializeToken(pair.token0),
     token1: serializeToken(pair.token1),
-  }
+  };
 }
 
 export function usePairAdder(): (pair: Pair) => void {
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
 
   return useCallback(
     (pair: Pair) => {
-      dispatch(addSerializedPair({ serializedPair: serializePair(pair) }))
+      dispatch(addSerializedPair({ serializedPair: serializePair(pair) }));
     },
-    [dispatch],
-  )
+    [dispatch]
+  );
 }
 
 /**
@@ -134,13 +137,13 @@ export function usePairAdder(): (pair: Pair) => void {
  */
 export function toV2LiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
   if (tokenA.chainId !== tokenB.chainId) {
-    throw new Error('Not matching chain IDs')
+    throw new Error('Not matching chain IDs');
   }
   if (tokenA.equals(tokenB)) {
-    throw new Error('Tokens cannot be equal')
+    throw new Error('Tokens cannot be equal');
   }
   if (!V2_FACTORY_ADDRESSES[tokenA.chainId]) {
-    throw new Error('No V2 factory address on this chain')
+    throw new Error('No V2 factory address on this chain');
   }
 
   return new Token(
@@ -148,17 +151,17 @@ export function toV2LiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
     computePairAddress({ factoryAddress: V2_FACTORY_ADDRESSES[tokenA.chainId], tokenA, tokenB }),
     18,
     'UNI-V2',
-    'Uniswap V2',
-  )
+    'Uniswap V2'
+  );
 }
 
 /**
  * Returns all the pairs of tokens that are tracked by the user for the current chain ID.
  */
 export function useTrackedTokenPairs(): [Token, Token][] {
-  const { chainId } = useAccount()
-  const { defaultChainId } = useEnabledChains()
-  const supportedChainId = useSupportedChainId(chainId)
+  const { chainId } = useAccount();
+  const { defaultChainId } = useEnabledChains();
+  const supportedChainId = useSupportedChainId(chainId);
 
   // TODO(WEB-4001): use an "all tokens" query for better LP detection
   const { data: popularTokens } = useTopTokensQuery({
@@ -168,79 +171,84 @@ export function useTrackedTokenPairs(): [Token, Token][] {
       page: 1,
       pageSize: 100,
     },
-  })
+  });
 
   // pinned pairs
-  const pinnedPairs = useMemo(() => (chainId ? PINNED_PAIRS[chainId] ?? [] : []), [chainId])
+  const pinnedPairs = useMemo(() => (chainId ? (PINNED_PAIRS[chainId] ?? []) : []), [chainId]);
 
   // pairs for every token against every base
   const generatedPairs: [Token, Token][] = useMemo(
     () =>
       chainId && popularTokens?.topTokens
-        ? popularTokens.topTokens.flatMap((gqlToken) => {
+        ? popularTokens.topTokens.flatMap(gqlToken => {
             if (!gqlToken || !gqlToken.address) {
-              return []
+              return [];
             }
-            const token = gqlToCurrency(gqlToken)
+            const token = gqlToCurrency(gqlToken);
             // for each token on the current chain,
             return (
               // loop though all bases on the current chain
               (BASES_TO_TRACK_LIQUIDITY_FOR[chainId] ?? [])
                 // to construct pairs of the given token with each base
-                .map((base) => {
+                .map(base => {
                   if (!token?.isNative && base.address === token?.address) {
-                    return null
+                    return null;
                   } else {
-                    return [base, token]
+                    return [base, token];
                   }
                 })
                 .filter((p): p is [Token, Token] => p !== null)
-            )
+            );
           })
         : [],
-    [popularTokens, chainId],
-  )
+    [popularTokens, chainId]
+  );
 
   // pairs saved by users
-  const savedSerializedPairs = useAppSelector(({ user: { pairs } }) => pairs)
+  const savedSerializedPairs = useAppSelector(({ user: { pairs } }) => pairs);
 
   const userPairs: [Token, Token][] = useMemo(() => {
     if (!chainId || !savedSerializedPairs) {
-      return []
+      return [];
     }
-    const forChain = savedSerializedPairs[chainId]
+    const forChain = savedSerializedPairs[chainId];
     if (!forChain) {
-      return []
+      return [];
     }
 
-    return Object.keys(forChain).map((pairId) => {
-      return [deserializeToken(forChain[pairId].token0), deserializeToken(forChain[pairId].token1)]
-    })
-  }, [savedSerializedPairs, chainId])
+    return Object.keys(forChain).map(pairId => {
+      return [deserializeToken(forChain[pairId].token0), deserializeToken(forChain[pairId].token1)];
+    });
+  }, [savedSerializedPairs, chainId]);
 
   const combinedList = useMemo(
     () => userPairs.concat(generatedPairs).concat(pinnedPairs),
-    [pinnedPairs, userPairs, generatedPairs],
-  )
+    [pinnedPairs, userPairs, generatedPairs]
+  );
 
   return useMemo(() => {
     // dedupes pairs of tokens in the combined list
-    const keyed = combinedList.reduce<{ [key: string]: [Token, Token] }>((memo, [tokenA, tokenB]) => {
-      const sorted = tokenA.sortsBefore(tokenB)
-      const key = sorted ? `${tokenA.address}:${tokenB.address}` : `${tokenB.address}:${tokenA.address}`
-      if (memo[key]) {
-        return memo
-      }
-      memo[key] = sorted ? [tokenA, tokenB] : [tokenB, tokenA]
-      return memo
-    }, {})
+    const keyed = combinedList.reduce<{ [key: string]: [Token, Token] }>(
+      (memo, [tokenA, tokenB]) => {
+        const sorted = tokenA.sortsBefore(tokenB);
+        const key = sorted
+          ? `${tokenA.address}:${tokenB.address}`
+          : `${tokenB.address}:${tokenA.address}`;
+        if (memo[key]) {
+          return memo;
+        }
+        memo[key] = sorted ? [tokenA, tokenB] : [tokenB, tokenA];
+        return memo;
+      },
+      {}
+    );
 
-    return Object.keys(keyed).map((key) => keyed[key])
-  }, [combinedList])
+    return Object.keys(keyed).map(key => keyed[key]);
+  }, [combinedList]);
 }
 
 export function useRequestPositionsForSavedPairs() {
-  const savedSerializedPairs = useAppSelector(({ user: { pairs } }) => pairs)
-  const account = useAccount()
-  return useGetPositionsForPairs(savedSerializedPairs, account.address)
+  const savedSerializedPairs = useAppSelector(({ user: { pairs } }) => pairs);
+  const account = useAccount();
+  return useGetPositionsForPairs(savedSerializedPairs, account.address);
 }

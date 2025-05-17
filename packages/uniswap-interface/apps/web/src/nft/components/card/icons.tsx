@@ -1,10 +1,10 @@
-import Row from 'components/deprecated/Row'
-import styled from 'lib/styled-components'
-import { getMarketplaceIcon } from 'nft/components/card/utils'
-import { CollectionSelectedAssetIcon } from 'nft/components/iconExports'
-import { Markets } from 'nft/types'
-import { Check, Tag } from 'react-feather'
-import { NftStandard } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
+import Row from 'components/deprecated/Row';
+import styled from 'lib/styled-components';
+import { getMarketplaceIcon } from 'nft/components/card/utils';
+import { CollectionSelectedAssetIcon } from 'nft/components/iconExports';
+import { Markets } from 'nft/types';
+import { Check, Tag } from 'react-feather';
+import { NftStandard } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
 
 const StyledMarketplaceContainer = styled.div<{ isText?: boolean }>`
   position: absolute;
@@ -20,7 +20,7 @@ const StyledMarketplaceContainer = styled.div<{ isText?: boolean }>`
   align-items: center;
   border-radius: 32px;
   z-index: 2;
-`
+`;
 
 const ListPriceRowContainer = styled(Row)`
   gap: 6px;
@@ -29,7 +29,7 @@ const ListPriceRowContainer = styled(Row)`
   font-weight: 535;
   line-height: 16px;
   text-shadow: 1px 1px 3px rgba(51, 53, 72, 0.54);
-`
+`;
 
 export const MarketplaceContainer = ({
   isSelected,
@@ -38,11 +38,11 @@ export const MarketplaceContainer = ({
   listedPrice,
   hidePrice,
 }: {
-  isSelected: boolean
-  marketplace?: Markets
-  tokenType?: NftStandard
-  listedPrice?: string
-  hidePrice?: boolean
+  isSelected: boolean;
+  marketplace?: Markets;
+  tokenType?: NftStandard;
+  listedPrice?: string;
+  hidePrice?: boolean;
 }) => {
   if (isSelected) {
     if (!marketplace) {
@@ -50,14 +50,14 @@ export const MarketplaceContainer = ({
         <StyledMarketplaceContainer>
           <Check size={20} />
         </StyledMarketplaceContainer>
-      )
+      );
     }
 
     return (
       <StyledMarketplaceContainer>
         <CollectionSelectedAssetIcon width="20px" height="20px" viewBox="0 0 20 20" />
       </StyledMarketplaceContainer>
-    )
+    );
   }
 
   if (listedPrice && !hidePrice) {
@@ -68,12 +68,12 @@ export const MarketplaceContainer = ({
           {listedPrice} ETH
         </ListPriceRowContainer>
       </StyledMarketplaceContainer>
-    )
+    );
   }
 
   if (!marketplace || tokenType === NftStandard.Erc1155) {
-    return null
+    return null;
   }
 
-  return <StyledMarketplaceContainer>{getMarketplaceIcon(marketplace)}</StyledMarketplaceContainer>
-}
+  return <StyledMarketplaceContainer>{getMarketplaceIcon(marketplace)}</StyledMarketplaceContainer>;
+};

@@ -1,7 +1,13 @@
-import type { SVGProps } from 'constants/icons/types'
+import type { SVGProps } from 'constants/icons/types';
 
 const AUD_ICON = (props: SVGProps) => (
-  <svg width="49" height="49" viewBox="0 0 49 49" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+  <svg
+    width="49"
+    height="49"
+    viewBox="0 0 49 49"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}>
     <g clipPath="url(#clip0_1969_48727)">
       <path d="M0 0H48.6368V48.6368H0V0Z" fill="#00008B" />
       <path
@@ -12,8 +18,14 @@ const AUD_ICON = (props: SVGProps) => (
         d="M8.73942 15.389L9.26188 17.0039L1.99487 24.3184H0V24.1759L8.73942 15.389ZM14.629 14.819L17.1939 15.199L24.3184 22.181V24.3184L14.629 14.819ZM24.3184 0L15.199 9.30938L15.009 7.21952L22.1335 0H24.3184ZM0 0.0474968L9.16689 9.0244L6.36458 8.64442L0 2.32734V0.0474968Z"
         fill="#FF0000"
       />
-      <path d="M8.35944 0V24.3184H15.9589V0H8.35944ZM0 8.35944V15.9589H24.3184V8.35944H0Z" fill="white" />
-      <path d="M0 9.87934V14.439H24.3184V9.87934H0ZM9.87934 0V24.3184H14.439V0H9.87934Z" fill="#FF0000" />
+      <path
+        d="M8.35944 0V24.3184H15.9589V0H8.35944ZM0 8.35944V15.9589H24.3184V8.35944H0Z"
+        fill="white"
+      />
+      <path
+        d="M0 9.87934V14.439H24.3184V9.87934H0ZM9.87934 0V24.3184H14.439V0H9.87934Z"
+        fill="#FF0000"
+      />
       <path
         d="M19.1892 38.2634L14.8385 38.7764L15.2755 43.1366L12.1597 40.0588L9.02489 43.1176L9.49036 38.7574L5.13965 38.2064L8.8349 35.8506L6.55505 32.1079L10.6968 33.5328L12.1977 29.41L13.6701 33.5423L17.8213 32.1459L15.513 35.8696L19.1987 38.2539L19.1892 38.2634Z"
         fill="white"
@@ -48,6 +60,6 @@ const AUD_ICON = (props: SVGProps) => (
       </clipPath>
     </defs>
   </svg>
-)
+);
 
-export default AUD_ICON
+export default AUD_ICON;

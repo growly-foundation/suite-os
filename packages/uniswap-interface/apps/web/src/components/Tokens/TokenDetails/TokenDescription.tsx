@@ -1,24 +1,24 @@
-import { EtherscanLogo } from 'components/Icons/Etherscan'
-import { Globe } from 'components/Icons/Globe'
-import { TwitterXLogo } from 'components/Icons/TwitterX'
-import { NoInfoAvailable, truncateDescription } from 'components/Tokens/TokenDetails/shared'
-import { MouseoverTooltip, TooltipSize } from 'components/Tooltip'
-import { FOTTooltipContent } from 'components/swap/SwapLineItem'
-import useCopyClipboard from 'hooks/useCopyClipboard'
-import { useSwapTaxes } from 'hooks/useSwapTaxes'
-import { useTheme } from 'lib/styled-components'
-import { useTDPContext } from 'pages/TokenDetails/TDPContext'
-import { useCallback, useReducer } from 'react'
-import { Copy } from 'react-feather'
-import { Trans, useTranslation } from 'react-i18next'
-import { ThemedText } from 'theme/components'
-import { ExternalLink } from 'theme/components/Links'
-import { ClickableTamaguiStyle, EllipsisTamaguiStyle } from 'theme/components/styles'
-import { Flex, Paragraph, Text, styled } from 'ui/src'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { ExplorerDataType, getExplorerLink } from 'uniswap/src/utils/linking'
-import { shortenAddress } from 'utilities/src/addresses'
-import { useFormatter } from 'utils/formatNumbers'
+import { EtherscanLogo } from 'components/Icons/Etherscan';
+import { Globe } from 'components/Icons/Globe';
+import { TwitterXLogo } from 'components/Icons/TwitterX';
+import { NoInfoAvailable, truncateDescription } from 'components/Tokens/TokenDetails/shared';
+import { MouseoverTooltip, TooltipSize } from 'components/Tooltip';
+import { FOTTooltipContent } from 'components/swap/SwapLineItem';
+import useCopyClipboard from 'hooks/useCopyClipboard';
+import { useSwapTaxes } from 'hooks/useSwapTaxes';
+import { useTheme } from 'lib/styled-components';
+import { useTDPContext } from 'pages/TokenDetails/TDPContext';
+import { useCallback, useReducer } from 'react';
+import { Copy } from 'react-feather';
+import { Trans, useTranslation } from 'react-i18next';
+import { ThemedText } from 'theme/components';
+import { ExternalLink } from 'theme/components/Links';
+import { ClickableTamaguiStyle, EllipsisTamaguiStyle } from 'theme/components/styles';
+import { Flex, Paragraph, Text, styled } from 'ui/src';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import { ExplorerDataType, getExplorerLink } from 'uniswap/src/utils/linking';
+import { shortenAddress } from 'utilities/src/addresses';
+import { useFormatter } from 'utils/formatNumbers';
 
 const TokenInfoSection = styled(Flex, {
   gap: '$gap16',
@@ -26,17 +26,17 @@ const TokenInfoSection = styled(Flex, {
   $xl: {
     gap: 24,
   },
-})
+});
 
 const TokenNameRow = styled(Flex, {
   row: true,
   gap: '$gap8',
   width: '100%',
-})
+});
 
 const TokenButtonRow = styled(TokenNameRow, {
   flexWrap: 'wrap',
-})
+});
 
 const TokenInfoButton = styled(Text, {
   variant: 'buttonLabel3',
@@ -51,7 +51,7 @@ const TokenInfoButton = styled(Text, {
   width: 'max-content',
   ...ClickableTamaguiStyle,
   color: '$neutral1',
-})
+});
 
 const TokenDescriptionContainer = styled(Text, {
   variant: 'body1',
@@ -61,7 +61,7 @@ const TokenDescriptionContainer = styled(Text, {
   ...EllipsisTamaguiStyle,
   whiteSpace: 'pre-wrap',
   lineHeight: 24,
-})
+});
 
 const DescriptionVisibilityWrapper = styled(Paragraph, {
   fontWeight: '$book',
@@ -75,39 +75,39 @@ const DescriptionVisibilityWrapper = styled(Paragraph, {
       },
     },
   } as const,
-})
+});
 
-const TRUNCATE_CHARACTER_COUNT = 200
+const TRUNCATE_CHARACTER_COUNT = 200;
 
 export function TokenDescription() {
-  const { t } = useTranslation()
-  const { address, currency, tokenQuery } = useTDPContext()
-  const { neutral1 } = useTheme()
+  const { t } = useTranslation();
+  const { address, currency, tokenQuery } = useTDPContext();
+  const { neutral1 } = useTheme();
 
-  const { description, homepageUrl, twitterName } = tokenQuery.data?.token?.project ?? {}
+  const { description, homepageUrl, twitterName } = tokenQuery.data?.token?.project ?? {};
   const explorerUrl = getExplorerLink(
     currency.chainId,
     address,
-    currency.isNative ? ExplorerDataType.NATIVE : ExplorerDataType.TOKEN,
-  )
+    currency.isNative ? ExplorerDataType.NATIVE : ExplorerDataType.TOKEN
+  );
 
-  const [isCopied, setCopied] = useCopyClipboard()
+  const [isCopied, setCopied] = useCopyClipboard();
   const copy = useCallback(() => {
-    setCopied(address)
-  }, [address, setCopied])
+    setCopied(address);
+  }, [address, setCopied]);
 
-  const [isDescriptionTruncated, toggleIsDescriptionTruncated] = useReducer((x) => !x, true)
-  const truncatedDescription = truncateDescription(description ?? '', TRUNCATE_CHARACTER_COUNT)
-  const shouldTruncate = !!description && description.length > TRUNCATE_CHARACTER_COUNT
-  const showTruncatedDescription = shouldTruncate && isDescriptionTruncated
-  const { inputTax: sellFee, outputTax: buyFee } = useSwapTaxes(address, address, currency.chainId)
-  const { formatPercent } = useFormatter()
+  const [isDescriptionTruncated, toggleIsDescriptionTruncated] = useReducer(x => !x, true);
+  const truncatedDescription = truncateDescription(description ?? '', TRUNCATE_CHARACTER_COUNT);
+  const shouldTruncate = !!description && description.length > TRUNCATE_CHARACTER_COUNT;
+  const showTruncatedDescription = shouldTruncate && isDescriptionTruncated;
+  const { inputTax: sellFee, outputTax: buyFee } = useSwapTaxes(address, address, currency.chainId);
+  const { formatPercent } = useFormatter();
   const { sellFeeString, buyFeeString } = {
     sellFeeString: formatPercent(sellFee),
     buyFeeString: formatPercent(buyFee),
-  }
-  const hasFee = Boolean(parseFloat(sellFeeString)) || Boolean(parseFloat(buyFee.toFixed(2)))
-  const sameFee = sellFeeString === buyFeeString
+  };
+  const hasFee = Boolean(parseFloat(sellFeeString)) || Boolean(parseFloat(buyFee.toFixed(2)));
+  const sameFee = sellFeeString === buyFeeString;
 
   return (
     <TokenInfoSection data-testid="token-details-info-section">
@@ -121,8 +121,7 @@ export function TokenDescription() {
             placement="bottom"
             size={TooltipSize.Max}
             forceShow={isCopied}
-            text={t('common.copied')}
-          >
+            text={t('common.copied')}>
             <TokenInfoButton onPress={copy}>
               <Copy width="18px" height="18px" color={neutral1} />
               {shortenAddress(currency.address)}
@@ -164,10 +163,14 @@ export function TokenDescription() {
         )}
         {description && (
           <>
-            <DescriptionVisibilityWrapper data-testid="token-description-full" visible={!showTruncatedDescription}>
+            <DescriptionVisibilityWrapper
+              data-testid="token-description-full"
+              visible={!showTruncatedDescription}>
               {description}
             </DescriptionVisibilityWrapper>
-            <DescriptionVisibilityWrapper data-testid="token-description-truncated" visible={showTruncatedDescription}>
+            <DescriptionVisibilityWrapper
+              data-testid="token-description-truncated"
+              visible={showTruncatedDescription}>
               {truncatedDescription}
             </DescriptionVisibilityWrapper>
           </>
@@ -182,8 +185,7 @@ export function TokenDescription() {
             $sm={{ mb: '2rem' }}
             onPress={toggleIsDescriptionTruncated}
             {...ClickableTamaguiStyle}
-            data-testid="token-description-show-more-button"
-          >
+            data-testid="token-description-show-more-button">
             {isDescriptionTruncated ? (
               <Trans i18nKey="common.showMore.button" />
             ) : (
@@ -200,8 +202,7 @@ export function TokenDescription() {
             <ThemedText.Caption color="neutral2">
               <FOTTooltipContent />
             </ThemedText.Caption>
-          }
-        >
+          }>
           <Flex gap="$gap8">
             {sameFee ? (
               <ThemedText.BodyPrimary>
@@ -227,5 +228,5 @@ export function TokenDescription() {
         </MouseoverTooltip>
       )}
     </TokenInfoSection>
-  )
+  );
 }

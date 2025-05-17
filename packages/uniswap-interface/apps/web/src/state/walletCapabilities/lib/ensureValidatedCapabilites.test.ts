@@ -2,7 +2,7 @@ import {
   ensureValidatedCapabilities,
   isValidCapabilitiesEntry,
   isValidCapabilitiesObject,
-} from 'state/walletCapabilities/lib/ensureValidatedCapabilities'
+} from 'state/walletCapabilities/lib/ensureValidatedCapabilities';
 
 const validationTestCases = [
   // isValidCapabilitiesObject tests
@@ -116,46 +116,46 @@ const validationTestCases = [
     validatorFn: 'ensureValidatedCapabilities',
     description: 'Should handle complex capability structures across multiple chains',
   },
-]
+];
 
 // Group test cases by validator function
 const testsByValidator = validationTestCases.reduce(
   (acc, testCase) => {
-    const { validatorFn } = testCase
+    const { validatorFn } = testCase;
     if (!acc[validatorFn]) {
-      acc[validatorFn] = []
+      acc[validatorFn] = [];
     }
-    acc[validatorFn].push(testCase)
-    return acc
+    acc[validatorFn].push(testCase);
+    return acc;
   },
-  {} as Record<string, typeof validationTestCases>,
-)
+  {} as Record<string, typeof validationTestCases>
+);
 
 describe('Wallet Capabilities Validation', () => {
   describe('isValidCapabilitiesObject', () => {
-    const tests = testsByValidator['isValidCapabilitiesObject'] || []
+    const tests = testsByValidator['isValidCapabilitiesObject'] || [];
 
-    test.each(tests)('$name - $description', (testCase) => {
-      const result = isValidCapabilitiesObject(testCase.input)
-      expect(result).toBe(testCase.expectValid)
-    })
-  })
+    test.each(tests)('$name - $description', testCase => {
+      const result = isValidCapabilitiesObject(testCase.input);
+      expect(result).toBe(testCase.expectValid);
+    });
+  });
 
   describe('isValidCapabilitiesEntry', () => {
-    const tests = testsByValidator['isValidCapabilitiesEntry'] || []
+    const tests = testsByValidator['isValidCapabilitiesEntry'] || [];
 
-    test.each(tests)('$name - $description', (testCase) => {
-      const result = isValidCapabilitiesEntry(testCase.input)
-      expect(result).toBe(testCase.expectValid)
-    })
-  })
+    test.each(tests)('$name - $description', testCase => {
+      const result = isValidCapabilitiesEntry(testCase.input);
+      expect(result).toBe(testCase.expectValid);
+    });
+  });
 
   describe('ensureValidatedCapabilities', () => {
-    const tests = testsByValidator['ensureValidatedCapabilities'] || []
+    const tests = testsByValidator['ensureValidatedCapabilities'] || [];
 
-    test.each(tests)('$name - $description', (testCase) => {
-      const result = ensureValidatedCapabilities(testCase.input)
-      expect(result).toEqual(testCase.expectValid)
-    })
-  })
-})
+    test.each(tests)('$name - $description', testCase => {
+      const result = ensureValidatedCapabilities(testCase.input);
+      expect(result).toEqual(testCase.expectValid);
+    });
+  });
+});

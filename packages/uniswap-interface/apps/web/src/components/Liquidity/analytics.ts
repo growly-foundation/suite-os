@@ -1,11 +1,11 @@
-import { LiquidityEventName } from '@uniswap/analytics-events'
-import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb'
-import { Currency, CurrencyAmount } from '@uniswap/sdk-core'
-import { FeeAmount } from '@uniswap/v3-sdk'
-import { LiquidityAnalyticsProperties } from 'uniswap/src/features/telemetry/types'
-import { TransactionStepType } from 'uniswap/src/features/transactions/steps/types'
-import { currencyId, currencyIdToAddress } from 'uniswap/src/utils/currencyId'
-import { ITraceContext } from 'utilities/src/telemetry/trace/TraceContext'
+import { LiquidityEventName } from '@uniswap/analytics-events';
+import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb';
+import { Currency, CurrencyAmount } from '@uniswap/sdk-core';
+import { FeeAmount } from '@uniswap/v3-sdk';
+import { LiquidityAnalyticsProperties } from 'uniswap/src/features/telemetry/types';
+import { TransactionStepType } from 'uniswap/src/features/transactions/steps/types';
+import { currencyId, currencyIdToAddress } from 'uniswap/src/utils/currencyId';
+import { ITraceContext } from 'utilities/src/telemetry/trace/TraceContext';
 
 export function getLPBaseAnalyticsProperties({
   trace,
@@ -17,14 +17,14 @@ export function getLPBaseAnalyticsProperties({
   version,
   poolId,
 }: {
-  trace: ITraceContext
-  fee?: number | string // denominated in hundredths of bips
-  currency0: Currency
-  currency1: Currency
-  currency0AmountUsd: Maybe<CurrencyAmount<Currency>>
-  currency1AmountUsd: Maybe<CurrencyAmount<Currency>>
-  version: ProtocolVersion
-  poolId?: string
+  trace: ITraceContext;
+  fee?: number | string; // denominated in hundredths of bips
+  currency0: Currency;
+  currency1: Currency;
+  currency0AmountUsd: Maybe<CurrencyAmount<Currency>>;
+  currency1AmountUsd: Maybe<CurrencyAmount<Currency>>;
+  version: ProtocolVersion;
+  poolId?: string;
 }): Omit<LiquidityAnalyticsProperties, 'transaction_hash'> {
   return {
     ...trace,
@@ -39,11 +39,11 @@ export function getLPBaseAnalyticsProperties({
     token1AmountUSD: currency1AmountUsd ? parseFloat(currency1AmountUsd.toExact()) : undefined,
     currencyInfo0Decimals: currency0.decimals,
     currencyInfo1Decimals: currency1.decimals,
-  }
+  };
 }
 
 export function getLiquidityEventName(
-  stepType: TransactionStepType,
+  stepType: TransactionStepType
 ):
   | LiquidityEventName.ADD_LIQUIDITY_SUBMITTED
   | LiquidityEventName.REMOVE_LIQUIDITY_SUBMITTED
@@ -52,15 +52,15 @@ export function getLiquidityEventName(
   switch (stepType) {
     case TransactionStepType.IncreasePositionTransaction:
     case TransactionStepType.IncreasePositionTransactionAsync:
-      return LiquidityEventName.ADD_LIQUIDITY_SUBMITTED
+      return LiquidityEventName.ADD_LIQUIDITY_SUBMITTED;
     case TransactionStepType.DecreasePositionTransaction:
-      return LiquidityEventName.REMOVE_LIQUIDITY_SUBMITTED
+      return LiquidityEventName.REMOVE_LIQUIDITY_SUBMITTED;
     case TransactionStepType.MigratePositionTransaction:
     case TransactionStepType.MigratePositionTransactionAsync:
-      return LiquidityEventName.MIGRATE_LIQUIDITY_SUBMITTED
+      return LiquidityEventName.MIGRATE_LIQUIDITY_SUBMITTED;
     case TransactionStepType.CollectFeesTransactionStep:
-      return LiquidityEventName.COLLECT_LIQUIDITY_SUBMITTED
+      return LiquidityEventName.COLLECT_LIQUIDITY_SUBMITTED;
     default:
-      throw new Error('Unexpected step type')
+      throw new Error('Unexpected step type');
   }
 }

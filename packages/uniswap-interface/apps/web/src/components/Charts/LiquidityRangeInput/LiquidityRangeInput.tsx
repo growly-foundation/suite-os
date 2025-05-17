@@ -1,25 +1,25 @@
-import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb'
-import { Currency } from '@uniswap/sdk-core'
-import { ActiveLiquidityChart } from 'components/Charts/ActiveLiquidityChart/ActiveLiquidityChart'
-import { Chart } from 'components/Charts/ChartModel'
-import { LPPriceChartModel } from 'components/Charts/LiquidityPositionRangeChart/LiquidityPositionRangeChart'
-import { useRangeInputSizes } from 'components/Charts/LiquidityRangeInput/constants'
-import { useDensityChartData } from 'components/Charts/LiquidityRangeInput/hooks'
-import { ChartErrorView } from 'components/Charts/LoadingState'
-import { getCandlestickPriceBounds } from 'components/Charts/PriceChart/utils'
-import { PriceChartType } from 'components/Charts/utils'
-import { DropdownSelector } from 'components/DropdownSelector'
-import { DataQuality } from 'components/Tokens/TokenDetails/ChartSection/util'
-import { ZERO_ADDRESS } from 'constants/misc'
-import { usePoolPriceChartData } from 'hooks/usePoolPriceChartData'
+import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb';
+import { Currency } from '@uniswap/sdk-core';
+import { ActiveLiquidityChart } from 'components/Charts/ActiveLiquidityChart/ActiveLiquidityChart';
+import { Chart } from 'components/Charts/ChartModel';
+import { LPPriceChartModel } from 'components/Charts/LiquidityPositionRangeChart/LiquidityPositionRangeChart';
+import { useRangeInputSizes } from 'components/Charts/LiquidityRangeInput/constants';
+import { useDensityChartData } from 'components/Charts/LiquidityRangeInput/hooks';
+import { ChartErrorView } from 'components/Charts/LoadingState';
+import { getCandlestickPriceBounds } from 'components/Charts/PriceChart/utils';
+import { PriceChartType } from 'components/Charts/utils';
+import { DropdownSelector } from 'components/DropdownSelector';
+import { DataQuality } from 'components/Tokens/TokenDetails/ChartSection/util';
+import { ZERO_ADDRESS } from 'constants/misc';
+import { usePoolPriceChartData } from 'hooks/usePoolPriceChartData';
 import {
   getCurrencyAddressWithWrap,
   getCurrencyWithWrap,
   getSortedCurrenciesTupleWithWrap,
-} from 'pages/Pool/Positions/create/utils'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { ClickableTamaguiStyle } from 'theme/components/styles'
+} from 'pages/Pool/Positions/create/utils';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ClickableTamaguiStyle } from 'theme/components/styles';
 import {
   Button,
   Flex,
@@ -30,18 +30,18 @@ import {
   TouchableArea,
   TouchableAreaProps,
   useSporeColors,
-} from 'ui/src'
-import { HorizontalDensityChart } from 'ui/src/components/icons/HorizontalDensityChart'
-import { LoadingPriceCurve } from 'ui/src/components/icons/LoadingPriceCurve'
-import { RotatableChevron } from 'ui/src/components/icons/RotatableChevron'
-import { RotateLeft } from 'ui/src/components/icons/RotateLeft'
-import { SearchMinus } from 'ui/src/components/icons/SearchMinus'
-import { SearchPlus } from 'ui/src/components/icons/SearchPlus'
-import { HistoryDuration } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { getChainInfo } from 'uniswap/src/features/chains/chainInfo'
-import { isMobileWeb } from 'utilities/src/platform'
+} from 'ui/src';
+import { HorizontalDensityChart } from 'ui/src/components/icons/HorizontalDensityChart';
+import { LoadingPriceCurve } from 'ui/src/components/icons/LoadingPriceCurve';
+import { RotatableChevron } from 'ui/src/components/icons/RotatableChevron';
+import { RotateLeft } from 'ui/src/components/icons/RotateLeft';
+import { SearchMinus } from 'ui/src/components/icons/SearchMinus';
+import { SearchPlus } from 'ui/src/components/icons/SearchPlus';
+import { HistoryDuration } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { getChainInfo } from 'uniswap/src/features/chains/chainInfo';
+import { isMobileWeb } from 'utilities/src/platform';
 
-const MIN_DATA_POINTS = 5
+const MIN_DATA_POINTS = 5;
 
 const PlusMinusButton = ({ children, ...props }: TouchableAreaProps) => {
   return (
@@ -55,12 +55,11 @@ const PlusMinusButton = ({ children, ...props }: TouchableAreaProps) => {
       justifyContent="center"
       borderColor="$surface3"
       borderWidth="$spacing1"
-      p="$spacing8"
-    >
+      p="$spacing8">
       {children}
     </TouchableArea>
-  )
-}
+  );
+};
 
 /**
  * Chart input for selecting the min/max prices for a liquidity position.
@@ -81,29 +80,35 @@ export function LiquidityRangeInput({
   disableBrushInteraction = false,
   setFallbackRangePrices,
 }: {
-  quoteCurrency: Currency
-  baseCurrency: Currency
-  feeTier: number | string
-  tickSpacing?: number
-  protocolVersion: ProtocolVersion
-  hook?: string
-  poolId: string
-  minPrice?: number
-  maxPrice?: number
-  disableBrushInteraction?: boolean
-  setMinPrice: (minPrice?: number) => void
-  setMaxPrice: (maxPrice?: number) => void
-  setFallbackRangePrices: () => void
+  quoteCurrency: Currency;
+  baseCurrency: Currency;
+  feeTier: number | string;
+  tickSpacing?: number;
+  protocolVersion: ProtocolVersion;
+  hook?: string;
+  poolId: string;
+  minPrice?: number;
+  maxPrice?: number;
+  disableBrushInteraction?: boolean;
+  setMinPrice: (minPrice?: number) => void;
+  setMaxPrice: (maxPrice?: number) => void;
+  setFallbackRangePrices: () => void;
 }) {
-  const chainInfo = getChainInfo(quoteCurrency.chainId)
-  const colors = useSporeColors()
-  const { t } = useTranslation()
+  const chainInfo = getChainInfo(quoteCurrency.chainId);
+  const colors = useSporeColors();
+  const { t } = useTranslation();
 
-  const sortedCurrencies = getSortedCurrenciesTupleWithWrap(quoteCurrency, baseCurrency, protocolVersion)
-  const baseCurrencyMaybeWrapped = getCurrencyWithWrap(baseCurrency, protocolVersion)
-  const isReversed = baseCurrencyMaybeWrapped?.equals(sortedCurrencies[0]) ?? false
+  const sortedCurrencies = getSortedCurrenciesTupleWithWrap(
+    quoteCurrency,
+    baseCurrency,
+    protocolVersion
+  );
+  const baseCurrencyMaybeWrapped = getCurrencyWithWrap(baseCurrency, protocolVersion);
+  const isReversed = baseCurrencyMaybeWrapped?.equals(sortedCurrencies[0]) ?? false;
 
-  const [selectedHistoryDuration, setSelectedHistoryDuration] = useState<HistoryDuration>(HistoryDuration.Month)
+  const [selectedHistoryDuration, setSelectedHistoryDuration] = useState<HistoryDuration>(
+    HistoryDuration.Month
+  );
 
   const priceData = usePoolPriceChartData(
     // If the Pool doesn't exist, the poolId is undefined and we skip this query.
@@ -117,30 +122,30 @@ export function LiquidityRangeInput({
     },
     quoteCurrency,
     protocolVersion,
-    getCurrencyAddressWithWrap(sortedCurrencies[0], protocolVersion),
-  )
+    getCurrencyAddressWithWrap(sortedCurrencies[0], protocolVersion)
+  );
 
   // Set via a callback from the LiquidityPositionRangeChart, which is important when the price axis is auto-scaled.
   // This is also used to set the bounds of the ActiveLiquidityChart, so it's necessary to keep separate from the zooming state.
-  const [boundaryPrices, setBoundaryPrices] = useState<[number, number]>()
+  const [boundaryPrices, setBoundaryPrices] = useState<[number, number]>();
 
-  const [zoomFactor, setZoomFactor] = useState(1)
+  const [zoomFactor, setZoomFactor] = useState(1);
 
   const { dataMin, dataMax } = useMemo(() => {
-    const { min: dataMin, max: dataMax } = getCandlestickPriceBounds(priceData.entries)
-    return { dataMin, dataMax }
-  }, [priceData.entries])
+    const { min: dataMin, max: dataMax } = getCandlestickPriceBounds(priceData.entries);
+    return { dataMin, dataMax };
+  }, [priceData.entries]);
 
-  const [midPrice, setMidPrice] = useState<number>()
-  const [showDiffIndicators, setShowDiffIndicators] = useState(false)
+  const [midPrice, setMidPrice] = useState<number>();
+  const [showDiffIndicators, setShowDiffIndicators] = useState(false);
 
   useEffect(() => {
     if (priceData.entries.length > 0) {
-      setMidPrice(priceData.entries[priceData.entries.length - 1]?.value)
+      setMidPrice(priceData.entries[priceData.entries.length - 1]?.value);
     }
-  }, [priceData.entries])
+  }, [priceData.entries]);
 
-  const scrollIncrement = (dataMax - dataMin) / 10
+  const scrollIncrement = (dataMax - dataMin) / 10;
 
   // Sets the min/max prices of the price axis manually, which is used to center the current price and zoom in/out.
   const { minVisiblePrice, maxVisiblePrice } = useMemo(() => {
@@ -148,23 +153,23 @@ export function LiquidityRangeInput({
       return {
         minVisiblePrice: dataMin,
         maxVisiblePrice: dataMax,
-      }
+      };
     }
-    const mostRecentPrice = priceData.entries[priceData.entries.length - 1]?.value
+    const mostRecentPrice = priceData.entries[priceData.entries.length - 1]?.value;
     // Calculate the default range based on the current price.
-    const maxSpread = Math.max(mostRecentPrice - dataMin, dataMax - mostRecentPrice)
+    const maxSpread = Math.max(mostRecentPrice - dataMin, dataMax - mostRecentPrice);
     // Initial unscaled range to fit all values with the current price centered
-    const initialRange = 2 * maxSpread
-    const newRange = initialRange / zoomFactor
+    const initialRange = 2 * maxSpread;
+    const newRange = initialRange / zoomFactor;
 
     return {
       minVisiblePrice: midPrice - newRange / 2,
       maxVisiblePrice: midPrice + newRange / 2,
-    }
-  }, [dataMax, dataMin, midPrice, priceData.entries, zoomFactor])
+    };
+  }, [dataMax, dataMin, midPrice, priceData.entries, zoomFactor]);
 
-  const containerRef = useRef<HTMLDivElement>(null)
-  const sizes = useRangeInputSizes(containerRef.current?.clientWidth)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const sizes = useRangeInputSizes(containerRef.current?.clientWidth);
 
   const priceChartParams = useMemo(() => {
     return {
@@ -186,7 +191,7 @@ export function LiquidityRangeInput({
         top: 0,
         bottom: 0,
       },
-    } as const
+    } as const;
   }, [
     priceData.entries,
     priceData.dataQuality,
@@ -195,7 +200,7 @@ export function LiquidityRangeInput({
     minVisiblePrice,
     maxVisiblePrice,
     isReversed,
-  ])
+  ]);
 
   const { formattedData, isLoading: liquidityDataLoading } = useDensityChartData({
     poolId,
@@ -206,23 +211,25 @@ export function LiquidityRangeInput({
     feeAmount: Number(feeTier),
     tickSpacing,
     hooks: hook ?? ZERO_ADDRESS,
-  })
+  });
 
   const sortedFormattedData = useMemo(() => {
     if (!formattedData) {
-      return undefined
+      return undefined;
     }
-    const uniqueTicksMap = new Map()
-    formattedData.forEach((entry) => {
-      uniqueTicksMap.set(entry.tick, entry)
-    })
+    const uniqueTicksMap = new Map();
+    formattedData.forEach(entry => {
+      uniqueTicksMap.set(entry.tick, entry);
+    });
 
     // Convert Map values back to array and sort
-    return Array.from(uniqueTicksMap.values()).sort((a, b) => a.price0 - b.price0)
-  }, [formattedData])
+    return Array.from(uniqueTicksMap.values()).sort((a, b) => a.price0 - b.price0);
+  }, [formattedData]);
 
   const timePeriodOptions = useMemo(() => {
-    const options: Array<SegmentedControlOption<HistoryDuration> & { verboseDisplay: JSX.Element }> = [
+    const options: Array<
+      SegmentedControlOption<HistoryDuration> & { verboseDisplay: JSX.Element }
+    > = [
       [
         HistoryDuration.Day,
         t('token.priceExplorer.timeRangeLabel.day'),
@@ -244,62 +251,71 @@ export function LiquidityRangeInput({
         t('token.priceExplorer.timeRangeLabel.year.verbose'),
       ],
       [HistoryDuration.Max, t('token.priceExplorer.timeRangeLabel.all')],
-    ].map((timePeriod) => ({
+    ].map(timePeriod => ({
       value: timePeriod[0] as HistoryDuration,
       display: <Text variant="buttonLabel3">{timePeriod[1]}</Text>,
       verboseDisplay: <Text variant="buttonLabel3">{timePeriod[2] ?? timePeriod[1]}</Text>,
-    }))
+    }));
     return {
       options,
       selected: selectedHistoryDuration,
-    }
-  }, [selectedHistoryDuration, t])
-  const [createDropdownOpen, setCreateDropdownOpen] = useState(false)
+    };
+  }, [selectedHistoryDuration, t]);
+  const [createDropdownOpen, setCreateDropdownOpen] = useState(false);
 
   const showChartErrorView =
     (!priceData.loading && priceData.entries.length < MIN_DATA_POINTS) ||
     (!liquidityDataLoading && !sortedFormattedData) ||
-    (!liquidityDataLoading && sortedFormattedData && sortedFormattedData.length < MIN_DATA_POINTS)
+    (!liquidityDataLoading && sortedFormattedData && sortedFormattedData.length < MIN_DATA_POINTS);
 
   useEffect(() => {
-    const container = containerRef.current
+    const container = containerRef.current;
     if (container && !disableBrushInteraction) {
-      let lastCall = 0
-      const throttleDelayMs = 50
+      let lastCall = 0;
+      const throttleDelayMs = 50;
 
       const listener = (event: WheelEvent) => {
-        event.preventDefault()
-        event.stopPropagation()
+        event.preventDefault();
+        event.stopPropagation();
 
-        const now = Date.now()
+        const now = Date.now();
         if (now - lastCall >= throttleDelayMs) {
-          lastCall = now
+          lastCall = now;
 
           if (event.deltaY < 0) {
-            setMidPrice((prevMidPrice) => (prevMidPrice ? prevMidPrice + scrollIncrement : undefined))
+            setMidPrice(prevMidPrice =>
+              prevMidPrice ? prevMidPrice + scrollIncrement : undefined
+            );
           } else if (event.deltaY > 0 && minVisiblePrice > 0) {
-            setMidPrice((prevMidPrice) => (prevMidPrice ? prevMidPrice - scrollIncrement : undefined))
+            setMidPrice(prevMidPrice =>
+              prevMidPrice ? prevMidPrice - scrollIncrement : undefined
+            );
           }
         }
-      }
+      };
 
-      container.addEventListener('wheel', listener)
+      container.addEventListener('wheel', listener);
 
       return () => {
-        container.removeEventListener('wheel', listener)
-      }
+        container.removeEventListener('wheel', listener);
+      };
     }
-    return undefined
-  }, [disableBrushInteraction, midPrice, minVisiblePrice, scrollIncrement])
+    return undefined;
+  }, [disableBrushInteraction, midPrice, minVisiblePrice, scrollIncrement]);
 
   // If chart error view is shown on custom range, set min/max price to defaults
   useEffect(() => {
-    if (showChartErrorView && !disableBrushInteraction && minPrice === undefined && maxPrice === undefined) {
-      setFallbackRangePrices()
+    if (
+      showChartErrorView &&
+      !disableBrushInteraction &&
+      minPrice === undefined &&
+      maxPrice === undefined
+    ) {
+      setFallbackRangePrices();
     }
 
-    return undefined
-  }, [showChartErrorView, disableBrushInteraction, minPrice, maxPrice, setFallbackRangePrices])
+    return undefined;
+  }, [showChartErrorView, disableBrushInteraction, minPrice, maxPrice, setFallbackRangePrices]);
 
   return (
     <Flex
@@ -307,13 +323,15 @@ export function LiquidityRangeInput({
       overflow="hidden"
       ref={containerRef}
       onMouseEnter={() => {
-        setShowDiffIndicators(true)
+        setShowDiffIndicators(true);
       }}
       onMouseLeave={() => {
-        setShowDiffIndicators(false)
-      }}
-    >
-      <Flex height={sizes.chartHeight + sizes.bottomAxisHeight} width={sizes.chartContainerWidth} overflow="hidden">
+        setShowDiffIndicators(false);
+      }}>
+      <Flex
+        height={sizes.chartHeight + sizes.bottomAxisHeight}
+        width={sizes.chartContainerWidth}
+        overflow="hidden">
         {showChartErrorView && (
           <ChartErrorView>
             <Text variant="body3" color="$neutral2">
@@ -325,16 +343,18 @@ export function LiquidityRangeInput({
           width={showChartErrorView ? sizes.chartContainerWidth : sizes.loadedPriceChartWidth}
           height={sizes.chartHeight + sizes.bottomAxisHeight}
           overflow="hidden"
-          zIndex={1}
-        >
-          {(priceData.loading || showChartErrorView) && (!priceData.entries || priceData.entries.length === 0) && (
-            <Shine height={sizes.chartHeight} disabled={showChartErrorView} zIndex={0}>
-              <LoadingPriceCurve
-                size={showChartErrorView ? sizes.chartContainerWidth : sizes.loadedPriceChartWidth}
-                color="$neutral2"
-              />
-            </Shine>
-          )}
+          zIndex={1}>
+          {(priceData.loading || showChartErrorView) &&
+            (!priceData.entries || priceData.entries.length === 0) && (
+              <Shine height={sizes.chartHeight} disabled={showChartErrorView} zIndex={0}>
+                <LoadingPriceCurve
+                  size={
+                    showChartErrorView ? sizes.chartContainerWidth : sizes.loadedPriceChartWidth
+                  }
+                  color="$neutral2"
+                />
+              </Shine>
+            )}
           {showChartErrorView ? null : (
             <Chart
               Model={LPPriceChartModel}
@@ -351,8 +371,7 @@ export function LiquidityRangeInput({
           right={0}
           top={0}
           pointerEvents="none"
-          zIndex={2}
-        >
+          zIndex={2}>
           {(liquidityDataLoading || priceData.loading) && (
             <Shine
               position="absolute"
@@ -361,8 +380,7 @@ export function LiquidityRangeInput({
               overflow="hidden"
               justifyContent="flex-end"
               height={sizes.chartHeight}
-              width={sizes.chartHeight}
-            >
+              width={sizes.chartHeight}>
               <HorizontalDensityChart color="$neutral2" size={sizes.chartHeight} />
             </Shine>
           )}
@@ -390,18 +408,21 @@ export function LiquidityRangeInput({
                 onBrushDomainChange={function (domain: [number, number], mode?: string): void {
                   // You can zoom out far enough to set an invalid range, so we prevent that here.
                   if (domain[0] < 0) {
-                    return
+                    return;
                   }
                   // While scrolling we receive updates to the range because the yScale changes,
                   // but we can filter them out because they have an undefined "mode".
                   // The initial range suggestion also comes with an undefined "mode", so we allow that here.
                   const rejectAutoRangeSuggestion =
-                    minPrice !== undefined && maxPrice !== undefined && minPrice >= 0 && maxPrice >= 0
+                    minPrice !== undefined &&
+                    maxPrice !== undefined &&
+                    minPrice >= 0 &&
+                    maxPrice >= 0;
                   if (!mode && rejectAutoRangeSuggestion) {
-                    return
+                    return;
                   }
-                  setMinPrice(domain[0])
-                  setMaxPrice(domain[1])
+                  setMinPrice(domain[0]);
+                  setMaxPrice(domain[1]);
                 }}
                 quoteCurrency={quoteCurrency}
                 baseCurrency={baseCurrency}
@@ -415,8 +436,7 @@ export function LiquidityRangeInput({
         alignItems="center"
         gap="$gap8"
         $lg={{ justifyContent: 'space-between' }}
-        $sm={{ row: false, alignItems: 'flex-start' }}
-      >
+        $sm={{ row: false, alignItems: 'flex-start' }}>
         <Flex row alignItems="center" gap="$gap8" $sm={{ row: false, alignItems: 'flex-start' }}>
           {isMobileWeb ? (
             <DropdownSelector
@@ -432,9 +452,11 @@ export function LiquidityRangeInput({
                   borderColor="$surface3"
                   borderWidth="$spacing1"
                   gap="$gap6"
-                  {...ClickableTamaguiStyle}
-                >
-                  {timePeriodOptions.options.find((p) => p.value === timePeriodOptions.selected)?.display}
+                  {...ClickableTamaguiStyle}>
+                  {
+                    timePeriodOptions.options.find(p => p.value === timePeriodOptions.selected)
+                      ?.display
+                  }
                   <RotatableChevron direction="down" height={16} width={16} color="$neutral2" />
                 </Flex>
               }
@@ -447,10 +469,9 @@ export function LiquidityRangeInput({
               isOpen={createDropdownOpen}
               adaptToSheet
               toggleOpen={() => {
-                setCreateDropdownOpen((prev) => !prev)
-              }}
-            >
-              {timePeriodOptions.options.map((p) => (
+                setCreateDropdownOpen(prev => !prev);
+              }}>
+              {timePeriodOptions.options.map(p => (
                 <Flex
                   key={p.value}
                   width="100%"
@@ -460,11 +481,10 @@ export function LiquidityRangeInput({
                   justifyContent="flex-start"
                   p="$padding12"
                   onPress={() => {
-                    setSelectedHistoryDuration(p.value)
-                    setZoomFactor(1)
-                    setBoundaryPrices(undefined)
-                  }}
-                >
+                    setSelectedHistoryDuration(p.value);
+                    setZoomFactor(1);
+                    setBoundaryPrices(undefined);
+                  }}>
                   {p.verboseDisplay}
                 </Flex>
               ))}
@@ -474,9 +494,9 @@ export function LiquidityRangeInput({
               options={timePeriodOptions.options}
               selectedOption={timePeriodOptions.selected}
               onSelectOption={(option: HistoryDuration) => {
-                setSelectedHistoryDuration(option)
-                setZoomFactor(1)
-                setBoundaryPrices(undefined)
+                setSelectedHistoryDuration(option);
+                setZoomFactor(1);
+                setBoundaryPrices(undefined);
               }}
             />
           )}
@@ -485,18 +505,16 @@ export function LiquidityRangeInput({
               borderTopLeftRadius="$roundedFull"
               borderBottomLeftRadius="$roundedFull"
               onPress={() => {
-                setZoomFactor((prevZoomFactor) => prevZoomFactor * 1.2)
-              }}
-            >
+                setZoomFactor(prevZoomFactor => prevZoomFactor * 1.2);
+              }}>
               <SearchPlus size={16} color="$neutral1" />
             </PlusMinusButton>
             <PlusMinusButton
               borderTopRightRadius="$roundedFull"
               borderBottomRightRadius="$roundedFull"
               onPress={() => {
-                setZoomFactor((prevZoomFactor) => prevZoomFactor / 1.2)
-              }}
-            >
+                setZoomFactor(prevZoomFactor => prevZoomFactor / 1.2);
+              }}>
               <SearchMinus size={16} color="$neutral1" />
             </PlusMinusButton>
           </Flex>
@@ -507,17 +525,16 @@ export function LiquidityRangeInput({
           fill={false}
           backgroundColor="$transparent"
           onPress={() => {
-            setSelectedHistoryDuration(HistoryDuration.Month)
-            setZoomFactor(1)
-            setMinPrice(undefined)
-            setMaxPrice(undefined)
-            setMidPrice(priceData.entries[priceData.entries.length - 1]?.value)
+            setSelectedHistoryDuration(HistoryDuration.Month);
+            setZoomFactor(1);
+            setMinPrice(undefined);
+            setMaxPrice(undefined);
+            setMidPrice(priceData.entries[priceData.entries.length - 1]?.value);
           }}
-          icon={isMobileWeb ? <RotateLeft /> : undefined}
-        >
+          icon={isMobileWeb ? <RotateLeft /> : undefined}>
           {isMobileWeb ? null : t('common.button.reset')}
         </Button>
       </Flex>
     </Flex>
-  )
+  );
 }

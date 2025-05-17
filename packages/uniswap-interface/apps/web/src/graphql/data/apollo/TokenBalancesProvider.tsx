@@ -1,61 +1,68 @@
-import { usePendingActivity } from 'components/AccountDrawer/MiniPortfolio/Activity/hooks'
-import { AdaptiveTokenBalancesProvider } from 'graphql/data/apollo/AdaptiveTokenBalancesProvider'
-import { apolloClient } from 'graphql/data/apollo/client'
-import { useAccount } from 'hooks/useAccount'
-import { PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react'
-import { useWatchTransactionsCallback } from 'state/sagas/transactions/watcherSaga'
-import { usePendingTransactions } from 'state/transactions/hooks'
-import { usePortfolioBalancesLazyQuery } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains'
+import { usePendingActivity } from 'components/AccountDrawer/MiniPortfolio/Activity/hooks';
+import { AdaptiveTokenBalancesProvider } from 'graphql/data/apollo/AdaptiveTokenBalancesProvider';
+import { apolloClient } from 'graphql/data/apollo/client';
+import { useAccount } from 'hooks/useAccount';
+import { PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
+import { useWatchTransactionsCallback } from 'state/sagas/transactions/watcherSaga';
+import { usePendingTransactions } from 'state/transactions/hooks';
+import { usePortfolioBalancesLazyQuery } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import { usePortfolioValueModifiers } from 'uniswap/src/features/dataApi/balances'
-import { usePrevious } from 'utilities/src/react/hooks'
+import { usePortfolioValueModifiers } from 'uniswap/src/features/dataApi/balances';
+import { usePrevious } from 'utilities/src/react/hooks';
 
 function useHasAccountUpdate() {
   // Used to detect account updates without relying on subscription data.
-  const { pendingActivityCount } = usePendingActivity()
-  const prevPendingActivityCount = usePrevious(pendingActivityCount)
-  const hasLocalStateUpdate = !!prevPendingActivityCount && pendingActivityCount < prevPendingActivityCount
+  const { pendingActivityCount } = usePendingActivity();
+  const prevPendingActivityCount = usePrevious(pendingActivityCount);
+  const hasLocalStateUpdate =
+    !!prevPendingActivityCount && pendingActivityCount < prevPendingActivityCount;
 
-  const account = useAccount()
-  const prevAccount = usePrevious(account.address)
+  const account = useAccount();
+  const prevAccount = usePrevious(account.address);
 
-  const { isTestnetModeEnabled } = useEnabledChains()
-  const prevIsTestnetModeEnabled = usePrevious(isTestnetModeEnabled)
+  const { isTestnetModeEnabled } = useEnabledChains();
+  const prevIsTestnetModeEnabled = usePrevious(isTestnetModeEnabled);
 
   return useMemo(() => {
-    const hasPolledTxUpdate = hasLocalStateUpdate
-    const accountChanged = Boolean(prevAccount !== account.address && account.address)
-    const hasTestnetModeChanged = prevIsTestnetModeEnabled !== isTestnetModeEnabled
+    const hasPolledTxUpdate = hasLocalStateUpdate;
+    const accountChanged = Boolean(prevAccount !== account.address && account.address);
+    const hasTestnetModeChanged = prevIsTestnetModeEnabled !== isTestnetModeEnabled;
 
-    return hasPolledTxUpdate || accountChanged || hasTestnetModeChanged
-  }, [account.address, hasLocalStateUpdate, prevAccount, prevIsTestnetModeEnabled, isTestnetModeEnabled])
+    return hasPolledTxUpdate || accountChanged || hasTestnetModeChanged;
+  }, [
+    account.address,
+    hasLocalStateUpdate,
+    prevAccount,
+    prevIsTestnetModeEnabled,
+    isTestnetModeEnabled,
+  ]);
 }
 
 function TokenBalancesProviderInternal({ children }: PropsWithChildren) {
-  const [lazyFetch, query] = usePortfolioBalancesLazyQuery({ errorPolicy: 'all' })
-  const account = useAccount()
-  const hasAccountUpdate = useHasAccountUpdate()
+  const [lazyFetch, query] = usePortfolioBalancesLazyQuery({ errorPolicy: 'all' });
+  const account = useAccount();
+  const hasAccountUpdate = useHasAccountUpdate();
 
-  const valueModifiers = usePortfolioValueModifiers(account.address)
-  const prevValueModifiers = usePrevious(valueModifiers)
+  const valueModifiers = usePortfolioValueModifiers(account.address);
+  const prevValueModifiers = usePrevious(valueModifiers);
 
-  const { gqlChains } = useEnabledChains()
-  const pendingTransactions = usePendingTransactions()
-  const prevPendingTransactions = usePrevious(pendingTransactions)
+  const { gqlChains } = useEnabledChains();
+  const pendingTransactions = usePendingTransactions();
+  const prevPendingTransactions = usePrevious(pendingTransactions);
   const pendingDiff = useMemo(
-    () => prevPendingTransactions?.filter((tx) => !pendingTransactions.includes(tx)),
-    [pendingTransactions, prevPendingTransactions],
-  )
-  const watchTransactions = useWatchTransactionsCallback()
+    () => prevPendingTransactions?.filter(tx => !pendingTransactions.includes(tx)),
+    [pendingTransactions, prevPendingTransactions]
+  );
+  const watchTransactions = useWatchTransactionsCallback();
 
   useEffect(() => {
     if (!account.address || !account.chainId) {
-      return
+      return;
     }
 
     if (!pendingDiff?.length) {
-      return
+      return;
     }
 
     watchTransactions({
@@ -63,12 +70,12 @@ function TokenBalancesProviderInternal({ children }: PropsWithChildren) {
       chainId: account.chainId,
       pendingDiff,
       apolloClient,
-    })
-  }, [pendingDiff, account.address, account.chainId, watchTransactions])
+    });
+  }, [pendingDiff, account.address, account.chainId, watchTransactions]);
 
   const fetch = useCallback(() => {
     if (!account.address) {
-      return
+      return;
     }
 
     lazyFetch({
@@ -77,30 +84,29 @@ function TokenBalancesProviderInternal({ children }: PropsWithChildren) {
         chains: gqlChains,
         valueModifiers,
       },
-    })
-  }, [account.address, gqlChains, lazyFetch, valueModifiers])
+    });
+  }, [account.address, gqlChains, lazyFetch, valueModifiers]);
 
   return (
     <AdaptiveTokenBalancesProvider
       query={query}
       fetch={fetch}
-      stale={hasAccountUpdate || valueModifiers !== prevValueModifiers}
-    >
+      stale={hasAccountUpdate || valueModifiers !== prevValueModifiers}>
       {children}
     </AdaptiveTokenBalancesProvider>
-  )
+  );
 }
 
 export function TokenBalancesProvider({ children }: PropsWithChildren) {
-  const [initialized, setInitialized] = useState(false)
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    setInitialized(true)
-  }, [])
+    setInitialized(true);
+  }, []);
 
   if (!initialized) {
-    return null
+    return null;
   }
 
-  return <TokenBalancesProviderInternal>{children}</TokenBalancesProviderInternal>
+  return <TokenBalancesProviderInternal>{children}</TokenBalancesProviderInternal>;
 }

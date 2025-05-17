@@ -3,5 +3,5 @@ export function wrapScientificNotation(value: string | number): string {
   return parseFloat(value.toString())
     .toLocaleString('fullwide', { useGrouping: false })
     .replace(',', '.')
-    .replace(' ', '')
+    .replace(' ', '');
 }

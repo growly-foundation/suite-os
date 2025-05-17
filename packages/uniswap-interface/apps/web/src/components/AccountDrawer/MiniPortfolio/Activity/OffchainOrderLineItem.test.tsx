@@ -1,13 +1,13 @@
-import { CurrencyAmount, WETH9 } from '@uniswap/sdk-core'
+import { CurrencyAmount, WETH9 } from '@uniswap/sdk-core';
 import {
   OffchainOrderLineItem,
   OffchainOrderLineItemType,
-} from 'components/AccountDrawer/MiniPortfolio/Activity/OffchainOrderLineItem'
-import { SignatureType } from 'state/signatures/types'
-import { render, screen } from 'test-utils/render'
-import { UniswapXOrderStatus } from 'types/uniswapx'
-import { DAI, USDC_MAINNET } from 'uniswap/src/constants/tokens'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
+} from 'components/AccountDrawer/MiniPortfolio/Activity/OffchainOrderLineItem';
+import { SignatureType } from 'state/signatures/types';
+import { render, screen } from 'test-utils/render';
+import { UniswapXOrderStatus } from 'types/uniswapx';
+import { DAI, USDC_MAINNET } from 'uniswap/src/constants/tokens';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
 
 describe('OffchainOrderLineItem', () => {
   it('should render type EXCHANGE_RATE', () => {
@@ -18,11 +18,11 @@ describe('OffchainOrderLineItem', () => {
           inputAmount: CurrencyAmount.fromRawAmount(DAI, 1),
           outputAmount: CurrencyAmount.fromRawAmount(USDC_MAINNET, 1),
         }}
-      />,
-    )
-    expect(asFragment()).toMatchSnapshot()
-    expect(screen.getByText('Rate')).toBeInTheDocument()
-  })
+      />
+    );
+    expect(asFragment()).toMatchSnapshot();
+    expect(screen.getByText('Rate')).toBeInTheDocument();
+  });
 
   it('should render type EXPIRY', () => {
     render(
@@ -50,16 +50,18 @@ describe('OffchainOrderLineItem', () => {
           addedTime: 1,
           expiry: 2,
         }}
-      />,
-    )
-    expect(screen.getByText('Expiry')).toBeInTheDocument()
-  })
+      />
+    );
+    expect(screen.getByText('Expiry')).toBeInTheDocument();
+  });
 
   it('should render type NETWORK_COST', () => {
-    const { asFragment } = render(<OffchainOrderLineItem type={OffchainOrderLineItemType.NETWORK_COST} />)
-    expect(asFragment()).toMatchSnapshot()
-    expect(screen.getByText('Network cost')).toBeInTheDocument()
-  })
+    const { asFragment } = render(
+      <OffchainOrderLineItem type={OffchainOrderLineItemType.NETWORK_COST} />
+    );
+    expect(asFragment()).toMatchSnapshot();
+    expect(screen.getByText('Network cost')).toBeInTheDocument();
+  });
 
   it('should render type TRANSACTION_ID', () => {
     const { asFragment } = render(
@@ -88,9 +90,9 @@ describe('OffchainOrderLineItem', () => {
           addedTime: 1,
           expiry: 2,
         }}
-      />,
-    )
-    expect(asFragment()).toMatchSnapshot()
-    expect(screen.getByText('Transaction ID')).toBeInTheDocument()
-  })
-})
+      />
+    );
+    expect(asFragment()).toMatchSnapshot();
+    expect(screen.getByText('Transaction ID')).toBeInTheDocument();
+  });
+});

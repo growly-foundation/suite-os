@@ -1,22 +1,22 @@
-import { createMigrate } from 'redux-persist'
-import { migration1 } from 'state/migrations/1'
-import { migration10 } from 'state/migrations/10'
-import { migration11 } from 'state/migrations/11'
-import { migration12 } from 'state/migrations/12'
-import { migration13 } from 'state/migrations/13'
-import { migration14 } from 'state/migrations/14'
-import { migration15 } from 'state/migrations/15'
-import { migration16 } from 'state/migrations/16'
-import { PersistAppStateV17, migration17 } from 'state/migrations/17'
-import { migration2 } from 'state/migrations/2'
-import { migration3 } from 'state/migrations/3'
-import { migration4 } from 'state/migrations/4'
-import { migration5 } from 'state/migrations/5'
-import { migration6 } from 'state/migrations/6'
-import { migration7 } from 'state/migrations/7'
-import { migration8 } from 'state/migrations/8'
-import { migration9 } from 'state/migrations/9'
-import { SearchResultType } from 'uniswap/src/features/search/SearchResult'
+import { createMigrate } from 'redux-persist';
+import { migration1 } from 'state/migrations/1';
+import { migration10 } from 'state/migrations/10';
+import { migration11 } from 'state/migrations/11';
+import { migration12 } from 'state/migrations/12';
+import { migration13 } from 'state/migrations/13';
+import { migration14 } from 'state/migrations/14';
+import { migration15 } from 'state/migrations/15';
+import { migration16 } from 'state/migrations/16';
+import { PersistAppStateV17, migration17 } from 'state/migrations/17';
+import { migration2 } from 'state/migrations/2';
+import { migration3 } from 'state/migrations/3';
+import { migration4 } from 'state/migrations/4';
+import { migration5 } from 'state/migrations/5';
+import { migration6 } from 'state/migrations/6';
+import { migration7 } from 'state/migrations/7';
+import { migration8 } from 'state/migrations/8';
+import { migration9 } from 'state/migrations/9';
+import { SearchResultType } from 'uniswap/src/features/search/SearchResult';
 
 const previousState: PersistAppStateV17 = {
   _persist: {
@@ -68,7 +68,7 @@ const previousState: PersistAppStateV17 = {
       },
     ],
   },
-}
+};
 
 const migrator = createMigrate(
   {
@@ -90,12 +90,12 @@ const migrator = createMigrate(
     16: migration16,
     17: migration17,
   },
-  { debug: false },
-)
+  { debug: false }
+);
 
 describe('migration to v17', () => {
   it('migrates potentially invalid searchHistory', async () => {
-    const result: any = await migrator(previousState, 17)
+    const result: any = await migrator(previousState, 17);
     expect(result.searchHistory.results).toEqual([
       {
         type: SearchResultType.Token,
@@ -125,6 +125,6 @@ describe('migration to v17', () => {
         isVerified: true,
         searchId: 'nftCollection-1-0xbd3531da5cf5857e7cfaa92426877b022e612cf8',
       },
-    ])
-  })
-})
+    ]);
+  });
+});

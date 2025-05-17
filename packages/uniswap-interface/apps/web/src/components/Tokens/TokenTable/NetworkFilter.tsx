@@ -1,59 +1,71 @@
-import { InterfacePageName } from '@uniswap/analytics-events'
-import { DropdownSelector, InternalMenuItem } from 'components/DropdownSelector'
-import { ChainLogo } from 'components/Logo/ChainLogo'
-import { useTheme } from 'lib/styled-components'
-import { ExploreTab } from 'pages/Explore/constants'
-import { useExploreParams } from 'pages/Explore/redirects'
-import { Dispatch, SetStateAction, memo, useCallback, useState } from 'react'
-import { Check } from 'react-feather'
-import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
-import { EllipsisTamaguiStyle } from 'theme/components/styles'
-import { ElementAfterText, Flex, FlexProps, ScrollView, styled, useMedia } from 'ui/src'
-import { NetworkLogo } from 'uniswap/src/components/CurrencyLogo/NetworkLogo'
-import Badge from 'uniswap/src/components/badge/Badge'
-import { NewTag } from 'uniswap/src/components/pill/NewTag'
-import { getChainInfo } from 'uniswap/src/features/chains/chainInfo'
-import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains'
-import { useNewChainIds } from 'uniswap/src/features/chains/hooks/useNewChainIds'
-import { useOrderedChainIds } from 'uniswap/src/features/chains/hooks/useOrderedChainIds'
-import { useIsSupportedChainIdCallback } from 'uniswap/src/features/chains/hooks/useSupportedChainId'
-import { ALL_CHAIN_IDS, UniverseChainId, UniverseChainInfo } from 'uniswap/src/features/chains/types'
-import { isBackendSupportedChainId, isTestnetChain, toGraphQLChain } from 'uniswap/src/features/chains/utils'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
-import { getChainUrlParam, useChainIdFromUrlParam } from 'utils/chainParams'
+import { InterfacePageName } from '@uniswap/analytics-events';
+import { DropdownSelector, InternalMenuItem } from 'components/DropdownSelector';
+import { ChainLogo } from 'components/Logo/ChainLogo';
+import { useTheme } from 'lib/styled-components';
+import { ExploreTab } from 'pages/Explore/constants';
+import { useExploreParams } from 'pages/Explore/redirects';
+import { Dispatch, SetStateAction, memo, useCallback, useState } from 'react';
+import { Check } from 'react-feather';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { EllipsisTamaguiStyle } from 'theme/components/styles';
+import { ElementAfterText, Flex, FlexProps, ScrollView, styled, useMedia } from 'ui/src';
+import { NetworkLogo } from 'uniswap/src/components/CurrencyLogo/NetworkLogo';
+import Badge from 'uniswap/src/components/badge/Badge';
+import { NewTag } from 'uniswap/src/components/pill/NewTag';
+import { getChainInfo } from 'uniswap/src/features/chains/chainInfo';
+import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains';
+import { useNewChainIds } from 'uniswap/src/features/chains/hooks/useNewChainIds';
+import { useOrderedChainIds } from 'uniswap/src/features/chains/hooks/useOrderedChainIds';
+import { useIsSupportedChainIdCallback } from 'uniswap/src/features/chains/hooks/useSupportedChainId';
+import {
+  ALL_CHAIN_IDS,
+  UniverseChainId,
+  UniverseChainInfo,
+} from 'uniswap/src/features/chains/types';
+import {
+  isBackendSupportedChainId,
+  isTestnetChain,
+  toGraphQLChain,
+} from 'uniswap/src/features/chains/utils';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
+import { getChainUrlParam, useChainIdFromUrlParam } from 'utils/chainParams';
 
 const NetworkLabel = styled(Flex, {
   flexDirection: 'row',
   alignItems: 'center',
   gap: '$gap8',
-})
+});
 
 const StyledDropdown = {
   maxHeight: 350,
   minWidth: 256,
   px: 0,
-} satisfies FlexProps
+} satisfies FlexProps;
 
-export default function TableNetworkFilter({ showMultichainOption = true }: { showMultichainOption?: boolean }) {
-  const [isMenuOpen, toggleMenu] = useState(false)
-  const isSupportedChainCallback = useIsSupportedChainIdCallback()
-  const { isTestnetModeEnabled } = useEnabledChains()
-  const orderedChainIds = useOrderedChainIds(ALL_CHAIN_IDS)
+export default function TableNetworkFilter({
+  showMultichainOption = true,
+}: {
+  showMultichainOption?: boolean;
+}) {
+  const [isMenuOpen, toggleMenu] = useState(false);
+  const isSupportedChainCallback = useIsSupportedChainIdCallback();
+  const { isTestnetModeEnabled } = useEnabledChains();
+  const orderedChainIds = useOrderedChainIds(ALL_CHAIN_IDS);
 
-  const exploreParams = useExploreParams()
-  const currentChainId = useChainIdFromUrlParam()
-  const tab = exploreParams.tab
-  const media = useMedia()
+  const exploreParams = useExploreParams();
+  const currentChainId = useChainIdFromUrlParam();
+  const tab = exploreParams.tab;
+  const media = useMedia();
 
   const tableNetworkItemRenderer = useCallback(
     (chainId: UniverseChainId) => {
       if (!isSupportedChainCallback(chainId)) {
-        return null
+        return null;
       }
-      const chainInfo = getChainInfo(chainId)
-      const supported = isBackendSupportedChainId(chainId)
+      const chainInfo = getChainInfo(chainId);
+      const supported = isBackendSupportedChainId(chainId);
       return (
         <TableNetworkItem
           key={chainId}
@@ -62,10 +74,10 @@ export default function TableNetworkFilter({ showMultichainOption = true }: { sh
           tab={tab}
           unsupported={!supported}
         />
-      )
+      );
     },
-    [isSupportedChainCallback, tab],
-  )
+    [isSupportedChainCallback, tab]
+  );
 
   return (
     <Flex>
@@ -75,7 +87,8 @@ export default function TableNetworkFilter({ showMultichainOption = true }: { sh
           toggleOpen={toggleMenu}
           menuLabel={
             <NetworkLabel>
-              {(!currentChainId || !isSupportedChainCallback(currentChainId)) && showMultichainOption ? (
+              {(!currentChainId || !isSupportedChainCallback(currentChainId)) &&
+              showMultichainOption ? (
                 <NetworkLogo chainId={null} />
               ) : (
                 <ChainLogo
@@ -90,28 +103,32 @@ export default function TableNetworkFilter({ showMultichainOption = true }: { sh
           dropdownStyle={StyledDropdown}
           adaptToSheet
           allowFlip
-          alignRight={!media.lg}
-        >
+          alignRight={!media.lg}>
           <ScrollView px="$spacing8">
-            {showMultichainOption && <TableNetworkItem chainInfo={null} toggleMenu={toggleMenu} tab={tab} />}
+            {showMultichainOption && (
+              <TableNetworkItem chainInfo={null} toggleMenu={toggleMenu} tab={tab} />
+            )}
             {/* non-testnet backend supported chains */}
             {orderedChainIds
               .filter(isBackendSupportedChainId)
-              .filter((c) => !isTestnetChain(c))
+              .filter(c => !isTestnetChain(c))
               .map(tableNetworkItemRenderer)}
             {/* Testnet backend supported chains */}
             {isTestnetModeEnabled
-              ? orderedChainIds.filter(isBackendSupportedChainId).filter(isTestnetChain).map(tableNetworkItemRenderer)
+              ? orderedChainIds
+                  .filter(isBackendSupportedChainId)
+                  .filter(isTestnetChain)
+                  .map(tableNetworkItemRenderer)
               : null}
             {/* Unsupported non-testnet backend supported chains */}
             {orderedChainIds
-              .filter((c) => !isBackendSupportedChainId(c) && !isTestnetChain(c))
+              .filter(c => !isBackendSupportedChainId(c) && !isTestnetChain(c))
               .map(tableNetworkItemRenderer)}
           </ScrollView>
         </DropdownSelector>
       </Trace>
     </Flex>
-  )
+  );
 }
 
 const TableNetworkItem = memo(function TableNetworkItem({
@@ -120,27 +137,29 @@ const TableNetworkItem = memo(function TableNetworkItem({
   tab,
   unsupported,
 }: {
-  chainInfo: UniverseChainInfo | null
-  toggleMenu: Dispatch<SetStateAction<boolean>>
-  tab?: ExploreTab
-  unsupported?: boolean
+  chainInfo: UniverseChainInfo | null;
+  toggleMenu: Dispatch<SetStateAction<boolean>>;
+  tab?: ExploreTab;
+  unsupported?: boolean;
 }) {
-  const navigate = useNavigate()
-  const theme = useTheme()
-  const { t } = useTranslation()
-  const exploreParams = useExploreParams()
-  const urlChainId = useChainIdFromUrlParam()
-  const currentChainInfo = urlChainId ? getChainInfo(urlChainId) : undefined
-  const newChains = useNewChainIds()
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const { t } = useTranslation();
+  const exploreParams = useExploreParams();
+  const urlChainId = useChainIdFromUrlParam();
+  const currentChainInfo = urlChainId ? getChainInfo(urlChainId) : undefined;
+  const newChains = useNewChainIds();
 
-  const isAllNetworks = chainInfo === null
-  const chainId = isAllNetworks ? undefined : chainInfo.id
-  const isNew = chainId && newChains.includes(chainId)
+  const isAllNetworks = chainInfo === null;
+  const chainId = isAllNetworks ? undefined : chainInfo.id;
+  const isNew = chainId && newChains.includes(chainId);
 
-  const chainName = chainId ? toGraphQLChain(chainId) : 'All networks'
-  const chainUrlParam = chainId ? getChainUrlParam(chainId) : ''
+  const chainName = chainId ? toGraphQLChain(chainId) : 'All networks';
+  const chainUrlParam = chainId ? getChainUrlParam(chainId) : '';
 
-  const isCurrentChain = isAllNetworks ? !currentChainInfo : currentChainInfo?.id === chainId && exploreParams.chainName
+  const isCurrentChain = isAllNetworks
+    ? !currentChainInfo
+    : currentChainInfo?.id === chainId && exploreParams.chainName;
 
   return (
     <Trace
@@ -149,17 +168,20 @@ const TableNetworkItem = memo(function TableNetworkItem({
       properties={{
         tab,
         chain: chainName.toString(),
-        previousConnectedChain: currentChainInfo?.id ? toGraphQLChain(currentChainInfo?.id) : 'All networks',
-      }}
-    >
+        previousConnectedChain: currentChainInfo?.id
+          ? toGraphQLChain(currentChainInfo?.id)
+          : 'All networks',
+      }}>
       <InternalMenuItem
         data-testid={`tokens-network-filter-option-${chainName.toLowerCase()}`}
         disabled={unsupported}
         onPress={() => {
-          !unsupported && navigate(`/explore/${tab ?? ExploreTab.Tokens}${!isAllNetworks ? `/${chainUrlParam}` : ''}`)
-          toggleMenu(false)
-        }}
-      >
+          !unsupported &&
+            navigate(
+              `/explore/${tab ?? ExploreTab.Tokens}${!isAllNetworks ? `/${chainUrlParam}` : ''}`
+            );
+          toggleMenu(false);
+        }}>
         <NetworkLabel>
           {isAllNetworks ? (
             <NetworkLogo chainId={null} />
@@ -180,5 +202,5 @@ const TableNetworkItem = memo(function TableNetworkItem({
         ) : null}
       </InternalMenuItem>
     </Trace>
-  )
-})
+  );
+});

@@ -1,7 +1,7 @@
-import { FeeAmount } from '@uniswap/v3-sdk'
-import type { ReactNode } from 'react'
-import { Trans } from 'react-i18next'
-import { ALL_CHAIN_IDS, UniverseChainId } from 'uniswap/src/features/chains/types'
+import { FeeAmount } from '@uniswap/v3-sdk';
+import type { ReactNode } from 'react';
+import { Trans } from 'react-i18next';
+import { ALL_CHAIN_IDS, UniverseChainId } from 'uniswap/src/features/chains/types';
 
 export const FEE_AMOUNT_DETAIL: Record<
   FeeAmount,
@@ -39,4 +39,4 @@ export const FEE_AMOUNT_DETAIL: Record<
     description: <Trans i18nKey="fee.bestForExotic" />,
     supportedChains: ALL_CHAIN_IDS,
   },
-}
+};

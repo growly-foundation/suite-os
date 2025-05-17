@@ -1,6 +1,6 @@
-import { GitVersionRow } from 'components/AccountDrawer/GitVersionRow'
-import { ArrowLeft } from 'react-feather'
-import { Flex, Text, useScrollbarStyles } from 'ui/src'
+import { GitVersionRow } from 'components/AccountDrawer/GitVersionRow';
+import { ArrowLeft } from 'react-feather';
+import { Flex, Text, useScrollbarStyles } from 'ui/src';
 
 export const SlideOutMenu = ({
   children,
@@ -8,20 +8,20 @@ export const SlideOutMenu = ({
   title,
   rightIcon,
 }: {
-  onClose: () => void
-  title: React.ReactNode
-  children: React.ReactNode
-  onClear?: () => void
-  rightIcon?: React.ReactNode
+  onClose: () => void;
+  title: React.ReactNode;
+  children: React.ReactNode;
+  onClear?: () => void;
+  rightIcon?: React.ReactNode;
 }) => {
-  const scrollbarStyles = useScrollbarStyles()
+  const scrollbarStyles = useScrollbarStyles();
 
   const updatedScrollbarStyles = {
     ...scrollbarStyles,
     '::-webkit-scrollbar-track': {
       marginTop: '40px',
     },
-  }
+  };
 
   return (
     <Flex
@@ -35,8 +35,7 @@ export const SlideOutMenu = ({
       minHeight="85vh"
       $md={{
         minHeight: '0px',
-      }}
-    >
+      }}>
       <Flex grow justifyContent="space-between">
         <Flex grow>
           <Flex row mb="$spacing20" justifyContent="space-between" width="100%" alignItems="center">
@@ -49,5 +48,5 @@ export const SlideOutMenu = ({
         <GitVersionRow />
       </Flex>
     </Flex>
-  )
-}
+  );
+};

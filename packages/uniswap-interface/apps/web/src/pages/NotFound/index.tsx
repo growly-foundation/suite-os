@@ -1,31 +1,31 @@
-import { InterfacePageName } from '@uniswap/analytics-events'
-import darkImage from 'assets/images/404-page-dark.png'
-import lightImage from 'assets/images/404-page-light.png'
-import { useIsMobile } from 'hooks/screenSize/useIsMobile'
-import styled from 'lib/styled-components'
-import { ReactNode } from 'react'
-import { Trans } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
-import { ThemedText } from 'theme/components'
-import { useIsDarkMode } from 'theme/components/ThemeToggle'
-import { Button, Flex } from 'ui/src'
-import Trace from 'uniswap/src/features/telemetry/Trace'
+import { InterfacePageName } from '@uniswap/analytics-events';
+import darkImage from 'assets/images/404-page-dark.png';
+import lightImage from 'assets/images/404-page-light.png';
+import { useIsMobile } from 'hooks/screenSize/useIsMobile';
+import styled from 'lib/styled-components';
+import { ReactNode } from 'react';
+import { Trans } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { ThemedText } from 'theme/components';
+import { useIsDarkMode } from 'theme/components/ThemeToggle';
+import { Button, Flex } from 'ui/src';
+import Trace from 'uniswap/src/features/telemetry/Trace';
 
 const Image = styled.img`
   max-width: 510px;
   width: 100%;
   padding: 0 75px;
-`
+`;
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-`
+`;
 
 const Header = styled(Container)`
   gap: 30px;
-`
+`;
 
 const PageWrapper = styled(Container)`
   flex: 1;
@@ -36,21 +36,21 @@ const PageWrapper = styled(Container)`
     justify-content: space-between;
     padding-top: 64px;
   }
-`
+`;
 
 interface NotFoundProps {
-  title?: ReactNode
-  subtitle?: ReactNode
-  actionButton?: ReactNode
+  title?: ReactNode;
+  subtitle?: ReactNode;
+  actionButton?: ReactNode;
 }
 
 export default function NotFound({ title, subtitle, actionButton }: NotFoundProps) {
-  const isDarkMode = useIsDarkMode()
-  const isMobile = useIsMobile()
-  const navigate = useNavigate()
+  const isDarkMode = useIsDarkMode();
+  const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
-  const Title = isMobile ? ThemedText.LargeHeader : ThemedText.Hero
-  const Paragraph = isMobile ? ThemedText.HeadlineMedium : ThemedText.HeadlineLarge
+  const Title = isMobile ? ThemedText.LargeHeader : ThemedText.Hero;
+  const Paragraph = isMobile ? ThemedText.HeadlineMedium : ThemedText.HeadlineLarge;
 
   return (
     <PageWrapper>
@@ -75,5 +75,5 @@ export default function NotFound({ title, subtitle, actionButton }: NotFoundProp
         )}
       </Trace>
     </PageWrapper>
-  )
+  );
 }

@@ -1,13 +1,13 @@
-import { ChainId } from '@uniswap/sdk-core'
+import { ChainId } from '@uniswap/sdk-core';
 
 /* eslint-env node */
-require('dotenv').config()
+require('dotenv').config();
 
 const forkingConfig = {
   httpHeaders: {
     Origin: 'localhost:3000', // infura allowlists requests by origin
   },
-}
+};
 
 const forks = {
   [ChainId.MAINNET]: {
@@ -22,7 +22,7 @@ const forks = {
     url: `https://optimism-mainnet.infura.io/v3/${process.env.REACT_APP_INFURA_KEY}`,
     ...forkingConfig,
   },
-}
+};
 
 module.exports = {
   forks,
@@ -40,4 +40,4 @@ module.exports = {
       },
     },
   },
-}
+};

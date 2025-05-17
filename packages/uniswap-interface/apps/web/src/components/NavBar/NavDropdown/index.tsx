@@ -1,2 +1,2 @@
-export { NavDropdown } from './NavDropdown'
-export { NavDropdownDefaultWrapper, NavDropdownTabWrapper } from './shared'
+export { NavDropdown } from './NavDropdown';
+export { NavDropdownDefaultWrapper, NavDropdownTabWrapper } from './shared';

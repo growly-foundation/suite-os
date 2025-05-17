@@ -1,10 +1,10 @@
-import { isEmptyObject } from 'utils/isEmpty'
+import { isEmptyObject } from 'utils/isEmpty';
 
 describe('isEmptyObject', () => {
   it.each([
     [{}, true],
     [{ a: 1 }, false],
   ])('should return true for empty objects', (obj, expectedResult) => {
-    expect(isEmptyObject(obj)).toBe(expectedResult)
-  })
-})
+    expect(isEmptyObject(obj)).toBe(expectedResult);
+  });
+});

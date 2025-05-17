@@ -1,21 +1,21 @@
-import { XStackProps } from 'tamagui'
+import { XStackProps } from 'tamagui';
 import {
   brandedFocusVisibleStyle,
   criticalFocusVisibleStyle,
   defaultFocusVisibleStyle,
   warningFocusVisibleStyle,
-} from 'ui/src/components/buttons/Button/components/CustomButtonFrame/constants'
-import { withCommonPressStyle } from 'ui/src/components/buttons/Button/components/CustomButtonFrame/utils'
-import type { ButtonEmphasis, ButtonVariant } from 'ui/src/components/buttons/Button/types'
+} from 'ui/src/components/buttons/Button/components/CustomButtonFrame/constants';
+import { withCommonPressStyle } from 'ui/src/components/buttons/Button/components/CustomButtonFrame/utils';
+import type { ButtonEmphasis, ButtonVariant } from 'ui/src/components/buttons/Button/types';
 
 type ButtonStyleLookup = {
   [variant in ButtonVariant]: {
     [emphasis in ButtonEmphasis]: Pick<
       XStackProps,
       'backgroundColor' | 'borderColor' | 'hoverStyle' | 'focusVisibleStyle' | 'pressStyle'
-    >
-  }
-}
+    >;
+  };
+};
 
 export const variantEmphasisHash: ButtonStyleLookup = {
   default: {
@@ -214,4 +214,4 @@ export const variantEmphasisHash: ButtonStyleLookup = {
       }),
     },
   },
-}
+};

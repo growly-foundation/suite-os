@@ -1,22 +1,22 @@
-import { createMigrate } from 'redux-persist'
-import { migration1 } from 'state/migrations/1'
-import { migration10 } from 'state/migrations/10'
-import { migration11 } from 'state/migrations/11'
-import { migration12 } from 'state/migrations/12'
-import { migration13 } from 'state/migrations/13'
-import { migration14 } from 'state/migrations/14'
-import { migration15 } from 'state/migrations/15'
-import { migration16 } from 'state/migrations/16'
-import { migration17 } from 'state/migrations/17'
-import { PersistAppStateV18, migration18 } from 'state/migrations/18'
-import { migration2 } from 'state/migrations/2'
-import { migration3 } from 'state/migrations/3'
-import { migration4 } from 'state/migrations/4'
-import { migration5 } from 'state/migrations/5'
-import { migration6 } from 'state/migrations/6'
-import { migration7 } from 'state/migrations/7'
-import { migration8 } from 'state/migrations/8'
-import { migration9 } from 'state/migrations/9'
+import { createMigrate } from 'redux-persist';
+import { migration1 } from 'state/migrations/1';
+import { migration10 } from 'state/migrations/10';
+import { migration11 } from 'state/migrations/11';
+import { migration12 } from 'state/migrations/12';
+import { migration13 } from 'state/migrations/13';
+import { migration14 } from 'state/migrations/14';
+import { migration15 } from 'state/migrations/15';
+import { migration16 } from 'state/migrations/16';
+import { migration17 } from 'state/migrations/17';
+import { PersistAppStateV18, migration18 } from 'state/migrations/18';
+import { migration2 } from 'state/migrations/2';
+import { migration3 } from 'state/migrations/3';
+import { migration4 } from 'state/migrations/4';
+import { migration5 } from 'state/migrations/5';
+import { migration6 } from 'state/migrations/6';
+import { migration7 } from 'state/migrations/7';
+import { migration8 } from 'state/migrations/8';
+import { migration9 } from 'state/migrations/9';
 
 const previousState: PersistAppStateV18 = {
   _persist: {
@@ -27,7 +27,7 @@ const previousState: PersistAppStateV18 = {
     hideSmallBalances: true,
     hideSpamTokens: true,
   },
-}
+};
 
 const migrator = createMigrate(
   {
@@ -50,17 +50,17 @@ const migrator = createMigrate(
     17: migration17,
     18: migration18,
   },
-  { debug: false },
-)
+  { debug: false }
+);
 
 describe('migration to v18', () => {
   it('should set user settings object', async () => {
-    const result: any = await migrator(previousState, 18)
+    const result: any = await migrator(previousState, 18);
     expect(result.userSettings).toMatchObject({
       hideSmallBalances: true,
       hideSpamTokens: true,
       currentLanguage: 'en',
       currentCurrency: 'USD',
-    })
-  })
-})
+    });
+  });
+});

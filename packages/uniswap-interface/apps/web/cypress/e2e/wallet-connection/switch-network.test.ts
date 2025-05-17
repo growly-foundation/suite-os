@@ -1,4 +1,4 @@
-import { getTestSelector, resetHardhatChain } from '../../utils'
+import { getTestSelector, resetHardhatChain } from '../../utils';
 
 // TODO(WEB-4923): Re-enable network switching tests when theres a non-UI way to switch networks
 // function switchChain(chain: string) {
@@ -8,10 +8,10 @@ import { getTestSelector, resetHardhatChain } from '../../utils'
 
 describe('network switching', () => {
   beforeEach(() => {
-    cy.visit('/swap')
-    cy.get(getTestSelector('web3-status-connected'))
-  })
-  afterEach(resetHardhatChain)
+    cy.visit('/swap');
+    cy.get(getTestSelector('web3-status-connected'));
+  });
+  afterEach(resetHardhatChain);
 
   // function rejectsNetworkSwitchWith(rejection: unknown) {
   //   cy.hardhat().then((hardhat) => {
@@ -145,15 +145,15 @@ describe('network switching', () => {
 
   describe('multichain', () => {
     it('does not switchEthereumChain when multichain is enabled', () => {
-      cy.hardhat().then((hardhat) => {
-        cy.visit('/swap')
-        cy.get('#swap-currency-input .open-currency-select-button').click()
-        cy.get(getTestSelector('chain-selector')).last().click()
-        cy.contains('Arbitrum').click()
-        const sendSpy = cy.spy(hardhat.provider, 'send')
-        cy.wrap(sendSpy).should('not.be.calledWith', 'wallet_switchEthereumChain')
-        cy.wrap(hardhat.provider.network.chainId).should('eq', 1)
-      })
-    })
-  })
-})
+      cy.hardhat().then(hardhat => {
+        cy.visit('/swap');
+        cy.get('#swap-currency-input .open-currency-select-button').click();
+        cy.get(getTestSelector('chain-selector')).last().click();
+        cy.contains('Arbitrum').click();
+        const sendSpy = cy.spy(hardhat.provider, 'send');
+        cy.wrap(sendSpy).should('not.be.calledWith', 'wallet_switchEthereumChain');
+        cy.wrap(hardhat.provider.network.chainId).should('eq', 1);
+      });
+    });
+  });
+});

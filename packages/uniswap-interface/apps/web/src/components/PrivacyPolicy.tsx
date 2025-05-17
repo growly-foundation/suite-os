@@ -1,25 +1,25 @@
-import { SharedEventName } from '@uniswap/analytics-events'
-import Card, { DarkGrayCard } from 'components/Card/cards'
-import { AutoColumn } from 'components/deprecated/Column'
-import Row, { AutoRow, RowBetween } from 'components/deprecated/Row'
-import { useModalState } from 'hooks/useModalState'
-import styled from 'lib/styled-components'
-import { useEffect, useMemo, useRef } from 'react'
-import { ArrowDown, Info } from 'react-feather'
-import { useTranslation } from 'react-i18next'
-import { ThemedText } from 'theme/components'
-import { ExternalLink } from 'theme/components/Links'
-import { ModalCloseIcon } from 'ui/src'
-import { Modal } from 'uniswap/src/components/modals/Modal'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
-import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send'
-import { isMobileWeb } from 'utilities/src/platform'
+import { SharedEventName } from '@uniswap/analytics-events';
+import Card, { DarkGrayCard } from 'components/Card/cards';
+import { AutoColumn } from 'components/deprecated/Column';
+import Row, { AutoRow, RowBetween } from 'components/deprecated/Row';
+import { useModalState } from 'hooks/useModalState';
+import styled from 'lib/styled-components';
+import { useEffect, useMemo, useRef } from 'react';
+import { ArrowDown, Info } from 'react-feather';
+import { useTranslation } from 'react-i18next';
+import { ThemedText } from 'theme/components';
+import { ExternalLink } from 'theme/components/Links';
+import { ModalCloseIcon } from 'ui/src';
+import { Modal } from 'uniswap/src/components/modals/Modal';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
+import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send';
+import { isMobileWeb } from 'utilities/src/platform';
 
 const Wrapper = styled.div`
   max-height: 70vh;
   overflow: auto;
   padding: 0 1rem;
-`
+`;
 
 const StyledExternalCard = styled(Card)`
   background-color: ${({ theme }) => theme.accent2};
@@ -31,42 +31,44 @@ const StyledExternalCard = styled(Card)`
   :active {
     background-color: ${({ theme }) => theme.neutral3};
   }
-`
+`;
 
 const StyledLinkOut = styled(ArrowDown)`
   transform: rotate(230deg);
-`
+`;
 
 export function PrivacyPolicyModal() {
-  const node = useRef<HTMLDivElement>()
-  const { isOpen, closeModal } = useModalState(ModalName.PrivacyPolicy)
-  const { t } = useTranslation()
+  const node = useRef<HTMLDivElement>();
+  const { isOpen, closeModal } = useModalState(ModalName.PrivacyPolicy);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!isOpen) {
-      return
+      return;
     }
 
     sendAnalyticsEvent(SharedEventName.PAGE_VIEWED, {
       modal: ModalName.Legal,
-    })
-  }, [isOpen])
+    });
+  }, [isOpen]);
 
   return (
     <Modal name={ModalName.Legal} isModalOpen={isOpen} onClose={() => closeModal()} padding={0}>
       <AutoColumn gap="md" ref={node as any}>
         <RowBetween padding="1rem 1rem 0.5rem 1rem">
-          <ThemedText.DeprecatedMediumHeader>{t('common.legalAndPrivacy')}</ThemedText.DeprecatedMediumHeader>
+          <ThemedText.DeprecatedMediumHeader>
+            {t('common.legalAndPrivacy')}
+          </ThemedText.DeprecatedMediumHeader>
           <ModalCloseIcon onClose={closeModal} />
         </RowBetween>
         <PrivacyPolicy />
       </AutoColumn>
     </Modal>
-  )
+  );
 }
 
 function PrivacyPolicy() {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const EXTERNAL_APIS = useMemo(
     () => [
       {
@@ -93,19 +95,18 @@ function PrivacyPolicy() {
         description: t('privacy.anonymizedLogs'),
       },
     ],
-    [t],
-  )
+    [t]
+  );
 
   return (
     <Wrapper
       draggable="true"
-      onTouchMove={(e) => {
+      onTouchMove={e => {
         // prevent modal gesture handler from dismissing modal when content is scrolling
         if (isMobileWeb) {
-          e.stopPropagation()
+          e.stopPropagation();
         }
-      }}
-    >
+      }}>
       <AutoColumn gap="16px">
         <AutoColumn gap="sm" style={{ width: '100%' }}>
           <StyledExternalCard>
@@ -135,7 +136,9 @@ function PrivacyPolicy() {
             </ExternalLink>
           </StyledExternalCard>
         </AutoColumn>
-        <ThemedText.DeprecatedMain fontSize={14}>{t('privacy.thirdPartyApis')}</ThemedText.DeprecatedMain>
+        <ThemedText.DeprecatedMain fontSize={14}>
+          {t('privacy.thirdPartyApis')}
+        </ThemedText.DeprecatedMain>
         <AutoColumn gap="md">
           {EXTERNAL_APIS.map(({ name, description }, i) => (
             <DarkGrayCard key={i}>
@@ -160,5 +163,5 @@ function PrivacyPolicy() {
         </AutoColumn>
       </AutoColumn>
     </Wrapper>
-  )
+  );
 }

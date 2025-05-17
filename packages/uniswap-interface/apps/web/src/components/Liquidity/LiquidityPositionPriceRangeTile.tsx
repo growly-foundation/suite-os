@@ -1,10 +1,10 @@
-import { Currency, Price } from '@uniswap/sdk-core'
-import { useGetRangeDisplay } from 'components/Liquidity/hooks'
-import { PriceOrdering } from 'components/Liquidity/types'
-import { useMemo, useState } from 'react'
-import { Trans } from 'react-i18next'
-import { Flex, SegmentedControl, SegmentedControlOption, Text, styled } from 'ui/src'
-import { NumberType, useFormatter } from 'utils/formatNumbers'
+import { Currency, Price } from '@uniswap/sdk-core';
+import { useGetRangeDisplay } from 'components/Liquidity/hooks';
+import { PriceOrdering } from 'components/Liquidity/types';
+import { useMemo, useState } from 'react';
+import { Trans } from 'react-i18next';
+import { Flex, SegmentedControl, SegmentedControlOption, Text, styled } from 'ui/src';
+import { NumberType, useFormatter } from 'utils/formatNumbers';
 
 const InnerTile = styled(Flex, {
   grow: true,
@@ -13,16 +13,16 @@ const InnerTile = styled(Flex, {
   borderRadius: '$rounded12',
   backgroundColor: '$surface3',
   p: '$padding16',
-})
+});
 
 interface LiquidityPositionPriceRangeTileProps {
-  token1: Currency
-  priceOrdering: PriceOrdering
-  token0CurrentPrice: Price<Currency, Currency>
-  token1CurrentPrice: Price<Currency, Currency>
-  tickSpacing?: number
-  tickLower?: string
-  tickUpper?: string
+  token1: Currency;
+  priceOrdering: PriceOrdering;
+  token0CurrentPrice: Price<Currency, Currency>;
+  token1CurrentPrice: Price<Currency, Currency>;
+  tickSpacing?: number;
+  tickLower?: string;
+  tickUpper?: string;
 }
 
 export function LiquidityPositionPriceRangeTile({
@@ -34,11 +34,11 @@ export function LiquidityPositionPriceRangeTile({
   tickLower,
   tickUpper,
 }: LiquidityPositionPriceRangeTileProps) {
-  const { formatPrice } = useFormatter()
-  const [pricesInverted, setPricesInverted] = useState(false)
+  const { formatPrice } = useFormatter();
+  const [pricesInverted, setPricesInverted] = useState(false);
 
-  const currencyASymbol = token0CurrentPrice.baseCurrency.symbol
-  const currencyBSymbol = token0CurrentPrice.quoteCurrency.symbol
+  const currencyASymbol = token0CurrentPrice.baseCurrency.symbol;
+  const currencyBSymbol = token0CurrentPrice.quoteCurrency.symbol;
 
   const controlOptions: SegmentedControlOption[] = useMemo(() => {
     return [
@@ -50,11 +50,11 @@ export function LiquidityPositionPriceRangeTile({
         value: currencyBSymbol ?? '',
         display: <Text variant="buttonLabel3">{currencyBSymbol}</Text>,
       },
-    ]
-  }, [currencyASymbol, currencyBSymbol])
+    ];
+  }, [currencyASymbol, currencyBSymbol]);
 
   if (!currencyASymbol || !currencyBSymbol) {
-    throw new Error('LiquidityPositionPriceRangeTile: Currency symbols are required')
+    throw new Error('LiquidityPositionPriceRangeTile: Currency symbols are required');
   }
 
   const { minPrice, maxPrice, tokenASymbol, tokenBSymbol } = useGetRangeDisplay({
@@ -63,23 +63,28 @@ export function LiquidityPositionPriceRangeTile({
     tickLower,
     tickUpper,
     pricesInverted,
-  })
+  });
 
   const currentPrice = useMemo(() => {
-    const { base } = priceOrdering
+    const { base } = priceOrdering;
     if (!base) {
-      return undefined
+      return undefined;
     }
 
     if (!pricesInverted) {
-      return base?.equals(token1) ? token1CurrentPrice : token0CurrentPrice
+      return base?.equals(token1) ? token1CurrentPrice : token0CurrentPrice;
     }
 
-    return base?.equals(token1) ? token0CurrentPrice : token1CurrentPrice
-  }, [priceOrdering, token0CurrentPrice, token1CurrentPrice, token1, pricesInverted])
+    return base?.equals(token1) ? token0CurrentPrice : token1CurrentPrice;
+  }, [priceOrdering, token0CurrentPrice, token1CurrentPrice, token1, pricesInverted]);
 
   return (
-    <Flex backgroundColor="$surface2" borderRadius="$rounded12" p="$padding12" width="100%" gap="$gap12">
+    <Flex
+      backgroundColor="$surface2"
+      borderRadius="$rounded12"
+      p="$padding12"
+      width="100%"
+      gap="$gap12">
       <Flex row width="100%" justifyContent="space-between" alignItems="center">
         <Flex row alignItems="center" gap="$gap12">
           <Text variant="subheading1">
@@ -90,8 +95,8 @@ export function LiquidityPositionPriceRangeTile({
           size="large"
           options={controlOptions}
           selectedOption={pricesInverted ? currencyBSymbol : currencyASymbol}
-          onSelectOption={(selected) => {
-            setPricesInverted(selected !== currencyASymbol)
+          onSelectOption={selected => {
+            setPricesInverted(selected !== currencyASymbol);
           }}
         />
       </Flex>
@@ -149,5 +154,5 @@ export function LiquidityPositionPriceRangeTile({
         </Text>
       </InnerTile>
     </Flex>
-  )
+  );
 }

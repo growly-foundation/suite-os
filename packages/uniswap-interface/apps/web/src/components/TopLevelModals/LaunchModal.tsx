@@ -1,34 +1,34 @@
 // Remove the following line when LaunchModal is used again:
 /* eslint-disable import/no-unused-modules */
-import { InterfaceElementName } from '@uniswap/analytics-events'
+import { InterfaceElementName } from '@uniswap/analytics-events';
 import {
   LAUNCH_MODAL_DESKTOP_MAX_HEIGHT,
   LAUNCH_MODAL_DESKTOP_MAX_WIDTH,
   LAUNCH_MODAL_MOBILE_MAX_HEIGHT,
   LAUNCH_MODAL_MOBILE_MAX_IMAGE_HEIGHT,
-} from 'components/TopLevelModals/constants'
-import { PageType, useIsPage } from 'hooks/useIsPage'
-import { useAtom } from 'jotai'
-import { atomWithStorage } from 'jotai/utils'
-import { useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Button, Flex, Image, ImageProps, Text, TouchableArea, useMedia } from 'ui/src'
-import { X } from 'ui/src/components/icons/X'
-import { iconSizes } from 'ui/src/theme'
-import { Modal } from 'uniswap/src/components/modals/Modal'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { ModalNameType } from 'uniswap/src/features/telemetry/constants'
-import { openUri } from 'uniswap/src/utils/linking'
+} from 'components/TopLevelModals/constants';
+import { PageType, useIsPage } from 'hooks/useIsPage';
+import { useAtom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Button, Flex, Image, ImageProps, Text, TouchableArea, useMedia } from 'ui/src';
+import { X } from 'ui/src/components/icons/X';
+import { iconSizes } from 'ui/src/theme';
+import { Modal } from 'uniswap/src/components/modals/Modal';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { ModalNameType } from 'uniswap/src/features/telemetry/constants';
+import { openUri } from 'uniswap/src/utils/linking';
 
 type Props = {
-  interfaceModalName: ModalNameType
-  learnMoreUrl: string
-  desktopImage: string
-  mobileImage: string
-  logo: ImageProps['source']
-  title: string
-  description: string
-}
+  interfaceModalName: ModalNameType;
+  learnMoreUrl: string;
+  desktopImage: string;
+  mobileImage: string;
+  logo: ImageProps['source'];
+  title: string;
+  description: string;
+};
 
 export function LaunchModal({
   interfaceModalName,
@@ -39,11 +39,14 @@ export function LaunchModal({
   title,
   description,
 }: Props) {
-  const showModalAtom = useMemo(() => atomWithStorage(`showModal.${interfaceModalName}`, true), [interfaceModalName])
-  const [showModal, setShowModal] = useAtom(showModalAtom)
-  const isLandingPage = useIsPage(PageType.LANDING)
-  const media = useMedia()
-  const { t } = useTranslation()
+  const showModalAtom = useMemo(
+    () => atomWithStorage(`showModal.${interfaceModalName}`, true),
+    [interfaceModalName]
+  );
+  const [showModal, setShowModal] = useAtom(showModalAtom);
+  const isLandingPage = useIsPage(PageType.LANDING);
+  const media = useMedia();
+  const { t } = useTranslation();
 
   return (
     <Trace modal={interfaceModalName}>
@@ -53,8 +56,7 @@ export function LaunchModal({
         height={media.md ? LAUNCH_MODAL_MOBILE_MAX_HEIGHT : LAUNCH_MODAL_DESKTOP_MAX_HEIGHT}
         isModalOpen={showModal && !isLandingPage}
         onClose={() => setShowModal(false)}
-        padding={0}
-      >
+        padding={0}>
         <Flex flexDirection={media.md ? 'column' : 'row'} fill>
           <Flex
             backgroundImage={`url(${media.md ? mobileImage : desktopImage})`}
@@ -84,12 +86,22 @@ export function LaunchModal({
             </Flex>
             <Flex gap="$gap8" row>
               <Trace logPress element={InterfaceElementName.CLOSE_BUTTON}>
-                <Button emphasis="secondary" size="xxsmall" fill flexBasis={0} onPress={() => setShowModal(false)}>
+                <Button
+                  emphasis="secondary"
+                  size="xxsmall"
+                  fill
+                  flexBasis={0}
+                  onPress={() => setShowModal(false)}>
                   {t('common.button.dismiss')}
                 </Button>
               </Trace>
               <Trace logPress element={InterfaceElementName.LEARN_MORE_LINK}>
-                <Button variant="branded" size="xxsmall" fill flexBasis={0} onPress={() => openUri(learnMoreUrl)}>
+                <Button
+                  variant="branded"
+                  size="xxsmall"
+                  fill
+                  flexBasis={0}
+                  onPress={() => openUri(learnMoreUrl)}>
                   {t('common.button.learn')}
                 </Button>
               </Trace>
@@ -98,5 +110,5 @@ export function LaunchModal({
         </Flex>
       </Modal>
     </Trace>
-  )
+  );
 }

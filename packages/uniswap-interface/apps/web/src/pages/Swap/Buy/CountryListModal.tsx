@@ -1,34 +1,34 @@
-import { ReactComponent as SearchIcon } from 'assets/svg/search.svg'
-import { ScrollBarStyles } from 'components/Common/styles'
-import { SearchInput } from 'components/SearchModal/styled'
-import { CountryListRow } from 'pages/Swap/Buy/CountryListRow'
-import { ContentWrapper } from 'pages/Swap/Buy/shared'
-import { ChangeEvent, useCallback, useMemo, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import AutoSizer from 'react-virtualized-auto-sizer'
-import { FixedSizeList } from 'react-window'
-import { Flex, ModalCloseIcon, styled, useMedia, useSporeColors } from 'ui/src'
-import { Text } from 'ui/src/components/text/Text'
-import { iconSizes } from 'ui/src/theme'
-import { Modal } from 'uniswap/src/components/modals/Modal'
-import { FORCountry } from 'uniswap/src/features/fiatOnRamp/types'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
-import { bubbleToTop } from 'utilities/src/primitives/array'
+import { ReactComponent as SearchIcon } from 'assets/svg/search.svg';
+import { ScrollBarStyles } from 'components/Common/styles';
+import { SearchInput } from 'components/SearchModal/styled';
+import { CountryListRow } from 'pages/Swap/Buy/CountryListRow';
+import { ContentWrapper } from 'pages/Swap/Buy/shared';
+import { ChangeEvent, useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import AutoSizer from 'react-virtualized-auto-sizer';
+import { FixedSizeList } from 'react-window';
+import { Flex, ModalCloseIcon, styled, useMedia, useSporeColors } from 'ui/src';
+import { Text } from 'ui/src/components/text/Text';
+import { iconSizes } from 'ui/src/theme';
+import { Modal } from 'uniswap/src/components/modals/Modal';
+import { FORCountry } from 'uniswap/src/features/fiatOnRamp/types';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
+import { bubbleToTop } from 'utilities/src/primitives/array';
 
-const ROW_ITEM_SIZE = 56
+const ROW_ITEM_SIZE = 56;
 export const HeaderContent = styled(Flex, {
   flexShrink: 1,
   $sm: { pt: '$none' },
   p: '$spacing20',
   gap: '$spacing12',
-})
+});
 
 interface CountryListModalProps {
-  isOpen: boolean
-  onDismiss: () => void
-  onSelectCountry: (country: FORCountry) => void
-  selectedCountry?: FORCountry
-  countryList: FORCountry[]
+  isOpen: boolean;
+  onDismiss: () => void;
+  onSelectCountry: (country: FORCountry) => void;
+  selectedCountry?: FORCountry;
+  countryList: FORCountry[];
 }
 
 export function CountryListModal({
@@ -38,31 +38,33 @@ export function CountryListModal({
   selectedCountry,
   onSelectCountry,
 }: CountryListModalProps) {
-  const [searchQuery, setSearchQuery] = useState<string>('')
-  const { t } = useTranslation()
-  const colors = useSporeColors()
-  const media = useMedia()
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const { t } = useTranslation();
+  const colors = useSporeColors();
+  const media = useMedia();
 
   const filteredData: FORCountry[] = useMemo(() => {
-    const sorted = bubbleToTop(countryList, (c) => c.countryCode === selectedCountry?.countryCode)
+    const sorted = bubbleToTop(countryList, c => c.countryCode === selectedCountry?.countryCode);
     if (searchQuery) {
-      return sorted.filter((item) => item?.displayName.toLowerCase().startsWith(searchQuery.toLowerCase()))
+      return sorted.filter(item =>
+        item?.displayName.toLowerCase().startsWith(searchQuery.toLowerCase())
+      );
     } else {
-      return sorted
+      return sorted;
     }
-  }, [countryList, searchQuery, selectedCountry?.countryCode])
+  }, [countryList, searchQuery, selectedCountry?.countryCode]);
 
-  const fixedList = useRef<FixedSizeList>()
+  const fixedList = useRef<FixedSizeList>();
   const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    const input = event.target.value
-    setSearchQuery(input)
-    fixedList.current?.scrollTo(0)
-  }, [])
+    const input = event.target.value;
+    setSearchQuery(input);
+    fixedList.current?.scrollTo(0);
+  }, []);
 
   const closeModal = useCallback(() => {
-    setSearchQuery('')
-    onDismiss()
-  }, [onDismiss])
+    setSearchQuery('');
+    onDismiss();
+  }, [onDismiss]);
 
   return (
     <Modal
@@ -72,8 +74,7 @@ export function CountryListModal({
       maxHeight={700}
       isModalOpen={isOpen}
       onClose={onDismiss}
-      padding={0}
-    >
+      padding={0}>
       <ContentWrapper>
         <HeaderContent>
           <Flex width="100%" row justifyContent="space-between">
@@ -111,16 +112,15 @@ export function CountryListModal({
                   itemCount={filteredData.length}
                   itemSize={ROW_ITEM_SIZE}
                   itemKey={(index: number, data: typeof countryList) => data[index]?.countryCode}
-                  {...ScrollBarStyles}
-                >
+                  {...ScrollBarStyles}>
                   {({ style, data, index }) => (
                     <CountryListRow
                       style={style}
                       country={data[index]}
                       selectedCountry={selectedCountry}
                       onClick={() => {
-                        onSelectCountry(data[index])
-                        closeModal()
+                        onSelectCountry(data[index]);
+                        closeModal();
                       }}
                     />
                   )}
@@ -131,5 +131,5 @@ export function CountryListModal({
         </Flex>
       </ContentWrapper>
     </Modal>
-  )
+  );
 }

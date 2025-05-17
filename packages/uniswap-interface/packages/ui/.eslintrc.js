@@ -1,6 +1,6 @@
 const {
   native: { paths: nativePaths, patterns: nativePatterns },
-} = require('@uniswap/eslint-config/restrictedImports')
+} = require('@uniswap/eslint-config/restrictedImports');
 
 module.exports = {
   root: true,
@@ -32,7 +32,8 @@ module.exports = {
           ...nativePaths,
           {
             name: 'ui/src',
-            message: 'Avoid importing directly from ui/src from within the ui package which causes circular imports.',
+            message:
+              'Avoid importing directly from ui/src from within the ui package which causes circular imports.',
           },
         ],
         patterns: nativePatterns,
@@ -54,4 +55,4 @@ module.exports = {
       },
     },
   ],
-}
+};

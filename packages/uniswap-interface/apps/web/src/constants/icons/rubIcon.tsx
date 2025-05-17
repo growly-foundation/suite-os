@@ -1,11 +1,27 @@
-import { SVGProps } from 'constants/icons/types'
+import { SVGProps } from 'constants/icons/types';
 
 const RUB_ICON = (props: SVGProps) => (
-  <svg width="49" height="49" viewBox="0 0 49 49" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+  <svg
+    width="49"
+    height="49"
+    viewBox="0 0 49 49"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}>
     <g clipPath="url(#clip0_1942_61784)">
       <path fillRule="evenodd" clipRule="evenodd" d="M0 0H48.6368V48.5142H0V0Z" fill="white" />
-      <path fillRule="evenodd" clipRule="evenodd" d="M0 16.1746H48.6368V48.5142H0V16.1746Z" fill="#0039A6" />
-      <path fillRule="evenodd" clipRule="evenodd" d="M0 32.3397H48.6368V48.5143H0V32.3397Z" fill="#D52B1E" />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M0 16.1746H48.6368V48.5142H0V16.1746Z"
+        fill="#0039A6"
+      />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M0 32.3397H48.6368V48.5143H0V32.3397Z"
+        fill="#D52B1E"
+      />
     </g>
     <defs>
       <clipPath id="clip0_1942_61784">
@@ -16,6 +32,6 @@ const RUB_ICON = (props: SVGProps) => (
       </clipPath>
     </defs>
   </svg>
-)
+);
 
-export default RUB_ICON
+export default RUB_ICON;

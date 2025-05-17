@@ -1,62 +1,62 @@
-import { PortfolioLogo } from 'components/AccountDrawer/MiniPortfolio/PortfolioLogo'
-import { EtherscanLogo } from 'components/Icons/Etherscan'
-import { ExplorerIcon } from 'components/Icons/ExplorerIcon'
-import { Globe } from 'components/Icons/Globe'
-import { Share as ShareIcon } from 'components/Icons/Share'
-import { TwitterXLogo } from 'components/Icons/TwitterX'
-import ShareButton, { openShareTweetWindow } from 'components/Tokens/TokenDetails/ShareButton'
-import { ActionButtonStyle } from 'components/Tokens/TokenDetails/shared'
-import { MouseoverTooltip, TooltipSize } from 'components/Tooltip'
-import useCopyClipboard from 'hooks/useCopyClipboard'
-import { useTDPContext } from 'pages/TokenDetails/TDPContext'
-import { useMemo, useState } from 'react'
-import { Link, MoreHorizontal } from 'react-feather'
-import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router-dom'
-import { EllipsisTamaguiStyle } from 'theme/components/styles'
-import { Flex, Text, TouchableArea, WebBottomSheet, useMedia, useSporeColors } from 'ui/src'
-import { Check } from 'ui/src/components/icons/Check'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { ExplorerDataType, getExplorerLink } from 'uniswap/src/utils/linking'
+import { PortfolioLogo } from 'components/AccountDrawer/MiniPortfolio/PortfolioLogo';
+import { EtherscanLogo } from 'components/Icons/Etherscan';
+import { ExplorerIcon } from 'components/Icons/ExplorerIcon';
+import { Globe } from 'components/Icons/Globe';
+import { Share as ShareIcon } from 'components/Icons/Share';
+import { TwitterXLogo } from 'components/Icons/TwitterX';
+import ShareButton, { openShareTweetWindow } from 'components/Tokens/TokenDetails/ShareButton';
+import { ActionButtonStyle } from 'components/Tokens/TokenDetails/shared';
+import { MouseoverTooltip, TooltipSize } from 'components/Tooltip';
+import useCopyClipboard from 'hooks/useCopyClipboard';
+import { useTDPContext } from 'pages/TokenDetails/TDPContext';
+import { useMemo, useState } from 'react';
+import { Link, MoreHorizontal } from 'react-feather';
+import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
+import { EllipsisTamaguiStyle } from 'theme/components/styles';
+import { Flex, Text, TouchableArea, WebBottomSheet, useMedia, useSporeColors } from 'ui/src';
+import { Check } from 'ui/src/components/icons/Check';
+import { UniverseChainId } from 'uniswap/src/features/chains/types';
+import { ExplorerDataType, getExplorerLink } from 'uniswap/src/utils/linking';
 
 type HeaderAction = {
-  title: string
-  icon: React.ReactNode
-  onPress: () => void
-  show: boolean
-}
+  title: string;
+  icon: React.ReactNode;
+  onPress: () => void;
+  show: boolean;
+};
 
 export const TokenDetailsHeader = () => {
-  const { address, currency, tokenQuery } = useTDPContext()
+  const { address, currency, tokenQuery } = useTDPContext();
 
-  const { t } = useTranslation()
-  const colors = useSporeColors()
-  const media = useMedia()
-  const isMobileScreen = media.sm
+  const { t } = useTranslation();
+  const colors = useSporeColors();
+  const media = useMedia();
+  const isMobileScreen = media.sm;
 
-  const [mobileSheetOpen, toggleMobileSheet] = useState(false)
+  const [mobileSheetOpen, toggleMobileSheet] = useState(false);
 
-  const tokenSymbolName = currency.symbol ?? t('tdp.symbolNotFound')
+  const tokenSymbolName = currency.symbol ?? t('tdp.symbolNotFound');
 
   const explorerUrl = getExplorerLink(
     currency.chainId,
     address,
-    currency.isNative ? ExplorerDataType.NATIVE : ExplorerDataType.TOKEN,
-  )
+    currency.isNative ? ExplorerDataType.NATIVE : ExplorerDataType.TOKEN
+  );
 
-  const { homepageUrl, twitterName } = tokenQuery.data?.token?.project ?? {}
-  const twitterUrl = twitterName && `https://x.com/${twitterName}`
+  const { homepageUrl, twitterName } = tokenQuery.data?.token?.project ?? {};
+  const twitterUrl = twitterName && `https://x.com/${twitterName}`;
 
-  const [searchParams] = useSearchParams()
-  const utmTag = `${searchParams.size > 0 ? '&' : '?'}utm_source=share-tdp&utm_medium=${isMobileScreen ? 'mobile' : 'web'}`
-  const currentLocation = window.location.href + utmTag
+  const [searchParams] = useSearchParams();
+  const utmTag = `${searchParams.size > 0 ? '&' : '?'}utm_source=share-tdp&utm_medium=${isMobileScreen ? 'mobile' : 'web'}`;
+  const currentLocation = window.location.href + utmTag;
 
   const twitterShareName =
     currency.name && currency.symbol
       ? `${currency.name} (${currency.symbol})`
-      : currency?.name || currency?.symbol || ''
+      : currency?.name || currency?.symbol || '';
 
-  const [isCopied, setCopied] = useCopyClipboard()
+  const [isCopied, setCopied] = useCopyClipboard();
 
   const HeaderActions: HeaderAction[] = useMemo(() => {
     return [
@@ -99,7 +99,7 @@ export const TokenDetailsHeader = () => {
         onPress: () => openShareTweetWindow(twitterShareName),
         show: isMobileScreen,
       },
-    ]
+    ];
   }, [
     t,
     currency.chainId,
@@ -113,7 +113,7 @@ export const TokenDetailsHeader = () => {
     setCopied,
     currentLocation,
     twitterShareName,
-  ])
+  ]);
 
   return (
     <Flex
@@ -124,15 +124,22 @@ export const TokenDetailsHeader = () => {
       mb="$spacing20"
       $sm={{ mb: '$spacing8', alignItems: 'flex-start' }}
       animation="quick"
-      data-testid="token-info-container"
-    >
-      <Flex row alignItems="center" $sm={{ alignItems: 'flex-start', flexDirection: 'column' }} gap="$gap12">
+      data-testid="token-info-container">
+      <Flex
+        row
+        alignItems="center"
+        $sm={{ alignItems: 'flex-start', flexDirection: 'column' }}
+        gap="$gap12">
         <PortfolioLogo currencies={[currency]} chainId={currency.chainId} size={32} />
         <Flex row gap="$gap8" alignItems="center">
           <Text variant="heading3" minWidth={40} {...EllipsisTamaguiStyle}>
             {currency.name ?? t('tdp.nameNotFound')}
           </Text>
-          <Text variant="heading3" textTransform="uppercase" color="$neutral2" $sm={{ display: 'none' }}>
+          <Text
+            variant="heading3"
+            textTransform="uppercase"
+            color="$neutral2"
+            $sm={{ display: 'none' }}>
             {tokenSymbolName}
           </Text>
         </Flex>
@@ -147,17 +154,21 @@ export const TokenDetailsHeader = () => {
         <DesktopTokenActions HeaderActions={HeaderActions} twitterShareName={twitterShareName} />
       )}
     </Flex>
-  )
-}
+  );
+};
 
 interface MobileTokenActionsProps {
-  mobileSheetOpen: boolean
-  toggleMobileSheet: (open: boolean) => void
-  HeaderActions: HeaderAction[]
+  mobileSheetOpen: boolean;
+  toggleMobileSheet: (open: boolean) => void;
+  HeaderActions: HeaderAction[];
 }
 
-function MobileTokenActions({ mobileSheetOpen, toggleMobileSheet, HeaderActions }: MobileTokenActionsProps) {
-  const colors = useSporeColors()
+function MobileTokenActions({
+  mobileSheetOpen,
+  toggleMobileSheet,
+  HeaderActions,
+}: MobileTokenActionsProps) {
+  const colors = useSporeColors();
 
   return (
     <Flex>
@@ -167,7 +178,7 @@ function MobileTokenActions({ mobileSheetOpen, toggleMobileSheet, HeaderActions 
       <WebBottomSheet isOpen={mobileSheetOpen} onClose={() => toggleMobileSheet(false)}>
         <Flex gap="$spacing8" mb="$spacing16">
           {HeaderActions.map(
-            (action) =>
+            action =>
               action.show && (
                 <Flex
                   row
@@ -181,40 +192,43 @@ function MobileTokenActions({ mobileSheetOpen, toggleMobileSheet, HeaderActions 
                   cursor="pointer"
                   borderRadius="$rounded8"
                   onPress={() => {
-                    toggleMobileSheet(false)
-                    action.onPress()
-                  }}
-                >
+                    toggleMobileSheet(false);
+                    action.onPress();
+                  }}>
                   {action.icon}
                   <Text variant="body2">{action.title}</Text>
                 </Flex>
-              ),
+              )
           )}
         </Flex>
       </WebBottomSheet>
     </Flex>
-  )
+  );
 }
 
 interface DesktopTokenActionsProps {
-  HeaderActions: HeaderAction[]
-  twitterShareName: string
+  HeaderActions: HeaderAction[];
+  twitterShareName: string;
 }
 
 function DesktopTokenActions({ HeaderActions, twitterShareName }: DesktopTokenActionsProps) {
   return (
     <Flex row gap="$gap8" alignItems="center">
       {HeaderActions.map(
-        (action) =>
+        action =>
           action.show && (
-            <MouseoverTooltip key={action.title} text={action.title} placement="top" size={TooltipSize.Max}>
+            <MouseoverTooltip
+              key={action.title}
+              text={action.title}
+              placement="top"
+              size={TooltipSize.Max}>
               <Text onPress={action.onPress} {...ActionButtonStyle}>
                 {action.icon}
               </Text>
             </MouseoverTooltip>
-          ),
+          )
       )}
       <ShareButton name={twitterShareName} utmSource="share-tdp" />
     </Flex>
-  )
+  );
 }

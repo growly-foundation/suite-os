@@ -1,45 +1,56 @@
-import { Currency, CurrencyAmount } from '@uniswap/sdk-core'
-import { popupRegistry } from 'components/Popups/registry'
-import { PopupType } from 'components/Popups/types'
-import { INTERNAL_JSON_RPC_ERROR_CODE } from 'constants/misc'
-import { useAccount } from 'hooks/useAccount'
-import useSelectChain from 'hooks/useSelectChain'
-import { useCallback } from 'react'
-import { useDispatch } from 'react-redux'
-import { HandleOnChainStepParams, handleOnChainStep } from 'state/sagas/transactions/utils'
-import { TransactionType, WrapTransactionInfo } from 'state/transactions/types'
-import { call } from 'typed-redux-saga'
-import { isTestnetChain } from 'uniswap/src/features/chains/utils'
-import { TransactionStepType } from 'uniswap/src/features/transactions/steps/types'
-import { WrapTransactionStep } from 'uniswap/src/features/transactions/steps/wrap'
-import { WrapCallback, WrapCallbackParams } from 'uniswap/src/features/transactions/swap/types/wrapCallback'
-import { createSaga } from 'uniswap/src/utils/saga'
-import { logger } from 'utilities/src/logger/logger'
-import noop from 'utilities/src/react/noop'
-import { didUserReject } from 'utils/swapErrorToUserReadableMessage'
+import { Currency, CurrencyAmount } from '@uniswap/sdk-core';
+import { popupRegistry } from 'components/Popups/registry';
+import { PopupType } from 'components/Popups/types';
+import { INTERNAL_JSON_RPC_ERROR_CODE } from 'constants/misc';
+import { useAccount } from 'hooks/useAccount';
+import useSelectChain from 'hooks/useSelectChain';
+import { useCallback } from 'react';
+import { useDispatch } from 'react-redux';
+import { HandleOnChainStepParams, handleOnChainStep } from 'state/sagas/transactions/utils';
+import { TransactionType, WrapTransactionInfo } from 'state/transactions/types';
+import { call } from 'typed-redux-saga';
+import { isTestnetChain } from 'uniswap/src/features/chains/utils';
+import { TransactionStepType } from 'uniswap/src/features/transactions/steps/types';
+import { WrapTransactionStep } from 'uniswap/src/features/transactions/steps/wrap';
+import {
+  WrapCallback,
+  WrapCallbackParams,
+} from 'uniswap/src/features/transactions/swap/types/wrapCallback';
+import { createSaga } from 'uniswap/src/utils/saga';
+import { logger } from 'utilities/src/logger/logger';
+import noop from 'utilities/src/react/noop';
+import { didUserReject } from 'utils/swapErrorToUserReadableMessage';
 
 interface HandleWrapStepParams extends Omit<HandleOnChainStepParams<WrapTransactionStep>, 'info'> {}
 export function* handleWrapStep(params: HandleWrapStepParams) {
-  const info = getWrapTransactionInfo(params.step.amount)
-  return yield* call(handleOnChainStep, { ...params, info })
+  const info = getWrapTransactionInfo(params.step.amount);
+  return yield* call(handleOnChainStep, { ...params, info });
 }
 
-type WrapParams = WrapCallbackParams & { selectChain: (chainId: number) => Promise<boolean>; startChainId?: number }
+type WrapParams = WrapCallbackParams & {
+  selectChain: (chainId: number) => Promise<boolean>;
+  startChainId?: number;
+};
 
 function* wrap(params: WrapParams) {
   try {
-    const { account, inputCurrencyAmount, selectChain, txRequest, startChainId, onFailure } = params
+    const { account, inputCurrencyAmount, selectChain, txRequest, startChainId, onFailure } =
+      params;
 
     // Switch chains if needed
     if (txRequest.chainId !== startChainId) {
-      const chainSwitched = yield* call(selectChain, txRequest.chainId)
+      const chainSwitched = yield* call(selectChain, txRequest.chainId);
       if (!chainSwitched) {
-        onFailure()
-        return
+        onFailure();
+        return;
       }
     }
 
-    const step = { type: TransactionStepType.WrapTransaction, txRequest, amount: inputCurrencyAmount } as const
+    const step = {
+      type: TransactionStepType.WrapTransaction,
+      txRequest,
+      amount: inputCurrencyAmount,
+    } as const;
 
     const hash = yield* call(handleWrapStep, {
       step,
@@ -47,27 +58,29 @@ function* wrap(params: WrapParams) {
       setCurrentStep: noop,
       shouldWaitForConfirmation: false,
       allowDuplicativeTx: true, // Compared to UniswapX wraps, the user should not be stopped from wrapping in quick succession
-    })
+    });
 
-    popupRegistry.addPopup({ type: PopupType.Transaction, hash }, hash)
+    popupRegistry.addPopup({ type: PopupType.Transaction, hash }, hash);
 
-    params.onSuccess()
+    params.onSuccess();
   } catch (error) {
     if (didUserReject(error)) {
-      params.onFailure()
-      return
+      params.onFailure();
+      return;
     }
 
-    if (!(isTestnetChain(params.txRequest.chainId) && error.code === INTERNAL_JSON_RPC_ERROR_CODE)) {
+    if (
+      !(isTestnetChain(params.txRequest.chainId) && error.code === INTERNAL_JSON_RPC_ERROR_CODE)
+    ) {
       logger.error(error, {
         tags: {
           file: 'wrapSaga',
           function: 'wrap',
           chainId: params.txRequest.chainId,
         },
-      })
+      });
     }
-    params.onFailure()
+    params.onFailure();
   }
 }
 
@@ -82,20 +95,20 @@ function getWrapTransactionInfo(amount: CurrencyAmount<Currency>): WrapTransacti
         type: TransactionType.WRAP,
         unwrapped: true,
         currencyAmountRaw: amount.quotient.toString(),
-      }
+      };
 }
 
-export const wrapSaga = createSaga(wrap, 'wrap')
+export const wrapSaga = createSaga(wrap, 'wrap');
 
 export function useWrapCallback(): WrapCallback {
-  const appDispatch = useDispatch()
-  const selectChain = useSelectChain()
-  const startChainId = useAccount().chainId
+  const appDispatch = useDispatch();
+  const selectChain = useSelectChain();
+  const startChainId = useAccount().chainId;
 
   return useCallback(
     (params: WrapCallbackParams) => {
-      appDispatch(wrapSaga.actions.trigger({ ...params, selectChain, startChainId }))
+      appDispatch(wrapSaga.actions.trigger({ ...params, selectChain, startChainId }));
     },
-    [appDispatch, selectChain, startChainId],
-  )
+    [appDispatch, selectChain, startChainId]
+  );
 }

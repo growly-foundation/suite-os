@@ -1,39 +1,39 @@
-import * as Card from 'nft/components/card/containers'
-import { MarketplaceContainer } from 'nft/components/card/icons'
-import { MediaContainer } from 'nft/components/card/media'
-import { detailsHref, getNftDisplayComponent, useSelectAsset } from 'nft/components/card/utils'
-import { GenieAsset, UniformAspectRatio, UniformAspectRatios, WalletAsset } from 'nft/types'
-import { ReactNode } from 'react'
-import { NumberType, useFormatter } from 'utils/formatNumbers'
+import * as Card from 'nft/components/card/containers';
+import { MarketplaceContainer } from 'nft/components/card/icons';
+import { MediaContainer } from 'nft/components/card/media';
+import { detailsHref, getNftDisplayComponent, useSelectAsset } from 'nft/components/card/utils';
+import { GenieAsset, UniformAspectRatio, UniformAspectRatios, WalletAsset } from 'nft/types';
+import { ReactNode } from 'react';
+import { NumberType, useFormatter } from 'utils/formatNumbers';
 
 interface NftCardProps {
-  asset: GenieAsset | WalletAsset
-  display: NftCardDisplayProps
-  isSelected: boolean
-  isDisabled: boolean
-  selectAsset?: () => void
-  unselectAsset?: () => void
-  onButtonClick?: () => void
-  onCardClick?: () => void
-  sendAnalyticsEvent?: () => void
-  mediaShouldBePlaying: boolean
-  uniformAspectRatio?: UniformAspectRatio
-  setUniformAspectRatio?: (uniformAspectRatio: UniformAspectRatio) => void
-  renderedHeight?: number
-  setRenderedHeight?: (renderedHeight: number | undefined) => void
-  setCurrentTokenPlayingMedia: (tokenId: string | undefined) => void
-  testId?: string
-  hideDetails?: boolean
+  asset: GenieAsset | WalletAsset;
+  display: NftCardDisplayProps;
+  isSelected: boolean;
+  isDisabled: boolean;
+  selectAsset?: () => void;
+  unselectAsset?: () => void;
+  onButtonClick?: () => void;
+  onCardClick?: () => void;
+  sendAnalyticsEvent?: () => void;
+  mediaShouldBePlaying: boolean;
+  uniformAspectRatio?: UniformAspectRatio;
+  setUniformAspectRatio?: (uniformAspectRatio: UniformAspectRatio) => void;
+  renderedHeight?: number;
+  setRenderedHeight?: (renderedHeight: number | undefined) => void;
+  setCurrentTokenPlayingMedia: (tokenId: string | undefined) => void;
+  testId?: string;
+  hideDetails?: boolean;
 }
 
 interface NftCardDisplayProps {
-  primaryInfo?: ReactNode
-  primaryInfoIcon?: ReactNode
-  primaryInfoRight?: ReactNode
-  secondaryInfo?: ReactNode
-  selectedInfo?: ReactNode
-  notSelectedInfo?: ReactNode
-  disabledInfo?: ReactNode
+  primaryInfo?: ReactNode;
+  primaryInfoIcon?: ReactNode;
+  primaryInfoRight?: ReactNode;
+  secondaryInfo?: ReactNode;
+  selectedInfo?: ReactNode;
+  notSelectedInfo?: ReactNode;
+  disabledInfo?: ReactNode;
 }
 
 /**
@@ -67,17 +67,24 @@ export const NftCard = ({
     isSelected,
     isDisabled,
     onClick: onButtonClick,
-  })
+  });
 
-  const { formatNumberOrString } = useFormatter()
-  const collectionNft = 'marketplace' in asset
-  const profileNft = 'asset_contract' in asset
-  const tokenType = collectionNft ? asset.tokenType : profileNft ? asset.asset_contract.tokenType : undefined
-  const marketplace = collectionNft ? asset.marketplace : undefined
+  const { formatNumberOrString } = useFormatter();
+  const collectionNft = 'marketplace' in asset;
+  const profileNft = 'asset_contract' in asset;
+  const tokenType = collectionNft
+    ? asset.tokenType
+    : profileNft
+      ? asset.asset_contract.tokenType
+      : undefined;
+  const marketplace = collectionNft ? asset.marketplace : undefined;
   const listedPrice =
     profileNft && !isDisabled && asset.floor_sell_order_price
-      ? formatNumberOrString({ input: asset.floor_sell_order_price, type: NumberType.NFTTokenFloorPrice })
-      : undefined
+      ? formatNumberOrString({
+          input: asset.floor_sell_order_price,
+          type: NumberType.NFTTokenFloorPrice,
+        })
+      : undefined;
 
   return (
     <Card.Container
@@ -86,10 +93,9 @@ export const NftCard = ({
       detailsHref={onCardClick ? undefined : detailsHref(asset)}
       testId={testId}
       onClick={() => {
-        onCardClick?.()
-        sendAnalyticsEvent?.()
-      }}
-    >
+        onCardClick?.();
+        sendAnalyticsEvent?.();
+      }}>
       <MediaContainer isDisabled={isDisabled}>
         <MarketplaceContainer
           hidePrice={hideDetails}
@@ -105,7 +111,7 @@ export const NftCard = ({
           uniformAspectRatio,
           setUniformAspectRatio,
           renderedHeight,
-          setRenderedHeight,
+          setRenderedHeight
         )}
       </MediaContainer>
       {!hideDetails && (
@@ -128,11 +134,18 @@ export const NftCard = ({
               </Card.InfoContainer>
             </Card.DetailsContainer>
           </Card.DetailsRelativeContainer>
-          <Card.ActionButton clickActionButton={clickActionButton} isDisabled={isDisabled} isSelected={isSelected}>
-            {isSelected ? display.selectedInfo : isDisabled ? display.disabledInfo : display.notSelectedInfo}
+          <Card.ActionButton
+            clickActionButton={clickActionButton}
+            isDisabled={isDisabled}
+            isSelected={isSelected}>
+            {isSelected
+              ? display.selectedInfo
+              : isDisabled
+                ? display.disabledInfo
+                : display.notSelectedInfo}
           </Card.ActionButton>
         </>
       )}
     </Card.Container>
-  )
-}
+  );
+};

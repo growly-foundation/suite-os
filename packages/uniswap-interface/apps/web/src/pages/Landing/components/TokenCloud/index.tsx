@@ -1,37 +1,42 @@
-import { getTokenDetailsURL } from 'graphql/data/util'
-import { approvedERC20, approvedERC721, InteractiveToken, TokenStandard } from 'pages/Landing/assets/approvedTokens'
-import { Ticker } from 'pages/Landing/components/TokenCloud/Ticker'
-import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { IconCloud, ItemPoint } from 'uniswap/src/components/IconCloud/IconCloud'
-import { mixArrays } from 'uniswap/src/components/IconCloud/utils'
+import { getTokenDetailsURL } from 'graphql/data/util';
+import {
+  approvedERC20,
+  approvedERC721,
+  InteractiveToken,
+  TokenStandard,
+} from 'pages/Landing/assets/approvedTokens';
+import { Ticker } from 'pages/Landing/components/TokenCloud/Ticker';
+import { useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { IconCloud, ItemPoint } from 'uniswap/src/components/IconCloud/IconCloud';
+import { mixArrays } from 'uniswap/src/components/IconCloud/utils';
 
-const tokenList = mixArrays(approvedERC20, approvedERC721, 0.33) as InteractiveToken[]
+const tokenList = mixArrays(approvedERC20, approvedERC721, 0.33) as InteractiveToken[];
 
 export function TokenCloud() {
   const renderOuterElement = useCallback((item: ItemPoint<InteractiveToken>) => {
-    return <Ticker itemPoint={item} />
-  }, [])
+    return <Ticker itemPoint={item} />;
+  }, []);
 
   const getElementRounded = useCallback((item: ItemPoint<InteractiveToken>) => {
-    return item.itemData.standard === TokenStandard.ERC20
-  }, [])
+    return item.itemData.standard === TokenStandard.ERC20;
+  }, []);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const onPress = useCallback(
     (item: ItemPoint<InteractiveToken>) => {
-      const { address, chain, standard } = item.itemData
+      const { address, chain, standard } = item.itemData;
       navigate(
         standard === TokenStandard.ERC20
           ? getTokenDetailsURL({
               address,
               chain,
             })
-          : `/nfts/collection/${address}`,
-      )
+          : `/nfts/collection/${address}`
+      );
     },
-    [navigate],
-  )
+    [navigate]
+  );
 
   return (
     <IconCloud
@@ -40,5 +45,5 @@ export function TokenCloud() {
       getElementRounded={getElementRounded}
       onPress={onPress}
     />
-  )
+  );
 }

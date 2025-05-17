@@ -1,19 +1,22 @@
-import { GenericPasskeyMenuModal, PasskeyMenuModalState } from 'components/AccountDrawer/PasskeyMenu/PasskeyMenuModal'
-import { Dispatch, SetStateAction } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Button, Flex, Text } from 'ui/src'
-import WarningIcon from 'uniswap/src/components/warnings/WarningIcon'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { ElementName, ModalName } from 'uniswap/src/features/telemetry/constants'
+import {
+  GenericPasskeyMenuModal,
+  PasskeyMenuModalState,
+} from 'components/AccountDrawer/PasskeyMenu/PasskeyMenuModal';
+import { Dispatch, SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Button, Flex, Text } from 'ui/src';
+import WarningIcon from 'uniswap/src/components/warnings/WarningIcon';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { ElementName, ModalName } from 'uniswap/src/features/telemetry/constants';
 
 export function DeletePasskeySpeedbumpMenu({
   show,
   setPasskeyMenuModalState,
 }: {
-  show: boolean
-  setPasskeyMenuModalState: Dispatch<SetStateAction<PasskeyMenuModalState | undefined>>
+  show: boolean;
+  setPasskeyMenuModalState: Dispatch<SetStateAction<PasskeyMenuModalState | undefined>>;
 }) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <Trace logImpression modal={ModalName.DeletePasskeySpeedbump}>
@@ -35,8 +38,7 @@ export function DeletePasskeySpeedbumpMenu({
           p="$spacing12"
           borderColor="$surface3"
           borderWidth={1}
-          gap="$gap4"
-        >
+          gap="$gap4">
           <Flex row gap="$gap12">
             <Text variant="body3" color="$neutral2">
               1
@@ -61,9 +63,8 @@ export function DeletePasskeySpeedbumpMenu({
               variant="critical"
               emphasis="secondary"
               onPress={async () => {
-                setPasskeyMenuModalState(PasskeyMenuModalState.DELETE_PASSKEY)
-              }}
-            >
+                setPasskeyMenuModalState(PasskeyMenuModalState.DELETE_PASSKEY);
+              }}>
               <Text variant="body3" color="$statusCritical">
                 {t('common.button.continue')}
               </Text>
@@ -72,5 +73,5 @@ export function DeletePasskeySpeedbumpMenu({
         </Flex>
       </GenericPasskeyMenuModal>
     </Trace>
-  )
+  );
 }

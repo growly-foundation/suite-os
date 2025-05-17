@@ -1,35 +1,35 @@
-import { useCallback, useMemo } from 'react'
-import { setCloseModal, setOpenModal } from 'state/application/reducer'
-import { useAppDispatch, useAppSelector } from 'state/hooks'
-import { ModalNameType } from 'uniswap/src/features/telemetry/constants'
+import { useCallback, useMemo } from 'react';
+import { setCloseModal, setOpenModal } from 'state/application/reducer';
+import { useAppDispatch, useAppSelector } from 'state/hooks';
+import { ModalNameType } from 'uniswap/src/features/telemetry/constants';
 
 export type ModalState = {
-  isOpen: boolean
-  openModal: () => void
-  closeModal: () => void
-  onClose: () => void
-  toggleModal: () => void
-}
+  isOpen: boolean;
+  openModal: () => void;
+  closeModal: () => void;
+  onClose: () => void;
+  toggleModal: () => void;
+};
 
 export function useModalState(modalName: ModalNameType): ModalState {
-  const dispatch = useAppDispatch()
-  const isOpen = useAppSelector((state) => state.application.openModal?.name === modalName)
+  const dispatch = useAppDispatch();
+  const isOpen = useAppSelector(state => state.application.openModal?.name === modalName);
 
   const openModal = useCallback(() => {
-    dispatch(setOpenModal({ name: modalName }))
-  }, [dispatch, modalName])
+    dispatch(setOpenModal({ name: modalName }));
+  }, [dispatch, modalName]);
 
   const closeModal = useCallback(() => {
-    dispatch(setCloseModal(modalName))
-  }, [dispatch, modalName])
+    dispatch(setCloseModal(modalName));
+  }, [dispatch, modalName]);
 
   const toggleModal = useCallback(() => {
     if (isOpen) {
-      closeModal()
+      closeModal();
     } else {
-      openModal()
+      openModal();
     }
-  }, [isOpen, openModal, closeModal])
+  }, [isOpen, openModal, closeModal]);
 
   const modalState = useMemo(
     () => ({
@@ -39,8 +39,8 @@ export function useModalState(modalName: ModalNameType): ModalState {
       onClose: closeModal,
       toggleModal,
     }),
-    [isOpen, openModal, closeModal, toggleModal],
-  )
+    [isOpen, openModal, closeModal, toggleModal]
+  );
 
-  return modalState
+  return modalState;
 }

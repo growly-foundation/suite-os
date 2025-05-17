@@ -1,18 +1,21 @@
-import { Currency, CurrencyAmount } from '@uniswap/sdk-core'
-import { DepositInfo } from 'components/Liquidity/types'
-import { useEffect, useMemo, useState } from 'react'
-import { PositionField } from 'types/position'
-import { useCreateLpPositionCalldataQuery } from 'uniswap/src/data/apiClients/tradingApi/useCreateLpPositionCalldataQuery'
-import { useIncreaseLpPositionCalldataQuery } from 'uniswap/src/data/apiClients/tradingApi/useIncreaseLpPositionCalldataQuery'
-import { CreateLPPositionRequest, IncreaseLPPositionRequest } from 'uniswap/src/data/tradingApi/__generated__'
-import { useUSDCValue } from 'uniswap/src/features/transactions/hooks/useUSDCPrice'
-import { ONE_SECOND_MS } from 'utilities/src/time/time'
+import { Currency, CurrencyAmount } from '@uniswap/sdk-core';
+import { DepositInfo } from 'components/Liquidity/types';
+import { useEffect, useMemo, useState } from 'react';
+import { PositionField } from 'types/position';
+import { useCreateLpPositionCalldataQuery } from 'uniswap/src/data/apiClients/tradingApi/useCreateLpPositionCalldataQuery';
+import { useIncreaseLpPositionCalldataQuery } from 'uniswap/src/data/apiClients/tradingApi/useIncreaseLpPositionCalldataQuery';
+import {
+  CreateLPPositionRequest,
+  IncreaseLPPositionRequest,
+} from 'uniswap/src/data/tradingApi/__generated__';
+import { useUSDCValue } from 'uniswap/src/features/transactions/hooks/useUSDCPrice';
+import { ONE_SECOND_MS } from 'utilities/src/time/time';
 
 export function useIncreasePositionDependentAmountFallback(
   queryParams: IncreaseLPPositionRequest | undefined,
-  isQueryEnabled: boolean,
+  isQueryEnabled: boolean
 ) {
-  const [hasErrorResponse, setHasErrorResponse] = useState(false)
+  const [hasErrorResponse, setHasErrorResponse] = useState(false);
 
   const { data, error } = useIncreaseLpPositionCalldataQuery({
     params: {
@@ -22,20 +25,20 @@ export function useIncreasePositionDependentAmountFallback(
     refetchInterval: hasErrorResponse ? false : 5 * ONE_SECOND_MS,
     retry: false,
     enabled: isQueryEnabled && queryParams?.simulateTransaction,
-  })
+  });
 
   useEffect(() => {
-    setHasErrorResponse(!!error)
-  }, [error, queryParams])
+    setHasErrorResponse(!!error);
+  }, [error, queryParams]);
 
-  return data?.dependentAmount
+  return data?.dependentAmount;
 }
 
 export function useCreatePositionDependentAmountFallback(
   queryParams: CreateLPPositionRequest | undefined,
-  isQueryEnabled: boolean,
+  isQueryEnabled: boolean
 ) {
-  const [hasErrorResponse, setHasErrorResponse] = useState(false)
+  const [hasErrorResponse, setHasErrorResponse] = useState(false);
 
   const { data, error } = useCreateLpPositionCalldataQuery({
     params: {
@@ -45,13 +48,13 @@ export function useCreatePositionDependentAmountFallback(
     refetchInterval: hasErrorResponse ? false : 5 * ONE_SECOND_MS,
     retry: false,
     enabled: isQueryEnabled && queryParams?.simulateTransaction,
-  })
+  });
 
   useEffect(() => {
-    setHasErrorResponse(!!error)
-  }, [error, queryParams])
+    setHasErrorResponse(!!error);
+  }, [error, queryParams]);
 
-  return data?.dependentAmount
+  return data?.dependentAmount;
 }
 
 export function useUpdatedAmountsFromDependentAmount({
@@ -65,30 +68,30 @@ export function useUpdatedAmountsFromDependentAmount({
   deposit0Disabled,
   deposit1Disabled,
 }: {
-  token0?: Currency
-  token1?: Currency
-  dependentAmount?: string
-  exactField: PositionField
-  deposit0Disabled: boolean
-  deposit1Disabled: boolean
+  token0?: Currency;
+  token1?: Currency;
+  dependentAmount?: string;
+  exactField: PositionField;
+  deposit0Disabled: boolean;
+  deposit1Disabled: boolean;
 } & Pick<DepositInfo, 'currencyAmounts' | 'currencyAmountsUSDValue' | 'formattedAmounts'>): {
-  updatedFormattedAmounts?: { [field in PositionField]?: string }
-  updatedUSDAmounts?: { [field in PositionField]?: CurrencyAmount<Currency> }
-  updatedCurrencyAmounts?: { [field in PositionField]?: CurrencyAmount<Currency> }
-  updatedDeposit0Disabled: boolean
-  updatedDeposit1Disabled: boolean
+  updatedFormattedAmounts?: { [field in PositionField]?: string };
+  updatedUSDAmounts?: { [field in PositionField]?: CurrencyAmount<Currency> };
+  updatedCurrencyAmounts?: { [field in PositionField]?: CurrencyAmount<Currency> };
+  updatedDeposit0Disabled: boolean;
+  updatedDeposit1Disabled: boolean;
 } {
   const dependentAmount0 =
     dependentAmount && exactField === PositionField.TOKEN1 && token0
       ? CurrencyAmount.fromRawAmount(token0, dependentAmount)
-      : undefined
-  const dependentAmount0USDValue = useUSDCValue(dependentAmount0) ?? undefined
+      : undefined;
+  const dependentAmount0USDValue = useUSDCValue(dependentAmount0) ?? undefined;
 
   const dependentAmount1 =
     dependentAmount && exactField === PositionField.TOKEN0 && token1
       ? CurrencyAmount.fromRawAmount(token1, dependentAmount)
-      : undefined
-  const dependentAmount1USDValue = useUSDCValue(dependentAmount1) ?? undefined
+      : undefined;
+  const dependentAmount1USDValue = useUSDCValue(dependentAmount1) ?? undefined;
 
   return useMemo(() => {
     if (dependentAmount0) {
@@ -107,7 +110,7 @@ export function useUpdatedAmountsFromDependentAmount({
         },
         updatedDeposit0Disabled: !dependentAmount0.greaterThan(0),
         updatedDeposit1Disabled: deposit1Disabled,
-      }
+      };
     } else if (dependentAmount1) {
       return {
         updatedFormattedAmounts: {
@@ -124,7 +127,7 @@ export function useUpdatedAmountsFromDependentAmount({
         },
         updatedDeposit0Disabled: deposit0Disabled,
         updatedDeposit1Disabled: !dependentAmount1.greaterThan(0),
-      }
+      };
     }
     return {
       updatedFormattedAmounts: formattedAmounts,
@@ -132,7 +135,7 @@ export function useUpdatedAmountsFromDependentAmount({
       updatedCurrencyAmounts: currencyAmounts,
       updatedDeposit0Disabled: deposit0Disabled,
       updatedDeposit1Disabled: deposit1Disabled,
-    }
+    };
   }, [
     dependentAmount0,
     dependentAmount0USDValue,
@@ -143,5 +146,5 @@ export function useUpdatedAmountsFromDependentAmount({
     formattedAmounts,
     deposit0Disabled,
     deposit1Disabled,
-  ])
+  ]);
 }

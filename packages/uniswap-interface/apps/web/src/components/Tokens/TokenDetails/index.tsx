@@ -1,39 +1,45 @@
-import { InterfacePageName } from '@uniswap/analytics-events'
-import { Currency } from '@uniswap/sdk-core'
-import { BreadcrumbNavContainer, BreadcrumbNavLink, CurrentPageBreadcrumb } from 'components/BreadcrumbNav'
-import { MobileBottomBar, TDPActionTabs } from 'components/NavBar/MobileBottomBar'
-import { ActivitySection } from 'components/Tokens/TokenDetails/ActivitySection'
-import BalanceSummary, { PageChainBalanceSummary } from 'components/Tokens/TokenDetails/BalanceSummary'
-import ChartSection from 'components/Tokens/TokenDetails/ChartSection'
-import { LeftPanel, RightPanel, TokenDetailsLayout } from 'components/Tokens/TokenDetails/Skeleton'
-import StatsSection from 'components/Tokens/TokenDetails/StatsSection'
-import { TokenDescription } from 'components/Tokens/TokenDetails/TokenDescription'
-import { TokenDetailsHeader } from 'components/Tokens/TokenDetails/TokenDetailsHeader'
-import { Hr } from 'components/Tokens/TokenDetails/shared'
-import { NATIVE_CHAIN_ID } from 'constants/tokens'
-import { getTokenDetailsURL } from 'graphql/data/util'
-import { useCurrency } from 'hooks/Tokens'
-import { ScrollDirection, useScroll } from 'hooks/useScroll'
-import deprecatedStyled from 'lib/styled-components'
-import { Swap } from 'pages/Swap'
-import { useTDPContext } from 'pages/TokenDetails/TDPContext'
-import { PropsWithChildren, useCallback, useMemo, useState } from 'react'
-import { ChevronRight } from 'react-feather'
-import { Trans } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
-import { CurrencyState } from 'state/swap/types'
-import { Flex, useIsTouchDevice, useMedia } from 'ui/src'
-import { getNativeAddress } from 'uniswap/src/constants/addresses'
-import { useUrlContext } from 'uniswap/src/contexts/UrlContext'
-import { isUniverseChainId } from 'uniswap/src/features/chains/types'
-import { toGraphQLChain } from 'uniswap/src/features/chains/utils'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { TokenWarningCard } from 'uniswap/src/features/tokens/TokenWarningCard'
-import TokenWarningModal from 'uniswap/src/features/tokens/TokenWarningModal'
-import { useCurrencyInfo } from 'uniswap/src/features/tokens/useCurrencyInfo'
-import { areCurrenciesEqual, currencyId } from 'uniswap/src/utils/currencyId'
-import { addressesAreEquivalent } from 'utils/addressesAreEquivalent'
-import { getInitialLogoUrl } from 'utils/getInitialLogoURL'
+import { InterfacePageName } from '@uniswap/analytics-events';
+import { Currency } from '@uniswap/sdk-core';
+import {
+  BreadcrumbNavContainer,
+  BreadcrumbNavLink,
+  CurrentPageBreadcrumb,
+} from 'components/BreadcrumbNav';
+import { MobileBottomBar, TDPActionTabs } from 'components/NavBar/MobileBottomBar';
+import { ActivitySection } from 'components/Tokens/TokenDetails/ActivitySection';
+import BalanceSummary, {
+  PageChainBalanceSummary,
+} from 'components/Tokens/TokenDetails/BalanceSummary';
+import ChartSection from 'components/Tokens/TokenDetails/ChartSection';
+import { LeftPanel, RightPanel, TokenDetailsLayout } from 'components/Tokens/TokenDetails/Skeleton';
+import StatsSection from 'components/Tokens/TokenDetails/StatsSection';
+import { TokenDescription } from 'components/Tokens/TokenDetails/TokenDescription';
+import { TokenDetailsHeader } from 'components/Tokens/TokenDetails/TokenDetailsHeader';
+import { Hr } from 'components/Tokens/TokenDetails/shared';
+import { NATIVE_CHAIN_ID } from 'constants/tokens';
+import { getTokenDetailsURL } from 'graphql/data/util';
+import { useCurrency } from 'hooks/Tokens';
+import { ScrollDirection, useScroll } from 'hooks/useScroll';
+import deprecatedStyled from 'lib/styled-components';
+import { Swap } from 'pages/Swap';
+import { useTDPContext } from 'pages/TokenDetails/TDPContext';
+import { PropsWithChildren, useCallback, useMemo, useState } from 'react';
+import { ChevronRight } from 'react-feather';
+import { Trans } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { CurrencyState } from 'state/swap/types';
+import { Flex, useIsTouchDevice, useMedia } from 'ui/src';
+import { getNativeAddress } from 'uniswap/src/constants/addresses';
+import { useUrlContext } from 'uniswap/src/contexts/UrlContext';
+import { isUniverseChainId } from 'uniswap/src/features/chains/types';
+import { toGraphQLChain } from 'uniswap/src/features/chains/utils';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { TokenWarningCard } from 'uniswap/src/features/tokens/TokenWarningCard';
+import TokenWarningModal from 'uniswap/src/features/tokens/TokenWarningModal';
+import { useCurrencyInfo } from 'uniswap/src/features/tokens/useCurrencyInfo';
+import { areCurrenciesEqual, currencyId } from 'uniswap/src/utils/currencyId';
+import { addressesAreEquivalent } from 'utils/addressesAreEquivalent';
+import { getInitialLogoUrl } from 'utils/getInitialLogoURL';
 
 const DividerLine = deprecatedStyled(Hr)`
   margin-top: 40px;
@@ -42,10 +48,10 @@ const DividerLine = deprecatedStyled(Hr)`
     opacity: 0;
     margin-bottom: 0;
   }
-`
+`;
 
 function TDPBreadcrumb() {
-  const { address, currency, currencyChain } = useTDPContext()
+  const { address, currency, currencyChain } = useTDPContext();
 
   return (
     <BreadcrumbNavContainer aria-label="breadcrumb-nav">
@@ -57,86 +63,95 @@ function TDPBreadcrumb() {
       </BreadcrumbNavLink>
       <CurrentPageBreadcrumb address={address} currency={currency} />
     </BreadcrumbNavContainer>
-  )
+  );
 }
 
 function getCurrencyURLAddress(currency?: Currency): string {
   if (!currency) {
-    return ''
+    return '';
   }
 
   if (currency.isToken) {
-    return currency.address
+    return currency.address;
   }
-  return NATIVE_CHAIN_ID
+  return NATIVE_CHAIN_ID;
 }
 
 // Defaults the input currency to the output currency's native currency or undefined if the output currency is already the chain's native currency
 // Note: Query string input currency takes precedence if it's set
 function useSwapInitialInputCurrency() {
-  const { currency } = useTDPContext()
-  const { useParsedQueryString } = useUrlContext()
-  const parsedQs = useParsedQueryString()
+  const { currency } = useTDPContext();
+  const { useParsedQueryString } = useUrlContext();
+  const parsedQs = useParsedQueryString();
 
   const inputTokenAddress = useMemo(() => {
     return typeof parsedQs.inputCurrency === 'string'
       ? parsedQs.inputCurrency
       : currency.isNative
         ? undefined
-        : getNativeAddress(currency.chainId)
-  }, [currency.chainId, currency.isNative, parsedQs.inputCurrency])
+        : getNativeAddress(currency.chainId);
+  }, [currency.chainId, currency.isNative, parsedQs.inputCurrency]);
 
-  return useCurrency(inputTokenAddress, currency.chainId)
+  return useCurrency(inputTokenAddress, currency.chainId);
 }
 
 function TDPSwapComponent() {
-  const { address, currency, currencyChainId, tokenColor } = useTDPContext()
-  const navigate = useNavigate()
+  const { address, currency, currencyChainId, tokenColor } = useTDPContext();
+  const navigate = useNavigate();
 
-  const currencyInfo = useCurrencyInfo(currencyId(currency))
+  const currencyInfo = useCurrencyInfo(currencyId(currency));
 
   const handleCurrencyChange = useCallback(
     (tokens: CurrencyState, isBridgePair?: boolean) => {
-      const inputCurrencyURLAddress = getCurrencyURLAddress(tokens.inputCurrency)
-      const outputCurrencyURLAddress = getCurrencyURLAddress(tokens.outputCurrency)
+      const inputCurrencyURLAddress = getCurrencyURLAddress(tokens.inputCurrency);
+      const outputCurrencyURLAddress = getCurrencyURLAddress(tokens.outputCurrency);
 
       const inputEquivalent =
-        addressesAreEquivalent(inputCurrencyURLAddress, address) && tokens.inputCurrency?.chainId === currencyChainId
+        addressesAreEquivalent(inputCurrencyURLAddress, address) &&
+        tokens.inputCurrency?.chainId === currencyChainId;
       const outputEquivalent =
-        addressesAreEquivalent(outputCurrencyURLAddress, address) && tokens.outputCurrency?.chainId === currencyChainId
+        addressesAreEquivalent(outputCurrencyURLAddress, address) &&
+        tokens.outputCurrency?.chainId === currencyChainId;
 
       if (inputEquivalent || outputEquivalent || isBridgePair) {
-        return
+        return;
       }
 
-      const newDefaultToken = tokens.outputCurrency ?? tokens.inputCurrency
+      const newDefaultToken = tokens.outputCurrency ?? tokens.inputCurrency;
 
       if (!newDefaultToken) {
-        return
+        return;
       }
 
-      const preloadedLogoSrc = getInitialLogoUrl(newDefaultToken.wrapped.address, newDefaultToken.chainId)
+      const preloadedLogoSrc = getInitialLogoUrl(
+        newDefaultToken.wrapped.address,
+        newDefaultToken.chainId
+      );
       const url = getTokenDetailsURL({
         // The function falls back to "NATIVE" if the address is null
         address: newDefaultToken.isNative ? null : newDefaultToken.address,
-        chain: toGraphQLChain(isUniverseChainId(newDefaultToken.chainId) ? newDefaultToken.chainId : currencyChainId),
+        chain: toGraphQLChain(
+          isUniverseChainId(newDefaultToken.chainId) ? newDefaultToken.chainId : currencyChainId
+        ),
         inputAddress:
           // If only one token was selected before we navigate, then it was the default token and it's being replaced.
           // On the new page, the *new* default token becomes the output, and we don't have another option to set as the input token.
-          tokens.inputCurrency && tokens.inputCurrency !== newDefaultToken ? inputCurrencyURLAddress : null,
-      })
-      navigate(url, { state: { preloadedLogoSrc } })
+          tokens.inputCurrency && tokens.inputCurrency !== newDefaultToken
+            ? inputCurrencyURLAddress
+            : null,
+      });
+      navigate(url, { state: { preloadedLogoSrc } });
     },
-    [address, currencyChainId, navigate],
-  )
+    [address, currencyChainId, navigate]
+  );
 
   // Other token to prefill the swap form with
-  const initialInputCurrency = useSwapInitialInputCurrency()
+  const initialInputCurrency = useSwapInitialInputCurrency();
   // If the initial input currency is the same as the TDP currency, then we are selling the TDP currency
-  const isSell = areCurrenciesEqual(initialInputCurrency, currency)
+  const isSell = areCurrenciesEqual(initialInputCurrency, currency);
 
-  const [showWarningModal, setShowWarningModal] = useState(false)
-  const closeWarningModal = useCallback(() => setShowWarningModal(false), [])
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const closeWarningModal = useCallback(() => setShowWarningModal(false), []);
 
   return (
     <Flex gap="$gap12">
@@ -160,11 +175,11 @@ function TDPSwapComponent() {
         />
       )}
     </Flex>
-  )
+  );
 }
 
 function TDPAnalytics({ children }: PropsWithChildren) {
-  const { address, currency } = useTDPContext()
+  const { address, currency } = useTDPContext();
   return (
     <Trace
       logImpression
@@ -174,21 +189,20 @@ function TDPAnalytics({ children }: PropsWithChildren) {
         tokenSymbol: currency.symbol,
         tokenName: currency.name,
         chainId: currency.chainId,
-      }}
-    >
+      }}>
       {children}
     </Trace>
-  )
+  );
 }
 
 export default function TokenDetails() {
-  const { address, currency, tokenQuery, currencyChain, multiChainMap } = useTDPContext()
-  const tokenQueryData = tokenQuery.data?.token
-  const pageChainBalance = multiChainMap[currencyChain]?.balance
-  const media = useMedia()
-  const showRightPanel = !media.xl
-  const { direction: scrollDirection } = useScroll()
-  const isTouchDevice = useIsTouchDevice()
+  const { address, currency, tokenQuery, currencyChain, multiChainMap } = useTDPContext();
+  const tokenQueryData = tokenQuery.data?.token;
+  const pageChainBalance = multiChainMap[currencyChain]?.balance;
+  const media = useMedia();
+  const showRightPanel = !media.xl;
+  const { direction: scrollDirection } = useScroll();
+  const isTouchDevice = useIsTouchDevice();
 
   return (
     <TDPAnalytics>
@@ -202,7 +216,11 @@ export default function TokenDetails() {
               <PageChainBalanceSummary pageChainBalance={pageChainBalance} alignLeft />
             </Flex>
           )}
-          <StatsSection chainId={currency.chainId} address={address} tokenQueryData={tokenQueryData} />
+          <StatsSection
+            chainId={currency.chainId}
+            address={address}
+            tokenQueryData={tokenQueryData}
+          />
           <DividerLine />
           <ActivitySection />
         </LeftPanel>
@@ -223,5 +241,5 @@ export default function TokenDetails() {
         </MobileBottomBar>
       </TokenDetailsLayout>
     </TDPAnalytics>
-  )
+  );
 }

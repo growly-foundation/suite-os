@@ -1,16 +1,16 @@
-import { Body1, H2 } from 'pages/Landing/components/Generics'
-import { StatCard } from 'pages/Landing/components/StatCard'
-import { useInView } from 'pages/Landing/sections/useInView'
-import { useMemo } from 'react'
-import { ArrowRightCircle } from 'react-feather'
-import { Trans, useTranslation } from 'react-i18next'
-import { ExternalLink } from 'theme/components/Links'
-import { Flex, Text, styled, useSporeColors } from 'ui/src'
+import { Body1, H2 } from 'pages/Landing/components/Generics';
+import { StatCard } from 'pages/Landing/components/StatCard';
+import { useInView } from 'pages/Landing/sections/useInView';
+import { useMemo } from 'react';
+import { ArrowRightCircle } from 'react-feather';
+import { Trans, useTranslation } from 'react-i18next';
+import { ExternalLink } from 'theme/components/Links';
+import { Flex, Text, styled, useSporeColors } from 'ui/src';
 import {
   ProtocolVersion,
   useDailyProtocolVolumeQuery,
-} from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { NumberType, useFormatter } from 'utils/formatNumbers'
+} from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
+import { NumberType, useFormatter } from 'utils/formatNumbers';
 
 const Container = styled(Flex, {
   width: '100%',
@@ -25,12 +25,12 @@ const Container = styled(Flex, {
   $sm: {
     p: 24,
   },
-})
+});
 
 const SectionLayout = styled(Flex, {
   width: '100%',
   maxWidth: 1280,
-})
+});
 
 const HideWhenAboveMedium = styled(Flex, {
   display: 'none',
@@ -38,7 +38,7 @@ const HideWhenAboveMedium = styled(Flex, {
   $md: {
     display: 'flex',
   },
-})
+});
 
 const HideWhenMedium = styled(Flex, {
   display: 'flex',
@@ -46,7 +46,7 @@ const HideWhenMedium = styled(Flex, {
   $md: {
     display: 'none',
   },
-})
+});
 
 const GridArea = styled(Flex, {
   className: 'grid-area',
@@ -75,7 +75,7 @@ const GridArea = styled(Flex, {
       gridRowGap: '8px',
     },
   },
-})
+});
 
 const Layout = styled(Flex, {
   width: '100%',
@@ -100,7 +100,7 @@ const Layout = styled(Flex, {
       gridTemplateRows: 'repeat(2, 200px)',
     },
   },
-})
+});
 
 const LearnMoreButton = styled(Flex, {
   p: 12,
@@ -108,12 +108,12 @@ const LearnMoreButton = styled(Flex, {
   borderRadius: 24,
   backgroundColor: '$surface2',
   alignSelf: 'flex-start',
-})
+});
 
-const ProtocolDescription = () => <Trans i18nKey="landing.protocolDescription" />
+const ProtocolDescription = () => <Trans i18nKey="landing.protocolDescription" />;
 
 function LearnMore() {
-  const colors = useSporeColors()
+  const colors = useSporeColors();
 
   return (
     <LearnMoreButton href="/explore">
@@ -126,11 +126,11 @@ function LearnMore() {
         </Flex>
       </ExternalLink>
     </LearnMoreButton>
-  )
+  );
 }
 
 export function Stats() {
-  const { ref, inView } = useInView()
+  const { ref, inView } = useInView();
 
   return (
     <Container>
@@ -167,7 +167,7 @@ export function Stats() {
         </HideWhenAboveMedium>
       </SectionLayout>
     </Container>
-  )
+  );
 }
 
 const LeftTop = styled(Flex, {
@@ -177,7 +177,7 @@ const LeftTop = styled(Flex, {
     gridRowStart: 1,
     gridRowEnd: 3,
   },
-})
+});
 
 const RightTop = styled(Flex, {
   '$platform-web': {
@@ -186,7 +186,7 @@ const RightTop = styled(Flex, {
     gridRowStart: 1,
     gridRowEnd: 3,
   },
-})
+});
 
 const LeftBottom = styled(Flex, {
   '$platform-web': {
@@ -195,7 +195,7 @@ const LeftBottom = styled(Flex, {
     gridRowStart: 3,
     gridRowEnd: 5,
   },
-})
+});
 
 const RightBottom = styled(Flex, {
   '$platform-web': {
@@ -204,33 +204,38 @@ const RightBottom = styled(Flex, {
     gridRowStart: 3,
     gridRowEnd: 5,
   },
-})
+});
 
 function Cards({ inView }: { inView: boolean }) {
-  const { t } = useTranslation()
-  const { formatNumber } = useFormatter()
+  const { t } = useTranslation();
+  const { formatNumber } = useFormatter();
   const dailyV2VolumeQuery = useDailyProtocolVolumeQuery({
     variables: {
       version: ProtocolVersion.V2,
     },
-  })
+  });
   const dailyV3VolumeQuery = useDailyProtocolVolumeQuery({
     variables: {
       version: ProtocolVersion.V3,
     },
-  })
+  });
 
   const totalVolume = useMemo(() => {
     // Second to last data point is most recent 24H period
     // Last data point is today's volume, which is still accumulating
-    const v2DataPoints = dailyV2VolumeQuery?.data?.historicalProtocolVolume
-    const v2Volume = v2DataPoints && v2DataPoints.length >= 2 ? v2DataPoints[v2DataPoints.length - 2].value : 0
+    const v2DataPoints = dailyV2VolumeQuery?.data?.historicalProtocolVolume;
+    const v2Volume =
+      v2DataPoints && v2DataPoints.length >= 2 ? v2DataPoints[v2DataPoints.length - 2].value : 0;
 
-    const v3DataPoints = dailyV3VolumeQuery?.data?.historicalProtocolVolume
-    const v3Volume = v3DataPoints && v3DataPoints.length >= 2 ? v3DataPoints[v3DataPoints.length - 2].value : 0
+    const v3DataPoints = dailyV3VolumeQuery?.data?.historicalProtocolVolume;
+    const v3Volume =
+      v3DataPoints && v3DataPoints.length >= 2 ? v3DataPoints[v3DataPoints.length - 2].value : 0;
 
-    return v2Volume + v3Volume
-  }, [dailyV2VolumeQuery?.data?.historicalProtocolVolume, dailyV3VolumeQuery?.data?.historicalProtocolVolume])
+    return v2Volume + v3Volume;
+  }, [
+    dailyV2VolumeQuery?.data?.historicalProtocolVolume,
+    dailyV3VolumeQuery?.data?.historicalProtocolVolume,
+  ]);
 
   return (
     <GridArea>
@@ -268,5 +273,5 @@ function Cards({ inView }: { inView: boolean }) {
         />
       </RightBottom>
     </GridArea>
-  )
+  );
 }

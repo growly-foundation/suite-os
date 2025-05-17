@@ -1,18 +1,18 @@
-import { createMigrate } from 'redux-persist'
-import { migration1 } from 'state/migrations/1'
-import { migration10 } from 'state/migrations/10'
-import { migration11 } from 'state/migrations/11'
-import { OldTransactionState, PersistAppStateV12, migration12 } from 'state/migrations/12'
-import { migration2 } from 'state/migrations/2'
-import { migration3 } from 'state/migrations/3'
-import { migration4 } from 'state/migrations/4'
-import { migration5 } from 'state/migrations/5'
-import { migration6 } from 'state/migrations/6'
-import { migration7 } from 'state/migrations/7'
-import { migration8 } from 'state/migrations/8'
-import { migration9 } from 'state/migrations/9'
-import { LocalWebTransactionState } from 'state/transactions/reducer'
-import { TransactionStatus } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
+import { createMigrate } from 'redux-persist';
+import { migration1 } from 'state/migrations/1';
+import { migration10 } from 'state/migrations/10';
+import { migration11 } from 'state/migrations/11';
+import { OldTransactionState, PersistAppStateV12, migration12 } from 'state/migrations/12';
+import { migration2 } from 'state/migrations/2';
+import { migration3 } from 'state/migrations/3';
+import { migration4 } from 'state/migrations/4';
+import { migration5 } from 'state/migrations/5';
+import { migration6 } from 'state/migrations/6';
+import { migration7 } from 'state/migrations/7';
+import { migration8 } from 'state/migrations/8';
+import { migration9 } from 'state/migrations/9';
+import { LocalWebTransactionState } from 'state/transactions/reducer';
+import { TransactionStatus } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks';
 
 const oldTransactionState: OldTransactionState = {
   [1]: {
@@ -67,7 +67,7 @@ const oldTransactionState: OldTransactionState = {
       },
     },
   },
-}
+};
 
 const newTransactionState: LocalWebTransactionState = {
   [1]: {
@@ -97,7 +97,7 @@ const newTransactionState: LocalWebTransactionState = {
       confirmedTime: 5,
     },
   },
-}
+};
 
 const previousState: PersistAppStateV12 = {
   transactions: oldTransactionState,
@@ -105,7 +105,7 @@ const previousState: PersistAppStateV12 = {
     version: 11,
     rehydrated: true,
   },
-}
+};
 
 describe('migration to v12', () => {
   it('should migrate transaction state to non-receipt version', async () => {
@@ -124,9 +124,9 @@ describe('migration to v12', () => {
         11: migration11,
         12: migration12,
       },
-      { debug: false },
-    )
-    const result: any = await migrator(previousState, 12)
-    expect(result.transactions).toMatchObject(newTransactionState)
-  })
-})
+      { debug: false }
+    );
+    const result: any = await migrator(previousState, 12);
+    expect(result.transactions).toMatchObject(newTransactionState);
+  });
+});

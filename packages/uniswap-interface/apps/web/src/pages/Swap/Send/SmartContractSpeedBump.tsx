@@ -1,10 +1,10 @@
-import { Dialog } from 'components/Dialog/Dialog'
-import AlertTriangleFilled from 'components/Icons/AlertTriangleFilled'
-import { SendModalProps } from 'pages/Swap/Send/SendReviewModal'
-import { useTranslation } from 'react-i18next'
+import { Dialog } from 'components/Dialog/Dialog';
+import AlertTriangleFilled from 'components/Icons/AlertTriangleFilled';
+import { SendModalProps } from 'pages/Swap/Send/SendReviewModal';
+import { useTranslation } from 'react-i18next';
 
 export const SmartContractSpeedBumpModal = ({ isOpen, onDismiss, onConfirm }: SendModalProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <Dialog
@@ -24,5 +24,5 @@ export const SmartContractSpeedBumpModal = ({ isOpen, onDismiss, onConfirm }: Se
         },
       }}
     />
-  )
-}
+  );
+};

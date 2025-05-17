@@ -1,2 +1,2 @@
-export * from './layoutAnimation'
-export * from './useLayoutAnimationOnChange'
+export * from './layoutAnimation';
+export * from './useLayoutAnimationOnChange';

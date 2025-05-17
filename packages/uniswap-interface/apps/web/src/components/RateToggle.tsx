@@ -1,6 +1,6 @@
-import { Currency } from '@uniswap/sdk-core'
-import { ToggleElement, ToggleWrapper } from 'components/Toggle/MultiToggle'
-import { Flex } from 'ui/src'
+import { Currency } from '@uniswap/sdk-core';
+import { ToggleElement, ToggleWrapper } from 'components/Toggle/MultiToggle';
+import { Flex } from 'ui/src';
 
 // the order of displayed base currencies from left to right is always in sort order
 // currencyA is treated as the preferred base currency
@@ -9,14 +9,14 @@ export default function RateToggle({
   currencyB,
   handleRateToggle,
 }: {
-  currencyA: Currency
-  currencyB: Currency
-  handleRateToggle: () => void
+  currencyA: Currency;
+  currencyB: Currency;
+  handleRateToggle: () => void;
 }) {
-  const tokenA = currencyA?.wrapped
-  const tokenB = currencyB?.wrapped
+  const tokenA = currencyA?.wrapped;
+  const tokenB = currencyB?.wrapped;
 
-  const isSorted = tokenA && tokenB && tokenA.sortsBefore(tokenB)
+  const isSorted = tokenA && tokenB && tokenA.sortsBefore(tokenB);
 
   return tokenA && tokenB ? (
     <Flex width="fit-content" alignItems="center" onPress={handleRateToggle}>
@@ -29,5 +29,5 @@ export default function RateToggle({
         </ToggleElement>
       </ToggleWrapper>
     </Flex>
-  ) : null
+  ) : null;
 }

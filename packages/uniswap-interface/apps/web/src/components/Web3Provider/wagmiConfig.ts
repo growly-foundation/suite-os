@@ -1,21 +1,21 @@
-import { injectedWithFallback } from 'components/Web3Provider/injectedWithFallback'
-import { WC_PARAMS } from 'components/Web3Provider/walletConnect'
-import { embeddedWallet } from 'connection/EmbeddedWalletConnector'
-import { UNISWAP_LOGO } from 'ui/src/assets'
-import { UNISWAP_WEB_URL } from 'uniswap/src/constants/urls'
-import { getChainInfo } from 'uniswap/src/features/chains/chainInfo'
-import { ALL_CHAIN_IDS, UniverseChainId } from 'uniswap/src/features/chains/types'
-import { isTestnetChain } from 'uniswap/src/features/chains/utils'
-import { isPlaywrightEnv } from 'utilities/src/environment/env'
-import { logger } from 'utilities/src/logger/logger'
-import { Chain, createClient } from 'viem'
-import { createConfig, fallback, http } from 'wagmi'
-import { connect } from 'wagmi/actions'
-import { coinbaseWallet, injected, mock, safe, walletConnect } from 'wagmi/connectors'
+import { injectedWithFallback } from 'components/Web3Provider/injectedWithFallback';
+import { WC_PARAMS } from 'components/Web3Provider/walletConnect';
+import { embeddedWallet } from 'connection/EmbeddedWalletConnector';
+import { UNISWAP_LOGO } from 'ui/src/assets';
+import { UNISWAP_WEB_URL } from 'uniswap/src/constants/urls';
+import { getChainInfo } from 'uniswap/src/features/chains/chainInfo';
+import { ALL_CHAIN_IDS, UniverseChainId } from 'uniswap/src/features/chains/types';
+import { isTestnetChain } from 'uniswap/src/features/chains/utils';
+import { isPlaywrightEnv } from 'utilities/src/environment/env';
+import { logger } from 'utilities/src/logger/logger';
+import { Chain, createClient } from 'viem';
+import { createConfig, fallback, http } from 'wagmi';
+import { connect } from 'wagmi/actions';
+import { coinbaseWallet, injected, mock, safe, walletConnect } from 'wagmi/connectors';
 
 declare module 'wagmi' {
   interface Register {
-    config: typeof wagmiConfig
+    config: typeof wagmiConfig;
   }
 }
 
@@ -25,10 +25,10 @@ export const orderedTransportUrls = (chain: ReturnType<typeof getChainInfo>): st
     ...(chain.rpcUrls.default?.http ?? []),
     ...(chain.rpcUrls.public?.http ?? []),
     ...(chain.rpcUrls.fallback?.http ?? []),
-  ]
+  ];
 
-  return Array.from(new Set(orderedRpcUrls.filter(Boolean)))
-}
+  return Array.from(new Set(orderedRpcUrls.filter(Boolean)));
+};
 
 const baseConnectors = [
   injectedWithFallback(),
@@ -43,7 +43,7 @@ const baseConnectors = [
     enableMobileWalletLink: true,
   }),
   safe(),
-]
+];
 
 // Only add mock connector in Playwright environment
 const connectors = isPlaywrightEnv()
@@ -54,7 +54,7 @@ const connectors = isPlaywrightEnv()
         accounts: ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'],
       }),
     ]
-  : baseConnectors
+  : baseConnectors;
 
 export const wagmiConfig = createConfig({
   chains: [getChainInfo(UniverseChainId.Mainnet), ...ALL_CHAIN_IDS.map(getChainInfo)],
@@ -65,17 +65,17 @@ export const wagmiConfig = createConfig({
       batch: { multicall: true },
       pollingInterval: 12_000,
       transport: fallback(
-        orderedTransportUrls(chain).map((url) =>
-          http(url, { onFetchResponse: (response) => onFetchResponse(response, chain, url) }),
-        ),
+        orderedTransportUrls(chain).map(url =>
+          http(url, { onFetchResponse: response => onFetchResponse(response, chain, url) })
+        )
       ),
-    })
+    });
   },
-})
+});
 
 const onFetchResponse = (response: Response, chain: Chain, url: string) => {
   if (response.status !== 200) {
-    const message = `RPC provider returned non-200 status: ${response.status}`
+    const message = `RPC provider returned non-200 status: ${response.status}`;
 
     // only warn for testnet chains
     if (isTestnetChain(chain.id)) {
@@ -84,7 +84,7 @@ const onFetchResponse = (response: Response, chain: Chain, url: string) => {
           chainId: chain.id,
           url,
         },
-      })
+      });
     } else {
       // log errors for mainnet chains so we can fix them
       logger.error(new Error(message), {
@@ -96,17 +96,17 @@ const onFetchResponse = (response: Response, chain: Chain, url: string) => {
           file: 'wagmiConfig.ts',
           function: 'client',
         },
-      })
+      });
     }
   }
-}
+};
 
 // Automatically connect if running in Cypress environment
 if ((window as any).Cypress?.eagerlyConnect) {
-  connect(wagmiConfig, { connector: injected() })
+  connect(wagmiConfig, { connector: injected() });
 }
 
-const isEagerlyConnect = !window.location.search.includes('eagerlyConnect=false')
+const isEagerlyConnect = !window.location.search.includes('eagerlyConnect=false');
 
 // Automatically connect if running in Playwright environment
 if (isPlaywrightEnv() && isEagerlyConnect) {
@@ -117,6 +117,6 @@ if (isPlaywrightEnv() && isEagerlyConnect) {
         features: {},
         accounts: ['0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f'],
       }),
-    })
-  }, 1)
+    });
+  }, 1);
 }

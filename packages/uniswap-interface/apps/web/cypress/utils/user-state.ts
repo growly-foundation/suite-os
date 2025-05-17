@@ -1,4 +1,4 @@
-import { UserState } from '../../src/state/user/reducer'
+import { UserState } from '../../src/state/user/reducer';
 
 /**
  * This sets the initial value of the "user" slice in localStorage.
@@ -7,7 +7,7 @@ import { UserState } from '../../src/state/user/reducer'
  */
 export function setInitialUserState(win: Cypress.AUTWindow, state: UserState) {
   // We want to test from a clean state, so we clear the local storage (which clears redux).
-  win.localStorage.clear()
+  win.localStorage.clear();
 
   // Set initial user state.
   win.localStorage.setItem(
@@ -15,5 +15,5 @@ export function setInitialUserState(win: Cypress.AUTWindow, state: UserState) {
     JSON.stringify({
       user: state,
     })
-  )
+  );
 }

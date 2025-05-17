@@ -1,4 +1,4 @@
-import { ComponentProps } from 'react'
+import { ComponentProps } from 'react';
 
 export const UserIcon = (props: ComponentProps<'svg'>) => (
   <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -7,4 +7,4 @@ export const UserIcon = (props: ComponentProps<'svg'>) => (
       fill={props.fill ?? 'currentColor'}
     />
   </svg>
-)
+);

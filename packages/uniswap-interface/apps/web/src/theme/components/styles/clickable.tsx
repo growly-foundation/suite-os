@@ -1,5 +1,5 @@
-import { css } from 'lib/styled-components'
-import { FlexProps } from 'ui/src'
+import { css } from 'lib/styled-components';
+import { FlexProps } from 'ui/src';
 
 /** @deprecated use tamagui and ClickableTamaguiStyle instead */
 export const ClickableStyle = css`
@@ -13,7 +13,7 @@ export const ClickableStyle = css`
   :active {
     opacity: ${({ theme }) => theme.opacity.click};
   }
-`
+`;
 export const ClickableTamaguiStyle = {
   cursor: 'pointer',
   '$platform-web': {
@@ -29,4 +29,4 @@ export const ClickableTamaguiStyle = {
   },
   // Tamagui bug. Animation property breaks theme value transition, must use style instead
   style: { transition: '100ms' },
-} satisfies FlexProps
+} satisfies FlexProps;

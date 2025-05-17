@@ -1,18 +1,18 @@
-import { InterfaceElementName } from '@uniswap/analytics-events'
-import AppStoreBadge from 'assets/images/app-store-badge.png'
-import ExtensionIllustration from 'assets/images/extensionIllustration.png'
-import PlayStoreBadge from 'assets/images/play-store-badge.png'
-import WalletIllustration from 'assets/images/walletIllustration.png'
-import { AndroidLogo } from 'components/Icons/AndroidLogo'
-import { AppleLogo } from 'components/Icons/AppleLogo'
-import { GoogleChromeLogo } from 'components/Icons/GoogleChromeLogo'
-import Column from 'components/deprecated/Column'
-import { useAccount } from 'hooks/useAccount'
-import styled from 'lib/styled-components'
-import { Wiggle } from 'pages/Landing/components/animations'
-import { PropsWithChildren, ReactNode, Suspense, lazy, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { ExternalLink } from 'theme/components/Links'
+import { InterfaceElementName } from '@uniswap/analytics-events';
+import AppStoreBadge from 'assets/images/app-store-badge.png';
+import ExtensionIllustration from 'assets/images/extensionIllustration.png';
+import PlayStoreBadge from 'assets/images/play-store-badge.png';
+import WalletIllustration from 'assets/images/walletIllustration.png';
+import { AndroidLogo } from 'components/Icons/AndroidLogo';
+import { AppleLogo } from 'components/Icons/AppleLogo';
+import { GoogleChromeLogo } from 'components/Icons/GoogleChromeLogo';
+import Column from 'components/deprecated/Column';
+import { useAccount } from 'hooks/useAccount';
+import styled from 'lib/styled-components';
+import { Wiggle } from 'pages/Landing/components/animations';
+import { PropsWithChildren, ReactNode, Suspense, lazy, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ExternalLink } from 'theme/components/Links';
 import {
   AnimatedPager,
   Flex,
@@ -23,28 +23,28 @@ import {
   Text,
   TouchableArea,
   useSporeColors,
-} from 'ui/src'
-import { UNISWAP_LOGO } from 'ui/src/assets'
-import { BackArrow } from 'ui/src/components/icons/BackArrow'
-import { iconSizes, zIndexes } from 'ui/src/theme'
-import { uniswapUrls } from 'uniswap/src/constants/urls'
-import { FeatureFlags } from 'uniswap/src/features/gating/flags'
-import { useFeatureFlag } from 'uniswap/src/features/gating/hooks'
-import Trace from 'uniswap/src/features/telemetry/Trace'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
-import { useEvent } from 'utilities/src/react/hooks'
+} from 'ui/src';
+import { UNISWAP_LOGO } from 'ui/src/assets';
+import { BackArrow } from 'ui/src/components/icons/BackArrow';
+import { iconSizes, zIndexes } from 'ui/src/theme';
+import { uniswapUrls } from 'uniswap/src/constants/urls';
+import { FeatureFlags } from 'uniswap/src/features/gating/flags';
+import { useFeatureFlag } from 'uniswap/src/features/gating/hooks';
+import Trace from 'uniswap/src/features/telemetry/Trace';
+import { ModalName } from 'uniswap/src/features/telemetry/constants';
+import { useEvent } from 'utilities/src/react/hooks';
 
 const LazyWalletOneLinkQR = lazy(async () => {
-  const module = await import('components/WalletOneLinkQR')
-  return { default: module.WalletOneLinkQR }
-})
+  const module = await import('components/WalletOneLinkQR');
+  return { default: module.WalletOneLinkQR };
+});
 
 const BadgeLink = styled(ExternalLink)`
   stroke: none;
   :hover {
     opacity: 1;
   }
-`
+`;
 
 const WiggleIcon = styled(Wiggle)`
   flex: 0;
@@ -53,18 +53,19 @@ const WiggleIcon = styled(Wiggle)`
   display: flex;
   justify-content: center;
   align-items: center;
-`
+`;
 const IllustrationContainer = styled.div`
   display: flex;
   width: 100%;
   border-radius: 16px;
   border: ${({ theme }) => `1px solid ${theme.neutral3}`};
   overflow: hidden;
-`
+`;
 const Illustration = styled.img`
   width: 100%;
-  transition: ${({ theme }) => `transform ${theme.transition.timing.inOut} ${theme.transition.duration.medium}`};
-`
+  transition: ${({ theme }) =>
+    `transform ${theme.transition.timing.inOut} ${theme.transition.duration.medium}`};
+`;
 const Card = styled(Column)`
   cursor: pointer;
   &:hover {
@@ -72,7 +73,7 @@ const Card = styled(Column)`
       transform: scale(1.1);
     }
   }
-`
+`;
 
 function ModalContent({
   header,
@@ -81,7 +82,8 @@ function ModalContent({
   children,
   logo,
   ...rest
-}: PropsWithChildren<{ title: string; subtext?: string; logo?: ReactNode; header?: ReactNode }> & FlexProps) {
+}: PropsWithChildren<{ title: string; subtext?: string; logo?: ReactNode; header?: ReactNode }> &
+  FlexProps) {
   return (
     <Flex p={24} alignItems="center" gap="$spacing32" {...rest}>
       <Flex alignItems="center" gap="$spacing12">
@@ -97,10 +99,14 @@ function ModalContent({
       </Flex>
       {children}
     </Flex>
-  )
+  );
 }
 
-function CardInfo({ title, details, children }: PropsWithChildren<{ title: string; details: string }>) {
+function CardInfo({
+  title,
+  details,
+  children,
+}: PropsWithChildren<{ title: string; details: string }>) {
   return (
     <Flex row p="$spacing8" justifyContent="space-between" alignItems="center" width="100%">
       <Flex alignItems="flex-start">
@@ -113,20 +119,19 @@ function CardInfo({ title, details, children }: PropsWithChildren<{ title: strin
       </Flex>
       {children}
     </Flex>
-  )
+  );
 }
 
 function DownloadMobile() {
-  const { t } = useTranslation()
-  const account = useAccount()
+  const { t } = useTranslation();
+  const account = useAccount();
   return (
     <ModalContent
       title={t('common.downloadUniswapApp')}
       subtext={t('common.scanQRDownload')}
       maxWidth="620px"
       px="60px"
-      my="$spacing24"
-    >
+      my="$spacing24">
       <BadgeLink href="https://uniswapwallet.onelink.me/8q3y/m4i9qsez?af_qr=true">
         <Suspense fallback={<Loader.Box width={200} height={200} />}>
           <LazyWalletOneLinkQR width={200} height={200} />
@@ -135,8 +140,7 @@ function DownloadMobile() {
       <Trace
         logPress
         element={InterfaceElementName.UNISWAP_WALLET_MODAL_DOWNLOAD_BUTTON}
-        properties={{ connector_id: account?.connector?.id }}
-      >
+        properties={{ connector_id: account?.connector?.id }}>
         <Flex row justifyContent="center" gap="$spacing16">
           <BadgeLink href="https://apps.apple.com/us/app/uniswap-crypto-nft-wallet/id6443944476">
             <Image src={AppStoreBadge} alt="App Store Badge" width={150} height={50} />
@@ -147,7 +151,7 @@ function DownloadMobile() {
         </Flex>
       </Trace>
     </ModalContent>
-  )
+  );
 }
 
 enum Page {
@@ -156,18 +160,20 @@ enum Page {
 }
 
 function DownloadApps({ setPage }: { setPage: (page: Page) => void }) {
-  const { t } = useTranslation()
-  const colors = useSporeColors()
-  const account = useAccount()
+  const { t } = useTranslation();
+  const colors = useSporeColors();
+  const account = useAccount();
 
   return (
-    <Trace logImpression modal={ModalName.DownloadApp} properties={{ connector_id: account?.connector?.id }}>
+    <Trace
+      logImpression
+      modal={ModalName.DownloadApp}
+      properties={{ connector_id: account?.connector?.id }}>
       <ModalContent
         title={t('downloadApp.modal.getTheApp.title')}
         subtext={t('downloadApp.modal.uniswapProducts.subtitle')}
         header={<Image height={iconSizes.icon64} source={UNISWAP_LOGO} width={iconSizes.icon64} />}
-        maxWidth="620px"
-      >
+        maxWidth="620px">
         <Flex row gap="$spacing12" width="100%" alignItems="flex-start">
           <Card flex="1 1 auto" onClick={() => setPage(Page.DownloadMobile)}>
             <IllustrationContainer>
@@ -177,8 +183,7 @@ function DownloadApps({ setPage }: { setPage: (page: Page) => void }) {
               <Trace
                 logPress
                 element={InterfaceElementName.UNISWAP_WALLET_MODAL_DOWNLOAD_BUTTON}
-                properties={{ connector_id: account?.connector?.id }}
-              >
+                properties={{ connector_id: account?.connector?.id }}>
                 <Flex row gap="$spacing8">
                   <WiggleIcon>
                     <AppleLogo fill={colors.neutral1.val} />
@@ -207,22 +212,28 @@ function DownloadApps({ setPage }: { setPage: (page: Page) => void }) {
         </Flex>
       </ModalContent>
     </Trace>
-  )
+  );
 }
 
-export function DownloadAppsModal({ goBack, onClose }: { goBack: () => void; onClose: () => void }) {
-  const isEmbeddedWalletEnabled = useFeatureFlag(FeatureFlags.EmbeddedWallet)
+export function DownloadAppsModal({
+  goBack,
+  onClose,
+}: {
+  goBack: () => void;
+  onClose: () => void;
+}) {
+  const isEmbeddedWalletEnabled = useFeatureFlag(FeatureFlags.EmbeddedWallet);
 
-  const [page, setPage] = useState<Page>(Page.DownloadApps)
-  const showBackButton = isEmbeddedWalletEnabled || page !== Page.DownloadApps
+  const [page, setPage] = useState<Page>(Page.DownloadApps);
+  const showBackButton = isEmbeddedWalletEnabled || page !== Page.DownloadApps;
 
   const onPressBack = useEvent(() => {
     if (page === Page.DownloadMobile) {
-      setPage(Page.DownloadApps)
+      setPage(Page.DownloadApps);
     } else {
-      goBack()
+      goBack();
     }
-  })
+  });
 
   return (
     <Flex maxWidth="620px">
@@ -234,8 +245,7 @@ export function DownloadAppsModal({ goBack, onClose }: { goBack: () => void; onC
         justifyContent={showBackButton ? 'space-between' : 'flex-end'}
         zIndex={zIndexes.modal}
         pl="$spacing24"
-        pr="$spacing24"
-      >
+        pr="$spacing24">
         {showBackButton && (
           <TouchableArea onPress={onPressBack}>
             <BackArrow size="$icon.24" color="$neutral2" hoverColor="$neutral2Hovered" />
@@ -251,5 +261,5 @@ export function DownloadAppsModal({ goBack, onClose }: { goBack: () => void; onC
         </AnimatedPager>
       </Flex>
     </Flex>
-  )
+  );
 }

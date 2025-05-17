@@ -1,7 +1,7 @@
 /**
  * Copied from https://github.com/tradingview/lightweight-charts/blob/master/plugin-examples/src/plugins/rounded-candle-series/rounded-candle-series.ts
  */
-import { RoundedCandleSeriesRenderer } from 'components/Charts/PriceChart/RoundedCandlestickSeries/renderer'
+import { RoundedCandleSeriesRenderer } from 'components/Charts/PriceChart/RoundedCandlestickSeries/renderer';
 import {
   CandlestickData,
   CandlestickSeriesOptions,
@@ -13,13 +13,16 @@ import {
   UTCTimestamp,
   WhitespaceData,
   customSeriesDefaultOptions,
-} from 'lightweight-charts'
+} from 'lightweight-charts';
 
 export interface RoundedCandleSeriesOptions
   extends CustomSeriesOptions,
-    Exclude<CandlestickSeriesOptions, 'borderVisible' | 'borderColor' | 'borderUpColor' | 'borderDownColor'> {
-  radius: (barSpacing: number) => number
-  neutralColor: string
+    Exclude<
+      CandlestickSeriesOptions,
+      'borderVisible' | 'borderColor' | 'borderUpColor' | 'borderDownColor'
+    > {
+  radius: (barSpacing: number) => number;
+  neutralColor: string;
 }
 
 const defaultOptions: RoundedCandleSeriesOptions = {
@@ -37,38 +40,38 @@ const defaultOptions: RoundedCandleSeriesOptions = {
   wickDownColor: '#ef5350',
   radius(bs: number) {
     if (bs < 4) {
-      return 0
+      return 0;
     }
-    return bs / 3
+    return bs / 3;
   },
-} as const
+} as const;
 
 export class RoundedCandleSeries<TData extends CandlestickData<UTCTimestamp>>
   implements ICustomSeriesPaneView<Time, TData, RoundedCandleSeriesOptions>
 {
-  _renderer: RoundedCandleSeriesRenderer<TData>
+  _renderer: RoundedCandleSeriesRenderer<TData>;
 
   constructor() {
-    this._renderer = new RoundedCandleSeriesRenderer()
+    this._renderer = new RoundedCandleSeriesRenderer();
   }
 
   priceValueBuilder(plotRow: TData): CustomSeriesPricePlotValues {
-    return [plotRow.high, plotRow.low, plotRow.close]
+    return [plotRow.high, plotRow.low, plotRow.close];
   }
 
   renderer(): RoundedCandleSeriesRenderer<TData> {
-    return this._renderer
+    return this._renderer;
   }
 
   isWhitespace(data: TData | WhitespaceData): data is WhitespaceData {
-    return (data as Partial<TData>).close === undefined
+    return (data as Partial<TData>).close === undefined;
   }
 
   update(data: PaneRendererCustomData<Time, TData>, options: RoundedCandleSeriesOptions): void {
-    this._renderer.update(data, options)
+    this._renderer.update(data, options);
   }
 
   defaultOptions() {
-    return defaultOptions
+    return defaultOptions;
   }
 }

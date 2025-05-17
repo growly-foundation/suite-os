@@ -1,20 +1,22 @@
-import { PersistState } from 'redux-persist'
-import { PreV16UserState } from 'state/migrations/oldTypes'
+import { PersistState } from 'redux-persist';
+import { PreV16UserState } from 'state/migrations/oldTypes';
 
 export type PersistAppStateV7 = {
-  _persist: PersistState
-} & { user?: PreV16UserState & { hideAndroidAnnouncementBanner?: boolean; hideAppPromoBanner: boolean } }
+  _persist: PersistState;
+} & {
+  user?: PreV16UserState & { hideAndroidAnnouncementBanner?: boolean; hideAppPromoBanner: boolean };
+};
 
 /**
  * Migration to rename hideAndroidAnnouncementBanner to hideAppPromoBanner.
  */
 export const migration7 = (state: PersistAppStateV7 | undefined) => {
   if (!state) {
-    return state
+    return state;
   }
-  const userHidAndroidAnnouncementBanner = state?.user?.hideAndroidAnnouncementBanner
+  const userHidAndroidAnnouncementBanner = state?.user?.hideAndroidAnnouncementBanner;
   if (state?.user && 'hideAndroidAnnouncementBanner' in state.user) {
-    delete state.user['hideAndroidAnnouncementBanner']
+    delete state.user['hideAndroidAnnouncementBanner'];
   }
   // If the the user has previously hidden the Android announcement banner, we respect that preference.
   if (state?.user && userHidAndroidAnnouncementBanner) {
@@ -28,7 +30,7 @@ export const migration7 = (state: PersistAppStateV7 | undefined) => {
         ...state._persist,
         version: 7,
       },
-    }
+    };
   }
   return {
     ...state,
@@ -36,5 +38,5 @@ export const migration7 = (state: PersistAppStateV7 | undefined) => {
       ...state._persist,
       version: 7,
     },
-  }
-}
+  };
+};

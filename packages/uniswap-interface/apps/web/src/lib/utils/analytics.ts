@@ -1,10 +1,18 @@
-import { Currency, CurrencyAmount, Percent, Price, Token } from '@uniswap/sdk-core'
-import { NATIVE_CHAIN_ID } from 'constants/tokens'
-import { InterfaceTrade, OffchainOrderType, QuoteMethod, SubmittableTrade } from 'state/routing/types'
-import { isClassicTrade, isSubmittableTrade, isUniswapXTrade } from 'state/routing/utils'
-import { Routing } from 'uniswap/src/data/tradingApi/__generated__'
-import { SwapTradeBaseProperties } from 'uniswap/src/features/telemetry/types'
-import { getRouteAnalyticsData, tradeRoutingToFillType } from 'uniswap/src/features/transactions/swap/analytics'
+import { Currency, CurrencyAmount, Percent, Price, Token } from '@uniswap/sdk-core';
+import { NATIVE_CHAIN_ID } from 'constants/tokens';
+import {
+  InterfaceTrade,
+  OffchainOrderType,
+  QuoteMethod,
+  SubmittableTrade,
+} from 'state/routing/types';
+import { isClassicTrade, isSubmittableTrade, isUniswapXTrade } from 'state/routing/utils';
+import { Routing } from 'uniswap/src/data/tradingApi/__generated__';
+import { SwapTradeBaseProperties } from 'uniswap/src/features/telemetry/types';
+import {
+  getRouteAnalyticsData,
+  tradeRoutingToFillType,
+} from 'uniswap/src/features/transactions/swap/analytics';
 import {
   BridgeTrade,
   ClassicTrade,
@@ -12,58 +20,62 @@ import {
   UniswapXTrade,
   UniswapXV2Trade,
   UniswapXV3Trade,
-} from 'uniswap/src/features/transactions/swap/types/trade'
-import { isClassic } from 'uniswap/src/features/transactions/swap/utils/routing'
-import { TransactionOriginType } from 'uniswap/src/features/transactions/types/transactionDetails'
-import { ITraceContext } from 'utilities/src/telemetry/trace/TraceContext'
-import { computeRealizedPriceImpact } from 'utils/prices'
+} from 'uniswap/src/features/transactions/swap/types/trade';
+import { isClassic } from 'uniswap/src/features/transactions/swap/utils/routing';
+import { TransactionOriginType } from 'uniswap/src/features/transactions/types/transactionDetails';
+import { ITraceContext } from 'utilities/src/telemetry/trace/TraceContext';
+import { computeRealizedPriceImpact } from 'utils/prices';
 
-export const getDurationUntilTimestampSeconds = (futureTimestampInSecondsSinceEpoch?: number): number | undefined => {
+export const getDurationUntilTimestampSeconds = (
+  futureTimestampInSecondsSinceEpoch?: number
+): number | undefined => {
   if (!futureTimestampInSecondsSinceEpoch) {
-    return undefined
+    return undefined;
   }
-  return futureTimestampInSecondsSinceEpoch - new Date().getTime() / 1000
-}
+  return futureTimestampInSecondsSinceEpoch - new Date().getTime() / 1000;
+};
 
 export const formatToDecimal = (
   intialNumberObject: Percent | CurrencyAmount<Token | Currency>,
-  decimalPlace: number,
-): number => parseFloat(intialNumberObject.toFixed(decimalPlace))
+  decimalPlace: number
+): number => parseFloat(intialNumberObject.toFixed(decimalPlace));
 
-export const getTokenAddress = (currency: Currency) => (currency.isNative ? NATIVE_CHAIN_ID : currency.address)
+export const getTokenAddress = (currency: Currency) =>
+  currency.isNative ? NATIVE_CHAIN_ID : currency.address;
 
-export const formatPercentInBasisPointsNumber = (percent: Percent): number => parseFloat(percent.toFixed(2)) * 100
+export const formatPercentInBasisPointsNumber = (percent: Percent): number =>
+  parseFloat(percent.toFixed(2)) * 100;
 
-export const formatPercentNumber = (percent: Percent): number => parseFloat(percent.toFixed(2))
+export const formatPercentNumber = (percent: Percent): number => parseFloat(percent.toFixed(2));
 
 export const getPriceUpdateBasisPoints = (
   prevPrice: Price<Currency, Currency>,
-  newPrice: Price<Currency, Currency>,
+  newPrice: Price<Currency, Currency>
 ): number => {
-  const changeFraction = newPrice.subtract(prevPrice).divide(prevPrice)
-  const changePercentage = new Percent(changeFraction.numerator, changeFraction.denominator)
-  return formatPercentInBasisPointsNumber(changePercentage)
-}
+  const changeFraction = newPrice.subtract(prevPrice).divide(prevPrice);
+  const changePercentage = new Percent(changeFraction.numerator, changeFraction.denominator);
+  return formatPercentInBasisPointsNumber(changePercentage);
+};
 
 function getEstimatedNetworkFee(trade: InterfaceTrade) {
   if (isClassicTrade(trade)) {
-    return trade.gasUseEstimateUSD
+    return trade.gasUseEstimateUSD;
   }
   if (isUniswapXTrade(trade)) {
-    return trade.classicGasUseEstimateUSD
+    return trade.classicGasUseEstimateUSD;
   }
-  return undefined
+  return undefined;
 }
 
 function tradeRoutingToOffchainOrderType(routing: Routing): OffchainOrderType | undefined {
   switch (routing) {
     case Routing.DUTCH_V2:
-      return OffchainOrderType.DUTCH_V2_AUCTION
+      return OffchainOrderType.DUTCH_V2_AUCTION;
     case Routing.DUTCH_LIMIT:
     case Routing.LIMIT_ORDER:
-      return OffchainOrderType.LIMIT_ORDER
+      return OffchainOrderType.LIMIT_ORDER;
     default:
-      return undefined
+      return undefined;
   }
 }
 
@@ -73,19 +85,23 @@ export function formatCommonPropertiesForTrade(
   outputFeeFiatValue?: number,
   isBatched?: boolean,
   batchId?: string,
-  includedPermitTransactionStep?: boolean,
+  includedPermitTransactionStep?: boolean
 ): SwapTradeBaseProperties {
   const isUniversalSwapFlow =
     trade instanceof ClassicTrade ||
     trade instanceof UniswapXV2Trade ||
     trade instanceof UniswapXV3Trade ||
     trade instanceof PriorityOrderTrade ||
-    trade instanceof BridgeTrade
+    trade instanceof BridgeTrade;
 
   return {
     routing: isUniversalSwapFlow ? tradeRoutingToFillType(trade) : trade.fillType,
     type: trade.tradeType,
-    ura_quote_id: isUniversalSwapFlow ? trade.quote?.quote.quoteId : isUniswapXTrade(trade) ? trade.quoteId : undefined,
+    ura_quote_id: isUniversalSwapFlow
+      ? trade.quote?.quote.quoteId
+      : isUniswapXTrade(trade)
+        ? trade.quoteId
+        : undefined,
     ura_request_id: isUniversalSwapFlow
       ? trade.quote?.requestId
       : isSubmittableTrade(trade)
@@ -96,7 +112,7 @@ export function formatCommonPropertiesForTrade(
         ? trade.quote?.quote.blockNumber
         : undefined
       : isClassicTrade(trade)
-        ? trade.blockNumber ?? undefined
+        ? (trade.blockNumber ?? undefined)
         : undefined,
     token_in_address: getTokenAddress(trade.inputAmount.currency),
     token_out_address: getTokenAddress(trade.outputAmount.currency),
@@ -134,7 +150,7 @@ export function formatCommonPropertiesForTrade(
     is_batch: isBatched,
     batch_id: batchId,
     included_permit_transaction_step: includedPermitTransactionStep,
-  }
+  };
 }
 
 export const formatSwapSignedAnalyticsEventProperties = ({
@@ -149,16 +165,16 @@ export const formatSwapSignedAnalyticsEventProperties = ({
   batchId,
   includedPermitTransactionStep,
 }: {
-  trade: SubmittableTrade | ClassicTrade | UniswapXTrade | BridgeTrade
-  allowedSlippage: Percent
-  fiatValues: { amountIn?: number; amountOut?: number; feeUsd?: number }
-  txHash?: string
-  timeToSignSinceRequestMs?: number
-  portfolioBalanceUsd?: number
-  trace: ITraceContext
-  isBatched?: boolean
-  batchId?: string
-  includedPermitTransactionStep?: boolean
+  trade: SubmittableTrade | ClassicTrade | UniswapXTrade | BridgeTrade;
+  allowedSlippage: Percent;
+  fiatValues: { amountIn?: number; amountOut?: number; feeUsd?: number };
+  txHash?: string;
+  timeToSignSinceRequestMs?: number;
+  portfolioBalanceUsd?: number;
+  trace: ITraceContext;
+  isBatched?: boolean;
+  batchId?: string;
+  includedPermitTransactionStep?: boolean;
 }) => ({
   ...trace,
   total_balances_usd: portfolioBalanceUsd,
@@ -174,14 +190,14 @@ export const formatSwapSignedAnalyticsEventProperties = ({
     fiatValues.feeUsd,
     isBatched,
     batchId,
-    includedPermitTransactionStep,
+    includedPermitTransactionStep
   ),
-})
+});
 
 function getQuoteMethod(trade: InterfaceTrade) {
   if (isUniswapXTrade(trade)) {
-    return QuoteMethod.ROUTING_API
+    return QuoteMethod.ROUTING_API;
   }
 
-  return trade.quoteMethod
+  return trade.quoteMethod;
 }

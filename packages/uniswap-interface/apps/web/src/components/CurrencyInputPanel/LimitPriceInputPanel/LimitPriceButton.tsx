@@ -1,23 +1,23 @@
-import { Percent } from '@uniswap/sdk-core'
-import Row from 'components/deprecated/Row'
-import styled, { css } from 'lib/styled-components'
-import { X } from 'react-feather'
-import { Trans } from 'react-i18next'
-import { ThemedText } from 'theme/components'
-import { ClickableStyle } from 'theme/components/styles'
-import { useFormatter } from 'utils/formatNumbers'
+import { Percent } from '@uniswap/sdk-core';
+import Row from 'components/deprecated/Row';
+import styled, { css } from 'lib/styled-components';
+import { X } from 'react-feather';
+import { Trans } from 'react-i18next';
+import { ThemedText } from 'theme/components';
+import { ClickableStyle } from 'theme/components/styles';
+import { useFormatter } from 'utils/formatNumbers';
 
 interface LimitPriceButtonProps {
-  priceAdjustmentPercentage: number
-  disabled?: boolean
-  selected?: boolean
-  onSelect: (priceAdjustmentPercentage: number) => void
+  priceAdjustmentPercentage: number;
+  disabled?: boolean;
+  selected?: boolean;
+  onSelect: (priceAdjustmentPercentage: number) => void;
 }
 
 const containerBorderCss = css`
   border-radius: 999px;
   border: 1px solid ${({ theme }) => theme.surface3};
-`
+`;
 
 const highlightedBorderCss = css`
   border-radius: 999px 0px 0px 999px;
@@ -25,17 +25,21 @@ const highlightedBorderCss = css`
   border-bottom: 1px solid ${({ theme }) => theme.surface3};
   border-left: 1px solid ${({ theme }) => theme.surface3};
   border-right: 0px;
-`
+`;
 
-const Container = styled.button<{ $selected?: boolean; $disabled?: boolean; $highlighted: boolean }>`
+const Container = styled.button<{
+  $selected?: boolean;
+  $disabled?: boolean;
+  $highlighted: boolean;
+}>`
   color: ${({ theme, $selected, $disabled, $highlighted }) => {
     if ($highlighted) {
-      return theme.neutral1
+      return theme.neutral1;
     }
     if ($selected && !$disabled) {
-      return theme.neutral1
+      return theme.neutral1;
     }
-    return theme.neutral2
+    return theme.neutral2;
   }};
   padding: 2px 8px;
   height: 28px;
@@ -44,13 +48,13 @@ const Container = styled.button<{ $selected?: boolean; $disabled?: boolean; $hig
   align-items: center;
   background-color: ${({ theme, $highlighted, $selected }) => {
     if ($highlighted || $selected) {
-      return theme.surface3
+      return theme.surface3;
     }
-    return 'unset'
+    return 'unset';
   }};
   ${({ $highlighted }) => ($highlighted ? highlightedBorderCss : containerBorderCss)};
   ${({ $disabled }) => !$disabled && ClickableStyle};
-`
+`;
 
 const HighlightedContainerXButton = styled.button`
   ${ClickableStyle}
@@ -67,7 +71,7 @@ const HighlightedContainerXButton = styled.button`
   border-bottom: 1px solid ${({ theme }) => theme.surface3};
   border-right: 1px solid ${({ theme }) => theme.surface3};
   border-left: 1px solid transparent;
-`
+`;
 
 export function LimitPresetPriceButton({
   priceAdjustmentPercentage,
@@ -75,15 +79,14 @@ export function LimitPresetPriceButton({
   disabled,
   onSelect,
 }: LimitPriceButtonProps) {
-  const { formatPercent } = useFormatter()
-  const sign = priceAdjustmentPercentage > 0 ? '+' : '-'
+  const { formatPercent } = useFormatter();
+  const sign = priceAdjustmentPercentage > 0 ? '+' : '-';
   return (
     <Container
       $selected={selected}
       $disabled={disabled}
       $highlighted={false}
-      onClick={() => !disabled && onSelect(priceAdjustmentPercentage)}
-    >
+      onClick={() => !disabled && onSelect(priceAdjustmentPercentage)}>
       {priceAdjustmentPercentage === 0 ? (
         <ThemedText.BodySecondary fontWeight={535} color="inherit">
           <Trans i18nKey="common.market.label" />
@@ -95,7 +98,7 @@ export function LimitPresetPriceButton({
         </ThemedText.BodySecondary>
       )}
     </Container>
-  )
+  );
 }
 
 /**
@@ -108,18 +111,17 @@ export function LimitCustomMarketPriceButton({
   disabled,
   onSelect,
 }: Omit<LimitPriceButtonProps, 'priceAdjustmentPercentage'> & {
-  customAdjustmentPercentage?: number
+  customAdjustmentPercentage?: number;
 }) {
-  const onSetAdjustmentPercentage = () => !disabled && onSelect(0)
-  const { formatPercent } = useFormatter()
+  const onSetAdjustmentPercentage = () => !disabled && onSelect(0);
+  const { formatPercent } = useFormatter();
   return (
     <Row width="unset" gap="1px">
       <Container
         $selected={selected}
         $disabled={disabled}
         $highlighted={customAdjustmentPercentage !== undefined}
-        onClick={onSetAdjustmentPercentage}
-      >
+        onClick={onSetAdjustmentPercentage}>
         {!customAdjustmentPercentage ? (
           <ThemedText.BodySecondary color="inherit" fontWeight={535}>
             <Trans i18nKey="common.market.label" />
@@ -137,5 +139,5 @@ export function LimitCustomMarketPriceButton({
         </HighlightedContainerXButton>
       )}
     </Row>
-  )
+  );
 }

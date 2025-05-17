@@ -17,9 +17,63 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Growly Suite',
-  description: 'Customize AI agents with powerful workflows.',
-  authors: [{ name: 'Growly Foundation' }],
+  title: 'Growly Suite Dashboard',
+  description: 'Manage your AI agents for Growly Suite and workflows with ease.',
+  keywords: 'Growly, DeFi, AI, LLM, MCP, knowledge base, AI agents, MCP server',
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+    other: [
+      {
+        rel: 'android-chrome-192x192',
+        url: '/android-chrome-192x192.png',
+        sizes: '192x192',
+        type: 'image/png',
+      },
+      {
+        rel: 'android-chrome-512x512',
+        url: '/android-chrome-512x512.png',
+        sizes: '512x512',
+        type: 'image/png',
+      },
+      {
+        rel: 'manifest',
+        url: '/site.webmanifest',
+      },
+    ],
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://suite.getgrowly.app',
+    title: 'Growly Suite Dashboard',
+    description: 'Manage your AI agents for Growly Suite and workflows with ease.',
+    siteName: 'Growly Suite Dashboard',
+    images: [
+      {
+        url: 'https://getgrowly.app/banners/dashboard-banner.png',
+        width: 1200,
+        height: 630,
+        alt: 'Growly Suite Dashboard',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title:
+      'Growly Suite Dashboard | Manage your AI agents for Growly Suite and workflows with ease.',
+    description: 'Manage your AI agents for Growly Suite and workflows with ease.',
+    images: ['https://getgrowly.app/banners/dashboard-banner.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  generator: 'v0.dev',
 };
 
 export default function RootLayout({

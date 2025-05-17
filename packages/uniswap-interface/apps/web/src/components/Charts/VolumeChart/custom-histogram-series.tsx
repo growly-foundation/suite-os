@@ -7,8 +7,8 @@ import {
   CustomHistogramProps,
   CustomHistogramSeriesOptions,
   CustomHistogramSeriesRenderer,
-} from 'components/Charts/VolumeChart/renderer'
-import { getCumulativeSum } from 'components/Charts/VolumeChart/utils'
+} from 'components/Charts/VolumeChart/renderer';
+import { getCumulativeSum } from 'components/Charts/VolumeChart/utils';
 import {
   CustomSeriesPricePlotValues,
   ICustomSeriesPaneView,
@@ -16,41 +16,41 @@ import {
   Time,
   WhitespaceData,
   customSeriesDefaultOptions,
-} from 'lightweight-charts'
+} from 'lightweight-charts';
 
 export class CustomHistogramSeries<TData extends CustomHistogramData>
   implements ICustomSeriesPaneView<Time, TData, CustomHistogramSeriesOptions>
 {
-  _renderer: CustomHistogramSeriesRenderer<TData>
-  _colors: string[]
-  _background?: string
+  _renderer: CustomHistogramSeriesRenderer<TData>;
+  _colors: string[];
+  _background?: string;
 
   constructor(props: CustomHistogramProps) {
-    this._renderer = new CustomHistogramSeriesRenderer(props)
-    this._colors = props.colors
-    this._background = props.background
+    this._renderer = new CustomHistogramSeriesRenderer(props);
+    this._colors = props.colors;
+    this._background = props.background;
   }
 
   priceValueBuilder(plotRow: TData): CustomSeriesPricePlotValues {
-    return [0, getCumulativeSum(plotRow)]
+    return [0, getCumulativeSum(plotRow)];
   }
 
   isWhitespace(data: TData | WhitespaceData): data is WhitespaceData {
-    return !(data as Partial<TData>).time || !getCumulativeSum(data as TData)
+    return !(data as Partial<TData>).time || !getCumulativeSum(data as TData);
   }
 
   renderer(): CustomHistogramSeriesRenderer<TData> {
-    return this._renderer
+    return this._renderer;
   }
 
   update(data: PaneRendererCustomData<Time, TData>, options: CustomHistogramSeriesOptions): void {
-    this._renderer.update(data, options)
+    this._renderer.update(data, options);
   }
 
   defaultOptions() {
     return {
       ...customSeriesDefaultOptions,
       colors: this._colors,
-    }
+    };
   }
 }

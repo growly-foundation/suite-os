@@ -1,7 +1,7 @@
-import { CustomHistogramData, StackedHistogramData } from 'components/Charts/VolumeChart/renderer'
+import { CustomHistogramData, StackedHistogramData } from 'components/Charts/VolumeChart/renderer';
 
 export function isStackedHistogramData(data: CustomHistogramData): data is StackedHistogramData {
-  return (data as StackedHistogramData).values !== undefined
+  return (data as StackedHistogramData).values !== undefined;
 }
 
 // Get summed value of each bar of data
@@ -10,21 +10,21 @@ export function getCumulativeSum(data: CustomHistogramData): number {
     ? Object.values(data.values)
         .filter((value: number | undefined): value is number => value !== undefined)
         .reduce((sum, curr) => (sum += curr), 0)
-    : data.value
+    : data.value;
 }
 
 // Get summed value of all bars of data
 export function getCumulativeVolume(data: CustomHistogramData[]) {
-  return data.reduce((sum, curr) => (sum += getCumulativeSum(curr)), 0)
+  return data.reduce((sum, curr) => (sum += getCumulativeSum(curr)), 0);
 }
 
 /* Copied from https://github.com/tradingview/lightweight-charts/blob/master/plugin-examples/src/helpers/ */
 
 interface BitmapPositionLength {
   /** coordinate for use with a bitmap rendering scope */
-  position: number
+  position: number;
   /** length for use with a bitmap rendering scope */
-  length: number
+  length: number;
 }
 
 /**
@@ -34,17 +34,21 @@ interface BitmapPositionLength {
  * @param pixelRatio - pixel ratio for the corresponding axis (vertical or horizontal)
  * @returns Position of of the start point and length dimension.
  */
-export function positionsBox(position1Media: number, position2Media: number, pixelRatio: number): BitmapPositionLength {
-  const scaledPosition1 = Math.round(pixelRatio * position1Media)
-  const scaledPosition2 = Math.round(pixelRatio * position2Media)
+export function positionsBox(
+  position1Media: number,
+  position2Media: number,
+  pixelRatio: number
+): BitmapPositionLength {
+  const scaledPosition1 = Math.round(pixelRatio * position1Media);
+  const scaledPosition2 = Math.round(pixelRatio * position2Media);
   return {
     position: Math.min(scaledPosition1, scaledPosition2),
     length: Math.abs(scaledPosition2 - scaledPosition1),
-  }
+  };
 }
 
-const alignToMinimalWidthLimit = 4
-const showSpacingMinimalBarWidth = 1
+const alignToMinimalWidthLimit = 4;
+const showSpacingMinimalBarWidth = 1;
 
 /**
  * Spacing gap between columns.
@@ -55,7 +59,7 @@ const showSpacingMinimalBarWidth = 1
 function columnSpacing(barSpacingMedia: number, horizontalPixelRatio: number) {
   return Math.ceil(barSpacingMedia * horizontalPixelRatio) <= showSpacingMinimalBarWidth
     ? 0
-    : Math.max(1, Math.floor(horizontalPixelRatio))
+    : Math.max(1, Math.floor(horizontalPixelRatio));
 }
 
 /**
@@ -67,22 +71,26 @@ function columnSpacing(barSpacingMedia: number, horizontalPixelRatio: number) {
  * @param spacing - Spacing gap between columns (in Bitmap coordinates). (optional, provide if you have already calculated it)
  * @returns Desired width for column bars (in Bitmap coordinates)
  */
-function desiredColumnWidth(barSpacingMedia: number, horizontalPixelRatio: number, spacing?: number) {
+function desiredColumnWidth(
+  barSpacingMedia: number,
+  horizontalPixelRatio: number,
+  spacing?: number
+) {
   return (
     Math.round(barSpacingMedia * horizontalPixelRatio) -
     (spacing ?? columnSpacing(barSpacingMedia, horizontalPixelRatio))
-  )
+  );
 }
 
 interface ColumnCommon {
   /** Spacing gap between columns */
-  spacing: number
+  spacing: number;
   /** Shift columns left by one pixel */
-  shiftLeft: boolean
+  shiftLeft: boolean;
   /** Half width of a column */
-  columnHalfWidthBitmap: number
+  columnHalfWidthBitmap: number;
   /** horizontal pixel ratio */
-  horizontalPixelRatio: number
+  horizontalPixelRatio: number;
 }
 
 /**
@@ -93,22 +101,22 @@ interface ColumnCommon {
  * @returns calculated values for subsequent column calculations
  */
 function columnCommon(barSpacingMedia: number, horizontalPixelRatio: number): ColumnCommon {
-  const spacing = columnSpacing(barSpacingMedia, horizontalPixelRatio)
-  const columnWidthBitmap = desiredColumnWidth(barSpacingMedia, horizontalPixelRatio, spacing)
-  const shiftLeft = columnWidthBitmap % 2 === 0
-  const columnHalfWidthBitmap = (columnWidthBitmap - (shiftLeft ? 0 : 1)) / 2
+  const spacing = columnSpacing(barSpacingMedia, horizontalPixelRatio);
+  const columnWidthBitmap = desiredColumnWidth(barSpacingMedia, horizontalPixelRatio, spacing);
+  const shiftLeft = columnWidthBitmap % 2 === 0;
+  const columnHalfWidthBitmap = (columnWidthBitmap - (shiftLeft ? 0 : 1)) / 2;
   return {
     spacing,
     shiftLeft,
     columnHalfWidthBitmap,
     horizontalPixelRatio,
-  }
+  };
 }
 
 export interface ColumnPosition {
-  left: number
-  right: number
-  shiftLeft: boolean
+  left: number;
+  right: number;
+  shiftLeft: boolean;
 }
 
 /**
@@ -122,32 +130,32 @@ export interface ColumnPosition {
 function calculateColumnPosition(
   xMedia: number,
   columnData: ColumnCommon,
-  previousPosition: ColumnPosition | undefined,
+  previousPosition: ColumnPosition | undefined
 ): ColumnPosition {
-  const xBitmapUnRounded = xMedia * columnData.horizontalPixelRatio
-  const xBitmap = Math.round(xBitmapUnRounded)
+  const xBitmapUnRounded = xMedia * columnData.horizontalPixelRatio;
+  const xBitmap = Math.round(xBitmapUnRounded);
   const xPositions: ColumnPosition = {
     left: xBitmap - columnData.columnHalfWidthBitmap,
     right: xBitmap + columnData.columnHalfWidthBitmap - (columnData.shiftLeft ? 1 : 0),
     shiftLeft: xBitmap > xBitmapUnRounded,
-  }
-  const expectedAlignmentShift = columnData.spacing + 1
+  };
+  const expectedAlignmentShift = columnData.spacing + 1;
   if (previousPosition) {
     if (xPositions.left - previousPosition.right !== expectedAlignmentShift) {
       // need to adjust alignment
       if (previousPosition.shiftLeft) {
-        previousPosition.right = xPositions.left - expectedAlignmentShift
+        previousPosition.right = xPositions.left - expectedAlignmentShift;
       } else {
-        xPositions.left = previousPosition.right + expectedAlignmentShift
+        xPositions.left = previousPosition.right + expectedAlignmentShift;
       }
     }
   }
-  return xPositions
+  return xPositions;
 }
 
 interface ColumnPositionItem {
-  x: number
-  column?: ColumnPosition
+  x: number;
+  column?: ColumnPosition;
 }
 
 /**
@@ -164,46 +172,46 @@ export function calculateColumnPositionsInPlace(
   barSpacingMedia: number,
   horizontalPixelRatio: number,
   startIndex: number,
-  endIndex: number,
+  endIndex: number
 ): void {
-  const common = columnCommon(barSpacingMedia, horizontalPixelRatio)
-  let previous: ColumnPositionItem | undefined = undefined
+  const common = columnCommon(barSpacingMedia, horizontalPixelRatio);
+  let previous: ColumnPositionItem | undefined = undefined;
   for (let i = startIndex; i < Math.min(endIndex, items.length); i++) {
     // Modification fix: is possible for previous column to not be directly behind the current column, i.e. if whitespace in between
     if (previous?.x && items[i].x - previous?.x > barSpacingMedia) {
-      previous = undefined
+      previous = undefined;
     }
-    items[i].column = calculateColumnPosition(items[i].x, common, previous?.column)
-    previous = items[i]
+    items[i].column = calculateColumnPosition(items[i].x, common, previous?.column);
+    previous = items[i];
   }
   const minColumnWidth = (items as ColumnPositionItem[]).reduce(
     (smallest: number, item: ColumnPositionItem, index: number) => {
       if (!item.column || index < startIndex || index > endIndex) {
-        return smallest
+        return smallest;
       }
       if (item.column.right < item.column.left) {
-        item.column.right = item.column.left
+        item.column.right = item.column.left;
       }
-      const width = item.column.right - item.column.left + 1
-      return Math.min(smallest, width)
+      const width = item.column.right - item.column.left + 1;
+      return Math.min(smallest, width);
     },
-    Math.ceil(barSpacingMedia * horizontalPixelRatio),
-  )
+    Math.ceil(barSpacingMedia * horizontalPixelRatio)
+  );
   if (common.spacing > 0 && minColumnWidth < alignToMinimalWidthLimit) {
-    ;(items as ColumnPositionItem[]).forEach((item: ColumnPositionItem, index: number) => {
+    (items as ColumnPositionItem[]).forEach((item: ColumnPositionItem, index: number) => {
       if (!item.column || index < startIndex || index > endIndex) {
-        return undefined
+        return undefined;
       }
-      const width = item.column.right - item.column.left + 1
+      const width = item.column.right - item.column.left + 1;
       if (width <= minColumnWidth) {
-        return item
+        return item;
       }
       if (item.column.shiftLeft) {
-        item.column.right -= 1
+        item.column.right -= 1;
       } else {
-        item.column.left += 1
+        item.column.left += 1;
       }
-      return item.column
-    })
+      return item.column;
+    });
   }
 }
