@@ -147,8 +147,13 @@ For developers looking to integrate Suite into their dApps, please check our [in
 
 This project is a submission to the [Base Batch APAC](https://base-batch-apac.devfolio.co/overview) buildathon, targeting both the AI and DeFi tracks:
 
-- **AI Track**: Suite leverages AI agents to perform useful onchain actions using AgentKit and other Coinbase developer platform tools. It's also familiar with DeFi term and know how to instruct user to Swap, Provide Liquidity, Stake, with comprehensive plan.
-- **DeFi Track**: By simplifying complex DeFi interactions, Suite helps expand DeFi accessibility and adoption on Base. It can understand any DeFi protocol interface + smart contract to give out exact recommendation for user. Also integrated with latest Uniswap v4 hook and SDK.
+- **AI Track**: With the motto **"Bring LLM to every DeFi protocols, instead of one centralized UI"**, we help creating a dedicated toolkit for dapp/protocol builder to extend there AI agent capability with one click. This is not only a chatbot, but can do more DeFi native use cases, given user's portfolio that can be retrieved onchain by our service, and protocol's domain that managed via Suite dashboard.
+- **DeFi Track**: Suite already provide a AI-agent widget that pre-trained with DeFi knowledge (Superchain token list, DeFiLlama and Zerion API). The agent can provide from:
+  - High-level rebalance strategy with reasoning based on risk-profile (analyzed from current portfolio); suggest yield as liquidity provider, to
+  - Specific DeFi protocol actions' touchpoints with intent suggestion (prefill swap and createPosition) links on Uniswap.
+  - Under the background, the agent has accessed to Uniswap v4 SDK and familiarized with tickSpacing to provide the user near real-time APR of a pool
+
+**Special Note**: This product is freshly built from the Base Batch APAC duration (starting from Apr 28). Please check this [clean up codebase](https://github.com/growly-foundation/suite/commit/86ced585cd5082c575ec97fbe7e884a1779d4d27) commit to fully demonstrate that no prior code has been taken into account (except the CI/CD setup that we want to reuse on existing repo).
 
 ## 📄 License
 
