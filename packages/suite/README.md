@@ -35,6 +35,7 @@ Required version: `> v15.0.0`
 
 ```tsx
 import { SuiteProvider, ChatWidget } from '@getgrowly/suite';
+import '@getgrowly/suite/dist/styles.css';
 
 // Agent Id and Organization Id can be retrieved on `suite.getgrowly.app` (Agents > Integration Guide).
 export const Provider = ({ children }: { children: React.ReactNode }) => {
