@@ -1,5 +1,11 @@
 # @getgrowly/suite
 
+## 1.0.4
+
+### Patch Changes
+
+- Update backend server endpoint to production.
+
 ## 1.0.3
 
 ### Patch Changes
