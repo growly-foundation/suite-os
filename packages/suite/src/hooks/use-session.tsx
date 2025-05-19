@@ -60,7 +60,7 @@ export const useSuiteSession = create<WidgetSession>((set, get) => ({
     return service;
   },
   setBusterState: state => set({ busterState: state }),
-  panelOpen: true,
+  panelOpen: false,
   togglePanel: () => set({ panelOpen: !get().panelOpen }),
   setPanelOpen: open => set({ panelOpen: open }),
   screen: Screen.Home,

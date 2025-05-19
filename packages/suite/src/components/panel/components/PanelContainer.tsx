@@ -28,7 +28,7 @@ export function PanelContainer() {
           className={cn(
             'fixed rounded-tl-2xl bottom-0 right-0 w-full max-w-[500px] sm:w-[500px] shadow-3xl z-[9999] flex flex-col overflow-hidden',
             border.default,
-            config?.display === 'fullView' ? 'h-[100vh]' : 'h-[100vh] md:h-[80vh]'
+            config?.display === 'fullView' ? 'h-[90vh]' : 'h-[90vh] md:h-[80vh]'
           )}
           style={styles.panel.container}>
           {/* Header */}
