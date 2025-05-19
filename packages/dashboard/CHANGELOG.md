@@ -1,5 +1,12 @@
 # @getgrowly/dashboard
 
+## 0.1.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @getgrowly/suite@1.0.3
+
 ## 0.1.4
 
 ### Patch Changes

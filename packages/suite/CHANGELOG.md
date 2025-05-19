@@ -1,5 +1,11 @@
 # @getgrowly/suite
 
+## 1.0.3
+
+### Patch Changes
+
+- Add theme system, dark mode and main panel screen for quick actions.
+
 ## 1.0.2
 
 ### Patch Changes
