@@ -118,6 +118,186 @@ The `GrowlyButton` component is similar to a normal button component but sending
 </GrowlyButton>
 ```
 
+## Theme System
+
+The suite includes a comprehensive theme system that provides consistent styling across all components. The system is built on a design token approach, making it easy to customize and extend.
+
+### Theme Structure
+
+Each theme is composed of tokens organized into semantic categories:
+
+```typescript
+interface ThemeTokens {
+  // Brand colors
+  brand: {
+    primary: string;
+    secondary: string;
+    accent: string;
+  };
+
+  // Background colors
+  background: {
+    default: string;
+    paper: string;
+    subtle: string;
+    inverse: string;
+  };
+
+  // Text colors
+  text: {
+    primary: string;
+    secondary: string;
+    muted: string;
+    inverse: string;
+  };
+
+  // UI element styles
+  ui: {
+    header: { background: string; text: string };
+    border: { default: string; subtle: string };
+    hover: { default: string };
+  };
+
+  // Typography settings
+  typography: {
+    fontFamily: string;
+    fontWeight: {
+      normal: string;
+      medium: string;
+      semibold: string;
+      bold: string;
+    };
+  };
+
+  // Spacing scale
+  spacing: {
+    xs: string;
+    sm: string;
+    md: string;
+    lg: string;
+    xl: string;
+  };
+
+  // Border radius
+  radius: {
+    sm: string;
+    md: string;
+    lg: string;
+    xl: string;
+    full: string;
+  };
+
+  // Shadow values
+  shadow: {
+    sm: string;
+    md: string;
+    lg: string;
+  };
+}
+```
+
+### Built-in Themes
+
+The suite includes two built-in themes:
+
+- `lightTheme`: A clean, light theme optimized for day use
+- `darkTheme`: A dark theme designed for reduced eye strain in low-light environments
+
+### Using Themes
+
+#### 1. Setting a Theme
+
+You can specify a theme when initializing the `SuiteProvider`:
+
+```tsx
+import { SuiteProvider, darkTheme } from '@getgrowly/suite';
+
+// In your app
+<SuiteProvider
+  organizationApiKey="your-api-key"
+  config={{
+    theme: darkTheme, // Use the built-in dark theme
+    // other config options...
+  }}>
+  {children}
+</SuiteProvider>;
+```
+
+Alternatively, you can use `brandName` to apply a primary color to the theme:
+
+```tsx
+<SuiteProvider
+  organizationApiKey="your-api-key"
+  config={{
+    brandName: 'Your App Name', // Generates a theme with your brand color
+    // other config options...
+  }}>
+  {children}
+</SuiteProvider>
+```
+
+#### 2. Creating Custom Themes
+
+Create a custom theme by extending the default themes:
+
+```tsx
+import { lightTheme } from '@getgrowly/suite';
+
+const customTheme = {
+  ...lightTheme,
+  brand: {
+    ...lightTheme.brand,
+    primary: '#ff0000', // Your custom primary color
+    accent: '#00ff00', // Your custom accent color
+  },
+  // Override other theme values as needed
+};
+
+// Then use it in your SuiteProvider
+<SuiteProvider
+  config={{
+    theme: customTheme,
+    // other config options...
+  }}>
+  {children}
+</SuiteProvider>;
+```
+
+#### 3. Using Theme in Components
+
+Access the current theme using the `useTheme` hook:
+
+```tsx
+import { useTheme } from '@/components/providers/ThemeProvider';
+
+function MyComponent() {
+  const { theme } = useTheme();
+
+  return (
+    <div style={{ color: theme.text.primary, backgroundColor: theme.background.default }}>
+      Themed content
+    </div>
+  );
+}
+```
+
+Use the `useThemeStyles` hook for consistent component styling:
+
+```tsx
+import { useThemeStyles } from '@/hooks/use-theme-styles';
+
+function MyComponent() {
+  const styles = useThemeStyles();
+
+  return (
+    <div style={styles.panel.container}>
+      <header style={styles.panel.header}>Header</header>
+      <div style={styles.content}>Content</div>
+    </div>
+  );
+}
+```
+
 ## Hooks
 
 - `useSuite`: Access the configurations provided on `SuiteProvider` initialization.
