@@ -6,7 +6,6 @@ import {
   MessageContent,
   ParsedMessage,
   ParsedUser,
-  Action,
   AggregatedWorkflow,
   ParsedStep,
 } from '@getgrowly/core';
@@ -61,10 +60,10 @@ export const useSuiteSession = create<WidgetSession>((set, get) => ({
     return service;
   },
   setBusterState: state => set({ busterState: state }),
-  panelOpen: false,
+  panelOpen: true,
   togglePanel: () => set({ panelOpen: !get().panelOpen }),
   setPanelOpen: open => set({ panelOpen: open }),
-  screen: Screen.Chat,
+  screen: Screen.Home,
   setScreen: screen => set({ screen }),
   user: undefined,
   inputValue: '',

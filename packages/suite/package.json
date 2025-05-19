@@ -26,8 +26,7 @@
   },
   "peerDependencies": {
     "react": "^18 || ^19",
-    "react-dom": "^18 || ^19",
-    "viem": "^1.24.0"
+    "react-dom": "^18 || ^19"
   },
   "dependencies": {
     "@coinbase/onchainkit": "^0.38.13",
@@ -125,14 +124,6 @@
     "vite-plugin-dts": "^4.5.3",
     "vite-plugin-externalize-deps": "^0.9.0",
     "vitest": "^3.1.2"
-  },
-  "overrides": {
-    "wagmi": {
-      "viem": "$viem"
-    },
-    "@wagmi/core": {
-      "viem": "$viem"
-    }
   },
   "files": [
     "dist/**/*",

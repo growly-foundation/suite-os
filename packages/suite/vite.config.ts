@@ -56,7 +56,6 @@ export default defineConfig({
     },
     rollupOptions: {
       input: entryPoints,
-      external: ['viem', '@coinbase/onchainkit'],
       output: {
         assetFileNames: 'assets/[name][extname]',
         entryFileNames: '[name].js',

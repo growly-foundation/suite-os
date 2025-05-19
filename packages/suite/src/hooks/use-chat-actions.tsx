@@ -69,6 +69,7 @@ export const useChatActions = () => {
       return;
     }
     if (input.trim().length > 0) {
+      setPanelOpen(true);
       setIsAgentThinking(true);
       setBusterState('writing');
       setIsSending(true);
@@ -80,7 +81,6 @@ export const useChatActions = () => {
       setIsSending(false);
       setBusterState('idle');
       setIsAgentThinking(false);
-      setPanelOpen(true);
     }
   };
 
