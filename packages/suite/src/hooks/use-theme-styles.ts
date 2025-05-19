@@ -15,7 +15,6 @@ export function useThemeStyles() {
         container: {
           backgroundColor: theme.background.default,
           borderColor: theme.ui.border.default,
-          borderRadius: theme.radius.lg,
           boxShadow: theme.shadow.lg,
         },
         header: {

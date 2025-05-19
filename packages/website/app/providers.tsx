@@ -1,6 +1,5 @@
 'use client';
 
-import { darkTheme } from '@getgrowly/suite';
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 
@@ -24,7 +23,7 @@ export const SuiteProviderWrapper = ({ children }: { children: React.ReactNode }
         organizationApiKey: DUMMY_ORGANIZATION_API_KEY,
         config: {
           display: 'panel',
-          theme: darkTheme,
+          brandName: 'Growly Suite',
         },
         session: {
           walletConnect: {

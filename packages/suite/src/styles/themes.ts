@@ -7,7 +7,7 @@ export const lightTheme: ThemeTokens = {
   brand: {
     primary: '#0052ff',
     secondary: '#3c79fd',
-    accent: '#8A2BE2',
+    accent: '#0066ff',
   },
   background: {
     default: '#ffffff',
@@ -83,19 +83,19 @@ export const darkTheme: ThemeTokens = {
   brand: {
     primary: '#0052ff',
     secondary: '#3c79fd',
-    accent: '#9333ea',
+    accent: '#0050ff',
   },
   background: {
     default: '#111827',
     paper: '#1f2937',
     subtle: '#374151',
-    inverse: '#ffffff',
+    inverse: '#111827',
   },
   text: {
     primary: '#f9fafb',
     secondary: '#e5e7eb',
     muted: '#9ca3af',
-    inverse: '#111827',
+    inverse: '#ffffff',
   },
   ui: {
     header: {

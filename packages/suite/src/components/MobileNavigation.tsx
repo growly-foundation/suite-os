@@ -45,10 +45,10 @@ export function MobileNavigation() {
           return (
             <div
               key={item.screen}
-              className={cn(
-                'flex flex-col items-center justify-center',
-                isActive ? 'text-primary' : 'text-muted hover:text-primary'
-              )}
+              className={cn('flex flex-col items-center justify-center')}
+              style={{
+                color: isActive ? theme.brand.primary : theme.text.primary,
+              }}
               onClick={() => setScreen(item.screen)}>
               <IconComponent className="h-5 w-5" />
               <span className="mt-1 text-xs">{item.label}</span>

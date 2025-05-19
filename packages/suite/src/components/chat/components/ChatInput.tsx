@@ -49,8 +49,7 @@ export const ChatInput = ({
         <Button
           className={cn(border.defaultActive, pressable.inverse, text.headline)}
           style={{
-            backgroundColor: styles.button.primary.backgroundColor,
-            color: styles.button.primary.color,
+            color: styles.text.inverse.color,
             borderRadius: '50%',
             width: '40px',
             height: '40px',

@@ -26,7 +26,7 @@ export function PanelContainer() {
           exit={{ y: '100%', opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           className={cn(
-            'fixed bottom-0 right-0 w-full max-w-[500px] sm:w-[500px] shadow-2xl z-[9999] flex flex-col overflow-hidden',
+            'fixed rounded-tl-2xl bottom-0 right-0 w-full max-w-[500px] sm:w-[500px] shadow-3xl z-[9999] flex flex-col overflow-hidden',
             border.default,
             config?.display === 'fullView' ? 'h-[100vh]' : 'h-[100vh] md:h-[80vh]'
           )}
