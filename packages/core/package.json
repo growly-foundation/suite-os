@@ -2,7 +2,7 @@
   "name": "@getgrowly/core",
   "version": "0.1.0",
   "type": "module",
-  "repository": "https://github.com/growly-official/suite.git",
+  "repository": "https://github.com/growly-foundation/suite.git",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
