@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { cn, text } from '@/styles/theme';
-import { BRAND_NAME_CAPITALIZED } from '@getgrowly/ui';
+import { AnimatedBuster, BRAND_NAME_CAPITALIZED } from '@getgrowly/ui';
 import { X } from 'lucide-react';
 import { useSuiteSession } from '@/hooks/use-session';
 
@@ -9,7 +9,7 @@ export const PanelHeader = () => {
   return (
     <div className="flex justify-between items-center">
       <div className="flex items-center space-x-3">
-        {/* <AgentAvatar /> */}
+        <AnimatedBuster width={40} height={40} state="writing" />
         <div>
           <h2 className={cn('font-semibold', text.headline)}>
             {agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}

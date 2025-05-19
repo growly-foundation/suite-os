@@ -22,7 +22,8 @@ export const SuiteProviderWrapper = ({ children }: { children: React.ReactNode }
         agentId: DUMMY_AGENT_ID,
         organizationApiKey: DUMMY_ORGANIZATION_API_KEY,
         config: {
-          display: 'fullView',
+          display: 'panel',
+          brandName: 'Growly Suite',
         },
         session: {
           walletConnect: {

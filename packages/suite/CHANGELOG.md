@@ -1,5 +1,23 @@
 # @getgrowly/suite
 
+## 1.0.5
+
+### Patch Changes
+
+- Fix production backend server endpoint
+
+## 1.0.4
+
+### Patch Changes
+
+- Update backend server endpoint to production.
+
+## 1.0.3
+
+### Patch Changes
+
+- Add theme system, dark mode and main panel screen for quick actions.
+
 ## 1.0.2
 
 ### Patch Changes
