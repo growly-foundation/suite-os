@@ -5,6 +5,7 @@ import { useSuiteSession } from './use-session';
 import { chatService } from '@/services/chat.service';
 import { toast } from 'sonner';
 import { useSuite } from './use-suite';
+import { Screen } from '@/types/screen';
 
 export const useChatActions = () => {
   const {
@@ -15,6 +16,7 @@ export const useChatActions = () => {
     inputValue,
     setInputValue,
     setPanelOpen,
+    setScreen,
   } = useSuiteSession();
   const { agentId } = useSuite();
   const [isSending, setIsSending] = React.useState(false);
@@ -58,6 +60,11 @@ export const useChatActions = () => {
     sendRemoteMessage('system:error', message, sender);
   };
 
+  const navigateChatScreen = () => {
+    setPanelOpen(true);
+    setScreen(Screen.Chat);
+  };
+
   /**
    * Send a message on behalf of the user.
    * @param input The content of the message
@@ -69,9 +76,8 @@ export const useChatActions = () => {
       return;
     }
     if (input.trim().length > 0) {
-      setPanelOpen(true);
-      setIsAgentThinking(true);
-      setBusterState('writing');
+      navigateChatScreen();
+
       setIsSending(true);
       setInputValue('');
 
@@ -79,8 +85,6 @@ export const useChatActions = () => {
       await generateAgentMessage(input);
 
       setIsSending(false);
-      setBusterState('idle');
-      setIsAgentThinking(false);
     }
   };
 
@@ -90,12 +94,12 @@ export const useChatActions = () => {
    * @param isError Whether the message is an error message
    */
   const textAgentMessage = async (input: string, isError?: boolean) => {
+    navigateChatScreen();
     if (isError) {
       sendErrorMessage(input, ConversationRole.Agent);
     } else {
       sendTextMessage(input, ConversationRole.Agent);
     }
-    setPanelOpen(true);
   };
 
   /**
@@ -107,6 +111,9 @@ export const useChatActions = () => {
       toast.error('Failed to send message');
       return;
     }
+    navigateChatScreen();
+    setIsAgentThinking(true);
+    setBusterState('writing');
     try {
       const newMessage = await chatService.chat({
         message: input,
@@ -119,6 +126,9 @@ export const useChatActions = () => {
     } catch (error: any) {
       toast.error(`Failed to send message: ${error}`);
       textAgentMessage(error.toSring(), true);
+    } finally {
+      setIsAgentThinking(false);
+      setBusterState('idle');
     }
   };
 

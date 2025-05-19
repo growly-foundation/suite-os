@@ -1,7 +1,6 @@
 import './types.d';
 
 // Components.
-export * from './components/html';
 export * from './components/widgets';
 export * from './components/providers/SuiteProvider';
 export * from './components/providers/SuiteProvider.types';

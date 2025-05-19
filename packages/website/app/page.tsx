@@ -11,6 +11,7 @@ import TechStack from '@/components/tech-stack';
 import TypingPromptInput from '@/components/typing-prompt-input';
 import { Button } from '@/components/ui/button';
 import UseCasesDefi from '@/components/use-cases-defi';
+import { GrowlyComponent } from '@getgrowly/suite';
 import { BusterState, GridBackground, FramerSpotlight } from '@getgrowly/ui';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
@@ -213,7 +214,11 @@ export default function Home() {
                     'Simplify DeFi access with data-informed user guidance, and plug-and-play widgets (OnchainKit).',
                 },
               ].map(({ component, title, description }, index) => (
-                <div key={index} className="flex flex-col items-center space-y-4 text-center">
+                <GrowlyComponent.Div
+                  key={index}
+                  withUserMessage={false}
+                  triggerMessage={`Explain about ${title} feature in Growly Suite: ${description}`}
+                  className="flex flex-col items-center space-y-4 text-center">
                   <div className="flex h-[400px] w-full items-center justify-center rounded-full cursor-pointer hover:bg-primary transition-colors duration-300 text-primary-foreground">
                     {component}
                   </div>
@@ -221,7 +226,7 @@ export default function Home() {
                     <h3 className="text-xl font-bold">{title}</h3>
                     <p className="text-muted-foreground">{description}</p>
                   </div>
-                </div>
+                </GrowlyComponent.Div>
               ))}
             </div>
           </div>
