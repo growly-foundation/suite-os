@@ -91,7 +91,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           coinbaseFont.variable,
           geistSans.variable,
           geistMono.variable
-        )}>
+        )}
+        style={{
+          scrollBehavior: 'smooth',
+        }}>
         <AppInner>{children}</AppInner>
       </body>
     </html>
