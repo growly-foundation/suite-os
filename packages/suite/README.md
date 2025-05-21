@@ -43,7 +43,7 @@ export const Provider = ({ children }: { children: React.ReactNode }) => {
     <SuiteProvider
       context={{
         agentId: `AGENT_ID`,
-        organizationApiKey: `ORGANIZAITON_ID`,
+        organizationApiKey: `ORGANIZATION_ID`,
         config: {
           display: 'fullView',
         },
@@ -78,7 +78,7 @@ export const Provider = ({ children }: { children: React.ReactNode }) => {
     <SuiteProvider
       context={{
         agentId: `AGENT_ID`,
-        organizationApiKey: `ORGANIZAITON_ID`,
+        organizationApiKey: `ORGANIZATION_ID`,
         config: {
           display: 'fullView',
         },

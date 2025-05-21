@@ -7,6 +7,32 @@
   <p style="font-size: 1.2em; max-width: 600px; margin: 0 auto 20px;">
     Empower DeFi Adoption with AI-powered Engine
   </p>
+    <p>
+  <a href="https://www.npmjs.com/package/@getgrowly/suite" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/npm/v/@getgrowly/suite?style=flat-square&color=0052FF" alt="Version" />
+  </a>
+  <a href="https://github.com/growly-foundation/suite/commits/main">
+    <img src="https://img.shields.io/github/last-commit/growly-foundation/suite?color=0052FF&style=flat-square" alt="last update" />
+  </a>
+  <a href="https://www.npmjs.com/package/@getgrowly/suite" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/npm/dm/@getgrowly/suite?style=flat-square&color=0052FF" alt="Downloads per month" />
+  </a>
+  <a href="https://github.com/growly-foundation/suite/blob/main/LICENSE.md" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/npm/l/@getgrowly/suite?style=flat-square&color=0052FF" alt="MIT License" />
+  </a>
+</p>
+
+<p>
+  <a href="https://x.com/GrowlyFND">
+    <img src="https://img.shields.io/twitter/follow/GrowlyFND.svg?style=social" alt="Follow @GrowlyFND" />
+  </a>
+  <a href="https://github.com/growly-foundation/suite/stargazers">
+    <img src="https://img.shields.io/github/stars/growly-foundation/suite" alt="stars" />
+  </a>
+  <a href="https://github.com/growly-foundation/suite/network/members">
+    <img src="https://img.shields.io/github/forks/growly-foundation/suite" alt="forks" />
+  </a>
+</p>
 </div>
 
 > [!NOTE]  
