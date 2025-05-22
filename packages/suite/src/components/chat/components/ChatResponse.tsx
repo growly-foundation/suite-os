@@ -8,7 +8,7 @@ import {
   buildOnchainKitTokenChipMessage,
 } from '@/components/messages/onchainkit';
 import { buildSystemErrorMessage } from '@/components/messages/system';
-import { border, text } from '@/styles/theme';
+import { text } from '@/styles/theme';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { buildMarkdownMessage } from '@/components/messages/system/markdown';
@@ -70,12 +70,12 @@ const AgentResponse = ({ message }: { message: ParsedMessage }) => {
       className="flex space-x-2"
       style={{ marginBottom: 10 }}>
       <Card
-        className={cn('p-3 bg-muted', 'max-w-[80%]', text.body)}
+        className={cn('py-2 px-4 mb-2', text.body)}
         style={{
           backgroundColor: theme.background.paper,
           color: theme.text.primary,
-          borderColor: theme.ui.border.default,
-          borderRadius: theme.radius.lg,
+          border: 'none',
+          boxShadow: 'none',
         }}>
         <MessageContent message={message} />
       </Card>
@@ -94,7 +94,7 @@ const UserResponse = ({ message }: { message: ParsedMessage }) => {
       className="flex"
       style={{ marginBottom: 10, justifyContent: 'flex-end' }}>
       <Card
-        className={cn('p-3 max-w-[80%]', text.body)}
+        className={cn('py-2 px-4 mb-2 max-w-[80%]', text.body)}
         style={{
           backgroundColor: theme.background.default,
           color: theme.text.primary,

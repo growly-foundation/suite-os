@@ -14,7 +14,7 @@ export const ChatInput = ({
   isSending: boolean;
 }) => {
   const styles = useThemeStyles();
-  const { inputValue, setInputValue } = useSuiteSession();
+  const { inputValue, setInputValue, isAgentThinking } = useSuiteSession();
 
   // If "ENTER" is clicked, send a message.
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -32,8 +32,9 @@ export const ChatInput = ({
           value={inputValue}
           onChange={e => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
+          disabled={isAgentThinking}
           required
-          placeholder="Send a message..."
+          placeholder={isAgentThinking ? 'Agent is thinking...' : 'Send a message...'}
           style={{
             border: 'none',
             backgroundColor: styles.chat.input.backgroundColor,
@@ -54,7 +55,8 @@ export const ChatInput = ({
             width: '40px',
             height: '40px',
           }}
-          onClick={sendMessageHandler}>
+          onClick={sendMessageHandler}
+          disabled={isAgentThinking || isSending}>
           {isSending ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (

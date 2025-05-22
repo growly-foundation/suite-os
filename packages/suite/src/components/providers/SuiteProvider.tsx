@@ -6,6 +6,7 @@ import { SuiteConfig, SuiteGlobalContext } from './SuiteProvider.types';
 import { ThemeProvider } from './ThemeProvider';
 import { ThemeName } from '@/types/theme';
 import { WorkflowExecutionObserver } from './WorkflowExecutionObserver';
+import { TooltipProvider } from '../ui/tooltip';
 
 const defaultConfig: SuiteConfig = {
   display: 'fullView',
@@ -106,7 +107,9 @@ export const SuiteProvider: React.FC<{
       <ThemeProvider
         defaultTheme={config.themeMode || ThemeName.Light}
         themeOverrides={config.theme}>
-        <WorkflowExecutionObserver>{baseComponent}</WorkflowExecutionObserver>
+        <WorkflowExecutionObserver>
+          <TooltipProvider>{baseComponent}</TooltipProvider>
+        </WorkflowExecutionObserver>
       </ThemeProvider>
     </SuiteContext.Provider>
   );
