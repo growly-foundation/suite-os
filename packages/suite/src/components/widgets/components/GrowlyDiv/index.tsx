@@ -1,4 +1,7 @@
 import { useChatActions } from '@/hooks/use-chat-actions';
+import { cn } from '@/styles/theme';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useSuiteSession } from '@/hooks/use-session';
 
 export const GrowlyDiv = ({
   children,
@@ -10,6 +13,7 @@ export const GrowlyDiv = ({
   triggerMessage: string;
   withUserMessage?: boolean;
 }) => {
+  const { agent } = useSuiteSession();
   const { generateAgentMessage, sendUserMessage } = useChatActions();
   const handleClick = async (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -25,8 +29,11 @@ export const GrowlyDiv = ({
     }
   };
   return (
-    <div onClick={handleClick} {...props}>
-      {children}
+    <div onClick={handleClick} className={cn('relative', props.className)} {...props}>
+      <Tooltip>
+        <TooltipTrigger>{children}</TooltipTrigger>
+        <TooltipContent>Chat with {agent?.name}</TooltipContent>
+      </Tooltip>
     </div>
   );
 };
