@@ -56,4 +56,8 @@ export interface PortfolioAnalysis {
   tokenAmount?: number;
 }
 
-export type RebalancingStrategy = 'conservative' | 'moderate' | 'aggressive';
+export enum RebalancingStrategy {
+  CONSERVATIVE = 'conservative',
+  MODERATE = 'moderate',
+  AGGRESSIVE = 'aggressive',
+}
