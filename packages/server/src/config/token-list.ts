@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { CHAIN_IDS, ChainName } from './chains';
 
 // Token list interfaces
 export interface TokenList {
@@ -19,15 +20,6 @@ export interface Token {
   decimals: number;
   logoURI?: string;
 }
-
-// Mapping of chain names to chain IDs
-export const CHAIN_IDS: Record<string, number> = {
-  ethereum: 1,
-  polygon: 137,
-  arbitrum: 42161,
-  optimism: 10,
-  base: 8453,
-};
 
 // Token list sources
 const TOKEN_LIST_SOURCES = {
@@ -204,7 +196,7 @@ export class TokenListManager {
   /**
    * Get token address by chain and symbol
    */
-  async getTokenAddress(chain: string, symbol: string): Promise<string> {
+  async getTokenAddress(chain: ChainName, symbol: string): Promise<string> {
     // Hardcoded check for USDC on Base
     if (chain === 'base' && symbol === 'USDC') {
       return '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';

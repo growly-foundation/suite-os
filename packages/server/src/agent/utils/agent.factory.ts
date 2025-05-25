@@ -1,10 +1,10 @@
 // src/langchain/agent/agent.factory.ts
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
 import { ConfigService } from '@nestjs/config';
-import { getProtocolTool } from '../tools/defillama/defillama';
+import { getProtocolTool } from '../tools/defillama';
 import { makeTavilyTools } from '../tools/tavily';
-import { makeZerionTools } from '../tools/zerion/zerion';
-import { makeUniswapTools } from '../tools/growly/uniswap';
+import { makeZerionTools } from '../tools/zerion';
+import { makeUniswapTools } from '../tools/uniswap';
 import { getCheckpointer } from './checkpointer';
 import { ChatModelFactory, ChatProvider } from './model.factory';
 

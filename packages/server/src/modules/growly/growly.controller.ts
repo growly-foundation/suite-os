@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ChatService } from 'src/chat/chat.service';
+import { ChatService } from '../chat/chat.service';
 
 @Controller('growly')
 export class GrowlyController {

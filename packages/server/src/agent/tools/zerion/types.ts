@@ -1,3 +1,5 @@
+import { ChainName } from '../../../config/chains';
+
 // Zerion API response types
 export interface ZerionFungiblePositionsResponse {
   links: {
@@ -135,7 +137,7 @@ export interface Chain {
 
 export interface Data {
   type: DataType;
-  id: string;
+  id: ChainName;
 }
 
 export enum DataType {

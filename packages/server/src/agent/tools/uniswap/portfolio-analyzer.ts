@@ -3,9 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { isAddress } from 'viem';
 import { z } from 'zod';
 import axios from 'axios';
-import { ZerionFungiblePositionsResponse } from '../../zerion/types';
-import { ZERION_V1_BASE_URL } from '../../zerion/constants';
-import { getEncodedKey } from '../../zerion/zerion';
+import { ZerionFungiblePositionsResponse } from '../zerion/types';
+import { ZERION_V1_BASE_URL } from '../zerion/constants';
+import { getEncodedKey } from '../zerion';
 import { TokenInfo, PortfolioAnalysis, RebalancingStrategy } from './types';
 
 export function makePortfolioAnalyzerTool(configService: ConfigService) {

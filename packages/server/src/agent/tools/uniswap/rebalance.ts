@@ -3,11 +3,11 @@ import { ConfigService } from '@nestjs/config';
 import { isAddress } from 'viem';
 import { z } from 'zod';
 import axios from 'axios';
-import { ZerionFungiblePositionsResponse } from '../../zerion/types';
-import { ZERION_V1_BASE_URL } from '../../zerion/constants';
-import { getEncodedKey } from '../../zerion/zerion';
+import { ZerionFungiblePositionsResponse } from '../zerion/types';
+import { ZERION_V1_BASE_URL } from '../zerion/constants';
+import { getEncodedKey } from '../zerion';
 import { TokenInfo, RebalanceRecommendation, RebalancingStrategy } from './types';
-import { TokenListManager } from './token-list';
+import { TokenListManager } from '../../../config/token-list';
 import { createSwapRecommendation, updateSwapWithTokenAddresses } from './swap-utils';
 
 export function makeRebalancePortfolioTool(configService: ConfigService) {

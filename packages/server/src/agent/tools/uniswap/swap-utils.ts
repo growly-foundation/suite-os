@@ -1,4 +1,5 @@
-import { TokenListManager } from './token-list';
+import { ChainName } from 'src/config/chains';
+import { TokenListManager } from '../../../config/token-list';
 import { RebalanceRecommendation, TokenInfo } from './types';
 
 // Hardcoded token addresses for specific chains
@@ -110,7 +111,7 @@ export async function createSwapBySymbols(
   fromSymbol: string,
   toSymbol: string,
   amount: number,
-  chain: string,
+  chain: ChainName,
   reason: string,
   tokenListManager: TokenListManager
 ): Promise<RebalanceRecommendation | null> {

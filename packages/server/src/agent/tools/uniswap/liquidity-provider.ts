@@ -3,17 +3,18 @@ import { ConfigService } from '@nestjs/config';
 import { isAddress } from 'viem';
 import { z } from 'zod';
 import axios from 'axios';
-import { ZerionFungiblePositionsResponse } from '../../zerion/types';
-import { ZERION_V1_BASE_URL } from '../../zerion/constants';
-import { getEncodedKey } from '../../zerion/zerion';
+import { ZerionFungiblePositionsResponse } from '../zerion/types';
+import { ZERION_V1_BASE_URL } from '../zerion/constants';
+import { getEncodedKey } from '../zerion';
 import {
   TokenInfo,
   LiquidityPairRecommendation,
   LiquidityPlan,
   RebalanceRecommendation,
 } from './types';
-import { TokenListManager } from './token-list';
+import { TokenListManager } from '../../../config/token-list';
 import { PoolDataFetcher } from './pool-data-fetcher';
+import { ChainName } from '../../../config/chains';
 import { updateSwapWithTokenAddresses } from './swap-utils';
 
 export function makeLiquidityProviderTool(configService: ConfigService) {
@@ -55,7 +56,7 @@ export function makeLiquidityProviderTool(configService: ConfigService) {
     try {
       // Fetch pool data from Uniswap for this pair
       const poolData = await poolDataFetcher.findBestPoolForPair(
-        chain,
+        chain as ChainName,
         tokenA.symbol,
         tokenB.symbol
       );
@@ -175,11 +176,11 @@ export function makeLiquidityProviderTool(configService: ConfigService) {
 
       // If addresses are not available in the token info, look them up from token lists
       if (!addressA && !isNativeA && !isNativeMatic) {
-        addressA = await tokenListManager.getTokenAddress(chain, tokenA.symbol);
+        addressA = await tokenListManager.getTokenAddress(chain as ChainName, tokenA.symbol);
       }
 
       if (!addressB && !isNativeB && !isNativeMaticB) {
-        addressB = await tokenListManager.getTokenAddress(chain, tokenB.symbol);
+        addressB = await tokenListManager.getTokenAddress(chain as ChainName, tokenB.symbol);
       }
 
       // Generate the Uniswap link with the correct parameters

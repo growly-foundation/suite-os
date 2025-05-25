@@ -2,9 +2,9 @@
 import { SuiteDatabaseCore } from '@getgrowly/core';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { agentPromptTemplate, beastModeDescription } from './prompt';
-import { AgentOptions, createAgent } from './utils/agent.factory';
-import { ChatProvider } from './utils/model.factory';
+import { agentPromptTemplate, beastModeDescription } from '../../agent/prompt';
+import { AgentOptions, createAgent } from '../../agent/utils/agent.factory';
+import { ChatProvider } from '../../agent/utils/model.factory';
 
 interface AgentChatRequest {
   message: string;

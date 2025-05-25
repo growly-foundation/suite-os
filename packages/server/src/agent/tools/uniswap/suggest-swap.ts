@@ -1,7 +1,7 @@
 import { DynamicStructuredTool } from '@langchain/core/tools';
 import { ConfigService } from '@nestjs/config';
 import { z } from 'zod';
-import { TokenListManager } from './token-list';
+import { TokenListManager } from '../../../config/token-list';
 import { createSwapBySymbols, formatSwapResponse } from './swap-utils';
 
 export function makeSuggestSwapTool(configService: ConfigService) {

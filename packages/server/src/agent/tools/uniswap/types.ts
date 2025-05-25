@@ -1,7 +1,9 @@
+import { ChainName } from '../../../config/chains';
+
 export interface TokenInfo {
   symbol: string;
   name: string;
-  chain: string;
+  chain: ChainName;
   address: string | null;
   value: number;
   percentage: number;
