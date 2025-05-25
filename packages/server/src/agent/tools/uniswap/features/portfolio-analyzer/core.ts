@@ -1,11 +1,12 @@
 import { ConfigService } from '@nestjs/config';
 import { TokenInfo } from '../../types';
 import { RebalancingStrategy, PortfolioAnalysis } from '../../types';
-import { getEncodedKey } from 'src/agent/tools/zerion';
+import { getEncodedKey } from '../../../zerion';
 import axios from 'axios';
-import { ZERION_V1_BASE_URL } from 'src/agent/tools/zerion/constants';
+import { ZERION_V1_BASE_URL } from '../../../zerion/constants';
 import { isAddress } from 'viem';
-import { ZerionFungiblePositionsResponse } from 'src/agent/tools/zerion/types';
+import { ZerionFungiblePositionsResponse } from '../../../zerion/types';
+import { ToolFn, ToolOutputValue } from '../../../../utils/tools';
 
 function analyzePortfolio(tokens: TokenInfo[], strategy: RebalancingStrategy): PortfolioAnalysis {
   // Sort tokens by value (descending)
@@ -355,7 +356,7 @@ ${detailedReason}
   return summary;
 }
 
-export const analyzePortfolioToolFn = (configService: ConfigService) => {
+export const analyzePortfolioToolFn: ToolFn = (configService: ConfigService) => {
   const encodedKey = getEncodedKey(configService);
   const axiosInstance = axios.create({
     baseURL: ZERION_V1_BASE_URL,
@@ -365,9 +366,14 @@ export const analyzePortfolioToolFn = (configService: ConfigService) => {
     },
   });
 
-  return async ({ walletAddress, strategy }) => {
+  return async ({ walletAddress, strategy }): Promise<ToolOutputValue[]> => {
     if (!isAddress(walletAddress)) {
-      return `Invalid wallet address: ${walletAddress}`;
+      return [
+        {
+          type: 'system:error',
+          content: `Invalid wallet address: ${walletAddress}`,
+        },
+      ];
     }
 
     try {
@@ -418,12 +424,27 @@ export const analyzePortfolioToolFn = (configService: ConfigService) => {
       const analysis = analyzePortfolio(tokens, strategy);
 
       // Format the response
-      return formatAnalysisResponse(analysis, tokens, totalValue);
+      return [
+        {
+          type: 'text',
+          content: formatAnalysisResponse(analysis, tokens, totalValue),
+        },
+      ];
     } catch (error) {
       if (error instanceof Error) {
-        return `Failed to analyze portfolio: ${error.message}`;
+        return [
+          {
+            type: 'system:error',
+            content: `Failed to analyze portfolio: ${error.message}`,
+          },
+        ];
       }
-      return 'Failed to analyze portfolio.';
+      return [
+        {
+          type: 'system:error',
+          content: 'Failed to analyze portfolio.',
+        },
+      ];
     }
   };
 };

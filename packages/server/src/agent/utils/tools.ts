@@ -1,3 +1,13 @@
+import { MessageContent } from '@getgrowly/core';
+import { ConfigService } from '@nestjs/config';
+
+export interface ToolInput {
+  [key: string]: { description: string; required?: boolean };
+}
+export type ToolOutputDescription = Omit<MessageContent, 'content'> & { description: string };
+export type ToolOutputValue = MessageContent;
+export type ToolFn = (configService: ConfigService) => (input: any) => Promise<ToolOutputValue[]>;
+
 export const makeToolDescription = ({
   description,
   condition,
@@ -6,8 +16,8 @@ export const makeToolDescription = ({
 }: {
   description: string;
   condition?: string;
-  input?: Record<string, { description: string; required?: boolean }>;
-  output: Record<string, { description: string }>;
+  input?: ToolInput;
+  output: ToolOutputDescription[];
 }) => {
   return `
 ${description}
@@ -27,6 +37,10 @@ ${
 }
 
 Output:
-${Object.entries(output).map(([key, { description }]) => `- ${key}: ${description}`)}
+${makeToolOutput(output as any)}
 `;
+};
+
+export const makeToolOutput = (output: ToolOutputValue[]) => {
+  return JSON.parse(JSON.stringify(output));
 };

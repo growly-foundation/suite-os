@@ -1,7 +1,7 @@
 import { DynamicStructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { suggestSwap } from './core';
-import { makeToolDescription } from 'src/agent/utils/tools';
+import { makeToolDescription } from '../../../../utils/tools';
 
 export function makeSuggestSwapTool() {
   return new DynamicStructuredTool({
@@ -31,11 +31,16 @@ Returns a detailed recommendation with reasoning and a direct swap link.`,
           required: false,
         },
       },
-      output: {
-        recommendation: {
+      output: [
+        {
+          type: 'text',
           description: 'A swap recommendation with a pre-filled Uniswap link.',
         },
-      },
+        {
+          type: 'onchainkit:swap',
+          description: 'A swap recommendation with a pre-filled Uniswap link.',
+        },
+      ],
     }),
     schema: z
       .object({

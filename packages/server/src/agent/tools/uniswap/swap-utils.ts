@@ -1,6 +1,8 @@
-import { ChainName } from 'src/config/chains';
+import { ChainName } from '../../../config/chains';
 import { TokenListManager } from '../../../config/token-list';
 import { RebalanceRecommendation, TokenInfo } from './types';
+import { OnchainKitSwapMessageContent } from '@getgrowly/core';
+import { ToolOutputValue } from '../../../agent/utils/tools';
 
 // Hardcoded token addresses for specific chains
 const HARDCODED_ADDRESSES: Record<string, Record<string, string>> = {
@@ -174,10 +176,22 @@ export async function createSwapBySymbols(
 /**
  * Format a swap recommendation as a user-friendly string
  */
-export function formatSwapResponse(recommendation: RebalanceRecommendation): string {
+export function formatSwapResponse(recommendation: RebalanceRecommendation): ToolOutputValue[] {
   const { fromToken, toToken, reason, uniswapLink, valueToSwap, tokenAmount } = recommendation;
 
-  return `
+  const messageContent: OnchainKitSwapMessageContent = {
+    content: {
+      fromToken,
+      toToken,
+      swappableTokens: [fromToken, toToken],
+    },
+    type: 'onchainkit:swap',
+  };
+
+  return [
+    {
+      type: 'text',
+      content: `
 ## Swap Recommendation
 
 I suggest swapping **${tokenAmount ? tokenAmount.toFixed(6) : '?'} ${fromToken.symbol}** (about $${valueToSwap.toFixed(2)}) to **${toToken.symbol}**.
@@ -187,5 +201,8 @@ ${reason}
 
 You can execute this swap on Uniswap:
 @${uniswapLink}
-`;
+`,
+    },
+    messageContent,
+  ];
 }

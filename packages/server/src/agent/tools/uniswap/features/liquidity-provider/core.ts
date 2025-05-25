@@ -14,6 +14,7 @@ import { TokenListManager } from '../../../../../config/token-list';
 import { PoolDataFetcher } from '../../services/pool-data-fetcher';
 import { ChainName } from '../../../../../config/chains';
 import { updateSwapWithTokenAddresses } from '../../swap-utils';
+import { ToolFn, ToolOutputValue } from '../../../../utils/tools';
 
 // Create token list manager
 const tokenListManager = new TokenListManager();
@@ -468,8 +469,8 @@ You can provide liquidity to this pool directly on Uniswap:
   return response;
 }
 
-export const analyzeAndSuggestLiquidityPools = (configService: ConfigService) => {
-  return async ({ walletAddress }: { walletAddress: string }) => {
+export const analyzeAndSuggestLiquidityPools: ToolFn = (configService: ConfigService) => {
+  return async ({ walletAddress }: { walletAddress: string }): Promise<ToolOutputValue[]> => {
     const encodedKey = getEncodedKey(configService);
     const axiosInstance = axios.create({
       baseURL: ZERION_V1_BASE_URL,
@@ -479,7 +480,12 @@ export const analyzeAndSuggestLiquidityPools = (configService: ConfigService) =>
       },
     });
     if (!isAddress(walletAddress)) {
-      return `Invalid wallet address: ${walletAddress}`;
+      return [
+        {
+          type: 'system:error',
+          content: `Invalid wallet address: ${walletAddress}`,
+        },
+      ];
     }
 
     try {
@@ -530,7 +536,13 @@ export const analyzeAndSuggestLiquidityPools = (configService: ConfigService) =>
       const pairRecommendation = await findBestLiquidityPairs(tokens);
 
       if (!pairRecommendation) {
-        return "Based on your current holdings, I don't see optimal token pairs for liquidity provision. Consider acquiring complementary assets or providing liquidity with a single asset on concentrated liquidity pools.";
+        return [
+          {
+            type: 'text',
+            content:
+              "Based on your current holdings, I don't see optimal token pairs for liquidity provision. Consider acquiring complementary assets or providing liquidity with a single asset on concentrated liquidity pools.",
+          },
+        ];
       }
 
       // Update the recommendation with token addresses
@@ -550,12 +562,27 @@ export const analyzeAndSuggestLiquidityPools = (configService: ConfigService) =>
       }
 
       // Format the response
-      return formatLiquidityPlanResponse(liquidityPlan);
+      return [
+        {
+          type: 'text',
+          content: formatLiquidityPlanResponse(liquidityPlan),
+        },
+      ];
     } catch (error) {
       if (error instanceof Error) {
-        return `Failed to generate liquidity provision suggestions: ${error.message}`;
+        return [
+          {
+            type: 'text',
+            content: `Failed to generate liquidity provision suggestions: ${error.message}`,
+          },
+        ];
       }
-      return 'Failed to generate liquidity provision suggestions.';
+      return [
+        {
+          type: 'system:error',
+          content: 'Failed to generate liquidity provision suggestions.',
+        },
+      ];
     }
   };
 };
