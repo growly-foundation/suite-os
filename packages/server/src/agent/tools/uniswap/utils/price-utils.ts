@@ -5,7 +5,7 @@
 /**
  * Get estimated token price for demonstration purposes
  * In production, this would be replaced with actual price feeds
- * 
+ *
  * @param tokenSymbol Symbol of the token to estimate
  * @returns Estimated price in USD
  */
@@ -23,24 +23,20 @@ export function getEstimatedTokenPrice(tokenSymbol: string): number {
 
 /**
  * Calculate estimated TVL based on liquidity and token prices
- * 
+ *
  * @param liquidity Pool liquidity
  * @param tokenAPrice Price of token A
  * @param tokenBPrice Price of token B
  * @returns Estimated TVL in USD
  */
-export function calculateTVL(
-  liquidity: bigint,
-  tokenAPrice: number,
-  tokenBPrice: number
-): number {
+export function calculateTVL(liquidity: bigint, tokenAPrice: number, tokenBPrice: number): number {
   const liquidityNumber = Number(liquidity);
   return (liquidityNumber * (tokenAPrice + tokenBPrice)) / 1e9;
 }
 
 /**
  * Calculate estimated APR based on volume, fee tier, and TVL
- * 
+ *
  * @param volume24h 24-hour trading volume
  * @param feeTier Fee tier in wei (millionths)
  * @param tvl Total value locked
@@ -52,7 +48,7 @@ export function calculateAPR(volume24h: number, feeTier: number, tvl: number): n
 
 /**
  * Estimate 24-hour volume based on TVL
- * 
+ *
  * @param tvl Total value locked
  * @returns Estimated 24-hour volume
  */
