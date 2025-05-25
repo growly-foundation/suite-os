@@ -444,9 +444,6 @@ importers:
       '@getgrowly/core':
         specifier: workspace:*
         version: link:../core
-      '@jest/globals':
-        specifier: ^29.7.0
-        version: 29.7.0
       '@langchain/anthropic':
         specifier: ^0.3.20
         version: 0.3.20(@langchain/core@0.3.55(openai@4.97.0(encoding@0.1.13)(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.3)))(encoding@0.1.13)
