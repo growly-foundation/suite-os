@@ -1,13 +1,11 @@
-import { ConfigService } from '@nestjs/config';
 import { isAddress } from 'viem';
-import axios from 'axios';
+import { getZerionAxiosInstance } from '../../../zerion/rpc';
 import { ZerionFungiblePositionsResponse } from '../../../zerion/types';
-import { ZERION_V1_BASE_URL } from '../../../zerion/constants';
-import { getEncodedKey } from '../../../zerion';
 import { TokenInfo, RebalanceRecommendation, RebalancingStrategy } from '../../types';
 import { TokenListManager } from '../../../../../config/token-list';
 import { createSwapRecommendation, updateSwapWithTokenAddresses } from '../../swap-utils';
 import { ToolFn, ToolOutputValue } from '../../../../utils/tools';
+import { ConfigService } from '@nestjs/config';
 
 export function generateRebalanceRecommendation(
   tokens: TokenInfo[],
@@ -119,15 +117,6 @@ export const analyzeAndSuggestRebalance: ToolFn =
     walletAddress: string;
     strategy: RebalancingStrategy;
   }): Promise<ToolOutputValue[]> => {
-    const encodedKey = getEncodedKey(configService);
-    const axiosInstance = axios.create({
-      baseURL: ZERION_V1_BASE_URL,
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Basic ${encodedKey}`,
-      },
-    });
-
     if (!isAddress(walletAddress)) {
       return [
         {
@@ -136,10 +125,11 @@ export const analyzeAndSuggestRebalance: ToolFn =
         },
       ];
     }
-
     try {
       // Fetch the user's portfolio positions using Zerion
-      const response = await axiosInstance.get<ZerionFungiblePositionsResponse>(
+      const response = await getZerionAxiosInstance(
+        configService
+      ).get<ZerionFungiblePositionsResponse>(
         `/wallets/${walletAddress}/positions?filter[positions]=no_filter&currency=usd&filter[trash]=only_non_trash&sort=value`
       );
 
@@ -237,18 +227,10 @@ You can execute this swap on Uniswap:
         },
       ];
     } catch (error) {
-      if (error instanceof Error) {
-        return [
-          {
-            type: 'system:error',
-            content: `Failed to generate rebalance suggestions: ${error.message}`,
-          },
-        ];
-      }
       return [
         {
           type: 'system:error',
-          content: 'Failed to generate rebalance suggestions.',
+          content: `Failed to generate rebalance suggestions: ${error.message}`,
         },
       ];
     }

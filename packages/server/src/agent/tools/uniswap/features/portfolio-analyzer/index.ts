@@ -2,7 +2,7 @@ import { DynamicStructuredTool } from '@langchain/core/tools';
 import { ConfigService } from '@nestjs/config';
 import { z } from 'zod';
 import { analyzePortfolioToolFn } from './core';
-import { makeToolDescription } from '../../../../utils/tools';
+import { buildTool, makeToolDescription } from '../../../../utils/tools';
 
 export function makePortfolioAnalyzerTool(configService: ConfigService) {
   return new DynamicStructuredTool({
@@ -39,6 +39,6 @@ Provides in-depth reasoning and analytics about the current portfolio structure 
           .default('moderate'),
       })
       .describe('Input schema for portfolio analysis'),
-    func: analyzePortfolioToolFn(configService),
+    func: buildTool(analyzePortfolioToolFn, configService),
   });
 }

@@ -1,8 +1,8 @@
 import { DynamicStructuredTool } from '@langchain/core/tools';
-import { ConfigService } from '@nestjs/config';
 import { z } from 'zod';
-import { makeToolDescription } from '../../../../utils/tools';
+import { buildTool, makeToolDescription } from '../../../../utils/tools';
 import { analyzeAndSuggestRebalance } from './core';
+import { ConfigService } from '@nestjs/config';
 
 export function makeRebalancePortfolioTool(configService: ConfigService) {
   return new DynamicStructuredTool({
@@ -36,6 +36,6 @@ export function makeRebalancePortfolioTool(configService: ConfigService) {
           .default('moderate'),
       })
       .describe('Input schema for portfolio rebalance suggestions'),
-    func: analyzeAndSuggestRebalance(configService),
+    func: buildTool(analyzeAndSuggestRebalance, configService),
   });
 }

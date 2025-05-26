@@ -1,12 +1,15 @@
 import { MessageContent } from '@getgrowly/core';
 import { ConfigService } from '@nestjs/config';
+import { Logger } from '@nestjs/common';
+import { CallbackManagerForToolRun } from '@langchain/core/callbacks/manager';
+import { RunnableConfig } from '@langchain/core/runnables';
 
 export interface ToolInput {
   [key: string]: { description: string; required?: boolean };
 }
 export type ToolOutputDescription = Omit<MessageContent, 'content'> & { description: string };
 export type ToolOutputValue = MessageContent;
-export type ToolFn = (configService: ConfigService) => (input: any) => Promise<ToolOutputValue[]>;
+export type ToolFn = (configService?: ConfigService) => (input: any) => Promise<ToolOutputValue[]>;
 
 export const makeToolDescription = ({
   description,
@@ -44,3 +47,18 @@ ${makeToolOutput(output as any)}
 export const makeToolOutput = (output: ToolOutputValue[]) => {
   return JSON.parse(JSON.stringify(output));
 };
+
+export function buildTool(toolFn: ToolFn, configService?: ConfigService) {
+  const tool = configService ? toolFn(configService) : toolFn();
+  return async (
+    input: any,
+    _runManager?: CallbackManagerForToolRun,
+    _config?: RunnableConfig
+  ): Promise<string> => {
+    const logger = new Logger(`Tool: ${toolFn.name}`);
+    logger.debug(`Invoked with input:`, input);
+    const output = await tool(input);
+    logger.debug(`Result:`, output);
+    return output.map(entry => JSON.stringify(entry)).join('\n');
+  };
+}

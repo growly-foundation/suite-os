@@ -1,9 +1,6 @@
-import { ConfigService } from '@nestjs/config';
 import { isAddress } from 'viem';
-import axios from 'axios';
 import { ZerionFungiblePositionsResponse } from '../../../zerion/types';
-import { ZERION_V1_BASE_URL } from '../../../zerion/constants';
-import { getEncodedKey } from '../../../zerion';
+import { getZerionAxiosInstance } from '../../../zerion/rpc';
 import {
   TokenInfo,
   LiquidityPairRecommendation,
@@ -15,6 +12,8 @@ import { PoolDataFetcher } from '../../services/pool-data-fetcher';
 import { ChainName } from '../../../../../config/chains';
 import { updateSwapWithTokenAddresses } from '../../swap-utils';
 import { ToolFn, ToolOutputValue } from '../../../../utils/tools';
+import { processFungiblePositions } from '../../../zerion/utils';
+import { ConfigService } from '@nestjs/config';
 
 // Create token list manager
 const tokenListManager = new TokenListManager();
@@ -471,14 +470,6 @@ You can provide liquidity to this pool directly on Uniswap:
 
 export const analyzeAndSuggestLiquidityPools: ToolFn = (configService: ConfigService) => {
   return async ({ walletAddress }: { walletAddress: string }): Promise<ToolOutputValue[]> => {
-    const encodedKey = getEncodedKey(configService);
-    const axiosInstance = axios.create({
-      baseURL: ZERION_V1_BASE_URL,
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Basic ${encodedKey}`,
-      },
-    });
     if (!isAddress(walletAddress)) {
       return [
         {
@@ -487,44 +478,18 @@ export const analyzeAndSuggestLiquidityPools: ToolFn = (configService: ConfigSer
         },
       ];
     }
-
     try {
       // Fetch the user's portfolio positions using Zerion
-      const response = await axiosInstance.get<ZerionFungiblePositionsResponse>(
+      const response = await getZerionAxiosInstance(
+        configService
+      ).get<ZerionFungiblePositionsResponse>(
         `/wallets/${walletAddress}/positions?filter[positions]=no_filter&currency=usd&filter[trash]=only_non_trash&sort=value`
       );
 
       const { data } = response.data;
 
       // Process the portfolio data
-      const tokens: TokenInfo[] = data
-        .filter(pos => pos.attributes.value !== null && pos.attributes.value > 1)
-        .map(pos => {
-          const { value, position_type, fungible_info, price, quantity } = pos.attributes;
-          const chain = pos.relationships.chain.data.id;
-
-          // Try to get the token address from implementations if available
-          let address: string | null = null;
-          if (
-            fungible_info.implementations &&
-            fungible_info.implementations.length > 0 &&
-            fungible_info.implementations[0].address
-          ) {
-            address = fungible_info.implementations[0].address;
-          }
-
-          return {
-            symbol: fungible_info.symbol,
-            name: fungible_info.name,
-            chain,
-            address,
-            value: value || 0,
-            percentage: 0, // Will calculate after summing total
-            type: position_type,
-            price: price || 0,
-            quantity: quantity?.float || 0,
-          };
-        });
+      const tokens: TokenInfo[] = processFungiblePositions(data);
 
       // Calculate total value and percentages
       const totalValue = tokens.reduce((sum, token) => sum + token.value, 0);
@@ -569,18 +534,10 @@ export const analyzeAndSuggestLiquidityPools: ToolFn = (configService: ConfigSer
         },
       ];
     } catch (error) {
-      if (error instanceof Error) {
-        return [
-          {
-            type: 'text',
-            content: `Failed to generate liquidity provision suggestions: ${error.message}`,
-          },
-        ];
-      }
       return [
         {
-          type: 'system:error',
-          content: 'Failed to generate liquidity provision suggestions.',
+          type: 'text',
+          content: `Failed to generate liquidity provision suggestions: ${error.message}`,
         },
       ];
     }

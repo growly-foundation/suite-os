@@ -7,6 +7,16 @@ import { makeZerionTools } from '../tools/zerion';
 import { makeUniswapTools } from '../tools/uniswap';
 import { getCheckpointer } from './checkpointer';
 import { ChatModelFactory, ChatProvider } from './model.factory';
+import { DynamicStructuredTool } from '@langchain/core/tools';
+
+/**
+ * Interface for tools registry
+ */
+export interface ToolsRegistry {
+  zerion: boolean;
+  uniswap: boolean;
+  tavily: boolean;
+}
 
 /**
  * Interface for agent creation options
@@ -15,7 +25,34 @@ export interface AgentOptions {
   provider?: ChatProvider;
   agentId: string;
   systemPrompt: string;
+  tools?: Partial<ToolsRegistry>;
+  verbose?: boolean;
 }
+
+const initializeTools = (
+  configService: ConfigService,
+  { zerion, uniswap, tavily }: Partial<ToolsRegistry>
+) => {
+  const tools: DynamicStructuredTool[] = [getProtocolTool];
+
+  if (zerion) {
+    const { getPortfolioOverviewTool, getFungiblePositionsTool } = makeZerionTools(configService);
+    tools.push(getPortfolioOverviewTool, getFungiblePositionsTool);
+  }
+
+  if (uniswap) {
+    const { rebalancePortfolioTool, portfolioAnalyzerTool, liquidityProviderTool } =
+      makeUniswapTools(configService);
+    tools.push(rebalancePortfolioTool, portfolioAnalyzerTool, liquidityProviderTool);
+  }
+
+  if (tavily) {
+    const tavilySearchTool = makeTavilyTools(configService);
+    tools.push(tavilySearchTool);
+  }
+
+  return tools;
+};
 
 /**
  * Initializes and returns an instance of the AI agent with a dynamic system prompt.
@@ -29,23 +66,11 @@ export async function createAgent(
   configService: ConfigService
 ): Promise<ReturnType<typeof createReactAgent>> {
   try {
-    const { provider = 'openai', systemPrompt } = options;
+    const { provider = 'openai', systemPrompt, verbose } = options;
 
-    const llm = ChatModelFactory.create({ provider });
+    const llm = ChatModelFactory.create({ provider, verbose });
     // Use ConfigService for tool creation
-    const { getPortfolioOverviewTool, getFungiblePositionsTool } = makeZerionTools(configService);
-    const { rebalancePortfolioTool, portfolioAnalyzerTool, liquidityProviderTool } =
-      makeUniswapTools(configService);
-    const tavilySearchTool = makeTavilyTools(configService);
-    const tools = [
-      getPortfolioOverviewTool,
-      getFungiblePositionsTool,
-      rebalancePortfolioTool,
-      portfolioAnalyzerTool,
-      liquidityProviderTool,
-      getProtocolTool,
-      tavilySearchTool,
-    ];
+    const tools = initializeTools(configService, options.tools || {});
     const checkpointer = await getCheckpointer(configService);
 
     // Initialize Agent with optional checkpointer
@@ -53,7 +78,7 @@ export async function createAgent(
       llm,
       tools,
       prompt: systemPrompt,
-      checkpointSaver: checkpointer,
+      checkpointer,
     });
   } catch (error) {
     console.error('Error initializing agent:', error);
