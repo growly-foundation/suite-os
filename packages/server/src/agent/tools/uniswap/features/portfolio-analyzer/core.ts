@@ -27,11 +27,11 @@ function analyzePortfolio(tokens: TokenInfo[], strategy: RebalancingStrategy): P
   const riskLevel = calculateRiskLevel(tokens);
 
   // Chain diversification
-  const chains = [...new Set(tokens.map(t => t.chain))];
+  const chains = [...(new Set(tokens.map(t => t.chain)) as any)];
   const chainCounts = chains.length;
 
   // Token type diversification
-  const tokenTypes = [...new Set(tokens.map(t => t.type))];
+  const tokenTypes = [...(new Set(tokens.map(t => t.type)) as any)];
   const tokenTypeCounts = tokenTypes.length;
 
   // Determine rebalance suggestions
