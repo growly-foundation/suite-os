@@ -6,6 +6,7 @@ import { TokenListManager } from '../../../../../config/token-list';
 import { createSwapRecommendation, updateSwapWithTokenAddresses } from '../../swap-utils';
 import { ToolFn, ToolOutputValue } from '../../../../utils/tools';
 import { ConfigService } from '@nestjs/config';
+import { processFungiblePositions } from '../../../zerion/utils';
 
 export function generateRebalanceRecommendation(
   tokens: TokenInfo[],
@@ -132,48 +133,16 @@ export const analyzeAndSuggestRebalance: ToolFn =
       ).get<ZerionFungiblePositionsResponse>(
         `/wallets/${walletAddress}/positions?filter[positions]=no_filter&currency=usd&filter[trash]=only_non_trash&sort=value`
       );
-
       const { data } = response.data;
-
       // Process the portfolio data
-      const tokens: TokenInfo[] = data
-        .filter(pos => pos.attributes.value !== null && pos.attributes.value > 1)
-        .map(pos => {
-          const { value, position_type, fungible_info, price, quantity } = pos.attributes;
-          const chain = pos.relationships.chain.data.id;
-
-          // Try to get the token address from implementations if available
-          let address: string | null = null;
-          if (
-            fungible_info.implementations &&
-            fungible_info.implementations.length > 0 &&
-            fungible_info.implementations[0].address
-          ) {
-            address = fungible_info.implementations[0].address;
-          }
-
-          return {
-            symbol: fungible_info.symbol,
-            name: fungible_info.name,
-            chain,
-            address,
-            value: value || 0,
-            percentage: 0, // Will calculate after summing total
-            type: position_type,
-            price: price || 0,
-            quantity: quantity?.float || 0,
-          };
-        });
-
+      const tokens: TokenInfo[] = processFungiblePositions(data);
       // Calculate total value and percentages
       const totalValue = tokens.reduce((sum, token) => sum + token.value, 0);
       tokens.forEach(token => {
         token.percentage = (token.value / totalValue) * 100;
       });
-
       // Generate rebalance recommendation based on the strategy
       const recommendation = generateRebalanceRecommendation(tokens, strategy);
-
       if (!recommendation) {
         return [
           {
@@ -183,17 +152,14 @@ export const analyzeAndSuggestRebalance: ToolFn =
           },
         ];
       }
-
       // Update the recommendation with token addresses from token lists
       const updatedRecommendation = await updateSwapWithTokenAddresses(
         recommendation,
         new TokenListManager()
       );
-
       // Format the response with additional portfolio context
       const { fromToken, toToken, reason, uniswapLink, valueToSwap, tokenAmount } =
         updatedRecommendation;
-
       return [
         {
           type: 'text',

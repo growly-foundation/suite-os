@@ -1,15 +1,20 @@
 // import { ChatOpenAI } from '@langchain/openai';
-import { SuiteDatabaseCore } from '@getgrowly/core';
+import { MessageContent, SuiteDatabaseCore } from '@getgrowly/core';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { agentPromptTemplate, beastModeDescription } from '../../agent/prompt';
 import { AgentOptions, createAgent } from '../../agent/utils/agent.factory';
 import { ChatProvider } from '../../agent/utils/model.factory';
 
-interface AgentChatRequest {
+export interface AgentChatRequest {
   message: string;
   agentId: string;
   userId: string;
+}
+
+export interface AgentChatResponse {
+  agent: string;
+  tools: MessageContent[];
 }
 
 @Injectable()
@@ -44,7 +49,7 @@ export class AgentService {
   /**
    * Regular chat using the standard agent with persistence
    */
-  async chat({ message, userId, agentId }: AgentChatRequest): Promise<string> {
+  async chat({ message, userId, agentId }: AgentChatRequest): Promise<AgentChatResponse> {
     this.logger.log(`Processing chat request for agent ${agentId} and user ${userId}`);
 
     const user = await this.suiteCore.db.users.getById(userId);
@@ -98,21 +103,29 @@ export class AgentService {
       { configurable: { thread_id: `${agentId}-${userId}` } }
     );
 
-    let agentResponse = '';
+    const response: AgentChatResponse = {
+      agent: '',
+      tools: [],
+    };
     for await (const chunk of stream) {
+      if ('tools' in chunk) {
+        const messageContents: MessageContent[] = JSON.parse(chunk.tools.messages[0].content);
+        const nonTextContents = messageContents.filter(content => content.type !== 'text');
+        this.logger.debug(`[Tool chunk response]: ${JSON.stringify(nonTextContents)}`);
+        response.tools.push(...nonTextContents);
+      }
       if ('agent' in chunk) {
         this.logger.debug(`[Agent chunk response]: ${chunk.agent.messages[0].content}`);
-        agentResponse += chunk.agent.messages[0].content;
+        response.agent += chunk.agent.messages[0].content;
       }
     }
-
-    return agentResponse;
+    return response;
   }
 
   /**
    * Regular chat using the beast mode agent
    */
-  async advancedChat({ message, userId, agentId }: AgentChatRequest): Promise<string> {
+  async advancedChat({ message, userId, agentId }: AgentChatRequest): Promise<AgentChatResponse> {
     return this.chat({ message, userId, agentId });
   }
 }
