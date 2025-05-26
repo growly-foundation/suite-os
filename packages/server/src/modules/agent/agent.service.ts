@@ -86,6 +86,7 @@ export class AgentService {
         uniswap: true,
         tavily: true,
       },
+      verbose: this.configService.get('MODEL_VERBOSE') === 'true',
     };
 
     // Get or create agent with persistence
@@ -100,7 +101,7 @@ export class AgentService {
     let agentResponse = '';
     for await (const chunk of stream) {
       if ('agent' in chunk) {
-        this.logger.debug(chunk.agent.messages[0].content);
+        this.logger.debug(`[Agent chunk response]: ${chunk.agent.messages[0].content}`);
         agentResponse += chunk.agent.messages[0].content;
       }
     }

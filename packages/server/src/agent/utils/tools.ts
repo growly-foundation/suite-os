@@ -59,6 +59,6 @@ export function buildTool(toolFn: ToolFn, configService?: ConfigService) {
     logger.debug(`Invoked with input:`, input);
     const output = await tool(input);
     logger.debug(`Result:`, output);
-    return output.map(entry => JSON.stringify(entry)).join('\n');
+    return JSON.stringify(output);
   };
 }
