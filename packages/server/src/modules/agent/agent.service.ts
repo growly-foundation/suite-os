@@ -81,6 +81,12 @@ export class AgentService {
       provider,
       agentId,
       systemPrompt,
+      tools: {
+        zerion: true,
+        uniswap: true,
+        tavily: true,
+      },
+      verbose: this.configService.get('MODEL_VERBOSE') === 'true',
     };
 
     // Get or create agent with persistence
@@ -95,7 +101,7 @@ export class AgentService {
     let agentResponse = '';
     for await (const chunk of stream) {
       if ('agent' in chunk) {
-        this.logger.debug(chunk.agent.messages[0].content);
+        this.logger.debug(`[Agent chunk response]: ${chunk.agent.messages[0].content}`);
         agentResponse += chunk.agent.messages[0].content;
       }
     }
@@ -107,61 +113,6 @@ export class AgentService {
    * Regular chat using the beast mode agent
    */
   async advancedChat({ message, userId, agentId }: AgentChatRequest): Promise<string> {
-    this.logger.log(`Processing chat request for agent ${agentId} and user ${userId}`);
-
-    const user = await this.suiteCore.db.users.getById(userId);
-    const walletAddress = user?.entities?.['walletAddress'] || '';
-
-    const agentDetails = await this.suiteCore.db.agents.getById(agentId);
-    const organization = await this.suiteCore.db.organizations.getById(
-      agentDetails?.organization_id || ''
-    );
-
-    if (!agentDetails || user?.entities?.['walletAddress'] === null) {
-      throw new Error('Agent or wallet address not found');
-    }
-
-    const agentDescription = agentDetails.description || '';
-    const organizationName = organization?.name || '';
-    const organizationDescription = organization?.description || '';
-
-    // Get provider from config
-    const provider: ChatProvider =
-      (this.configService.get('MODEL_PROVIDER') as ChatProvider) || 'openai';
-
-    // Get system prompt
-    const systemPrompt = await this.getSystemPrompt(
-      walletAddress,
-      agentDescription,
-      organizationName,
-      organizationDescription,
-      true
-    );
-
-    // Create agent options
-    const agentOptions: AgentOptions = {
-      provider,
-      agentId,
-      systemPrompt,
-    };
-
-    // Get or create agent with persistence
-    const agent = await createAgent(agentOptions, this.configService);
-
-    // Stream the response with thread persistence
-    const stream = await agent.stream(
-      { messages: [{ content: message, role: 'user' }] },
-      { configurable: { thread_id: `${agentId}-${userId}` } }
-    );
-
-    let agentResponse = '';
-    for await (const chunk of stream) {
-      if ('agent' in chunk) {
-        this.logger.debug(chunk.agent.messages[0].content);
-        agentResponse += chunk.agent.messages[0].content;
-      }
-    }
-
-    return agentResponse;
+    return this.chat({ message, userId, agentId });
   }
 }

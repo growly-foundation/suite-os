@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { MessageModule } from 'src/modules/message/message.module';
+import { MessageModule } from '../message/message.module';
 import { AgentModule } from '../agent/agent.module';
 import { GrowlyController } from './growly.controller';
 import { ChatService } from '../chat/chat.service';

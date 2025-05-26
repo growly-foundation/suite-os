@@ -1,7 +1,7 @@
 import { DynamicStructuredTool } from '@langchain/core/tools';
 import { ConfigService } from '@nestjs/config';
 import { z } from 'zod';
-import { makeToolDescription } from 'src/agent/utils/tools';
+import { buildTool, makeToolDescription } from '../../../../utils/tools';
 import { analyzeAndSuggestLiquidityPools } from './core';
 
 export function makeLiquidityProviderTool(configService: ConfigService) {
@@ -21,11 +21,12 @@ export function makeLiquidityProviderTool(configService: ConfigService) {
           required: false,
         },
       },
-      output: {
-        liquidityPlan: {
+      output: [
+        {
+          type: 'text',
           description: 'Liquidity provision plan with reasoning and a pre-filled Uniswap link',
         },
-      },
+      ],
     }),
     schema: z
       .object({
@@ -38,6 +39,6 @@ export function makeLiquidityProviderTool(configService: ConfigService) {
           .default('moderate'),
       })
       .describe('Input schema for liquidity provision suggestions'),
-    func: analyzeAndSuggestLiquidityPools(configService),
+    func: buildTool(analyzeAndSuggestLiquidityPools, configService),
   });
 }

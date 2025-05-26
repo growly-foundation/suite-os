@@ -1,18 +1,8 @@
 import { DynamicStructuredTool } from '@langchain/core/tools';
 
-import axios from 'axios';
-
 import { z } from 'zod';
-import { DEFILLAMA_BASE_URL } from './constants';
-import { ProtocolResponse } from './types';
-import { excludeTimeSeriesFields } from './utils';
-
-const axiosInstance = axios.create({
-  baseURL: DEFILLAMA_BASE_URL,
-  headers: {
-    Accept: 'application/json',
-  },
-});
+import { buildTool } from '../../utils/tools';
+import { getProtocolToolFn } from './core';
 
 export const getProtocolTool = new DynamicStructuredTool({
   name: 'get_protocol',
@@ -34,22 +24,5 @@ Important notes:
       protocolId: z.string().describe('The protocol identifier from DefiLlama'),
     })
     .strict(),
-  func: async ({ protocolId }) => {
-    try {
-      const response = await axiosInstance.get<ProtocolResponse>(
-        `/protocol/${protocolId.toLowerCase()}`
-      );
-      const protocol = response.data;
-
-      // Exclude time-series data to make the response more manageable
-      const prunedData = excludeTimeSeriesFields(protocol);
-
-      return JSON.stringify(prunedData, null, 2);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        return `Failed to fetch protocol data: ${error.message}`;
-      }
-      return 'Failed to fetch protocol data.';
-    }
-  },
+  func: buildTool(getProtocolToolFn),
 });

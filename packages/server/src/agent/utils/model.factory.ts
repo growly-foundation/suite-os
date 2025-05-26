@@ -10,11 +10,12 @@ interface ChatModelOptions {
   provider: ChatProvider;
   temperature?: number;
   modelName?: string;
+  verbose?: boolean;
 }
 
 export class ChatModelFactory {
   static create(options: ChatModelOptions): BaseChatModel {
-    const { provider, temperature = 0.7, modelName } = options;
+    const { provider, temperature = 0.7, modelName, verbose = false } = options;
 
     switch (provider) {
       case 'openai':
@@ -23,6 +24,7 @@ export class ChatModelFactory {
           temperature,
           streaming: true,
           openAIApiKey: process.env.OPENAI_API_KEY!,
+          verbose,
         });
 
       case 'anthropic':
@@ -30,6 +32,7 @@ export class ChatModelFactory {
           modelName: modelName ?? 'claude-3-5-sonnet-20240620',
           temperature,
           anthropicApiKey: process.env.ANTHROPIC_API_KEY!,
+          verbose,
         });
 
       case 'bedrock':
@@ -40,6 +43,7 @@ export class ChatModelFactory {
             accessKeyId: process.env.BEDROCK_AWS_ACCESS_KEY_ID!,
             secretAccessKey: process.env.BEDROCK_AWS_SECRET_ACCESS_KEY!,
           },
+          verbose,
         });
 
       default:

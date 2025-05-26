@@ -59,3 +59,34 @@ export const formatPositionsData = (data: ZerionFungiblePosition[]) => {
 
   return `Total Value: $${totalValue.toFixed(2)}\n\nToken Positions (>$1):\n${lines.join('\n')}`;
 };
+
+export const processFungiblePositions = (positions: ZerionFungiblePosition[]) => {
+  return positions
+    .filter(pos => pos.attributes.value !== null && pos.attributes.value > 1)
+    .map(pos => {
+      const { value, position_type, fungible_info, price, quantity } = pos.attributes;
+      const chain = pos.relationships.chain.data.id;
+
+      // Try to get the token address from implementations if available
+      let address: string | null = null;
+      if (
+        fungible_info.implementations &&
+        fungible_info.implementations.length > 0 &&
+        fungible_info.implementations[0].address
+      ) {
+        address = fungible_info.implementations[0].address;
+      }
+
+      return {
+        symbol: fungible_info.symbol,
+        name: fungible_info.name,
+        chain,
+        address,
+        value: value || 0,
+        percentage: 0, // Will calculate after summing total
+        type: position_type,
+        price: price || 0,
+        quantity: quantity?.float || 0,
+      };
+    });
+};

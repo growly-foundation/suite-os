@@ -1,12 +1,11 @@
-import { ConfigService } from '@nestjs/config';
 import { isAddress } from 'viem';
-import axios from 'axios';
+import { getZerionAxiosInstance } from '../../../zerion/rpc';
 import { ZerionFungiblePositionsResponse } from '../../../zerion/types';
-import { ZERION_V1_BASE_URL } from '../../../zerion/constants';
-import { getEncodedKey } from '../../../zerion';
 import { TokenInfo, RebalanceRecommendation, RebalancingStrategy } from '../../types';
 import { TokenListManager } from '../../../../../config/token-list';
 import { createSwapRecommendation, updateSwapWithTokenAddresses } from '../../swap-utils';
+import { ToolFn, ToolOutputValue } from '../../../../utils/tools';
+import { ConfigService } from '@nestjs/config';
 
 export function generateRebalanceRecommendation(
   tokens: TokenInfo[],
@@ -109,25 +108,28 @@ export function generateRebalanceRecommendation(
   return null; // No recommendation for the given strategy
 }
 
-export const analyzeAndSuggestRebalance =
+export const analyzeAndSuggestRebalance: ToolFn =
   (configService: ConfigService) =>
-  async ({ walletAddress, strategy }: { walletAddress: string; strategy: RebalancingStrategy }) => {
-    const encodedKey = getEncodedKey(configService);
-    const axiosInstance = axios.create({
-      baseURL: ZERION_V1_BASE_URL,
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Basic ${encodedKey}`,
-      },
-    });
-
+  async ({
+    walletAddress,
+    strategy,
+  }: {
+    walletAddress: string;
+    strategy: RebalancingStrategy;
+  }): Promise<ToolOutputValue[]> => {
     if (!isAddress(walletAddress)) {
-      return `Invalid wallet address: ${walletAddress}`;
+      return [
+        {
+          type: 'system:error',
+          content: `Invalid wallet address: ${walletAddress}`,
+        },
+      ];
     }
-
     try {
       // Fetch the user's portfolio positions using Zerion
-      const response = await axiosInstance.get<ZerionFungiblePositionsResponse>(
+      const response = await getZerionAxiosInstance(
+        configService
+      ).get<ZerionFungiblePositionsResponse>(
         `/wallets/${walletAddress}/positions?filter[positions]=no_filter&currency=usd&filter[trash]=only_non_trash&sort=value`
       );
 
@@ -173,7 +175,13 @@ export const analyzeAndSuggestRebalance =
       const recommendation = generateRebalanceRecommendation(tokens, strategy);
 
       if (!recommendation) {
-        return 'Your portfolio appears well-balanced based on your selected strategy. No specific rebalancing recommendations at this time.';
+        return [
+          {
+            type: 'text',
+            content:
+              'Your portfolio appears well-balanced based on your selected strategy. No specific rebalancing recommendations at this time.',
+          },
+        ];
       }
 
       // Update the recommendation with token addresses from token lists
@@ -186,7 +194,10 @@ export const analyzeAndSuggestRebalance =
       const { fromToken, toToken, reason, uniswapLink, valueToSwap, tokenAmount } =
         updatedRecommendation;
 
-      return `
+      return [
+        {
+          type: 'text',
+          content: `
 ## Portfolio Rebalance Recommendation
 
 I suggest swapping **${tokenAmount ? tokenAmount.toFixed(6) : '?'} ${fromToken.symbol}** (about $${valueToSwap.toFixed(2)}) to **${toToken.symbol}**.
@@ -204,11 +215,23 @@ ${reason}
 
 You can execute this swap on Uniswap:
 @${uniswapLink}
-`;
+`,
+        },
+        {
+          type: 'onchainkit:swap',
+          content: {
+            fromToken,
+            toToken,
+            swappableTokens: [fromToken, toToken],
+          },
+        },
+      ];
     } catch (error) {
-      if (error instanceof Error) {
-        return `Failed to generate rebalance suggestions: ${error.message}`;
-      }
-      return 'Failed to generate rebalance suggestions.';
+      return [
+        {
+          type: 'system:error',
+          content: `Failed to generate rebalance suggestions: ${error.message}`,
+        },
+      ];
     }
   };
