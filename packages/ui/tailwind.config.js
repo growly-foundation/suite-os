@@ -2,10 +2,18 @@
 
 import tailwindcssAnimate from 'tailwindcss-animate';
 
+// This prefix will be applied to all Tailwind utility classes
+const prefix = 'tw-';
+
 export default {
   content: ['./src/**/*.{ts,tsx}'],
   darkMode: ['class'],
+  prefix,
   safelist: ['dark'],
+  corePlugins: {
+    // Disable preflight to prevent global styles
+    preflight: false,
+  },
   theme: {
     fontFamily: {
       sans: ['Inter', 'sans-serif'],
