@@ -1,7 +1,7 @@
 import { ChainName } from '../../../config/chains';
 import { TokenListManager } from '../../../config/token-list';
 import { RebalanceRecommendation, TokenInfo } from './types';
-import { OnchainKitSwapMessageContent } from '@getgrowly/core';
+import { UniswapSwapMessageContent } from '@getgrowly/core';
 import { ToolOutputValue } from '../../../agent/utils/tools';
 
 // Hardcoded token addresses for specific chains
@@ -22,20 +22,15 @@ export function createSwapRecommendation(
 ): RebalanceRecommendation {
   // Generate Uniswap link
   const chain = fromToken.chain === toToken.chain ? fromToken.chain : 'ethereum';
-
   // We'll create a placeholder link and then update it asynchronously
   const uniswapLink = `https://app.uniswap.org/swap?chain=${chain}`;
-
-  // Calculate token amount from USD value based on the token price
-  const tokenAmount = fromToken.price > 0 ? valueToSwap / fromToken.price : 0;
-
   return {
     fromToken,
     toToken,
     reason,
     uniswapLink,
     valueToSwap,
-    tokenAmount,
+    tokenAmount: fromToken.value,
   };
 }
 
@@ -179,13 +174,13 @@ export async function createSwapBySymbols(
 export function formatSwapResponse(recommendation: RebalanceRecommendation): ToolOutputValue[] {
   const { fromToken, toToken, reason, uniswapLink, valueToSwap, tokenAmount } = recommendation;
 
-  const messageContent: OnchainKitSwapMessageContent = {
+  const messageContent: UniswapSwapMessageContent = {
     content: {
       fromToken,
       toToken,
-      swappableTokens: [fromToken, toToken],
+      link: uniswapLink,
     },
-    type: 'onchainkit:swap',
+    type: 'uniswap:swap',
   };
 
   return [

@@ -111,19 +111,18 @@ export class AgentService {
       tools: [],
     };
     for await (const chunk of stream) {
-      this.logger.debug(`[Chunk response]: ${JSON.stringify(chunk)}`);
+      this.logger.debug(`🥩 [Chunk response]: ${JSON.stringify(chunk)}`);
       if ('tools' in chunk) {
         const messageContents: MessageContent[] = JSON.parse(chunk.tools.messages[0].content);
         const nonTextContents = messageContents.filter(content => content.type !== 'text');
-        this.logger.debug(`[Tool chunk response]: ${JSON.stringify(nonTextContents)}`);
+        this.logger.debug(`⚒️ [Tool chunk response]: ${JSON.stringify(nonTextContents)}`);
         response.tools.push(...nonTextContents);
       }
       if ('agent' in chunk) {
         const messages: AIMessageChunk[] = chunk.agent.messages;
-        const inputTokens = messages[0].usage_metadata?.input_tokens;
-        this.logger.debug(
-          `[Agent chunk response][Total conversation tokens: ${inputTokens}]: ${messages[0].content}`
-        );
+        const usage = messages[0].usage_metadata;
+        this.logger.debug(`💳 [Usage metadata]: ${JSON.stringify(usage)}`);
+        this.logger.debug(`🤖 [Agent chunk response]: ${messages[0].content}`);
         response.agent += messages[0].content;
       }
     }

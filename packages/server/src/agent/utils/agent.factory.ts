@@ -8,6 +8,7 @@ import { makeUniswapTools } from '../tools/uniswap';
 import { getCheckpointer } from './checkpointer';
 import { ChatModelFactory, ChatProvider } from './model.factory';
 import { DynamicStructuredTool } from '@langchain/core/tools';
+import { collectTools } from './tools';
 
 /**
  * Interface for tools registry
@@ -34,23 +35,9 @@ const initializeTools = (
   { zerion, uniswap, tavily }: Partial<ToolsRegistry>
 ) => {
   const tools: DynamicStructuredTool[] = [getProtocolTool];
-
-  if (zerion) {
-    const { getPortfolioOverviewTool, getFungiblePositionsTool } = makeZerionTools(configService);
-    tools.push(getPortfolioOverviewTool, getFungiblePositionsTool);
-  }
-
-  if (uniswap) {
-    const { rebalancePortfolioTool, portfolioAnalyzerTool, liquidityProviderTool } =
-      makeUniswapTools(configService);
-    tools.push(rebalancePortfolioTool, portfolioAnalyzerTool, liquidityProviderTool);
-  }
-
-  if (tavily) {
-    const tavilySearchTool = makeTavilyTools(configService);
-    tools.push(tavilySearchTool);
-  }
-
+  if (zerion) tools.push(...collectTools(makeZerionTools(configService)));
+  if (uniswap) tools.push(...collectTools(makeUniswapTools(configService)));
+  if (tavily) tools.push(...collectTools(makeTavilyTools(configService)));
   return tools;
 };
 

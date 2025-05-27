@@ -86,5 +86,5 @@ export function makeTavilyTools(configService: ConfigService) {
     },
   });
 
-  return tavilySearchTool;
+  return { tavilySearchTool };
 }

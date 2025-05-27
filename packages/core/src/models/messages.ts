@@ -20,8 +20,8 @@ export enum ConversationRole {
 export type MessageContent =
   | TextMessageContent
   | SystemErrorMessageContent
-  | OnchainKitSwapMessageContent
-  | OnchainKitTokenMessageContent;
+  | OnchainKitMessageContent
+  | UniswapSwapMessageContent;
 
 /**
  * Text message content.
@@ -38,6 +38,11 @@ export interface SystemErrorMessageContent {
   type: 'system:error';
   content: string;
 }
+
+/**
+ * OnchainKit message content.
+ */
+export type OnchainKitMessageContent = OnchainKitSwapMessageContent | OnchainKitTokenMessageContent;
 
 /**
  * OnchainKit swap message content.
@@ -58,5 +63,29 @@ export interface OnchainKitTokenMessageContent {
   type: 'onchainkit:token';
   content: {
     token: Token;
+  };
+}
+
+export interface UniswapSwapTokenInfo {
+  symbol: string;
+  name: string;
+  chain: string;
+  address: string | null;
+  value: number;
+  percentage: number;
+  type: string;
+  price: number;
+  quantity: number;
+}
+
+/**
+ * Uniswap swap message content.
+ */
+export interface UniswapSwapMessageContent {
+  type: 'uniswap:swap';
+  content: {
+    fromToken: UniswapSwapTokenInfo;
+    toToken: UniswapSwapTokenInfo;
+    link?: string;
   };
 }
