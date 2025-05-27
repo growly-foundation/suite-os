@@ -7,53 +7,52 @@ export function makeSuggestSwapTool() {
   return new DynamicStructuredTool({
     name: 'suggest_swap',
     description: makeToolDescription({
-      description: `Generates a pre-filled Uniswap swap link for exchanging one token for another.
-Returns a detailed recommendation with reasoning and a direct swap link.`,
+      description: `Generates a Uniswap swap link to exchange one token for another. Includes reasoning and a pre-filled link.`,
       input: {
         fromToken: {
-          description: 'Symbol of the token to swap from (e.g., "ETH", "USDC")',
+          description: 'Token symbol to swap from (e.g. "ETH")',
           required: true,
         },
         toToken: {
-          description: 'Symbol of the token to swap to (e.g., "USDC", "ETH")',
+          description: 'Token symbol to swap to (e.g. "USDC")',
           required: true,
         },
         amount: {
-          description: 'Amount in USD to swap',
+          description: 'USD amount to swap',
           required: true,
         },
         chain: {
-          description: 'Blockchain to use for the swap',
+          description: 'Blockchain for the swap (e.g. "ethereum")',
           required: false,
         },
         reason: {
-          description: 'Reason for suggesting this swap',
+          description: 'Why this swap is suggested',
           required: false,
         },
       },
       output: [
         {
           type: 'text',
-          description: 'A swap recommendation with a pre-filled Uniswap link.',
+          description: 'A swap recommendation with reasoning and a pre-filled Uniswap link.',
         },
         {
           type: 'onchainkit:swap',
-          description: 'A swap recommendation with a pre-filled Uniswap link.',
+          description: 'Payload for swap intent to be used with OnchainKit.',
         },
       ],
     }),
     schema: z
       .object({
-        fromToken: z.string().describe('The token symbol to swap from (e.g., "ETH", "USDC")'),
-        toToken: z.string().describe('The token symbol to swap to (e.g., "USDC", "ETH")'),
-        amount: z.number().describe('Amount in USD to swap'),
+        fromToken: z.string().describe('Token symbol to swap from (e.g. "ETH")'),
+        toToken: z.string().describe('Token symbol to swap to (e.g. "USDC")'),
+        amount: z.number().describe('USD amount to swap'),
         chain: z
           .enum(['ethereum', 'base', 'optimism', 'arbitrum', 'polygon'] as const)
-          .describe('Blockchain to use for the swap')
+          .describe('Blockchain for the swap')
           .default('ethereum'),
         reason: z
           .string()
-          .describe('Reason for suggesting this swap')
+          .describe('Why this swap is suggested')
           .default('Custom token swap requested by user'),
       })
       .describe('Input schema for swap suggestions'),
