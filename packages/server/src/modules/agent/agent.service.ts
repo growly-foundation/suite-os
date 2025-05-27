@@ -5,6 +5,9 @@ import { ConfigService } from '@nestjs/config';
 import { agentPromptTemplate, beastModeDescription } from '../../agent/prompt';
 import { AgentOptions, createAgent } from '../../agent/utils/agent.factory';
 import { ChatProvider } from '../../agent/utils/model.factory';
+import { AIMessageChunk } from '@langchain/core/messages';
+
+const buildThreadId = (agentId: string, userId: string) => `${agentId}-${userId}`;
 
 export interface AgentChatRequest {
   message: string;
@@ -100,7 +103,7 @@ export class AgentService {
     // Stream the response with thread persistence
     const stream = await agent.stream(
       { messages: [{ content: message, role: 'user' }] },
-      { configurable: { thread_id: `${agentId}-${userId}` } }
+      { configurable: { thread_id: buildThreadId(agentId, userId) } }
     );
 
     const response: AgentChatResponse = {
@@ -108,15 +111,19 @@ export class AgentService {
       tools: [],
     };
     for await (const chunk of stream) {
+      this.logger.debug(`🥩 [Chunk response]: ${JSON.stringify(chunk)}`);
       if ('tools' in chunk) {
         const messageContents: MessageContent[] = JSON.parse(chunk.tools.messages[0].content);
         const nonTextContents = messageContents.filter(content => content.type !== 'text');
-        this.logger.debug(`[Tool chunk response]: ${JSON.stringify(nonTextContents)}`);
+        this.logger.debug(`⚒️ [Tool chunk response]: ${JSON.stringify(nonTextContents)}`);
         response.tools.push(...nonTextContents);
       }
       if ('agent' in chunk) {
-        this.logger.debug(`[Agent chunk response]: ${chunk.agent.messages[0].content}`);
-        response.agent += chunk.agent.messages[0].content;
+        const messages: AIMessageChunk[] = chunk.agent.messages;
+        const usage = messages[0].usage_metadata;
+        this.logger.debug(`💳 [Usage metadata]: ${JSON.stringify(usage)}`);
+        this.logger.debug(`🤖 [Agent chunk response]: ${messages[0].content}`);
+        response.agent += messages[0].content;
       }
     }
     return response;

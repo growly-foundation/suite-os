@@ -23,6 +23,10 @@ export function makeRebalancePortfolioTool(configService: ConfigService) {
           type: 'text',
           description: 'A rebalancing recommendation with reasoning and a pre-filled Uniswap link.',
         },
+        {
+          type: 'uniswap:swap',
+          description: 'Payload for swap intent to be used with Uniswap.',
+        },
       ],
     }),
     schema: z

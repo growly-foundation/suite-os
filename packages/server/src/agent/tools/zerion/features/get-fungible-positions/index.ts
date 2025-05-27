@@ -9,33 +9,26 @@ export function makeGetFungiblePositionsTool(configService: ConfigService) {
   return new DynamicStructuredTool({
     name: 'get_fungible_positions',
     description: makeToolDescription({
-      description: `
-      Fetches and summarizes a crypto wallet's token holdings in USD. 
-      It also includes DeFi positions if the user has any.
-      Returns a summary of top tokens and their values.`,
+      description: `Returns wallet’s token holdings in USD, including DeFi positions and top tokens by value.`,
       input: {
         walletAddress: {
-          description: 'Wallet address to fetch data for',
+          description: 'Wallet address',
           required: true,
         },
       },
       output: [
         {
           type: 'text',
-          description: 'Text summary of token holdings.',
+          description: 'Summary of token holdings.',
         },
       ],
     }),
     schema: z
       .object({
-        walletAddress: z
-          .string()
-          .describe(
-            'The wallet address to fetch fungible positions for (defaults to connected wallet if not provided)'
-          ),
+        walletAddress: z.string().describe('The wallet address to fetch fungible positions'),
       })
       .strip()
-      .describe('Input schema for fetching wallet fungible positions'),
+      .describe('Input schema for fetching fungible positions'),
     func: buildTool(getFungiblesPositionsToolFn, configService),
   });
 }

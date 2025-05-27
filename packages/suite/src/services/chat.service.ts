@@ -1,6 +1,11 @@
 import { API_URL } from '@/constants';
-import { AgentId } from '@getgrowly/core';
+import { AgentId, MessageContent } from '@getgrowly/core';
 import axios from 'axios';
+
+export interface AgentChatResponse {
+  agent: string;
+  tools: MessageContent[];
+}
 
 export class ChatService {
   constructor() {}
@@ -12,7 +17,7 @@ export class ChatService {
     stepId: AgentId;
     isBeastMode?: boolean;
   }): Promise<{
-    reply: string;
+    reply: AgentChatResponse;
   }> {
     try {
       const response = await axios.post(`${API_URL}/chat`, payload, {

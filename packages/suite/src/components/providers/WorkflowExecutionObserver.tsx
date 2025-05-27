@@ -45,7 +45,10 @@ export const WorkflowExecutionObserver: React.FC<{ children: React.ReactNode }> 
       for (const action of step.action) {
         if (action.type === 'text') {
           console.log(`TextAction: ${action.return.text}`);
-          await textAgentMessage(action.return.text);
+          await textAgentMessage({
+            agent: action.return.text,
+            tools: [],
+          });
         } else if (action.type === 'agent') {
           console.log(`AgentAction prompt: ${action.args.prompt}`);
           await generateAgentMessage(action.args.prompt);

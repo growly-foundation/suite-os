@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
 import { CallbackManagerForToolRun } from '@langchain/core/callbacks/manager';
 import { RunnableConfig } from '@langchain/core/runnables';
+import { DynamicStructuredTool } from '@langchain/core/tools';
 
 export interface ToolInput {
   [key: string]: { description: string; required?: boolean };
@@ -61,4 +62,10 @@ export function buildTool(toolFn: ToolFn, configService?: ConfigService) {
     logger.debug(`Result:`, output);
     return JSON.stringify(output);
   };
+}
+
+export function collectTools(
+  tools: Record<string, DynamicStructuredTool>
+): DynamicStructuredTool[] {
+  return Object.values(tools);
 }

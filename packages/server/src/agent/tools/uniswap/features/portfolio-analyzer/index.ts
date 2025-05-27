@@ -8,8 +8,7 @@ export function makePortfolioAnalyzerTool(configService: ConfigService) {
   return new DynamicStructuredTool({
     name: 'analyze_portfolio',
     description: makeToolDescription({
-      description: `Performs a detailed analysis of a crypto portfolio and provides personalized rebalancing suggestions.
-Provides in-depth reasoning and analytics about the current portfolio structure and recommended changes.`,
+      description: `Analyze a crypto portfolio and suggest personalized rebalancing. Include detailed insights on structure, risk, and performance, with clear reasoning behind recommended changes.`,
       condition:
         'Triggers when users ask about their portfolio balance, risk assessment, or detailed analysis.',
       input: {

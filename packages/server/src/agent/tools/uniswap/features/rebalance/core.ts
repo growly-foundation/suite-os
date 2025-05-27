@@ -191,6 +191,14 @@ You can execute this swap on Uniswap:
             swappableTokens: [fromToken, toToken],
           },
         },
+        {
+          type: 'uniswap:swap',
+          content: {
+            fromToken,
+            toToken,
+            link: uniswapLink,
+          },
+        },
       ];
     } catch (error) {
       return [

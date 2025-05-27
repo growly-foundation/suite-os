@@ -1,11 +1,11 @@
 import { createSwapBySymbols, formatSwapResponse } from '../../swap-utils';
 import { TokenListManager } from '../../../../../config/token-list';
+import { ToolOutputValue } from '../../../../utils/tools';
 
-export const suggestSwap = () => {
-  // Create token list manager
-  const tokenListManager = new TokenListManager();
-
-  return async ({ fromToken, toToken, amount, chain, reason }) => {
+export const suggestSwap =
+  () =>
+  async ({ fromToken, toToken, amount, chain, reason }): Promise<ToolOutputValue[]> => {
+    const tokenListManager = new TokenListManager();
     try {
       // Create a swap recommendation by symbols
       const recommendation = await createSwapBySymbols(
@@ -18,16 +18,21 @@ export const suggestSwap = () => {
       );
 
       if (!recommendation) {
-        return `Unable to create a swap link for ${fromToken} to ${toToken} on ${chain}. One or both tokens may not be supported or found in our token lists.`;
+        return [
+          {
+            type: 'system:error',
+            content: `Unable to create a swap link for ${fromToken} to ${toToken} on ${chain}. One or both tokens may not be supported or found in our token lists.`,
+          },
+        ];
       }
-
       // Format the response
       return formatSwapResponse(recommendation);
     } catch (error) {
-      if (error instanceof Error) {
-        return `Failed to generate swap suggestion: ${error.message}`;
-      }
-      return 'Failed to generate swap suggestion.';
+      return [
+        {
+          type: 'system:error',
+          content: 'Failed to generate swap suggestion.',
+        },
+      ];
     }
   };
-};

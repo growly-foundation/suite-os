@@ -9,7 +9,8 @@
   },
   "scripts": {
     "build": "pnpm clean && pnpm bundle:prod",
-    "dev": "pnpm run db:sync && pnpm run bundle:dev",
+    "dev:sync": "pnpm run db:sync && pnpm run bundle:dev",
+    "dev": "pnpm run bundle:dev",
     "bundle:dev": "NODE_ENV=development vite build --watch",
     "bundle:prod": "vite build",
     "clean": "rm -rf dist esm",
