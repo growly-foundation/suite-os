@@ -1,10 +1,11 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import FrostedGlassIcon from '@/components/frosted-glass-icon';
-import { BotIcon, ZapIcon } from './feature-icons';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { motion } from 'framer-motion';
 import React from 'react';
+
+import { BotIcon, ZapIcon } from './feature-icons';
 
 export default function TechStack() {
   const technologies = [

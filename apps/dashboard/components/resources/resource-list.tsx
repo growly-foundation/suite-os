@@ -1,11 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Code, FileText, Globe, MoreHorizontal } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +10,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Code, FileText, Globe, MoreHorizontal } from 'lucide-react';
+import { useState } from 'react';
 
 type ResourceType = 'contract' | 'link' | 'document' | 'all';
 

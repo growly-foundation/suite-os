@@ -2,9 +2,9 @@
 
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Code, Copy, Check, Package, BookOpen } from 'lucide-react';
-import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { BookOpen, Check, Code, Copy, Package } from 'lucide-react';
+import { useState } from 'react';
 
 // Terminal command component for displaying installation commands
 function TerminalCommand({ command }: { command: string }) {

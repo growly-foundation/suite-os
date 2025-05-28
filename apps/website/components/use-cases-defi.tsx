@@ -1,14 +1,15 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import FrostedGlassIconDefi from '@/components/frosted-glass-icon';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  OnboardingIcon,
-  UpgradeIcon,
   MatchingIcon,
+  OnboardingIcon,
   TargetingIcon,
+  UpgradeIcon,
 } from '@/components/use-case-icons';
+import { motion } from 'framer-motion';
+
 import { GridBackground } from '@getgrowly/ui';
 
 export default function UseCasesDefi() {

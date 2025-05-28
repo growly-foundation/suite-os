@@ -1,11 +1,12 @@
 import { suiteCore } from '@/core/suite';
+import { create } from 'zustand';
+
 import {
   AggregatedAgent,
   AggregatedOrganization,
   AggregatedWorkflow,
   WorkflowId,
 } from '@getgrowly/core';
-import { create } from 'zustand';
 import { Admin } from '@getgrowly/core';
 
 export const STORAGE_KEY_SELECTED_ORGANIZATION_ID = (userId: string) =>

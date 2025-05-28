@@ -1,12 +1,14 @@
 'use client';
 
-import { Suspense } from 'react';
-import { ThemeProvider } from '../theme-provider';
 import { PrivyProvider } from '@privy-io/react-auth';
-import { ToastContainer } from 'react-toastify';
-import '@getgrowly/suite/styles.css';
 import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+import { ToastContainer } from 'react-toastify';
 import { ReactFlowProvider } from 'reactflow';
+
+import '@getgrowly/suite/styles.css';
+
+import { ThemeProvider } from '../theme-provider';
 import { SuiteProviderWrapper } from './suite-provider';
 
 const ChatWidget = dynamic(() => import('@getgrowly/suite').then(suite => suite.ChatWidget), {

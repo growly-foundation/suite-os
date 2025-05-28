@@ -1,5 +1,3 @@
-import Link from 'next/link';
-import { ChevronRight, Cpu, FileText, Loader, MoreHorizontal, Power } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -9,15 +7,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { suiteCore } from '@/core/suite';
+import { useDashboardState } from '@/hooks/use-dashboard';
+import { truncateString } from '@/lib/utils';
+import { ChevronRight, Cpu, FileText, Loader, MoreHorizontal, Power } from 'lucide-react';
+import moment from 'moment';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+
 import { AggregatedAgent, Status } from '@getgrowly/core';
 import { Agent } from '@getgrowly/core';
-import { useEffect, useState } from 'react';
-import { suiteCore } from '@/core/suite';
+
 import { Skeleton } from '../ui/skeleton';
-import moment from 'moment';
-import { useDashboardState } from '@/hooks/use-dashboard';
-import { toast } from 'react-toastify';
-import { truncateString } from '@/lib/utils';
 
 export const AgentCard = ({ agent }: { agent: Agent }) => {
   const [loading, setLoading] = useState(true);

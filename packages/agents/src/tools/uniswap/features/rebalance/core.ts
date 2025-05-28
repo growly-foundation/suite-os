@@ -1,11 +1,12 @@
 import { isAddress } from 'viem';
+
+import { TokenListManager } from '../../../../config/token-list';
+import { ToolFn, ToolOutputValue } from '../../../../utils/tools';
 import { getZerionAxiosInstance } from '../../../zerion/rpc';
 import { ZerionFungiblePositionsResponse } from '../../../zerion/types';
-import { TokenInfo, RebalanceRecommendation, RebalancingStrategy } from '../../types';
-import { TokenListManager } from '../../../../config/token-list';
-import { createSwapRecommendation, updateSwapWithTokenAddresses } from '../../swap-utils';
-import { ToolFn, ToolOutputValue } from '../../../../utils/tools';
 import { processFungiblePositions } from '../../../zerion/utils';
+import { createSwapRecommendation, updateSwapWithTokenAddresses } from '../../swap-utils';
+import { RebalanceRecommendation, RebalancingStrategy, TokenInfo } from '../../types';
 
 export function generateRebalanceRecommendation(
   tokens: TokenInfo[],

@@ -1,7 +1,7 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import '@rainbow-me/rainbowkit/styles.css';
+import dynamic from 'next/dynamic';
 
 const AppProvider = dynamic(async () => (await import('@/components/AppProvider')).AppProvider, {
   ssr: false,

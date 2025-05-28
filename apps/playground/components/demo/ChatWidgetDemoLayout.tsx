@@ -1,10 +1,12 @@
+import { DUMMY_AGENT_ID, DUMMY_ORGANIZATION_API_KEY } from '@/lib/constants';
 import { useContext, useEffect } from 'react';
 import { base } from 'viem/chains';
-import { AppContext } from '../AppProvider';
-import { GrowlyComponent, Theme } from '@getgrowly/suite';
-import { useSuite, SuiteProvider } from '@getgrowly/suite';
 import { useAccount } from 'wagmi';
-import { DUMMY_AGENT_ID, DUMMY_ORGANIZATION_API_KEY } from '@/lib/constants';
+
+import { GrowlyComponent, Theme } from '@getgrowly/suite';
+import { SuiteProvider, useSuite } from '@getgrowly/suite';
+
+import { AppContext } from '../AppProvider';
 import { Button } from '../ui/button';
 
 function ChatWidgetComponent({ children }: { children: React.ReactNode }) {

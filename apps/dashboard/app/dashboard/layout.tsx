@@ -1,17 +1,16 @@
 'use client';
 
-import type React from 'react';
-
-import { useState, useEffect, Suspense } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import { Home } from 'lucide-react';
 import { UserButton } from '@/components/auth/user-button';
 import { OrganizationSwitcher } from '@/components/organizations/organization-switcher';
-import dynamic from 'next/dynamic';
 import ProtectedAuthProvider from '@/components/providers/protected-auth-provider';
+import { cn } from '@/lib/utils';
+import { Home } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import type React from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
 const AnimatedLoading = dynamic(
   () =>

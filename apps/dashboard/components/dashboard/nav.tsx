@@ -1,17 +1,17 @@
-import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import {
-  LayoutDashboard,
   BarChart3,
-  Users,
-  Settings,
-  HelpCircle,
-  FileText,
-  Wallet,
-  LineChart,
   Clock,
   CreditCard,
+  FileText,
+  HelpCircle,
+  LayoutDashboard,
+  LineChart,
+  Settings,
+  Users,
+  Wallet,
 } from 'lucide-react';
+import Link from 'next/link';
 
 interface NavProps {
   isVertical?: boolean;

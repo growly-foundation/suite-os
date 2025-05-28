@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 import { ZERION_V1_BASE_URL } from './constants';
 
 export const getZerionAxiosInstance = () => {

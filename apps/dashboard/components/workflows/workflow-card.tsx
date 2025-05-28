@@ -1,6 +1,3 @@
-import { Agent, AggregatedWorkflow, Status } from '@getgrowly/core';
-import Link from 'next/link';
-import { Calendar, ChevronRight, Loader2, MoreHorizontal, Play, Square } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -11,9 +8,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { suiteCore } from '@/core/suite';
+import { useDashboardState } from '@/hooks/use-dashboard';
+import { Calendar, ChevronRight, Loader2, MoreHorizontal, Play, Square } from 'lucide-react';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { useDashboardState } from '@/hooks/use-dashboard';
+
+import { Agent, AggregatedWorkflow, Status } from '@getgrowly/core';
 
 export const WorkflowCard = ({ workflow }: { workflow: AggregatedWorkflow }) => {
   const [loading, setLoading] = useState(false);

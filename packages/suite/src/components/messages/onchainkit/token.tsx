@@ -1,6 +1,7 @@
-import { OnchainKitTokenMessageContent } from '@getgrowly/core';
-import { TokenChip } from '@coinbase/onchainkit/token';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { TokenChip } from '@coinbase/onchainkit/token';
+
+import { OnchainKitTokenMessageContent } from '@getgrowly/core';
 
 export const OnchainKitTokenChipMessage = ({ token }: OnchainKitTokenMessageContent['content']) => {
   const { theme } = useTheme();

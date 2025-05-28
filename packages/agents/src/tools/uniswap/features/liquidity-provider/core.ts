@@ -1,18 +1,19 @@
+import { ChainName } from '@/config/chains';
+import { TokenListManager } from '@/config/token-list';
+import { ToolFn, ToolOutputValue } from '@/utils/tools';
 import { isAddress } from 'viem';
-import { ZerionFungiblePositionsResponse } from '../../../zerion/types';
+
 import { getZerionAxiosInstance } from '../../../zerion/rpc';
+import { ZerionFungiblePositionsResponse } from '../../../zerion/types';
+import { processFungiblePositions } from '../../../zerion/utils';
+import { PoolDataFetcher } from '../../services/pool-data-fetcher';
+import { updateSwapWithTokenAddresses } from '../../swap-utils';
 import {
-  TokenInfo,
   LiquidityPairRecommendation,
   LiquidityPlan,
   RebalanceRecommendation,
+  TokenInfo,
 } from '../../types';
-import { TokenListManager } from '@/config/token-list';
-import { PoolDataFetcher } from '../../services/pool-data-fetcher';
-import { ChainName } from '@/config/chains';
-import { updateSwapWithTokenAddresses } from '../../swap-utils';
-import { ToolFn, ToolOutputValue } from '@/utils/tools';
-import { processFungiblePositions } from '../../../zerion/utils';
 
 // Create token list manager
 const tokenListManager = new TokenListManager();

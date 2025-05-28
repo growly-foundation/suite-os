@@ -1,11 +1,13 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Trash } from 'lucide-react';
-import { Condition, ConditionType, StepId, UIEventCondition } from '@getgrowly/core';
-import { ConditionTreeView } from './condition-tree-view';
 import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
 import { getConditionLabel } from '@/lib/workflow.utils';
+import { Trash } from 'lucide-react';
+
+import { Condition, ConditionType, StepId, UIEventCondition } from '@getgrowly/core';
+
+import { ConditionTreeView } from './condition-tree-view';
 
 interface ConditionItemProps {
   condition: Condition;

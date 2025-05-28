@@ -1,10 +1,9 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { Content, List, Root, Trigger } from '@radix-ui/react-tabs';
 import { forwardRef } from 'react';
 import type { ComponentPropsWithoutRef, ElementRef } from 'react';
-
-import { cn } from '@/lib/utils';
 
 const Tabs = Root;
 

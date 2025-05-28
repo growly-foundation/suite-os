@@ -1,16 +1,17 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { generateId } from '@/lib/utils';
 import { Plus } from 'lucide-react';
+import { useState } from 'react';
+
 import {
   ConditionType,
   ScalarUIEventCondition,
   UIEventCondition as UIEventConditionEnum,
 } from '@getgrowly/core';
-import { generateId } from '@/lib/utils';
 
 interface UIEventConditionProps {
   onAdd: (data: ScalarUIEventCondition) => void;

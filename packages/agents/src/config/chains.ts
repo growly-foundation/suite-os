@@ -1,5 +1,5 @@
-import { mainnet, optimism, arbitrum, base, polygon, Chain } from 'viem/chains';
 import { ChainId } from '@uniswap/sdk-core';
+import { Chain, arbitrum, base, mainnet, optimism, polygon } from 'viem/chains';
 
 export type ChainName = 'ethereum' | 'optimism' | 'arbitrum' | 'base' | 'polygon';
 

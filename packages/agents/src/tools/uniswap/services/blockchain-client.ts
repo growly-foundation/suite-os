@@ -1,5 +1,5 @@
-import { createPublicClient, http, PublicClient } from 'viem';
 import { CHAIN_CONFIG, ChainName } from '@/config/chains';
+import { PublicClient, createPublicClient, http } from 'viem';
 
 /**
  * Service for managing blockchain client connections

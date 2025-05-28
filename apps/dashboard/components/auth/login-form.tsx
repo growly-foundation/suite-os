@@ -1,10 +1,12 @@
 'use client';
-import { cn } from '@/lib/utils';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 import { usePrivy } from '@privy-io/react-auth';
-import { useAuth } from '../providers/protected-auth-provider';
 import { Loader2 } from 'lucide-react';
+
+import { useAuth } from '../providers/protected-auth-provider';
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
   const { createUserIfNotExists } = useAuth();

@@ -1,6 +1,6 @@
-import { Token } from '@uniswap/sdk-core';
-import { TOKEN_INFO } from '@/config/tokens';
 import { CHAIN_CONFIG } from '@/config/chains';
+import { TOKEN_INFO } from '@/config/tokens';
+import { Token } from '@uniswap/sdk-core';
 
 /**
  * Service for managing token information and operations

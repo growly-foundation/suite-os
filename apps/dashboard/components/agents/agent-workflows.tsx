@@ -1,10 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Loader2, Plus } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -14,13 +12,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Input } from '@/components/ui/input';
-import { AggregatedAgent, Workflow } from '@getgrowly/core';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { cn } from '@/lib/utils';
+import { Loader2, Plus } from 'lucide-react';
+import React, { useState } from 'react';
 import { toast } from 'react-toastify';
+
+import { AggregatedAgent, Workflow } from '@getgrowly/core';
+
 import { NewWorkflowButton } from '../buttons/new-workflow-button';
 import { WorkflowCard } from '../workflows/workflow-card';
 

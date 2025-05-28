@@ -2,12 +2,14 @@
 
 import { suiteCore } from '@/core/suite';
 import { usePrivy } from '@privy-io/react-auth';
-import React, { useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { STORAGE_KEY_SELECTED_ORGANIZATION_ID, useDashboardState } from '../../hooks/use-dashboard';
-import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import React, { useEffect } from 'react';
+import { useState } from 'react';
+
 import { Admin } from '@getgrowly/core';
+
+import { STORAGE_KEY_SELECTED_ORGANIZATION_ID, useDashboardState } from '../../hooks/use-dashboard';
 
 const AnimatedLoading = dynamic(
   () =>

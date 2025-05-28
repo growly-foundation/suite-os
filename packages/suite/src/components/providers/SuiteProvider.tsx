@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import { ThemeName } from '@/types/theme';
 import { OnchainKitProvider } from '@coinbase/onchainkit';
+import React, { useEffect, useState } from 'react';
+
 import { useSuiteSession } from '../../hooks/use-session';
-import { WalletConnectProvider } from './WalletConnectProvider';
+import { TooltipProvider } from '../ui/tooltip';
 import { SuiteConfig, SuiteGlobalContext } from './SuiteProvider.types';
 import { ThemeProvider } from './ThemeProvider';
-import { ThemeName } from '@/types/theme';
+import { WalletConnectProvider } from './WalletConnectProvider';
 import { WorkflowExecutionObserver } from './WorkflowExecutionObserver';
-import { TooltipProvider } from '../ui/tooltip';
 
 const defaultConfig: SuiteConfig = {
   display: 'fullView',

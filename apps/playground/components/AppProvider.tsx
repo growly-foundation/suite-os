@@ -1,12 +1,14 @@
 // AppContext.js
 import { type ComponentMode, type ComponentTheme, SuiteComponent } from '@/types/suite';
-import { SuiteConfig } from '@getgrowly/suite';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type React from 'react';
 import { createContext, useState } from 'react';
 import { WagmiProvider } from 'wagmi';
 import { base } from 'wagmi/chains';
+
+import { SuiteConfig } from '@getgrowly/suite';
+
 import { useWagmiConfig } from '../app/wagmi';
 
 type State = {

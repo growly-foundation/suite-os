@@ -1,11 +1,12 @@
+import { DynamicStructuredTool } from '@langchain/core/tools';
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
+
 import { getProtocolTool } from '../tools/defillama';
 import { makeTavilyTools } from '../tools/tavily';
-import { makeZerionTools } from '../tools/zerion';
 import { makeUniswapTools } from '../tools/uniswap';
+import { makeZerionTools } from '../tools/zerion';
 import { getCheckpointer } from './checkpointer';
 import { ChatModelFactory, ChatProvider } from './model.factory';
-import { DynamicStructuredTool } from '@langchain/core/tools';
 import { collectTools } from './tools';
 
 /**

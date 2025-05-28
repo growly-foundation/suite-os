@@ -1,8 +1,8 @@
-import type React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
+import type React from 'react';
 
 type RecentSalesProps = React.HTMLAttributes<HTMLDivElement>;
 

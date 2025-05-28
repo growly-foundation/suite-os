@@ -1,6 +1,7 @@
-import { createSwapBySymbols, formatSwapResponse } from '../../swap-utils';
 import { TokenListManager } from '@/config/token-list';
 import { ToolOutputValue } from '@/utils/tools';
+
+import { createSwapBySymbols, formatSwapResponse } from '../../swap-utils';
 
 export const suggestSwap =
   () =>

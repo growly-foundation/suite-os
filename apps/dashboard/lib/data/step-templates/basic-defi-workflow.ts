@@ -1,5 +1,6 @@
-import { ParsedStep, ConditionType, UIEventCondition, Status } from '@getgrowly/core';
 import { v4 as uuid } from 'uuid';
+
+import { ConditionType, ParsedStep, Status, UIEventCondition } from '@getgrowly/core';
 
 export const generateBasicDeFiWorkflowSteps = (): ParsedStep[] => {
   const stepId1 = uuid();

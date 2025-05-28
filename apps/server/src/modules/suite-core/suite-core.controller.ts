@@ -1,7 +1,9 @@
 // src/chat/chat.controller.ts
-import { Controller, Post, Body } from '@nestjs/common';
-import { SuiteCoreService } from './suite-core.service';
+import { Body, Controller, Post } from '@nestjs/common';
+
 import { PublicDatabaseService, SuiteDatabaseCore } from '@getgrowly/core';
+
+import { SuiteCoreService } from './suite-core.service';
 
 @Controller('core')
 export class SuiteCoreController {

@@ -1,4 +1,5 @@
 'use client';
+
 import animationData from '@/assets/animation/loading.json';
 import dynamic from 'next/dynamic';
 

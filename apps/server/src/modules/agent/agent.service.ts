@@ -1,14 +1,15 @@
-import { MessageContent, SuiteDatabaseCore } from '@getgrowly/core';
+import { AIMessageChunk } from '@langchain/core/messages';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+
 import {
+  AgentOptions,
+  ChatProvider,
   agentPromptTemplate,
   beastModeDescription,
-  AgentOptions,
   createAgent,
-  ChatProvider,
 } from '@getgrowly/agents';
-import { AIMessageChunk } from '@langchain/core/messages';
+import { MessageContent, SuiteDatabaseCore } from '@getgrowly/core';
 
 const buildThreadId = (agentId: string, userId: string) => `${agentId}-${userId}`;
 

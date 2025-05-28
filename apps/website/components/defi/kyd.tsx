@@ -1,8 +1,9 @@
 import { BookOpen, ExternalLink, Plus } from 'lucide-react';
-import { Button } from '../ui/button';
-import { CardContent, CardHeader, CardTitle, CardFooter } from '../ui/card';
-import { Card } from '../ui/card';
+
 import { cn } from '../../lib/utils';
+import { Button } from '../ui/button';
+import { CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
+import { Card } from '../ui/card';
 
 export default function KnowYourDapp() {
   return (

@@ -1,23 +1,24 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Loader2, Plus, Save, Settings } from 'lucide-react';
+import { AddStepDialog } from '@/components/steps/add-step-dialog';
+import { ExploreTemplateDialog } from '@/components/steps/explore-template-dialog';
+import { StepListView } from '@/components/steps/step-list-view';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WorkflowCanvas } from '@/components/workflows/workflow-canvas';
 import { WorkflowSettings } from '@/components/workflows/workflow-settings';
-import { ParsedStepInsert, Status, WithId } from '@getgrowly/core';
-import { AddStepDialog } from '@/components/steps/add-step-dialog';
-import { useDashboardState } from '@/hooks/use-dashboard';
 import { suiteCore } from '@/core/suite';
-import { toast } from 'react-toastify';
-import { generateId } from '@/lib/utils';
-import dynamic from 'next/dynamic';
+import { useDashboardState } from '@/hooks/use-dashboard';
 import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
-import { StepListView } from '@/components/steps/step-list-view';
 import { generateBasicDeFiWorkflowSteps } from '@/lib/data/step-templates/basic-defi-workflow';
-import { ExploreTemplateDialog } from '@/components/steps/explore-template-dialog';
+import { generateId } from '@/lib/utils';
+import { ArrowLeft, Loader2, Plus, Save, Settings } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+
+import { ParsedStepInsert, Status, WithId } from '@getgrowly/core';
 
 const AnimatedLoadingSmall = dynamic(
   () =>

@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -11,13 +10,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useState } from 'react';
+
 import { Condition, ConditionType, ParsedStep, ScalarCondition, Step } from '@getgrowly/core';
+
 import { AlwaysCondition } from './always-condition-form';
-import { StepCondition } from './step-condition-form';
-import { WorkflowCondition } from './workflow-condition-form';
-import { UIEventConditionForm } from './ui-event-condition-form';
 import { ConditionItem } from './condition-item';
 import { JudgedByAgentConditionForm } from './judged-by-agent-condition-form';
+import { StepCondition } from './step-condition-form';
+import { UIEventConditionForm } from './ui-event-condition-form';
+import { WorkflowCondition } from './workflow-condition-form';
 
 interface ConditionFormProps {
   conditions: Condition[];

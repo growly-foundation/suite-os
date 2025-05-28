@@ -1,5 +1,5 @@
-import { Token } from '@coinbase/onchainkit/token';
 import { Tables } from '@/types/database.types';
+import { Token } from '@coinbase/onchainkit/token';
 
 export type Message = Tables<'messages'>;
 export type ParsedMessage = Omit<Message, 'content'> & MessageContent;

@@ -1,9 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -11,10 +9,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus } from 'lucide-react';
-import { ConditionType, ScalarJudgedByAgentCondition, ParsedStep } from '@getgrowly/core';
-import { generateId } from '@/lib/utils';
+import { Textarea } from '@/components/ui/textarea';
 import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
+import { generateId } from '@/lib/utils';
+import { Plus } from 'lucide-react';
+import { useState } from 'react';
+
+import { ConditionType, ParsedStep, ScalarJudgedByAgentCondition } from '@getgrowly/core';
 
 interface JudgedByAgentConditionProps {
   onAdd: (data: ScalarJudgedByAgentCondition) => void;

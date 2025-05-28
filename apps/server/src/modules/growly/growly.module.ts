@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { MessageModule } from '../message/message.module';
+
 import { AgentModule } from '../agent/agent.module';
-import { GrowlyController } from './growly.controller';
 import { ChatService } from '../chat/chat.service';
+import { MessageModule } from '../message/message.module';
+import { GrowlyController } from './growly.controller';
 
 @Module({
   imports: [AgentModule, MessageModule],

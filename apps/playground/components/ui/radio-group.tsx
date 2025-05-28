@@ -1,11 +1,10 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { Indicator, Item, Root } from '@radix-ui/react-radio-group';
 import { Circle } from 'lucide-react';
 import { forwardRef } from 'react';
 import type { ComponentPropsWithoutRef, ElementRef } from 'react';
-
-import { cn } from '@/lib/utils';
 
 const RadioGroup = forwardRef<ElementRef<typeof Root>, ComponentPropsWithoutRef<typeof Root>>(
   ({ className, ...props }, ref) => {

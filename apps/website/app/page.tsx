@@ -4,7 +4,6 @@ import IntentSuggestion from '@/components/defi/intent-suggestion';
 import KnowYourDapp from '@/components/defi/kyd';
 import Persona from '@/components/defi/persona';
 import FeaturesSection from '@/components/features-section';
-import DemoInstallationSection from '@/components/widget-installation-section';
 import Footer from '@/components/footer';
 import Navbar from '@/components/navbar';
 import StructuredData from '@/components/structured-data';
@@ -12,12 +11,14 @@ import TechStack from '@/components/tech-stack';
 import TypingPromptInput from '@/components/typing-prompt-input';
 import { Button } from '@/components/ui/button';
 import UseCasesDefi from '@/components/use-cases-defi';
-import { GrowlyComponent } from '@getgrowly/suite';
-import { BusterState, GridBackground, FramerSpotlight } from '@getgrowly/ui';
+import DemoInstallationSection from '@/components/widget-installation-section';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
+
+import { GrowlyComponent } from '@getgrowly/suite';
+import { BusterState, FramerSpotlight, GridBackground } from '@getgrowly/ui';
 
 const AnimatedBuster = dynamic(() => import('@getgrowly/ui').then(suite => suite.AnimatedBuster), {
   ssr: false,

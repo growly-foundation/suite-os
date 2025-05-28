@@ -1,5 +1,5 @@
 import FeatureCard from '@/components/feature-card';
-import { BotIcon, SparklesIcon, DatabaseIcon, ServerIcon } from '@/components/feature-icons';
+import { BotIcon, DatabaseIcon, ServerIcon, SparklesIcon } from '@/components/feature-icons';
 import { BoxIcon, WavesIcon } from 'lucide-react';
 
 export default function FeaturesSection() {

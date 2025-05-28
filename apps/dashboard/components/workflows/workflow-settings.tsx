@@ -1,19 +1,19 @@
 'use client';
 
-import type React from 'react';
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { suiteCore } from '@/core/suite';
-import { toast } from 'react-toastify';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Status } from '@getgrowly/core';
 import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
+import { useRouter } from 'next/navigation';
+import type React from 'react';
+import { useState } from 'react';
+import { toast } from 'react-toastify';
+
+import { Status } from '@getgrowly/core';
 
 export function WorkflowSettings() {
   const { workflow, setWorkflow } = useWorkflowDetailStore();

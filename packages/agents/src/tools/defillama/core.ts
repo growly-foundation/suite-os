@@ -1,7 +1,7 @@
 import { ToolFn, ToolOutputValue } from '../../utils/tools';
-import { excludeTimeSeriesFields } from './utils';
-import { ProtocolResponse } from './types';
 import { getDefillamaRpcInstance } from './rpc';
+import { ProtocolResponse } from './types';
+import { excludeTimeSeriesFields } from './utils';
 
 export const getProtocolToolFn: ToolFn =
   () =>

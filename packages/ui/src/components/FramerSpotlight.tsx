@@ -1,8 +1,8 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
-import { motion, useMotionValue, useSpring, animate } from 'framer-motion';
+import { animate, motion, useMotionValue, useSpring } from 'framer-motion';
 import { useTheme } from 'next-themes';
+import { useEffect, useRef, useState } from 'react';
 
 export default function FramerSpotlight() {
   const [isMounted, setIsMounted] = useState(false);

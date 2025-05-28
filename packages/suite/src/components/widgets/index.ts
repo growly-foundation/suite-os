@@ -1,8 +1,9 @@
 import '@coinbase/onchainkit/styles.css';
 import '@rainbow-me/rainbowkit/styles.css';
-import { GrowlyStep } from './components/GrowlyStep';
+
 import { GrowlyButton } from './components/GrowlyButton';
 import { GrowlyDiv } from './components/GrowlyDiv';
+import { GrowlyStep } from './components/GrowlyStep';
 
 export const GrowlyComponent = {
   Step: GrowlyStep,

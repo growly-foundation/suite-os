@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { ActionForm } from '@/components/steps/actions/action-form';
+import { ConditionForm } from '@/components/steps/conditions/condition-form';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -12,9 +13,12 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ConditionForm } from '@/components/steps/conditions/condition-form';
-import { ActionForm } from '@/components/steps/actions/action-form';
 import { Separator } from '@/components/ui/separator';
+import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
+import { ZapIcon } from 'lucide-react';
+import { useState } from 'react';
+import { v4 as uuid } from 'uuid';
+
 import {
   Action,
   Condition,
@@ -24,10 +28,8 @@ import {
   WithId,
   WorkflowId,
 } from '@getgrowly/core';
+
 import { Switch } from '../ui/switch';
-import { ZapIcon } from 'lucide-react';
-import { v4 as uuid } from 'uuid';
-import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
 
 interface AddStepDialogProps {
   defaultStep?: ParsedStep;

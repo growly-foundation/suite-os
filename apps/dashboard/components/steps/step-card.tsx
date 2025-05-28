@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -8,10 +9,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Edit, Trash2, ChevronRight } from 'lucide-react';
+import { ChevronRight, Edit, Trash2 } from 'lucide-react';
+
 import { type ParsedStep } from '@getgrowly/core';
+
 import { ActionItem } from './actions/action-item';
 import { ConditionItem } from './conditions/condition-item';
 

@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 import { CHAIN_IDS, ChainName } from './chains';
 
 // Token list interfaces

@@ -6,11 +6,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogOut } from 'lucide-react';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { usePrivy } from '@privy-io/react-auth';
-import { redirect } from 'next/navigation';
 import { getNumberFromStr } from '@/lib/utils';
+import { usePrivy } from '@privy-io/react-auth';
+import { LogOut } from 'lucide-react';
+import { redirect } from 'next/navigation';
 
 export const UserButton = () => {
   const { logout } = usePrivy();

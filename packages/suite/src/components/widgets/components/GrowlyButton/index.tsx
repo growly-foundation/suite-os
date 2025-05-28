@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { useChatActions } from '@/hooks/use-chat-actions';
-import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
 
 export const GrowlyButton = ({
   children,

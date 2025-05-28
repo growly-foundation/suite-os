@@ -1,6 +1,7 @@
 import { ComponentMode } from '@/components/form/component-mode';
 import { ComponentTheme } from '@/components/form/component-theme';
 import { SuiteComponent } from '@/types/suite';
+
 import { ActiveComponent } from './form/active-component';
 import { Chain } from './form/chain';
 import { DisplayMode } from './form/display-mode';

@@ -1,5 +1,5 @@
-import { Injectable, Inject } from '@nestjs/common';
 import FirecrawlApp from '@mendable/firecrawl-js';
+import { Inject, Injectable } from '@nestjs/common';
 
 type FirecrawlScrapeOptions = {
   formats?: (

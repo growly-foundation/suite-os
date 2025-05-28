@@ -1,5 +1,6 @@
 import { DynamicStructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
+
 import { makeToolDescription } from '../../../../utils/tools';
 import { buildTool } from '../../../../utils/tools';
 import { getFungiblesPositionsToolFn } from './core';

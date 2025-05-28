@@ -1,5 +1,6 @@
-import { ToolFn, ToolOutputValue } from '../../../../utils/tools';
 import { isAddress } from 'viem';
+
+import { ToolFn, ToolOutputValue } from '../../../../utils/tools';
 import { getZerionAxiosInstance } from '../../rpc';
 import { ZerionPortfolioResponse } from '../../types';
 import { formatPortfolioData } from '../../utils';

@@ -1,4 +1,5 @@
 'use client';
+
 import { connectorsForWallets } from '@rainbow-me/rainbowkit';
 import {
   coin98Wallet,
@@ -9,7 +10,7 @@ import {
   walletConnectWallet,
 } from '@rainbow-me/rainbowkit/wallets';
 import { useMemo } from 'react';
-import { http, createConfig } from 'wagmi';
+import { createConfig, http } from 'wagmi';
 import { base, baseSepolia, mainnet, sepolia } from 'wagmi/chains';
 
 export function useWagmiConfig() {

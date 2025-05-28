@@ -1,14 +1,16 @@
-import type React from 'react';
+// Using default import
+import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { coinbaseFont } from './fonts'; // Using default import
-import { cn } from '@/lib/utils';
-import { AppInner } from './inner';
+import type React from 'react';
 
+import '@getgrowly/suite/styles.css';
+import '@getgrowly/ui/styles.css';
+
+import { coinbaseFont } from './fonts';
 // Load UI styles
 import './globals.css';
-import '@getgrowly/ui/styles.css';
-import '@getgrowly/suite/styles.css';
+import { AppInner } from './inner';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

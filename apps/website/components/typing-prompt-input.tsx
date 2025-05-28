@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Send } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
 import { GrowlyComponent } from '@getgrowly/suite';
 
 export default function TypingPromptInput() {

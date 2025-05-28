@@ -1,8 +1,10 @@
-import { ParsedStep } from '@getgrowly/core';
-import { StepCard } from './step-card';
-import { AddStepDialog } from './add-step-dialog';
 import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
 import React, { useState } from 'react';
+
+import { ParsedStep } from '@getgrowly/core';
+
+import { AddStepDialog } from './add-step-dialog';
+import { StepCard } from './step-card';
 
 export const StepListView = ({ steps }: { steps: ParsedStep[] }) => {
   const { updateStep, deleteStep, workflow } = useWorkflowDetailStore();

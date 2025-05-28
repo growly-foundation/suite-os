@@ -1,11 +1,13 @@
+import { Button } from '@/components/ui/button';
+import { useSuiteSession } from '@/hooks/use-session';
 import { cn } from '@/lib/utils';
 import { text } from '@/styles/theme';
-import { BRAND_NAME_CAPITALIZED } from '@getgrowly/ui';
 import { ChevronUp, Loader2, Pencil } from 'lucide-react';
-import ChatResponse from './ChatResponse';
-import { useSuiteSession } from '@/hooks/use-session';
 import React from 'react';
-import { Button } from '@/components/ui/button';
+
+import { BRAND_NAME_CAPITALIZED } from '@getgrowly/ui';
+
+import ChatResponse from './ChatResponse';
 
 export const ChatMessageView = () => {
   const { messages, agent, isLoadingMessages, isAgentThinking, panelOpen } = useSuiteSession();

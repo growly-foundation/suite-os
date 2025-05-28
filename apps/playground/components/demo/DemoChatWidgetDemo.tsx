@@ -1,4 +1,5 @@
 import dynamic from 'next/dynamic';
+
 import { ChatWidgetDemoLayout } from './ChatWidgetDemoLayout';
 
 const DemoChatWidget = dynamic(

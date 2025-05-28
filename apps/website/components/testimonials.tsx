@@ -1,5 +1,5 @@
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 
 export default function Testimonials() {
   const testimonials = [

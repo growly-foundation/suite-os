@@ -1,19 +1,20 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Code, Loader } from 'lucide-react';
+import { AgentForm } from '@/components/agents/agent-form';
+import { AgentResources } from '@/components/agents/agent-resources';
+import { AgentWorkflows } from '@/components/agents/agent-workflows';
+import { IntegrationGuideDialog } from '@/components/steps/integration-guide-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AggregatedAgent, Status } from '@getgrowly/core';
-import { AgentForm } from '@/components/agents/agent-form';
-import { AgentWorkflows } from '@/components/agents/agent-workflows';
-import { AgentResources } from '@/components/agents/agent-resources';
-import { useDashboardState } from '@/hooks/use-dashboard';
 import { suiteCore } from '@/core/suite';
+import { useDashboardState } from '@/hooks/use-dashboard';
+import { ArrowLeft, Code, Loader } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { IntegrationGuideDialog } from '@/components/steps/integration-guide-dialog';
+
+import { AggregatedAgent, Status } from '@getgrowly/core';
 
 const DEFAULT_MODEL = 'gpt-4';
 

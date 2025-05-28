@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -10,10 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus } from 'lucide-react';
-import { ConditionType, ScalarStepCondition, StepId } from '@getgrowly/core';
-import { generateId } from '@/lib/utils';
 import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
+import { generateId } from '@/lib/utils';
+import { Plus } from 'lucide-react';
+import { useState } from 'react';
+
+import { ConditionType, ScalarStepCondition, StepId } from '@getgrowly/core';
 
 interface StepConditionProps {
   onAdd: (data: ScalarStepCondition) => void;

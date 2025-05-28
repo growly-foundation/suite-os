@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus } from 'lucide-react';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { toast } from 'react-toastify';
-import { Action } from '@getgrowly/core';
 import { buildTextAgentAction } from '@/lib/action.utils';
+import { Plus } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'react-toastify';
+
+import { Action } from '@getgrowly/core';
 
 interface AgentActionProps {
   onAdd: (data: Action) => void;

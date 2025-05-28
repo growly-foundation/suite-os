@@ -1,9 +1,10 @@
-import React from 'react';
 import { useTheme } from '@/components/providers/ThemeProvider';
-import { TextMessageContent } from '@getgrowly/core';
-import { marked } from 'marked';
 import DOMPurify from 'dompurify';
+import { marked } from 'marked';
+import React from 'react';
 import { useEffect, useState } from 'react';
+
+import { TextMessageContent } from '@getgrowly/core';
 
 const cleanHTML = async (content: TextMessageContent['content']) =>
   DOMPurify.sanitize(await marked(content));

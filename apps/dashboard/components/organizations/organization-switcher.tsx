@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import { Check, ChevronsUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Command,
@@ -12,8 +10,10 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
 import { useDashboardState } from '@/hooks/use-dashboard';
+import { cn } from '@/lib/utils';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { useState } from 'react';
 
 export function OrganizationSwitcher() {
   const { selectedOrganization, organizations, setSelectedOrganization } = useDashboardState();

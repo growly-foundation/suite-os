@@ -1,10 +1,9 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { Root, Thumb } from '@radix-ui/react-switch';
 import { forwardRef } from 'react';
 import type { ComponentPropsWithoutRef, ElementRef } from 'react';
-
-import { cn } from '@/lib/utils';
 
 const Switch = forwardRef<ElementRef<typeof Root>, ComponentPropsWithoutRef<typeof Root>>(
   ({ className, ...props }, ref) => (

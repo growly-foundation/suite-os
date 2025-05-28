@@ -1,8 +1,9 @@
 'use client';
 
-import { Button } from '../ui/button';
-import Link from 'next/link';
 import { PlusCircle } from 'lucide-react';
+import Link from 'next/link';
+
+import { Button } from '../ui/button';
 
 export const NewWorkflowButton = () => {
   return (

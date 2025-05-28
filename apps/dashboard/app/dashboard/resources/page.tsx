@@ -1,14 +1,13 @@
 'use client';
 
-import type React from 'react';
-
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BookOpen, FileText, Upload, X } from 'lucide-react';
+import type React from 'react';
+import { useState } from 'react';
 
 export default function ResourcesPage() {
   const [files, setFiles] = useState<File[]>([]);

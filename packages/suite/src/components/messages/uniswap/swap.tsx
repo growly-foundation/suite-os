@@ -1,7 +1,8 @@
-import { UniswapSwapMessageContent } from '@getgrowly/core';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+
+import { UniswapSwapMessageContent } from '@getgrowly/core';
 
 const UniswapSwapMessage = ({ fromToken, toToken, link }: UniswapSwapMessageContent['content']) => {
   const { theme } = useTheme();

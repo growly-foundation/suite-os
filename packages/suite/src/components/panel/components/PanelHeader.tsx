@@ -1,8 +1,9 @@
 import { Button } from '@/components/ui/button';
-import { cn, text } from '@/styles/theme';
-import { AnimatedBuster, BRAND_NAME_CAPITALIZED } from '@getgrowly/ui';
-import { X } from 'lucide-react';
 import { useSuiteSession } from '@/hooks/use-session';
+import { cn, text } from '@/styles/theme';
+import { X } from 'lucide-react';
+
+import { AnimatedBuster, BRAND_NAME_CAPITALIZED } from '@getgrowly/ui';
 
 export const PanelHeader = () => {
   const { togglePanel, agent, isAgentThinking } = useSuiteSession();

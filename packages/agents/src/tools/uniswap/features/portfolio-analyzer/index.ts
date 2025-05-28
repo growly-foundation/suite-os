@@ -1,7 +1,8 @@
 import { DynamicStructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
-import { analyzePortfolioToolFn } from './core';
+
 import { buildTool, makeToolDescription } from '../../../../utils/tools';
+import { analyzePortfolioToolFn } from './core';
 
 export function makePortfolioAnalyzerTool() {
   return new DynamicStructuredTool({

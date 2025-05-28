@@ -1,4 +1,5 @@
 import { Bot, Database, Shield, Users } from 'lucide-react';
+
 import ContactForm from './contact-form';
 
 export const Pricing = () => {

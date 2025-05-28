@@ -1,5 +1,5 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { Users, CreditCard, TrendingUp, BarChart3 } from 'lucide-react';
+import { BarChart3, CreditCard, TrendingUp, Users } from 'lucide-react';
 
 export function DashboardCards() {
   return (

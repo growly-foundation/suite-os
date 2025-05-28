@@ -1,12 +1,12 @@
+import fs from 'fs';
+import { glob } from 'glob';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { extname, relative, resolve } from 'path';
+import preserveUseClientDirective from 'rollup-plugin-preserve-use-client';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import { externalizeDeps } from 'vite-plugin-externalize-deps';
-import preserveUseClientDirective from 'rollup-plugin-preserve-use-client';
-import { extname, relative, resolve } from 'path';
-import { fileURLToPath } from 'node:url';
-import { glob } from 'glob';
-import path from 'node:path';
-import fs from 'fs';
 
 const entryPoints = Object.fromEntries(
   glob

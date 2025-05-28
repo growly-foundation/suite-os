@@ -1,8 +1,8 @@
-import { ToolFn, ToolOutputValue } from '@/utils/tools';
-import { isAddress } from 'viem';
 import { getZerionAxiosInstance } from '@/tools/zerion/rpc';
 import { ZerionFungiblePositionsResponse } from '@/tools/zerion/types';
 import { formatPositionsData } from '@/tools/zerion/utils';
+import { ToolFn, ToolOutputValue } from '@/utils/tools';
+import { isAddress } from 'viem';
 
 export const getFungiblesPositionsToolFn: ToolFn =
   () =>

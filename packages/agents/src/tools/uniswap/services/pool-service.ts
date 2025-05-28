@@ -1,7 +1,8 @@
-import { Address, PublicClient } from 'viem';
 import { POOL_MANAGER_ABI, POSITION_MANAGER_ABI } from '@/config/abis';
-import { PoolKeys } from '../models/pool-data';
+import { Address, PublicClient } from 'viem';
+
 import { UNISWAP_V4_CONTRACTS } from '../config';
+import { PoolKeys } from '../models/pool-data';
 
 /**
  * Service for interacting with Uniswap pool contracts

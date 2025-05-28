@@ -1,3 +1,4 @@
+import { useTheme } from '@/components/providers/ThemeProvider';
 import {
   Swap,
   SwapAmountInput,
@@ -6,8 +7,8 @@ import {
   SwapToast,
   SwapToggleButton,
 } from '@coinbase/onchainkit/swap';
+
 import { OnchainKitSwapMessageContent } from '@getgrowly/core';
-import { useTheme } from '@/components/providers/ThemeProvider';
 
 const OnchainKitSwapMessage = ({
   fromToken,

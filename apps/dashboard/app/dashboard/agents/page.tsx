@@ -1,12 +1,12 @@
 'use client';
 
-import { PlusCircle } from 'lucide-react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { AgentsList } from '@/components/agents/agent-list';
-import { useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 import { useDashboardState } from '@/hooks/use-dashboard';
+import { PlusCircle } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import { useEffect } from 'react';
 
 const AnimatedLoadingSmall = dynamic(
   () =>

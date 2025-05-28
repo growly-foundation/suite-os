@@ -1,19 +1,20 @@
 'use client';
 
-import Link from 'next/link';
-import { Bot, FileText, Users, Activity, Settings2, Loader } from 'lucide-react';
+import { NewAgentButton } from '@/components/buttons/new-agent-button';
+import { NewWorkflowButton } from '@/components/buttons/new-workflow-button';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useDashboardState } from '@/hooks/use-dashboard';
-import { useEffect, useState } from 'react';
 import { suiteCore } from '@/core/suite';
-import { Status } from '@getgrowly/core';
-import { NewWorkflowButton } from '@/components/buttons/new-workflow-button';
-import { NewAgentButton } from '@/components/buttons/new-agent-button';
+import { useDashboardState } from '@/hooks/use-dashboard';
+import { Activity, Bot, FileText, Loader, Settings2, Users } from 'lucide-react';
 import moment from 'moment';
+import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import React from 'react';
 import { toast } from 'react-toastify';
-import dynamic from 'next/dynamic';
+
+import { Status } from '@getgrowly/core';
 
 const AnimatedLoadingSmall = dynamic(
   () =>

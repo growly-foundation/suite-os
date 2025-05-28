@@ -1,3 +1,5 @@
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -7,12 +9,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Copy } from 'lucide-react';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { usePrivy } from '@privy-io/react-auth';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getNumberFromStr } from '@/lib/utils';
+import { usePrivy } from '@privy-io/react-auth';
+import { Copy } from 'lucide-react';
 
 export function UserDetailsDialog({
   open,

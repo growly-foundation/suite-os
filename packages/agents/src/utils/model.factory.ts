@@ -1,7 +1,7 @@
-import { ChatOpenAI } from '@langchain/openai';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { ChatBedrockConverse } from '@langchain/aws';
 import { BaseChatModel } from '@langchain/core/language_models/chat_models';
+import { ChatOpenAI } from '@langchain/openai';
 
 export type ChatProvider = 'openai' | 'anthropic' | 'bedrock';
 

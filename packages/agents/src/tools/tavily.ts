@@ -1,5 +1,5 @@
-import { TavilySearch } from '@langchain/tavily';
 import { DynamicStructuredTool } from '@langchain/core/tools';
+import { TavilySearch } from '@langchain/tavily';
 import { z } from 'zod';
 
 export function makeTavilyTools() {

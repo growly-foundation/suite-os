@@ -1,7 +1,8 @@
 import { DynamicStructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
-import { suggestSwap } from './core';
+
 import { buildTool, makeToolDescription } from '../../../../utils/tools';
+import { suggestSwap } from './core';
 
 export function makeSuggestSwapTool() {
   return new DynamicStructuredTool({

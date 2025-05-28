@@ -1,10 +1,10 @@
 // proxy.middleware.ts
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
 import axios from 'axios';
+import { NextFunction, Request, Response } from 'express';
 import { Hex } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { withPaymentInterceptor, decodeXPaymentResponse } from 'x402-axios';
+import { decodeXPaymentResponse, withPaymentInterceptor } from 'x402-axios';
 
 @Injectable()
 export class ProxyMiddleware implements NestMiddleware {

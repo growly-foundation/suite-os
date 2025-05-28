@@ -1,16 +1,18 @@
+import { AgentChatResponse, chatService } from '@/services/chat.service';
 import { suiteCoreService } from '@/services/core.service';
+import { Screen } from '@/types/screen';
+import React from 'react';
+import { toast } from 'sonner';
+
 import {
   ConversationRole,
   MessageContent,
   SystemErrorMessageContent,
   TextMessageContent,
 } from '@getgrowly/core';
-import React from 'react';
+
 import { useSuiteSession } from './use-session';
-import { AgentChatResponse, chatService } from '@/services/chat.service';
-import { toast } from 'sonner';
 import { useSuite } from './use-suite';
-import { Screen } from '@/types/screen';
 
 export const useChatActions = () => {
   const {

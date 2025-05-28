@@ -1,5 +1,6 @@
-import { createSuiteCore } from '@getgrowly/core';
 import { ENV_VARIABLES } from '@/constants/env';
+
+import { createSuiteCore } from '@getgrowly/core';
 
 /**
  * SDK for interacting with the Growly Suite API.

@@ -1,10 +1,12 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { CreateOrganizationDialog } from './create-organization-dialog';
+import { useRouter } from 'next/navigation';
+
 import { AggregatedOrganization } from '@getgrowly/core';
+
+import { CreateOrganizationDialog } from './create-organization-dialog';
 
 export function OrganizationSelector() {
   const { organizations, setSelectedOrganization } = useDashboardState();

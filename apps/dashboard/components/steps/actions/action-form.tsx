@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ActionItem } from './action-item';
-import { TextAction } from './text-action';
-import { AgentAction } from './agent-action';
+import { useState } from 'react';
+
 import { Action } from '@getgrowly/core';
+
+import { ActionItem } from './action-item';
+import { AgentAction } from './agent-action';
+import { TextAction } from './text-action';
 
 interface ActionFormProps {
   actions: Action[];

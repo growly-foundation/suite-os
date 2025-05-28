@@ -1,5 +1,5 @@
-import { Provider } from '@nestjs/common';
 import FirecrawlApp from '@mendable/firecrawl-js';
+import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 export const FirecrawlProvider: Provider = {

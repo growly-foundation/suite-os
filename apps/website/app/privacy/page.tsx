@@ -1,10 +1,10 @@
-import type { Metadata } from 'next';
-import Link from 'next/link';
+import Footer from '@/components/footer';
+import Navbar from '@/components/navbar';
+import PrivacyPolicyTemplate from '@/components/privacy-policy-template';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import PrivacyPolicyTemplate from '@/components/privacy-policy-template';
-import Navbar from '@/components/navbar';
-import Footer from '@/components/footer';
+import type { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy | Growly Suite',

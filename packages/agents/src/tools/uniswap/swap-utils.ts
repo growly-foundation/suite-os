@@ -1,8 +1,10 @@
 import { ChainName } from '@/config/chains';
 import { TokenListManager } from '@/config/token-list';
-import { RebalanceRecommendation, TokenInfo } from './types';
-import { UniswapSwapMessageContent } from '@getgrowly/core';
 import { ToolOutputValue } from '@/utils/tools';
+
+import { UniswapSwapMessageContent } from '@getgrowly/core';
+
+import { RebalanceRecommendation, TokenInfo } from './types';
 
 // Hardcoded token addresses for specific chains
 const HARDCODED_ADDRESSES: Record<string, Record<string, string>> = {

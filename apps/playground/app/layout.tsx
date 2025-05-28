@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+
 import '@getgrowly/suite/styles.css';
+
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });

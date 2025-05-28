@@ -1,4 +1,5 @@
 import { AgentAction, TextAction, WithId } from '@getgrowly/core';
+
 import { generateId } from './utils';
 
 export const buildTextAction = (textAction: string): WithId<TextAction> => ({

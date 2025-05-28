@@ -1,10 +1,10 @@
-import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils';
-import { border, pressable, text } from '@/styles/theme';
 import { Button } from '@/components/ui/button';
-import { Loader2, LucideSend } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 import { useSuiteSession } from '@/hooks/use-session';
 import { useThemeStyles } from '@/hooks/use-theme-styles';
+import { cn } from '@/lib/utils';
+import { border, pressable, text } from '@/styles/theme';
+import { Loader2, LucideSend } from 'lucide-react';
 
 export const ChatInput = ({
   sendMessageHandler,

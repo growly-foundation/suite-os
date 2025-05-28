@@ -1,14 +1,15 @@
-import { Edge, MarkerType, Node } from 'reactflow';
-import {
-  Action,
-  ConditionType,
-  ScalarCondition,
-  UIEventCondition,
-  type Condition,
-  type ParsedStep,
-} from '@getgrowly/core';
 import Dagre from '@dagrejs/dagre';
 import { BotIcon, FileTextIcon } from 'lucide-react';
+import { Edge, MarkerType, Node } from 'reactflow';
+
+import {
+  Action,
+  type Condition,
+  ConditionType,
+  type ParsedStep,
+  ScalarCondition,
+  UIEventCondition,
+} from '@getgrowly/core';
 
 export type ConditionItemNode = {
   title: string;

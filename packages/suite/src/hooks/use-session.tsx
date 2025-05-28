@@ -1,17 +1,18 @@
 import { suiteCoreService } from '@/services/core.service';
+import { Screen } from '@/types/screen';
 import { create } from 'zustand';
+
 import {
   Agent,
   AgentId,
+  AggregatedWorkflow,
   MessageContent,
   ParsedMessage,
-  ParsedUser,
-  AggregatedWorkflow,
   ParsedStep,
+  ParsedUser,
 } from '@getgrowly/core';
-import { BusterState } from '@getgrowly/ui';
-import { Screen } from '@/types/screen';
 import { WorkflowExecutionService } from '@getgrowly/core';
+import { BusterState } from '@getgrowly/ui';
 
 type Optional<T> = T | undefined | null;
 

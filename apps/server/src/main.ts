@@ -1,9 +1,10 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './modules/app.module';
-import { paymentMiddleware, Resource } from 'x402-express';
-import * as dotenv from 'dotenv';
-import { NestExpressApplication } from '@nestjs/platform-express';
 import { facilitator } from '@coinbase/x402';
+import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import * as dotenv from 'dotenv';
+import { Resource, paymentMiddleware } from 'x402-express';
+
+import { AppModule } from './modules/app.module';
 
 dotenv.config();
 

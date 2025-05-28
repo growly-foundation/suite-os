@@ -1,6 +1,7 @@
-import { OnchainKitProviderReact } from '@coinbase/onchainkit';
-import { AgentId } from '@getgrowly/core';
 import { ThemeConfig, ThemeName } from '@/types/theme';
+import { OnchainKitProviderReact } from '@coinbase/onchainkit';
+
+import { AgentId } from '@getgrowly/core';
 
 /**
  * Configuration for the Growly Suite.

@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import {
   Content,
   Group,
@@ -20,8 +21,6 @@ import {
 import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { forwardRef } from 'react';
 import type { ComponentPropsWithoutRef, ElementRef } from 'react';
-
-import { cn } from '@/lib/utils';
 
 const Select = Root;
 

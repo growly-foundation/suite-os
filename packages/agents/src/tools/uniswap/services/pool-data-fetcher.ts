@@ -1,16 +1,17 @@
-import { Address } from 'viem';
-import { BlockchainClientService } from './blockchain-client';
-import { TokenService } from './token-service';
-import { PoolService } from './pool-service';
 import { ChainName } from '@/config/chains';
+import { Address } from 'viem';
+
+import { FEE_TIERS, UNISWAP_V4_CONTRACTS } from '../config';
 import { PoolData } from '../models/pool-data';
 import {
-  getEstimatedTokenPrice,
+  calculateAPR,
   calculateTVL,
   estimateVolume,
-  calculateAPR,
+  getEstimatedTokenPrice,
 } from '../utils/price-utils';
-import { FEE_TIERS, UNISWAP_V4_CONTRACTS } from '../config';
+import { BlockchainClientService } from './blockchain-client';
+import { PoolService } from './pool-service';
+import { TokenService } from './token-service';
 
 export class PoolDataFetcher {
   private blockchainClient: BlockchainClientService;

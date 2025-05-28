@@ -1,12 +1,14 @@
 'use client';
+
 import { AppContext } from '@/components/AppProvider';
+import { cn } from '@/lib/utils';
 import { SuiteComponent } from '@/types/suite';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useContext, useEffect, useState } from 'react';
+
+import DemoOptions from './DemoOptions';
 import { ChatWidgetDemo } from './demo/ChatWidgetDemo';
 import { DemoChatWidgetDemo } from './demo/DemoChatWidgetDemo';
-import { cn } from '@/lib/utils';
-import DemoOptions from './DemoOptions';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const activeComponentMapping: Record<SuiteComponent, React.FC> = {
   [SuiteComponent.ChatWidget]: ChatWidgetDemo,

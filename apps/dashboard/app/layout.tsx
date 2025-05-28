@@ -1,10 +1,11 @@
-import type React from 'react';
-import './globals.css';
-import { coinbaseFont } from './fonts';
+import { Providers } from '@/components/providers/providers';
+import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { cn } from '@/lib/utils';
-import { Providers } from '@/components/providers/providers';
+import type React from 'react';
+
+import { coinbaseFont } from './fonts';
+import './globals.css';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

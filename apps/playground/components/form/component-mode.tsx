@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/select';
 import type { ComponentMode as ComponentModeReact } from '@/types/suite';
 import { useContext } from 'react';
+
 import { AppContext } from '../AppProvider';
 
 export function ComponentMode() {

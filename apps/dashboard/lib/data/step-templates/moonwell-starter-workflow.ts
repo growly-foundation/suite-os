@@ -1,5 +1,6 @@
-import { ConditionType, ParsedStep, Status } from '@getgrowly/core';
 import { v4 as uuid } from 'uuid';
+
+import { ConditionType, ParsedStep, Status } from '@getgrowly/core';
 
 export const generateMoonwellWorkflowSteps = (): ParsedStep[] => {
   const step1 = uuid();

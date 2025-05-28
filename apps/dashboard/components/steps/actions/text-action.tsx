@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus } from 'lucide-react';
-import { Action } from '@getgrowly/core';
 import { generateId } from '@/lib/utils';
+import { Plus } from 'lucide-react';
+import { useState } from 'react';
+
+import { Action } from '@getgrowly/core';
 
 interface TextActionProps {
   onAdd: (data: Action) => void;

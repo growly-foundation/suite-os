@@ -1,5 +1,5 @@
-import type React from 'react';
 import { cn } from '@/lib/utils';
+import type React from 'react';
 
 type DashboardShellProps = React.HTMLAttributes<HTMLDivElement>;
 

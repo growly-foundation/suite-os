@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -8,8 +9,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
 import { Copy } from 'lucide-react';
+
 import { AggregatedAgent, AggregatedWorkflow } from '@getgrowly/core';
 
 interface IntegrationGuideDialogProps {

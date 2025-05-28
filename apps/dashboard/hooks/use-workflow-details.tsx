@@ -1,12 +1,13 @@
-import {
-  ParsedStepInsert,
-  WithId,
-  AggregatedWorkflow,
-  Status,
-  ParsedStep,
-  StepId,
-} from '@getgrowly/core';
 import { create } from 'zustand';
+
+import {
+  AggregatedWorkflow,
+  ParsedStep,
+  ParsedStepInsert,
+  Status,
+  StepId,
+  WithId,
+} from '@getgrowly/core';
 
 export type WorkflowDetailStore = {
   workflow: AggregatedWorkflow | null;

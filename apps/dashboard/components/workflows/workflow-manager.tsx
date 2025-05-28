@@ -1,13 +1,14 @@
 'use client';
 
-import { PlusCircle, Workflow } from 'lucide-react';
-import AnimatedBeamContainer from '../animated-beam/animated-beam-container';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import React, { useEffect } from 'react';
-import { WorkflowsList } from './workflow-list';
-import { Button } from '../ui/button';
-import Link from 'next/link';
+import { PlusCircle, Workflow } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import React, { useEffect } from 'react';
+
+import AnimatedBeamContainer from '../animated-beam/animated-beam-container';
+import { Button } from '../ui/button';
+import { WorkflowsList } from './workflow-list';
 
 const AnimatedLoadingSmall = dynamic(
   () =>

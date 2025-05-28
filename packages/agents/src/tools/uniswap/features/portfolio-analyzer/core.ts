@@ -1,10 +1,11 @@
-import { TokenInfo } from '../../types';
-import { RebalancingStrategy, PortfolioAnalysis } from '../../types';
 import { isAddress } from 'viem';
+
+import { ToolFn, ToolOutputValue } from '../../../../utils/tools';
 import { getZerionAxiosInstance } from '../../../zerion/rpc';
 import { ZerionFungiblePositionsResponse } from '../../../zerion/types';
-import { ToolFn, ToolOutputValue } from '../../../../utils/tools';
 import { processFungiblePositions } from '../../../zerion/utils';
+import { TokenInfo } from '../../types';
+import { PortfolioAnalysis, RebalancingStrategy } from '../../types';
 
 function analyzePortfolio(tokens: TokenInfo[], strategy: RebalancingStrategy): PortfolioAnalysis {
   // Sort tokens by value (descending)

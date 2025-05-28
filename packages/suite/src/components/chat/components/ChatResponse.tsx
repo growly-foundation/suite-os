@@ -1,10 +1,11 @@
+import { RenderMessage } from '@/components/messages';
+import { useTheme } from '@/components/providers/ThemeProvider';
 import { Card } from '@/components/ui/card';
-import { ConversationRole, ParsedMessage } from '@getgrowly/core';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { text } from '@/styles/theme';
-import { useTheme } from '@/components/providers/ThemeProvider';
-import { RenderMessage } from '@/components/messages';
+import { motion } from 'framer-motion';
+
+import { ConversationRole, ParsedMessage } from '@getgrowly/core';
 
 const AgentResponse = ({ message }: { message: ParsedMessage }) => {
   const { theme } = useTheme();

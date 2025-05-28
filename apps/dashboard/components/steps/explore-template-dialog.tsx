@@ -1,4 +1,14 @@
+import { generateBasicDeFiWorkflowSteps } from '@/lib/data/step-templates/basic-defi-workflow';
+import { generateGrowlySuiteWorkflowSteps } from '@/lib/data/step-templates/growly-support-workflow';
+import { generateMoonwellWorkflowSteps } from '@/lib/data/step-templates/moonwell-starter-workflow';
+import { generateMorphoWorkflowSteps } from '@/lib/data/step-templates/morpho-starter-workflow';
+import { generateUniswapWorkflowSteps } from '@/lib/data/step-templates/uniswap-starter-workflow';
+import { SquareStackIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+
+import { ParsedStep } from '@getgrowly/core';
+
+import { Button } from '../ui/button';
 import { Card, CardDescription, CardTitle } from '../ui/card';
 import {
   Dialog,
@@ -8,14 +18,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../ui/dialog';
-import { Button } from '../ui/button';
-import { ParsedStep } from '@getgrowly/core';
-import { generateBasicDeFiWorkflowSteps } from '@/lib/data/step-templates/basic-defi-workflow';
-import { generateGrowlySuiteWorkflowSteps } from '@/lib/data/step-templates/growly-support-workflow';
-import { generateUniswapWorkflowSteps } from '@/lib/data/step-templates/uniswap-starter-workflow';
-import { generateMorphoWorkflowSteps } from '@/lib/data/step-templates/morpho-starter-workflow';
-import { generateMoonwellWorkflowSteps } from '@/lib/data/step-templates/moonwell-starter-workflow';
-import { SquareStackIcon } from 'lucide-react';
 
 export type Template = {
   id: string;

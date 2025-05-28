@@ -1,9 +1,10 @@
 'use client';
 
-import type { ReactNode } from 'react';
-import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
+import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
+import type { ReactNode } from 'react';
+
 import FrostedGlassIcon from './frosted-glass-icon';
 
 interface FeatureCardProps {
