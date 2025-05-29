@@ -10,6 +10,18 @@
       "module": "./dist/index.js",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "module": "./dist/client/index.js",
+      "import": "./dist/client/index.js",
+      "default": "./dist/client/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "module": "./dist/types/index.js",
+      "import": "./dist/types/index.js",
+      "default": "./dist/types/index.js"
     }
   },
   "main": "./dist/index.js",
@@ -27,7 +39,12 @@
     "dev": "pnpm run bundle:dev",
     "format": "prettier --write ."
   },
+  "dependencies": {
+    "@guildxyz/sdk": "^2.6.9",
+    "wagmi": "^2.15.1"
+  },
   "devDependencies": {
+    "@guildxyz/types": "1.9.2",
     "@types/node": "^20.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",

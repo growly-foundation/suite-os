@@ -1,1 +1,2 @@
-export const buildOnchainPersona = () => {};
+export * from './services';
+export * from './types';
