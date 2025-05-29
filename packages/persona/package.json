@@ -40,6 +40,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@getgrowly/chainsmith": "workspace:*",
     "@guildxyz/sdk": "^2.6.9",
     "wagmi": "^2.15.1"
   },
