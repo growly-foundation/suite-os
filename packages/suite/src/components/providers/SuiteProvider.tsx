@@ -40,7 +40,7 @@ export const SuiteProvider: React.FC<{
   children: React.ReactNode;
   context: SuiteGlobalContext;
 }> = ({ children, context }) => {
-  const [baseComponent, setBaseComponent] = useState<React.ReactNode>(<>children</>);
+  const [baseComponent, setBaseComponent] = useState<React.ReactNode>(<>{children}</>);
   const [isInitialized, setIsInitialized] = useState(false);
   const { createUserFromAddressIfNotExist, fetchOrganizationAgentById } = useSuiteSession();
   const [config, setConfig] = useState<SuiteConfig>(context.config ?? defaultConfig);

@@ -6,15 +6,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { suiteCore } from '@/core/suite';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { Activity, Bot, FileText, Loader, Settings2, Users } from 'lucide-react';
+import { Activity as ActivityIcon, Bot, FileText, Loader, Settings2, Users } from 'lucide-react';
 import moment from 'moment';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { Status } from '@getgrowly/core';
+
+import { Activity } from './activity-card';
 
 const AnimatedLoadingSmall = dynamic(
   () =>
@@ -38,13 +39,7 @@ export default function DashboardInner() {
     runningWorkflows: 0,
     resourceUsage: 0,
   });
-  const [recentActivity, setRecentActivity] = useState<
-    Array<{
-      type: 'agent' | 'workflow' | 'team';
-      title: string;
-      timestamp: string;
-    }>
-  >([]);
+  const [recentActivity, setRecentActivity] = useState<Activity[]>([]);
 
   useEffect(() => {
     async function fetchDashboardData() {
@@ -78,11 +73,15 @@ export default function DashboardInner() {
             type: 'agent' as const,
             title: `Agent "${agent.name}" ${agent.status === Status.Active ? 'activated' : 'deactivated'}`,
             timestamp: agent.created_at,
+            icon: <Bot className="h-4 w-4 text-primary" />,
+            color: 'bg-green-100',
           })),
           ...workflows.map(workflow => ({
             type: 'workflow' as const,
             title: `Workflow "${workflow.name}" ${workflow.status === Status.Active ? 'started' : 'stopped'}`,
             timestamp: workflow.created_at,
+            icon: <FileText className="h-4 w-4 text-green-600" />,
+            color: 'bg-blue-100',
           })),
         ].sort((a, b) => moment(b.timestamp).unix() - moment(a.timestamp).unix());
 
@@ -159,7 +158,7 @@ export default function DashboardInner() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">Active Workflows</CardTitle>
-                <Activity className="h-4 w-4 text-muted-foreground" />
+                <ActivityIcon className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{metrics.totalWorkflows}</div>
@@ -208,19 +207,9 @@ export default function DashboardInner() {
                       <div className="flex items-center gap-4">
                         <div
                           className={`h-8 w-8 rounded-full flex items-center justify-center ${
-                            activity.type === 'agent'
-                              ? 'bg-blue-100'
-                              : activity.type === 'workflow'
-                                ? 'bg-green-100'
-                                : 'bg-orange-100'
+                            activity.color
                           }`}>
-                          {activity.type === 'agent' ? (
-                            <Bot className="h-4 w-4 text-primary" />
-                          ) : activity.type === 'workflow' ? (
-                            <FileText className="h-4 w-4 text-green-600" />
-                          ) : (
-                            <Users className="h-4 w-4 text-orange-600" />
-                          )}
+                          {activity.icon}
                         </div>
                         <div className="flex-1 space-y-1">
                           <p className="text-sm font-medium">{activity.title}</p>

@@ -12,12 +12,14 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { cn } from '@/lib/utils';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export function OrganizationSwitcher() {
   const { selectedOrganization, organizations, setSelectedOrganization } = useDashboardState();
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -64,6 +66,16 @@ export function OrganizationSwitcher() {
                   />
                 </CommandItem>
               ))}
+              <CommandItem
+                className="cursor-pointer"
+                onSelect={() => router.push('/organizations/')}>
+                <div className="flex h-5 w-5 items-center justify-center rounded-md bg-primary mr-2">
+                  <span className="text-xs font-bold text-white">
+                    <PlusCircle className="h-3 w-3" />
+                  </span>
+                </div>
+                <span>Create New Organization</span>
+              </CommandItem>
             </CommandGroup>
           </CommandList>
         </Command>

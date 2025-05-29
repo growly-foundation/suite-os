@@ -1,6 +1,5 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -13,18 +12,17 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { cn } from '@/lib/utils';
 import { Loader2, Plus } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { AggregatedAgent, Workflow } from '@getgrowly/core';
 
 import { NewWorkflowButton } from '../buttons/new-workflow-button';
 import { WorkflowCard } from '../workflows/workflow-card';
+import { WorkflowSmallCard } from '../workflows/workflow-small-card';
 
 interface AgentWorkflowsProps {
   agent: AggregatedAgent;
@@ -112,7 +110,10 @@ export function AgentWorkflows({ agent, onUpdate }: AgentWorkflowsProps) {
                 ) : (
                   <div className="space-y-4">
                     {filteredWorkflows.map(workflow => (
-                      <div
+                      <WorkflowSmallCard
+                        key={workflow.id}
+                        isSelected={isWorkflowAssigned(workflow.id)}
+                        workflow={workflow}
                         onClick={() => {
                           let updatedWorkflows = selectedWorkflows;
                           if (isWorkflowAssigned(workflow.id)) {
@@ -122,25 +123,7 @@ export function AgentWorkflows({ agent, onUpdate }: AgentWorkflowsProps) {
                           }
                           setSelectedWorkflows(updatedWorkflows);
                         }}
-                        key={workflow.id}
-                        className={cn(
-                          'flex items-start space-x-3 py-2 cursor-pointer border rounded-lg p-4',
-                          isWorkflowAssigned(workflow.id) ? 'bg-muted' : ''
-                        )}>
-                        <div className="grid gap-1.5">
-                          <Label
-                            htmlFor={`workflow-${workflow.id}`}
-                            className="font-medium cursor-pointer">
-                            {workflow.name}
-                          </Label>
-                          <p className="text-sm text-muted-foreground">{workflow.description}</p>
-                          <Badge
-                            variant={workflow.status === 'active' ? 'default' : 'outline'}
-                            className="w-fit">
-                            {workflow.status}
-                          </Badge>
-                        </div>
-                      </div>
+                      />
                     ))}
                   </div>
                 )}

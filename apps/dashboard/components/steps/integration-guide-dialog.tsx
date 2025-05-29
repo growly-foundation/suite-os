@@ -11,7 +11,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Copy } from 'lucide-react';
 
-import { AggregatedAgent, AggregatedWorkflow } from '@getgrowly/core';
+import { AggregatedAgent } from '@getgrowly/core';
 
 interface IntegrationGuideDialogProps {
   open: boolean;
@@ -30,8 +30,8 @@ import { SuiteProvider } from '@getgrowly/suite';
 export default function App({ Component, pageProps }) {
   return (
     <SuiteProvider context={{
-        agentId: ${agent.id},
-        organizationApiKey: ${agent.organization_id},
+        agentId: "${agent.id}",
+        organizationApiKey: "${agent.organization_id}",
         config: {
           display: 'fullView',
         },
@@ -67,7 +67,7 @@ export default function IntegrationWidget() {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[800px]">
+      <DialogContent className="sm:max-w-[800px] max-h-[800px] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Integration Guide</DialogTitle>
           <DialogDescription>

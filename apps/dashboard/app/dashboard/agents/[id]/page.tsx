@@ -100,37 +100,36 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
 
   return (
     <div className="flex flex-col gap-6 p-6 md:gap-8 md:p-8">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard/agents')}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-2xl font-bold">
-            {isNewAgent ? 'Create Agent' : `Edit Agent: ${agent.name}`}
-          </h1>
-        </div>
-        <Button variant="outline" onClick={() => setIsIntegrationGuideOpen(true)}>
-          <Code className="mr-2 h-4 w-4" />
-          Integration Guide
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard/agents')}>
+          <ArrowLeft className="h-5 w-5" />
         </Button>
+        <h1 className="text-xl font-bold">
+          {isNewAgent ? 'Create Agent' : `Edit Agent: ${agent.name}`}
+        </h1>
       </div>
-
       <Tabs defaultValue="details" className="space-y-4">
-        {!isNewAgent && (
-          <TabsList>
-            <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="resources">Resources</TabsTrigger>
-            <TabsTrigger value="workflows">Workflows</TabsTrigger>
-            <TabsTrigger value="logs">Logs</TabsTrigger>
-          </TabsList>
-        )}
+        <div className="flex items-center justify-between">
+          {!isNewAgent && (
+            <TabsList>
+              <TabsTrigger value="details">Details</TabsTrigger>
+              <TabsTrigger value="resources">Resources</TabsTrigger>
+              <TabsTrigger value="workflows">Workflows</TabsTrigger>
+              <TabsTrigger value="conversations">Conversations</TabsTrigger>
+            </TabsList>
+          )}
+          <Button variant="outline" onClick={() => setIsIntegrationGuideOpen(true)}>
+            <Code className="mr-2 h-4 w-4" />
+            Integration Guide
+          </Button>
+        </div>
         <TabsContent value="details">
           <Card>
             <CardHeader>
               <div className="flex items-center gap-5">
                 <div>
                   <CardTitle>Agent Details</CardTitle>
-                  <CardDescription>
+                  <CardDescription className="mt-2">
                     Manage your agent's basic information and settings
                   </CardDescription>
                 </div>

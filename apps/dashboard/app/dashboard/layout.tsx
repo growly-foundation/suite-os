@@ -4,7 +4,7 @@ import { UserButton } from '@/components/auth/user-button';
 import { OrganizationSwitcher } from '@/components/organizations/organization-switcher';
 import ProtectedAuthProvider from '@/components/providers/protected-auth-provider';
 import { cn } from '@/lib/utils';
-import { Home } from 'lucide-react';
+import { BotIcon, FileStackIcon, HomeIcon, WorkflowIcon } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -20,83 +20,26 @@ const AnimatedLoading = dynamic(
   { ssr: false }
 );
 
-// Mock icons for navigation
-const IconHome = Home;
-const IconWaveSine = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round">
-    <path d="M2 12h2a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2" />
-    <path d="M2 4h4a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6a2 2 0 0 1 2-2h2" />
-  </svg>
-);
-const IconAi = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round">
-    <path d="M12 2v8" />
-    <path d="m4.93 10.93 1.41 1.41" />
-    <path d="M2 18h2" />
-    <path d="M20 18h2" />
-    <path d="m19.07 10.93-1.41 1.41" />
-    <path d="M22 22H2" />
-    <path d="m16 6-4 4-4-4" />
-    <path d="M16 18a4 4 0 0 0-8 0" />
-  </svg>
-);
-const IconSlideshow = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round">
-    <path d="M8 2h8" />
-    <path d="M9 2v2.5a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5V2" />
-    <rect width="18" height="14" x="3" y="8" rx="2" />
-    <path d="M12 19v3" />
-    <path d="M9 22h6" />
-  </svg>
-);
-
 const navigation = [
   {
     title: 'Dashboard',
     url: '/dashboard',
-    icon: IconHome,
+    icon: HomeIcon,
   },
   {
     title: 'Agents',
     url: '/dashboard/agents',
-    icon: IconAi,
+    icon: BotIcon,
   },
   {
     title: 'Workflows',
     url: '/dashboard/workflows',
-    icon: IconWaveSine,
+    icon: WorkflowIcon,
   },
   {
     title: 'Resources',
     url: '/dashboard/resources',
-    icon: IconSlideshow,
+    icon: FileStackIcon,
   },
 ];
 

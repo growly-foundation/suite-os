@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { availableModels } from '@/constants/agents';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { Loader, PlusCircle, X } from 'lucide-react';
 import type React from 'react';
@@ -21,19 +22,8 @@ import { toast } from 'react-toastify';
 
 import { AggregatedAgent, Status, Workflow } from '@getgrowly/core';
 
-// Available models for the agent
-const availableModels = [
-  { id: 'gpt-4', name: 'GPT-4', description: "OpenAI's most advanced model" },
-  { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', description: 'Fast and efficient for most tasks' },
-  {
-    id: 'claude-3',
-    name: 'Claude 3',
-    description: "Anthropic's latest model with enhanced reasoning",
-  },
-  { id: 'claude-2', name: 'Claude 2', description: 'Balanced performance and efficiency' },
-  { id: 'llama-3', name: 'Llama 3', description: "Meta's open model with strong capabilities" },
-  { id: 'mistral-large', name: 'Mistral Large', description: 'Powerful open-weight model' },
-];
+import { WorkflowSmallCard } from '../workflows/workflow-small-card';
+import { AgentModelCard } from './agent-model-card';
 
 interface AgentFormProps {
   agent: AggregatedAgent;
@@ -117,8 +107,8 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
 
   return (
     <div>
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="name">Name</Label>
             <Input
@@ -131,7 +121,6 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
               className="bg-gray-50 dark:bg-gray-900"
             />
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="model">Model</Label>
             <Select value={formData.model} onValueChange={handleModelChange}>
@@ -141,21 +130,14 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
               <SelectContent>
                 {availableModels.map(model => (
                   <SelectItem key={model.id} value={model.id}>
-                    <div className="flex justify-between w-full items-center">
-                      <span
-                        className="font-medium bg-primary text-primary-foreground px-2 py-1 rounded-sm"
-                        style={{ marginRight: 10 }}>
-                        {model.name}
-                      </span>
-                      <span className="text-xs text-muted-foreground">{model.description}</span>
-                    </div>
+                    <AgentModelCard model={model} />
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
         </div>
-
+        <br />
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
           <p className="text-sm text-muted-foreground">
@@ -167,11 +149,11 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
             value={formData.description || ''}
             onChange={handleInputChange}
             placeholder="Describe what this agent does"
-            rows={3}
+            rows={5}
             className="bg-gray-50 dark:bg-gray-900"
           />
         </div>
-
+        <br />
         <div className="flex items-center space-x-2 bg-gray-50 dark:bg-gray-900 p-3 rounded-md">
           <Switch
             id="status"
@@ -189,6 +171,7 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
         </div>
       </div>
 
+      <br />
       <div className="space-y-4">
         <div>
           <Label className="text-base">Resources</Label>
@@ -241,19 +224,11 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
               <p className="text-sm text-muted-foreground">No workflows available</p>
             ) : (
               organizationWorkflows.map(workflow => (
-                <div
-                  key={workflow.id}
-                  className={`p-3 rounded-md border cursor-pointer transition-all ${
-                    formData.workflows.some(w => w.id === workflow.id)
-                      ? 'border-primary bg-primary/5 dark:bg-primary/10'
-                      : 'border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900'
-                  }`}
-                  onClick={() => toggleWorkflow(workflow)}>
-                  <div className="font-medium">{workflow.name}</div>
-                  {workflow.description && (
-                    <div className="text-xs text-muted-foreground mt-1">{workflow.description}</div>
-                  )}
-                </div>
+                <WorkflowSmallCard
+                  workflow={workflow}
+                  isSelected={formData.workflows.some(w => w.id === workflow.id)}
+                  onClick={toggleWorkflow}
+                />
               ))
             )}
           </div>
