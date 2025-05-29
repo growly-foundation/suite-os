@@ -2,8 +2,8 @@
 
 Viem-compatible abstraction library to simplify the interaction with multiple blockchains via user-friendly high level APIs.
 
-[![npm](https://img.shields.io/npm/v/chainsmith-sdk)](https://www.npmjs.com/package/chainsmith-sdk)
-[![License](https://img.shields.io/npm/l/@chainsmith-sdk)](LICENSE)
+[![npm](https://img.shields.io/npm/v/@getgrowly/chainsmith)](https://www.npmjs.com/package/@getgrowly/chainsmith)
+[![License](https://img.shields.io/npm/l/@@getgrowly/chainsmith)](LICENSE)
 
 ## Current features of the SDK
 
@@ -18,35 +18,27 @@ Viem-compatible abstraction library to simplify the interaction with multiple bl
 Install the dependency
 
 ```
-npm install chainsmith-sdk
+npm install @getgrowly/chainsmith
 ```
 
 ## Supported Adapters
 
-| Name                     | Chain      | Interfaces                               |
-| ------------------------ | ---------- | ---------------------------------------- |
-| CoinMarketcapAdapter     | Multichain | IMarketDataAdapter                       |
-| ShadowExchangeAdapter    | Sonic      | IMarketDataAdapter, IOnchainTokenAdapter |
-| ShadowExchangeAdapter    | Sonic      | IMarketDataAdapter, IOnchainTokenAdapter |
-| ShadowExchangeApiAdapter | Sonic      | IMarketDataAdapter                       |
-| UniswapSdkAdapter        | EVM chains | IMarketDataAdapter                       |
-| AlchemyAdapter           | Multichain | IOnchainTokenAdapter                     |
-| ReservoirAdapter         | Multichain | IOnchainNftAdapter                       |
-| PaintSwapAdapter         | Sonic      | IOnchainNftAdapter                       |
-| BeetsApiAdapter          | Sonic      | IYieldAdapter                            |
-| MetropolisApiAdapter     | Sonic      | IYieldAdapter                            |
-| OriginApiAdapter         | Sonic      | IYieldAdapter                            |
-| SiloV2ApiAdapter         | Sonic      | IYieldAdapter                            |
-| EvmscanAdapter           | EVM chains | IOnchainActivityAdapter                  |
+| Name                 | Chain      | Interfaces              |
+| -------------------- | ---------- | ----------------------- |
+| CoinMarketcapAdapter | Multichain | IMarketDataAdapter      |
+| AlchemyAdapter       | Multichain | IOnchainTokenAdapter    |
+| ReservoirAdapter     | Multichain | IOnchainNftAdapter      |
+| UniswapSdkAdapter    | EVM chains | IMarketDataAdapter      |
+| EvmscanAdapter       | EVM chains | IOnchainActivityAdapter |
 
 ## Initializing the SDK with Shared RPC Providers
 
 The following example demonstrates how to initialize the SDK using Alchemy as the primary RPC provider for all registered chains.
 
 ```typescript
-import { initChainsmithSdk } from 'chainsmith-sdk';
-import { alchemy } from 'chainsmith-sdk/rpc';
-import { buildEvmChains } from 'chainsmith-sdk/utils';
+import { initChainsmithSdk } from '@getgrowly/chainsmith';
+import { alchemy } from '@getgrowly/chainsmith/rpc';
+import { buildEvmChains } from '@getgrowly/chainsmith/utils';
 
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || '';
 
@@ -56,7 +48,7 @@ export function buildDefaultChains(chainNames: TChainName[]) {
 }
 
 // Build Base, Mainnet, and Optimism chains.
-const chains = buildDefaultChains(['sonic', 'mainnet', 'base', 'optimism']);
+const chains = buildDefaultChains(['mainnet', 'base', 'optimism']);
 
 // Initialize the Chainsmith SDK.
 const sdk = initChainsmithSdk(chains);
@@ -66,10 +58,13 @@ The `alchemy` function is a built-in RPC endpoint provider in the SDK. If you ne
 
 ## Initializing the SDK with Custom RPC Endpoints
 
-If you want to use a custom RPC provider for a specific chain (e.g., Sonic chain), use `buildChainsWithCustomRpcUrls` to map `TChainName` to a custom RPC URL:
+If you want to use a custom RPC provider for a specific chain (e.g., Base chain), use `buildChainsWithCustomRpcUrls` to map `TChainName` to a custom RPC URL:
 
 ```typescript
-const chains = buildChainsWithCustomRpcUrls({ sonic: 'https://rpc.soniclabs.com' }, 'evm');
+const chains = buildChainsWithCustomRpcUrls(
+  { base: 'https://base.blockpi.network/v1/rpc/public' },
+  'evm'
+);
 ```
 
 ## Using Plugins to Fetch a Multichain Portfolio
@@ -104,13 +99,13 @@ The `multiple` function allows using two different market data adapters as fallb
 
 #### Example: Fetch Token Portfolio Using Two Market Data Adapters
 
-In the example below, `ShadowExchange` is prioritized for fetching token price data. If no data is found, `CoinMarketcap` is used as a fallback.
+In the example below, `CoinMarketcap` is prioritized for fetching token price data. If no data is found, `UniswapSdk` is used as a fallback.
 
 ```typescript
 const portfolio = await sdk.portfolio.getChainTokenPortfolio([
-  multiple([AdapterRegistry.ShadowExchange, AdapterRegistry.CoinMarketcap]),
-  AdapterRegistry.ShadowExchange,
-])(Wallets.SONIC_WALLET_BEETS_TREASURY);
+  multiple([AdapterRegistry.CoinMarketcap, AdapterRegistry.UniswapSdk]),
+  AdapterRegistry.CoinMarketcap,
+])(Wallets.ETH_MAINNET_WALLET_JESSE);
 ```
 
 This approach ensures better reliability by using decentralized exchange (DEX) price data first and falling back to centralized market data if needed.
