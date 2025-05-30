@@ -16,6 +16,8 @@ import { toast } from 'react-toastify';
 
 import { AggregatedAgent, Status } from '@getgrowly/core';
 
+import { PaddingLayout } from '../../layout';
+
 const DEFAULT_MODEL = 'gpt-4';
 
 export default function AgentPage({ params }: { params: Promise<{ id: string }> }) {
@@ -99,70 +101,74 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6 md:gap-8 md:p-8">
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard/agents')}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <h1 className="text-xl font-bold">
-          {isNewAgent ? 'Create Agent' : `Edit Agent: ${agent.name}`}
-        </h1>
-      </div>
-      <Tabs defaultValue="details" className="space-y-4">
-        <div className="flex items-center justify-between">
-          {!isNewAgent && (
-            <TabsList>
-              <TabsTrigger value="details">Details</TabsTrigger>
-              <TabsTrigger value="resources">Resources</TabsTrigger>
-              <TabsTrigger value="workflows">Workflows</TabsTrigger>
-              <TabsTrigger value="conversations">Conversations</TabsTrigger>
-            </TabsList>
-          )}
-          <Button variant="outline" onClick={() => setIsIntegrationGuideOpen(true)}>
-            <Code className="mr-2 h-4 w-4" />
-            Integration Guide
+    <PaddingLayout>
+      <div className="flex flex-col gap-6 p-6 md:gap-8 md:p-8">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard/agents')}>
+            <ArrowLeft className="h-5 w-5" />
           </Button>
+          <h1 className="text-xl font-bold">
+            {isNewAgent ? 'Create Agent' : `Edit Agent: ${agent.name}`}
+          </h1>
         </div>
-        <TabsContent value="details">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-5">
-                <div>
-                  <CardTitle>Agent Details</CardTitle>
-                  <CardDescription className="mt-2">
-                    Manage your agent's basic information and settings
-                  </CardDescription>
+        <Tabs defaultValue="details" className="space-y-4">
+          <div className="flex items-center justify-between">
+            {!isNewAgent && (
+              <TabsList>
+                <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="resources">Resources</TabsTrigger>
+                <TabsTrigger value="workflows">Workflows</TabsTrigger>
+                <TabsTrigger value="conversations">Conversations</TabsTrigger>
+              </TabsList>
+            )}
+            <Button variant="outline" onClick={() => setIsIntegrationGuideOpen(true)}>
+              <Code className="mr-2 h-4 w-4" />
+              Integration Guide
+            </Button>
+          </div>
+          <TabsContent value="details">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-5">
+                  <div>
+                    <CardTitle className="text-xl">Agent Details</CardTitle>
+                    <CardDescription className="mt-2">
+                      Manage your agent's basic information and settings
+                    </CardDescription>
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <AgentForm agent={agent} onSave={handleAgentUpdate} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="workflows">
-          <AgentWorkflows agent={agent} onUpdate={handleAgentUpdate} />
-        </TabsContent>
-        <TabsContent value="resources">
-          <AgentResources agent={agent} onUpdate={handleAgentUpdate} />
-        </TabsContent>
-        <TabsContent value="logs">
-          <Card>
-            <CardHeader>
-              <CardTitle>Activity Logs</CardTitle>
-              <CardDescription>View this agent's activity history</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Activity logs will be available soon.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-      <IntegrationGuideDialog
-        open={isIntegrationGuideOpen}
-        onOpenChange={setIsIntegrationGuideOpen}
-        agent={agent}
-      />
-    </div>
+              </CardHeader>
+              <CardContent>
+                <AgentForm agent={agent} onSave={handleAgentUpdate} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="workflows">
+            <AgentWorkflows agent={agent} onUpdate={handleAgentUpdate} />
+          </TabsContent>
+          <TabsContent value="resources">
+            <AgentResources agent={agent} onUpdate={handleAgentUpdate} />
+          </TabsContent>
+          <TabsContent value="logs">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl">Activity Logs</CardTitle>
+                <CardDescription>View this agent's activity history</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Activity logs will be available soon.
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+        <IntegrationGuideDialog
+          open={isIntegrationGuideOpen}
+          onOpenChange={setIsIntegrationGuideOpen}
+          agent={agent}
+        />
+      </div>
+    </PaddingLayout>
   );
 }

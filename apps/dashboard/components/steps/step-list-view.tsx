@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 
 import { ParsedStep } from '@getgrowly/core';
 
-import { AddStepDialog } from './add-step-dialog';
+import { AddStepDrawer } from './add-step-drawer';
 import { StepCard } from './step-card';
 
 export const StepListView = ({ steps }: { steps: ParsedStep[] }) => {
@@ -19,7 +19,7 @@ export const StepListView = ({ steps }: { steps: ParsedStep[] }) => {
             onEdit={() => setIsEditOpen(true)}
             onDelete={() => deleteStep(step.id)}
           />
-          <AddStepDialog
+          <AddStepDrawer
             open={isEditOpen}
             onOpenChange={setIsEditOpen}
             onAdd={updateStep}

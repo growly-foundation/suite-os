@@ -76,6 +76,21 @@
   }
 }
 
+html {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
 .growly-card {
   @apply bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200;
 }
@@ -89,7 +104,7 @@
 }
 
 .growly-nav-item.active {
-  @apply bg-primary text-white;
+  @apply text-primary;
 }
 
 .growly-nav-item:not(.active) {

@@ -38,6 +38,7 @@ export const useWorkflowDetailStore = create<WorkflowDetailStore>((set, get) => 
           status: Status.Active,
           workflow_id: workflow.id,
           is_beast_mode: step.is_beast_mode || false,
+          is_repeat: false,
           ...step,
           id: step.id,
         },

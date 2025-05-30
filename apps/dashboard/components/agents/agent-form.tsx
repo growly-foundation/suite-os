@@ -149,6 +149,9 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
             value={formData.description || ''}
             onChange={handleInputChange}
             placeholder="Describe what this agent does"
+            style={{
+              fontSize: '14px',
+            }}
             rows={5}
             className="bg-gray-50 dark:bg-gray-900"
           />

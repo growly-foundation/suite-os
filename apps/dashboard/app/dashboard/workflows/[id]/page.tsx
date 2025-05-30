@@ -1,7 +1,6 @@
 'use client';
 
-import { AddStepDialog } from '@/components/steps/add-step-dialog';
-import { ExploreTemplateDialog } from '@/components/steps/explore-template-dialog';
+import { AddStepDrawer } from '@/components/steps/add-step-drawer';
 import { StepListView } from '@/components/steps/step-list-view';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -10,7 +9,6 @@ import { WorkflowSettings } from '@/components/workflows/workflow-settings';
 import { suiteCore } from '@/core/suite';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
-import { generateBasicDeFiWorkflowSteps } from '@/lib/data/step-templates/basic-defi-workflow';
 import { generateId } from '@/lib/utils';
 import { ArrowLeft, Loader2, Plus, Save, Settings } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -19,6 +17,8 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { ParsedStepInsert, Status, WithId } from '@getgrowly/core';
+
+import { PaddingLayout } from '../../layout';
 
 const AnimatedLoadingSmall = dynamic(
   () =>
@@ -31,10 +31,8 @@ const AnimatedLoadingSmall = dynamic(
 export default function WorkflowDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { fetchOrganizationWorkflowById, selectedOrganization } = useDashboardState();
-  const [isExploreTemplateOpen, setIsExploreTemplateOpen] = useState(false);
   const { workflow, setWorkflow, addStep } = useWorkflowDetailStore();
   const [isAddStepOpen, setIsAddStepOpen] = useState(false);
-  const [isResetting, setIsResetting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const paramsValue = React.use(params);
@@ -105,17 +103,6 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
     setIsAddStepOpen(false);
   };
 
-  const handleReset = async () => {
-    try {
-      setIsResetting(true);
-      await fetchWorkflow();
-    } catch (error) {
-      toast.error('Failed to reset workflow');
-    } finally {
-      setIsResetting(false);
-    }
-  };
-
   useEffect(() => {
     async function init() {
       if (!selectedOrganization) {
@@ -139,70 +126,58 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard/workflows')}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-2xl font-bold">
-            {isNewWorkflow ? 'New Workflow' : `Edit: ${workflow.name}`}
-          </h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => setIsAddStepOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Step
-          </Button>
-          <Button onClick={handleSave} disabled={saving}>
-            {saving ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="mr-2 h-4 w-4" />
-            )}
-            {saving ? 'Saving...' : 'Save'}
-          </Button>
-        </div>
-      </div>
-
-      <Tabs defaultValue="canvas" className="space-y-4">
-        <div className="flex justify-between items-center">
-          <TabsList>
-            <TabsTrigger value="canvas">Canvas</TabsTrigger>
-            <TabsTrigger value="list">Step List</TabsTrigger>
-            <TabsTrigger value="settings">
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
-            </TabsTrigger>
-          </TabsList>
+    <div>
+      <Tabs defaultValue="canvas">
+        <div className="flex mt-2 justify-between px-2 py-2 items-center">
           <div className="flex items-center gap-2">
-            <Button disabled={isResetting} variant="outline" size={'sm'} onClick={handleReset}>
-              {isResetting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Reset'}
+            <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard/workflows')}>
+              <ArrowLeft className="h-5 w-5" />
             </Button>
-            <ExploreTemplateDialog
-              open={isExploreTemplateOpen}
-              onOpenChange={setIsExploreTemplateOpen}
-              onSelectTemplate={template => {
-                setWorkflow({
-                  ...workflow,
-                  steps: template.steps,
-                });
-                setIsExploreTemplateOpen(false);
-              }}
-            />
+            <h1 className="text-xl font-bold p-0">
+              {isNewWorkflow ? 'New Workflow' : `Edit: ${workflow.name}`}
+            </h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <TabsList>
+              <TabsTrigger value="canvas">Canvas</TabsTrigger>
+              <TabsTrigger value="list">Step List</TabsTrigger>
+              <TabsTrigger value="settings">
+                <Settings className="mr-2 h-4 w-4" />
+                Settings
+              </TabsTrigger>
+            </TabsList>
+            <Button
+              className="rounded-full"
+              variant="outline"
+              onClick={() => setIsAddStepOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Step
+            </Button>
+            <Button className="rounded-full" onClick={handleSave} disabled={saving}>
+              {saving ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="mr-2 h-4 w-4" />
+              )}
+              {saving ? 'Saving...' : 'Save'}
+            </Button>
           </div>
         </div>
-        <TabsContent value="canvas" className="p-0">
-          <WorkflowCanvas />
+        <TabsContent value="canvas">
+          <WorkflowCanvas onReset={fetchWorkflow} />
         </TabsContent>
         <TabsContent value="list">
-          <StepListView steps={workflow.steps} />
+          <PaddingLayout>
+            <StepListView steps={workflow.steps} />
+          </PaddingLayout>
         </TabsContent>
         <TabsContent value="settings">
-          <WorkflowSettings />
+          <PaddingLayout>
+            <WorkflowSettings />
+          </PaddingLayout>
         </TabsContent>
       </Tabs>
-      <AddStepDialog
+      <AddStepDrawer
         workflowId={workflow.id}
         open={isAddStepOpen}
         onOpenChange={setIsAddStepOpen}

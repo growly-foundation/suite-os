@@ -3,8 +3,10 @@
 import { StepNode } from '@/components/steps/step-node';
 import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
 import { getLayoutedElements, getStepConditionEdges } from '@/lib/workflow.utils';
+import { Loader2 } from 'lucide-react';
 import type React from 'react';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'react-toastify';
 import ReactFlow, {
   Background,
   Controls,
@@ -18,6 +20,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
+import { ExploreTemplateDialog } from '../steps/explore-template-dialog';
 import { Button } from '../ui/button';
 
 enum LayoutDirection {
@@ -25,12 +28,14 @@ enum LayoutDirection {
   Horizontal = 'LR',
 }
 
-export function WorkflowCanvas() {
-  const { workflow } = useWorkflowDetailStore();
+export function WorkflowCanvas({ onReset }: { onReset: () => void }) {
+  const { workflow, setWorkflow } = useWorkflowDetailStore();
   const { fitView } = useReactFlow();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [isResetting, setIsResetting] = useState(false);
+  const [isExploreTemplateOpen, setIsExploreTemplateOpen] = useState(false);
 
   // Convert workflow steps to ReactFlow nodes and edges
   useEffect(() => {
@@ -93,9 +98,20 @@ export function WorkflowCanvas() {
     [workflow]
   );
 
+  const handleReset = async () => {
+    try {
+      setIsResetting(true);
+      onReset();
+    } catch (error) {
+      toast.error('Failed to reset workflow');
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   return (
     <div
-      className="h-[calc(100vh-300px)] w-full border rounded-md bg-gray-50 dark:bg-gray-900"
+      className="h-[84vh] w-full border rounded-md bg-gray-50 dark:bg-gray-900"
       ref={reactFlowWrapper}>
       <ReactFlow
         nodes={nodes}
@@ -108,13 +124,36 @@ export function WorkflowCanvas() {
         <Background />
         <Controls />
         {/* Removed MiniMap as requested */}
-        <Panel position="top-right" className="flex gap-2">
-          <Button onClick={() => onLayout(LayoutDirection.Vertical)} variant="outline">
-            Vertical Layout
-          </Button>
-          <Button onClick={() => onLayout(LayoutDirection.Horizontal)} variant="outline">
-            Horizontal Layout
-          </Button>
+        <Panel position="top-left" className="flex justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <ExploreTemplateDialog
+              open={isExploreTemplateOpen}
+              onOpenChange={setIsExploreTemplateOpen}
+              onSelectTemplate={template => {
+                if (!workflow) return;
+                setWorkflow({
+                  ...workflow,
+                  steps: template.steps,
+                });
+                setIsExploreTemplateOpen(false);
+              }}
+            />
+            <Button disabled={isResetting} variant="outline" size={'sm'} onClick={handleReset}>
+              {isResetting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Reset'}
+            </Button>
+            <Button
+              onClick={() => onLayout(LayoutDirection.Vertical)}
+              size={'sm'}
+              variant="outline">
+              Vertical Layout
+            </Button>
+            <Button
+              onClick={() => onLayout(LayoutDirection.Horizontal)}
+              size={'sm'}
+              variant="outline">
+              Horizontal Layout
+            </Button>
+          </div>
         </Panel>
       </ReactFlow>
     </div>

@@ -12,6 +12,7 @@ export const generateGrowlySuiteWorkflowSteps = (): ParsedStep[] => {
       id: stepId1,
       name: 'Welcome Message',
       is_beast_mode: true,
+      is_repeat: false,
       conditions: [
         {
           id: uuid(),
@@ -38,6 +39,7 @@ export const generateGrowlySuiteWorkflowSteps = (): ParsedStep[] => {
       id: stepId2,
       name: 'What is Growly Suite?',
       is_beast_mode: true,
+      is_repeat: false,
       conditions: [
         {
           id: uuid(),
@@ -64,6 +66,7 @@ export const generateGrowlySuiteWorkflowSteps = (): ParsedStep[] => {
       id: stepId3,
       name: 'Manage Workflows Easily',
       is_beast_mode: true,
+      is_repeat: false,
       conditions: [
         {
           id: uuid(),

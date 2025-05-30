@@ -91,7 +91,9 @@ export default function RootLayout({
           geistSans.variable,
           geistMono.variable
         )}>
-        <Providers>{children}</Providers>
+        <div className="overflow-auto h-screen">
+          <Providers>{children}</Providers>
+        </div>
       </body>
     </html>
   );

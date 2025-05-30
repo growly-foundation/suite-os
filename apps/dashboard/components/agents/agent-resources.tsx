@@ -185,7 +185,7 @@ export function AgentResources({ agent, onUpdate }: AgentResourcesProps) {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Agent Resources</CardTitle>
+          <CardTitle className="text-xl">Agent Resources</CardTitle>
           <CardDescription>
             Manage the resources this agent can access, including smart contracts, links, and
             documents.

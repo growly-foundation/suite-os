@@ -95,7 +95,7 @@ export const WorkflowCard = ({ workflow }: { workflow: AggregatedWorkflow }) => 
               <h3 className="font-medium text-lg tracking-tight">{workflow.name}</h3>
               <Badge
                 variant={workflow.status === 'active' ? 'default' : 'secondary'}
-                className="px-2 py-0.5 rounded-md font-medium uppercase text-[10px] tracking-wider">
+                className="px-2 py-0.5 rounded-full font-medium uppercase text-[10px] tracking-wider">
                 {workflow.status}
               </Badge>
             </div>

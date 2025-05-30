@@ -12,6 +12,7 @@ export const generateBasicDeFiWorkflowSteps = (): ParsedStep[] => {
       id: stepId1,
       name: 'Welcome to DeFi Portal',
       is_beast_mode: true,
+      is_repeat: false,
       conditions: [
         {
           id: uuid(),
@@ -36,6 +37,7 @@ export const generateBasicDeFiWorkflowSteps = (): ParsedStep[] => {
       id: stepId2,
       name: 'Connect Wallet Prompt',
       is_beast_mode: true,
+      is_repeat: false,
       conditions: [
         {
           id: uuid(),
@@ -60,6 +62,7 @@ export const generateBasicDeFiWorkflowSteps = (): ParsedStep[] => {
       id: stepId3,
       name: 'Offer Yield Opportunity',
       is_beast_mode: true,
+      is_repeat: false,
       conditions: [
         {
           id: uuid(),
@@ -96,6 +99,7 @@ export const generateBasicDeFiWorkflowSteps = (): ParsedStep[] => {
       id: stepId4,
       name: 'Request Feedback on Swap Experience',
       is_beast_mode: true,
+      is_repeat: false,
       conditions: [
         {
           id: uuid(),

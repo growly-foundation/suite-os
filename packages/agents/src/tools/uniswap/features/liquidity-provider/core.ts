@@ -534,7 +534,7 @@ export const analyzeAndSuggestLiquidityPools: ToolFn = () => {
     } catch (error: any) {
       return [
         {
-          type: 'text',
+          type: 'system:error',
           content: `Failed to generate liquidity provision suggestions: ${error.message}`,
         },
       ];

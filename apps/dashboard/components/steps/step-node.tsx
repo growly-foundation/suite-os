@@ -11,7 +11,7 @@ import { Handle, type NodeProps, Position } from 'reactflow';
 
 import type { Action, ParsedStep, WorkflowId } from '@getgrowly/core';
 
-import { AddStepDialog } from './add-step-dialog';
+import { AddStepDrawer } from './add-step-drawer';
 
 export const StepNode =
   (workflowId: WorkflowId) =>
@@ -136,7 +136,7 @@ export const StepNode =
           </CardFooter>
         </Card>
         <Handle type="source" position={Position.Right} />
-        <AddStepDialog
+        <AddStepDrawer
           open={isEditOpen}
           onOpenChange={setIsEditOpen}
           onAdd={updateStep}

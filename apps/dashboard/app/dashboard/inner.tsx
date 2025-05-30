@@ -6,7 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { suiteCore } from '@/core/suite';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { Activity as ActivityIcon, Bot, FileText, Loader, Settings2, Users } from 'lucide-react';
+import {
+  Activity as ActivityIcon,
+  Bot,
+  Loader,
+  Settings2,
+  Users,
+  WorkflowIcon,
+} from 'lucide-react';
 import moment from 'moment';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -74,14 +81,14 @@ export default function DashboardInner() {
             title: `Agent "${agent.name}" ${agent.status === Status.Active ? 'activated' : 'deactivated'}`,
             timestamp: agent.created_at,
             icon: <Bot className="h-4 w-4 text-primary" />,
-            color: 'bg-green-100',
+            color: 'bg-blue-100',
           })),
           ...workflows.map(workflow => ({
             type: 'workflow' as const,
             title: `Workflow "${workflow.name}" ${workflow.status === Status.Active ? 'started' : 'stopped'}`,
             timestamp: workflow.created_at,
-            icon: <FileText className="h-4 w-4 text-green-600" />,
-            color: 'bg-blue-100',
+            icon: <WorkflowIcon className="h-4 w-4 text-green-600" />,
+            color: 'bg-green-100',
           })),
         ].sort((a, b) => moment(b.timestamp).unix() - moment(a.timestamp).unix());
 
@@ -185,7 +192,7 @@ export default function DashboardInner() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <CardTitle>Recent Activity</CardTitle>
+                    <CardTitle className="text-xl">Recent Activity</CardTitle>
                     <CardDescription>Latest actions across your organization</CardDescription>
                   </div>
                   {recentActivity.length > MAX_RECENT_ACTIVITY && (
@@ -230,7 +237,7 @@ export default function DashboardInner() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <CardTitle>Quick Actions</CardTitle>
+                    <CardTitle className="text-xl">Quick Actions</CardTitle>
                     <CardDescription>Common tasks and operations</CardDescription>
                   </div>
                 </div>

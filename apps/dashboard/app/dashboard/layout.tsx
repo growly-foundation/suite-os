@@ -1,16 +1,14 @@
 'use client';
 
-import { UserButton } from '@/components/auth/user-button';
-import { OrganizationSwitcher } from '@/components/organizations/organization-switcher';
 import ProtectedAuthProvider from '@/components/providers/protected-auth-provider';
 import { cn } from '@/lib/utils';
-import { BotIcon, FileStackIcon, HomeIcon, WorkflowIcon } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type React from 'react';
 import { Suspense, useEffect, useState } from 'react';
+
+import Navbar, { navigations } from './navbar';
 
 const AnimatedLoading = dynamic(
   () =>
@@ -20,28 +18,9 @@ const AnimatedLoading = dynamic(
   { ssr: false }
 );
 
-const navigation = [
-  {
-    title: 'Dashboard',
-    url: '/dashboard',
-    icon: HomeIcon,
-  },
-  {
-    title: 'Agents',
-    url: '/dashboard/agents',
-    icon: BotIcon,
-  },
-  {
-    title: 'Workflows',
-    url: '/dashboard/workflows',
-    icon: WorkflowIcon,
-  },
-  {
-    title: 'Resources',
-    url: '/dashboard/resources',
-    icon: FileStackIcon,
-  },
-];
+export const PaddingLayout = ({ children }: { children: React.ReactNode }) => {
+  return <div className="max-w-7xl mx-auto p-4 md:p-6">{children}</div>;
+};
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -62,48 +41,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      {/* Top Header */}
-      <header className="sticky top-0 z-50 border-b shadow-md p-4 md:px-6 bg-white">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="font-bold text-lg flex items-center">
-              <Image src="/logos/suite-icon.png" alt="Logo" width={35} height={35} />
-            </Link>
-            <OrganizationSwitcher />
-            <div className="flex gap-3">
-              {navigation.map((item, index) => {
-                const isActive =
-                  index === 0 ? pathname === item.url : pathname.includes(`${item.url}`);
-                return (
-                  <Link
-                    key={item.url}
-                    href={item.url}
-                    className={cn('growly-nav-item', isActive && 'active')}>
-                    <item.icon className="h-5 w-5" />
-                    <span>{item.title}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-          <UserButton />
-        </div>
-      </header>
+      <Navbar />
       <div className="flex flex-1">
         {/* Main Content */}
-        <main className="flex-1 p-4 md:p-6 overflow-auto bg-white">
-          <div className="max-w-7xl mx-auto">
-            <Suspense fallback={<AnimatedLoading />}>
-              <ProtectedAuthProvider>{children}</ProtectedAuthProvider>
-            </Suspense>
-          </div>
+        <main className="flex-1 overflow-auto bg-white">
+          <Suspense fallback={<AnimatedLoading />}>
+            <ProtectedAuthProvider>{children}</ProtectedAuthProvider>
+          </Suspense>
         </main>
       </div>
 
       {/* Bottom Navigation (Mobile) */}
       {isMobile && (
         <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around items-center p-2 z-50">
-          {navigation.map(item => {
+          {navigations.map(item => {
             const isActive = pathname === item.url || pathname.includes(`${item.url}`);
             return (
               <Link
