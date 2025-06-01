@@ -1,5 +1,6 @@
 'use client';
 
+import { PaddingLayout } from '@/app/dashboard/layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -68,96 +69,100 @@ export function AgentWorkflows({ agent, onUpdate }: AgentWorkflowsProps) {
     selectedWorkflows.some(w => w.id === workflowId);
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle className="text-xl">Assigned Workflows</CardTitle>
-          <CardDescription className="mt-1">
-            Manage the workflows this agent can execute
-          </CardDescription>
-        </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button disabled={isSaving}>
-              <Plus className="mr-2 h-4 w-4" />
-              Assign Workflows
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Assign Workflows</DialogTitle>
-              <DialogDescription>
-                Select workflows to assign to this agent. The agent will be able to execute these
-                workflows.
-              </DialogDescription>
-            </DialogHeader>
+    <PaddingLayout>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="text-xl">Assigned Workflows</CardTitle>
+            <CardDescription className="mt-1">
+              Manage the workflows this agent can execute
+            </CardDescription>
+          </div>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button disabled={isSaving}>
+                <Plus className="mr-2 h-4 w-4" />
+                Assign Workflows
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Assign Workflows</DialogTitle>
+                <DialogDescription>
+                  Select workflows to assign to this agent. The agent will be able to execute these
+                  workflows.
+                </DialogDescription>
+              </DialogHeader>
 
-            <div className="py-4 space-y-4">
-              <Input
-                placeholder="Search workflows..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="mb-4"
-              />
-              <ScrollArea className="h-[300px] pr-4">
-                {filteredWorkflows.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center">
-                    <p className="text-sm text-muted-foreground text-center py-4">
-                      No workflows found
-                    </p>
-                    <NewWorkflowButton />
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {filteredWorkflows.map(workflow => (
-                      <WorkflowSmallCard
-                        key={workflow.id}
-                        isSelected={isWorkflowAssigned(workflow.id)}
-                        workflow={workflow}
-                        onClick={() => {
-                          let updatedWorkflows = selectedWorkflows;
-                          if (isWorkflowAssigned(workflow.id)) {
-                            updatedWorkflows = selectedWorkflows.filter(w => w.id !== workflow.id);
-                          } else {
-                            updatedWorkflows = [...selectedWorkflows, workflow];
-                          }
-                          setSelectedWorkflows(updatedWorkflows);
-                        }}
-                      />
-                    ))}
-                  </div>
-                )}
-              </ScrollArea>
+              <div className="py-4 space-y-4">
+                <Input
+                  placeholder="Search workflows..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="mb-4"
+                />
+                <ScrollArea className="h-[300px] pr-4">
+                  {filteredWorkflows.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center">
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        No workflows found
+                      </p>
+                      <NewWorkflowButton />
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {filteredWorkflows.map(workflow => (
+                        <WorkflowSmallCard
+                          key={workflow.id}
+                          isSelected={isWorkflowAssigned(workflow.id)}
+                          workflow={workflow}
+                          onClick={() => {
+                            let updatedWorkflows = selectedWorkflows;
+                            if (isWorkflowAssigned(workflow.id)) {
+                              updatedWorkflows = selectedWorkflows.filter(
+                                w => w.id !== workflow.id
+                              );
+                            } else {
+                              updatedWorkflows = [...selectedWorkflows, workflow];
+                            }
+                            setSelectedWorkflows(updatedWorkflows);
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </ScrollArea>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveWorkflows} disabled={isSaving}>
+                  {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isSaving ? 'Saving...' : 'Save'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </CardHeader>
+        <CardContent>
+          {assignedWorkflows.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No workflows assigned to this agent</p>
+              <Button variant="outline" className="mt-4" onClick={() => setIsDialogOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Assign Workflows
+              </Button>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleSaveWorkflows} disabled={isSaving}>
-                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isSaving ? 'Saving...' : 'Save'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </CardHeader>
-      <CardContent>
-        {assignedWorkflows.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">No workflows assigned to this agent</p>
-            <Button variant="outline" className="mt-4" onClick={() => setIsDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Assign Workflows
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {assignedWorkflows.map(workflow => (
-              <WorkflowCard workflow={workflow} key={workflow.id} />
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          ) : (
+            <div className="space-y-4">
+              {assignedWorkflows.map(workflow => (
+                <WorkflowCard workflow={workflow} key={workflow.id} />
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </PaddingLayout>
   );
 }

@@ -16,7 +16,31 @@ export function ChatPanel() {
     appState: { walletAddress },
   } = useSuite();
   const { sendMessage, isSending } = useChatActions();
+  return (
+    <ChatPanelContainer
+      isSending={isSending}
+      sendMessageHandler={sendMessage}
+      walletAddress={walletAddress}
+      integration={integration}
+    />
+  );
+}
 
+export function ChatPanelContainer({
+  walletAddress,
+  integration,
+  sendMessageHandler,
+  isSending,
+}: {
+  integration?: {
+    onchainKit?: {
+      enabled: boolean;
+    };
+  };
+  walletAddress: `0x${string}` | undefined;
+  sendMessageHandler: () => void;
+  isSending: boolean;
+}) {
   return (
     <React.Fragment>
       {walletAddress ? (
@@ -33,7 +57,7 @@ export function ChatPanel() {
           <PanelLayout>
             <ChatMessageView />
           </PanelLayout>
-          <ChatInput sendMessageHandler={sendMessage} isSending={isSending} />
+          <ChatInput sendMessageHandler={sendMessageHandler} isSending={isSending} />
         </>
       ) : (
         <ConnectWallet />

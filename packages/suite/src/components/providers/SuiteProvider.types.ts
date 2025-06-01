@@ -58,10 +58,11 @@ export interface SuiteGlobalContext {
     };
   }>;
   config?: SuiteConfig;
-  integration?: {
-    /**
-     * Configuration for the OnchainKit feature.
-     */
-    onchainKit?: Omit<OnchainKitProviderReact, 'children' | 'address'> & { enabled: boolean };
-  };
+  integration?: SuiteIntegration;
+}
+export interface SuiteIntegration {
+  /**
+   * Configuration for the OnchainKit feature.
+   */
+  onchainKit?: Omit<OnchainKitProviderReact, 'children' | 'address'> & { enabled: boolean };
 }
