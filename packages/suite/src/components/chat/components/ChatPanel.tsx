@@ -25,7 +25,7 @@ export function ChatPanel() {
     inputValue,
     setInputValue,
   } = useSuiteSession();
-  const { sendMessage, isSending } = useChatActions();
+  const { sendUserMessage, isSending } = useChatActions();
   return (
     <ChatPanelContainer
       user={user}
@@ -39,7 +39,7 @@ export function ChatPanel() {
         isScrollingToBottom: panelOpen,
       }}
       input={{
-        sendMessageHandler: sendMessage,
+        sendMessageHandler: sendUserMessage,
         isSending,
         inputValue,
         setInputValue,
