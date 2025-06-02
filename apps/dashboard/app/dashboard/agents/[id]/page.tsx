@@ -19,7 +19,7 @@ import { AggregatedAgent, Status } from '@getgrowly/core';
 const DEFAULT_MODEL = 'gpt-4';
 
 export default function AgentPage({ params }: { params: Promise<{ id: string }> }) {
-  const { selectedOrganization } = useDashboardState();
+  const { selectedOrganization, setSelectedAgent } = useDashboardState();
   const router = useRouter();
   const [agent, setAgent] = useState<AggregatedAgent | null>(null);
   const [isIntegrationGuideOpen, setIsIntegrationGuideOpen] = useState(false);
@@ -49,6 +49,7 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
           const fetchedAgent = await suiteCore.agents.getAggregatedAgent(paramsValue.id);
           if (fetchedAgent) {
             setAgent(fetchedAgent);
+            setSelectedAgent(fetchedAgent);
           } else {
             // Handle agent not found
             router.push('/dashboard/agents');
@@ -99,9 +100,9 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6 md:gap-8 md:p-8">
-      <Tabs defaultValue="details" className="space-y-4">
-        <div className="flex items-center justify-between">
+    <div className="flex flex-col">
+      <Tabs defaultValue="details">
+        <div className="flex items-center justify-between border-b p-3">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard/agents')}>
               <ArrowLeft className="h-5 w-5" />
@@ -119,7 +120,10 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
                 <TabsTrigger value="conversations">Conversations</TabsTrigger>
               </TabsList>
             )}
-            <Button variant="outline" onClick={() => setIsIntegrationGuideOpen(true)}>
+            <Button
+              className="rounded-full"
+              variant="outline"
+              onClick={() => setIsIntegrationGuideOpen(true)}>
               <Code className="mr-2 h-4 w-4" />
               Integration Guide
             </Button>
@@ -134,8 +138,8 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
         <TabsContent value="resources">
           <AgentResources agent={agent} onUpdate={handleAgentUpdate} />
         </TabsContent>
-        <TabsContent value="conversations">
-          <AgentConversations />
+        <TabsContent value="conversations" className="mt-0">
+          <AgentConversations agent={agent} />
         </TabsContent>
       </Tabs>
       <IntegrationGuideDialog

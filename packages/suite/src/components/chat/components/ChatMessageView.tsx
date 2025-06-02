@@ -1,16 +1,45 @@
 import { Button } from '@/components/ui/button';
-import { useSuiteSession } from '@/hooks/use-session';
 import { cn } from '@/lib/utils';
 import { text } from '@/styles/theme';
 import { ChevronUp, Loader2, Pencil } from 'lucide-react';
 import React from 'react';
 
+import { Agent, ConversationRole, ParsedMessage, User } from '@getgrowly/core';
 import { BRAND_NAME_CAPITALIZED } from '@getgrowly/ui';
 
 import ChatResponse from './ChatResponse';
+import { ConnectWallet } from './ConnectWallet';
 
-export const ChatMessageView = () => {
-  const { messages, agent, isLoadingMessages, isAgentThinking, panelOpen } = useSuiteSession();
+export interface ChatMessageViewProps {
+  messages: ParsedMessage[];
+  agent: Agent | undefined | null;
+  user: User | undefined | null;
+  viewAs?: ConversationRole;
+  isLoadingMessages: boolean;
+  isAgentThinking: boolean;
+  isScrollingToBottom: boolean;
+}
+
+const shouldShowAvatar = (message: ParsedMessage, previousMessage: ParsedMessage | null) => {
+  if (!previousMessage) return true;
+  if (message.sender !== previousMessage.sender) return true;
+  if (message.created_at && previousMessage.created_at) {
+    const timeDiff =
+      new Date(message.created_at).getTime() - new Date(previousMessage.created_at).getTime();
+    return timeDiff > 600000; // 10 minutes in milliseconds
+  }
+  return false;
+};
+
+export const ChatMessageView = ({
+  messages,
+  agent,
+  user,
+  viewAs = ConversationRole.User,
+  isLoadingMessages,
+  isAgentThinking,
+  isScrollingToBottom,
+}: ChatMessageViewProps) => {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
 
   // Number of messages to show initially and when loading more
@@ -37,11 +66,14 @@ export const ChatMessageView = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     const element = document.getElementById('thinking-status');
     if (element) element.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, panelOpen]);
+  }, [messages, isScrollingToBottom, isLoadingMessages]);
 
+  if (!user) {
+    return <ConnectWallet />;
+  }
   return (
     <React.Fragment>
-      {messages.length > 0 && (
+      {messages.length > 0 && viewAs === ConversationRole.User && (
         <React.Fragment>
           <div
             className={cn('text-gray-500 text-xs text-center', text.base)}
@@ -54,6 +86,7 @@ export const ChatMessageView = () => {
         <React.Fragment>
           {messages.length > 0 ? (
             <React.Fragment>
+              <div style={{ height: '20px', width: '100%' }} />
               {messages.length > visibleMessageCount && (
                 <div className="flex justify-center my-4">
                   <Button
@@ -66,9 +99,18 @@ export const ChatMessageView = () => {
                   </Button>
                 </div>
               )}
-              {visibleMessages.map(message => (
-                <ChatResponse key={message.id} message={message} />
-              ))}
+              {visibleMessages.map((message, index) => {
+                const previousMessage = index > 0 ? visibleMessages[index - 1] : null;
+                return (
+                  <ChatResponse
+                    key={message.id}
+                    message={message}
+                    viewAs={viewAs}
+                    showAvatar={shouldShowAvatar(message, previousMessage)}
+                    user={user}
+                  />
+                );
+              })}
               <div ref={messagesEndRef} />
             </React.Fragment>
           ) : (

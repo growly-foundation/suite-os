@@ -4,7 +4,7 @@ import { useSuite } from '@/hooks/use-suite';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 
-import { ConversationRole, ParsedMessage } from '@getgrowly/core';
+import { ParsedMessage } from '@getgrowly/core';
 
 import { buildOnchainKitSwapMessage, buildOnchainKitTokenChipMessage } from './onchainkit';
 import { buildSystemErrorMessage } from './system';
@@ -29,7 +29,7 @@ export const RenderMessage = ({ message }: { message: ParsedMessage }) => {
 
 export const RenderMessageContent = ({ message }: { message: ParsedMessage }) => {
   if (message.type === 'text') {
-    if (message.sender === ConversationRole.User) {
+    if (message.sender === 'user') {
       return buildTextMessage(message.content);
     }
     return buildMarkdownMessage(message.content);

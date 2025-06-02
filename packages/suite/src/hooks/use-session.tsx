@@ -10,8 +10,8 @@ import {
   ParsedMessage,
   ParsedStep,
   ParsedUser,
+  WorkflowExecutionService,
 } from '@getgrowly/core';
-import { WorkflowExecutionService } from '@getgrowly/core';
 import { BusterState } from '@getgrowly/ui';
 
 type Optional<T> = T | undefined | null;
@@ -108,13 +108,18 @@ export const useSuiteSession = create<WidgetSession>((set, get) => ({
   },
   createUserFromAddressIfNotExist: async walletAddress => {
     try {
-      const users = await suiteCoreService.callDatabaseService('users', 'getAll', []);
-      const parsedUser = users.find(user => {
-        return (user.entities as { walletAddress: string }).walletAddress === walletAddress;
-      });
-      if (parsedUser) {
-        set({ user: parsedUser as any });
-        return parsedUser as any;
+      const user: ParsedUser | undefined = await suiteCoreService.call(
+        'users',
+        'getUserByWalletAddress',
+        [
+          {
+            walletAddress,
+          },
+        ]
+      );
+      if (user) {
+        set({ user });
+        return user;
       }
 
       // Create new user if not exist.

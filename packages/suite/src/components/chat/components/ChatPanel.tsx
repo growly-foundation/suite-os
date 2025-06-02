@@ -2,51 +2,74 @@
 
 import { PanelLayout } from '@/components/panel/components/PanelLayout';
 import { useChatActions } from '@/hooks/use-chat-actions';
+import { useSuiteSession } from '@/hooks/use-session';
 import { useSuite } from '@/hooks/use-suite';
 import { Address, Avatar, Badge, Identity, Name } from '@coinbase/onchainkit/identity';
 import React from 'react';
 
-import { ChatInput } from './ChatInput';
-import { ChatMessageView } from './ChatMessageView';
+import { ParsedUser } from '@getgrowly/core';
+
+import { ChatInput, ChatInputProps } from './ChatInput';
+import { ChatMessageView, ChatMessageViewProps } from './ChatMessageView';
 import { ConnectWallet } from './ConnectWallet';
 
 export function ChatPanel() {
+  const { integration } = useSuite();
   const {
-    integration,
-    appState: { walletAddress },
-  } = useSuite();
+    messages,
+    user,
+    agent,
+    isLoadingMessages,
+    isAgentThinking,
+    panelOpen,
+    inputValue,
+    setInputValue,
+  } = useSuiteSession();
   const { sendMessage, isSending } = useChatActions();
   return (
     <ChatPanelContainer
-      isSending={isSending}
-      sendMessageHandler={sendMessage}
-      walletAddress={walletAddress}
+      user={user}
       integration={integration}
+      view={{
+        user,
+        messages,
+        agent,
+        isLoadingMessages,
+        isAgentThinking,
+        isScrollingToBottom: panelOpen,
+      }}
+      input={{
+        sendMessageHandler: sendMessage,
+        isSending,
+        inputValue,
+        setInputValue,
+        isAgentThinking,
+      }}
     />
   );
 }
 
 export function ChatPanelContainer({
-  walletAddress,
   integration,
-  sendMessageHandler,
-  isSending,
+  user,
+  view,
+  input,
 }: {
   integration?: {
     onchainKit?: {
       enabled: boolean;
     };
   };
-  walletAddress: `0x${string}` | undefined;
-  sendMessageHandler: () => void;
-  isSending: boolean;
+  user: ParsedUser | undefined | null;
+  view: ChatMessageViewProps;
+  input: ChatInputProps;
 }) {
   return (
     <React.Fragment>
-      {walletAddress ? (
+      {user?.address ? (
         <>
           {integration?.onchainKit?.enabled && (
-            <Identity address={walletAddress} hasCopyAddressOnClick={false}>
+            <Identity address={user.address} hasCopyAddressOnClick={false}>
               <Avatar />
               <Name>
                 <Badge tooltip={false} />
@@ -55,9 +78,9 @@ export function ChatPanelContainer({
             </Identity>
           )}
           <PanelLayout>
-            <ChatMessageView />
+            <ChatMessageView {...view} />
           </PanelLayout>
-          <ChatInput sendMessageHandler={sendMessageHandler} isSending={isSending} />
+          <ChatInput {...input} />
         </>
       ) : (
         <ConnectWallet />

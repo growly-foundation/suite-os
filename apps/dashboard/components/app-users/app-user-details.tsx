@@ -1,24 +1,22 @@
-'use client';
-
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { User } from '@/lib/types/users';
 import {
   Activity,
   Award,
   Copy,
   ExternalLink,
   ImageIcon,
-  MessageCircle,
   TrendingDown,
   TrendingUp,
-  Video,
   Wallet,
 } from 'lucide-react';
 
+import { ParsedUser } from '@getgrowly/core';
+
+import { AppUserAvatarWithStatus } from './app-user-avatar-with-status';
+
 interface UserDetailsProps {
-  user: User;
+  user: ParsedUser;
 }
 
 export function UserDetails({ user }: UserDetailsProps) {
@@ -34,10 +32,7 @@ export function UserDetails({ user }: UserDetailsProps) {
     <div className="w-[360px] border-l flex flex-col bg-slate-50/50">
       {/* Profile Header */}
       <div className="flex flex-col items-center justify-center p-6 border-b bg-white">
-        <Avatar className="h-20 w-20 mb-3">
-          <AvatarImage src={user.avatar || '/placeholder.svg'} alt={user.ensName} />
-          <AvatarFallback>{user.ensName.charAt(0).toUpperCase()}</AvatarFallback>
-        </Avatar>
+        <AppUserAvatarWithStatus user={user} size={80} />
         <h3 className="font-semibold text-lg">{user.ensName}</h3>
         <div className="flex items-center gap-2 mt-1">
           <p className="text-sm text-muted-foreground">{truncateAddress(user.address)}</p>
@@ -52,7 +47,7 @@ export function UserDetails({ user }: UserDetailsProps) {
             <ExternalLink className="h-3 w-3" />
           </Button>
         </div>
-        <p className="text-sm text-center text-muted-foreground mt-2">{user.bio}</p>
+        <p className="text-sm text-center text-muted-foreground mt-2">{user.description}</p>
 
         {/* Reputation */}
         <div className="flex items-center gap-2 mt-3">
@@ -61,18 +56,6 @@ export function UserDetails({ user }: UserDetailsProps) {
             {user.reputation.level} • {user.reputation.score}
           </Badge>
         </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex justify-center gap-4 p-4 border-b bg-white">
-        <Button variant="default" className="flex flex-col items-center gap-1 h-auto py-3 px-6">
-          <MessageCircle className="h-5 w-5" />
-          <span className="text-xs">Chat</span>
-        </Button>
-        <Button variant="outline" className="flex flex-col items-center gap-1 h-auto py-3 px-6">
-          <Video className="h-5 w-5" />
-          <span className="text-xs">Video Call</span>
-        </Button>
       </div>
 
       <div className="flex-1 overflow-auto">

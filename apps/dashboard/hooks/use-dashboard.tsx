@@ -2,17 +2,22 @@ import { suiteCore } from '@/core/suite';
 import { create } from 'zustand';
 
 import {
+  Admin,
   AggregatedAgent,
   AggregatedOrganization,
   AggregatedWorkflow,
+  MessageContent,
+  ParsedMessage,
+  ParsedUser,
   WorkflowId,
 } from '@getgrowly/core';
-import { Admin } from '@getgrowly/core';
 
 export const STORAGE_KEY_SELECTED_ORGANIZATION_ID = (userId: string) =>
   `SUITE_SELECTED_ORGANIZATION_ID_${userId}`;
 
 export type StateStatus = 'idle' | 'loading';
+
+export type ConversationStatus = StateStatus | 'sending' | 'agent-thinking';
 
 /**
  * State storage for managing application state.
@@ -47,6 +52,22 @@ export type DashboardAppState = {
   organizationAgents: AggregatedAgent[];
   fetchOrganizationAgents: () => Promise<AggregatedAgent[]>;
   fetchOrganizationAgentById: (agentId: string) => Promise<AggregatedAgent | null>;
+  selectedAgent: AggregatedAgent | null;
+  setSelectedAgent: (agent: AggregatedAgent | null) => void;
+
+  // Users
+  userStatus: StateStatus;
+  users: ParsedUser[];
+  fetchUsersByAgentId: (agentId: string) => Promise<ParsedUser[]>;
+  selectedUser: ParsedUser | null;
+  setSelectedUser: (user: ParsedUser | null) => void;
+
+  // Messages
+  conversationStatus: ConversationStatus;
+  setConversationStatus: (status: ConversationStatus) => void;
+  currentConversationMessages: ParsedMessage[];
+  addConversationMessage: (message: ParsedMessage) => void;
+  fetchCurrentConversationMessages: () => Promise<ParsedMessage[]>;
 };
 
 /**
@@ -102,6 +123,8 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
     }));
     return agent;
   },
+  selectedAgent: null,
+  setSelectedAgent: (agent: AggregatedAgent | null) => set({ selectedAgent: agent }),
 
   // Organizations
   organizations: [],
@@ -160,5 +183,55 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
       workflowStatus: 'idle',
     }));
     return workflow;
+  },
+
+  // Users
+  userStatus: 'idle',
+  users: [],
+  fetchUsersByAgentId: async (agentId: string) => {
+    set({ userStatus: 'loading' });
+    const users = await suiteCore.users.getUsersByAgentId(agentId);
+    set({
+      users,
+      userStatus: 'idle',
+    });
+    return users;
+  },
+  selectedUser: null,
+  setSelectedUser: (user: ParsedUser | null) => set({ selectedUser: user }),
+
+  // Conversations
+  currentConversationMessages: [],
+  conversationStatus: 'idle',
+  setConversationStatus: (status: ConversationStatus) => set({ conversationStatus: status }),
+  addConversationMessage: (message: ParsedMessage) =>
+    set(state => ({
+      currentConversationMessages: [...state.currentConversationMessages, message],
+    })),
+  fetchCurrentConversationMessages: async () => {
+    try {
+      set({ conversationStatus: 'loading' });
+      const agent = get().selectedAgent;
+      const user = get().selectedUser;
+      if (!agent?.id || !user?.id) {
+        throw new Error('Agent or user not found');
+      }
+      const messages = await suiteCore.db.messages.getAllByFields({
+        agent_id: agent.id,
+        user_id: user.id,
+      });
+      const parsedMessage: ParsedMessage[] = messages.map(message => {
+        const messageContent = JSON.parse(message.content) as MessageContent;
+        return {
+          ...message,
+          ...messageContent,
+        };
+      });
+      set({ currentConversationMessages: parsedMessage, conversationStatus: 'idle' });
+      return parsedMessage;
+    } catch (error) {
+      set({ conversationStatus: 'idle' });
+      throw new Error(`Failed to fetch messages: ${error}`);
+    }
   },
 }));

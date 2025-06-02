@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,10 +6,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { getNumberFromStr } from '@/lib/utils';
 import { usePrivy } from '@privy-io/react-auth';
-import { LogOut } from 'lucide-react';
+import { Loader, LogOut } from 'lucide-react';
 import { redirect } from 'next/navigation';
+
+import { AdminAvatar } from '@getgrowly/ui';
 
 export const UserButton = () => {
   const { logout } = usePrivy();
@@ -18,12 +18,11 @@ export const UserButton = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar className="h-10 w-10 border-2 border-white/20 cursor-pointer">
-          <AvatarImage
-            src={`/agent-avatars/agent-avatar-${getNumberFromStr(user?.name || '', 7)}.webp`}
-          />
-          <AvatarFallback>{user?.name}</AvatarFallback>
-        </Avatar>
+        {user ? (
+          <AdminAvatar email={user?.email || ''} size={35} />
+        ) : (
+          <Loader className="h-4 w-4 animate-spin" />
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel className="cursor-pointer hover:bg-accent">Settings</DropdownMenuLabel>
