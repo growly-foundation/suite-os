@@ -1,14 +1,17 @@
 import './types.d';
 
 // Components.
-export * from './components/widgets';
 export * from './components/providers/SuiteProvider';
 export * from './components/providers/SuiteProvider.types';
+export * from './components/widgets';
+
 // Hooks.
-export * from './hooks/use-suite';
 export * from './hooks/use-chat-actions';
 export * from './hooks/use-session';
+export * from './hooks/use-suite';
 // Themes
 export * from './styles/themes';
 // Types
 export * from './types/theme';
+
+export { ChatPanelContainer } from './components/chat/components/ChatPanel';

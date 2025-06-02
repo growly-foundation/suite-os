@@ -3,10 +3,10 @@
   "version": "0.1.7",
   "private": true,
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "next dev",
+    "lint": "next lint",
+    "start": "next start"
   },
   "dependencies": {
     "@auth/supabase-adapter": "^1.9.0",
@@ -45,6 +45,7 @@
     "@radix-ui/react-tooltip": "1.1.6",
     "@supabase/supabase-js": "^2.49.4",
     "autoprefixer": "^10.4.20",
+    "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",

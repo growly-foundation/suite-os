@@ -3,9 +3,11 @@ import { SupabaseClient, createClient } from '@supabase/supabase-js';
 import {
   AgentService,
   FunctionService,
+  MessageService,
   OrganizationService,
   PublicDatabaseService,
   StepService,
+  UserService,
   WorkflowService,
 } from './services';
 
@@ -61,6 +63,12 @@ export interface SuiteDatabaseCore {
 
   /** Organization services. */
   organizations: OrganizationService;
+
+  /** User services. */
+  users: UserService;
+
+  /** Message services. */
+  messages: MessageService;
 
   /** Workflow services. */
   workflows: WorkflowService;
@@ -132,6 +140,8 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     workflowService,
     functionService
   );
+  const userService = new UserService(userDatabaseService, messageDatabaseService);
+  const messageService = new MessageService(messageDatabaseService);
 
   const db = {
     admins: adminDatabaseService,
@@ -154,5 +164,7 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     workflows: workflowService,
     organizations: organizationService,
     steps: stepService,
+    users: userService,
+    messages: messageService,
   };
 };

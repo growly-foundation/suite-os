@@ -2,9 +2,10 @@ import { UserButton } from '@/components/auth/user-button';
 import { OrganizationSwitcher } from '@/components/organizations/organization-switcher';
 import { cn } from '@/lib/utils';
 import { BotIcon, FileStackIcon, HomeIcon, WorkflowIcon } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+
+import { SuiteLogo } from '@getgrowly/ui';
 
 export const navigations = [
   {
@@ -36,7 +37,7 @@ export default function Navbar() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/dashboard" className="font-bold text-lg flex items-center">
-            <Image src="/logos/suite-icon.png" alt="Logo" width={35} height={35} />
+            <SuiteLogo width={35} height={35} />
           </Link>
           <OrganizationSwitcher />
           <div className="flex gap-3">

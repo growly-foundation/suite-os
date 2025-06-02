@@ -533,7 +533,7 @@ export type Database = {
       }
     }
     Enums: {
-      conversation_role: "user" | "assistant" | "system"
+      conversation_role: "user" | "assistant" | "system" | "admin"
       status: "active" | "inactive"
     }
     CompositeTypes: {
@@ -650,7 +650,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      conversation_role: ["user", "assistant", "system"],
+      conversation_role: ["user", "assistant", "system", "admin"],
       status: ["active", "inactive"],
     },
   },

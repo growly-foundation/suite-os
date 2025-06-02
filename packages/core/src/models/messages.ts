@@ -12,6 +12,7 @@ export enum ConversationRole {
   User = 'user',
   Agent = 'assistant',
   System = 'system',
+  Admin = 'admin',
 }
 
 /**
