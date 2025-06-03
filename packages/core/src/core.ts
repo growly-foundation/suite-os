@@ -45,6 +45,9 @@ export interface SuiteDatabaseCore {
     /** Manages organizations. */
     organizations: PublicDatabaseService<'organizations'>;
 
+    /** Manages resources. */
+    resources: PublicDatabaseService<'resources'>;
+
     /** Manages steps. */
     steps: PublicDatabaseService<'steps'>;
 
@@ -108,7 +111,15 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     supabaseClientService,
     'messages'
   );
+  const resourceDatabaseService = new PublicDatabaseService<'resources'>(
+    supabaseClientService,
+    'resources'
+  );
   const agentDatabaseService = new PublicDatabaseService<'agents'>(supabaseClientService, 'agents');
+  const agentResourcesDatabaseService = new PublicDatabaseService<'agent_resources'>(
+    supabaseClientService,
+    'agent_resources'
+  );
   const agentWorkflowsService = new PublicDatabaseService<'agent_workflows'>(
     supabaseClientService,
     'agent_workflows'
@@ -129,9 +140,11 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
   );
   const stepService = new StepService(stepDatabaseService);
   const agentService = new AgentService(
+    workflowService,
     agentDatabaseService,
     agentWorkflowsService,
-    workflowService
+    agentResourcesDatabaseService,
+    resourceDatabaseService
   );
   const organizationService = new OrganizationService(
     organizationDatabaseService,
@@ -151,6 +164,7 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     client: supabaseClientService,
     organizations: organizationDatabaseService,
     messages: messageDatabaseService,
+    resources: resourceDatabaseService,
     steps: stepDatabaseService,
     step_sessions: stepSessionsDatabaseService,
     users: userDatabaseService,
