@@ -17,7 +17,7 @@ import { availableModels } from '@/constants/agents';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { Loader, PlusCircle, X } from 'lucide-react';
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { AggregatedAgent, Status, Workflow } from '@getgrowly/core';
@@ -26,17 +26,15 @@ import { WorkflowSmallCard } from '../workflows/workflow-small-card';
 import { AgentModelCard } from './agent-model-card';
 
 interface AgentFormProps {
-  agent: AggregatedAgent;
+  formData: AggregatedAgent;
+  setFormData: Dispatch<SetStateAction<AggregatedAgent>>;
   onSave: (agent: AggregatedAgent) => Promise<void>;
 }
 
-export function AgentForm({ agent, onSave }: AgentFormProps) {
+export function AgentForm({ formData, setFormData, onSave }: AgentFormProps) {
   const { organizationWorkflows, fetchOrganizationWorkflows } = useDashboardState();
   const [isSaving, setIsSaving] = useState(false);
-  const [formData, setFormData] = useState<AggregatedAgent>({
-    ...agent,
-    model: agent.model || availableModels[0].id,
-  });
+
   const [newResource, setNewResource] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -55,15 +53,7 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
     setFormData(prev => ({ ...prev, model: value }));
   };
 
-  const addResource = () => {
-    if (newResource.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        resources: [...prev.resources, newResource.trim()],
-      }));
-      setNewResource('');
-    }
-  };
+  const addResource = () => {};
 
   const removeResource = (index: number) => {
     setFormData(prev => ({
@@ -151,6 +141,7 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
             placeholder="Describe what this agent does"
             style={{
               fontSize: '14px',
+              fontWeight: 'normal',
             }}
             rows={5}
             className="bg-gray-50 dark:bg-gray-900"
@@ -203,7 +194,7 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
                   key={index}
                   variant="secondary"
                   className="flex items-center gap-1 px-3 py-1">
-                  {resource}
+                  {resource.name}
                   <Button
                     type="button"
                     variant="ghost"
@@ -222,12 +213,13 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
           <Label className="text-base">Workflows</Label>
           <p className="text-sm text-muted-foreground mb-2"></p>
 
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-2">
             {organizationWorkflows.length === 0 ? (
               <p className="text-sm text-muted-foreground">No workflows available</p>
             ) : (
               organizationWorkflows.map(workflow => (
                 <WorkflowSmallCard
+                  key={workflow.id}
                   workflow={workflow}
                   isSelected={formData.workflows.some(w => w.id === workflow.id)}
                   onClick={toggleWorkflow}

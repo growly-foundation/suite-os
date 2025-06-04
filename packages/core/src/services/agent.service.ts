@@ -1,13 +1,15 @@
-import { AggregatedAgent, AggregatedWorkflow, Status } from '@/models';
+import { AggregatedAgent, AggregatedWorkflow, ParsedResource, Status } from '@/models';
 
 import { PublicDatabaseService } from './database.service';
 import { WorkflowService } from './workflow.service';
 
 export class AgentService {
   constructor(
+    private workflowService: WorkflowService,
     private agentDatabaseService: PublicDatabaseService<'agents'>,
     private agentWorkflowsDatabaseService: PublicDatabaseService<'agent_workflows'>,
-    private workflowService: WorkflowService
+    private agentResourcesDatabaseService: PublicDatabaseService<'agent_resources'>,
+    private resourceDatabaseService: PublicDatabaseService<'resources'>
   ) {}
 
   async createOrUpdate(
@@ -57,6 +59,7 @@ export class AgentService {
     return {
       ...updatedAgent,
       workflows: agent.workflows,
+      resources: agent.resources,
     };
   }
 
@@ -76,10 +79,11 @@ export class AgentService {
   async getAggregatedAgent(agent_id: string): Promise<AggregatedAgent | null> {
     const agent = await this.agentDatabaseService.getById(agent_id);
     if (!agent) return null;
+
+    // Get workflows
     const agentWorkflows = await this.agentWorkflowsDatabaseService.getAllByFields({
       agent_id,
     });
-
     const workflows: AggregatedWorkflow[] = [];
     for (const { workflow_id } of agentWorkflows) {
       const workflow = await this.workflowService.getWorkflowWithSteps(workflow_id);
@@ -89,9 +93,22 @@ export class AgentService {
       workflows.push(workflow);
     }
 
+    // Get resources
+    const agentResources = await this.agentResourcesDatabaseService.getAllByFields({
+      agent_id,
+    });
+    const resources: ParsedResource[] = [];
+    for (const { resource_id } of agentResources) {
+      const resource = await this.resourceDatabaseService.getById(resource_id);
+      if (!resource) {
+        continue;
+      }
+      resources.push(resource as ParsedResource);
+    }
     return {
       ...agent,
       workflows,
+      resources,
     };
   }
 }

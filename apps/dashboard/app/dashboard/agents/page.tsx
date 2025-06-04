@@ -37,7 +37,7 @@ export default function AgentsPage() {
             </p>
           </div>
           <Link href="/dashboard/agents/new">
-            <Button>
+            <Button className="rounded-full">
               <PlusCircle className="mr-2 h-4 w-4" />
               New Agent
             </Button>

@@ -37,7 +37,7 @@ export default function WorkflowManager() {
           <Workflow className="h-6 w-6 text-primary" /> Workflows
         </h1>
         <Link href="/dashboard/workflows/new">
-          <Button className="bg-primary hover:bg-primary/90 text-white">
+          <Button className="bg-primary hover:bg-primary/90 text-white rounded-full">
             <PlusCircle className="mr-2 h-4 w-4" />
             New Workflow
           </Button>
