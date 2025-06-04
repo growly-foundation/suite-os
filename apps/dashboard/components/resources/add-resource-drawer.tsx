@@ -2,10 +2,11 @@
 
 import { useComponent } from '@/components/providers/component-provider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useToast } from '@/components/ui/use-toast';
+import { ADD_RESOURCE_DRAWER } from '@/constants/component-registry';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { useResourceActions } from '@/hooks/use-resource-actions';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 import { ResourceType, Status } from '@getgrowly/core';
 
@@ -19,16 +20,11 @@ type ParsedResourceInsert = {
   organization_id: string;
 };
 
-interface AddResourceDrawerProps {
-  id: string;
-}
-
-export function AddResourceDrawer({ id }: AddResourceDrawerProps) {
-  const { toast } = useToast();
+export function AddResourceDrawer() {
   const { selectedOrganization } = useDashboardState();
   const { handleAddResource } = useResourceActions();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { isOpen, close } = useComponent(id);
+  const { isOpen, close } = useComponent(ADD_RESOURCE_DRAWER);
 
   const handleSubmit = async (data: {
     name: string;
@@ -36,11 +32,7 @@ export function AddResourceDrawer({ id }: AddResourceDrawerProps) {
     value: Record<string, any>;
   }) => {
     if (!selectedOrganization?.id) {
-      toast({
-        title: 'Error',
-        description: 'No organization selected',
-        variant: 'destructive',
-      });
+      toast.error('No organization selected');
       return;
     }
 
@@ -58,17 +50,10 @@ export function AddResourceDrawer({ id }: AddResourceDrawerProps) {
 
       // Close the drawer on success
       close();
-      toast({
-        title: 'Resource added',
-        description: 'The resource has been added successfully.',
-      });
+      toast.success('Resource added');
     } catch (error) {
       console.error('Error adding resource:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to add resource. Please try again.',
-        variant: 'destructive',
-      });
+      toast.error('Failed to add resource. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

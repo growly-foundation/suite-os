@@ -35,7 +35,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
               {children}
               <ChatWidget />
               <ToastContainer />
-              <AddResourceDrawer id="add-resource-drawer" />
+              <AddResourceDrawer />
             </Suspense>
           </ComponentProvider>
         </ReactFlowProvider>

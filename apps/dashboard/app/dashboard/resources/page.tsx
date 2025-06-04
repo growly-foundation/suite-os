@@ -5,6 +5,7 @@ import { useComponent } from '@/components/providers/component-provider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ADD_RESOURCE_DRAWER } from '@/constants/component-registry';
 import { useAgentResourceActions } from '@/hooks/use-resource-actions';
 import { Code, FileText, Globe, PlusIcon, Trash } from 'lucide-react';
 
@@ -12,7 +13,7 @@ import { ResourceType } from '@getgrowly/core';
 
 export function ResourcePage() {
   const { resources, handleDeleteResource } = useAgentResourceActions();
-  const { open } = useComponent('add-resource-drawer');
+  const { open } = useComponent(ADD_RESOURCE_DRAWER);
 
   const getResourceIcon = (type: ResourceType) => {
     switch (type) {

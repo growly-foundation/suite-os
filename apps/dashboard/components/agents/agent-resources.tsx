@@ -4,6 +4,7 @@ import { PaddingLayout } from '@/app/dashboard/layout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ADD_RESOURCE_DRAWER } from '@/constants/component-registry';
 import { useResourceActions } from '@/hooks/use-resource-actions';
 import { Code, FileText, Globe, PlusIcon, Trash } from 'lucide-react';
 
@@ -13,7 +14,7 @@ import { useComponent } from '../providers/component-provider';
 
 export function AgentResources() {
   const { resources, handleDeleteResource } = useResourceActions();
-  const { open } = useComponent('add-resource-drawer');
+  const { open } = useComponent(ADD_RESOURCE_DRAWER);
 
   const getResourceIcon = (type: ResourceType) => {
     switch (type) {
