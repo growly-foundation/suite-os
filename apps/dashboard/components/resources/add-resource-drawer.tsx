@@ -4,10 +4,12 @@ import { useComponent } from '@/components/providers/component-provider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
 import { useDashboardState } from '@/hooks/use-dashboard';
+import { useResourceActions } from '@/hooks/use-resource-actions';
 import { useState } from 'react';
 
 import { ResourceType, Status } from '@getgrowly/core';
-import { useResourceActions } from '@/hooks/use-resource-actions';
+
+import { ResourceForm } from './forms/resource-form';
 
 type ParsedResourceInsert = {
   name: string;
@@ -16,8 +18,6 @@ type ParsedResourceInsert = {
   status: Status;
   organization_id: string;
 };
-
-import { ResourceForm } from './forms/resource-form';
 
 interface AddResourceDrawerProps {
   id: string;

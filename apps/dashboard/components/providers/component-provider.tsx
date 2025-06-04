@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useState } from 'react';
+import { ReactNode, createContext, useContext, useState } from 'react';
 
 type ComponentProviderProps = {
   children: ReactNode;
@@ -40,7 +40,7 @@ export function useComponentProvider() {
 
 export function useComponent(id: string) {
   const { activeComponent, openComponent, closeComponent } = useComponentProvider();
-  
+
   return {
     isOpen: activeComponent === id,
     open: () => openComponent(id),

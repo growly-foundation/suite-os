@@ -26,7 +26,7 @@ export const useResourceActions = () => {
   const handleAddResource = useCallback(async (resource: ResourceInput) => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const newResource = await suiteCore.db.resources.create(resource);
       setResources(prevResources => {
@@ -47,32 +47,35 @@ export const useResourceActions = () => {
     }
   }, []);
 
-  const handleUpdateResource = useCallback(async (id: string, updates: Partial<Omit<ResourceInput, 'id' | 'created_at'>>) => {
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const updatedResource = await suiteCore.db.resources.update(id, updates);
-      setResources(prevResources => 
-        prevResources.map(resource => 
-          resource.id === id ? { ...resource, ...updatedResource } as ParsedResource : resource
-        )
-      );
-      return updatedResource as ParsedResource;
-    } catch (err) {
-      console.error('Error updating resource:', err);
-      const error = err instanceof Error ? err : new Error('Failed to update resource');
-      setError(error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const handleUpdateResource = useCallback(
+    async (id: string, updates: Partial<Omit<ResourceInput, 'id' | 'created_at'>>) => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const updatedResource = await suiteCore.db.resources.update(id, updates);
+        setResources(prevResources =>
+          prevResources.map(resource =>
+            resource.id === id ? ({ ...resource, ...updatedResource } as ParsedResource) : resource
+          )
+        );
+        return updatedResource as ParsedResource;
+      } catch (err) {
+        console.error('Error updating resource:', err);
+        const error = err instanceof Error ? err : new Error('Failed to update resource');
+        setError(error);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    []
+  );
 
   const handleDeleteResource = useCallback(async (id: string) => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       await suiteCore.db.resources.delete(id);
       setResources(prevResources => prevResources.filter(resource => resource.id !== id));
@@ -88,7 +91,7 @@ export const useResourceActions = () => {
 
   // Load resources for the current agent if needed
   const { selectedAgent } = useDashboardState();
-  
+
   useEffect(() => {
     if (selectedAgent?.resources) {
       setResources(selectedAgent.resources);

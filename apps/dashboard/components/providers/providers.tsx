@@ -8,9 +8,9 @@ import { ReactFlowProvider } from 'reactflow';
 
 import '@getgrowly/suite/styles.css';
 
+import { AddResourceDrawer } from '../resources/add-resource-drawer';
 import { ThemeProvider } from '../theme-provider';
 import { ComponentProvider } from './component-provider';
-import { AddResourceDrawer } from '../resources/add-resource-drawer';
 import { SuiteProviderWrapper } from './suite-provider';
 
 const ChatWidget = dynamic(() => import('@getgrowly/suite').then(suite => suite.ChatWidget), {
