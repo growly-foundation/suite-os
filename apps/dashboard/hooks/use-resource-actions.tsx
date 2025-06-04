@@ -15,7 +15,17 @@ type ResourceInput = {
 
 export const useAgentResourceActions = () => {
   const { selectedAgent } = useDashboardState();
-  const [resources, setResources] = useState<ParsedResource[]>(selectedAgent?.resources || []);
+  const resourceActions = useResourceActions();
+
+  useEffect(() => {
+    if (selectedAgent?.resources) {
+      resourceActions.setResources(selectedAgent.resources);
+    }
+  }, [selectedAgent?.resources]);
+
+  return {
+    ...resourceActions,
+  };
 };
 
 export const useResourceActions = () => {
@@ -100,6 +110,7 @@ export const useResourceActions = () => {
 
   return {
     resources,
+    setResources,
     isLoading,
     error,
     handleAddResource,

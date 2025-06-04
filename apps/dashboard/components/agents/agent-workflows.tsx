@@ -80,7 +80,7 @@ export function AgentWorkflows({ agent, onUpdate }: AgentWorkflowsProps) {
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button disabled={isSaving}>
+              <Button className="rounded-full" disabled={isSaving}>
                 <Plus className="mr-2 h-4 w-4" />
                 Assign Workflows
               </Button>
@@ -149,7 +149,7 @@ export function AgentWorkflows({ agent, onUpdate }: AgentWorkflowsProps) {
           {assignedWorkflows.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-muted-foreground">No workflows assigned to this agent</p>
-              <Button variant="outline" className="mt-4" onClick={() => setIsDialogOpen(true)}>
+              <Button className="rounded-full mt-4" onClick={() => setIsDialogOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Assign Workflows
               </Button>
