@@ -8,7 +8,11 @@ export type ParsedResourceInsert = Omit<Resource, 'id' | 'created_at'> & Resourc
 /**
  * Value of the resource.
  */
-export type ResourceValue = ContractResourceValue | LinkResourceValue;
+export type ResourceValue = ContractResourceValue | LinkResourceValue | DocumentResourceValue;
+export type ResourceValueValue =
+  | ContractResourceValue['value']
+  | LinkResourceValue['value']
+  | DocumentResourceValue['value'];
 
 /**
  * Contract resource value.

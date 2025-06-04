@@ -5,12 +5,15 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useResourceActions } from '@/hooks/use-resource-actions';
-import { Code, FileText, Globe, Trash } from 'lucide-react';
+import { Code, FileText, Globe, PlusIcon, Trash } from 'lucide-react';
 
 import { ResourceType } from '@getgrowly/core';
 
+import { useComponent } from '../providers/component-provider';
+
 export function AgentResources() {
-  const { resources, handleRemoveResource } = useResourceActions();
+  const { resources, handleDeleteResource } = useResourceActions();
+  const { open } = useComponent('add-resource-drawer');
 
   const getResourceIcon = (type: ResourceType) => {
     switch (type) {
@@ -28,11 +31,18 @@ export function AgentResources() {
       <div className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl">Agent Resources</CardTitle>
-            <CardDescription>
-              Manage the resources this agent can access, including smart contracts, links, and
-              documents.
-            </CardDescription>
+            <div className="flex justify-between items-center gap-5">
+              <div>
+                <CardTitle className="text-xl">Agent Resources</CardTitle>
+                <CardDescription>
+                  Manage the resources this agent can access, including smart contracts, links, and
+                  documents.
+                </CardDescription>
+              </div>
+              <Button className="rounded-full" onClick={open}>
+                <PlusIcon /> Add Resource
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {resources.length === 0 ? (
@@ -57,8 +67,9 @@ export function AgentResources() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleRemoveResource(resource.id)}
-                      className="text-muted-foreground hover:text-destructive">
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      onClick={() => handleDeleteResource(resource.id)}
+                    >
                       <Trash className="h-4 w-4" />
                     </Button>
                   </div>

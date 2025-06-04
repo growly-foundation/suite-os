@@ -9,6 +9,8 @@ import { ReactFlowProvider } from 'reactflow';
 import '@getgrowly/suite/styles.css';
 
 import { ThemeProvider } from '../theme-provider';
+import { ComponentProvider } from './component-provider';
+import { AddResourceDrawer } from '../resources/add-resource-drawer';
 import { SuiteProviderWrapper } from './suite-provider';
 
 const ChatWidget = dynamic(() => import('@getgrowly/suite').then(suite => suite.ChatWidget), {
@@ -28,11 +30,14 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
     <SuiteProviderWrapper>
       <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
         <ReactFlowProvider>
-          <Suspense fallback={<AnimatedLoading />}>
-            {children}
-            <ChatWidget />
-            <ToastContainer />
-          </Suspense>
+          <ComponentProvider>
+            <Suspense fallback={<AnimatedLoading />}>
+              {children}
+              <ChatWidget />
+              <ToastContainer />
+              <AddResourceDrawer id="add-resource-drawer" />
+            </Suspense>
+          </ComponentProvider>
         </ReactFlowProvider>
       </ThemeProvider>
     </SuiteProviderWrapper>

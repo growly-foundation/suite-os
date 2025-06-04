@@ -17,7 +17,7 @@ import { availableModels } from '@/constants/agents';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { Loader, PlusCircle, X } from 'lucide-react';
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { AggregatedAgent, Status, Workflow } from '@getgrowly/core';
@@ -26,17 +26,15 @@ import { WorkflowSmallCard } from '../workflows/workflow-small-card';
 import { AgentModelCard } from './agent-model-card';
 
 interface AgentFormProps {
-  agent: AggregatedAgent;
+  formData: AggregatedAgent;
+  setFormData: Dispatch<SetStateAction<AggregatedAgent>>;
   onSave: (agent: AggregatedAgent) => Promise<void>;
 }
 
-export function AgentForm({ agent, onSave }: AgentFormProps) {
+export function AgentForm({ formData, setFormData, onSave }: AgentFormProps) {
   const { organizationWorkflows, fetchOrganizationWorkflows } = useDashboardState();
   const [isSaving, setIsSaving] = useState(false);
-  const [formData, setFormData] = useState<AggregatedAgent>({
-    ...agent,
-    model: agent.model || availableModels[0].id,
-  });
+
   const [newResource, setNewResource] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -221,6 +219,7 @@ export function AgentForm({ agent, onSave }: AgentFormProps) {
             ) : (
               organizationWorkflows.map(workflow => (
                 <WorkflowSmallCard
+                  key={workflow.id}
                   workflow={workflow}
                   isSelected={formData.workflows.some(w => w.id === workflow.id)}
                   onClick={toggleWorkflow}
