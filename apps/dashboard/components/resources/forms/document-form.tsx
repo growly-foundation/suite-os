@@ -5,6 +5,11 @@ import { useCallback, useState } from 'react';
 
 import { DocumentResourceValue } from '@getgrowly/core';
 
+import { DocumentComingSoon } from './document-coming-soon';
+
+// Set this to false to enable the actual document upload functionality
+const SHOW_COMING_SOON = true;
+
 type DocumentFormData = {
   document_url: string;
   file_name?: string;
@@ -38,6 +43,10 @@ export function DocumentForm({ onChange, initialData }: DocumentFormProps) {
       });
     }
   }, []);
+
+  if (SHOW_COMING_SOON) {
+    return <DocumentComingSoon />;
+  }
 
   return (
     <div className="space-y-4">
