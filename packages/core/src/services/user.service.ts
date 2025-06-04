@@ -84,4 +84,15 @@ export class UserService {
     if (!parsedUser) return null;
     return this.fillMockData(parsedUser) as ParsedUser;
   }
+
+  async createUserFromAddressIfNotExist(walletAddress: string): Promise<ParsedUser | null> {
+    const user = await this.getUserByWalletAddress(walletAddress);
+    if (user) return user;
+    const newUser = await this.userDatabaseService.create({
+      entities: {
+        walletAddress,
+      },
+    });
+    return this.fillMockData(newUser) as ParsedUser;
+  }
 }

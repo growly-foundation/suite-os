@@ -7,7 +7,7 @@ import { useSuite } from '@/hooks/use-suite';
 import { Address, Avatar, Badge, Identity, Name } from '@coinbase/onchainkit/identity';
 import React from 'react';
 
-import { ParsedUser } from '@getgrowly/core';
+import { ConversationRole, ParsedUser } from '@getgrowly/core';
 
 import { ChatInput, ChatInputProps } from './ChatInput';
 import { ChatMessageView, ChatMessageViewProps } from './ChatMessageView';
@@ -37,6 +37,7 @@ export function ChatPanel() {
         isLoadingMessages,
         isAgentThinking,
         isScrollingToBottom: panelOpen,
+        viewAs: ConversationRole.User,
       }}
       input={{
         sendMessageHandler: sendUserMessage,

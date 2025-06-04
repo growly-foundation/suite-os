@@ -108,30 +108,13 @@ export const useSuiteSession = create<WidgetSession>((set, get) => ({
   },
   createUserFromAddressIfNotExist: async walletAddress => {
     try {
-      const user: ParsedUser | undefined = await suiteCoreService.call(
-        'users',
-        'getUserByWalletAddress',
-        [
-          {
-            walletAddress,
-          },
-        ]
-      );
-      if (user) {
-        set({ user });
-        return user;
-      }
-
-      // Create new user if not exist.
-      const newUser = await suiteCoreService.callDatabaseService('users', 'create', [
+      const user = await suiteCoreService.call('users', 'createUserFromAddressIfNotExist', [
         {
-          entities: {
-            walletAddress,
-          },
+          walletAddress,
         },
       ]);
-      set({ user: newUser as any });
-      return newUser as any;
+      set({ user: user as ParsedUser });
+      return user as ParsedUser;
     } catch (error) {
       throw new Error(`Failed to fetch user from wallet address: ${error}`);
     }
