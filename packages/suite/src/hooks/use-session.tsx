@@ -6,6 +6,7 @@ import {
   Agent,
   AgentId,
   AggregatedWorkflow,
+  Message,
   MessageContent,
   ParsedMessage,
   ParsedStep,
@@ -86,12 +87,11 @@ export const useSuiteSession = create<WidgetSession>((set, get) => ({
       if (!agent?.id || !user?.id) {
         throw new Error('Agent or user not found');
       }
-      const messages = await suiteCoreService.callDatabaseService('messages', 'getAllByFields', [
-        {
-          agent_id: agent.id,
-          user_id: user.id,
-        },
-      ]);
+      const messages: Message[] = await suiteCoreService.call(
+        'conversations',
+        'getMessagesOfAgentAndUser',
+        [agent.id, user.id]
+      );
       const parsedMessage: ParsedMessage[] = messages.map(message => {
         const messageContent = JSON.parse(message.content) as MessageContent;
         return {
@@ -109,9 +109,7 @@ export const useSuiteSession = create<WidgetSession>((set, get) => ({
   createUserFromAddressIfNotExist: async walletAddress => {
     try {
       const user = await suiteCoreService.call('users', 'createUserFromAddressIfNotExist', [
-        {
-          walletAddress,
-        },
+        walletAddress,
       ]);
       set({ user: user as ParsedUser });
       return user as ParsedUser;

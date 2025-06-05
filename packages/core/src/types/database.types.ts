@@ -173,47 +173,73 @@ export type Database = {
           },
         ]
       }
-      messages: {
+      conversation: {
         Row: {
           agent_id: string | null
-          content: string
           created_at: string | null
-          embedding: string | null
           id: string
-          sender: Database["public"]["Enums"]["conversation_role"]
           user_id: string | null
         }
         Insert: {
           agent_id?: string | null
-          content: string
           created_at?: string | null
-          embedding?: string | null
           id?: string
-          sender: Database["public"]["Enums"]["conversation_role"]
           user_id?: string | null
         }
         Update: {
           agent_id?: string | null
-          content?: string
           created_at?: string | null
-          embedding?: string | null
           id?: string
-          sender?: Database["public"]["Enums"]["conversation_role"]
           user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "messages_agent_id_fkey"
+            foreignKeyName: "conversation_agent_id_fkey"
             columns: ["agent_id"]
             isOneToOne: false
             referencedRelation: "agents"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "messages_user_id_fkey"
+            foreignKeyName: "conversation_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string | null
+          created_at: string | null
+          embedding: string | null
+          id: string
+          sender: Database["public"]["Enums"]["conversation_role"]
+        }
+        Insert: {
+          content: string
+          conversation_id?: string | null
+          created_at?: string | null
+          embedding?: string | null
+          id?: string
+          sender: Database["public"]["Enums"]["conversation_role"]
+        }
+        Update: {
+          content?: string
+          conversation_id?: string | null
+          created_at?: string | null
+          embedding?: string | null
+          id?: string
+          sender?: Database["public"]["Enums"]["conversation_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversation"
             referencedColumns: ["id"]
           },
         ]

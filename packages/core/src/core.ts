@@ -2,8 +2,8 @@ import { SupabaseClient, createClient } from '@supabase/supabase-js';
 
 import {
   AgentService,
+  ConversationService,
   FunctionService,
-  MessageService,
   OrganizationService,
   PublicDatabaseService,
   StepService,
@@ -39,6 +39,9 @@ export interface SuiteDatabaseCore {
     /** The Supabase client. */
     client: SupabaseClient;
 
+    /** Manages conversations. */
+    conversation: PublicDatabaseService<'conversation'>;
+
     /** Manages messages. */
     messages: PublicDatabaseService<'messages'>;
 
@@ -70,8 +73,8 @@ export interface SuiteDatabaseCore {
   /** User services. */
   users: UserService;
 
-  /** Message services. */
-  messages: MessageService;
+  /** Conversation services. */
+  conversations: ConversationService;
 
   /** Workflow services. */
   workflows: WorkflowService;
@@ -94,6 +97,10 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
   // Database services.
   const adminDatabaseService = new PublicDatabaseService<'admins'>(supabaseClientService, 'admins');
   const userDatabaseService = new PublicDatabaseService<'users'>(supabaseClientService, 'users');
+  const conversationDatabaseService = new PublicDatabaseService<'conversation'>(
+    supabaseClientService,
+    'conversation'
+  );
   const workflowDatabaseService = new PublicDatabaseService<'workflows'>(
     supabaseClientService,
     'workflows'
@@ -153,14 +160,18 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     workflowService,
     functionService
   );
-  const userService = new UserService(userDatabaseService, messageDatabaseService);
-  const messageService = new MessageService(messageDatabaseService);
+  const userService = new UserService(userDatabaseService, conversationDatabaseService);
+  const conversationService = new ConversationService(
+    messageDatabaseService,
+    conversationDatabaseService
+  );
 
   const db = {
     admins: adminDatabaseService,
     admin_organizations: adminOrganizationDatabaseService,
     agents: agentDatabaseService,
     agent_workflows: agentWorkflowsService,
+    conversation: conversationDatabaseService,
     client: supabaseClientService,
     organizations: organizationDatabaseService,
     messages: messageDatabaseService,
@@ -175,10 +186,10 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     db,
     fn: functionService,
     agents: agentService,
+    conversations: conversationService,
     workflows: workflowService,
     organizations: organizationService,
     steps: stepService,
     users: userService,
-    messages: messageService,
   };
 };

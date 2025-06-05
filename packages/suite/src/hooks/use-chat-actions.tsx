@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 
 import {
   ConversationRole,
+  Message,
   MessageContent,
   SystemErrorMessageContent,
   TextMessageContent,
@@ -43,14 +44,19 @@ export const useChatActions = () => {
       type,
       content: message,
     });
-    const newMessage = await suiteCoreService.callDatabaseService('messages', 'create', [
-      {
-        content: serializedContent,
-        sender,
-        agent_id: agentId,
-        user_id: user?.id,
-      },
-    ]);
+    const newMessage: Message = await suiteCoreService.call(
+      'conversations',
+      'addMessageToConversation',
+      [
+        {
+          agent_id: agentId,
+          user_id: user?.id,
+          message: serializedContent,
+          sender,
+          existingEmbedding: undefined,
+        },
+      ]
+    );
 
     const deserializedMessage = {
       ...newMessage,

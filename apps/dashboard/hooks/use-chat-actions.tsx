@@ -57,11 +57,15 @@ export const useChatActions = () => {
       type,
       content: message,
     });
-    const newMessage = await suiteCore.db.messages.create({
-      content: serializedContent,
+    if (!selectedAgent?.id || !selectedUser?.id) {
+      throw new Error('Agent or user not found');
+    }
+    const newMessage = await suiteCore.conversations.addMessageToConversation({
+      agent_id: selectedAgent.id,
+      user_id: selectedUser.id,
+      message: serializedContent,
       sender,
-      agent_id: selectedAgent?.id,
-      user_id: selectedUser?.id,
+      existingEmbedding: undefined,
     });
 
     const deserializedMessage = {
