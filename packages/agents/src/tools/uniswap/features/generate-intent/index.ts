@@ -19,11 +19,11 @@ export function makeGenerateIntentTool() {
           required: true,
         },
         amount: {
-          description: 'USD amount to swap',
+          description: 'Amount of fromToken to swap',
           required: true,
         },
         chain: {
-          description: 'Blockchain for the swap (e.g. "ethereum")',
+          description: 'Blockchain for the swap (e.g. "ethereum" or "base")',
           required: false,
         },
       },
@@ -38,7 +38,7 @@ export function makeGenerateIntentTool() {
       .object({
         fromToken: z.string().describe('Token symbol to swap from (e.g. "ETH")'),
         toToken: z.string().describe('Token symbol to swap to (e.g. "USDC")'),
-        amount: z.number().describe('USD amount to swap'),
+        amount: z.number().describe('Amount of fromToken to swap'),
         chain: z
           .enum(['ethereum', 'base', 'optimism', 'arbitrum', 'polygon'] as const)
           .describe('Blockchain for the swap')

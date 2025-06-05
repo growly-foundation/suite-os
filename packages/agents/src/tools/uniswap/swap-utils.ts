@@ -26,13 +26,18 @@ export function createSwapRecommendation(
   const chain = fromToken.chain === toToken.chain ? fromToken.chain : 'ethereum';
   // We'll create a placeholder link and then update it asynchronously
   const uniswapLink = `https://app.uniswap.org/swap?chain=${chain}`;
+
+  let tokenAmount = 0;
+  if (fromToken.price > 0) {
+    tokenAmount = valueToSwap / fromToken.price;
+  }
   return {
     fromToken,
     toToken,
     reason,
     uniswapLink,
     valueToSwap,
-    tokenAmount: fromToken.value,
+    tokenAmount,
   };
 }
 
@@ -180,6 +185,7 @@ export function formatSwapResponse(recommendation: RebalanceRecommendation): Too
     content: {
       fromToken,
       toToken,
+      amount: tokenAmount || 0,
       link: uniswapLink,
     },
     type: 'uniswap:swap',

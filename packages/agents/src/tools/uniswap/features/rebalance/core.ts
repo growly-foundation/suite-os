@@ -7,106 +7,25 @@ import { ZerionFungiblePositionsResponse } from '../../../zerion/types';
 import { processFungiblePositions } from '../../../zerion/utils';
 import { createSwapRecommendation, updateSwapWithTokenAddresses } from '../../swap-utils';
 import { RebalanceRecommendation, RebalancingStrategy, TokenInfo } from '../../types';
+import { analyzeAndGenerateRebalanceStrategy } from '../common/rebalancing-logic';
 
 export function generateRebalanceRecommendation(
   tokens: TokenInfo[],
   strategy: RebalancingStrategy
 ): RebalanceRecommendation | null {
-  // Sort tokens by value (descending)
-  const sortedTokens = [...tokens].sort((a, b) => b.value - a.value);
+  // Use the shared sophisticated rebalancing logic
+  const analysis = analyzeAndGenerateRebalanceStrategy(tokens, strategy);
 
-  if (sortedTokens.length < 2) {
-    return null; // Not enough tokens to make a recommendation
+  if (!analysis.fromToken || !analysis.toToken || analysis.swapAmount <= 0) {
+    return null;
   }
 
-  // Different strategies have different rebalancing rules
-  switch (strategy) {
-    case RebalancingStrategy.CONSERVATIVE: {
-      // Conservative strategy: Reduce high volatility tokens and increase stablecoins
-      const totalValue = tokens.reduce((sum, token) => sum + token.value, 0);
-      const stablecoins = sortedTokens.filter(
-        t => t.symbol === 'USDC' || t.symbol === 'USDT' || t.symbol === 'DAI' || t.symbol === 'BUSD'
-      );
-
-      const highVolatilityTokens = sortedTokens.filter(
-        t => !stablecoins.includes(t) && t.value > totalValue * 0.25
-      );
-
-      if (highVolatilityTokens.length > 0 && stablecoins.length > 0) {
-        const fromToken = highVolatilityTokens[0];
-        const toToken = stablecoins[0];
-        // Swap 30% of the high volatility token value
-        const valueToSwap = fromToken.value * 0.3;
-
-        return createSwapRecommendation(
-          fromToken,
-          toToken,
-          'Reducing exposure to high volatility assets to preserve capital',
-          valueToSwap
-        );
-      }
-      break;
-    }
-
-    case RebalancingStrategy.AGGRESSIVE: {
-      // Aggressive strategy: Increase exposure to high potential growth tokens
-      const stablecoins = sortedTokens.filter(
-        t => t.symbol === 'USDC' || t.symbol === 'USDT' || t.symbol === 'DAI' || t.symbol === 'BUSD'
-      );
-
-      const highGrowthTokens = sortedTokens.filter(
-        t => !stablecoins.includes(t) && t.type !== 'staked'
-      );
-
-      if (stablecoins.length > 0 && highGrowthTokens.length > 0 && stablecoins[0].percentage > 30) {
-        const fromToken = stablecoins[0];
-        const toToken = highGrowthTokens[0];
-        // Swap 40% of the stablecoin value
-        const valueToSwap = fromToken.value * 0.4;
-
-        return createSwapRecommendation(
-          fromToken,
-          toToken,
-          'Increasing exposure to growth assets for higher potential returns',
-          valueToSwap
-        );
-      }
-      break;
-    }
-
-    case RebalancingStrategy.MODERATE:
-    default: {
-      // Moderate strategy: Balance the portfolio by reducing over-concentrated positions
-      const largestToken = sortedTokens[0];
-
-      // If the largest token is over 40% of the portfolio, recommend diversifying
-      if (largestToken.percentage > 40) {
-        // Find a token to diversify into
-        const otherTokens = sortedTokens.filter(
-          t =>
-            t.symbol !== largestToken.symbol &&
-            t.type !== 'staked' &&
-            t.chain === largestToken.chain
-        );
-
-        if (otherTokens.length > 0) {
-          const toToken = otherTokens[0];
-          // Swap 25% of the largest token value
-          const valueToSwap = largestToken.value * 0.25;
-
-          return createSwapRecommendation(
-            largestToken,
-            toToken,
-            'Diversifying from an over-concentrated position to reduce risk',
-            valueToSwap
-          );
-        }
-      }
-      break;
-    }
-  }
-
-  return null; // No recommendation for the given strategy
+  return createSwapRecommendation(
+    analysis.fromToken,
+    analysis.toToken,
+    analysis.detailedReason,
+    analysis.swapAmount
+  );
 }
 
 export const analyzeAndSuggestRebalance: ToolFn =
@@ -139,46 +58,83 @@ export const analyzeAndSuggestRebalance: ToolFn =
       tokens.forEach(token => {
         token.percentage = (token.value / totalValue) * 100;
       });
-      // Generate rebalance recommendation based on the strategy
-      const recommendation = generateRebalanceRecommendation(tokens, strategy);
-      if (!recommendation) {
+
+      // Generate rebalance recommendation using shared sophisticated logic
+      const analysis = analyzeAndGenerateRebalanceStrategy(tokens, strategy);
+
+      if (!analysis.fromToken || !analysis.toToken || analysis.swapAmount <= 0) {
         return [
           {
             type: 'text',
-            content:
-              'Your portfolio appears well-balanced based on your selected strategy. No specific rebalancing recommendations at this time.',
+            content: `
+## Portfolio Rebalance Analysis
+
+${analysis.detailedReason}
+
+**Portfolio Summary:**
+- Total Value: $${totalValue.toFixed(2)}
+- Risk Level: ${analysis.riskLevel}
+- Stablecoin Allocation: ${analysis.stablecoinPercentage.toFixed(1)}%
+- Largest Position: ${analysis.largestTokenPercentage.toFixed(1)}% of portfolio
+- Blockchain Diversification: ${analysis.chainCounts} chain(s)
+`,
           },
         ];
       }
+
+      // Calculate token amount for display
+      let tokenAmount = 0;
+      if (analysis.fromToken.price > 0) {
+        tokenAmount = analysis.swapAmount / analysis.fromToken.price;
+      }
+
+      // Create recommendation with token addresses
+      const recommendation = createSwapRecommendation(
+        analysis.fromToken,
+        analysis.toToken,
+        analysis.detailedReason,
+        analysis.swapAmount
+      );
+
       // Update the recommendation with token addresses from token lists
       const updatedRecommendation = await updateSwapWithTokenAddresses(
         recommendation,
         new TokenListManager()
       );
-      // Format the response with additional portfolio context
-      const { fromToken, toToken, reason, uniswapLink, valueToSwap, tokenAmount } =
-        updatedRecommendation;
+
+      const swapPercentage = Math.round(analysis.swapAmountPercentage * 100);
+
+      // Format the response with detailed analysis
+      const { fromToken, toToken, uniswapLink, valueToSwap } = updatedRecommendation;
+
       return [
         {
           type: 'text',
           content: `
 ## Portfolio Rebalance Recommendation
 
-I suggest swapping **${tokenAmount ? tokenAmount.toFixed(6) : '?'} ${fromToken.symbol}** (about $${valueToSwap.toFixed(2)}) to **${toToken.symbol}**.
+I suggest swapping **${tokenAmount.toFixed(6)} ${fromToken.symbol}** (about $${valueToSwap.toFixed(2)}, ${swapPercentage}% of your ${fromToken.symbol} holdings) to **${toToken.symbol}**.
 
-### Why make this swap?
-${reason}
+### Strategic Analysis
+${analysis.detailedReason}
 
-### Current allocation:
-- ${fromToken.symbol}: $${fromToken.value.toFixed(2)} (${fromToken.percentage.toFixed(2)}% of portfolio)
-- ${toToken.symbol}: $${toToken.value.toFixed(2)} (${toToken.percentage.toFixed(2)}% of portfolio)
+### Portfolio Context
+- **Total Value:** $${totalValue.toFixed(2)}
+- **Risk Level:** ${analysis.riskLevel}
+- **Stablecoin Allocation:** ${analysis.stablecoinPercentage.toFixed(1)}%
+- **Largest Position:** ${analysis.largestTokenPercentage.toFixed(1)}% of portfolio
+- **Blockchain Diversification:** ${analysis.chainCounts} chain(s)
 
-### After rebalancing (estimated):
-- ${fromToken.symbol}: $${(fromToken.value - valueToSwap).toFixed(2)}
-- ${toToken.symbol}: $${(toToken.value + valueToSwap).toFixed(2)}
+### Current Allocation
+- **${fromToken.symbol}:** $${fromToken.value.toFixed(2)} (${fromToken.percentage.toFixed(2)}% of portfolio)
+- **${toToken.symbol}:** $${toToken.value.toFixed(2)} (${toToken.percentage.toFixed(2)}% of portfolio)
 
-You can execute this swap on Uniswap:
-@${uniswapLink}
+### After Rebalancing (Estimated)
+- **${fromToken.symbol}:** $${(fromToken.value - valueToSwap).toFixed(2)} (${(((fromToken.value - valueToSwap) / totalValue) * 100).toFixed(1)}% of portfolio)
+- **${toToken.symbol}:** $${(toToken.value + valueToSwap).toFixed(2)} (${(((toToken.value + valueToSwap) / totalValue) * 100).toFixed(1)}% of portfolio)
+
+### Execute the Swap
+You can execute this swap on Uniswap: ${uniswapLink}
 `,
         },
         {
@@ -186,6 +142,7 @@ You can execute this swap on Uniswap:
           content: {
             fromToken,
             toToken,
+            amount: tokenAmount,
             link: uniswapLink,
           },
         },

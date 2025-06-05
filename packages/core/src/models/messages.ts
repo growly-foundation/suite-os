@@ -87,6 +87,7 @@ export interface UniswapSwapMessageContent {
   content: {
     fromToken: UniswapSwapTokenInfo;
     toToken: UniswapSwapTokenInfo;
+    amount: number;
     link?: string;
   };
 }
