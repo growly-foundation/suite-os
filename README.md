@@ -87,7 +87,7 @@ We truly ❤️ pull requests! If you wish to help, you can learn more about how
 
 ## Follow Us
 
-Join our growing community around the world! Check out our website [Website](https://getgrowly.app/). Follow us on [X](https://x.com/GrowlyFND), or join our live [Discord](https://discord.gg/growly) server for more help, ideas, and discussions.
+Join our growing community around the world! Check out our website [Website](https://getgrowly.app/). Follow us on [X](https://x.com/GrowlyFND), or join our live [Discord](https://discord.gg/NB4Ug72yyS) server for more help, ideas, and discussions.
 
 ## License
 
