@@ -133,7 +133,9 @@ export const AgentCard = ({ agent }: { agent: Agent }) => {
               </div>
               <div className="flex flex-col items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 p-2">
                 <Cpu className="h-4 w-4 mb-1 text-muted-foreground" />
-                <span className="text-xs font-medium">{agent.resources.length} Resources</span>
+                <span className="text-xs font-medium">
+                  {agentDetails?.resources.length} Resources
+                </span>
               </div>
             </div>
             <div className="flex items-center gap-2">

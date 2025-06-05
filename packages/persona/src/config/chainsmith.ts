@@ -1,18 +1,10 @@
 import { ChainsmithSdk, initChainsmithSdk } from '@getgrowly/chainsmith';
 import {
   AlchemyAdapter,
-  AnglesApiAdapter,
-  BeetsApiAdapter,
   CoinMarketcapAdapter,
   DexScreenerAdapter,
   EvmscanAdapter,
-  MetropolisApiAdapter,
-  OriginApiAdapter,
-  PaintSwapAdapter,
   ReservoirAdapter,
-  ShadowExchangeAdapter,
-  ShadowExchangeApiAdapter,
-  SiloV2ApiAdapter,
   UniswapSdkAdapter,
 } from '@getgrowly/chainsmith/adapters';
 import { EvmTokenPlugin } from '@getgrowly/chainsmith/plugins';
@@ -30,18 +22,10 @@ const RESERVOIR_API_KEY = process.env.RESERVOIR_API_KEY || '';
 
 export const AdapterRegistry = {
   Alchemy: new AlchemyAdapter(ALCHEMY_API_KEY, new EvmTokenPlugin()),
-  AnglesApi: new AnglesApiAdapter(),
-  BeetsApi: new BeetsApiAdapter(),
   CoinMarketcap: new CoinMarketcapAdapter(COINMARKETCAP_API_BASE_URL, COINMARKETCAP_API_KEY),
   DexScreener: new DexScreenerAdapter(),
   Evmscan: new EvmscanAdapter(ETHERSCAN_BASE_URL, ETHERSCAN_API_KEY),
-  MetropolisApi: new MetropolisApiAdapter(),
-  OriginApi: new OriginApiAdapter(),
-  PaintSwap: new PaintSwapAdapter(),
   Reservoir: new ReservoirAdapter(RESERVOIR_API_KEY),
-  ShadowExchangeApi: new ShadowExchangeApiAdapter(),
-  ShadowExchange: new ShadowExchangeAdapter(new EvmTokenPlugin()),
-  SiloV2Api: new SiloV2ApiAdapter(),
   Uniswap: new UniswapSdkAdapter(alchemy(ALCHEMY_API_KEY)),
 };
 
