@@ -16,7 +16,8 @@ const UniswapSwapMessage = ({
       <Button
         onClick={() => window.open(link, '_blank')}
         className="mt-2 flex items-center gap-2 font-bold">
-        <ArrowRight /> Swap {amount} {fromToken.symbol} to {toToken.symbol} on Uniswap
+        <ArrowRight /> Swap {parseFloat(amount.toString()).toFixed(3)} {fromToken.symbol} to{' '}
+        {toToken.symbol} on Uniswap
       </Button>
     </div>
   );
