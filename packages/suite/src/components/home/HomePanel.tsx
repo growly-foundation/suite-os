@@ -1,6 +1,9 @@
+import { useChatActions } from '@/hooks/use-chat-actions';
 import { useSuiteSession } from '@/hooks/use-session';
 import { useSuite } from '@/hooks/use-suite';
 import { Screen } from '@/types/screen';
+import { Bell, FileQuestion, LifeBuoy, MessageCircle } from 'lucide-react';
+
 import { PanelBanner } from '../panel/components/PanelBanner';
 import { QuickActionButton } from '../panel/components/PanelQuickActionButton';
 import { ArrowLeftRight, Bell, FileQuestion, LifeBuoy, MessageCircle } from 'lucide-react';

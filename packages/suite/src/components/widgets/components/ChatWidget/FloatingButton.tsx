@@ -1,12 +1,13 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useState } from 'react';
+import { useSuiteSession } from '@/hooks/use-session';
 import { cn } from '@/lib/utils';
 import { background, pressable, text } from '@/styles/theme';
+import { motion } from 'framer-motion';
+import { useState } from 'react';
+
 import { BRAND_NAME_CAPITALIZED, LazyAnimatedBuster } from '@getgrowly/ui';
-import { useSuiteSession } from '@/hooks/use-session';
 
 export function FloatingButton(
   props: React.ButtonHTMLAttributes<HTMLButtonElement> & { iconLoading?: boolean }

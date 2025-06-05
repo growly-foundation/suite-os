@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { motion } from 'framer-motion';
 
 export const PanelBanner = ({ title, description }: { title: string; description: string }) => {
   const { theme } = useTheme();

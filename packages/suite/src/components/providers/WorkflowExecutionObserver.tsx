@@ -1,14 +1,15 @@
+import { useChatActions } from '@/hooks/use-chat-actions';
+import { useSuiteSession } from '@/hooks/use-session';
+import { useSuite } from '@/hooks/use-suite';
+import { suiteCoreService } from '@/services/core.service';
+import { useCallback, useEffect, useState } from 'react';
+
 import {
   AggregatedWorkflow,
   ParsedStep,
   UIEventCondition,
   UserDefinedPayload,
 } from '@getgrowly/core';
-import { suiteCoreService } from '@/services/core.service';
-import { useSuiteSession } from '@/hooks/use-session';
-import { useEffect, useCallback, useState } from 'react';
-import { useSuite } from '@/hooks/use-suite';
-import { useChatActions } from '@/hooks/use-chat-actions';
 
 let executing = false;
 

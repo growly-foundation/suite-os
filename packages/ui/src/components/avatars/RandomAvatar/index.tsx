@@ -1,19 +1,42 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { getNumberFromStr } from '@/lib/utils';
+import { dylan } from '@dicebear/collection';
+import { createAvatar } from '@dicebear/core';
+import { useMemo } from 'react';
 
-export const RandomAvatar = ({
-  value,
-  width = 40,
-  height = 40,
-}: {
-  value: string;
-  width?: number;
-  height?: number;
-}) => {
+type Props = {
+  address: `0x${string}`;
+  oneID?: string; // Special name service
+  ensName?: string;
+  ensAvatar?: string;
+  size?: number;
+};
+
+export const RandomAvatar = ({ address, oneID, ensName, ensAvatar, size = 20 }: Props) => {
+  const randomAvatar = useMemo(
+    () =>
+      createAvatar(dylan, {
+        size,
+        seed: address,
+      }).toDataUri(),
+    [address]
+  );
+
   return (
-    <Avatar style={{ width, height }} className="h-10 w-10 border-2 border-white/20 cursor-pointer">
-      <AvatarImage src={`../random-avatars/random-avatar-${getNumberFromStr(value, 7)}.webp`} />
-      <AvatarFallback>{value.slice(0, 2).toUpperCase()}</AvatarFallback>
-    </Avatar>
+    <div
+      className="items-center flex justify-center flex-col text-black"
+      style={{ width: size, height: size }}>
+      {ensAvatar ? (
+        <img
+          src={ensAvatar}
+          alt={ensName || address}
+          className="h-full w-full rounded-full object-cover"
+        />
+      ) : (
+        <img
+          src={randomAvatar}
+          alt={ensName || address}
+          className="h-full w-full rounded-full object-cover"
+        />
+      )}
+    </div>
   );
 };

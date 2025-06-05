@@ -1,6 +1,7 @@
-import { OnchainKitProviderReact } from '@coinbase/onchainkit';
-import { AgentId } from '@getgrowly/core';
 import { ThemeConfig, ThemeName } from '@/types/theme';
+import { OnchainKitProviderReact } from '@coinbase/onchainkit';
+
+import { AgentId } from '@getgrowly/core';
 
 /**
  * Configuration for the Growly Suite.
@@ -57,10 +58,11 @@ export interface SuiteGlobalContext {
     };
   }>;
   config?: SuiteConfig;
-  integration?: {
-    /**
-     * Configuration for the OnchainKit feature.
-     */
-    onchainKit?: Omit<OnchainKitProviderReact, 'children' | 'address'> & { enabled: boolean };
-  };
+  integration?: SuiteIntegration;
+}
+export interface SuiteIntegration {
+  /**
+   * Configuration for the OnchainKit feature.
+   */
+  onchainKit?: Omit<OnchainKitProviderReact, 'children' | 'address'> & { enabled: boolean };
 }

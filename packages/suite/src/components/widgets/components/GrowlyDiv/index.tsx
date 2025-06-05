@@ -1,7 +1,7 @@
-import { useChatActions } from '@/hooks/use-chat-actions';
-import { cn } from '@/styles/theme';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useChatActions } from '@/hooks/use-chat-actions';
 import { useSuiteSession } from '@/hooks/use-session';
+import { cn } from '@/styles/theme';
 
 export const GrowlyDiv = ({
   children,

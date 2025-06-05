@@ -1,10 +1,13 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient, createClient } from '@supabase/supabase-js';
+
 import {
   AgentService,
   FunctionService,
+  MessageService,
   OrganizationService,
   PublicDatabaseService,
   StepService,
+  UserService,
   WorkflowService,
 } from './services';
 
@@ -42,6 +45,9 @@ export interface SuiteDatabaseCore {
     /** Manages organizations. */
     organizations: PublicDatabaseService<'organizations'>;
 
+    /** Manages resources. */
+    resources: PublicDatabaseService<'resources'>;
+
     /** Manages steps. */
     steps: PublicDatabaseService<'steps'>;
 
@@ -60,6 +66,12 @@ export interface SuiteDatabaseCore {
 
   /** Organization services. */
   organizations: OrganizationService;
+
+  /** User services. */
+  users: UserService;
+
+  /** Message services. */
+  messages: MessageService;
 
   /** Workflow services. */
   workflows: WorkflowService;
@@ -99,7 +111,15 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     supabaseClientService,
     'messages'
   );
+  const resourceDatabaseService = new PublicDatabaseService<'resources'>(
+    supabaseClientService,
+    'resources'
+  );
   const agentDatabaseService = new PublicDatabaseService<'agents'>(supabaseClientService, 'agents');
+  const agentResourcesDatabaseService = new PublicDatabaseService<'agent_resources'>(
+    supabaseClientService,
+    'agent_resources'
+  );
   const agentWorkflowsService = new PublicDatabaseService<'agent_workflows'>(
     supabaseClientService,
     'agent_workflows'
@@ -120,9 +140,11 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
   );
   const stepService = new StepService(stepDatabaseService);
   const agentService = new AgentService(
+    workflowService,
     agentDatabaseService,
     agentWorkflowsService,
-    workflowService
+    agentResourcesDatabaseService,
+    resourceDatabaseService
   );
   const organizationService = new OrganizationService(
     organizationDatabaseService,
@@ -131,6 +153,8 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     workflowService,
     functionService
   );
+  const userService = new UserService(userDatabaseService, messageDatabaseService);
+  const messageService = new MessageService(messageDatabaseService);
 
   const db = {
     admins: adminDatabaseService,
@@ -140,6 +164,7 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     client: supabaseClientService,
     organizations: organizationDatabaseService,
     messages: messageDatabaseService,
+    resources: resourceDatabaseService,
     steps: stepDatabaseService,
     step_sessions: stepSessionsDatabaseService,
     users: userDatabaseService,
@@ -153,5 +178,7 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     workflows: workflowService,
     organizations: organizationService,
     steps: stepService,
+    users: userService,
+    messages: messageService,
   };
 };

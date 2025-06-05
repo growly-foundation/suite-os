@@ -1,12 +1,38 @@
+import { RenderMessage } from '@/components/messages';
+import { useTheme } from '@/components/providers/ThemeProvider';
 import { Card } from '@/components/ui/card';
-import { ConversationRole, ParsedMessage } from '@getgrowly/core';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { text } from '@/styles/theme';
-import { useTheme } from '@/components/providers/ThemeProvider';
-import { RenderMessage } from '@/components/messages';
+import { motion } from 'framer-motion';
 
-const AgentResponse = ({ message }: { message: ParsedMessage }) => {
+import { ConversationRole, ParsedMessage, User } from '@getgrowly/core';
+import { AdminAvatar, RandomAvatar, SuiteUser } from '@getgrowly/ui';
+
+const ChatResponseAvatar = ({
+  showAvatar,
+  children,
+}: {
+  showAvatar?: boolean;
+  children: React.ReactNode;
+}) => {
+  return (
+    <div className="flex-shrink-0 pt-2">
+      {showAvatar ? children : <div style={{ width: 30, height: 30 }} />}
+    </div>
+  );
+};
+
+const RightResponseLayout = ({
+  message,
+  showAvatar = true,
+  noAvatar = false,
+  avatar,
+}: {
+  message: ParsedMessage;
+  showAvatar?: boolean;
+  noAvatar?: boolean;
+  avatar: React.ReactNode;
+}) => {
   const { theme } = useTheme();
   return (
     <motion.div
@@ -15,7 +41,46 @@ const AgentResponse = ({ message }: { message: ParsedMessage }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       className="flex space-x-2"
-      style={{ marginBottom: 10 }}>
+      style={{
+        marginBottom: 10,
+        justifyContent: 'flex-end',
+      }}>
+      <Card
+        className={cn('py-2 px-4 mb-2 max-w-[80%]', text.body)}
+        style={{
+          backgroundColor: theme.background.default,
+          color: theme.text.primary,
+          borderColor: theme.ui.border.default,
+          borderRadius: theme.radius.lg,
+        }}>
+        <RenderMessage message={message} />
+      </Card>
+      {!noAvatar && <ChatResponseAvatar showAvatar={showAvatar}>{avatar}</ChatResponseAvatar>}
+    </motion.div>
+  );
+};
+
+const LeftResponseLayout = ({
+  message,
+  showAvatar = true,
+  noAvatar = false,
+  avatar,
+}: {
+  message: ParsedMessage;
+  showAvatar?: boolean;
+  noAvatar?: boolean;
+  avatar: React.ReactNode;
+}) => {
+  const { theme } = useTheme();
+  return (
+    <motion.div
+      id={message.id}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="flex space-x-2"
+      style={{ marginBottom: showAvatar ? 10 : 2 }}>
+      {!noAvatar && <ChatResponseAvatar showAvatar={showAvatar}>{avatar}</ChatResponseAvatar>}
       <Card
         className={cn('py-2 px-4 mb-2', text.body)}
         style={{
@@ -30,48 +95,109 @@ const AgentResponse = ({ message }: { message: ParsedMessage }) => {
   );
 };
 
-const UserResponse = ({ message }: { message: ParsedMessage }) => {
-  const { theme } = useTheme();
+const AgentResponse = ({
+  message,
+  showAvatar = true,
+  noAvatar = false,
+}: {
+  message: ParsedMessage;
+  showAvatar?: boolean;
+  noAvatar?: boolean;
+}) => {
   return (
-    <motion.div
-      id={message.id}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="flex"
-      style={{ marginBottom: 10, justifyContent: 'flex-end' }}>
-      <Card
-        className={cn('py-2 px-4 mb-2 max-w-[80%]', text.body)}
-        style={{
-          backgroundColor: theme.background.default,
-          color: theme.text.primary,
-          borderColor: theme.ui.border.default,
-          borderRadius: theme.radius.lg,
-        }}>
-        <RenderMessage message={message} />
-      </Card>
-    </motion.div>
+    <LeftResponseLayout
+      message={message}
+      showAvatar={showAvatar}
+      noAvatar={noAvatar}
+      avatar={<SuiteUser width={30} height={30} style={{ minWidth: 30, minHeight: 30 }} />}
+    />
+  );
+};
+
+const UserResponse = ({
+  address,
+  message,
+  showAvatar = true,
+  noAvatar = false,
+}: {
+  address: string;
+  message: ParsedMessage;
+  showAvatar?: boolean;
+  noAvatar?: boolean;
+}) => {
+  return (
+    <RightResponseLayout
+      message={message}
+      showAvatar={showAvatar}
+      noAvatar={noAvatar}
+      avatar={<RandomAvatar address={address as any} size={35} />}
+    />
+  );
+};
+
+const AdminResponse = ({
+  message,
+  showAvatar = true,
+  noAvatar = false,
+}: {
+  message: ParsedMessage;
+  showAvatar?: boolean;
+  noAvatar?: boolean;
+}) => {
+  return (
+    <LeftResponseLayout
+      message={message}
+      showAvatar={showAvatar}
+      noAvatar={noAvatar}
+      avatar={<AdminAvatar size={35} email={'123'} />}
+    />
   );
 };
 
 const ChatResponse = ({
   message,
+  viewAs,
+  showAvatar = true,
   ref,
+  user,
 }: {
   message: ParsedMessage;
+  viewAs: ConversationRole;
+  showAvatar?: boolean;
   ref?: React.RefObject<HTMLDivElement> | null;
+  user: User;
 }) => {
-  const innerResponse =
-    message.sender === ConversationRole.User ? (
-      <UserResponse key={message.id} message={message} />
-    ) : (
-      <AgentResponse key={message.id} message={message} />
-    );
-  return (
-    <div ref={ref} className="w-full">
-      {innerResponse}
-    </div>
-  );
+  switch (message.sender) {
+    case ConversationRole.User:
+      return (
+        <div ref={ref} className="w-full">
+          <UserResponse
+            key={message.id}
+            address={user?.address}
+            message={message}
+            noAvatar={viewAs === ConversationRole.User}
+            showAvatar={showAvatar && viewAs !== ConversationRole.User}
+          />
+        </div>
+      );
+    case ConversationRole.Agent:
+      return (
+        <div ref={ref} className="w-full">
+          <AgentResponse
+            key={message.id}
+            message={message}
+            noAvatar={viewAs === ConversationRole.Agent}
+            showAvatar={showAvatar && viewAs !== ConversationRole.Agent}
+          />
+        </div>
+      );
+    default:
+      return (
+        <div ref={ref} className="w-full">
+          <AdminResponse key={message.id} message={message} showAvatar={showAvatar} />
+        </div>
+      );
+  }
 };
 
 export default ChatResponse;

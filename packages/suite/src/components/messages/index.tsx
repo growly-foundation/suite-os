@@ -1,14 +1,16 @@
 'use client';
 
-import { ConversationRole, ParsedMessage } from '@getgrowly/core';
-import { buildTextMessage } from './system/text';
-import { buildMarkdownMessage } from './system/markdown';
-import { buildSystemErrorMessage } from './system';
-import { buildOnchainKitSwapMessage, buildOnchainKitTokenChipMessage } from './onchainkit';
-import { buildUniswapSwapMessage } from './uniswap';
 import { useSuite } from '@/hooks/use-suite';
-import React, { useEffect, useState } from 'react';
 import moment from 'moment';
+import React, { useEffect, useState } from 'react';
+
+import { ParsedMessage } from '@getgrowly/core';
+
+import { buildOnchainKitSwapMessage, buildOnchainKitTokenChipMessage } from './onchainkit';
+import { buildSystemErrorMessage } from './system';
+import { buildMarkdownMessage } from './system/markdown';
+import { buildTextMessage } from './system/text';
+import { buildUniswapSwapMessage } from './uniswap';
 
 export const RenderMessage = ({ message }: { message: ParsedMessage }) => {
   const [time, setTime] = useState(moment(message.created_at).fromNow());
@@ -27,7 +29,7 @@ export const RenderMessage = ({ message }: { message: ParsedMessage }) => {
 
 export const RenderMessageContent = ({ message }: { message: ParsedMessage }) => {
   if (message.type === 'text') {
-    if (message.sender === ConversationRole.User) {
+    if (message.sender === 'user') {
       return buildTextMessage(message.content);
     }
     return buildMarkdownMessage(message.content);

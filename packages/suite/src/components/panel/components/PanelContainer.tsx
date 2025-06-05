@@ -1,16 +1,17 @@
-import React from 'react';
+import { MobileNavigation } from '@/components/MobileNavigation';
+import { ChatPanel } from '@/components/chat/components/ChatPanel';
+import { HomePanel } from '@/components/home/HomePanel';
+import { SettingsPanel } from '@/components/settings/components/SettingsPanel';
 import { useSuiteSession } from '@/hooks/use-session';
 import { useSuite } from '@/hooks/use-suite';
-import { Screen } from '@/types/screen';
-import { MobileNavigation } from '@/components/MobileNavigation';
-import { SettingsPanel } from '@/components/settings/components/SettingsPanel';
-import { ChatPanel } from '@/components/chat/components/ChatPanel';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useThemeStyles } from '@/hooks/use-theme-styles';
 import { cn } from '@/lib/utils';
 import { border } from '@/styles/theme';
+import { Screen } from '@/types/screen';
+import { AnimatePresence, motion } from 'framer-motion';
+import React from 'react';
+
 import { PanelHeader } from './PanelHeader';
-import { HomePanel } from '@/components/home/HomePanel';
-import { useThemeStyles } from '@/hooks/use-theme-styles';
 
 export function PanelContainer() {
   const { config } = useSuite();

@@ -1,26 +1,34 @@
+import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { useThemeStyles } from '@/hooks/use-theme-styles';
 import { cn } from '@/lib/utils';
 import { border, pressable, text } from '@/styles/theme';
-import { Button } from '@/components/ui/button';
 import { Loader2, LucideSend } from 'lucide-react';
-import { useSuiteSession } from '@/hooks/use-session';
-import { useThemeStyles } from '@/hooks/use-theme-styles';
+
+import { TextMessageContent } from '@getgrowly/core';
+
+export interface ChatInputProps {
+  sendMessageHandler: (input: TextMessageContent['content']) => Promise<void>;
+  isSending: boolean;
+  inputValue: string;
+  setInputValue: (value: string) => void;
+  isAgentThinking: boolean;
+}
 
 export const ChatInput = ({
   sendMessageHandler,
   isSending,
-}: {
-  sendMessageHandler: () => void;
-  isSending: boolean;
-}) => {
+  inputValue,
+  setInputValue,
+  isAgentThinking,
+}: ChatInputProps) => {
   const styles = useThemeStyles();
-  const { inputValue, setInputValue, isAgentThinking } = useSuiteSession();
 
   // If "ENTER" is clicked, send a message.
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter') {
       event.preventDefault(); // ⛔ prevent new line
-      sendMessageHandler();
+      sendMessageHandler(inputValue);
       setInputValue('');
     }
   };
@@ -55,7 +63,7 @@ export const ChatInput = ({
             width: '40px',
             height: '40px',
           }}
-          onClick={sendMessageHandler}
+          onClick={() => sendMessageHandler(inputValue)}
           disabled={isAgentThinking || isSending}>
           {isSending ? (
             <Loader2 className="h-4 w-4 animate-spin" />

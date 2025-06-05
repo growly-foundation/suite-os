@@ -1,8 +1,8 @@
+import { useTheme } from '@/components/providers/ThemeProvider';
 import { Button } from '@/components/ui/button';
 import { useSuite } from '@/hooks/use-suite';
-import { WalletIcon } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useTheme } from '@/components/providers/ThemeProvider';
+import { WalletIcon } from 'lucide-react';
 
 export const ConnectWallet = () => {
   const { session } = useSuite();

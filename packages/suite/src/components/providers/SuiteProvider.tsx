@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import { ThemeName } from '@/types/theme';
 import { OnchainKitProvider } from '@coinbase/onchainkit';
+import React, { useEffect, useState } from 'react';
+
 import { useSuiteSession } from '../../hooks/use-session';
-import { WalletConnectProvider } from './WalletConnectProvider';
+import { TooltipProvider } from '../ui/tooltip';
 import { SuiteConfig, SuiteGlobalContext } from './SuiteProvider.types';
 import { ThemeProvider } from './ThemeProvider';
-import { ThemeName } from '@/types/theme';
+import { WalletConnectProvider } from './WalletConnectProvider';
 import { WorkflowExecutionObserver } from './WorkflowExecutionObserver';
-import { TooltipProvider } from '../ui/tooltip';
 
 const defaultConfig: SuiteConfig = {
   display: 'fullView',
@@ -39,7 +40,7 @@ export const SuiteProvider: React.FC<{
   children: React.ReactNode;
   context: SuiteGlobalContext;
 }> = ({ children, context }) => {
-  const [baseComponent, setBaseComponent] = useState<React.ReactNode>(<>children</>);
+  const [baseComponent, setBaseComponent] = useState<React.ReactNode>(<>{children}</>);
   const [isInitialized, setIsInitialized] = useState(false);
   const { createUserFromAddressIfNotExist, fetchOrganizationAgentById } = useSuiteSession();
   const [config, setConfig] = useState<SuiteConfig>(context.config ?? defaultConfig);

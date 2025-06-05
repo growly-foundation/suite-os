@@ -1,6 +1,7 @@
 import { API_URL } from '@/constants';
-import { AgentId, MessageContent } from '@getgrowly/core';
 import axios from 'axios';
+
+import { AgentId, MessageContent } from '@getgrowly/core';
 
 export interface AgentChatResponse {
   agent: string;

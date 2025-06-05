@@ -1,12 +1,11 @@
 'use client';
 
-import type React from 'react';
-
-import { Home, Settings } from 'lucide-react';
+import { useTheme } from '@/components/providers/ThemeProvider';
+import { useSuiteSession } from '@/hooks/use-session';
 import { cn } from '@/lib/utils';
 import { Screen } from '@/types/screen';
-import { useSuiteSession } from '@/hooks/use-session';
-import { useTheme } from '@/components/providers/ThemeProvider';
+import { Home, Settings } from 'lucide-react';
+import type React from 'react';
 
 interface NavItem {
   icon: React.ElementType;

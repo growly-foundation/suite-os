@@ -1,17 +1,18 @@
 import { suiteCoreService } from '@/services/core.service';
+import { Screen } from '@/types/screen';
 import { create } from 'zustand';
+
 import {
   Agent,
   AgentId,
+  AggregatedWorkflow,
   MessageContent,
   ParsedMessage,
-  ParsedUser,
-  AggregatedWorkflow,
   ParsedStep,
+  ParsedUser,
+  WorkflowExecutionService,
 } from '@getgrowly/core';
 import { BusterState } from '@getgrowly/ui';
-import { Screen } from '@/types/screen';
-import { WorkflowExecutionService } from '@getgrowly/core';
 
 type Optional<T> = T | undefined | null;
 
@@ -107,25 +108,13 @@ export const useSuiteSession = create<WidgetSession>((set, get) => ({
   },
   createUserFromAddressIfNotExist: async walletAddress => {
     try {
-      const users = await suiteCoreService.callDatabaseService('users', 'getAll', []);
-      const parsedUser = users.find(user => {
-        return (user.entities as { walletAddress: string }).walletAddress === walletAddress;
-      });
-      if (parsedUser) {
-        set({ user: parsedUser as any });
-        return parsedUser as any;
-      }
-
-      // Create new user if not exist.
-      const newUser = await suiteCoreService.callDatabaseService('users', 'create', [
+      const user = await suiteCoreService.call('users', 'createUserFromAddressIfNotExist', [
         {
-          entities: {
-            walletAddress,
-          },
+          walletAddress,
         },
       ]);
-      set({ user: newUser as any });
-      return newUser as any;
+      set({ user: user as ParsedUser });
+      return user as ParsedUser;
     } catch (error) {
       throw new Error(`Failed to fetch user from wallet address: ${error}`);
     }
