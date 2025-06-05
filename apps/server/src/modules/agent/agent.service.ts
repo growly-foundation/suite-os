@@ -117,7 +117,25 @@ export class AgentService {
     for await (const chunk of stream) {
       this.logger.debug(`🥩 [Chunk response]: ${JSON.stringify(chunk)}`);
       if ('tools' in chunk) {
-        const messageContents: MessageContent[] = JSON.parse(chunk.tools.messages[0].content);
+        const rawContent = chunk.tools.messages[0].content;
+        let messageContents: MessageContent[] = [];
+
+        try {
+          const parsedContent = JSON.parse(rawContent);
+          // Check if parsedContent is an array, if not, wrap it in an array or skip
+          if (Array.isArray(parsedContent)) {
+            messageContents = parsedContent;
+          } else {
+            // If it's not an array, it might be a tool result object
+            // Log it and continue without adding to tools
+            this.logger.debug(`⚠️ [Non-array tool content]: ${JSON.stringify(parsedContent)}`);
+            continue;
+          }
+        } catch (error) {
+          this.logger.error(`Failed to parse tool content: ${error.message}`);
+          continue;
+        }
+
         const nonTextContents = messageContents.filter(content => content.type !== 'text');
         this.logger.debug(`⚒️ [Tool chunk response]: ${JSON.stringify(nonTextContents)}`);
         response.tools.push(...nonTextContents);
