@@ -1,65 +1,39 @@
+import { RenderMessage } from '@/components/messages';
+import { useTheme } from '@/components/providers/ThemeProvider';
 import { Card } from '@/components/ui/card';
-import { ConversationRole, ParsedMessage } from '@growly/core';
-import { motion } from 'framer-motion';
-import { useSuite } from '@/hooks/use-suite';
 import { cn } from '@/lib/utils';
-import {
-  buildOnchainKitSwapMessage,
-  buildOnchainKitTokenChipMessage,
-} from '@/components/messages/onchainkit';
-import { buildSystemErrorMessage } from '@/components/messages/system';
-import { border, text } from '@/styles/theme';
-import moment from 'moment';
-import { useEffect, useState } from 'react';
-import { buildMarkdownMessage } from '@/components/messages/system/markdown';
-import { buildTextMessage } from '@/components/messages/system/text';
+import { text } from '@/styles/theme';
+import { motion } from 'framer-motion';
 
-const MessageContent = ({ message }: { message: ParsedMessage }) => {
-  const { integration } = useSuite();
-  const onchainKitEnabled = integration?.onchainKit?.enabled;
-  const [time, setTime] = useState(moment(message.created_at).fromNow());
+import { ConversationRole, ParsedMessage, User } from '@getgrowly/core';
+import { AdminAvatar, RandomAvatar, SuiteUser } from '@getgrowly/ui';
 
-  const buildMessage = () => {
-    if (message.type === 'text') {
-      if (message.sender === ConversationRole.User) {
-        return buildTextMessage(message.content);
-      }
-      return buildMarkdownMessage(message.content);
-    }
-    if (message.type === 'system:error') {
-      return buildSystemErrorMessage(message.content);
-    }
-    if (message.type.startsWith('onchainkit:')) {
-      if (!onchainKitEnabled) {
-        return (
-          <span className="text-sm font-semibold">
-            ⚠️ OnchainKit feature must be enabled to display this message.
-          </span>
-        );
-      }
-      if (message.type === 'onchainkit:swap') {
-        return buildOnchainKitSwapMessage(message.content);
-      }
-      if (message.type === 'onchainkit:token') {
-        return buildOnchainKitTokenChipMessage(message.content);
-      }
-    }
-  };
-
-  useEffect(() => {
-    setTime(moment(message.created_at).fromNow());
-  }, [moment(message.created_at).minutes()]);
-
+const ChatResponseAvatar = ({
+  showAvatar,
+  children,
+}: {
+  showAvatar?: boolean;
+  children: React.ReactNode;
+}) => {
   return (
-    <>
-      {buildMessage()}
-      <span className="text-xs opacity-50">{time}</span>
-    </>
+    <div className="flex-shrink-0 pt-2">
+      {showAvatar ? children : <div style={{ width: 30, height: 30 }} />}
+    </div>
   );
 };
 
-const AgentResponse = ({ message }: { message: ParsedMessage }) => {
-  const { config } = useSuite();
+const RightResponseLayout = ({
+  message,
+  showAvatar = true,
+  noAvatar = false,
+  avatar,
+}: {
+  message: ParsedMessage;
+  showAvatar?: boolean;
+  noAvatar?: boolean;
+  avatar: React.ReactNode;
+}) => {
+  const { theme } = useTheme();
   return (
     <motion.div
       id={message.id}
@@ -67,60 +41,163 @@ const AgentResponse = ({ message }: { message: ParsedMessage }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       className="flex space-x-2"
-      style={{ marginBottom: 10 }}>
-      {/* <AgentAvatar width={30} height={30} /> */}
+      style={{
+        marginBottom: 10,
+        justifyContent: 'flex-end',
+      }}>
       <Card
-        className={cn('p-3 bg-muted', 'max-w-[75%]', text.body, border.default)}
+        className={cn('py-2 px-4 mb-2 max-w-[80%]', text.body)}
         style={{
-          backgroundColor: config?.theme?.backgroundForeground,
-          color: config?.theme?.textForeground,
+          backgroundColor: theme.background.default,
+          color: theme.text.primary,
+          borderColor: theme.ui.border.default,
+          borderRadius: theme.radius.lg,
         }}>
-        <MessageContent message={message} />
+        <RenderMessage message={message} />
       </Card>
+      {!noAvatar && <ChatResponseAvatar showAvatar={showAvatar}>{avatar}</ChatResponseAvatar>}
     </motion.div>
   );
 };
 
-const UserResponse = ({ message }: { message: ParsedMessage }) => {
-  const { config } = useSuite();
+const LeftResponseLayout = ({
+  message,
+  showAvatar = true,
+  noAvatar = false,
+  avatar,
+}: {
+  message: ParsedMessage;
+  showAvatar?: boolean;
+  noAvatar?: boolean;
+  avatar: React.ReactNode;
+}) => {
+  const { theme } = useTheme();
   return (
     <motion.div
       id={message.id}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="flex"
-      style={{ marginBottom: 10, justifyContent: 'flex-end' }}>
+      className="flex space-x-2"
+      style={{ marginBottom: showAvatar ? 10 : 2 }}>
+      {!noAvatar && <ChatResponseAvatar showAvatar={showAvatar}>{avatar}</ChatResponseAvatar>}
       <Card
-        className={cn('p-3 max-w-[75%]', text.body, border.default)}
+        className={cn('py-2 px-4 mb-2', text.body)}
         style={{
-          backgroundColor: config?.theme?.secondary,
-          color: config?.theme?.text,
+          backgroundColor: theme.background.paper,
+          color: theme.text.primary,
+          border: 'none',
+          boxShadow: 'none',
         }}>
-        <MessageContent message={message} />
+        <RenderMessage message={message} />
       </Card>
     </motion.div>
   );
 };
 
-const ChatResponse = ({
+const AgentResponse = ({
   message,
-  ref,
+  showAvatar = true,
+  noAvatar = false,
 }: {
   message: ParsedMessage;
-  ref?: React.RefObject<HTMLDivElement> | null;
+  showAvatar?: boolean;
+  noAvatar?: boolean;
 }) => {
-  const innerResponse =
-    message.sender === ConversationRole.User ? (
-      <UserResponse key={message.id} message={message} />
-    ) : (
-      <AgentResponse key={message.id} message={message} />
-    );
   return (
-    <div ref={ref} className="w-full">
-      {innerResponse}
-    </div>
+    <LeftResponseLayout
+      message={message}
+      showAvatar={showAvatar}
+      noAvatar={noAvatar}
+      avatar={<SuiteUser width={30} height={30} style={{ minWidth: 30, minHeight: 30 }} />}
+    />
   );
+};
+
+const UserResponse = ({
+  address,
+  message,
+  showAvatar = true,
+  noAvatar = false,
+}: {
+  address: string;
+  message: ParsedMessage;
+  showAvatar?: boolean;
+  noAvatar?: boolean;
+}) => {
+  return (
+    <RightResponseLayout
+      message={message}
+      showAvatar={showAvatar}
+      noAvatar={noAvatar}
+      avatar={<RandomAvatar address={address as any} size={35} />}
+    />
+  );
+};
+
+const AdminResponse = ({
+  message,
+  showAvatar = true,
+  noAvatar = false,
+}: {
+  message: ParsedMessage;
+  showAvatar?: boolean;
+  noAvatar?: boolean;
+}) => {
+  return (
+    <LeftResponseLayout
+      message={message}
+      showAvatar={showAvatar}
+      noAvatar={noAvatar}
+      avatar={<AdminAvatar size={35} email={'123'} />}
+    />
+  );
+};
+
+const ChatResponse = ({
+  message,
+  viewAs,
+  showAvatar = true,
+  ref,
+  user,
+}: {
+  message: ParsedMessage;
+  viewAs: ConversationRole;
+  showAvatar?: boolean;
+  ref?: React.RefObject<HTMLDivElement> | null;
+  user: User;
+}) => {
+  switch (message.sender) {
+    case ConversationRole.User:
+      return (
+        <div ref={ref} className="w-full">
+          <UserResponse
+            key={message.id}
+            address={user?.address}
+            message={message}
+            noAvatar={viewAs === ConversationRole.User}
+            showAvatar={showAvatar && viewAs !== ConversationRole.User}
+          />
+        </div>
+      );
+    case ConversationRole.Agent:
+      return (
+        <div ref={ref} className="w-full">
+          <AgentResponse
+            key={message.id}
+            message={message}
+            noAvatar={viewAs === ConversationRole.Agent}
+            showAvatar={showAvatar && viewAs !== ConversationRole.Agent}
+          />
+        </div>
+      );
+    default:
+      return (
+        <div ref={ref} className="w-full">
+          <AdminResponse key={message.id} message={message} showAvatar={showAvatar} />
+        </div>
+      );
+  }
 };
 
 export default ChatResponse;

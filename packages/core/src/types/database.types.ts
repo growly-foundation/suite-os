@@ -63,6 +63,42 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_resources: {
+        Row: {
+          agent_id: string
+          created_at: string
+          resource_id: string
+          status: Database["public"]["Enums"]["status"]
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string
+          resource_id: string
+          status?: Database["public"]["Enums"]["status"]
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string
+          resource_id?: string
+          status?: Database["public"]["Enums"]["status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_resources_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_resources_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_workflows: {
         Row: {
           agent_id: string
@@ -107,7 +143,6 @@ export type Database = {
           model: string
           name: string
           organization_id: string | null
-          resources: string[]
           status: Database["public"]["Enums"]["status"]
         }
         Insert: {
@@ -117,7 +152,6 @@ export type Database = {
           model: string
           name: string
           organization_id?: string | null
-          resources: string[]
           status?: Database["public"]["Enums"]["status"]
         }
         Update: {
@@ -127,7 +161,6 @@ export type Database = {
           model?: string
           name?: string
           organization_id?: string | null
-          resources?: string[]
           status?: Database["public"]["Enums"]["status"]
         }
         Relationships: [
@@ -205,6 +238,44 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      resources: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          organization_id: string | null
+          status: Database["public"]["Enums"]["status"]
+          type: Database["public"]["Enums"]["resource_type"]
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          organization_id?: string | null
+          status?: Database["public"]["Enums"]["status"]
+          type: Database["public"]["Enums"]["resource_type"]
+          value: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string | null
+          status?: Database["public"]["Enums"]["status"]
+          type?: Database["public"]["Enums"]["resource_type"]
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resources_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       step_sessions: {
         Row: {
@@ -533,7 +604,8 @@ export type Database = {
       }
     }
     Enums: {
-      conversation_role: "user" | "assistant" | "system"
+      conversation_role: "user" | "assistant" | "system" | "admin"
+      resource_type: "contract" | "link" | "document"
       status: "active" | "inactive"
     }
     CompositeTypes: {
@@ -650,7 +722,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      conversation_role: ["user", "assistant", "system"],
+      conversation_role: ["user", "assistant", "system", "admin"],
+      resource_type: ["contract", "link", "document"],
       status: ["active", "inactive"],
     },
   },
