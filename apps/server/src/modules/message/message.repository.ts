@@ -26,12 +26,12 @@ export class MessageRepository implements MessageInterface {
       const embedding = existingEmbedding || (await this.createEmbedding(message));
 
       // Store the message with its embedding
-      const data = await this.suiteCore.db.messages.create({
-        content: message,
-        user_id: userId,
+      const data = await this.suiteCore.conversations.addMessageToConversation({
         agent_id: agentId,
+        user_id: userId,
+        message,
         sender,
-        embedding: JSON.stringify(embedding),
+        existingEmbedding: embedding,
       });
 
       if (!data) {
@@ -48,11 +48,7 @@ export class MessageRepository implements MessageInterface {
 
   async getConversationHistory(userId: string, agentId: string): Promise<Message[]> {
     try {
-      const data = await this.suiteCore.db.messages.getAllByFields({
-        user_id: userId,
-        agent_id: agentId,
-      });
-
+      const data = await this.suiteCore.conversations.getMessagesOfAgentAndUser(agentId, userId);
       if (!data) {
         throw new Error('No message found');
       }

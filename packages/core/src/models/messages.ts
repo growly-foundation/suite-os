@@ -5,6 +5,8 @@ export type Message = Tables<'messages'>;
 export type ParsedMessage = Omit<Message, 'content'> & MessageContent;
 export type ParsedMessageInsert = Omit<Message, 'id' | 'created_at'> & MessageContent;
 
+export type Conversation = Tables<'conversation'>;
+
 /**
  * Role of the participant in the conversation.
  */

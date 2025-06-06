@@ -216,10 +216,7 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
       if (!agent?.id || !user?.id) {
         throw new Error('Agent or user not found');
       }
-      const messages = await suiteCore.db.messages.getAllByFields({
-        agent_id: agent.id,
-        user_id: user.id,
-      });
+      const messages = await suiteCore.conversations.getMessagesOfAgentAndUser(agent.id, user.id);
       const parsedMessage: ParsedMessage[] = messages.map(message => {
         const messageContent = JSON.parse(message.content) as MessageContent;
         return {

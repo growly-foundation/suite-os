@@ -1,21 +1,12 @@
 import { Providers } from '@/components/providers/providers';
 import { cn } from '@/lib/utils';
+import { GeistMono } from 'geist/font/mono';
+import { GeistSans } from 'geist/font/sans';
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
 import type React from 'react';
 
 import { coinbaseFont } from './fonts';
 import './globals.css';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
 
 export const metadata: Metadata = {
   title: 'Growly Suite Dashboard',
@@ -88,8 +79,8 @@ export default function RootLayout({
         className={cn(
           'min-h-screen bg-background antialiased',
           coinbaseFont.variable,
-          geistSans.variable,
-          geistMono.variable
+          GeistSans.variable,
+          GeistMono.variable
         )}>
         <div className="overflow-auto h-screen">
           <Providers>{children}</Providers>

@@ -14,6 +14,7 @@ export const AdminAvatar = ({ email, size = 20 }: Props) => {
         size,
         seed: email,
         backgroundColor: ['#0052ff'],
+        mood: ['happy', 'hopeful', 'superHappy'],
       }).toDataUri(),
     [email]
   );

@@ -41,6 +41,7 @@ export const chatService = new ChatService();
 
 export const useChatActions = () => {
   const {
+    admin,
     conversationStatus,
     selectedAgent,
     selectedUser,
@@ -53,26 +54,39 @@ export const useChatActions = () => {
     message: MessageContent['content'],
     sender: ConversationRole
   ) => {
-    const serializedContent = JSON.stringify({
-      type,
-      content: message,
-    });
-    const newMessage = await suiteCore.db.messages.create({
-      content: serializedContent,
-      sender,
-      agent_id: selectedAgent?.id,
-      user_id: selectedUser?.id,
-    });
+    try {
+      if (!selectedAgent?.id || !selectedUser?.id) {
+        throw new Error('Agent or user not found');
+      }
+      const serializedContent = JSON.stringify({
+        type,
+        content: message,
+      });
+      const newMessage = await suiteCore.conversations.addMessageToConversation({
+        agent_id: selectedAgent.id,
+        user_id: selectedUser.id,
+        message: serializedContent,
+        sender,
+        sender_id: admin?.id,
+        existingEmbedding: undefined,
+      });
 
-    const deserializedMessage = {
-      ...newMessage,
-      ...JSON.parse(newMessage.content),
-    };
-    addConversationMessage(deserializedMessage);
+      const deserializedMessage = {
+        ...newMessage,
+        ...JSON.parse(newMessage.content),
+      };
+      addConversationMessage(deserializedMessage);
+    } catch (error: any) {
+      toast.error(error.message);
+      throw error;
+    }
   };
 
-  const sendTextMessage = (message: TextMessageContent['content'], sender: ConversationRole) => {
-    sendRemoteMessage('text', message, sender);
+  const sendTextMessage = async (
+    message: TextMessageContent['content'],
+    sender: ConversationRole
+  ) => {
+    await sendRemoteMessage('text', message, sender);
   };
 
   /**
@@ -90,7 +104,7 @@ export const useChatActions = () => {
     }
     if (input.trim().length > 0) {
       setConversationStatus('sending');
-      sendTextMessage(input, ConversationRole.Admin);
+      await sendTextMessage(input, ConversationRole.Admin);
       setConversationStatus('idle');
       onMessageSent();
     }

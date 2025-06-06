@@ -6,7 +6,7 @@ import { PublicDatabaseService } from './database.service';
 export class UserService {
   constructor(
     private userDatabaseService: PublicDatabaseService<'users'>,
-    private messageDatabaseService: PublicDatabaseService<'messages'>
+    private conversationDatabaseService: PublicDatabaseService<'conversation'>
   ) {}
 
   // TODO: Remove this later
@@ -60,17 +60,14 @@ export class UserService {
   }
 
   async getUsersByAgentId(agent_id: string): Promise<ParsedUser[]> {
-    const messages = await this.messageDatabaseService.getAllByFields({
+    const conversations = await this.conversationDatabaseService.getAllByFields({
       agent_id,
     });
-    const visitedUsers = new Set<string>();
     const users: ParsedUser[] = [];
-    for (const message of messages) {
-      if (!message.user_id) continue;
-      if (visitedUsers.has(message.user_id)) continue;
-      const user = await this.userDatabaseService.getById(message.user_id);
+    for (const conversation of conversations) {
+      if (!conversation.user_id) continue;
+      const user = await this.userDatabaseService.getById(conversation.user_id);
       if (!user) continue;
-      visitedUsers.add(message.user_id);
       users.push(this.fillMockData(user) as ParsedUser);
     }
     return users;
