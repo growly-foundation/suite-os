@@ -3,10 +3,10 @@
   "version": "0.1.7",
   "private": true,
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "next dev",
+    "lint": "next lint",
+    "start": "next start"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",
@@ -47,15 +47,16 @@
     "date-fns": "4.1.0",
     "embla-carousel-react": "8.5.1",
     "framer-motion": "latest",
+    "geist": "^1.4.2",
     "input-otp": "1.4.1",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.454.0",
-    "next": "15.2.4",
+    "next": "15.3.3",
     "next-themes": "latest",
     "pino-pretty": "^13.0.0",
-    "react": "^19",
+    "react": "^19.1.0",
     "react-day-picker": "8.10.1",
-    "react-dom": "^19",
+    "react-dom": "^19.1.0",
     "react-hook-form": "^7.54.1",
     "react-resizable-panels": "^2.1.7",
     "recharts": "2.15.0",

@@ -1,7 +1,8 @@
 // Using default import
 import { cn } from '@/lib/utils';
+import { GeistMono } from 'geist/font/mono';
+import { GeistSans } from 'geist/font/sans';
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
 import type React from 'react';
 
 import '@getgrowly/suite/styles.css';
@@ -11,16 +12,6 @@ import { coinbaseFont } from './fonts';
 // Load UI styles
 import './globals.css';
 import { AppInner } from './inner';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
 
 export const metadata: Metadata = {
   title: 'Growly Suite | Empower DeFi Adoption with AI-powered Engine',
@@ -91,8 +82,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         className={cn(
           'min-h-screen bg-background antialiased',
           coinbaseFont.variable,
-          geistSans.variable,
-          geistMono.variable
+          GeistSans.variable,
+          GeistMono.variable
         )}
         style={{
           scrollBehavior: 'smooth',
