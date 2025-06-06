@@ -217,6 +217,7 @@ export type Database = {
           embedding: string | null
           id: string
           sender: Database["public"]["Enums"]["conversation_role"]
+          sender_id: string | null
         }
         Insert: {
           content: string
@@ -225,6 +226,7 @@ export type Database = {
           embedding?: string | null
           id?: string
           sender: Database["public"]["Enums"]["conversation_role"]
+          sender_id?: string | null
         }
         Update: {
           content?: string
@@ -233,6 +235,7 @@ export type Database = {
           embedding?: string | null
           id?: string
           sender?: Database["public"]["Enums"]["conversation_role"]
+          sender_id?: string | null
         }
         Relationships: [
           {

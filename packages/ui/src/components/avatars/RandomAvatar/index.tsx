@@ -10,12 +10,14 @@ type Props = {
   size?: number;
 };
 
-export const RandomAvatar = ({ address, oneID, ensName, ensAvatar, size = 20 }: Props) => {
+export const RandomAvatar = ({ address, ensName, ensAvatar, size = 20 }: Props) => {
   const randomAvatar = useMemo(
     () =>
       createAvatar(dylan, {
         size,
         seed: address,
+        backgroundColor: ['#0052ff'],
+        mood: ['happy', 'hopeful', 'superHappy'],
       }).toDataUri(),
     [address]
   );

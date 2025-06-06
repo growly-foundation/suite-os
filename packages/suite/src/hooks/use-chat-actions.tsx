@@ -38,7 +38,8 @@ export const useChatActions = () => {
   const sendRemoteMessage = async (
     type: MessageContent['type'],
     message: MessageContent['content'],
-    sender: ConversationRole
+    sender: ConversationRole,
+    senderId?: string
   ) => {
     const serializedContent = JSON.stringify({
       type,
@@ -53,6 +54,7 @@ export const useChatActions = () => {
           user_id: user?.id,
           message: serializedContent,
           sender,
+          sender_id: senderId,
           existingEmbedding: undefined,
         },
       ]

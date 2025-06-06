@@ -2,10 +2,13 @@ import { RenderMessage } from '@/components/messages';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { suiteCoreService } from '@/services/core.service';
 import { text } from '@/styles/theme';
 import { motion } from 'framer-motion';
+import { Loader } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-import { ConversationRole, ParsedMessage, User } from '@getgrowly/core';
+import { Admin, ConversationRole, ParsedMessage, User } from '@getgrowly/core';
 import { AdminAvatar, RandomAvatar, SuiteUser } from '@getgrowly/ui';
 
 const ChatResponseAvatar = ({
@@ -144,12 +147,33 @@ const AdminResponse = ({
   showAvatar?: boolean;
   noAvatar?: boolean;
 }) => {
+  const [admin, setAdmin] = useState<Admin | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAdmin = async () => {
+      if (!message.sender_id) return;
+      const admin = await suiteCoreService.callDatabaseService('admins', 'getOneByFields', [
+        { id: message.sender_id },
+      ]);
+      setAdmin(admin);
+      setLoading(false);
+    };
+    fetchAdmin();
+  }, [message.sender_id]);
+
   return (
     <LeftResponseLayout
       message={message}
       showAvatar={showAvatar}
       noAvatar={noAvatar}
-      avatar={<AdminAvatar size={35} email={'123'} />}
+      avatar={
+        loading ? (
+          <Loader className="w-5 h-5 animate-spin" />
+        ) : (
+          <AdminAvatar size={35} email={admin?.email || ''} />
+        )
+      }
     />
   );
 };
@@ -191,7 +215,7 @@ const ChatResponse = ({
           />
         </div>
       );
-    default:
+    case ConversationRole.Admin:
       return (
         <div ref={ref} className="w-full">
           <AdminResponse key={message.id} message={message} showAvatar={showAvatar} />

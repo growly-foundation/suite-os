@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS messages (
   conversation_id UUID REFERENCES conversation(id) ON DELETE CASCADE,
   content TEXT NOT NULL,
   sender conversation_role NOT NULL,
-  sender_id uuid NULL,
+  sender_id uuid NULL, -- Nullable if the message is sent by a system or anonymous entity.
   embedding VECTOR(1536), -- OpenAI's text-embedding-3-small creates 1536-dimensional vectors
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
