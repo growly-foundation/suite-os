@@ -1,4 +1,5 @@
 import { AggregatedAgent, AggregatedWorkflow, ParsedResource, Status } from '@/models';
+import { TablesInsert } from '@/types/database.types';
 
 import { PublicDatabaseService } from './database.service';
 import { WorkflowService } from './workflow.service';
@@ -17,12 +18,11 @@ export class AgentService {
     agent: AggregatedAgent,
     isNewAgent: boolean
   ): Promise<AggregatedAgent> {
-    const payload = {
+    const payload: TablesInsert<'agents'> = {
       description: agent.description,
       name: agent.name,
       model: agent.model,
       organization_id,
-      resources: agent.resources,
       status: agent.status,
     };
     const updatedAgent = isNewAgent

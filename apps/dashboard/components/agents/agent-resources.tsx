@@ -5,27 +5,15 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ADD_RESOURCE_DRAWER } from '@/constants/component-registry';
-import { useResourceActions } from '@/hooks/use-resource-actions';
-import { Code, FileText, Globe, PlusIcon, Trash } from 'lucide-react';
-
-import { ResourceType } from '@getgrowly/core';
+import { useAgentResourceActions } from '@/hooks/use-resource-actions';
+import { PlusIcon, Trash } from 'lucide-react';
 
 import { useComponent } from '../providers/component-provider';
+import { ResourceIcon } from '../resources/resource-icon';
 
 export function AgentResources() {
-  const { resources, handleDeleteResource } = useResourceActions();
+  const { resources, handleDeleteResource } = useAgentResourceActions();
   const { open } = useComponent(ADD_RESOURCE_DRAWER);
-
-  const getResourceIcon = (type: ResourceType) => {
-    switch (type) {
-      case 'contract':
-        return <Code className="h-4 w-4" />;
-      case 'link':
-        return <Globe className="h-4 w-4" />;
-      case 'document':
-        return <FileText className="h-4 w-4" />;
-    }
-  };
 
   return (
     <PaddingLayout>
@@ -57,7 +45,9 @@ export function AgentResources() {
                     key={resource.id}
                     className="flex items-start justify-between p-4 border rounded-lg">
                     <div className="flex items-start gap-3">
-                      <div className="mt-0.5">{getResourceIcon(resource.type)}</div>
+                      <div className="mt-0.5">
+                        <ResourceIcon type={resource.type} />
+                      </div>
                       <div className="space-y-1">
                         <div className="font-medium">{resource.name}</div>
                         <Badge variant="outline" className="mt-1">
