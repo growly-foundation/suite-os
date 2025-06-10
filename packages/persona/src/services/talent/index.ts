@@ -1,85 +1,103 @@
-import type {
-  ApiError,
-  TalentCredential,
-  TalentProfile,
-  TalentQueryParams,
-  TalentScore,
-} from '@/types';
+import type { TalentCredential, TalentProfile, TalentQueryParams, TalentScore } from '@/types';
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
 export class TalentProtocolService {
-  private readonly apiKey: string;
-  private readonly baseUrl: string;
+  private readonly apiClient: AxiosInstance;
 
   constructor(apiKey: string, baseUrl = 'https://api.talentprotocol.com') {
-    this.apiKey = apiKey;
-    this.baseUrl = baseUrl;
+    this.apiClient = axios.create({
+      baseURL: baseUrl,
+      headers: {
+        'X-API-KEY': apiKey,
+        'Content-Type': 'application/json',
+      },
+      timeout: 10000, // 10 second timeout
+    });
   }
 
-  private async makeRequest<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
+  private async makeRequest<T>(endpoint: string, config?: AxiosRequestConfig): Promise<T> {
+    const maxRetries = 3;
+    let retries = 0;
 
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        'X-API-KEY': this.apiKey,
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
-    });
+    while (true) {
+      try {
+        const response = await this.apiClient.get<T>(endpoint, config);
+        return response.data;
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          // Check if it's a 404 with "Resource not found" message
+          // TalentProtocol API returns 404 if an address is not found, but creates a profile if it doesn't exist
+          // We can retry a few times if it's a 404
+          const is404NotFound =
+            error.response?.status === 404 &&
+            (error.response?.data?.message === 'Resource not found.' ||
+              error.response?.data?.error === 'Resource not found.');
 
-    if (!response.ok) {
-      const errorData: ApiError = await response.json().catch(() => ({
-        error: 'Unknown Error',
-        message: `HTTP ${response.status}: ${response.statusText}`,
-        status_code: response.status,
-      }));
-      throw new Error(`TalentProtocol API Error: ${errorData.message}`);
+          // If it's a 404 "Resource not found" and we haven't exceeded max retries
+          if (is404NotFound && retries < maxRetries) {
+            retries++;
+            console.log(`Retry attempt ${retries}/${maxRetries} for ${endpoint}...`);
+            // Wait for increasing time between retries (exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, 1000 * retries));
+            continue;
+          }
+
+          console.error('Axios error:', error.response?.data || error.message);
+          throw error;
+        }
+        console.error('Unexpected error:', error);
+        throw error;
+      }
     }
-
-    return response.json();
   }
 
   // Get the score and the credentials using wallet, scorer slug, talent id or account identifier
   async getCredentials(params: TalentQueryParams): Promise<TalentCredential[]> {
-    const searchParams = new URLSearchParams();
-    searchParams.append('id', params.id);
+    const queryParams: Record<string, string> = {
+      id: params.id,
+    };
 
     if (params.account_source) {
-      searchParams.append('account_source', params.account_source);
+      queryParams.account_source = params.account_source;
     }
     if (params.slug) {
-      searchParams.append('slug', params.slug);
+      queryParams.slug = params.slug;
     }
     if (params.scorer_slug) {
-      searchParams.append('scorer_slug', params.scorer_slug);
+      queryParams.scorer_slug = params.scorer_slug;
     }
 
-    const endpoint = `/credentials?${searchParams.toString()}`;
-    const response = await this.makeRequest<{ credentials: TalentCredential[] }>(endpoint);
+    const response = await this.makeRequest<{ credentials: TalentCredential[] }>('/credentials', {
+      params: queryParams,
+    });
     return response.credentials;
   }
 
   // Get a profile using wallet, talent id or account identifier
   async getProfile(params: TalentQueryParams): Promise<TalentProfile> {
-    const searchParams = new URLSearchParams();
-    searchParams.append('id', params.id);
+    const queryParams: Record<string, string> = {
+      id: params.id,
+    };
 
     if (params.account_source) {
-      searchParams.append('account_source', params.account_source);
+      queryParams.account_source = params.account_source;
     }
 
-    const endpoint = `/profile?${searchParams.toString()}`;
-    const response = await this.makeRequest<{ profile: TalentProfile }>(endpoint);
+    const response = await this.makeRequest<{ profile: TalentProfile }>('/profile', {
+      params: queryParams,
+    });
     return response.profile;
   }
 
   // Get a specific score using wallet, scorer slug, talent id or account identifier
   async getScore(params: TalentQueryParams): Promise<TalentScore> {
-    const searchParams = new URLSearchParams();
-    searchParams.append('id', params.id);
+    const queryParams: Record<string, string> = {
+      id: params.id,
+    };
 
-    const endpoint = `/score?${searchParams.toString()}`;
-    const response = await this.makeRequest<{ score: TalentScore }>(endpoint);
+    const response = await this.makeRequest<{ score: TalentScore }>('/score', {
+      params: queryParams,
+    });
     return response.score;
   }
 }

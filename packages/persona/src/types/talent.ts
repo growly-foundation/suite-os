@@ -1,11 +1,16 @@
-// TalentProtocol API Types
+/** TalentProtocol Account Sources */
 export type TalentAccountSource = 'wallet' | 'farcaster' | 'github';
 
+/** TalentProtocol Query Params */
 export interface TalentQueryParams {
-  id: string; // Talent ID, wallet address or account identifier
-  account_source?: TalentAccountSource; // The source of the account
-  slug?: string; // The slug of the data issuer to filter the credentials
-  scorer_slug?: string; // The slug of the scorer to filter the credentials. Default is the builder score scorer
+  /** Talent ID, wallet address or account identifier */
+  id: string;
+  /** The source of the account */
+  account_source?: TalentAccountSource;
+  /** The slug of the data issuer to filter the credentials */
+  slug?: string;
+  /** The slug of the scorer to filter the credentials. Default is the builder score scorer */
+  scorer_slug?: string;
 }
 
 export interface TalentCredential {
