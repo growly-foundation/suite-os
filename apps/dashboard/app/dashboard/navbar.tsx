@@ -1,5 +1,6 @@
 import { UserButton } from '@/components/auth/user-button';
 import { OrganizationSwitcher } from '@/components/organizations/organization-switcher';
+import { IconContainer } from '@/components/ui/icon-container';
 import { cn } from '@/lib/utils';
 import { BotIcon, FileStackIcon, HomeIcon, UserIcon, WorkflowIcon } from 'lucide-react';
 import Link from 'next/link';
@@ -7,31 +8,50 @@ import { usePathname } from 'next/navigation';
 
 import { SuiteLogo } from '@getgrowly/ui';
 
+const NavigationIcon = ({ icon, selected }: { icon: React.ReactNode; selected: boolean }) => {
+  return (
+    <IconContainer
+      className={cn('text-muted-foreground', selected && 'bg-blue-500 border-blue-500 text-white')}>
+      {icon}
+    </IconContainer>
+  );
+};
+
 export const navigations = [
   {
     title: 'Dashboard',
     url: '/dashboard',
-    icon: HomeIcon,
+    icon: (selected: boolean) => (
+      <NavigationIcon icon={<HomeIcon className="h-3 w-3" />} selected={selected} />
+    ),
   },
   {
     title: 'Agents',
     url: '/dashboard/agents',
-    icon: BotIcon,
+    icon: (selected: boolean) => (
+      <NavigationIcon icon={<BotIcon className="h-3 w-3" />} selected={selected} />
+    ),
   },
   {
     title: 'Users',
     url: '/dashboard/users',
-    icon: UserIcon,
+    icon: (selected: boolean) => (
+      <NavigationIcon icon={<UserIcon className="h-3 w-3" />} selected={selected} />
+    ),
   },
   {
     title: 'Workflows',
     url: '/dashboard/workflows',
-    icon: WorkflowIcon,
+    icon: (selected: boolean) => (
+      <NavigationIcon icon={<WorkflowIcon className="h-3 w-3" />} selected={selected} />
+    ),
   },
   {
     title: 'Resources',
     url: '/dashboard/resources',
-    icon: FileStackIcon,
+    icon: (selected: boolean) => (
+      <NavigationIcon icon={<FileStackIcon className="h-3 w-3" />} selected={selected} />
+    ),
   },
 ];
 
@@ -54,7 +74,7 @@ export default function Navbar() {
                   key={item.url}
                   href={item.url}
                   className={cn('growly-nav-item', isActive && 'active')}>
-                  <item.icon className="h-5 w-5" />
+                  {item.icon(isActive)}
                   <span>{item.title}</span>
                 </Link>
               );

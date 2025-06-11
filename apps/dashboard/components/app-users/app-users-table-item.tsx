@@ -18,8 +18,6 @@ export const UserTableItem = ({
 }) => {
   const lastActivity = user.recentActivity[0];
   const totalPortfolioValue = user.tokens.reduce((acc, token) => acc + token.value, 0);
-
-  console.log(totalPortfolioValue, user.tokens, formatNumber(totalPortfolioValue));
   return (
     <TableRow
       key={user.id}
