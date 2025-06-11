@@ -172,31 +172,24 @@ async function main() {
     console.log('');
   }
 
-  const apiKey = process.env.TALENT_API_KEY;
-
-  if (!apiKey) {
-    console.log('Please set TALENT_API_KEY environment variable');
-    return;
-  }
-
   // Default configuration (3 retries for 404 "Resource not found")
-  const talentService = new TalentProtocolService(apiKey, talentBaseUrl);
+  const talentService = new TalentProtocolService(talentApiKey, talentBaseUrl);
 
   // Example 2: Custom retry count
-  const customRetriesService = new TalentProtocolService(apiKey, talentBaseUrl, {
+  const customRetriesService = new TalentProtocolService(talentApiKey, talentBaseUrl, {
     maxRetries: 5, // Override to 5 retries instead of 3
   });
 
   // Example 3: Different retry strategy using predefined configs
   const networkErrorService = new TalentProtocolService(
-    apiKey,
+    talentApiKey,
     talentBaseUrl,
     RETRY_CONFIGS.NETWORK_AND_SERVER_ERRORS // Retry on network/server errors instead of 404s
   );
 
   // Example 4: Custom retry configuration
   const customService = new TalentProtocolService(
-    apiKey,
+    talentApiKey,
     talentBaseUrl,
     createRetryConfig(
       2, // Only 2 retries
@@ -206,7 +199,7 @@ async function main() {
   );
 
   // Example 5: No retries
-  const noRetryService = new TalentProtocolService(apiKey, talentBaseUrl, {
+  const noRetryService = new TalentProtocolService(talentApiKey, talentBaseUrl, {
     maxRetries: 0,
   });
 
