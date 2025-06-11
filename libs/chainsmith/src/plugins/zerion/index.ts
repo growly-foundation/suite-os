@@ -3,7 +3,6 @@ import { Logger } from 'tslog';
 
 import type {
   TAddress,
-  TChain,
   TChainName,
   TMarketNft,
   TMarketNftList,
@@ -52,12 +51,9 @@ export class ZerionPortfolioPlugin {
     });
   };
 
-  // TODO for below method: Should map Zerion chainId to native viem chainId
-  // Examples: OP Mainnet -> optimism, ethereum -> mainnet, etc.
-
   getMultichainTokenPortfolio = async (
     walletAddress: TAddress,
-    chains?: TChain[]
+    chainNames?: TChainName[]
   ): Promise<TTokenPortfolioStats> => {
     try {
       const response = await this.client.get<ZerionFungiblePositionsResponse>(
@@ -66,10 +62,8 @@ export class ZerionPortfolioPlugin {
           params: {
             'filter[positions]': 'no_filter',
             currency: 'usd',
-            'filter[chain_ids]': chains
-              ?.map(chain =>
-                chain.name.toLowerCase() === 'op mainnet' ? 'optimism' : chain.name.toLowerCase()
-              )
+            'filter[chain_ids]': chainNames
+              ?.map(chain => (chain.toLowerCase() === 'mainnet' ? 'ethereum' : chain.toLowerCase()))
               .join(','),
             'filter[trash]': 'only_non_trash',
             sort: 'value',
@@ -159,7 +153,7 @@ export class ZerionPortfolioPlugin {
 
   getMultichainNftPortfolio = async (
     walletAddress: TAddress,
-    chains?: TChain[]
+    chainNames?: TChainName[]
   ): Promise<TNftPortfolio> => {
     try {
       // Note: Only get top 100 NFTs by floor price
@@ -167,10 +161,8 @@ export class ZerionPortfolioPlugin {
         `/wallets/${walletAddress}/nft-positions`,
         {
           params: {
-            'filter[chain_ids]': chains
-              ?.map(chain =>
-                chain.name.toLowerCase() === 'op mainnet' ? 'optimism' : chain.name.toLowerCase()
-              )
+            'filter[chain_ids]': chainNames
+              ?.map(chain => (chain.toLowerCase() === 'mainnet' ? 'ethereum' : chain.toLowerCase()))
               .join(','),
             currency: 'usd',
             sort: '-floor_price',
@@ -187,7 +179,7 @@ export class ZerionPortfolioPlugin {
       // Group NFT positions by chain
       for (const position of data) {
         const { attributes, relationships } = position;
-        const { value, nft_info, collection_info } = attributes;
+        const { value, nft_info } = attributes;
 
         // Skip collections with no value
         if (!value || value <= 0) continue;

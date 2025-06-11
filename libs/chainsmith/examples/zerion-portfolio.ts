@@ -2,8 +2,7 @@ import 'reflect-metadata';
 
 import { Wallets } from '../src/data';
 import { ZerionPortfolioPlugin } from '../src/plugins/zerion';
-import type { TMarketNftList, TNftPortfolio, TTokenPortfolio } from '../src/types';
-import { buildDefaultChains } from './config';
+import type { TChainName, TMarketNftList, TNftPortfolio, TTokenPortfolio } from '../src/types';
 
 // Zerion configuration
 export const ZERION_API_BASE_URL = 'https://api.zerion.io/v1';
@@ -16,11 +15,12 @@ const zerionPlugin = new ZerionPortfolioPlugin(ZERION_API_BASE_URL, ZERION_API_K
  * Test function to fetch multichain token portfolio using Zerion
  */
 async function testFetchZerionTokenPortfolio(): Promise<TTokenPortfolio> {
-  const chains = buildDefaultChains(['mainnet', 'optimism', 'base']);
   const wallet = Wallets.ETH_MAINNET_WALLET_PCMINH;
 
+  const chains: TChainName[] = ['mainnet', 'optimism', 'base'];
+
   console.log(`🔄 Fetching Zerion token portfolio for wallet: ${wallet}`);
-  console.log(`📊 Testing chains: ${chains.map(c => c.name).join(', ')}`);
+  console.log(`📊 Testing chains: ${chains.join(', ')}`);
 
   const portfolio = await zerionPlugin.getMultichainTokenPortfolio(wallet, chains);
   console.log(`✅ Token Portfolio Summary:`);
@@ -53,11 +53,11 @@ async function testFetchZerionTokenPortfolio(): Promise<TTokenPortfolio> {
  * Test function to fetch multichain NFT portfolio using Zerion
  */
 async function testFetchZerionNftPortfolio(): Promise<TNftPortfolio> {
-  const chains = buildDefaultChains(['mainnet', 'optimism', 'base']);
   const wallet = Wallets.ETH_MAINNET_WALLET_PCMINH;
+  const chains: TChainName[] = ['mainnet', 'optimism', 'base'];
 
   console.log(`🔄 Fetching Zerion NFT portfolio for wallet: ${wallet}`);
-  console.log(`🖼️  Testing chains: ${chains.map(c => c.name).join(', ')}`);
+  console.log(`📊 Testing chains: ${chains.join(', ')}`);
 
   const nftPortfolio = await zerionPlugin.getMultichainNftPortfolio(wallet, chains);
 
