@@ -1,5 +1,6 @@
 import { TalentProtocolService } from '../src/services/talent';
 import type { TalentCredential, TalentProfile, TalentScore } from '../src/types';
+import { RETRY_CONFIGS, createRetryConfig, exponentialBackoff } from '../src/utils/axiosRetry';
 
 // Type declaration for Node.js globals (since examples aren't in tsconfig include)
 declare const process: {
@@ -43,13 +44,17 @@ function generateProfileReport(profile: TalentProfile): void {
     console.log('  No tags available');
   }
 
-  console.log('\n👤 USER INFORMATION');
-  console.log(`User ID: ${profile.user.id}`);
-  console.log(`Admin: ${profile.user.admin ? 'Yes' : 'No'}`);
-  console.log(`Builder Plus: ${profile.user.builder_plus ? '✅ Active' : '❌ Inactive'}`);
-  console.log(`Email Confirmed: ${profile.user.email_confirmed ? 'Yes' : 'No'}`);
-  console.log(`Main Wallet: ${profile.user.main_wallet}`);
-  console.log(`Account Created: ${formatDate(profile.user.created_at)}`);
+  if (profile.user) {
+    console.log('\n👤 USER INFORMATION');
+    console.log(`User ID: ${profile.user.id}`);
+    console.log(`Admin: ${profile.user.admin ? 'Yes' : 'No'}`);
+    console.log(`Builder Plus: ${profile.user.builder_plus ? '✅ Active' : '❌ Inactive'}`);
+    console.log(`Email Confirmed: ${profile.user.email_confirmed ? 'Yes' : 'No'}`);
+    console.log(`Main Wallet: ${profile.user.main_wallet}`);
+    console.log(`Account Created: ${formatDate(profile.user.created_at)}`);
+  } else {
+    console.log('\n👤 ❌ No user information available');
+  }
 
   console.log('\n🔄 SYNC STATUS');
   console.log(`Refreshing Socials: ${profile.refreshing_socials ? 'In progress...' : 'Complete'}`);
@@ -157,6 +162,7 @@ function generateCredentialsReport(credentials: TalentCredential[]): void {
 }
 
 async function main() {
+  const talentBaseUrl = process.env.TALENT_BASE_URL || 'https://api.talentprotocol.com';
   const talentApiKey = process.env.TALENT_API_KEY || 'test-api-key-for-debugging';
 
   if (!process.env.TALENT_API_KEY) {
@@ -166,8 +172,45 @@ async function main() {
     console.log('');
   }
 
-  const talentService = new TalentProtocolService(talentApiKey);
-  const walletAddress = '0x6c34c667632dc1aaf04f362516e6f44d006a58fa';
+  const apiKey = process.env.TALENT_API_KEY;
+
+  if (!apiKey) {
+    console.log('Please set TALENT_API_KEY environment variable');
+    return;
+  }
+
+  // Default configuration (3 retries for 404 "Resource not found")
+  const talentService = new TalentProtocolService(apiKey, talentBaseUrl);
+
+  // Example 2: Custom retry count
+  const customRetriesService = new TalentProtocolService(apiKey, talentBaseUrl, {
+    maxRetries: 5, // Override to 5 retries instead of 3
+  });
+
+  // Example 3: Different retry strategy using predefined configs
+  const networkErrorService = new TalentProtocolService(
+    apiKey,
+    talentBaseUrl,
+    RETRY_CONFIGS.NETWORK_AND_SERVER_ERRORS // Retry on network/server errors instead of 404s
+  );
+
+  // Example 4: Custom retry configuration
+  const customService = new TalentProtocolService(
+    apiKey,
+    talentBaseUrl,
+    createRetryConfig(
+      2, // Only 2 retries
+      error => error.response?.status === 429, // Only retry on rate limiting
+      exponentialBackoff // Use exponential backoff
+    )
+  );
+
+  // Example 5: No retries
+  const noRetryService = new TalentProtocolService(apiKey, talentBaseUrl, {
+    maxRetries: 0,
+  });
+
+  const walletAddress = '0xB304EF4D8f62C94bb1428b5183063223Dff4c712';
 
   console.log('🚀 Starting Talent Protocol Analysis...');
   console.log(`📍 Analyzing wallet: ${walletAddress}`);

@@ -1,54 +1,37 @@
 import type { TalentCredential, TalentProfile, TalentQueryParams, TalentScore } from '@/types';
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import { RETRY_CONFIGS, type RetryConfig, makeRequestWithRetry } from '@/utils/axiosRetry';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 export class TalentProtocolService {
   private readonly apiClient: AxiosInstance;
+  private readonly retryConfig: RetryConfig;
 
-  constructor(apiKey: string, baseUrl = 'https://api.talentprotocol.com') {
+  constructor(apiKey: string, baseUrl: string, retryConfig: Partial<RetryConfig> = {}) {
+    // Use the predefined TalentProtocol retry config as default
+    this.retryConfig = { ...RETRY_CONFIGS.TALENT_PROTOCOL_404, ...retryConfig };
+
     this.apiClient = axios.create({
       baseURL: baseUrl,
       headers: {
         'X-API-KEY': apiKey,
         'Content-Type': 'application/json',
       },
-      timeout: 10000, // 10 second timeout
+      timeout: 10000, // 10 seconds timeout
     });
-  }
 
-  private async makeRequest<T>(endpoint: string, config?: AxiosRequestConfig): Promise<T> {
-    const maxRetries = 3;
-    let retries = 0;
-
-    while (true) {
-      try {
-        const response = await this.apiClient.get<T>(endpoint, config);
-        return response.data;
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          // Check if it's a 404 with "Resource not found" message
-          // TalentProtocol API returns 404 if an address is not found, but creates a profile if it doesn't exist
-          // We can retry a few times if it's a 404
-          const is404NotFound =
-            error.response?.status === 404 &&
-            (error.response?.data?.message === 'Resource not found.' ||
-              error.response?.data?.error === 'Resource not found.');
-
-          // If it's a 404 "Resource not found" and we haven't exceeded max retries
-          if (is404NotFound && retries < maxRetries) {
-            retries++;
-            console.log(`Retry attempt ${retries}/${maxRetries} for ${endpoint}...`);
-            // Wait for increasing time between retries (exponential backoff)
-            await new Promise(resolve => setTimeout(resolve, 1000 * retries));
-            continue;
-          }
-
-          console.error('Axios error:', error.response?.data || error.message);
-          throw error;
-        }
-        console.error('Unexpected error:', error);
+    // Add response interceptor for error handling
+    this.apiClient.interceptors.response.use(
+      (response: AxiosResponse) => response,
+      error => {
+        console.error('TalentProtocol API Error:', error.response?.data || error.message);
         throw error;
       }
-    }
+    );
+  }
+
+  // Use the generic makeRequest method with configurable retry logic
+  private async makeRequest<T>(endpoint: string, config?: AxiosRequestConfig): Promise<T> {
+    return makeRequestWithRetry<T>(this.apiClient, endpoint, config, this.retryConfig);
   }
 
   // Get the score and the credentials using wallet, scorer slug, talent id or account identifier
