@@ -18,22 +18,22 @@ export enum SessionStatus {
 export type UserOnchainStats = {
   stats: {
     totalTransactions: number;
-    totalVolume: string;
+    totalVolume: number;
     nftCount: number;
     tokenCount: number;
     daysActive: number;
   };
-  topTokens: Array<{
+  tokens: Array<{
     symbol: string;
-    balance: string;
-    value: string;
+    balance: number;
+    value: number;
     change24h: number;
   }>;
   recentActivity: Array<{
     type: 'send' | 'receive' | 'swap' | 'vote';
     description: string;
     timestamp: string;
-    value?: string;
+    value?: number;
   }>;
   nfts: Array<{
     collection: string;

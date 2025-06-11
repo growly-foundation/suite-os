@@ -1,18 +1,21 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatDate, formatNumber } from '@/lib/string.utils';
 import {
   Activity,
   Award,
-  Copy,
   ExternalLink,
   ImageIcon,
   TrendingDown,
   TrendingUp,
   Wallet,
 } from 'lucide-react';
+import React from 'react';
 
 import { ParsedUser } from '@getgrowly/core';
+import { WalletAddress } from '@getgrowly/ui';
 
+import { ActivityIcon } from '../transactions/activity-icon';
 import { AppUserAvatarWithStatus } from './app-user-avatar-with-status';
 
 interface UserDetailsProps {
@@ -20,29 +23,14 @@ interface UserDetailsProps {
 }
 
 export function UserDetails({ user }: UserDetailsProps) {
-  const truncateAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-  };
-
   return (
-    <div className="w-[360px] border-l flex flex-col bg-slate-50/50">
+    <React.Fragment>
       {/* Profile Header */}
       <div className="flex flex-col items-center justify-center p-6 border-b bg-white">
         <AppUserAvatarWithStatus user={user} size={80} />
         <h3 className="font-semibold text-lg">{user.ensName}</h3>
         <div className="flex items-center gap-2 mt-1">
-          <p className="text-sm text-muted-foreground">{truncateAddress(user.address)}</p>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0"
-            onClick={() => copyToClipboard(user.address)}>
-            <Copy className="h-3 w-3" />
-          </Button>
+          <WalletAddress truncate address={user.address} />
           <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
             <ExternalLink className="h-3 w-3" />
           </Button>
@@ -68,19 +56,19 @@ export function UserDetails({ user }: UserDetailsProps) {
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
               <p className="text-muted-foreground">Transactions</p>
-              <p className="font-medium">{user.stats.totalTransactions.toLocaleString()}</p>
+              <p className="font-medium">{formatNumber(user.stats.totalTransactions)}</p>
             </div>
             <div>
               <p className="text-muted-foreground">Volume</p>
-              <p className="font-medium">{user.stats.totalVolume}</p>
+              <p className="font-medium">{formatNumber(user.stats.totalVolume)}</p>
             </div>
             <div>
               <p className="text-muted-foreground">NFTs</p>
-              <p className="font-medium">{user.stats.nftCount}</p>
+              <p className="font-medium">{formatNumber(user.stats.nftCount)}</p>
             </div>
             <div>
               <p className="text-muted-foreground">Days Active</p>
-              <p className="font-medium">{user.stats.daysActive}</p>
+              <p className="font-medium">{formatNumber(user.stats.daysActive)}</p>
             </div>
           </div>
         </div>
@@ -92,7 +80,7 @@ export function UserDetails({ user }: UserDetailsProps) {
             Top Holdings
           </h4>
           <div className="space-y-3">
-            {user.topTokens.map((token, index) => (
+            {user.tokens.map((token, index) => (
               <div key={index} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="h-8 w-8 bg-slate-200 rounded-full flex items-center justify-center text-xs font-medium">
@@ -102,7 +90,7 @@ export function UserDetails({ user }: UserDetailsProps) {
                     <p className="text-sm font-medium">
                       {token.balance} {token.symbol}
                     </p>
-                    <p className="text-xs text-muted-foreground">{token.value}</p>
+                    <p className="text-xs text-muted-foreground">{formatNumber(token.value)}</p>
                   </div>
                 </div>
                 <div
@@ -112,7 +100,7 @@ export function UserDetails({ user }: UserDetailsProps) {
                   ) : (
                     <TrendingDown className="h-3 w-3" />
                   )}
-                  {Math.abs(token.change24h)}%
+                  {Math.abs(token.change24h).toFixed(2)}%
                 </div>
               </div>
             ))}
@@ -135,19 +123,17 @@ export function UserDetails({ user }: UserDetailsProps) {
                           ? 'bg-blue-100 text-blue-600'
                           : 'bg-purple-100 text-purple-600'
                   }`}>
-                  {activity.type === 'send'
-                    ? '↗'
-                    : activity.type === 'receive'
-                      ? '↙'
-                      : activity.type === 'vote'
-                        ? '🗳'
-                        : '↔'}
+                  <ActivityIcon type={activity.type} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm">{activity.description}</p>
                   <div className="flex justify-between items-center">
-                    <p className="text-xs text-muted-foreground">{activity.timestamp}</p>
-                    {activity.value && <p className="text-xs font-medium">{activity.value}</p>}
+                    <p className="text-xs text-muted-foreground">
+                      {formatDate(activity.timestamp)}
+                    </p>
+                    {activity.value && (
+                      <p className="text-xs font-medium">{formatNumber(activity.value)}</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -186,6 +172,6 @@ export function UserDetails({ user }: UserDetailsProps) {
           </div>
         </div>
       </div>
-    </div>
+    </React.Fragment>
   );
 }

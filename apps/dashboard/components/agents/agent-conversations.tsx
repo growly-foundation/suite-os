@@ -1,7 +1,7 @@
 'use client';
 
+import { UsersConversationSidebar } from '@/components/app-users/app-user-conversation-sidebar';
 import { UserDetails } from '@/components/app-users/app-user-details';
-import { UsersList } from '@/components/app-users/app-user-list';
 import { ConversationArea } from '@/components/conversations/conversation-area';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { useEffect } from 'react';
@@ -32,9 +32,15 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
         </div>
       ) : users.length > 0 && selectedUser ? (
         <>
-          <UsersList users={users} selectedUser={selectedUser} onSelectUser={setSelectedUser} />
+          <UsersConversationSidebar
+            users={users}
+            selectedUser={selectedUser}
+            onSelectUser={setSelectedUser}
+          />
           <ConversationArea selectedUser={selectedUser} />
-          <UserDetails user={selectedUser} />
+          <div className="w-[360px] border-l flex flex-col bg-slate-50/50">
+            <UserDetails user={selectedUser} />
+          </div>
         </>
       ) : (
         <div className="flex w-full items-center justify-center h-full">
