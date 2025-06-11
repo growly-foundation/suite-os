@@ -10,6 +10,7 @@ import {
   TrendingUp,
   Wallet,
 } from 'lucide-react';
+import React from 'react';
 
 import { ParsedUser } from '@getgrowly/core';
 
@@ -20,16 +21,16 @@ interface UserDetailsProps {
 }
 
 export function UserDetails({ user }: UserDetailsProps) {
-  const truncateAddress = (address: string) => {
+  const truncateAddress = (address: string): string => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-  const copyToClipboard = (text: string) => {
+  const copyToClipboard = (text: string): void => {
     navigator.clipboard.writeText(text);
   };
 
   return (
-    <div className="w-[360px] border-l flex flex-col bg-slate-50/50">
+    <React.Fragment>
       {/* Profile Header */}
       <div className="flex flex-col items-center justify-center p-6 border-b bg-white">
         <AppUserAvatarWithStatus user={user} size={80} />
@@ -186,6 +187,6 @@ export function UserDetails({ user }: UserDetailsProps) {
           </div>
         </div>
       </div>
-    </div>
+    </React.Fragment>
   );
 }

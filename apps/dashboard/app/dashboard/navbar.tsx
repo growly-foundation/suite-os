@@ -1,7 +1,7 @@
 import { UserButton } from '@/components/auth/user-button';
 import { OrganizationSwitcher } from '@/components/organizations/organization-switcher';
 import { cn } from '@/lib/utils';
-import { BotIcon, FileStackIcon, HomeIcon, WorkflowIcon } from 'lucide-react';
+import { BotIcon, FileStackIcon, HomeIcon, UserIcon, WorkflowIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -17,6 +17,11 @@ export const navigations = [
     title: 'Agents',
     url: '/dashboard/agents',
     icon: BotIcon,
+  },
+  {
+    title: 'Users',
+    url: '/dashboard/users',
+    icon: UserIcon,
   },
   {
     title: 'Workflows',

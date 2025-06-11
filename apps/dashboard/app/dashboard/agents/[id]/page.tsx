@@ -3,6 +3,7 @@
 import { AgentConversations } from '@/components/agents/agent-conversations';
 import { AgentDetails } from '@/components/agents/agent-details';
 import { AgentResources } from '@/components/agents/agent-resources';
+import { AgentUsers } from '@/components/agents/agent-users';
 import { AgentWorkflows } from '@/components/agents/agent-workflows';
 import { IntegrationGuideDialog } from '@/components/steps/integration-guide-dialog';
 import { Button } from '@/components/ui/button';
@@ -115,9 +116,10 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
             {!isNewAgent && (
               <TabsList>
                 <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="conversations">Conversations</TabsTrigger>
+                <TabsTrigger value="users">Users</TabsTrigger>
                 <TabsTrigger value="resources">Resources</TabsTrigger>
                 <TabsTrigger value="workflows">Workflows</TabsTrigger>
-                <TabsTrigger value="conversations">Conversations</TabsTrigger>
               </TabsList>
             )}
             <Button
@@ -132,14 +134,17 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
         <TabsContent value="details">
           <AgentDetails agent={agent} onSave={handleAgentUpdate} />
         </TabsContent>
+        <TabsContent value="conversations" className="mt-0">
+          <AgentConversations agent={agent} />
+        </TabsContent>
+        <TabsContent value="users">
+          <AgentUsers agent={agent} />
+        </TabsContent>
         <TabsContent value="workflows">
           <AgentWorkflows agent={agent} onUpdate={handleAgentUpdate} />
         </TabsContent>
         <TabsContent value="resources">
           <AgentResources />
-        </TabsContent>
-        <TabsContent value="conversations" className="mt-0">
-          <AgentConversations agent={agent} />
         </TabsContent>
       </Tabs>
       <IntegrationGuideDialog

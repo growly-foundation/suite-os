@@ -6,14 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
+import { SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
 import { ZapIcon } from 'lucide-react';
 import { useState } from 'react';
@@ -29,7 +22,7 @@ import {
   WorkflowId,
 } from '@getgrowly/core';
 
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '../ui/resizable';
+import { ResizableSheet } from '../ui/resizable-sheet';
 import { Switch } from '../ui/switch';
 
 interface AddStepDrawerProps {
@@ -80,88 +73,76 @@ export function AddStepDrawer({
   };
 
   return (
-    <Sheet
-      open={open}
-      onOpenChange={isOpen => {
-        onOpenChange(isOpen);
-        if (!isOpen) resetForm();
-      }}>
-      <SheetContent side="right" className="p-0 w-[650px] sm:max-w-[800px] h-full overflow-hidden">
-        <ResizablePanelGroup direction="horizontal" className="h-full rounded-lg">
-          <ResizableHandle withHandle className="w-2 bg-border" />
-          <ResizablePanel defaultSize={100} className="p-6">
-            <div className="h-full flex flex-col">
-              <SheetHeader>
-                <SheetTitle>{defaultStep ? 'Edit Step' : 'Add New Step'}</SheetTitle>
-                <SheetDescription>
-                  {defaultStep
-                    ? 'Edit the step for your workflow. Steps can perform actions when conditions are met.'
-                    : 'Create a new step for your workflow. Steps can perform actions when conditions are met.'}
-                </SheetDescription>
-              </SheetHeader>
-              <br />
-              <div className="flex-1 overflow-y-auto">
-                <div className="flex flex-col space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Step Name</Label>
-                    <Input
-                      id="name"
-                      value={name}
-                      onChange={e => setName(e.target.value)}
-                      placeholder="Enter step name"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description (Optional)</Label>
-                    <Input
-                      id="description"
-                      value={description}
-                      onChange={e => setDescription(e.target.value)}
-                      placeholder="Describe what this step does"
-                    />
-                  </div>
-                  {/* Conditions Section */}
-                  <ConditionForm conditions={conditions} setConditions={setConditions} />
-                  <Separator />
-                  {/* Actions Section */}
-                  <ActionForm actions={actions} setActions={setActions} />
-                  <Separator />
-                  {/* Status */}
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="status">Status</Label>
-                    <Switch
-                      id="status"
-                      checked={status === Status.Active}
-                      onCheckedChange={value => setStatus(value ? Status.Active : Status.Inactive)}
-                    />
-                  </div>
-                  <Separator />
-                  {/* Beast Mode */}
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="beast-mode" className="flex items-center gap-2">
-                      <ZapIcon className="h-4 w-4" />
-                      Beast Mode
-                    </Label>
-                    <Switch id="beast-mode" checked={beastMode} onCheckedChange={setBeastMode} />
-                  </div>
-                </div>
-              </div>
-              <div className="py-4 mt-4 border-t">
-                <SheetFooter>
-                  <Button variant="outline" onClick={() => onOpenChange(false)}>
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleAdd}
-                    disabled={!name || conditions.length === 0 || actions.length === 0}>
-                    {defaultStep ? 'Update Step' : 'Create Step'}
-                  </Button>
-                </SheetFooter>
-              </div>
+    <ResizableSheet side="right" open={open} onOpenChange={onOpenChange}>
+      <div className="h-full flex flex-col">
+        <SheetHeader>
+          <SheetTitle>{defaultStep ? 'Edit Step' : 'Add New Step'}</SheetTitle>
+          <SheetDescription>
+            {defaultStep
+              ? 'Edit the step for your workflow. Steps can perform actions when conditions are met.'
+              : 'Create a new step for your workflow. Steps can perform actions when conditions are met.'}
+          </SheetDescription>
+        </SheetHeader>
+        <br />
+        <div className="flex-1 overflow-y-auto">
+          <div className="flex flex-col space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Step Name</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="Enter step name"
+              />
             </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </SheetContent>
-    </Sheet>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description (Optional)</Label>
+              <Input
+                id="description"
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                placeholder="Describe what this step does"
+              />
+            </div>
+            {/* Conditions Section */}
+            <ConditionForm conditions={conditions} setConditions={setConditions} />
+            <Separator />
+            {/* Actions Section */}
+            <ActionForm actions={actions} setActions={setActions} />
+            <Separator />
+            {/* Status */}
+            <div className="flex items-center justify-between">
+              <Label htmlFor="status">Status</Label>
+              <Switch
+                id="status"
+                checked={status === Status.Active}
+                onCheckedChange={value => setStatus(value ? Status.Active : Status.Inactive)}
+              />
+            </div>
+            <Separator />
+            {/* Beast Mode */}
+            <div className="flex items-center justify-between">
+              <Label htmlFor="beast-mode" className="flex items-center gap-2">
+                <ZapIcon className="h-4 w-4" />
+                Beast Mode
+              </Label>
+              <Switch id="beast-mode" checked={beastMode} onCheckedChange={setBeastMode} />
+            </div>
+          </div>
+        </div>
+        <div className="py-4 mt-4 border-t">
+          <SheetFooter>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAdd}
+              disabled={!name || conditions.length === 0 || actions.length === 0}>
+              {defaultStep ? 'Update Step' : 'Create Step'}
+            </Button>
+          </SheetFooter>
+        </div>
+      </div>
+    </ResizableSheet>
   );
 }

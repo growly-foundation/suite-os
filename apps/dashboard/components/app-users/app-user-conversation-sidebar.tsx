@@ -15,7 +15,7 @@ interface UsersListProps {
   onSelectUser: (user: ParsedUser) => void;
 }
 
-export function UsersList({ users, selectedUser, onSelectUser }: UsersListProps) {
+export function UsersConversationSidebar({ users, selectedUser, onSelectUser }: UsersListProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredUsers = users.filter(

@@ -211,7 +211,7 @@ export default function DashboardInner() {
                   {recentActivity
                     .slice(0, showAllActivity ? recentActivity.length : MAX_RECENT_ACTIVITY)
                     .map(activity => (
-                      <div className="flex items-center gap-4">
+                      <div key={activity.timestamp} className="flex items-center gap-4">
                         <div
                           className={`h-8 w-8 rounded-full flex items-center justify-center ${
                             activity.color
