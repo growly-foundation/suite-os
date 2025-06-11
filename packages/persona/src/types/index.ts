@@ -1,1 +1,2 @@
-export type Address = `0x${string}`;
+export * from './common';
+export * from './talent';

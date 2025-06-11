@@ -42,6 +42,7 @@
   "dependencies": {
     "@getgrowly/chainsmith": "workspace:*",
     "@guildxyz/sdk": "^2.6.9",
+    "axios": "^1.7.0",
     "wagmi": "^2.15.1"
   },
   "devDependencies": {
