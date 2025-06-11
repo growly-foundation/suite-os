@@ -6,6 +6,13 @@ export interface ZerionFungiblePositionsResponse {
   data: ZerionFungiblePosition[];
 }
 
+export interface ZerionNftCollectionsResponse {
+  links: {
+    self: string;
+  };
+  data: ZerionNftCollection[];
+}
+
 export interface ZerionNftPositionsResponse {
   links: {
     self: string;
@@ -148,15 +155,15 @@ export enum DataType {
   Fungibles = 'fungibles',
 }
 
-// Zerion Nft Position
-export interface ZerionNftPosition {
+// Zerion Nft Collection
+export interface ZerionNftCollection {
   type: string;
   id: string;
-  attributes: NftAttributes;
-  relationships: NftRelationships;
+  attributes: NftCollectionAttributes;
+  relationships: NftCollectionRelationships;
 }
 
-export interface NftAttributes {
+export interface NftCollectionAttributes {
   min_changed_at: string;
   max_changed_at: string;
   nfts_count: string;
@@ -169,7 +176,64 @@ export interface CollectionInfo {
   content?: { icon: { url: string }; banner?: { url: string } };
 }
 
-export interface NftRelationships {
+export interface NftCollectionRelationships {
   chains: { data: { type: string; id: string }[] };
   nft_collection: { data: { type: string; id: string } };
+}
+
+// Zerion Nft Position (from /nft-positions endpoint)
+export interface ZerionNftPosition {
+  type: string;
+  id: string;
+  attributes: NftAttributes;
+  relationships: NftRelationships;
+}
+
+export interface NftAttributes {
+  changed_at: string;
+  amount: string;
+  price: number;
+  value: number;
+  nft_info: NftInfo;
+  collection_info: CollectionInfo;
+}
+
+export interface NftInfo {
+  contract_address: string;
+  token_id: string;
+  name: string;
+  interface: string; // "ERC721 | ERC1155"
+  content: {
+    preview: {
+      url: string;
+    };
+    detail: {
+      url: string;
+    };
+  };
+  flags: {
+    is_spam: boolean;
+  };
+}
+
+export interface NftRelationships {
+  chain: Chain;
+  nft: {
+    data: {
+      type: string;
+      id: string;
+    };
+  };
+  nft_collection: {
+    data: {
+      type: string;
+      id: string;
+    };
+  };
+  wallet_nft_collection: {
+    data: {
+      type: string;
+      id: string;
+    };
+  };
 }

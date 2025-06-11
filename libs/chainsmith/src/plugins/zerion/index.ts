@@ -52,13 +52,16 @@ export class ZerionPortfolioPlugin {
     });
   };
 
+  // TODO for below method: Should map Zerion chainId to native viem chainId
+  // Examples: OP Mainnet -> optimism, ethereum -> mainnet, etc.
+
   getMultichainTokenPortfolio = async (
     walletAddress: TAddress,
     chains?: TChain[]
   ): Promise<TTokenPortfolioStats> => {
     try {
       const response = await this.client.get<ZerionFungiblePositionsResponse>(
-        `/wallets/${walletAddress}/positions/`,
+        `/wallets/${walletAddress}/positions`,
         {
           params: {
             'filter[positions]': 'no_filter',
@@ -159,8 +162,9 @@ export class ZerionPortfolioPlugin {
     chains?: TChain[]
   ): Promise<TNftPortfolio> => {
     try {
+      // Note: Only get top 100 NFTs by floor price
       const response = await this.client.get<ZerionNftPositionsResponse>(
-        `/wallets/${walletAddress}/nft-collections`,
+        `/wallets/${walletAddress}/nft-positions`,
         {
           params: {
             'filter[chain_ids]': chains
@@ -169,7 +173,7 @@ export class ZerionPortfolioPlugin {
               )
               .join(','),
             currency: 'usd',
-            sort: '-total_floor_price',
+            sort: '-floor_price',
           },
         }
       );
@@ -178,20 +182,20 @@ export class ZerionPortfolioPlugin {
       // Convert Zerion NFT data to multichain NFT list format
       const multichainNftList: TMultichain<TMarketNftList> = {};
       let totalPortfolioValue = 0;
-      let mostValuableCollection: TMarketNft | undefined;
+      let mostValuableNft: TMarketNft | undefined;
 
       // Group NFT positions by chain
       for (const position of data) {
         const { attributes, relationships } = position;
-        const { total_floor_price, nfts_count, collection_info } = attributes;
+        const { value, nft_info, collection_info } = attributes;
 
         // Skip collections with no value
-        if (!total_floor_price || total_floor_price <= 0) continue;
+        if (!value || value <= 0) continue;
 
         // Extract chain information - assuming the first chain if multiple exist
         // For now, we'll extract chain from the collection ID or use a default approach
         const collectionId = relationships.nft_collection.data.id;
-        const zerionChainId = relationships.chains.data[0].id;
+        const zerionChainId = relationships.chain.data.id;
         const chainName = zerionChainId === 'ethereum' ? 'mainnet' : zerionChainId;
 
         // Initialize chain entry if it doesn't exist
@@ -206,27 +210,27 @@ export class ZerionPortfolioPlugin {
         const marketNft: TMarketNft = {
           chainId: getChainIdByName(chainName as TChainName),
           address: collectionId.split(':')[1] || collectionId, // Extract address after colon
-          name: collection_info.name,
-          image: collection_info.content?.icon?.url || '',
-          floorPrice: total_floor_price,
-          currency: 'USD',
-          balance: parseInt(nfts_count) || 0,
-          usdValue: total_floor_price,
+          name: nft_info.name,
+          tokenID: nft_info.token_id,
+          interface: nft_info.interface,
+          imageUrl: nft_info.content?.detail?.url || '',
+          previewUrl: nft_info.content?.preview?.url || '',
+          usdValue: value,
         };
 
         // Track most valuable collection
-        if (!mostValuableCollection || marketNft.usdValue > mostValuableCollection.usdValue) {
-          mostValuableCollection = marketNft;
+        if (!mostValuableNft || marketNft.usdValue > mostValuableNft.usdValue) {
+          mostValuableNft = marketNft;
         }
 
         multichainNftList[chainName]!.nfts.push(marketNft);
-        multichainNftList[chainName]!.totalUsdValue += total_floor_price;
-        totalPortfolioValue += total_floor_price;
+        multichainNftList[chainName]!.totalUsdValue += value;
+        totalPortfolioValue += value;
       }
 
       return {
         totalUsdValue: totalPortfolioValue,
-        mostValuableNFTCollection: mostValuableCollection,
+        mostValuableNFT: mostValuableNft,
         chainRecordsWithNfts: multichainNftList,
       };
     } catch (error: any) {

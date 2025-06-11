@@ -65,10 +65,9 @@ async function testFetchZerionNftPortfolio(): Promise<TNftPortfolio> {
   console.log(`   💰 Total USD Value: $${nftPortfolio.totalUsdValue.toFixed(2)}`);
   console.log(`   🔗 Chains with NFTs: ${Object.keys(nftPortfolio.chainRecordsWithNfts).length}`);
 
-  if (nftPortfolio.mostValuableNFTCollection) {
-    console.log(`   👑 Most Valuable Collection: ${nftPortfolio.mostValuableNFTCollection.name}`);
-    console.log(`      💵 Value: $${nftPortfolio.mostValuableNFTCollection.usdValue.toFixed(2)}`);
-    console.log(`      📊 Count: ${nftPortfolio.mostValuableNFTCollection.balance}`);
+  if (nftPortfolio.mostValuableNFT) {
+    console.log(`   👑 Most Valuable NFT: ${nftPortfolio.mostValuableNFT.name}`);
+    console.log(`      💵 Value: $${nftPortfolio.mostValuableNFT.usdValue.toFixed(2)}`);
   }
 
   // Log details for each chain
@@ -76,15 +75,13 @@ async function testFetchZerionNftPortfolio(): Promise<TNftPortfolio> {
     const typedNftList = nftList as TMarketNftList;
     console.log(`   🖼️  Chain ${chainId}:`);
     console.log(`      💵 Total Value: $${typedNftList.totalUsdValue.toFixed(2)}`);
-    console.log(`      🎨 Collection Count: ${typedNftList.nfts.length}`);
+    console.log(`      🎨 NFT Count: ${typedNftList.nfts.length}`);
 
     // Show top 3 collections by value
     const topCollections = typedNftList.nfts.sort((a, b) => b.usdValue - a.usdValue).slice(0, 3);
 
     topCollections.forEach((nft, index) => {
-      console.log(
-        `         ${index + 1}. ${nft.name}: $${nft.usdValue.toFixed(2)} (${nft.balance} items)`
-      );
+      console.log(`         ${index + 1}. ${nft.name}: $${nft.usdValue.toFixed(2)}`);
     });
   });
 
