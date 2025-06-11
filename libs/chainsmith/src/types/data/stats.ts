@@ -79,7 +79,7 @@ export type TTokenPortfolioStats = TTokenPortfolio & {
 
 export interface TNftPortfolio {
   totalUsdValue: number;
-  mostValuableNFTCollection: TMarketNft | undefined;
+  mostValuableNFT: TMarketNft | undefined;
   chainRecordsWithNfts: TMultichain<TMarketNftList>;
 }
 
