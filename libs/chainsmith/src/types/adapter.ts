@@ -6,7 +6,7 @@ import type {
   TChainName,
   TContractToken,
   TMarketToken,
-  TNftBalance,
+  TNftCollectionBalance,
   TNftTransferActivity,
   TToken,
   TTokenTransferActivity,
@@ -83,13 +83,16 @@ export interface IOnchainActivityAdapter extends IAdapter {
  */
 export interface IOnchainNftAdapter extends IAdapter {
   /**
-   * Fetches the NFT balance of a given address on a specified blockchain.
+   * Fetches the NFT Collection balance of a given address on a specified blockchain.
    *
    * @param {TChainName} chain - The name of the blockchain network.
    * @param {TAddress} address - The wallet address to fetch NFT balances for.
-   * @returns {Promise<TNftBalance[]>} - A promise that resolves to an array of NFT balances.
+   * @returns {Promise<TNftCollectionBalance[]>} - A promise that resolves to an array of NFT balances.
    */
-  fetchNFTBalance: (chain: TChainName, address: TAddress) => Promise<TNftBalance[]>;
+  fetchNFTCollectionBalance: (
+    chain: TChainName,
+    address: TAddress
+  ) => Promise<TNftCollectionBalance[]>;
 }
 
 /**

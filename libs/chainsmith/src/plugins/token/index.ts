@@ -14,7 +14,7 @@ import type {
   TMarketToken,
   TMultichain,
   TNativeToken,
-  TNftBalance,
+  TNftCollectionBalance,
   TNftTransferActivity,
   TToken,
   TTokenAddress,
@@ -61,10 +61,10 @@ type TGetOwnedTokens = (chain: TChain, walletAddress?: TAddress) => Promise<TCon
 
 type TGetTokens = (chain?: TChain, walletAddress?: TAddress) => Promise<TToken[]>;
 
-type IGetNftCollectibles = (
+type IGetNftCollections = (
   chainName?: TChainName,
   walletAddress?: TAddress
-) => Promise<TNftBalance[]>;
+) => Promise<TNftCollectionBalance[]>;
 
 export class MultichainTokenPlugin {
   logger = new Logger({ name: 'MultichainTokenPlugin' });
@@ -226,12 +226,12 @@ export class MultichainTokenPlugin {
       }
     };
 
-  getNftCollectibles: WithAdapter<IOnchainNftAdapter, IGetNftCollectibles> =
+  getNftCollectibles: WithAdapter<IOnchainNftAdapter, IGetNftCollections> =
     adapter => async (chainName?: TChainName, walletAddress?: TAddress) => {
       try {
         const _chainName = chainName || this.storagePlugin.readDisk('chains')[0]?.chainName;
         if (!_chainName) throw new Error('No chain provided');
-        const collectibles = await adapter.fetchNFTBalance(
+        const collectibles = await adapter.fetchNFTCollectionBalance(
           _chainName,
           this.storagePlugin.readRamOrReturn({ walletAddress })
         );

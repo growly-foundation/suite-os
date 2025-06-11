@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Logger } from 'tslog';
 import * as EvmChainList from 'viem/chains';
 
-import type { IOnchainNftAdapter, TAddress, TChainName, TNftBalance } from '../../types';
+import type { IOnchainNftAdapter, TAddress, TChainName, TNftCollectionBalance } from '../../types';
 import { getChainIdByName, objectToQueryString } from '../../utils';
 import type { TReservoirNFTCollectionEntity, TReservoirNFTCollectionResponse } from './types';
 
@@ -30,7 +30,10 @@ export class ReservoirAdapter implements IOnchainNftAdapter {
     this.apiKey = apiKey;
   }
 
-  async fetchNFTBalance(chain: TChainName, address: TAddress): Promise<TNftBalance[]> {
+  async fetchNFTCollectionBalance(
+    chain: TChainName,
+    address: TAddress
+  ): Promise<TNftCollectionBalance[]> {
     const userCollections = await this.getUserCollections(address, chain);
 
     if (!userCollections || !userCollections.length) return [];
@@ -45,7 +48,7 @@ export class ReservoirAdapter implements IOnchainNftAdapter {
         item.collection.volumeChange['30day'] !== 0
     );
 
-    const nftBalances: TNftBalance[] = filteredCollections.map(uc => {
+    const nftBalances: TNftCollectionBalance[] = filteredCollections.map(uc => {
       const metadata = uc.collection;
       const ownership = uc.ownership;
 
@@ -55,11 +58,12 @@ export class ReservoirAdapter implements IOnchainNftAdapter {
         chainId: getChainIdByName(chain),
         address: metadata.id,
         name: metadata.name,
-        image: metadata.image,
+        imageUrl: metadata.image,
+        bannerUrl: metadata.banner,
         floorPrice: collectionPriceNative,
         currency: collectionCurrency,
         balance: Number.parseInt(ownership.tokenCount),
-      } as TNftBalance;
+      } as TNftCollectionBalance;
     });
 
     return nftBalances;
