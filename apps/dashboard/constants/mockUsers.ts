@@ -54,12 +54,12 @@ const descriptions = [
   'Crypto journalist and content creator',
 ];
 
-const generateTopTokens = () => {
+const generateTokens = () => {
   const count = Math.floor(Math.random() * 5) + 1; // 1-5 tokens
   return Array.from({ length: count }, () => ({
     symbol: tokenSymbols[Math.floor(Math.random() * tokenSymbols.length)],
-    balance: (Math.random() * 100).toFixed(4),
-    value: `$${(Math.random() * 10000).toFixed(2)}`,
+    balance: Math.random() * 100,
+    value: Math.random() * 10000,
     change24h: parseFloat((Math.random() * 20 - 10).toFixed(2)), // -10% to +10%
   }));
 };
@@ -138,7 +138,7 @@ export const generateMockUsers = (count: number): ParsedUser[] => {
 
     const stats = {
       totalTransactions: Math.floor(Math.random() * 10000),
-      totalVolume: `$${(Math.random() * 1000000).toFixed(2)}`,
+      totalVolume: Math.random() * 1000000,
       nftCount: Math.floor(Math.random() * 50),
       tokenCount: Math.floor(Math.random() * 20) + 1,
       daysActive: Math.floor(Math.random() * 365) + 1,
@@ -161,7 +161,7 @@ export const generateMockUsers = (count: number): ParsedUser[] => {
       online,
       unread,
       stats,
-      topTokens: generateTopTokens(),
+      tokens: generateTokens(),
       recentActivity: generateRecentActivity(),
       nfts: generateNFTs(),
       reputation: generateReputation(),

@@ -25,22 +25,22 @@ export class UserService {
       unread: false,
       stats: {
         totalTransactions: 12450,
-        totalVolume: '1,234 ETH',
+        totalVolume: 1234,
         nftCount: 89,
         tokenCount: 67,
         daysActive: 1825,
       },
-      topTokens: [
-        { symbol: 'ETH', balance: '234.5', value: '$469,000', change24h: 2.1 },
-        { symbol: 'USDC', balance: '50,000', value: '$50,000', change24h: 0.1 },
-        { symbol: 'UNI', balance: '2,500', value: '$17,500', change24h: -0.8 },
+      tokens: [
+        { symbol: 'ETH', balance: 234.5, value: 469000, change24h: 2.1 },
+        { symbol: 'USDC', balance: 50000, value: 50000, change24h: 0.1 },
+        { symbol: 'UNI', balance: 2500, value: 17500, change24h: -0.8 },
       ],
       recentActivity: [
         {
           type: 'receive',
           description: 'Received support payment',
           timestamp: '1 hour ago',
-          value: '0.5 ETH',
+          value: 0.5,
         },
         { type: 'send', description: 'Helped user with transaction', timestamp: '3 hours ago' },
       ],

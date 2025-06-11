@@ -6,6 +6,7 @@ import moment from 'moment';
 import { useState } from 'react';
 
 import { ParsedUser } from '@getgrowly/core';
+import { WalletAddress } from '@getgrowly/ui';
 
 import { AppUserAvatarWithStatus } from './app-user-avatar-with-status';
 
@@ -23,10 +24,6 @@ export function UsersConversationSidebar({ users, selectedUser, onSelectUser }: 
       user.ensName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.address.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const truncateAddress = (address: string) => {
-    return `${address.slice(0, 10)}...${address.slice(-4)}`;
-  };
 
   return (
     <div className="w-[360px] border-r flex flex-col">
@@ -55,9 +52,11 @@ export function UsersConversationSidebar({ users, selectedUser, onSelectUser }: 
                   {moment(user.lastMessageTime).fromNow()}
                 </p>
               </div>
-              <p className="text-xs text-muted-foreground truncate mb-1">
-                {truncateAddress(user.address)}
-              </p>
+              <WalletAddress
+                truncate
+                truncateLength={{ startLength: 10, endLength: 4 }}
+                address={user.address}
+              />
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">
                   {user.reputation.level}

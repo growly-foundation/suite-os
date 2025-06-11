@@ -1,33 +1,42 @@
 'use client';
 
 import { mockUsers } from '@/constants/mockUsers';
-import { cn } from '@/lib/utils';
-import { Copy, MoreHorizontal } from 'lucide-react';
 import { useState } from 'react';
 
 import { ParsedUser } from '@getgrowly/core';
-import { RandomAvatar } from '@getgrowly/ui';
 
-import { Button } from '../ui/button';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '../ui/pagination';
 import { ResizableSheet } from '../ui/resizable-sheet';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '../ui/table';
 import { UserDetails } from './app-user-details';
+import { UserTableItem } from './app-users-table-item';
 
-const truncateAddress = (address: string) => {
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-};
-
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-};
+const ITEMS_PER_PAGE = 10;
 
 export function UsersTable() {
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<ParsedUser | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Calculate pagination
+  const totalItems = mockUsers.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedUsers = mockUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
+  const nextPage = () => goToPage(currentPage + 1);
+  const prevPage = () => goToPage(currentPage - 1);
 
   const handleUserClick = (user: ParsedUser) => {
     setSelectedUser(user);
@@ -43,158 +52,81 @@ export function UsersTable() {
     closeUserDetails();
   };
 
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'send':
-        return '↗';
-      case 'receive':
-        return '↙';
-      case 'vote':
-        return '🗳';
-      default:
-        return '↔';
-    }
-  };
-
-  const getActivityColor = (type: string) => {
-    switch (type) {
-      case 'send':
-        return 'bg-red-100 text-red-600';
-      case 'receive':
-        return 'bg-green-100 text-green-600';
-      case 'vote':
-        return 'bg-blue-100 text-blue-600';
-      default:
-        return 'bg-purple-100 text-purple-600';
-    }
-  };
-
   return (
-    <>
+    <div className="space-y-4">
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead className="w-[100px]">User</TableHead>
-              <TableHead>Wallet</TableHead>
+              <TableHead>Portfolio Value</TableHead>
               <TableHead>Activity</TableHead>
-              <TableHead>Status</TableHead>
               <TableHead>Reputation</TableHead>
               <TableHead>Tokens</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {mockUsers.slice(0, 10).map(user => {
-              const lastActivity = user.recentActivity[0];
-              const isOnline = user.status === 'Online';
-              return (
-                <TableRow
-                  key={user.id}
-                  className="cursor-pointer hover:bg-slate-50"
-                  onClick={() => handleUserClick(user)}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center space-x-3">
-                      <RandomAvatar address={user.address} ensAvatar={user.avatar} size={30} />
-                      <div className="flex flex-col">
-                        <span className="font-medium">
-                          {user.ensName || truncateAddress(user.address)}
-                        </span>
-                        <span className="text-xs text-muted-foreground">{user.company}</span>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-1">
-                      <span className="font-mono text-sm">{truncateAddress(user.address)}</span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={e => {
-                          e.stopPropagation();
-                          navigator.clipboard.writeText(user.address);
-                        }}>
-                        <Copy className="h-3 w-3" />
-                        <span className="sr-only">Copy address</span>
-                      </Button>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {lastActivity ? (
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`h-6 w-6 rounded-full flex items-center justify-center text-xs ${getActivityColor(lastActivity.type)}`}>
-                          {getActivityIcon(lastActivity.type)}
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-sm line-clamp-1">{lastActivity.description}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {formatDate(lastActivity.timestamp)}
-                          </span>
-                        </div>
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground text-sm">No activity</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <span
-                        className={cn(
-                          'mr-2 h-2 w-2 rounded-full',
-                          isOnline ? 'bg-green-500' : 'bg-gray-400'
-                        )}
-                      />
-                      <span className="text-sm">{isOnline ? 'Online' : 'Offline'}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium">{user.reputation.level}</span>
-                      <span className="text-xs text-muted-foreground">
-                        Score: {user.reputation.score}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      {user.topTokens.slice(0, 2).map((token, i) => (
-                        <div key={i} className="text-xs bg-slate-100 px-2 py-1 rounded">
-                          {token.symbol}
-                        </div>
-                      ))}
-                      {user.topTokens.length > 2 && (
-                        <div className="text-xs bg-slate-100 px-2 py-1 rounded">
-                          +{user.topTokens.length - 2}
-                        </div>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={e => {
-                        e.stopPropagation();
-                        // Handle more options
-                      }}>
-                      <MoreHorizontal className="h-4 w-4" />
-                      <span className="sr-only">More options</span>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+            {paginatedUsers.map(user => (
+              <UserTableItem key={user.id} user={user} handleUserClick={handleUserClick} />
+            ))}
           </TableBody>
         </Table>
       </div>
 
+      {/* Pagination */}
+      <div className="flex items-center justify-between px-6 py-4 border-t">
+        <div className="text-sm text-muted-foreground">
+          Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
+          <span className="font-medium">{Math.min(startIndex + ITEMS_PER_PAGE, totalItems)}</span>{' '}
+          of <span className="font-medium">{totalItems}</span> users
+        </div>
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={prevPage}
+                className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+              />
+            </PaginationItem>
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              // Show pages around current page
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = currentPage - 2 + i;
+              }
+              return (
+                <PaginationItem key={pageNum}>
+                  <PaginationLink
+                    isActive={currentPage === pageNum}
+                    onClick={() => goToPage(pageNum)}
+                    className="cursor-pointer">
+                    {pageNum}
+                  </PaginationLink>
+                </PaginationItem>
+              );
+            })}
+            <PaginationItem>
+              <PaginationNext
+                onClick={nextPage}
+                className={
+                  currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
       {/* User Details Drawer */}
       <ResizableSheet side="right" open={open} onOpenChange={handleCloseUserDetails}>
         {selectedUser && <UserDetails user={selectedUser} />}
       </ResizableSheet>
-    </>
+    </div>
   );
 }
