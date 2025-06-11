@@ -7,7 +7,7 @@ import {
   ReservoirAdapter,
   UniswapSdkAdapter,
 } from '@getgrowly/chainsmith/adapters';
-import { EvmTokenPlugin } from '@getgrowly/chainsmith/plugins';
+import { EvmTokenPlugin, ZerionPortfolioPlugin } from '@getgrowly/chainsmith/plugins';
 import { TChain, TChainName } from '@getgrowly/chainsmith/types';
 import { buildEvmChains } from '@getgrowly/chainsmith/utils';
 
@@ -20,6 +20,9 @@ const ETHERSCAN_BASE_URL = 'https://api.etherscan.io/v2/api';
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || '';
 const RESERVOIR_API_KEY = process.env.RESERVOIR_API_KEY || '';
 
+const ZERION_API_KEY = process.env.ZERION_API_KEY || '';
+const ZERION_API_BASE_URL = 'https://api.zerion.io/v1';
+
 export const AdapterRegistry = {
   Alchemy: new AlchemyAdapter(ALCHEMY_API_KEY, new EvmTokenPlugin()),
   CoinMarketcap: new CoinMarketcapAdapter(COINMARKETCAP_API_BASE_URL, COINMARKETCAP_API_KEY),
@@ -28,6 +31,8 @@ export const AdapterRegistry = {
   Reservoir: new ReservoirAdapter(RESERVOIR_API_KEY),
   Uniswap: new UniswapSdkAdapter(alchemy(ALCHEMY_API_KEY)),
 };
+
+export const zerionPortfolioPlugin = new ZerionPortfolioPlugin(ZERION_API_BASE_URL, ZERION_API_KEY);
 
 export const buildDefaultChains = (chainNames: TChainName[]): TChain[] =>
   buildEvmChains(chainNames, alchemy(ALCHEMY_API_KEY));
