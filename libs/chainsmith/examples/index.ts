@@ -3,6 +3,7 @@ import { Wallets } from '../src/data';
 import type { TAddress, TMarketTokenList, TMultichain } from '../src/types';
 import { AdapterRegistry, buildDefaultChains } from './config';
 import * as OnchainBusterTestSuite from './onchain-buster';
+import * as ZerionPortfolioTestSuite from './zerion-portfolio';
 
 const chains = buildDefaultChains(['base', 'mainnet', 'optimism']);
 const sdk = initChainsmithSdk(chains);
@@ -50,10 +51,14 @@ testExternalities(false, testFetchDexScreenerParis);
 testExternalities(false, testFetchMultichainTokenPortfolio);
 testExternalities(false, testFetchChainlistMetadata);
 // Onchain Buster tests
-testExternalities(true, OnchainBusterTestSuite.testCalculateEvmTxStats);
-testExternalities(true, OnchainBusterTestSuite.testCalculateNftActivityStats);
-testExternalities(true, OnchainBusterTestSuite.testCalculatePortfolioStats);
-testExternalities(true, OnchainBusterTestSuite.testFetchNftTransferActivities);
-testExternalities(true, OnchainBusterTestSuite.testFetchTokenPortfolio);
-testExternalities(true, OnchainBusterTestSuite.testFetchTokenTransferActivities);
-testExternalities(true, OnchainBusterTestSuite.testFindLongestHoldingToken);
+testExternalities(false, OnchainBusterTestSuite.testCalculateEvmTxStats);
+testExternalities(false, OnchainBusterTestSuite.testCalculateNftActivityStats);
+testExternalities(false, OnchainBusterTestSuite.testCalculatePortfolioStats);
+testExternalities(false, OnchainBusterTestSuite.testFetchNftTransferActivities);
+testExternalities(false, OnchainBusterTestSuite.testFetchTokenPortfolio);
+testExternalities(false, OnchainBusterTestSuite.testFetchTokenTransferActivities);
+testExternalities(false, OnchainBusterTestSuite.testFindLongestHoldingToken);
+
+// Zerion Portfolio tests
+testExternalities(true, ZerionPortfolioTestSuite.testFetchZerionTokenPortfolio);
+testExternalities(true, ZerionPortfolioTestSuite.testFetchZerionNftPortfolio);

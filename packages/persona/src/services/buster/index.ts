@@ -1,3 +1,5 @@
+import { PersonaAnalysis } from '@/types';
+
 import {
   TActivityStats,
   TAddress,
@@ -5,41 +7,69 @@ import {
   TChainStats,
   TLongestHoldingToken,
   TMultichain,
-  TNFTActivityStats,
-  TNftTransferActivity,
   TTokenTransferActivity,
 } from '@getgrowly/chainsmith/types';
 import {
   calculateEVMStreaksAndMetrics,
   calculateGasInETH,
-  calculateNFTActivityStats,
   findLongestHoldingToken,
 } from '@getgrowly/chainsmith/utils';
 
 import { EvmChainService } from '../evm';
+import { PersonaClassifierService } from '../persona-classifier';
 
 export class OnchainBusterService {
-  constructor(private evmChainService: EvmChainService) {}
+  private personaClassifier: PersonaClassifierService;
 
+  constructor(private evmChainService: EvmChainService) {
+    this.personaClassifier = new PersonaClassifierService(evmChainService);
+  }
+
+  /**
+   * Get the activity stats for a wallet
+   */
   fetchActivityStats = async (
     addressInput: TAddress,
     chains: TChainName[]
   ): Promise<{
+    // Activity data
     longestHoldingTokenByChain: TLongestHoldingToken[];
     multichainTxs: TMultichain<TTokenTransferActivity[]>;
     chainStats: TChainStats;
     totalGasInETH: number;
     activityStats: TMultichain<TActivityStats>;
+    walletCreationDate: Date;
   }> => {
+    // Fetch all required data in parallel
     const multichainTxs = await this.evmChainService.listMultichainTokenTransferActivities(
       addressInput,
       chains
     );
 
+    // Process token activity data
+    const allTransactions = Object.values(multichainTxs).flat();
+    let walletCreationDate = new Date();
+
+    if (allTransactions.length > 0) {
+      const validTimestamps = allTransactions
+        .map(tx => {
+          const txTimestamp = tx.timestamp || tx.timeStamp;
+          const timestampNum = parseInt(txTimestamp);
+          return timestampNum < 32503680000 ? timestampNum * 1000 : timestampNum;
+        })
+        .filter(timestamp => !isNaN(timestamp) && timestamp > 0);
+
+      if (validTimestamps.length > 0) {
+        const earliestTimestamp = Math.min(...validTimestamps);
+        walletCreationDate = new Date(earliestTimestamp);
+      }
+    }
+
     const totalChains: TChainName[] = Object.keys(multichainTxs) as TChainName[];
     const filteredTransactions = Object.values(multichainTxs)
       .flat()
       .filter(tx => tx.from.toLowerCase() === addressInput.toLowerCase());
+
     const totalGasInETH = filteredTransactions.reduce(
       (acc, curr) =>
         acc + calculateGasInETH(Number.parseInt(curr.gasUsed), Number.parseInt(curr.gasPrice)),
@@ -70,7 +100,6 @@ export class OnchainBusterService {
 
     // Get chain stats
     const noActivityChains = totalChains.filter(chain => multichainTxs[chain]?.length || 0 === 0);
-    // Get unique active day, on most active chain 🫠
     const { uniqueActiveDays } = calculateEVMStreaksAndMetrics(
       multichainTxs[mostActiveChainName] || [],
       addressInput
@@ -83,30 +112,24 @@ export class OnchainBusterService {
       countUniqueDaysActiveChain: uniqueActiveDays,
       countActiveChainTxs: _countActiveChainTxs,
     };
+
     return {
       longestHoldingTokenByChain,
       multichainTxs,
       chainStats,
       totalGasInETH,
       activityStats,
+      walletCreationDate,
     };
   };
 
-  fetchMultichainNftActivity = async (
+  /**
+   * Get the persona classification for a wallet
+   */
+  fetchPersonaAnalysis = async (
     addressInput: TAddress,
     chains: TChainName[]
-  ): Promise<{
-    allNftActivities: TNftTransferActivity[];
-    nftActivityStats: TNFTActivityStats;
-  }> => {
-    const nftActivityData = await this.evmChainService.listMultichainNftTransferActivities(
-      addressInput,
-      chains
-    );
-    const allNftActivities = Object.values(nftActivityData).flat();
-    return {
-      allNftActivities,
-      nftActivityStats: calculateNFTActivityStats(allNftActivities, addressInput),
-    };
+  ): Promise<PersonaAnalysis> => {
+    return this.personaClassifier.analyzeWalletPersona(addressInput, chains);
   };
 }

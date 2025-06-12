@@ -191,7 +191,7 @@ export function calculateNFTActivityStats(
  * @param chain - The blockchain network (e.g., Ethereum, Binance Smart Chain).
  * @param transactions - Array of buy/sell transactions.
  * @param address - The address of the user.
- * @returns The asset with the longest holding duration and the duration in milliseconds.
+ * @returns The asset with the longest holding duration and the duration in seconds.
  */
 export function findLongestHoldingToken(
   chain: TChainName,
