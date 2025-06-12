@@ -1,5 +1,6 @@
 import { Address } from '@/types';
-import { GuildClient } from '@guildxyz/sdk';
+import { GuildMembershipData, GuildRoleData, WalletGuildData } from '@/types/guild';
+import { GuildClient, createGuildClient } from '@guildxyz/sdk';
 import {
   Guild,
   GuildReward,
@@ -11,8 +12,12 @@ import {
   RoleReward,
 } from '@guildxyz/types';
 
-export class GuildXyzService {
-  constructor(private readonly guildClient: GuildClient) {}
+export class GuildXyzClientService {
+  private readonly guildClient: GuildClient;
+
+  constructor() {
+    this.guildClient = createGuildClient('@getgrowly/persona');
+  }
 
   async fetchGuild(guildIdOrUrlName: number | string): Promise<Guild | undefined> {
     return this.guildClient.guild.get(guildIdOrUrlName);
@@ -64,5 +69,71 @@ export class GuildXyzService {
     guildPlatformId: number
   ): Promise<LeaderboardItem> {
     return this.guildClient.user.getRankInGuild(address, guildId, guildPlatformId);
+  }
+}
+
+export class GuildXyzService extends GuildXyzClientService {
+  constructor() {
+    super();
+  }
+
+  async getAggregatedWalletData(walletAddress: Address): Promise<WalletGuildData> {
+    // Fetch user profile
+    const profile = await this.fetchUserProfile(walletAddress);
+    if (!profile) throw new Error('Profile not found');
+
+    const membershipData: Record<number, GuildMembershipData> = {};
+    // Fetch all guild memberships for the address
+    const memberships = await this.fetchUserMembership(walletAddress);
+    for (const membership of memberships) {
+      const guildMembershipData = await this.getGuildMembershipData(
+        walletAddress,
+        membership.guildId
+      );
+      membershipData[membership.guildId] = guildMembershipData;
+    }
+    return {
+      profile,
+      membershipData,
+    };
+  }
+
+  async getGuildRoleData(guildId: number): Promise<Record<number, GuildRoleData>> {
+    const roles = await this.fetchRoleNames(guildId);
+    const roleData: Record<number, GuildRoleData> = {};
+    for (const role of roles) {
+      const rewards = await this.fetchRoleRewards(guildId, role.id);
+      const requirements = await this.fetchRoleRequirements(guildId, role.id);
+      roleData[role.id] = {
+        rewards,
+        requirements,
+        role,
+      };
+    }
+    return roleData;
+  }
+
+  async getGuildMembershipData(
+    walletAddress: Address,
+    guildId: number
+  ): Promise<GuildMembershipData> {
+    const membership = await this.fetchUserGuildMembership(walletAddress, guildId);
+    if (!membership) throw new Error('Membership not found');
+
+    const guild = await this.fetchGuild(guildId);
+    if (!guild) throw new Error('Guild not found');
+
+    const roleData = await this.getGuildRoleData(guildId);
+    const guildRewards = await this.fetchGuildRewards(guildId);
+    const guildPlatformId = 1;
+    const rankInGuild = await this.fetchRankInGuild(walletAddress, guildId, guildPlatformId);
+    return {
+      guild,
+      membership,
+      roleData,
+      guildRewards,
+      guildPlatformId,
+      rankInGuild,
+    };
   }
 }

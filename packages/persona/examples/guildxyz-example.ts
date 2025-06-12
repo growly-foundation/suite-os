@@ -1,10 +1,7 @@
-import { createGuildClient } from '@guildxyz/sdk';
-
-import { GuildXyzService } from '../src/services/guildxyz';
+import { GuildXyzClientService } from '../src/services/guildxyz';
 
 async function main() {
-  const guildClient = createGuildClient('EXAMPLE');
-  const guildService = new GuildXyzService(guildClient);
+  const guildService = new GuildXyzClientService();
   const walletAddress = '0x87CA55485C2cbc6C3fe4fc152b624569467872B0';
 
   try {
