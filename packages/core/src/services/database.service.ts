@@ -11,18 +11,33 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
     return this.supabase.schema('public');
   }
 
-  async getAll(): Promise<Database['public']['Tables'][T]['Row'][]> {
-    const { data, error } = await this.getClient()
-      .from(this.table as string)
-      .select('*')
-      .order('created_at', { ascending: false });
-
+  async getAll(
+    limit?: number,
+    orderBy?: {
+      field: keyof Database['public']['Tables'][T]['Row'];
+      ascending: boolean;
+    }
+  ): Promise<Database['public']['Tables'][T]['Row'][]> {
+    const { data, error } = await this.withLimit(
+      this.withOrderBy(
+        this.getClient()
+          .from(this.table as string)
+          .select('*'),
+        orderBy
+      ),
+      limit
+    );
     if (error) throw error;
     return data!;
   }
 
   async getAllByFields(
-    fields: Partial<Record<keyof Database['public']['Tables'][T]['Row'], string>>
+    fields: Partial<Record<keyof Database['public']['Tables'][T]['Row'], string>>,
+    limit?: number,
+    orderBy?: {
+      field: keyof Database['public']['Tables'][T]['Row'];
+      ascending: boolean;
+    }
   ): Promise<Database['public']['Tables'][T]['Row'][]> {
     const queryBuilder = this.getClient()
       .from(this.table as string)
@@ -31,8 +46,7 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
     for (const [field, value] of Object.entries(fields)) {
       queryBuilder.eq(field, value);
     }
-    const { data, error } = await queryBuilder.order('created_at', { ascending: true });
-
+    const { data, error } = await this.withOrderBy(this.withLimit(queryBuilder, limit), orderBy);
     if (error) throw error;
     return data!;
   }
@@ -49,29 +63,54 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
   }
 
   async getById(id: string): Promise<Database['public']['Tables'][T]['Row'] | null> {
-    const { data, error } = await this.getClient()
+    const queryBuilder = this.getClient()
       .from(this.table as string)
       .select('*')
       .limit(1)
-      .eq('id', id)
-      .single();
-
+      .eq('id', id);
+    const { data, error } = await queryBuilder.single();
     if (error) throw error;
     return data;
   }
 
-  async getManyByIds(ids: string[]): Promise<Database['public']['Tables'][T]['Row'][]> {
-    const { data, error } = await this.getClient()
+  async getManyByIds(
+    ids: string[],
+    limit?: number,
+    orderBy?: {
+      field: keyof Database['public']['Tables'][T]['Row'];
+      ascending: boolean;
+    }
+  ): Promise<Database['public']['Tables'][T]['Row'][]> {
+    const queryBuilder = this.getClient()
       .from(this.table as string)
       .select('*')
       .in('id', ids);
+    const { data, error } = await this.withLimit(this.withOrderBy(queryBuilder, orderBy), limit);
+    if (error) throw error;
+    return data;
+  }
 
+  async getManyByFields(
+    field: keyof Database['public']['Tables'][T]['Row'],
+    values: Database['public']['Tables'][T]['Row'][typeof field][],
+    limit?: number,
+    orderBy?: {
+      field: keyof Database['public']['Tables'][T]['Row'];
+      ascending: boolean;
+    }
+  ): Promise<Database['public']['Tables'][T]['Row'][]> {
+    const queryBuilder = this.getClient()
+      .from(this.table as string)
+      .select('*')
+      .in(field as string, values);
+    const { data, error } = await this.withLimit(this.withOrderBy(queryBuilder, orderBy), limit);
     if (error) throw error;
     return data;
   }
 
   async getOneByFields(
-    fields: Partial<Record<keyof Database['public']['Tables'][T]['Row'], string>>
+    fields: Partial<Record<keyof Database['public']['Tables'][T]['Row'], string>>,
+    limit?: number
   ): Promise<Database['public']['Tables'][T]['Row'] | null> {
     const queryBuilder = this.getClient()
       .from(this.table as string)
@@ -80,8 +119,10 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
     for (const [field, value] of Object.entries(fields)) {
       queryBuilder.eq(field, value);
     }
+    if (limit) {
+      queryBuilder.limit(limit);
+    }
     const { data, error } = await queryBuilder.order('created_at', { ascending: true }).single();
-
     if (error) {
       console.error(error);
       return null;
@@ -139,5 +180,21 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
     const { error } = await queryBuilder;
 
     if (error) throw error;
+  }
+
+  withLimit(q: any, limit?: number) {
+    if (!limit) return q;
+    return q.limit(limit);
+  }
+
+  withOrderBy(
+    q: any,
+    orderBy?: {
+      field: keyof Database['public']['Tables'][T]['Row'];
+      ascending: boolean;
+    }
+  ) {
+    if (!orderBy) return q;
+    return q.order(orderBy.field as string, { ascending: orderBy.ascending });
   }
 }

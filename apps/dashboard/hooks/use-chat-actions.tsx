@@ -44,7 +44,7 @@ export const useChatActions = () => {
     admin,
     conversationStatus,
     selectedAgent,
-    selectedUser,
+    selectedAgentUser: selectedUser,
     setConversationStatus,
     addConversationMessage,
   } = useDashboardState();

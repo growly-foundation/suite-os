@@ -1,6 +1,7 @@
 import './types.d';
 
 // Components.
+export { RenderMessageContent } from './components/messages/index';
 export * from './components/providers/SuiteProvider';
 export * from './components/providers/SuiteProvider.types';
 export * from './components/widgets';

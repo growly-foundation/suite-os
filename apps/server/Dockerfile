@@ -11,6 +11,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 
 # Copy the core and server packages
 COPY packages/core ./packages/core
+COPY packages/persona ./packages/persona
 COPY packages/agents ./packages/agents
 COPY apps/server ./apps/server
 
@@ -19,6 +20,9 @@ RUN pnpm install --frozen-lockfile
 
 # Build core package
 RUN pnpm --filter @getgrowly/core build
+
+# Build persona package
+RUN pnpm --filter @getgrowly/persona build
 
 # Build agents package
 RUN pnpm --filter @getgrowly/agents build
@@ -36,11 +40,13 @@ WORKDIR /app
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/pnpm-workspace.yaml ./
 COPY --from=builder /app/packages/core/package.json ./packages/core/
+COPY --from=builder /app/packages/persona/package.json ./packages/persona/
 COPY --from=builder /app/packages/agents/package.json ./packages/agents/
 COPY --from=builder /app/apps/server/package.json ./apps/server/
 
 # Copy built artifacts
 COPY --from=builder /app/packages/core/dist ./packages/core/dist
+COPY --from=builder /app/packages/persona/dist ./packages/persona/dist
 COPY --from=builder /app/packages/agents/dist ./packages/agents/dist
 COPY --from=builder /app/apps/server/dist ./apps/server/dist
 
