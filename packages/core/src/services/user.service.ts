@@ -40,10 +40,14 @@ export class UserService {
         {
           type: 'receive',
           description: 'Received support payment',
-          timestamp: '1 hour ago',
+          timestamp: new Date().toISOString(),
           value: 0.5,
         },
-        { type: 'send', description: 'Helped user with transaction', timestamp: '3 hours ago' },
+        {
+          type: 'send',
+          description: 'Helped user with transaction',
+          timestamp: new Date().toISOString(),
+        },
       ],
       nfts: [
         {

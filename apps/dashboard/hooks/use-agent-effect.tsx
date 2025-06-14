@@ -22,3 +22,17 @@ export const useAgentUsersEffect = (agentId: string) => {
 
   return { users, selectedUser };
 };
+
+export const useSelectedAgentUsersEffect = () => {
+  const { fetchUsersByAgentId, selectedAgent, agentUsers, agentUserStatus } = useDashboardState();
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (!selectedAgent) return;
+      await fetchUsersByAgentId(selectedAgent.id);
+    };
+    fetchUsers();
+  }, [selectedAgent]);
+
+  return { agentUsers, agentUserStatus };
+};

@@ -2,23 +2,16 @@ import { useEffect } from 'react';
 
 import { useDashboardState } from './use-dashboard';
 
-export const useOrganizationEffect = (organizationId: string) => {
-  const {
-    fetchUsersByOrganizationId,
-    setSelectedAgentUser: setSelectedUser,
-    selectedAgentUser: selectedUser,
-    agentUsers: users,
-  } = useDashboardState();
-
+export const useOrganizationUsersEffect = (organizationId: string) => {
+  const { fetchUsersByOrganizationId, organizationUsers, organizationUserStatus } =
+    useDashboardState();
   useEffect(() => {
-    const fetchUsers = async () => {
-      const users = await fetchUsersByOrganizationId(organizationId);
-      if (users.length > 0) {
-        setSelectedUser(users[0]);
-      }
-    };
-    fetchUsers();
+    fetchUsersByOrganizationId(organizationId);
   }, [organizationId]);
+  return { organizationUsers, organizationUserStatus };
+};
 
-  return { users, selectedUser };
+export const useSelectedOrganizationUsersEffect = () => {
+  const { selectedOrganization } = useDashboardState();
+  return useOrganizationUsersEffect(selectedOrganization?.id || '');
 };

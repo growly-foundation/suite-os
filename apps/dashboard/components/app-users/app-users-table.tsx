@@ -1,6 +1,5 @@
 'use client';
 
-import { mockUsers } from '@/constants/mockUsers';
 import { useState } from 'react';
 
 import { ParsedUser } from '@getgrowly/core';
@@ -13,16 +12,16 @@ import { UserTableItem } from './app-users-table-item';
 
 const ITEMS_PER_PAGE = 15;
 
-export function UsersTable() {
+export function UsersTable({ users }: { users: ParsedUser[] }) {
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<ParsedUser | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Calculate pagination
-  const totalItems = mockUsers.length;
+  const totalItems = users.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedUsers = mockUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const paginatedUsers = users.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const goToPage = (page: number) => {
     setCurrentPage(Math.max(1, Math.min(page, totalPages)));

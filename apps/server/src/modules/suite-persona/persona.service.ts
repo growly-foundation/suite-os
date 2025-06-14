@@ -10,11 +10,11 @@ export class PersonaService {
   constructor(@Inject('SUITE_PERSONA_CLIENT') private readonly personaClient: SuitePersonaClient) {}
 
   async fetchOnchainPersona(walletAddress: Address) {
-    const analysis = await this.personaClient.onchainBuster.fetchActivityStats(
+    const analysis = await this.personaClient.buster.fetchActivityStats(
       walletAddress,
       SUPPORTED_CHAINS
     );
-    const personaAnalysis = await this.personaClient.onchainBuster.fetchPersonaAnalysis(
+    const personaAnalysis = await this.personaClient.buster.fetchPersonaAnalysis(
       walletAddress,
       SUPPORTED_CHAINS
     );

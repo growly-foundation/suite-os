@@ -4,8 +4,9 @@ import { ConfigService } from '@nestjs/config';
 import { EvmChainService, GuildXyzService, OnchainBusterService } from '@getgrowly/persona';
 
 export interface SuitePersonaClient {
-  onchainBuster: OnchainBusterService;
+  buster: OnchainBusterService;
   guildXyz: GuildXyzService;
+  evm: EvmChainService;
 }
 
 export const PersonaProvider: Provider = {
@@ -14,7 +15,8 @@ export const PersonaProvider: Provider = {
   useFactory: () => {
     const evmChainService = new EvmChainService();
     return {
-      onchainBuster: new OnchainBusterService(evmChainService),
+      evm: evmChainService,
+      buster: new OnchainBusterService(evmChainService),
       guildXyz: new GuildXyzService(),
     };
   },
