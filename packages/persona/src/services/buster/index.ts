@@ -7,6 +7,8 @@ import {
   TChainStats,
   TLongestHoldingToken,
   TMultichain,
+  TNftPortfolio,
+  TTokenPortfolio,
   TTokenTransferActivity,
 } from '@getgrowly/chainsmith/types';
 import {
@@ -129,7 +131,14 @@ export class OnchainBusterService {
   fetchPersonaAnalysis = async (
     addressInput: TAddress,
     chains: TChainName[]
-  ): Promise<PersonaAnalysis> => {
+  ): Promise<{
+    analysis: PersonaAnalysis;
+    raw: {
+      tokenPortfolio: TTokenPortfolio;
+      nftPortfolio: TNftPortfolio;
+      tokenActivities: TMultichain<TTokenTransferActivity[]>;
+    };
+  }> => {
     return this.personaClassifier.analyzeWalletPersona(addressInput, chains);
   };
 }

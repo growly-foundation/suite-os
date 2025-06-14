@@ -1,9 +1,12 @@
 import { PaddingLayout } from '@/app/dashboard/layout';
+import { useSelectedAgentUsersEffect } from '@/hooks/use-agent-effect';
 
+import { AnimatedLoadingSmall } from '../animated-components/animated-loading-small';
 import { UsersTable } from '../app-users/app-users-table';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 
 export function AgentUsers() {
+  const { agentUsers, agentUserStatus } = useSelectedAgentUsersEffect();
   return (
     <PaddingLayout>
       <Card>
@@ -16,7 +19,11 @@ export function AgentUsers() {
           </div>
         </CardHeader>
         <CardContent>
-          <UsersTable />
+          {agentUserStatus === 'loading' ? (
+            <AnimatedLoadingSmall />
+          ) : (
+            <UsersTable users={agentUsers} />
+          )}
         </CardContent>
       </Card>
     </PaddingLayout>

@@ -1,7 +1,7 @@
 import moment from 'moment';
 
 export interface Activity {
-  type: 'agent' | 'workflow' | 'team';
+  type: 'agent' | 'workflow' | 'team' | 'user';
   title: string;
   timestamp: string;
   icon: React.ReactNode;

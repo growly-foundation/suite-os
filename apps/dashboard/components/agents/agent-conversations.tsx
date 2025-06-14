@@ -3,27 +3,17 @@
 import { UsersConversationSidebar } from '@/components/app-users/app-user-conversation-sidebar';
 import { UserDetails } from '@/components/app-users/app-user-details';
 import { ConversationArea } from '@/components/conversations/conversation-area';
+import { useAgentUsersEffect } from '@/hooks/use-agent-effect';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { useEffect } from 'react';
 
 import { AggregatedAgent } from '@getgrowly/core';
 
 import { AnimatedLoadingSmall } from '../animated-components/animated-loading-small';
 
 export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
-  const { users, fetchUsersByAgentId, userStatus, selectedUser, setSelectedUser } =
+  const { agentUserStatus: userStatus, setSelectedAgentUser: setSelectedUser } =
     useDashboardState();
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const users = await fetchUsersByAgentId(agent.id);
-      if (users.length > 0) {
-        setSelectedUser(users[0]);
-      }
-    };
-    fetchUsers();
-  }, [agent]);
-
+  const { selectedUser, users } = useAgentUsersEffect(agent.id);
   return (
     <div className="flex w-full overflow-hidden h-[85.2vh]">
       {userStatus === 'loading' ? (

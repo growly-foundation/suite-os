@@ -22,9 +22,16 @@ export class OrganizationService {
       const organization = await this.organizationDatabaseService.getById(organization_id);
       if (!organization) throw new Error('No organization found');
       const workflows = await this.workflowService.getWorkflowsByOrganizationId(organization_id);
-      const agents = await this.agentDatabaseService.getAllByFields({
-        organization_id,
-      });
+      const agents = await this.agentDatabaseService.getAllByFields(
+        {
+          organization_id,
+        },
+        undefined,
+        {
+          field: 'created_at',
+          ascending: false,
+        }
+      );
       aggregatedOrganizations.push({ ...organization, workflows, agents });
     }
     return aggregatedOrganizations;

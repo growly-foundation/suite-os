@@ -39,6 +39,13 @@ export type DashboardAppState = {
   setOrganizations: (organizations: AggregatedOrganization[]) => void;
   createOrganization: (name: string, description: string) => Promise<AggregatedOrganization>;
 
+  // Agent Users
+  organizationUserStatus: StateStatus;
+  organizationUsers: ParsedUser[];
+  fetchUsersByOrganizationId: (organizationId: string) => Promise<ParsedUser[]>;
+  selectedOrganizationUser: ParsedUser | null;
+  setSelectedOrganizationUser: (user: ParsedUser | null) => void;
+
   // Workflows
   workflowStatus: StateStatus;
   organizationWorkflows: AggregatedWorkflow[];
@@ -55,12 +62,12 @@ export type DashboardAppState = {
   selectedAgent: AggregatedAgent | null;
   setSelectedAgent: (agent: AggregatedAgent | null) => void;
 
-  // Users
-  userStatus: StateStatus;
-  users: ParsedUser[];
+  // Agent Users
+  agentUserStatus: StateStatus;
+  agentUsers: ParsedUser[];
   fetchUsersByAgentId: (agentId: string) => Promise<ParsedUser[]>;
-  selectedUser: ParsedUser | null;
-  setSelectedUser: (user: ParsedUser | null) => void;
+  selectedAgentUser: ParsedUser | null;
+  setSelectedAgentUser: (user: ParsedUser | null) => void;
 
   // Messages
   conversationStatus: ConversationStatus;
@@ -92,6 +99,18 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
     }
     set({ selectedOrganization: organization });
   },
+
+  // Organization Users
+  organizationUserStatus: 'idle',
+  organizationUsers: [],
+  fetchUsersByOrganizationId: async (organizationId: string) => {
+    set({ organizationUserStatus: 'loading' });
+    const users = await suiteCore.users.getUsersByOrganizationId(organizationId);
+    set({ organizationUsers: users, organizationUserStatus: 'idle' });
+    return users;
+  },
+  selectedOrganizationUser: null,
+  setSelectedOrganizationUser: (user: ParsedUser | null) => set({ selectedOrganizationUser: user }),
 
   // Agents
   agentStatus: 'idle',
@@ -186,19 +205,19 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
   },
 
   // Users
-  userStatus: 'idle',
-  users: [],
+  agentUserStatus: 'idle',
+  agentUsers: [],
   fetchUsersByAgentId: async (agentId: string) => {
-    set({ userStatus: 'loading' });
+    set({ agentUserStatus: 'loading' });
     const users = await suiteCore.users.getUsersByAgentId(agentId);
     set({
-      users,
-      userStatus: 'idle',
+      agentUsers: users,
+      agentUserStatus: 'idle',
     });
     return users;
   },
-  selectedUser: null,
-  setSelectedUser: (user: ParsedUser | null) => set({ selectedUser: user }),
+  selectedAgentUser: null,
+  setSelectedAgentUser: (user: ParsedUser | null) => set({ selectedAgentUser: user }),
 
   // Conversations
   currentConversationMessages: [],
@@ -212,7 +231,7 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
     try {
       set({ conversationStatus: 'loading' });
       const agent = get().selectedAgent;
-      const user = get().selectedUser;
+      const user = get().selectedAgentUser;
       if (!agent?.id || !user?.id) {
         throw new Error('Agent or user not found');
       }

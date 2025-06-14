@@ -28,7 +28,14 @@ export class PersonaClassifierService {
   async analyzeWalletPersona(
     walletAddress: TAddress,
     chainNames: TChainName[]
-  ): Promise<PersonaAnalysis> {
+  ): Promise<{
+    analysis: PersonaAnalysis;
+    raw: {
+      tokenPortfolio: TTokenPortfolio;
+      nftPortfolio: TNftPortfolio;
+      tokenActivities: TMultichain<TTokenTransferActivity[]>;
+    };
+  }> {
     // Fetch all required data
     const [tokenPortfolio, nftPortfolio, tokenActivities] = await Promise.all([
       this.evmChainService.getWalletTokenPortfolio(walletAddress, chainNames),
@@ -53,9 +60,16 @@ export class PersonaClassifierService {
     ).trait;
 
     return {
-      dominantTrait,
-      traitScores,
-      walletMetrics,
+      analysis: {
+        dominantTrait,
+        traitScores,
+        walletMetrics,
+      },
+      raw: {
+        tokenPortfolio,
+        nftPortfolio,
+        tokenActivities,
+      },
     };
   }
 

@@ -73,7 +73,14 @@ export const WorkflowCard = ({ workflow }: { workflow: AggregatedWorkflow }) => 
         const agentIds = await suiteCore.db.agent_workflows.getAllByFields({
           workflow_id: workflow.id,
         });
-        const agents = await suiteCore.db.agents.getManyByIds(agentIds.map(id => id.agent_id));
+        const agents = await suiteCore.db.agents.getManyByIds(
+          agentIds.map(id => id.agent_id),
+          undefined,
+          {
+            field: 'created_at',
+            ascending: false,
+          }
+        );
         setUsedByAgents(agents);
       } catch (error) {
         console.error(error);

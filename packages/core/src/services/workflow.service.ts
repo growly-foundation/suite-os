@@ -15,9 +15,16 @@ export class WorkflowService {
     try {
       const workflow = await this.workflowDatabaseService.getOneByFields({ id: workflowId });
       if (!workflow) throw new Error('Workflow not found');
-      const steps = await this.stepDatabaseService.getAllByFields({
-        workflow_id: workflow.id,
-      });
+      const steps = await this.stepDatabaseService.getAllByFields(
+        {
+          workflow_id: workflow.id,
+        },
+        undefined,
+        {
+          field: 'index',
+          ascending: true,
+        }
+      );
       return {
         ...workflow,
         steps: steps.map(this.parseStep),
@@ -29,16 +36,30 @@ export class WorkflowService {
   }
 
   async getWorkflowsByAgentId(agent_id: AgentId): Promise<AggregatedWorkflow[]> {
-    const workflows = await this.agentWorkflowsDatabaseService.getAllByFields({
-      agent_id,
-    });
+    const workflows = await this.agentWorkflowsDatabaseService.getAllByFields(
+      {
+        agent_id,
+      },
+      undefined,
+      {
+        field: 'created_at',
+        ascending: false,
+      }
+    );
     const aggregatedWorkflows: AggregatedWorkflow[] = [];
     for (const { workflow_id } of workflows) {
       const workflow = await this.workflowDatabaseService.getOneByFields({ id: workflow_id });
       if (!workflow) throw new Error('Workflow not found');
-      const steps = await this.stepDatabaseService.getAllByFields({
-        workflow_id,
-      });
+      const steps = await this.stepDatabaseService.getAllByFields(
+        {
+          workflow_id,
+        },
+        undefined,
+        {
+          field: 'index',
+          ascending: true,
+        }
+      );
       aggregatedWorkflows.push({
         ...workflow,
         steps: steps.map(this.parseStep),
@@ -50,14 +71,28 @@ export class WorkflowService {
   async getWorkflowsByOrganizationId(
     organization_id: OrganizationId
   ): Promise<AggregatedWorkflow[]> {
-    const workflows = await this.workflowDatabaseService.getAllByFields({
-      organization_id,
-    });
+    const workflows = await this.workflowDatabaseService.getAllByFields(
+      {
+        organization_id,
+      },
+      undefined,
+      {
+        field: 'created_at',
+        ascending: false,
+      }
+    );
     const aggregatedWorkflows: AggregatedWorkflow[] = [];
     for (const workflow of workflows) {
-      const steps = await this.stepDatabaseService.getAllByFields({
-        workflow_id: workflow.id,
-      });
+      const steps = await this.stepDatabaseService.getAllByFields(
+        {
+          workflow_id: workflow.id,
+        },
+        undefined,
+        {
+          field: 'index',
+          ascending: true,
+        }
+      );
       aggregatedWorkflows.push({
         ...workflow,
         steps: steps.map(this.parseStep),

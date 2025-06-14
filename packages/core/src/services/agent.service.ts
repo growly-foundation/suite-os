@@ -64,9 +64,16 @@ export class AgentService {
   }
 
   async getAggregatedAgentsByOrganizationId(organization_id: string): Promise<AggregatedAgent[]> {
-    const agents = await this.agentDatabaseService.getAllByFields({
-      organization_id,
-    });
+    const agents = await this.agentDatabaseService.getAllByFields(
+      {
+        organization_id,
+      },
+      undefined,
+      {
+        field: 'created_at',
+        ascending: false,
+      }
+    );
     const aggregatedAgents: AggregatedAgent[] = [];
     for (const agent of agents) {
       const agentWithWorkflows = await this.getAggregatedAgent(agent.id);
@@ -81,9 +88,16 @@ export class AgentService {
     if (!agent) return null;
 
     // Get workflows
-    const agentWorkflows = await this.agentWorkflowsDatabaseService.getAllByFields({
-      agent_id,
-    });
+    const agentWorkflows = await this.agentWorkflowsDatabaseService.getAllByFields(
+      {
+        agent_id,
+      },
+      undefined,
+      {
+        field: 'created_at',
+        ascending: false,
+      }
+    );
     const workflows: AggregatedWorkflow[] = [];
     for (const { workflow_id } of agentWorkflows) {
       const workflow = await this.workflowService.getWorkflowWithSteps(workflow_id);
@@ -94,9 +108,16 @@ export class AgentService {
     }
 
     // Get resources
-    const agentResources = await this.agentResourcesDatabaseService.getAllByFields({
-      agent_id,
-    });
+    const agentResources = await this.agentResourcesDatabaseService.getAllByFields(
+      {
+        agent_id,
+      },
+      undefined,
+      {
+        field: 'created_at',
+        ascending: false,
+      }
+    );
     const resources: ParsedResource[] = [];
     for (const { resource_id } of agentResources) {
       const resource = await this.resourceDatabaseService.getById(resource_id);
