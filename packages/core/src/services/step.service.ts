@@ -8,9 +8,16 @@ export class StepService {
   async createStep(steps: AggregatedWorkflow['steps'], workflowId: WorkflowId) {
     let index = 0;
     // Existing steps.
-    const existingSteps = await this.stepDatabaseService.getAllByFields({
-      workflow_id: workflowId,
-    });
+    const existingSteps = await this.stepDatabaseService.getAllByFields(
+      {
+        workflow_id: workflowId,
+      },
+      undefined,
+      {
+        field: 'index',
+        ascending: true,
+      }
+    );
     // Delete steps that are no longer in the list.
     for (const step of existingSteps) {
       if (!steps.find(s => s.id === step.id)) {

@@ -61,9 +61,16 @@ export class UserService {
   }
 
   async getUsersByAgentId(agent_id: string): Promise<ParsedUser[]> {
-    const conversations = await this.conversationDatabaseService.getAllByFields({
-      agent_id,
-    });
+    const conversations = await this.conversationDatabaseService.getAllByFields(
+      {
+        agent_id,
+      },
+      undefined,
+      {
+        field: 'created_at',
+        ascending: false,
+      }
+    );
     const users: ParsedUser[] = [];
     for (const conversation of conversations) {
       if (!conversation.user_id) continue;

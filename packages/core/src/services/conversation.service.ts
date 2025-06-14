@@ -30,9 +30,16 @@ export class ConversationService {
     if (!conversation) {
       throw new Error('Conversation not found');
     }
-    return this.messageDatabaseService.getAllByFields({
-      conversation_id: conversation.id,
-    });
+    return this.messageDatabaseService.getAllByFields(
+      {
+        conversation_id: conversation.id,
+      },
+      undefined,
+      {
+        field: 'created_at',
+        ascending: false,
+      }
+    );
   }
 
   async addMessageToConversation({
