@@ -23,6 +23,8 @@ export function ComponentProvider({ children }: ComponentProviderProps) {
     setActiveComponent(null);
   };
 
+  console.log(activeComponent);
+
   return (
     <ComponentContext.Provider value={{ activeComponent, openComponent, closeComponent }}>
       {children}
