@@ -10,6 +10,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 
 # Copy the core and server packages
+COPY libs/chainsmith ./libs/chainsmith
 COPY packages/core ./packages/core
 COPY packages/persona ./packages/persona
 COPY packages/agents ./packages/agents
