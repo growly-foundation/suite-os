@@ -3,5 +3,4 @@ packages:
   - apps/*
   - packages/*
 onlyBuiltDependencies:
-  - sharp
   - supabase
