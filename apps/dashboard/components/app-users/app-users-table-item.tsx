@@ -1,4 +1,4 @@
-import { formatDate, formatNumber } from '@/lib/string.utils';
+import { formatNumber } from '@/lib/string.utils';
 import { MoreHorizontal } from 'lucide-react';
 
 import { ParsedUser } from '@getgrowly/core';
@@ -6,15 +6,21 @@ import { WalletAddress } from '@getgrowly/ui';
 
 import { ActivityIcon } from '../transactions/activity-icon';
 import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
 import { TableCell, TableRow } from '../ui/table';
 import { AppUserAvatarWithStatus } from './app-user-avatar-with-status';
+import { UserBadges } from './app-user-badges';
 
 export const UserTableItem = ({
   user,
   handleUserClick,
+  selected,
+  onCheckedChange,
 }: {
   user: ParsedUser;
   handleUserClick: (user: ParsedUser) => void;
+  selected: boolean;
+  onCheckedChange: (checked: boolean) => void;
 }) => {
   const lastActivity = user.recentActivity[0];
   const totalPortfolioValue = user.tokens.reduce((acc, token) => acc + token.value, 0);
@@ -22,45 +28,44 @@ export const UserTableItem = ({
     <TableRow
       key={user.id}
       className="cursor-pointer hover:bg-slate-50"
-      onClick={() => handleUserClick(user)}>
-      <TableCell className="font-medium">
-        <div className="flex items-center space-x-3">
+      onClick={() => onCheckedChange(!selected)}>
+      <TableCell>
+        <Checkbox
+          className="border-gray-450"
+          checked={selected}
+          onCheckedChange={onCheckedChange}
+        />
+      </TableCell>
+      <TableCell>
+        <div className="flex items-center text-sm space-x-3">
           <AppUserAvatarWithStatus user={user} size={30} />
-          <div className="flex flex-col">
-            <WalletAddress
-              truncate
-              truncateLength={{ startLength: 12, endLength: 4 }}
-              address={user.address}
-            />
-            <span className="text-xs text-muted-foreground">{user.company}</span>
-          </div>
+          <WalletAddress
+            className="text-xs hover:underline"
+            truncate
+            truncateLength={{ startLength: 12, endLength: 4 }}
+            address={user.address}
+            onClick={e => {
+              e.stopPropagation();
+              handleUserClick(user);
+            }}
+          />
         </div>
       </TableCell>
       <TableCell>
-        <span className="text-sm font-medium">${formatNumber(totalPortfolioValue)}</span>
+        <span className="text-xs">${formatNumber(totalPortfolioValue)}</span>
       </TableCell>
       <TableCell>
         {lastActivity ? (
           <div className="flex items-center gap-2">
             <ActivityIcon type={lastActivity.type} />
-            <div className="flex flex-col">
-              <span className="text-sm line-clamp-1">{lastActivity.description}</span>
-              <span className="text-xs text-muted-foreground">
-                {formatDate(lastActivity.timestamp)}
-              </span>
-            </div>
+            <span className="text-sm line-clamp-1">{lastActivity.description}</span>
           </div>
         ) : (
           <span className="text-sm text-muted-foreground">No activity</span>
         )}
       </TableCell>
       <TableCell>
-        <div className="flex flex-col">
-          <span className="text-sm font-medium">{user.reputation.level}</span>
-          <span className="text-xs text-muted-foreground">
-            {formatNumber(user.reputation.score)} points
-          </span>
-        </div>
+        <UserBadges badges={user.reputation.badges} />
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-1">

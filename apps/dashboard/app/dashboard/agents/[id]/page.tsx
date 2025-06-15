@@ -113,23 +113,23 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
         <div className="flex items-center justify-between border-b p-3">
           {!isNewAgent && (
             <TabsList>
-              <TabsTrigger className="text-xs" value="details">
+              <TabsTrigger value="details">
                 <Settings2 className="mr-2 h-4 w-4" />
                 Details
               </TabsTrigger>
-              <TabsTrigger className="text-xs" value="conversations">
+              <TabsTrigger value="conversations">
                 <MessageCircle className="mr-2 h-4 w-4" />
                 Conversations
               </TabsTrigger>
-              <TabsTrigger className="text-xs" value="users">
+              <TabsTrigger value="users">
                 <Users className="mr-2 h-4 w-4" />
                 Users
               </TabsTrigger>
-              <TabsTrigger className="text-xs" value="resources">
+              <TabsTrigger value="resources">
                 <Book className="mr-2 h-4 w-4" />
                 Resources
               </TabsTrigger>
-              <TabsTrigger className="text-xs" value="workflows">
+              <TabsTrigger value="workflows">
                 <Workflow className="mr-2 h-4 w-4" />
                 Workflows
               </TabsTrigger>

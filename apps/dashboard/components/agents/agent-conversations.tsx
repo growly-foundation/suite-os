@@ -23,7 +23,7 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
   const [open, setOpen] = React.useState(false);
 
   return (
-    <div className="flex w-full overflow-hidden h-[85.2vh]">
+    <div className="flex w-full overflow-hidden h-[85.1vh]">
       {userStatus === 'loading' ? (
         <div className="flex w-full items-center justify-center h-full">
           <AnimatedLoadingSmall />

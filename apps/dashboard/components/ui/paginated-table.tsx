@@ -23,6 +23,7 @@ export const PaginatedTable = ({
     goToPage,
     totalPages,
   },
+  className,
 }: {
   header: React.ReactNode;
   content: React.ReactNode;
@@ -36,13 +37,14 @@ export const PaginatedTable = ({
     goToPage: (page: number) => void;
     totalPages: number;
   };
+  className?: string;
 }) => {
   const currentItems = Math.min(startIndex + itemsPerPage, totalItems);
   const showPagination = totalItems > itemsPerPage;
   return (
     <React.Fragment>
-      <div className="rounded-md border">
-        <Table>
+      <div>
+        <Table className={className}>
           <TableHeader>{header}</TableHeader>
           <TableBody>{content}</TableBody>
         </Table>

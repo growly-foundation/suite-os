@@ -1,31 +1,29 @@
-import { PaddingLayout } from '@/app/dashboard/layout';
+import { generateMockUsers } from '@/constants/mockUsers';
 import { useSelectedAgentUsersEffect } from '@/hooks/use-agent-effect';
+import React from 'react';
 
 import { AnimatedLoadingSmall } from '../animated-components/animated-loading-small';
 import { UsersTable } from '../app-users/app-users-table';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { PrimaryButton } from '../buttons/primary-button';
 
 export function AgentUsers() {
   const { agentUsers, agentUserStatus } = useSelectedAgentUsersEffect();
+  const [viewDemo, setViewDemo] = React.useState(false);
+
+  const users = viewDemo ? generateMockUsers(100) : agentUsers;
   return (
-    <PaddingLayout>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle className="text-xl">Agent Users</CardTitle>
-            <CardDescription className="mt-1">
-              List of users interacted with this agent
-            </CardDescription>
+    <React.Fragment>
+      {agentUserStatus === 'loading' ? (
+        <AnimatedLoadingSmall />
+      ) : (
+        <React.Fragment>
+          <div className="flex items-center justify-between border-b p-3">
+            <span className="text-sm text-muted-foreground">There are {users.length} users</span>
+            <PrimaryButton onClick={() => setViewDemo(true)}>View demo</PrimaryButton>
           </div>
-        </CardHeader>
-        <CardContent>
-          {agentUserStatus === 'loading' ? (
-            <AnimatedLoadingSmall />
-          ) : (
-            <UsersTable users={agentUsers} />
-          )}
-        </CardContent>
-      </Card>
-    </PaddingLayout>
+          <UsersTable users={users} />
+        </React.Fragment>
+      )}
+    </React.Fragment>
   );
 }

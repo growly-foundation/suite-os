@@ -65,7 +65,11 @@ export const navigations = [
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   return (
-    <Sidebar variant="inset" collapsible="none" className="h-screen border-r pt-2" {...props}>
+    <Sidebar
+      variant="inset"
+      collapsible="none"
+      className="h-screen border-r bg-gray-50 pt-2"
+      {...props}>
       <SidebarHeader>
         <OrganizationSwitcher />
       </SidebarHeader>
