@@ -1,7 +1,7 @@
 'use client';
 
+import { PaddingLayout } from '@/app/dashboard/layout';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { Workflow } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import React, { useEffect } from 'react';
 
@@ -30,29 +30,29 @@ export default function WorkflowManager() {
   }, [fetchWorkflows, selectedOrganization]);
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Workflow className="h-6 w-6 text-primary" /> Workflows
-        </h1>
+    <React.Fragment>
+      <div className="flex justify-between items-center border-b py-2 px-4">
+        <div className="text-sm text-muted-foreground">There are {workflows.length} workflows</div>
         <NewWorkflowButton />
       </div>
-      {workflowStatus === 'loading' ? (
-        <AnimatedLoadingSmall />
-      ) : (
-        <React.Fragment>
-          {workflows.length > 0 ? (
-            <WorkflowsList workflows={workflows} />
-          ) : (
-            <div className="flex flex-col items-center justify-center">
-              <AnimatedBeamContainer />
-              <br />
-              <h1 className="text-2xl font-bold">No workflows found</h1>
-              <p className="text-muted-foreground">Create a workflow to get started.</p>
-            </div>
-          )}
-        </React.Fragment>
-      )}
-    </div>
+      <PaddingLayout>
+        {workflowStatus === 'loading' ? (
+          <AnimatedLoadingSmall />
+        ) : (
+          <React.Fragment>
+            {workflows.length > 0 ? (
+              <WorkflowsList workflows={workflows} />
+            ) : (
+              <div className="flex flex-col items-center justify-center">
+                <AnimatedBeamContainer />
+                <br />
+                <h1 className="text-2xl font-bold">No workflows found</h1>
+                <p className="text-muted-foreground">Create a workflow to get started.</p>
+              </div>
+            )}
+          </React.Fragment>
+        )}
+      </PaddingLayout>
+    </React.Fragment>
   );
 }

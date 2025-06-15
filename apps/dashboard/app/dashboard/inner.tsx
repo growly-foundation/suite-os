@@ -202,11 +202,13 @@ export default function DashboardInner() {
             <div style={{ width: 100 }}></div>
             <div className="flex items-center gap-2">
               <Link href="/organizations">
-                <Button variant="outline">Switch</Button>
+                <Button variant="outline" size="sm">
+                  Switch
+                </Button>
               </Link>
               <AlertDialog open={openDeleteOrganization} onOpenChange={setOpenDeleteOrganization}>
                 <AlertDialogTrigger asChild>
-                  <Button disabled={loadingDelete} variant="destructive">
+                  <Button disabled={loadingDelete} variant="destructive" size="sm">
                     {loadingDelete ? (
                       <Loader className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
@@ -224,10 +226,13 @@ export default function DashboardInner() {
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter className="flex items-center justify-between">
-                    <AlertDialogCancel onClick={() => setOpenDeleteOrganization(false)}>
+                    <AlertDialogCancel
+                      className="text-xs"
+                      onClick={() => setOpenDeleteOrganization(false)}>
                       Cancel
                     </AlertDialogCancel>
                     <AlertDialogAction
+                      className="text-xs"
                       onClick={async () => {
                         await handleDeleteOrganization();
                         setOpenDeleteOrganization(false);

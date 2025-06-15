@@ -1,5 +1,6 @@
 'use client';
 
+import { PrimaryButton } from '@/components/buttons/primary-button';
 import { AddStepDrawer } from '@/components/steps/add-step-drawer';
 import { StepListView } from '@/components/steps/step-list-view';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,7 @@ import { suiteCore } from '@/core/suite';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
 import { generateId } from '@/lib/utils';
-import { ArrowLeft, Loader2, Plus, Save, Settings } from 'lucide-react';
+import { Loader2, Plus, Save, Settings } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -128,42 +129,27 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
   return (
     <div>
       <Tabs defaultValue="canvas">
-        <div className="flex mt-2 justify-between px-2 py-2 items-center">
+        <div className="flex justify-between px-2 py-2 border-b items-center">
+          <TabsList>
+            <TabsTrigger value="canvas">Canvas</TabsTrigger>
+            <TabsTrigger value="list">Step List</TabsTrigger>
+            <TabsTrigger value="settings">
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
+            </TabsTrigger>
+          </TabsList>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard/workflows')}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-xl font-bold p-0">
-              {isNewWorkflow ? 'New Workflow' : `Edit: ${workflow.name}`}
-            </h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <TabsList>
-              <TabsTrigger value="canvas">Canvas</TabsTrigger>
-              <TabsTrigger value="list">Step List</TabsTrigger>
-              <TabsTrigger value="settings">
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </TabsTrigger>
-            </TabsList>
-            <Button
-              className="rounded-full"
-              variant="outline"
-              onClick={() => setIsAddStepOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
+            <Button variant="outline" size="sm" onClick={() => setIsAddStepOpen(true)}>
+              <Plus className="h-4 w-4" />
               Add Step
             </Button>
-            <Button className="rounded-full" onClick={handleSave} disabled={saving}>
-              {saving ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Save className="mr-2 h-4 w-4" />
-              )}
+            <PrimaryButton onClick={handleSave} disabled={saving}>
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               {saving ? 'Saving...' : 'Save'}
-            </Button>
+            </PrimaryButton>
           </div>
         </div>
-        <TabsContent value="canvas">
+        <TabsContent value="canvas" className="pt-4 px-4">
           <WorkflowCanvas onReset={fetchWorkflow} />
         </TabsContent>
         <TabsContent value="list">

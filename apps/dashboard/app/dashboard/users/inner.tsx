@@ -2,47 +2,54 @@
 
 import { AnimatedLoadingSmall } from '@/components/animated-components/animated-loading-small';
 import { UsersTable } from '@/components/app-users/app-users-table';
+import { PrimaryButton } from '@/components/buttons/primary-button';
 import { SearchInput } from '@/components/inputs/search-input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { generateMockUsers } from '@/constants/mockUsers';
 import { useSelectedOrganizationUsersEffect } from '@/hooks/use-organization-effect';
 import React, { useState } from 'react';
 
-export function UsersInner() {
+import { ParsedUser } from '@getgrowly/core';
+
+export function UserDirectoryLayout({ users, loading }: { users: ParsedUser[]; loading: boolean }) {
+  const [viewDemo, setViewDemo] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const { organizationUsers, organizationUserStatus } = useSelectedOrganizationUsersEffect();
 
   // Filter users
-  const filteredUsers = organizationUsers.filter(
+  const filteredUsers = users.filter(
     user =>
       user.ensName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.address.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const _users = viewDemo ? generateMockUsers(100) : filteredUsers;
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle className="text-xl">Users</CardTitle>
-          <CardDescription className="mt-1">
-            List of all users interacted with agents under the organization.
-          </CardDescription>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {organizationUserStatus === 'loading' ? (
-          <AnimatedLoadingSmall />
-        ) : (
-          <React.Fragment>
-            <SearchInput
-              className="p-2"
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              placeholder="Search ENS or address"
-            />
-            <UsersTable users={filteredUsers} />
-          </React.Fragment>
-        )}
-      </CardContent>
-    </Card>
+    <React.Fragment>
+      {loading ? (
+        <AnimatedLoadingSmall />
+      ) : (
+        <React.Fragment>
+          <div className="flex items-center justify-between border-b p-2 px-4">
+            <span className="text-sm text-muted-foreground">There are {_users.length} users</span>
+            <div className="flex items-center gap-2">
+              <SearchInput
+                className="p-2"
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                placeholder="Search ENS or address"
+              />
+              <PrimaryButton onClick={() => setViewDemo(true)}>View demo</PrimaryButton>
+            </div>
+          </div>
+          <UsersTable users={_users} />
+        </React.Fragment>
+      )}
+    </React.Fragment>
+  );
+}
+
+export function UsersInner() {
+  const { organizationUsers, organizationUserStatus } = useSelectedOrganizationUsersEffect();
+  return (
+    <UserDirectoryLayout users={organizationUsers} loading={organizationUserStatus === 'loading'} />
   );
 }
