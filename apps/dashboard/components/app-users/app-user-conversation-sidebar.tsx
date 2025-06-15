@@ -1,13 +1,12 @@
 'use client';
 
-import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
 import moment from 'moment';
 import { useState } from 'react';
 
 import { ParsedUser } from '@getgrowly/core';
 import { WalletAddress } from '@getgrowly/ui';
 
+import { SearchInput } from '../inputs/search-input';
 import { AppUserAvatarWithStatus } from './app-user-avatar-with-status';
 
 interface UsersListProps {
@@ -27,22 +26,17 @@ export function UsersConversationSidebar({ users, selectedUser, onSelectUser }: 
 
   return (
     <div className="w-[360px] border-r flex flex-col">
-      <div className="p-4 border-b">
-        <div className="flex items-center gap-2">
-          <Search className="h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search ENS or address"
-            className="pl-8 text-sm border-none focus-visible:ring-0 focus-visible:ring-offset-0"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-          />
-        </div>
-      </div>
+      <SearchInput
+        className="p-2 border-b"
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        placeholder="Search ENS or address"
+      />
       <div className="flex-1 overflow-auto">
         {filteredUsers.map(user => (
           <div
             key={user.id}
-            className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-slate-50 ${selectedUser.id === user.id ? 'bg-slate-50' : ''}`}
+            className={`flex items-center gap-3 p-3 border-b cursor-pointer hover:bg-slate-50 ${selectedUser.id === user.id ? 'bg-slate-50' : ''}`}
             onClick={() => onSelectUser(user)}>
             <AppUserAvatarWithStatus user={user} />
             <div className="flex-1 min-w-0">

@@ -5,13 +5,13 @@ import { AgentDetails } from '@/components/agents/agent-details';
 import { AgentResources } from '@/components/agents/agent-resources';
 import { AgentUsers } from '@/components/agents/agent-users';
 import { AgentWorkflows } from '@/components/agents/agent-workflows';
+import { PrimaryButton } from '@/components/buttons/primary-button';
 import { IntegrationGuideDialog } from '@/components/steps/integration-guide-dialog';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { suiteCore } from '@/core/suite';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { ArrowLeft, Code, Loader } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Book, Code, Loader, MessageCircle, Settings2, Users, Workflow } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -26,6 +26,7 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
   const [isIntegrationGuideOpen, setIsIntegrationGuideOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const paramsValue = React.use(params);
+  const searchParams = useSearchParams();
 
   const isNewAgent = paramsValue.id === 'new';
 
@@ -100,36 +101,44 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
     return <></>;
   }
 
+  const handleTabChange = (tab: string) => {
+    router.push(`/dashboard/agents/${paramsValue.id}?tab=${tab}`);
+  };
+
+  const tab = searchParams.get('tab') || 'details';
+
   return (
     <div className="flex flex-col">
-      <Tabs defaultValue="details">
+      <Tabs value={tab} onValueChange={handleTabChange}>
         <div className="flex items-center justify-between border-b p-3">
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard/agents')}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-xl font-bold">
-              {isNewAgent ? 'Create Agent' : `Edit Agent: ${agent.name}`}
-            </h1>
-          </div>
-          <div className="flex items-center gap-2">
-            {!isNewAgent && (
-              <TabsList>
-                <TabsTrigger value="details">Details</TabsTrigger>
-                <TabsTrigger value="conversations">Conversations</TabsTrigger>
-                <TabsTrigger value="users">Users</TabsTrigger>
-                <TabsTrigger value="resources">Resources</TabsTrigger>
-                <TabsTrigger value="workflows">Workflows</TabsTrigger>
-              </TabsList>
-            )}
-            <Button
-              className="rounded-full"
-              variant="outline"
-              onClick={() => setIsIntegrationGuideOpen(true)}>
-              <Code className="mr-2 h-4 w-4" />
-              Integration Guide
-            </Button>
-          </div>
+          {!isNewAgent && (
+            <TabsList>
+              <TabsTrigger value="details">
+                <Settings2 className="mr-2 h-4 w-4" />
+                Details
+              </TabsTrigger>
+              <TabsTrigger value="conversations">
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Conversations
+              </TabsTrigger>
+              <TabsTrigger value="users">
+                <Users className="mr-2 h-4 w-4" />
+                Users
+              </TabsTrigger>
+              <TabsTrigger value="resources">
+                <Book className="mr-2 h-4 w-4" />
+                Resources
+              </TabsTrigger>
+              <TabsTrigger value="workflows">
+                <Workflow className="mr-2 h-4 w-4" />
+                Workflows
+              </TabsTrigger>
+            </TabsList>
+          )}
+          <PrimaryButton className="rounded-full" onClick={() => setIsIntegrationGuideOpen(true)}>
+            <Code className="mr-2 h-4 w-4" />
+            Integration Guide
+          </PrimaryButton>
         </div>
         <TabsContent value="details">
           <AgentDetails agent={agent} onSave={handleAgentUpdate} />

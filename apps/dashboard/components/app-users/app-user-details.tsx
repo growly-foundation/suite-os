@@ -17,6 +17,7 @@ import { WalletAddress } from '@getgrowly/ui';
 
 import { ActivityIcon } from '../transactions/activity-icon';
 import { AppUserAvatarWithStatus } from './app-user-avatar-with-status';
+import { UserBadges } from './app-user-badges';
 
 interface UserDetailsProps {
   user: ParsedUser;
@@ -163,13 +164,7 @@ export function UserDetails({ user }: UserDetailsProps) {
         {/* Reputation Badges */}
         <div className="p-4 bg-white">
           <h4 className="text-sm font-semibold mb-3">Reputation Badges</h4>
-          <div className="flex flex-wrap gap-2">
-            {user.reputation.badges.map((badge, index) => (
-              <Badge key={index} variant="outline" className="text-xs">
-                {badge}
-              </Badge>
-            ))}
-          </div>
+          <UserBadges badges={user.reputation.badges} showAll />
         </div>
       </div>
     </React.Fragment>

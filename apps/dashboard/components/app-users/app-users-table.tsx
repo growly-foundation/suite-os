@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import { ParsedUser } from '@getgrowly/core';
 
+import { Checkbox } from '../ui/checkbox';
 import { PaginatedTable } from '../ui/paginated-table';
 import { ResizableSheet } from '../ui/resizable-sheet';
 import { TableHead, TableRow } from '../ui/table';
@@ -16,6 +17,7 @@ export function UsersTable({ users }: { users: ParsedUser[] }) {
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<ParsedUser | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedUsers, setSelectedUsers] = useState<Record<string, boolean>>({});
 
   // Calculate pagination
   const totalItems = users.length;
@@ -47,18 +49,51 @@ export function UsersTable({ users }: { users: ParsedUser[] }) {
   return (
     <div>
       <PaginatedTable
+        className="border-b"
         header={
           <TableRow>
+            <TableHead className="w-[50px]">
+              <Checkbox
+                className="border-gray-450"
+                checked={Object.values(selectedUsers).some(Boolean)}
+                onCheckedChange={checked => {
+                  if (checked) {
+                    setSelectedUsers(
+                      users.reduce(
+                        (acc, user) => {
+                          acc[user.id] = true;
+                          return acc;
+                        },
+                        {} as Record<string, boolean>
+                      )
+                    );
+                  } else {
+                    setSelectedUsers({});
+                  }
+                }}
+              />
+            </TableHead>
             <TableHead className="w-[100px]">User</TableHead>
             <TableHead>Portfolio Value</TableHead>
             <TableHead>Activity</TableHead>
-            <TableHead>Reputation</TableHead>
+            <TableHead>Badges</TableHead>
             <TableHead>Tokens</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         }
         content={paginatedUsers.map(user => (
-          <UserTableItem key={user.id} user={user} handleUserClick={handleUserClick} />
+          <UserTableItem
+            key={user.id}
+            user={user}
+            handleUserClick={handleUserClick}
+            selected={selectedUsers[user.id] || false}
+            onCheckedChange={checked => {
+              setSelectedUsers({
+                ...selectedUsers,
+                [user.id]: checked,
+              });
+            }}
+          />
         ))}
         pagination={{
           startIndex,

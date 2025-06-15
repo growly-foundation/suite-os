@@ -25,9 +25,9 @@ export const WorkflowSmallCard = ({
         e.stopPropagation();
         onClick(workflow);
       }}>
-      <WorkflowIcon className="h-6 w-6" />
+      <WorkflowIcon className="h-5 w-5 text-muted-foreground" />
       <div>
-        <div className="font-medium">{workflow.name}</div>
+        <div className="font-medium text-sm">{workflow.name}</div>
         <div className="text-xs text-muted-foreground mt-1">
           {workflow.description || 'No description'}
         </div>

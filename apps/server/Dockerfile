@@ -18,16 +18,11 @@ COPY apps/server ./apps/server
 # Install dependencies
 RUN pnpm install --frozen-lockfile
 
-# Build core package
-RUN pnpm --filter @getgrowly/core build
-
-# Build persona package
+# Build libraries & packages
+RUN pnpm --filter @getgrowly/chainsmith build
 RUN pnpm --filter @getgrowly/persona build
-
-# Build agents package
+RUN pnpm --filter @getgrowly/core build
 RUN pnpm --filter @getgrowly/agents build
-
-# Build server package
 RUN pnpm --filter @getgrowly/server build
 
 # Production stage
@@ -39,14 +34,17 @@ WORKDIR /app
 # Copy package.json files
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/pnpm-workspace.yaml ./
-COPY --from=builder /app/packages/core/package.json ./packages/core/
+
+COPY --from=builder /app/libs/chainsmith/package.json ./libs/chainsmith/
 COPY --from=builder /app/packages/persona/package.json ./packages/persona/
+COPY --from=builder /app/packages/core/package.json ./packages/core/
 COPY --from=builder /app/packages/agents/package.json ./packages/agents/
 COPY --from=builder /app/apps/server/package.json ./apps/server/
 
 # Copy built artifacts
-COPY --from=builder /app/packages/core/dist ./packages/core/dist
+COPY --from=builder /app/libs/chainsmith/dist ./libs/chainsmith/dist
 COPY --from=builder /app/packages/persona/dist ./packages/persona/dist
+COPY --from=builder /app/packages/core/dist ./packages/core/dist
 COPY --from=builder /app/packages/agents/dist ./packages/agents/dist
 COPY --from=builder /app/apps/server/dist ./apps/server/dist
 

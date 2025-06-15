@@ -11,13 +11,13 @@ import { agentModelMap } from '@/constants/agents';
 import { suiteCore } from '@/core/suite';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { truncateString } from '@/lib/utils';
-import { Cpu, FileText, Loader, MoreHorizontal, Power } from 'lucide-react';
+import { Cpu, Loader, MoreHorizontal, Power, User2 } from 'lucide-react';
 import moment from 'moment';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
-import { Agent, AggregatedAgent, Status } from '@getgrowly/core';
+import { Agent, AggregatedAgent, ParsedUser, Status } from '@getgrowly/core';
 
 import { Skeleton } from '../ui/skeleton';
 import { AgentModelCard } from './agent-model-card';
@@ -27,6 +27,7 @@ export const AgentCard = ({ agent }: { agent: Agent }) => {
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [loadingDuplicate, setLoadingDuplicate] = useState(false);
   const [agentDetails, setAgentDetails] = useState<AggregatedAgent | null>(null);
+  const [agentUsers, setAgentUsers] = useState<ParsedUser[]>([]);
 
   const { selectedOrganization, fetchOrganizationAgents, fetchOrganizationAgentById } =
     useDashboardState();
@@ -37,6 +38,8 @@ export const AgentCard = ({ agent }: { agent: Agent }) => {
         setLoading(true);
         const agentDetails = await suiteCore.agents.getAggregatedAgent(agent.id);
         setAgentDetails(agentDetails);
+        const agentUsers = await suiteCore.users.getUsersByAgentId(agent.id);
+        setAgentUsers(agentUsers);
       } catch (error) {
         console.error('Failed to fetch agent details:', error);
       } finally {
@@ -79,7 +82,7 @@ export const AgentCard = ({ agent }: { agent: Agent }) => {
 
   return (
     <Link href={`/dashboard/agents/${agent.id}`} className="w-full">
-      <Card key={agent.id} className="overflow-hidden transition-all hover:shadow-lg shadow-md">
+      <Card key={agent.id} className="overflow-hidden transition-all hover:shadow-md">
         {!loading && agentDetails ? (
           <CardContent className="p-6 pt-3">
             <div className="flex justify-between items-start mb-4">
@@ -117,26 +120,31 @@ export const AgentCard = ({ agent }: { agent: Agent }) => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <p className="text-sm text-muted-foreground line-clamp-2 mb-4 h-[50px]">
+            <p className="text-xs text-muted-foreground line-clamp-2 mb-4 h-[50px]">
               {truncateString(agent.description || '', 100) || 'No description provided'}
             </p>
             <div className="grid grid-cols-3 gap-2 mb-4">
-              <div className="flex flex-col items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 p-2">
-                <Power className="h-4 w-4 mb-1 text-muted-foreground" />
-                <span className="text-xs font-medium">
-                  {agentDetails?.status === Status.Active ? 'Active' : 'Inactive'}
-                </span>
-              </div>
-              <div className="flex flex-col items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 p-2">
-                <FileText className="h-4 w-4 mb-1 text-muted-foreground" />
-                <span className="text-xs font-medium">{agentDetails?.workflows.length} Flows</span>
-              </div>
-              <div className="flex flex-col items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 p-2">
-                <Cpu className="h-4 w-4 mb-1 text-muted-foreground" />
-                <span className="text-xs font-medium">
-                  {agentDetails?.resources.length} Resources
-                </span>
-              </div>
+              {[
+                {
+                  icon: <Power className="h-4 w-4 mb-1 text-muted-foreground" />,
+                  label: agentDetails?.status === Status.Active ? 'Active' : 'Inactive',
+                },
+                {
+                  icon: <User2 className="h-4 w-4 mb-1 text-muted-foreground" />,
+                  label: `${agentUsers.length} users`,
+                },
+                {
+                  icon: <Cpu className="h-4 w-4 mb-1 text-muted-foreground" />,
+                  label: `${agentDetails?.resources.length} resources`,
+                },
+              ].map((item, index) => (
+                <div
+                  key={index}
+                  className="flex flex-col items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 p-2">
+                  {item.icon}
+                  <span className="text-xs font-medium">{item.label}</span>
+                </div>
+              ))}
             </div>
             <div className="flex items-center gap-2">
               {agentModelMap[agentDetails?.model] && (
