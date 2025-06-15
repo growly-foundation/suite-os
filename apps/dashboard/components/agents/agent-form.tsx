@@ -15,13 +15,14 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { availableModels } from '@/constants/agents';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { Loader, PlusCircle, X } from 'lucide-react';
+import { Loader, PlusCircle, SaveIcon, X } from 'lucide-react';
 import type React from 'react';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { AggregatedAgent, Status, Workflow } from '@getgrowly/core';
 
+import { PrimaryButton } from '../buttons/primary-button';
 import { WorkflowSmallCard } from '../workflows/workflow-small-card';
 import { AgentModelCard } from './agent-model-card';
 
@@ -154,7 +155,7 @@ export function AgentForm({ formData, setFormData, onSave }: AgentFormProps) {
             checked={formData.status === Status.Active}
             onCheckedChange={handleStatusChange}
           />
-          <Label htmlFor="status" className="font-medium">
+          <Label htmlFor="status" className="font-medium text-xs">
             {formData.status === Status.Active ? 'Active' : 'Inactive'}
           </Label>
           <span className="text-xs text-muted-foreground ml-2">
@@ -164,7 +165,6 @@ export function AgentForm({ formData, setFormData, onSave }: AgentFormProps) {
           </span>
         </div>
       </div>
-
       <br />
       <div className="space-y-4">
         <div>
@@ -231,13 +231,17 @@ export function AgentForm({ formData, setFormData, onSave }: AgentFormProps) {
       </div>
       <br />
       <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline" onClick={() => window.history.back()}>
+        <Button size="sm" type="button" variant="outline" onClick={() => window.history.back()}>
           Cancel
         </Button>
-        <Button type="submit" onClick={handleSubmit} disabled={isSaving || !formData.name}>
+        <PrimaryButton type="submit" onClick={handleSubmit} disabled={isSaving || !formData.name}>
+          {isSaving ? (
+            <Loader className="ml-2 h-4 w-4 animate-spin" />
+          ) : (
+            <SaveIcon className="h-4 w-4" />
+          )}
           {isSaving ? 'Saving...' : 'Save Agent'}
-          {isSaving && <Loader className="ml-2 h-4 w-4 animate-spin" />}
-        </Button>
+        </PrimaryButton>
       </div>
     </div>
   );

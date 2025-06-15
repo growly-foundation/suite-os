@@ -139,9 +139,13 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
           </div>
           <div className="flex items-center gap-2">
             <TabsList>
-              <TabsTrigger value="canvas">Canvas</TabsTrigger>
-              <TabsTrigger value="list">Step List</TabsTrigger>
-              <TabsTrigger value="settings">
+              <TabsTrigger className="text-xs" value="canvas">
+                Canvas
+              </TabsTrigger>
+              <TabsTrigger className="text-xs" value="list">
+                Step List
+              </TabsTrigger>
+              <TabsTrigger className="text-xs" value="settings">
                 <Settings className="mr-2 h-4 w-4" />
                 Settings
               </TabsTrigger>

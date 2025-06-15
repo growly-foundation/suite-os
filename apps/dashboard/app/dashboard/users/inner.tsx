@@ -2,10 +2,9 @@
 
 import { AnimatedLoadingSmall } from '@/components/animated-components/animated-loading-small';
 import { UsersTable } from '@/components/app-users/app-users-table';
+import { SearchInput } from '@/components/inputs/search-input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { useSelectedOrganizationUsersEffect } from '@/hooks/use-organization-effect';
-import { Search } from 'lucide-react';
 import React, { useState } from 'react';
 
 export function UsersInner() {
@@ -34,17 +33,12 @@ export function UsersInner() {
           <AnimatedLoadingSmall />
         ) : (
           <React.Fragment>
-            <div className="p-4">
-              <div className="flex items-center gap-2">
-                <Search className="h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search ENS or address"
-                  className="pl-8 text-sm border-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
+            <SearchInput
+              className="p-2"
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              placeholder="Search ENS or address"
+            />
             <UsersTable users={filteredUsers} />
           </React.Fragment>
         )}

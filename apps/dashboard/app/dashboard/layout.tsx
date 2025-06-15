@@ -57,7 +57,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <React.Fragment key={index}>
                     <BreadcrumbItem
                       key={index}
-                      className={cn(index === breadcrumbs.length - 1 && 'font-bold')}
+                      className={cn(
+                        'cursor-pointer hover:underline',
+                        index === breadcrumbs.length - 1 && 'font-bold'
+                      )}
                       onClick={() => {
                         router.push(breadcrumb.href);
                       }}>
