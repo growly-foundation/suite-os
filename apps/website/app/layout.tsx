@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { GeistMono } from 'geist/font/mono';
 import { GeistSans } from 'geist/font/sans';
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import type React from 'react';
 
 import '@getgrowly/suite/styles.css';
@@ -14,7 +15,7 @@ import './globals.css';
 import { AppInner } from './inner';
 
 export const metadata: Metadata = {
-  title: 'Growly Suite | Empower DeFi Adoption with AI-powered Engine',
+  title: 'Suite | Create Growth That Lasts.',
   description:
     'Enterprise-grade AI platform with LLM conversations, customizable agents, secure knowledge base, and MCP server support for businesses and government agencies.',
   keywords:
@@ -49,7 +50,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://getgrowly.app',
-    title: 'Growly Suite | Empower DeFi Adoption with AI-powered Engine',
+    title: 'Suite | Create Growth That Lasts.',
     description:
       'Enterprise-grade AI platform with advanced security, customization, and control for businesses and government agencies.',
     siteName: 'Growly Suite',
@@ -64,7 +65,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Growly Suite | Empower DeFi Adoption with AI-powered Engine',
+    title: 'Suite | Create Growth That Lasts.',
     description: 'Enterprise-grade AI platform with advanced security, customization, and control.',
     images: ['https://getgrowly.app/banners/suite-preview-banner.png'],
   },
@@ -78,6 +79,21 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Google Analytics Measurement ID */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-EK55XN1XT5"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-EK55XN1XT5');
+          `}
+        </Script>
+      </head>
       <body
         className={cn(
           'min-h-screen bg-background antialiased',

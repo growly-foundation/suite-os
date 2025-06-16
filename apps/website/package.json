@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",
+    "@faker-js/faker": "^9.8.0",
+    "@getgrowly/core": "workspace:*",
     "@getgrowly/suite": "workspace:*",
     "@getgrowly/ui": "workspace:*",
     "@hookform/resolvers": "^3.9.1",
@@ -55,6 +57,7 @@
     "next-themes": "latest",
     "pino-pretty": "^13.0.0",
     "react": "^19.1.0",
+    "react-countup": "^6.5.3",
     "react-day-picker": "8.10.1",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.54.1",

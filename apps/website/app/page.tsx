@@ -3,29 +3,41 @@
 import IntentSuggestion from '@/components/defi/intent-suggestion';
 import KnowYourDapp from '@/components/defi/kyd';
 import Persona from '@/components/defi/persona';
-import FeaturesSection from '@/components/features-section';
 import Footer from '@/components/footer';
 import Navbar from '@/components/navbar';
 import StructuredData from '@/components/structured-data';
-import TechStack from '@/components/tech-stack';
-import TypingPromptInput from '@/components/typing-prompt-input';
-import { Button } from '@/components/ui/button';
-import UseCasesDefi from '@/components/use-cases-defi';
 import DemoInstallationSection from '@/components/widget-installation-section';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
-import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import CountUp from 'react-countup';
 
 import { GrowlyComponent } from '@getgrowly/suite';
-import { BusterState, FramerSpotlight, GridBackground } from '@getgrowly/ui';
+import { AnimatedBusterLoading } from '@getgrowly/ui';
 
-const AnimatedBuster = dynamic(() => import('@getgrowly/ui').then(suite => suite.AnimatedBuster), {
-  ssr: false,
-});
+import { Hero } from './hero';
+
+const CURRENT_ETHEREUM_WALLET_COUNT = 323452456;
+
+export function AnimatedLine() {
+  return (
+    <div
+      className="flex items-center justify-center rotate-90 relative"
+      style={{ marginTop: 0, marginBottom: 50, height: '150px' }} // adjust height if needed
+    >
+      {/* Line */}
+      <div className="w-36 h-[2px] bg-gradient-to-r from-transparent to-gray-400 shadow-md rounded-full" />
+
+      {/* Dot */}
+      <div
+        className="absolute w-2 h-2 bg-gray-400 rounded-full"
+        style={{
+          animation: 'move-down 1.5s linear infinite',
+        }}
+      />
+    </div>
+  );
+}
 
 export default function Home() {
-  const [state, setState] = useState<BusterState>('idle');
   return (
     <>
       <StructuredData />
@@ -33,102 +45,95 @@ export default function Home() {
         <Navbar />
 
         {/* Hero Section */}
-        <section
-          id="hero"
-          className="relative min-h-screen flex items-center justify-center overflow-hidden">
-          <GridBackground />
-          <FramerSpotlight />
+        <Hero />
+
+        {/* Built with your familiar tech stack */}
+        {/* <TechStack /> */}
+
+        {/* Features Section */}
+        {/* <FeaturesSection /> */}
+
+        <section id="flow" className="w-full overflow-hidden">
           <div className="container px-4 md:px-6 py-16 md:py-20">
-            <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
-              <AnimatedBuster
-                state={state}
-                className="shadow-2xl cursor-pointer hover:scale-110 hover:rotate-6 transition-all duration-300 hover:animate-spin"
-                style={{ borderRadius: '50%', width: '200px', height: '200px', marginBottom: 35 }}
+            <div className="flex flex-col space-y-4 items-center justify-center text-center max-w-3xl mx-auto">
+              <motion.h2
+                className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}>
+                Understand onchain user personas
+              </motion.h2>
+              <motion.p
+                className="text-muted-foreground md:text-xl"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                viewport={{ once: true }}>
+                Onboarding new users in Web3.0 is hard due to the anonymity of users.
+              </motion.p>
+              <img
+                src="/banners/anonymous-wallet-banner.png"
+                style={{
+                  marginTop: 50,
+                  maxWidth: '1000px',
+                  height: 'auto',
+                  objectFit: 'cover',
+                }}
               />
-              <div className="inline-block rounded-lg bg-muted px-3 py-1 text-lg mb-6">
-                Suite is in Beta and open for feedback
-              </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter mb-6">
-                Empower DeFi Adoption with AI-powered Engine
-              </h1>
-              <p className="text-xl text-muted-foreground md:text-2xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed max-w-2xl mb-12">
-                Focus on shipping great products, we’ll handle the connection between your users and
-                your app
-              </p>
-
-              <TypingPromptInput />
-
-              <div className="flex flex-wrap justify-center gap-3 mt-16">
-                <Button
-                  onClick={() => (window.location.href = 'https://suite.getgrowly.app')}
-                  className="flex items-center gap-3 px-5 py-6 h-[60px] bg-primary hover:bg-primary/90 text-white rounded-xl border-0 dark:bg-primary dark:hover:bg-primary/90 dark:shadow-[0_0_15px_rgba(36,101,237,0.5)] relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/30 to-primary/0 dark:opacity-30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%]"></div>
-                  <ArrowRight />
-                  <div className="flex flex-col items-start relative z-10">
-                    <span
-                      className="text-[20px] font-bold"
-                      onMouseEnter={() => setState('hover')}
-                      onMouseLeave={() => setState('idle')}>
-                      Set up in minutes
-                    </span>
-                  </div>
-                </Button>
-              </div>
+              <motion.h3
+                className="text-2xl tracking-tighter sm:text-4xl md:text-5xl"
+                style={{ marginTop: -100 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}>
+                There are{' '}
+                <CountUp
+                  className="text-primary"
+                  enableScrollSpy
+                  end={CURRENT_ETHEREUM_WALLET_COUNT}
+                  duration={2}
+                  separator=","
+                />{' '}
+                wallets on Ethereum mainnet.
+              </motion.h3>
             </div>
           </div>
         </section>
-        {/* Built with your familiar tech stack */}
-        <TechStack />
 
-        {/* Features Section */}
-        <FeaturesSection />
+        <div
+          className="flex items-center justify-center rotate-90"
+          style={{ marginTop: 0, marginBottom: 90 }}>
+          <div className="w-36 h-[2px] bg-gradient-to-r from-transparent to-primary/50 shadow-md rounded-full" />
+        </div>
+
+        <div className="flex flex-wrap space-4 items-center justify-center border py-10">
+          <AnimatedBusterLoading width={200} height={200} />
+          <h1 className="text-4xl font-bold text-primary tracking-tighter sm:text-3xl md:text-4xl">
+            Analyzing Onchain Data...
+          </h1>
+        </div>
+
+        <div
+          className="flex items-center justify-center rotate-90"
+          style={{ marginTop: 70, marginBottom: 50 }}>
+          <div className="w-36 h-[2px] bg-gradient-to-r from-transparent to-primary/50 shadow-md rounded-full" />
+          <div className="w-5 h-5 bg-primary rounded-full shadow-md" />
+        </div>
 
         {/* Installation Section */}
         <DemoInstallationSection />
 
+        <div
+          className="flex items-center justify-center rotate-90"
+          style={{ marginTop: 20, marginBottom: 50 }}>
+          <div className="w-36 h-[2px] bg-gradient-to-r from-transparent to-primary/50 shadow-md rounded-full" />
+          <div className="w-5 h-5 bg-primary rounded-full shadow-md" />
+        </div>
+
         {/* Key Feature Banner */}
-        <section
-          id="features"
-          className="relative min-h-screen flex items-center justify-center overflow-hidden py-20"
-          aria-labelledby="features-heading">
-          <GridBackground />
-          <FramerSpotlight />
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center mb-20">
-              <div className="space-y-2">
-                <h2
-                  id="features-heading"
-                  className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                  Suite Dashboard for AI Agents Management
-                </h2>
-                <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-                  Manage your AI agents and workflows in one place with our user-friendly interface.
-                </p>
-              </div>
-            </div>
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-              className="relative mx-auto max-w-5xl">
-              <img
-                src="/graphics/buster-mascot-3d.png"
-                className="max-sm:hidden absolute object-cover w-[140px] h-[140px] md:w-[180px] md:h-[180px] lg:w-[220px] lg:h-[220px] left-[-30px] md:left-[-50px] lg:left-[-80px] bottom-[-40px] md:bottom-[-60px] lg:bottom-[-80px] rotate-[15deg] hover:rotate-[-10deg] transition-all duration-300 cursor-pointer"
-              />
-              <div className="rounded-3xl overflow-hidden shadow-2xl border border-border/40 bg-gradient-to-b from-background to-muted/20">
-                <video
-                  src="/videos/workflow-guide.mp4"
-                  width={1480}
-                  height={720}
-                  autoPlay
-                  loop
-                  muted
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </motion.div>
-          </div>
-        </section>
+        {/* <KeyFeature/> */}
 
         {/* DeFi Specialization */}
         <section
@@ -189,7 +194,7 @@ export default function Home() {
         </section>
 
         {/* DeFi Use Cases */}
-        <UseCasesDefi />
+        {/* <UseCasesDefi /> */}
         <Footer />
       </div>
     </>

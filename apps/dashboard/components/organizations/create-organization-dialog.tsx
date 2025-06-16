@@ -33,7 +33,7 @@ export const CreateOrganizationDialog = () => {
       setLoading(false);
       setIsDialogOpen(false);
       toast.success('Organization created successfully');
-      router.push(`/dashboard/${organization.id}`);
+      router.push(`/dashboard`);
     } catch (error) {
       console.error(error);
       toast.error('Failed to create organization');
