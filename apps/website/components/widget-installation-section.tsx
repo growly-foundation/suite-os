@@ -134,12 +134,12 @@ export const Provider = ({ children }: { children: React.ReactNode }) => {
           {/* Video Demo Section */}
           <div className="flex flex-col space-y-4">
             <motion.h2
-              className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl"
+              className="text-3xl font-bold tracking-tighter sm:text-3xl md:text-3xl"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}>
-              See it in action
+              Conversational AI for DeFi
             </motion.h2>
             <motion.p
               className="text-muted-foreground md:text-xl"
@@ -147,16 +147,17 @@ export const Provider = ({ children }: { children: React.ReactNode }) => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
               viewport={{ once: true }}>
-              Watch how Suite seamlessly integrates with your DeFi application
+              Watch how Suite seamlessly integrates with your DeFi application.
             </motion.p>
             <motion.div
-              className="overflow-hidden rounded-3xl"
+              className="overflow-hidden"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
               viewport={{ once: true }}>
               <video
                 src="/videos/widget-guide.mp4"
+                className="rounded-2xl"
                 style={{ marginTop: 20 }}
                 height={'100%'}
                 autoPlay
@@ -167,22 +168,22 @@ export const Provider = ({ children }: { children: React.ReactNode }) => {
           </div>
           {/* Installation Steps Section */}
           <div className="flex flex-col space-y-6">
-            <div className="flex justify-between space-y-6">
-              <div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
-                  Quick Installation
-                </h2>
-                <p className="text-muted-foreground mt-3">
-                  Get up and running in minutes with these simple steps
-                </p>
-              </div>
-              <div>
-                <div className="flex flex-wrap gap-4 pt-2">
-                  <Button disabled>
-                    <BookOpen className="mr-2 h-4 w-4" /> View Documentation
+            <div>
+              <div className="flex justify-between items-center justify-center space-y-6">
+                <div>
+                  <h2 className="text-3xl font-bold tracking-tighter sm:text-3xl">
+                    Quick Installation
+                  </h2>
+                </div>
+                <div className="flex items-center justify-center" style={{ marginTop: 0 }}>
+                  <Button disabled className="text-sm">
+                    <BookOpen className="h-4 w-4" /> Docs
                   </Button>
                 </div>
               </div>
+              <p className="text-muted-foreground mt-3">
+                Get up and running in minutes with these simple steps
+              </p>
             </div>
             <div className="space-y-8">
               {/* Step 1 */}

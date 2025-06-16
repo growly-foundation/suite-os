@@ -16,7 +16,7 @@ export function ArcadeEmbed() {
       }}>
       <iframe
         src="https://demo.arcade.software/KsZvvHJgcbealKDHzwdA?embed&embed_mobile=inline&embed_desktop=inline&show_copy_link=true"
-        title="Edit Workflow Steps Using Templates"
+        title="Suite | Arcade Demo"
         frameBorder="0"
         loading="lazy"
         allowFullScreen
@@ -39,9 +39,7 @@ export const Hero = () => {
     <section id="hero" className="relative min-h-screen flex flex-col overflow-hidden">
       <GridBackground />
       {/* Custom container specifically for floating avatars */}
-      <div className="absolute inset-0 overflow-visible z-10">
-        <FloatingAvatars />
-      </div>
+      <FloatingAvatars />
       {/* <FramerSpotlight /> */}
       <div className="container px-4 md:px-6 py-16 md:py-20">
         <div className="flex flex-col items-center text-center max-w-3xl mx-auto">

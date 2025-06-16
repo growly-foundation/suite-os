@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
 
 import { GrowlyComponent } from '@getgrowly/suite';
+import { AnimatedBusterLoading } from '@getgrowly/ui';
 
 import { Hero } from './hero';
 
@@ -81,6 +82,25 @@ export default function Home() {
           </div>
         </section>
 
+        <div
+          className="flex items-center justify-center rotate-90"
+          style={{ marginTop: 50, marginBottom: 50 }}>
+          <div className="w-36 h-[2px] bg-gradient-to-r from-gray-400 to-transparent shadow-md rounded-full" />
+        </div>
+
+        <div className="flex flex-wrap space-4 items-center justify-center">
+          <AnimatedBusterLoading width={200} height={200} />
+          <h1 className="text-4xl font-bold text-primary tracking-tighter sm:text-3xl md:text-4xl">
+            Analyzing Onchain Data...
+          </h1>
+        </div>
+
+        <div
+          className="flex items-center justify-center rotate-90"
+          style={{ marginTop: 50, marginBottom: 50 }}>
+          <div className="w-36 h-[2px] bg-gradient-to-r from-transparent to-gray-400 shadow-md rounded-full" />
+        </div>
+
         {/* Installation Section */}
         <DemoInstallationSection />
 
@@ -89,7 +109,7 @@ export default function Home() {
 
         {/* DeFi Specialization */}
         <section
-          className="py-20"
+          className="pb-20"
           id="defi-specialization"
           aria-labelledby="defi-specialization-heading">
           <div className="container px-4 md:px-6">

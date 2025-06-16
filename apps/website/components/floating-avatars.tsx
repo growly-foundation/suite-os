@@ -8,16 +8,18 @@ import { ParsedUser } from '@getgrowly/core';
 import { RandomAvatar, WalletAddress } from '@getgrowly/ui';
 
 // Sample user personas for the floating avatars
-const userPersonas: ParsedUser[] = generateMockUsers(6);
+const userPersonas: ParsedUser[] = generateMockUsers(8);
 
 // Absolute positions in pixels to ensure visibility
 const avatarPositions = [
-  { top: 120, left: 150, rotate: 25 }, // top left
-  { top: 180, right: 150, rotate: 25 }, // top right
-  { top: 320, left: 100, rotate: -15 }, // middle left
-  { top: 380, right: 100, rotate: -25 }, // middle right
-  { top: 500, left: 200, rotate: 15 }, // bottom left
-  { top: 550, right: 200, rotate: 5 }, // bottom right
+  { top: 60, left: 60, rotate: 25 }, // top left
+  { top: 60, right: 60, rotate: 25 }, // top right
+  { top: 120, left: 150, rotate: -15 }, // middle left
+  { top: 180, right: 120, rotate: -25 }, // middle right
+  { top: 240, left: 240, rotate: 15 }, // bottom left
+  { top: 300, right: 240, rotate: 5 }, // bottom right
+  { top: 360, left: 360, rotate: 15 }, // bottom left
+  { top: 420, right: 360, rotate: 5 }, // bottom right
 ];
 
 export function FloatingAvatars() {
