@@ -36,12 +36,12 @@ export function ArcadeEmbed() {
 }
 
 export function RotatingArcade() {
-  const [rotation, setRotation] = useState(3); // initial tilt
+  const [rotation, setRotation] = useState(9); // initial tilt
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      const maxRotation = 3;
+      const maxRotation = 9;
       const minRotation = 0;
       const maxScroll = 300; // adjust based on how fast it flattens
 
@@ -58,7 +58,7 @@ export function RotatingArcade() {
 
   return (
     <div
-      className="w-full border px-4 rounded-xl bg-white/5 shadow-lg"
+      className="w-full border px-4 rounded-xl bg-white/5 shadow-lg mt-4"
       style={{
         transform: `perspective(200px) rotateX(${rotation}deg)`,
         transition: 'transform 0.2s ease-out',

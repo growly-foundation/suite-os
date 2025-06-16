@@ -5,7 +5,7 @@ import KnowYourDapp from '@/components/defi/kyd';
 import Persona from '@/components/defi/persona';
 import Footer from '@/components/footer';
 import Navbar from '@/components/navbar';
-import StructuredData from '@/components/structured-data';
+import { StructuredData } from '@/components/structured-data';
 import DemoInstallationSection from '@/components/widget-installation-section';
 import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
