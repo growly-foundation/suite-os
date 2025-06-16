@@ -79,13 +79,11 @@ export class EvmscanAdapter implements IOnchainActivityAdapter {
       const evmScanResp = await this.getTokenActivities('tokentx', address, chain.id, {
         offset,
       });
+
       if (!evmScanResp.result.filter) throw new Error('Failed to get token activities');
       const currentResultCount = evmScanResp.result.length;
-      // Ensure no duplicates are added to the nft array.
-      const uniqueResults = (evmScanResp.result as any).filter(
-        (item: any) => !tokenActivities.some(activity => activity.hash === item.hash)
-      );
-      tokenActivities = tokenActivities.concat(uniqueResults as TEVMScanTokenActivity[]);
+
+      tokenActivities = tokenActivities.concat(evmScanResp.result as TEVMScanTokenActivity[]);
 
       if (currentResultCount === 0 || currentResultCount === previousResultCount) break;
       previousResultCount = currentResultCount;
@@ -122,13 +120,11 @@ export class EvmscanAdapter implements IOnchainActivityAdapter {
       const evmScanResp = await this.getTokenActivities('tokennfttx', address, chain.id, {
         offset,
       });
-      const currentResultCount = evmScanResp.result.length;
-      // Ensure no duplicates are added to the nft array.
+
       if (!evmScanResp.result.filter) throw new Error('Failed to get token activities');
-      const uniqueResults = (evmScanResp.result as any).filter(
-        (item: any) => !nftActivities.some(activity => activity.hash === item.hash)
-      );
-      nftActivities = nftActivities.concat(uniqueResults as TEVMScanTokenActivity[]);
+      const currentResultCount = evmScanResp.result.length;
+
+      nftActivities = nftActivities.concat(evmScanResp.result as TEVMScanTokenActivity[]);
 
       if (currentResultCount === 0 || currentResultCount === previousResultCount) break;
       previousResultCount = currentResultCount;
