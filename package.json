@@ -67,7 +67,6 @@
   },
   "packageManager": "pnpm@10.6.3",
   "dependencies": {
-    "@langchain/core": "0.3.51",
     "pino-pretty": "^13.0.0",
     "react-toastify": "^11.0.5"
   },

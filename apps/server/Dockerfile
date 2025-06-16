@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+FROM node:23-alpine AS builder
 
 # Install pnpm
 RUN npm install -g pnpm@10.6.3
@@ -27,7 +27,7 @@ RUN pnpm --filter @getgrowly/agents build
 RUN pnpm --filter @getgrowly/server build
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:23-alpine AS production
 
 # Set working directory
 WORKDIR /app
