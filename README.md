@@ -37,6 +37,8 @@
 
 ## Overview 👀💙
 
+![growly-suite-banner](https://github.com/user-attachments/assets/40f4c28a-f28b-4bc0-9d58-82a5e506669f)
+
 Suite is an AI-powered engine designed to streamline DeFi adoption by integrating cutting-edge AI agents into blockchain applications. Our solution bridges the gap between complex DeFi protocols and everyday users through an intuitive AI chat widget that can be easily embedded into any dApp.
 
 Built on Base, Suite leverages the power of AI to help users navigate on-chain actions, understand DeFi opportunities, and make informed decisions without requiring deep technical knowledge of blockchain.
