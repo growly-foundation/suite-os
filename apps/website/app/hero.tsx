@@ -1,16 +1,17 @@
 import { FloatingAvatars } from '@/components/floating-avatars';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, MessageCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import { GridBackground } from '@getgrowly/ui';
 
 export function ArcadeEmbed() {
   return (
     <div
-      className="max-w-[90%] mx-auto"
+      className="max-w-[100%] mx-auto"
       style={{
         position: 'relative',
-        paddingBottom: 'calc(62.5% + 41px)',
+        paddingBottom: 'calc(62.5% + 45px)',
         height: 0,
         width: '100%',
       }}>
@@ -30,6 +31,39 @@ export function ArcadeEmbed() {
           colorScheme: 'light',
         }}
       />
+    </div>
+  );
+}
+
+export function RotatingArcade() {
+  const [rotation, setRotation] = useState(3); // initial tilt
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const maxRotation = 3;
+      const minRotation = 0;
+      const maxScroll = 300; // adjust based on how fast it flattens
+
+      // Calculate rotation based on scrollY
+      const newRotation = Math.max(minRotation, maxRotation - (scrollY / maxScroll) * maxRotation);
+
+      setRotation(newRotation);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <div
+      className="w-full border px-4 rounded-xl bg-white/5 shadow-lg"
+      style={{
+        transform: `perspective(200px) rotateX(${rotation}deg)`,
+        transition: 'transform 0.2s ease-out',
+      }}>
+      <ArcadeEmbed />
     </div>
   );
 }
@@ -64,7 +98,7 @@ export const Hero = () => {
             </Button>
             <Button
               onClick={() => (window.location.href = 'https://suite.getgrowly.app')}
-              className="flex items-center gap-3 px-3 py-4 bg-white hover:bg-primary/90 text-black border border-slate-400 hover:bg-slate-100 hover:border-slate-600 dark:bg-primary dark:hover:bg-primary/90 dark:shadow-[0_0_15px_rgba(36,101,237,0.5)] relative overflow-hidden group">
+              className="flex items-center gap-3 px-3 py-4 bg-white hover:bg-primary/90 text-black border border-slate-200 hover:bg-slate-100 hover:border-slate-600 dark:bg-primary dark:hover:bg-primary/90 dark:shadow-[0_0_15px_rgba(36,101,237,0.5)] relative overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/30 to-primary/0 dark:opacity-30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%]"></div>
               <div className="flex flex-col items-start relative z-10">
                 <span className="text-md font-bold">Talk to sales</span>
@@ -76,9 +110,7 @@ export const Hero = () => {
             <p className="text-sm text-muted-foreground">No credit card required.</p>
           </div>
         </div>
-        <div className="w-full mt-2">
-          <ArcadeEmbed />
-        </div>
+        <RotatingArcade />
       </div>
     </section>
   );

@@ -17,6 +17,26 @@ import { Hero } from './hero';
 
 const CURRENT_ETHEREUM_WALLET_COUNT = 323452456;
 
+export function AnimatedLine() {
+  return (
+    <div
+      className="flex items-center justify-center rotate-90 relative"
+      style={{ marginTop: 0, marginBottom: 50, height: '150px' }} // adjust height if needed
+    >
+      {/* Line */}
+      <div className="w-36 h-[2px] bg-gradient-to-r from-transparent to-gray-400 shadow-md rounded-full" />
+
+      {/* Dot */}
+      <div
+        className="absolute w-2 h-2 bg-gray-400 rounded-full"
+        style={{
+          animation: 'move-down 1.5s linear infinite',
+        }}
+      />
+    </div>
+  );
+}
+
 export default function Home() {
   return (
     <>
@@ -84,11 +104,11 @@ export default function Home() {
 
         <div
           className="flex items-center justify-center rotate-90"
-          style={{ marginTop: 50, marginBottom: 50 }}>
-          <div className="w-36 h-[2px] bg-gradient-to-r from-gray-400 to-transparent shadow-md rounded-full" />
+          style={{ marginTop: 0, marginBottom: 90 }}>
+          <div className="w-36 h-[2px] bg-gradient-to-r from-transparent to-primary/50 shadow-md rounded-full" />
         </div>
 
-        <div className="flex flex-wrap space-4 items-center justify-center">
+        <div className="flex flex-wrap space-4 items-center justify-center border py-10">
           <AnimatedBusterLoading width={200} height={200} />
           <h1 className="text-4xl font-bold text-primary tracking-tighter sm:text-3xl md:text-4xl">
             Analyzing Onchain Data...
@@ -97,19 +117,27 @@ export default function Home() {
 
         <div
           className="flex items-center justify-center rotate-90"
-          style={{ marginTop: 50, marginBottom: 50 }}>
-          <div className="w-36 h-[2px] bg-gradient-to-r from-transparent to-gray-400 shadow-md rounded-full" />
+          style={{ marginTop: 70, marginBottom: 50 }}>
+          <div className="w-36 h-[2px] bg-gradient-to-r from-transparent to-primary/50 shadow-md rounded-full" />
+          <div className="w-5 h-5 bg-primary rounded-full shadow-md" />
         </div>
 
         {/* Installation Section */}
         <DemoInstallationSection />
+
+        <div
+          className="flex items-center justify-center rotate-90"
+          style={{ marginTop: 20, marginBottom: 50 }}>
+          <div className="w-36 h-[2px] bg-gradient-to-r from-transparent to-primary/50 shadow-md rounded-full" />
+          <div className="w-5 h-5 bg-primary rounded-full shadow-md" />
+        </div>
 
         {/* Key Feature Banner */}
         {/* <KeyFeature/> */}
 
         {/* DeFi Specialization */}
         <section
-          className="pb-20"
+          className="py-20"
           id="defi-specialization"
           aria-labelledby="defi-specialization-heading">
           <div className="container px-4 md:px-6">

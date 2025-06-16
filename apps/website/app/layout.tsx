@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { GeistMono } from 'geist/font/mono';
 import { GeistSans } from 'geist/font/sans';
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import type React from 'react';
 
 import '@getgrowly/suite/styles.css';
@@ -78,6 +79,21 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Google Analytics Measurement ID */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-EK55XN1XT5"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-EK55XN1XT5');
+          `}
+        </Script>
+      </head>
       <body
         className={cn(
           'min-h-screen bg-background antialiased',

@@ -26,17 +26,7 @@ async function bootstrap() {
     process.exit(1);
   }
 
-  app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'https://suite.getgrowly.app',
-      'https://www.suite.getgrowly.app',
-      'https://getgrowly.app',
-      'https://www.getgrowly.app',
-      'https://api.getgrowly.app',
-      'https://www.api.getgrowly.app',
-    ],
-  });
+  app.enableCors();
 
   const facilitatorOptions =
     process.env.NODE_ENV === 'production' ? facilitator : { url: facilitatorUrl };
