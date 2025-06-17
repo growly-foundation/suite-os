@@ -8,6 +8,7 @@ import {
   PublicDatabaseService,
   QueueService,
   StepService,
+  UserPersonaService,
   UserService,
   WorkflowService,
 } from './services';
@@ -61,6 +62,9 @@ export interface SuiteDatabaseCore {
     /** Manages users. */
     users: PublicDatabaseService<'users'>;
 
+    /** Manages user personas. */
+    user_personas: PublicDatabaseService<'user_personas'>;
+
     /** Manages workflows. */
     workflows: PublicDatabaseService<'workflows'>;
   };
@@ -73,6 +77,9 @@ export interface SuiteDatabaseCore {
 
   /** User services. */
   users: UserService;
+
+  /** User persona services. */
+  userPersonas: UserPersonaService;
 
   /** Conversation services. */
   conversations: ConversationService;
@@ -139,6 +146,10 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     supabaseClientService,
     'admin_organizations'
   );
+  const userPersonasDatabaseService = new PublicDatabaseService<'user_personas'>(
+    supabaseClientService,
+    'user_personas'
+  );
 
   // Edge functions.
   const functionService = new FunctionService(supabaseClientService);
@@ -176,6 +187,11 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     conversationDatabaseService
   );
 
+  const userPersonaService = new UserPersonaService(
+    userDatabaseService,
+    userPersonasDatabaseService
+  );
+
   const db = {
     admins: adminDatabaseService,
     admin_organizations: adminOrganizationDatabaseService,
@@ -189,6 +205,7 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     steps: stepDatabaseService,
     step_sessions: stepSessionsDatabaseService,
     users: userDatabaseService,
+    user_personas: userPersonasDatabaseService,
     workflows: workflowDatabaseService,
   };
 
@@ -202,5 +219,6 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     organizations: organizationService,
     steps: stepService,
     users: userService,
+    userPersonas: userPersonaService,
   };
 };
