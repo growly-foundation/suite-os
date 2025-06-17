@@ -5,7 +5,6 @@ import {
   DexScreenerAdapter,
   EvmscanAdapter,
   ReservoirAdapter,
-  UniswapSdkAdapter,
 } from '@getgrowly/chainsmith/adapters';
 import { EvmTokenPlugin, ZerionPortfolioPlugin } from '@getgrowly/chainsmith/plugins';
 import { TChain, TChainName } from '@getgrowly/chainsmith/types';
@@ -29,7 +28,6 @@ export const AdapterRegistry = {
   DexScreener: new DexScreenerAdapter(),
   Evmscan: new EvmscanAdapter(ETHERSCAN_BASE_URL, ETHERSCAN_API_KEY),
   Reservoir: new ReservoirAdapter(RESERVOIR_API_KEY),
-  Uniswap: new UniswapSdkAdapter(alchemy(ALCHEMY_API_KEY)),
 };
 
 export const zerionPortfolioPlugin = new ZerionPortfolioPlugin(ZERION_API_BASE_URL, ZERION_API_KEY);

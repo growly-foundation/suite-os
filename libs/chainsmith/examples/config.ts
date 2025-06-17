@@ -1,11 +1,9 @@
-import { rpc } from '..';
 import {
   AlchemyAdapter,
   CoinMarketcapAdapter,
   DexScreenerAdapter,
   EvmscanAdapter,
   ReservoirAdapter,
-  UniswapSdkAdapter,
 } from '../src/adapters';
 import { EvmTokenPlugin } from '../src/plugins/evm';
 import { alchemy } from '../src/rpc';
@@ -25,7 +23,6 @@ export const RESERVOIR_API_KEY = process.env.RESERVOIR_API_KEY || '';
 export const AdapterRegistry = {
   Alchemy: new AlchemyAdapter(ALCHEMY_API_KEY, new EvmTokenPlugin()),
   CoinMarketcap: new CoinMarketcapAdapter(COINMARKETCAP_API_BASE_URL, COINMARKETCAP_API_KEY),
-  Uniswap: new UniswapSdkAdapter(rpc.alchemy(ALCHEMY_API_KEY)),
   Evmscan: new EvmscanAdapter(ETHERSCAN_BASE_URL, ETHERSCAN_API_KEY),
   DexScreener: new DexScreenerAdapter(),
   Reservoir: new ReservoirAdapter(RESERVOIR_API_KEY),

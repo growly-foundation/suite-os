@@ -8,4 +8,3 @@ export * from './evmscan';
 export * from './extended';
 export * from './reservoir';
 export * from './tavily';
-export * from './uniswap';
