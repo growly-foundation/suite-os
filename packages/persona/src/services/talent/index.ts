@@ -1,4 +1,12 @@
-import type { TalentCredential, TalentProfile, TalentQueryParams, TalentScore } from '@/types';
+import type {
+  Address,
+  TalentCredential,
+  TalentProfile,
+  TalentQueryParams,
+  TalentScore,
+  TalentSocialAccount,
+  WalletTalentData,
+} from '@/types';
 import { RETRY_CONFIGS, type RetryConfig, makeRequestWithRetry } from '@/utils/axiosRetry';
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
@@ -82,5 +90,32 @@ export class TalentProtocolService {
       params: queryParams,
     });
     return response.score;
+  }
+
+  //
+  async getSocialAccounts(params: TalentQueryParams): Promise<TalentSocialAccount[]> {
+    const queryParams: Record<string, string> = {
+      id: params.id,
+    };
+
+    const response = await this.makeRequest<{ accounts: TalentSocialAccount[] }>('/accounts', {
+      params: queryParams,
+    });
+    return response.accounts;
+  }
+
+  async getAggregatedWalletData(walletAddress: Address): Promise<WalletTalentData> {
+    // Fetch user profile
+    const profile = await this.getProfile({ id: walletAddress });
+    if (!profile) throw new Error('Profile not found');
+
+    const score = await this.getScore({ id: walletAddress });
+    const socialAccounts = await this.getSocialAccounts({ id: walletAddress });
+
+    return {
+      profile,
+      score,
+      socialAccounts,
+    };
   }
 }
