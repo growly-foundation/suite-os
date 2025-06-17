@@ -1,23 +1,33 @@
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { EvmChainService, GuildXyzService, OnchainBusterService } from '@getgrowly/persona';
+import {
+  EvmChainService,
+  GuildXyzService,
+  OnchainBusterService,
+  TalentProtocolService,
+} from '@getgrowly/persona';
 
 export interface SuitePersonaClient {
   buster: OnchainBusterService;
   guildXyz: GuildXyzService;
   evm: EvmChainService;
+  talent: TalentProtocolService;
 }
 
 export const PersonaProvider: Provider = {
   provide: 'SUITE_PERSONA_CLIENT',
   inject: [ConfigService],
-  useFactory: () => {
+  useFactory: (configService: ConfigService) => {
     const evmChainService = new EvmChainService();
     return {
       evm: evmChainService,
       buster: new OnchainBusterService(evmChainService),
       guildXyz: new GuildXyzService(),
+      talent: new TalentProtocolService(
+        configService.get('TALENT_API_KEY') || '',
+        'https://api.talentprotocol.com'
+      ),
     };
   },
 };
