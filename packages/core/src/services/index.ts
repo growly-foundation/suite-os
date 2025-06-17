@@ -3,6 +3,7 @@ export * from './conversation.service';
 export * from './database.service';
 export * from './function.service';
 export * from './organization.service';
+export * from './queue.service';
 export * from './step.service';
 export * from './user.service';
 export * from './workflow-execution.service';
