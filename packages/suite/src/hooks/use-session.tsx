@@ -112,9 +112,6 @@ export const useSuiteSession = create<WidgetSession>((set, get) => ({
         walletAddress,
       ]);
 
-      // Send to queue to create persona, no sleep
-      await suiteCoreService.call('queue', 'addToQueue', ['persona', { walletAddress }]);
-
       set({ user: user as ParsedUser });
       return user as ParsedUser;
     } catch (error) {

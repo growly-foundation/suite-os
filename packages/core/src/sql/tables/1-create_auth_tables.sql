@@ -48,3 +48,31 @@ GRANT ALL ON TABLE users TO service_role;
 
 -- Add column `is_anonymous`
 ALTER TABLE users ADD COLUMN is_anonymous BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- Users' personas table
+-- Enum for sync_status
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'sync_status') THEN
+        CREATE TYPE sync_status AS ENUM ('pending', 'running', 'completed', 'failed');
+    END IF;
+END
+$$;
+
+CREATE TABLE IF NOT EXISTS user_personas (
+    wallet_address TEXT PRIMARY KEY,
+    identities JSONB NOT NULL,
+    activities JSONB NOT NULL,
+    portfolio_snapshots JSONB NOT NULL,
+    sync_status sync_status NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    last_synced_at TIMESTAMPTZ,
+    retries INT DEFAULT 0,
+    error_message TEXT
+);
+
+comment on table public.user_personas is 'Personas calculated for each user.';
+
+GRANT ALL ON TABLE user_personas TO postgres;
+GRANT ALL ON TABLE user_personas TO service_role;
