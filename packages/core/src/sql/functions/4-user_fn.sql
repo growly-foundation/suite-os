@@ -3,7 +3,7 @@ CREATE OR REPLACE FUNCTION create_user_persona()
 RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO user_personas (
-        wallet_address,
+        id,
         identities,
         activities,
         portfolio_snapshots

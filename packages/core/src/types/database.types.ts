@@ -407,37 +407,37 @@ export type Database = {
           activities: Json
           created_at: string
           error_message: string | null
+          id: string
           identities: Json
           last_synced_at: string | null
           portfolio_snapshots: Json
           retry_count: number | null
           sync_status: Database["public"]["Enums"]["sync_status"]
           updated_at: string
-          wallet_address: string
         }
         Insert: {
           activities: Json
           created_at?: string
           error_message?: string | null
+          id: string
           identities: Json
           last_synced_at?: string | null
           portfolio_snapshots: Json
           retry_count?: number | null
           sync_status?: Database["public"]["Enums"]["sync_status"]
           updated_at?: string
-          wallet_address: string
         }
         Update: {
           activities?: Json
           created_at?: string
           error_message?: string | null
+          id?: string
           identities?: Json
           last_synced_at?: string | null
           portfolio_snapshots?: Json
           retry_count?: number | null
           sync_status?: Database["public"]["Enums"]["sync_status"]
           updated_at?: string
-          wallet_address?: string
         }
         Relationships: []
       }

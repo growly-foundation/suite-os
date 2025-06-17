@@ -21,7 +21,7 @@ export class UserPersonaService {
 
       // Get all existing personas
       const existingPersonas = await this.userPersonaDatabaseService.getAll();
-      const existingWallets = new Set(existingPersonas.map(p => p.wallet_address));
+      const existingWallets = new Set(existingPersonas.map(p => p.id));
 
       // Find missing personas
       const missingUsers = users.filter(user => {
@@ -36,7 +36,7 @@ export class UserPersonaService {
         try {
           const walletAddress = (user.entities as { walletAddress: string }).walletAddress;
           await this.userPersonaDatabaseService.create({
-            wallet_address: walletAddress,
+            id: walletAddress,
             identities: {},
             activities: {},
             portfolio_snapshots: {},
@@ -55,6 +55,13 @@ export class UserPersonaService {
       errors.push(`Sync failed: ${error}`);
       return { created, errors };
     }
+  }
+
+  /**
+   * Get persona by id (walletAddress)
+   */
+  async getPersona(walletAddress: string): Promise<ParsedUserPersona | null> {
+    return (await this.userPersonaDatabaseService.getById(walletAddress)) as ParsedUserPersona;
   }
 
   /**
@@ -82,14 +89,14 @@ export class UserPersonaService {
     walletAddress: string,
     status: 'pending' | 'running' | 'completed' | 'failed'
   ): Promise<void> {
-    const personas = await this.userPersonaDatabaseService.getAllByFields({
-      wallet_address: walletAddress,
-    });
-    if (personas.length > 0) {
-      await this.userPersonaDatabaseService.update(personas[0].wallet_address, {
+    const persona = await this.userPersonaDatabaseService.getById(walletAddress);
+    if (persona) {
+      await this.userPersonaDatabaseService.update(walletAddress, {
         sync_status: status,
         updated_at: new Date().toISOString(),
       });
+    } else {
+      throw new Error(`Persona not found for wallet: ${walletAddress}`);
     }
   }
 
@@ -104,11 +111,9 @@ export class UserPersonaService {
       portfolio_snapshots: any;
     }
   ): Promise<void> {
-    const personas = await this.userPersonaDatabaseService.getAllByFields({
-      wallet_address: walletAddress,
-    });
-    if (personas.length > 0) {
-      await this.userPersonaDatabaseService.update(personas[0].wallet_address, {
+    const persona = await this.userPersonaDatabaseService.getById(walletAddress);
+    if (persona) {
+      await this.userPersonaDatabaseService.update(walletAddress, {
         identities: personaData.identities,
         activities: personaData.activities,
         portfolio_snapshots: personaData.portfolio_snapshots,
@@ -118,16 +123,6 @@ export class UserPersonaService {
     } else {
       throw new Error(`Persona not found for wallet: ${walletAddress}`);
     }
-  }
-
-  /**
-   * Get persona by wallet address
-   */
-  async getPersonaByWalletAddress(walletAddress: string): Promise<ParsedUserPersona | null> {
-    const personas = await this.userPersonaDatabaseService.getAllByFields({
-      wallet_address: walletAddress,
-    });
-    return personas.length > 0 ? (personas[0] as ParsedUserPersona) : null;
   }
 
   /**
@@ -144,14 +139,14 @@ export class UserPersonaService {
    * Create a new persona record
    */
   async createPersona(personaData: {
-    wallet_address: string;
+    walletAddress: string;
     identities?: any;
     activities?: any;
     portfolio_snapshots?: any;
     sync_status?: 'pending' | 'running' | 'completed' | 'failed';
   }): Promise<void> {
     await this.userPersonaDatabaseService.create({
-      wallet_address: personaData.wallet_address,
+      id: personaData.walletAddress,
       identities: personaData.identities || {},
       activities: personaData.activities || {},
       portfolio_snapshots: personaData.portfolio_snapshots || {},

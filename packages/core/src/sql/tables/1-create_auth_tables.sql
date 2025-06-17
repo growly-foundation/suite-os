@@ -60,7 +60,7 @@ END
 $$;
 
 CREATE TABLE IF NOT EXISTS user_personas (
-    wallet_address TEXT PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     identities JSONB NOT NULL,
     activities JSONB NOT NULL,
     portfolio_snapshots JSONB NOT NULL,
