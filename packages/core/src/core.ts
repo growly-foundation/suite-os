@@ -6,6 +6,7 @@ import {
   FunctionService,
   OrganizationService,
   PublicDatabaseService,
+  QueueService,
   StepService,
   UserService,
   WorkflowService,
@@ -84,6 +85,9 @@ export interface SuiteDatabaseCore {
 
   /** Function services. */
   fn: FunctionService;
+
+  /** Queue services. */
+  queue: QueueService;
 }
 
 /**
@@ -139,6 +143,8 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
   // Edge functions.
   const functionService = new FunctionService(supabaseClientService);
 
+  const queueService = new QueueService(supabaseClientService);
+
   // Custom services.
   const workflowService = new WorkflowService(
     workflowDatabaseService,
@@ -189,6 +195,7 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
   return {
     db,
     fn: functionService,
+    queue: queueService,
     agents: agentService,
     conversations: conversationService,
     workflows: workflowService,
