@@ -2,17 +2,20 @@ import { TAddress, TChainName } from '@getgrowly/chainsmith/types';
 import { formatDuration } from '@getgrowly/chainsmith/utils';
 
 import { EvmChainService, OnchainBusterService } from '../src/services';
+import { AdapterRegistry, chainsmithSdk, zerionPortfolioPlugin } from './config';
+
+const chainNames: TChainName[] = ['mainnet', 'base', 'optimism'];
+const sdk = chainsmithSdk(chainNames);
+const evmChainService = new EvmChainService(sdk, AdapterRegistry.Evmscan, zerionPortfolioPlugin);
+const onchainBuster = new OnchainBusterService(evmChainService);
 
 /**
  * Example usage of the enhanced OnchainBusterService with persona classification
  */
 export async function walletActivityStats(): Promise<void> {
   // Initialize services
-  const evmChainService = new EvmChainService();
-  const onchainBuster = new OnchainBusterService(evmChainService);
 
   const walletAddress: TAddress = '0x6c34c667632dc1aaf04f362516e6f44d006a58fa';
-  const chainNames: TChainName[] = ['mainnet', 'base', 'optimism'];
 
   try {
     console.log(`🔍 Comprehensive Analysis for: ${walletAddress}`);
@@ -20,7 +23,7 @@ export async function walletActivityStats(): Promise<void> {
     console.log('⏳ Fetching all data...\n');
 
     // Get comprehensive analysis including persona classification
-    const analysis = await onchainBuster.fetchActivityStats(walletAddress, chainNames);
+    const analysis = await onchainBuster.fetchActivityStats(walletAddress);
 
     // Display basic wallet info
     console.log('📊 WALLET OVERVIEW');
@@ -66,16 +69,12 @@ export async function walletActivityStats(): Promise<void> {
  * Quick persona analysis only
  */
 export async function personaAnalysisExample(): Promise<void> {
-  const evmChainService = new EvmChainService();
-  const onchainBuster = new OnchainBusterService(evmChainService);
-
   const walletAddress: TAddress = '0x55Fce96D44c96Ef27f296aEB37aD0eb360505015';
-  const chainNames: TChainName[] = ['mainnet', 'base', 'optimism'];
 
   try {
     console.log(`🎭 Quick Persona Analysis for: ${walletAddress}\n`);
 
-    const personaAnalysis = await onchainBuster.fetchPersonaAnalysis(walletAddress, chainNames);
+    const personaAnalysis = await onchainBuster.fetchPersonaAnalysis(walletAddress);
 
     console.log(`🏆 Your DeFi Persona: ${personaAnalysis.analysis.dominantTrait}`);
     console.log(

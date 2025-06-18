@@ -1,4 +1,4 @@
-import { ParsedUserPersona } from '@/models/user_personas';
+import { ParsedUserPersona, UserPersonaStatus } from '@/models/user_personas';
 
 import { PublicDatabaseService } from './database.service';
 
@@ -29,8 +29,6 @@ export class UserPersonaService {
         return walletAddress && !existingWallets.has(walletAddress);
       });
 
-      console.log(`Found ${missingUsers.length} users without personas`);
-
       // Create missing personas
       for (const user of missingUsers) {
         try {
@@ -48,8 +46,6 @@ export class UserPersonaService {
           errors.push(`Failed to create persona for ${walletAddress}: ${error}`);
         }
       }
-
-      console.log(`Sync completed. Created: ${created}, Errors: ${errors.length}`);
       return { created, errors };
     } catch (error) {
       errors.push(`Sync failed: ${error}`);
@@ -85,10 +81,7 @@ export class UserPersonaService {
   /**
    * Update persona sync status
    */
-  async updatePersonaStatus(
-    walletAddress: string,
-    status: 'pending' | 'running' | 'completed' | 'failed'
-  ): Promise<void> {
+  async updatePersonaStatus(walletAddress: string, status: UserPersonaStatus): Promise<void> {
     const persona = await this.userPersonaDatabaseService.getById(walletAddress);
     if (persona) {
       await this.userPersonaDatabaseService.update(walletAddress, {
@@ -128,9 +121,7 @@ export class UserPersonaService {
   /**
    * Get personas by status
    */
-  async getPersonasByStatus(
-    status: 'pending' | 'running' | 'completed' | 'failed'
-  ): Promise<ParsedUserPersona[]> {
+  async getPersonasByStatus(status: UserPersonaStatus): Promise<ParsedUserPersona[]> {
     const personas = await this.userPersonaDatabaseService.getAllByFields({ sync_status: status });
     return personas as ParsedUserPersona[];
   }
@@ -143,7 +134,7 @@ export class UserPersonaService {
     identities?: any;
     activities?: any;
     portfolio_snapshots?: any;
-    sync_status?: 'pending' | 'running' | 'completed' | 'failed';
+    sync_status?: UserPersonaStatus;
   }): Promise<void> {
     await this.userPersonaDatabaseService.create({
       id: personaData.walletAddress,

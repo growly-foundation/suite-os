@@ -8,6 +8,9 @@ import {
   TalentProtocolService,
 } from '@getgrowly/persona';
 
+import { Registry, chainsmithSdk } from '../../config/chainsmith';
+import { SUPPORTED_CHAINS } from '../../constants/chains';
+
 export interface PersonaClient {
   buster: OnchainBusterService;
   guildXyz: GuildXyzService;
@@ -19,7 +22,12 @@ export const PersonaProvider: Provider = {
   provide: 'PERSONA_CLIENT',
   inject: [ConfigService],
   useFactory: (configService: ConfigService): PersonaClient => {
-    const evmChainService = new EvmChainService();
+    const sdk = chainsmithSdk(SUPPORTED_CHAINS);
+    const evmChainService = new EvmChainService(
+      sdk,
+      Registry.Adapters.Evmscan,
+      Registry.Plugins.ZerionPortfolio
+    );
     return {
       evm: evmChainService,
       buster: new OnchainBusterService(evmChainService),

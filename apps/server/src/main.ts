@@ -1,8 +1,7 @@
-import { facilitator } from '@coinbase/x402';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as dotenv from 'dotenv';
-import { Resource, paymentMiddleware } from 'x402-express';
+import { Resource } from 'x402-express';
 
 import { AppModule } from './modules/app.module';
 
@@ -28,22 +27,23 @@ async function bootstrap() {
 
   app.enableCors();
 
-  const facilitatorOptions =
-    process.env.NODE_ENV === 'production' ? facilitator : { url: facilitatorUrl };
-  app.use(
-    paymentMiddleware(
-      payTo,
-      {
-        // Route configurations for protected endpoints
-        'POST /growly': {
-          // USDC amount in dollars
-          price: '$0.001',
-          network,
-        },
-      },
-      facilitatorOptions
-    )
-  );
+  // TODO
+  // const facilitatorOptions =
+  //   process.env.NODE_ENV === 'production' ? facilitator : { url: facilitatorUrl };
+  // app.use(
+  //   paymentMiddleware(
+  //     payTo,
+  //     {
+  //       // Route configurations for protected endpoints
+  //       'POST /growly': {
+  //         // USDC amount in dollars
+  //         price: '$0.001',
+  //         network,
+  //       },
+  //     },
+  //     facilitatorOptions
+  //   )
+  // );
 
   app.enableCors();
   await app.listen(process.env.PORT ?? 8080);

@@ -25,10 +25,7 @@ import { EvmChainService } from '../evm';
 export class PersonaClassifierService {
   constructor(private evmChainService: EvmChainService) {}
 
-  async analyzeWalletPersona(
-    walletAddress: TAddress,
-    chainNames: TChainName[]
-  ): Promise<{
+  async analyzeWalletPersona(walletAddress: TAddress): Promise<{
     analysis: PersonaAnalysis;
     raw: {
       tokenPortfolio: TTokenPortfolio;
@@ -38,9 +35,9 @@ export class PersonaClassifierService {
   }> {
     // Fetch all required data
     const [tokenPortfolio, nftPortfolio, tokenActivities] = await Promise.all([
-      this.evmChainService.getWalletTokenPortfolio(walletAddress, chainNames),
-      this.evmChainService.getWalletNftPortfolio(walletAddress, chainNames),
-      this.evmChainService.listMultichainTokenTransferActivities(walletAddress, chainNames),
+      this.evmChainService.getWalletTokenPortfolio(walletAddress),
+      this.evmChainService.getWalletNftPortfolio(walletAddress),
+      this.evmChainService.listMultichainTokenTransferActivities(walletAddress),
     ]);
 
     // Calculate wallet metrics

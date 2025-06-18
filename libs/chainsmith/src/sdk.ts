@@ -15,6 +15,14 @@ export class ChainsmithSdk {
   storage: StoragePlugin = new StoragePlugin();
   evmToken: EvmTokenPlugin = new EvmTokenPlugin();
   evmChain: EvmChainPlugin = new EvmChainPlugin();
+
+  get chains() {
+    return this.storage.readDisk('chains');
+  }
+
+  get chainNames() {
+    return this.storage.readDisk('chains').map(chain => chain.name);
+  }
 }
 
 export function initChainsmithSdk(chains?: TChain[]) {

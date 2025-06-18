@@ -5,5 +5,6 @@ export * from './messages';
 export * from './organizations';
 export * from './resources';
 export * from './steps';
+export * from './user_personas';
 export * from './users';
 export * from './workflows';

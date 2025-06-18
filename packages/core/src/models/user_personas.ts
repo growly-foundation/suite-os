@@ -1,7 +1,6 @@
-import { Tables } from '@/types/database.types';
+import { Database, Tables } from '@/types/database.types';
 
 export type UserPersona = Tables<'user_personas'>;
-
 export type ParsedUserPersona = UserPersona & {
   identities: {
     // External data
@@ -16,3 +15,4 @@ export type ParsedUserPersona = UserPersona & {
     // TODO: Add portfolio snapshots
   };
 };
+export type UserPersonaStatus = Database['public']['Enums']['sync_status'];

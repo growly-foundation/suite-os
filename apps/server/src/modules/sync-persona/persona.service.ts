@@ -1,8 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression, Interval } from '@nestjs/schedule';
-import { SUPPORTED_CHAINS } from 'src/constants/chains';
+import { processBatches } from 'src/utils/batch.utils';
 
-import { SuiteDatabaseCore, UserPersonaService } from '@getgrowly/core';
+import { SuiteDatabaseCore, UserPersonaService, UserPersonaStatus } from '@getgrowly/core';
 import { Address } from '@getgrowly/persona';
 
 import { PersonaClient } from '../persona/persona.provider';
@@ -49,21 +49,11 @@ export class SyncPersonaService {
     }
   }
 
-  @Interval(10000)
-  async testPersonaClient() {
-    const result = await this.personaClient.buster.fetchPersonaAnalysis(
-      '0x6c34C667632dC1aAF04F362516e6F44D006A58fa' as Address,
-      SUPPORTED_CHAINS
-    );
-
-    console.log(result);
-  }
-
   /**
    * Process pending and failed personas
    * Runs every 30 seconds
    */
-  // @Interval(30000)
+  @Interval(1000)
   async processPendingPersonas() {
     this.logger.debug('Processing pending/failed personas...');
 
@@ -113,52 +103,19 @@ export class SyncPersonaService {
   private async processPendingPersonasInBatches(
     batchSize = 5
   ): Promise<{ processed: number; failed: string[] }> {
-    const failed: string[] = [];
-    let processed = 0;
-
-    try {
-      // Get pending and failed personas
-      const toProcess = await this.userPersonaService.getPendingPersonas();
-
-      if (toProcess.length === 0) {
-        return { processed: 0, failed: [] };
+    return processBatches(
+      new Logger(`${SyncPersonaService.name} - processPendingPersonasInBatches`),
+      await this.userPersonaService.getPendingPersonas(),
+      batchSize,
+      async persona => {
+        try {
+          await this.#buildPersona(persona.id);
+          return { status: 'fulfilled' };
+        } catch (error) {
+          return { status: 'failed', reason: error };
+        }
       }
-
-      this.logger.log(
-        `Processing ${toProcess.length} pending/failed personas in batches of ${batchSize}`
-      );
-
-      // Process in batches
-      for (let i = 0; i < toProcess.length; i += batchSize) {
-        const batch = toProcess.slice(i, i + batchSize);
-
-        const results = await Promise.allSettled(
-          batch.map(persona => this.buildPersona(persona.id))
-        );
-
-        // Process results
-        results.forEach((result, index) => {
-          const walletAddress = batch[index].id;
-          if (result.status === 'fulfilled') {
-            processed++;
-          } else {
-            failed.push(`${walletAddress}: ${JSON.stringify(result.reason)}`);
-          }
-        });
-      }
-
-      this.logger.log(
-        `Batch processing completed. Processed: ${processed}, Failed: ${failed.length}`
-      );
-      if (failed.length > 0) {
-        this.logger.debug('Failed wallets:', failed);
-      }
-
-      return { processed, failed };
-    } catch (error) {
-      failed.push(`Batch processing failed: ${error}`);
-      return { processed, failed };
-    }
+    );
   }
 
   /**
@@ -167,54 +124,30 @@ export class SyncPersonaService {
   private async rebuildAllPersonasInBatches(
     batchSize = 5
   ): Promise<{ processed: number; failed: string[] }> {
-    const failed: string[] = [];
-    let processed = 0;
-
-    try {
-      // Get all completed personas
-      const completedPersonas = await this.userPersonaService.getCompletedPersonas();
-
-      if (completedPersonas.length === 0) {
-        return { processed: 0, failed: [] };
+    return processBatches(
+      new Logger(`${SyncPersonaService.name} - rebuildAllPersonasInBatches`),
+      await this.userPersonaService.getCompletedPersonas(),
+      batchSize,
+      async persona => {
+        try {
+          await this.#buildPersona(persona.id);
+          return { status: 'fulfilled' };
+        } catch (error) {
+          return { status: 'failed', reason: error };
+        }
       }
-
-      this.logger.log(`Rebuilding ${completedPersonas.length} personas in batches of ${batchSize}`);
-
-      // Process in batches
-      for (let i = 0; i < completedPersonas.length; i += batchSize) {
-        const batch = completedPersonas.slice(i, i + batchSize);
-
-        const results = await Promise.allSettled(
-          batch.map(persona => this.buildPersona(persona.id))
-        );
-
-        // Process results
-        results.forEach((result, index) => {
-          const walletAddress = batch[index].id;
-          if (result.status === 'fulfilled') {
-            processed++;
-          } else {
-            failed.push(`${walletAddress}: ${result.reason}`);
-          }
-        });
-      }
-
-      this.logger.log(`Rebuild completed. Processed: ${processed}, Failed: ${failed.length}`);
-      if (failed.length > 0) {
-        this.logger.debug('Failed wallets:', failed);
-      }
-
-      return { processed, failed };
-    } catch (error) {
-      failed.push(`Rebuild failed: ${error}`);
-      return { processed, failed };
-    }
+    );
   }
 
-  /**
-   * Build persona for a specific wallet address using the persona package
-   */
-  private async buildPersona(walletAddress: string): Promise<void> {
+  async getPersonaByAddress(walletAddress: string) {
+    return this.userPersonaService.getPersona(walletAddress);
+  }
+
+  async getPersonasByStatus(status: UserPersonaStatus) {
+    return this.userPersonaService.getPersonasByStatus(status);
+  }
+
+  async #buildPersona(walletAddress: string): Promise<void> {
     try {
       // Update status to running
       await this.userPersonaService.updatePersonaStatus(walletAddress, 'running');
@@ -222,10 +155,7 @@ export class SyncPersonaService {
       this.logger.debug(`Building persona data for wallet: ${walletAddress}`);
 
       // Use the persona classifier to analyze the wallet
-      const result = await this.personaClient.buster.fetchPersonaAnalysis(
-        walletAddress as Address,
-        SUPPORTED_CHAINS
-      );
+      const result = await this.personaClient.buster.fetchPersonaAnalysis(walletAddress as Address);
 
       const guildXyzData = await this.personaClient.guildXyz.getAggregatedWalletData(
         walletAddress as Address
@@ -235,34 +165,35 @@ export class SyncPersonaService {
         walletAddress as Address
       );
 
+      const [a, m, r] = [result.analysis, result.analysis.walletMetrics, result.raw];
       // Transform the analysis result to match our database schema
       const personaData = {
         identities: {
-          dominantTrait: result.analysis.dominantTrait,
-          traitScores: result.analysis.traitScores,
-          walletMetrics: result.analysis.walletMetrics,
+          dominantTrait: a.dominantTrait,
+          traitScores: a.traitScores,
+          walletMetrics: m,
 
           // External data
           guildXyz: guildXyzData,
           talentProtocol: talentData,
         },
         activities: {
-          totalTransactions: result.analysis.walletMetrics.totalTokenActivitiesLast12Months,
-          daysActive: result.analysis.walletMetrics.activeDaysLast12Months,
-          longestHoldingPeriodMonths: result.analysis.walletMetrics.longestHoldingPeriodMonths,
-          tokenActivity: result.raw.tokenActivities,
+          totalTransactions: m.totalTokenActivitiesLast12Months,
+          daysActive: m.activeDaysLast12Months,
+          longestHoldingPeriodMonths: m.longestHoldingPeriodMonths,
+          tokenActivity: r.tokenActivities,
         },
         portfolio_snapshots: {
-          totalValue: result.analysis.walletMetrics.totalPortfolioValue,
-          tokenValue: result.analysis.walletMetrics.tokenPortfolioValue,
-          nftValue: result.analysis.walletMetrics.nftPortfolioValue,
-          tokenAllocationPercentage: result.analysis.walletMetrics.tokenAllocationPercentage,
-          topAssetValue: result.analysis.walletMetrics.topAssetValue,
-          topAssetType: result.analysis.walletMetrics.topAssetType,
-          topTokenSymbol: result.analysis.walletMetrics.topTokenSymbol,
-          ethHolding: result.analysis.walletMetrics.ethHolding,
-          tokenPortfolio: result.raw.tokenPortfolio,
-          nftPortfolio: result.raw.nftPortfolio,
+          totalValue: m.totalPortfolioValue,
+          tokenValue: m.tokenPortfolioValue,
+          nftValue: m.nftPortfolioValue,
+          tokenAllocationPercentage: m.tokenAllocationPercentage,
+          topAssetValue: m.topAssetValue,
+          topAssetType: m.topAssetType,
+          topTokenSymbol: m.topTokenSymbol,
+          ethHolding: m.ethHolding,
+          tokenPortfolio: r.tokenPortfolio,
+          nftPortfolio: r.nftPortfolio,
         },
       };
 
@@ -276,40 +207,5 @@ export class SyncPersonaService {
       this.logger.error(`Failed to build persona for ${walletAddress}:`, error);
       throw error;
     }
-  }
-
-  /**
-   * Manual trigger for sync (for testing/admin purposes)
-   */
-  async triggerSync() {
-    return this.syncMissingPersonas();
-  }
-
-  /**
-   * Manual trigger for processing (for testing/admin purposes)
-   */
-  async triggerProcessing() {
-    return this.processPendingPersonas();
-  }
-
-  /**
-   * Manual trigger for rebuild (for testing/admin purposes)
-   */
-  async triggerRebuild() {
-    return this.rebuildAllPersonas();
-  }
-
-  /**
-   * Get persona by wallet address
-   */
-  async getPersona(walletAddress: string) {
-    return this.userPersonaService.getPersona(walletAddress);
-  }
-
-  /**
-   * Get personas by status
-   */
-  async getPersonasByStatus(status: 'pending' | 'running' | 'completed' | 'failed') {
-    return this.userPersonaService.getPersonasByStatus(status);
   }
 }

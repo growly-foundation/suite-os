@@ -31,8 +31,7 @@ export class OnchainBusterService {
    * Get the activity stats for a wallet
    */
   fetchActivityStats = async (
-    addressInput: TAddress,
-    chains: TChainName[]
+    addressInput: TAddress
   ): Promise<{
     // Activity data
     longestHoldingTokenByChain: TLongestHoldingToken[];
@@ -43,10 +42,8 @@ export class OnchainBusterService {
     walletCreationDate: Date;
   }> => {
     // Fetch all required data in parallel
-    const multichainTxs = await this.evmChainService.listMultichainTokenTransferActivities(
-      addressInput,
-      chains
-    );
+    const multichainTxs =
+      await this.evmChainService.listMultichainTokenTransferActivities(addressInput);
 
     // Process token activity data
     const allTransactions = Object.values(multichainTxs).flat();
@@ -129,8 +126,7 @@ export class OnchainBusterService {
    * Get the persona classification for a wallet
    */
   fetchPersonaAnalysis = async (
-    addressInput: TAddress,
-    chains: TChainName[]
+    addressInput: TAddress
   ): Promise<{
     analysis: PersonaAnalysis;
     raw: {
@@ -139,6 +135,6 @@ export class OnchainBusterService {
       tokenActivities: TMultichain<TTokenTransferActivity[]>;
     };
   }> => {
-    return this.personaClassifier.analyzeWalletPersona(addressInput, chains);
+    return this.personaClassifier.analyzeWalletPersona(addressInput);
   };
 }
