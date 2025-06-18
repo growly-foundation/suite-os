@@ -1,4 +1,5 @@
 import { ParsedUserPersona, UserPersonaStatus } from '@/models/user_personas';
+import { day, isStale } from '@/utils/cache';
 
 import { PublicDatabaseService } from './database.service';
 
@@ -66,7 +67,10 @@ export class UserPersonaService {
   async getAllPending(): Promise<ParsedUserPersona[]> {
     const personas = await this.userPersonaDatabaseService.getAll();
     return personas.filter(
-      p => p.sync_status === 'pending' || p.sync_status === 'failed' || p.sync_status === 'running'
+      p =>
+        p.sync_status === 'pending' ||
+        p.sync_status === 'failed' ||
+        (p.sync_status === 'completed' && isStale(p.updated_at, day(7)))
     ) as ParsedUserPersona[];
   }
 

@@ -20,6 +20,8 @@ interface GetTokenActivityQueryOptions {
   startblock: number;
 }
 
+const MAX_CALLS = 5;
+
 export class EvmscanAdapter implements IOnchainActivityAdapter {
   name = 'EvmscanAdapter';
   logger = new Logger({ name: this.name });
@@ -72,16 +74,15 @@ export class EvmscanAdapter implements IOnchainActivityAdapter {
     const chain = getChainByName(chainName);
     let tokenActivities: TEVMScanTokenActivity[] = [];
 
-    const maxCalls = 4;
     let calls = 0;
     let offset = 0;
     let previousResultCount = 0;
 
     while (true) {
       this.logger.debug(
-        `Fetching token activities for ${address} on ${chainName} [${calls}/${maxCalls}]...`
+        `Fetching token activities for ${address} on ${chainName} [${calls}/${MAX_CALLS}]...`
       );
-      if (calls >= maxCalls) {
+      if (calls >= MAX_CALLS) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         calls = 0;
       }
@@ -126,16 +127,15 @@ export class EvmscanAdapter implements IOnchainActivityAdapter {
     const chain = getChainByName(chainName);
     let nftActivities: TEVMScanTokenActivity[] = [];
 
-    const maxCalls = 5;
     let calls = 0;
     let offset = 0;
     let previousResultCount = 0;
 
     while (true) {
       this.logger.debug(
-        `Fetching nft activities for ${address} on ${chainName} [${calls}/${maxCalls}]...`
+        `Fetching nft activities for ${address} on ${chainName} [${calls}/${MAX_CALLS}]...`
       );
-      if (calls >= maxCalls) {
+      if (calls >= MAX_CALLS) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         calls = 0;
       }

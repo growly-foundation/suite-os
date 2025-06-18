@@ -1,7 +1,5 @@
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { initializeChainsmith } from 'src/config/chainsmith';
-import { SUPPORTED_CHAINS } from 'src/constants/chains';
 
 import {
   EvmChainService,
@@ -9,6 +7,9 @@ import {
   OnchainBusterService,
   TalentProtocolService,
 } from '@getgrowly/persona';
+
+import { initializeChainsmith } from '../../config/chainsmith';
+import { SUPPORTED_CHAINS } from '../../constants/chains';
 
 export interface PersonaClient {
   buster: OnchainBusterService;

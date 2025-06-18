@@ -7,6 +7,10 @@ services:
     env_file: .env
     depends_on:
       - pg-db
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     restart: always
 
   pg-db:
@@ -50,8 +54,19 @@ services:
       - NGINX_PROXY_CONTAINER=nginx-proxy
     restart: always
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: always
+
 volumes:
   pg_data:
+  redis_data:
   certs:
   vhost:
   html:
