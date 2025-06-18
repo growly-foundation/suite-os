@@ -17,12 +17,13 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "typeRoots": ["node_modules/@types", "src/types"],
+    "types": ["node"],
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "examples"],
   "exclude": ["node_modules"]
 }

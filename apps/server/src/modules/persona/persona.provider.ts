@@ -1,5 +1,7 @@
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { initializeChainsmith } from 'src/config/chainsmith';
+import { SUPPORTED_CHAINS } from 'src/constants/chains';
 
 import {
   EvmChainService,
@@ -7,9 +9,6 @@ import {
   OnchainBusterService,
   TalentProtocolService,
 } from '@getgrowly/persona';
-
-import { Registry, chainsmithSdk } from '../../config/chainsmith';
-import { SUPPORTED_CHAINS } from '../../constants/chains';
 
 export interface PersonaClient {
   buster: OnchainBusterService;
@@ -22,11 +21,11 @@ export const PersonaProvider: Provider = {
   provide: 'PERSONA_CLIENT',
   inject: [ConfigService],
   useFactory: (configService: ConfigService): PersonaClient => {
-    const sdk = chainsmithSdk(SUPPORTED_CHAINS);
+    const { sdk, registry } = initializeChainsmith(configService);
     const evmChainService = new EvmChainService(
-      sdk,
-      Registry.Adapters.Evmscan,
-      Registry.Plugins.ZerionPortfolio
+      sdk(SUPPORTED_CHAINS),
+      registry.Adapters.Evmscan,
+      registry.Plugins.ZerionPortfolio
     );
     return {
       evm: evmChainService,

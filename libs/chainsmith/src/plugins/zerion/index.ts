@@ -36,7 +36,6 @@ export class ZerionPortfolioPlugin {
   }
 
   getZerionAxiosInstance = (apiKey: string, baseURL: string) => {
-    console.log('apiKey', apiKey);
     let headers: Record<string, string> = {
       Accept: 'application/json',
     };
@@ -54,7 +53,7 @@ export class ZerionPortfolioPlugin {
 
   getMultichainTokenPortfolio = async (
     walletAddress: TAddress,
-    chainNames?: TChainName[]
+    chainNames: TChainName[] = []
   ): Promise<TTokenPortfolioStats> => {
     try {
       const response = await this.client.get<ZerionFungiblePositionsResponse>(
@@ -64,7 +63,8 @@ export class ZerionPortfolioPlugin {
             'filter[positions]': 'no_filter',
             currency: 'usd',
             'filter[chain_ids]': chainNames
-              ?.map(chain => (chain.toLowerCase() === 'mainnet' ? 'ethereum' : chain.toLowerCase()))
+              .map(chain => chain.toLowerCase())
+              .map(chain => (chain === 'mainnet' ? 'ethereum' : chain))
               .join(','),
             'filter[trash]': 'only_non_trash',
             sort: 'value',
@@ -82,7 +82,7 @@ export class ZerionPortfolioPlugin {
         const { attributes, relationships } = position;
         const { value, fungible_info, quantity, price } = attributes;
         const zerionChainId = relationships.chain.data.id;
-        const chainName = zerionChainId === 'ethereum' ? 'mainnet' : zerionChainId;
+        const chainName = zerionChainId === 'ethereum' ? 'mainnet' : (zerionChainId as TChainName);
 
         // Skip positions with no value
         if (!value || value <= 0) continue;
@@ -141,20 +141,14 @@ export class ZerionPortfolioPlugin {
         aggregateMultichainTokenBalance(multichainTokenList)
       );
     } catch (error: any) {
-      if (axios.isAxiosError(error)) {
-        this.logger.error(
-          `Failed to get multichain token portfolio: ${error.response?.data || error.message}`
-        );
-      } else {
-        this.logger.error(`Failed to get multichain token portfolio: ${error}`);
-      }
-      throw new Error(error);
+      this.logger.error(`Failed to get multichain token portfolio: ${error.message}`);
+      throw error;
     }
   };
 
   getMultichainNftPortfolio = async (
     walletAddress: TAddress,
-    chainNames?: TChainName[]
+    chainNames: TChainName[] = []
   ): Promise<TNftPortfolio> => {
     try {
       // Note: Only get top 100 NFTs by floor price
@@ -163,7 +157,8 @@ export class ZerionPortfolioPlugin {
         {
           params: {
             'filter[chain_ids]': chainNames
-              ?.map(chain => (chain.toLowerCase() === 'mainnet' ? 'ethereum' : chain.toLowerCase()))
+              .map(chain => chain.toLowerCase())
+              .map(chain => (chain === 'mainnet' ? 'ethereum' : chain))
               .join(','),
             currency: 'usd',
             sort: '-floor_price',
@@ -189,7 +184,8 @@ export class ZerionPortfolioPlugin {
         // For now, we'll extract chain from the collection ID or use a default approach
         const collectionId = relationships.nft_collection.data.id;
         const zerionChainId = relationships.chain.data.id;
-        const chainName = zerionChainId === 'ethereum' ? 'mainnet' : zerionChainId;
+        const chainName: TChainName =
+          zerionChainId === 'ethereum' ? 'mainnet' : (zerionChainId as TChainName);
 
         // Initialize chain entry if it doesn't exist
         if (!multichainNftList[chainName]) {
@@ -227,8 +223,8 @@ export class ZerionPortfolioPlugin {
         chainRecordsWithNfts: multichainNftList,
       };
     } catch (error: any) {
-      this.logger.error(`Failed to get multichain NFT portfolio: ${error}`);
-      throw new Error(error);
+      this.logger.error(`Failed to get multichain NFT portfolio: ${error.message}`);
+      throw error;
     }
   };
 }

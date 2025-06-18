@@ -72,22 +72,35 @@ export class EvmscanAdapter implements IOnchainActivityAdapter {
     const chain = getChainByName(chainName);
     let tokenActivities: TEVMScanTokenActivity[] = [];
 
+    let maxCalls = 4;
+    let calls = 0;
     let offset = 0;
     let previousResultCount = 0;
 
     while (true) {
+      this.logger.debug(
+        `Fetching token activities for ${address} on ${chainName} [${calls}/${maxCalls}]...`
+      );
+      if (calls >= maxCalls) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        calls = 0;
+      }
       const evmScanResp = await this.getTokenActivities('tokentx', address, chain.id, {
         offset,
       });
+      offset += limit;
+      calls++;
 
-      if (!evmScanResp.result.filter) throw new Error('Failed to get token activities');
+      if (!evmScanResp.result.filter) {
+        this.logger.error('Failed to get token activities', evmScanResp.result);
+        throw new Error(`Failed to get token activities: ${evmScanResp.result}`);
+      }
       const currentResultCount = evmScanResp.result.length;
 
       tokenActivities = tokenActivities.concat(evmScanResp.result as TEVMScanTokenActivity[]);
 
       if (currentResultCount === 0 || currentResultCount === previousResultCount) break;
       previousResultCount = currentResultCount;
-      offset += limit;
     }
 
     return tokenActivities.map(t => {
@@ -113,22 +126,35 @@ export class EvmscanAdapter implements IOnchainActivityAdapter {
     const chain = getChainByName(chainName);
     let nftActivities: TEVMScanTokenActivity[] = [];
 
+    let maxCalls = 5;
+    let calls = 0;
     let offset = 0;
     let previousResultCount = 0;
 
     while (true) {
+      this.logger.debug(
+        `Fetching nft activities for ${address} on ${chainName} [${calls}/${maxCalls}]...`
+      );
+      if (calls >= maxCalls) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        calls = 0;
+      }
       const evmScanResp = await this.getTokenActivities('tokennfttx', address, chain.id, {
         offset,
       });
+      offset += limit;
+      calls++;
 
-      if (!evmScanResp.result.filter) throw new Error('Failed to get token activities');
+      if (!evmScanResp.result.filter) {
+        this.logger.error('Failed to get token activities', evmScanResp.result);
+        throw new Error(`Failed to get token activities: ${evmScanResp.result}`);
+      }
       const currentResultCount = evmScanResp.result.length;
 
       nftActivities = nftActivities.concat(evmScanResp.result as TEVMScanTokenActivity[]);
 
       if (currentResultCount === 0 || currentResultCount === previousResultCount) break;
       previousResultCount = currentResultCount;
-      offset += limit;
     }
 
     return nftActivities.map(t => {

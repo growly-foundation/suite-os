@@ -11,7 +11,7 @@ export class UserPersonaService {
   /**
    * Sync missing personas - create default records for users without personas
    */
-  async syncMissingPersonas(): Promise<{ created: number; errors: string[] }> {
+  async syncMissing(): Promise<{ created: number; errors: string[] }> {
     const errors: string[] = [];
     let created = 0;
 
@@ -56,24 +56,24 @@ export class UserPersonaService {
   /**
    * Get persona by id (walletAddress)
    */
-  async getPersona(walletAddress: string): Promise<ParsedUserPersona | null> {
+  async getOneByAddress(walletAddress: string): Promise<ParsedUserPersona | null> {
     return (await this.userPersonaDatabaseService.getById(walletAddress)) as ParsedUserPersona;
   }
 
   /**
    * Get pending and failed personas for processing
    */
-  async getPendingPersonas(): Promise<ParsedUserPersona[]> {
+  async getAllPending(): Promise<ParsedUserPersona[]> {
     const personas = await this.userPersonaDatabaseService.getAll();
     return personas.filter(
-      p => p.sync_status === 'pending' || p.sync_status === 'failed'
+      p => p.sync_status === 'pending' || p.sync_status === 'failed' || p.sync_status === 'running'
     ) as ParsedUserPersona[];
   }
 
   /**
    * Get completed personas for rebuilding
    */
-  async getCompletedPersonas(): Promise<ParsedUserPersona[]> {
+  async getAllCompleted(): Promise<ParsedUserPersona[]> {
     const personas = await this.userPersonaDatabaseService.getAll();
     return personas.filter(p => p.sync_status === 'completed') as ParsedUserPersona[];
   }
@@ -81,7 +81,7 @@ export class UserPersonaService {
   /**
    * Update persona sync status
    */
-  async updatePersonaStatus(walletAddress: string, status: UserPersonaStatus): Promise<void> {
+  async updateStatus(walletAddress: string, status: UserPersonaStatus): Promise<void> {
     const persona = await this.userPersonaDatabaseService.getById(walletAddress);
     if (persona) {
       await this.userPersonaDatabaseService.update(walletAddress, {
@@ -96,7 +96,7 @@ export class UserPersonaService {
   /**
    * Update persona with built data
    */
-  async updatePersonaData(
+  async update(
     walletAddress: string,
     personaData: {
       identities: any;
@@ -121,7 +121,7 @@ export class UserPersonaService {
   /**
    * Get personas by status
    */
-  async getPersonasByStatus(status: UserPersonaStatus): Promise<ParsedUserPersona[]> {
+  async getAllByStatus(status: UserPersonaStatus): Promise<ParsedUserPersona[]> {
     const personas = await this.userPersonaDatabaseService.getAllByFields({ sync_status: status });
     return personas as ParsedUserPersona[];
   }
@@ -129,7 +129,7 @@ export class UserPersonaService {
   /**
    * Create a new persona record
    */
-  async createPersona(personaData: {
+  async create(personaData: {
     walletAddress: string;
     identities?: any;
     activities?: any;
@@ -148,7 +148,7 @@ export class UserPersonaService {
   /**
    * Delete a persona record
    */
-  async deletePersona(walletAddress: string): Promise<void> {
+  async delete(walletAddress: string): Promise<void> {
     await this.userPersonaDatabaseService.delete(walletAddress);
   }
 }

@@ -21,7 +21,7 @@ export class ChainsmithSdk {
   }
 
   get chainNames() {
-    return this.storage.readDisk('chains').map(chain => chain.name);
+    return this.storage.readDisk('chains').map(chain => chain.chainName);
   }
 }
 

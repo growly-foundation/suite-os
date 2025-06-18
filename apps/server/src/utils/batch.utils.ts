@@ -8,6 +8,7 @@ export async function processBatches<T>(
   eventLogger: Logger,
   batch: T[],
   batchSize: number,
+  delay: number,
   processFn: ProcessFn<T>
 ) {
   const failed: string[] = [];
@@ -18,8 +19,16 @@ export async function processBatches<T>(
     eventLogger.log(`${batch.length} items in batches of ${batchSize}`);
     // Process in batches
     for (let i = 0; i < batch.length; i += batchSize) {
+      eventLogger.debug(`Processing batch ${i / batchSize}`);
+      await new Promise(resolve => setTimeout(resolve, delay));
       const b = batch.slice(i, i + batchSize);
-      const results = await Promise.allSettled(b.map(processFn));
+
+      // Process linearly
+      const results: { status: ProcessStatus; reason?: string }[] = [];
+      for (const item of b) {
+        results.push(await processFn(item));
+      }
+
       // Process results
       results.forEach((result, index) => {
         const item = b[index];
