@@ -4,6 +4,7 @@ export * from './database.service';
 export * from './function.service';
 export * from './organization.service';
 export * from './step.service';
+export * from './user-persona.service';
 export * from './user.service';
 export * from './workflow-execution.service';
 export * from './workflow.service';

@@ -111,6 +111,7 @@ export const useSuiteSession = create<WidgetSession>((set, get) => ({
       const user = await suiteCoreService.call('users', 'createUserFromAddressIfNotExist', [
         walletAddress,
       ]);
+
       set({ user: user as ParsedUser });
       return user as ParsedUser;
     } catch (error) {

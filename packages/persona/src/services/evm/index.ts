@@ -1,3 +1,6 @@
+import { ChainsmithSdk } from '@getgrowly/chainsmith';
+import { EvmscanAdapter } from '@getgrowly/chainsmith/adapters';
+import { ZerionPortfolioPlugin } from '@getgrowly/chainsmith/plugins';
 import {
   TAddress,
   TChainName,
@@ -8,38 +11,41 @@ import {
   TTokenTransferActivity,
 } from '@getgrowly/chainsmith/types';
 
-import { AdapterRegistry, chainsmithSdk, zerionPortfolioPlugin } from '../../config/chainsmith';
-
 export class EvmChainService {
+  constructor(
+    private chainsmithSdk: ChainsmithSdk,
+    private evmScan: EvmscanAdapter,
+    private zerionPortfolioPlugin: ZerionPortfolioPlugin
+  ) {}
+
   async listMultichainTokenTransferActivities(
-    walletAddress: TAddress,
-    chainNames: TChainName[]
+    walletAddress: TAddress
   ): Promise<TMultichain<TTokenTransferActivity[]>> {
-    return chainsmithSdk(chainNames).token.listMultichainTokenTransferActivities(
-      AdapterRegistry.Evmscan
-    )(walletAddress);
+    return this.chainsmithSdk.token.listMultichainTokenTransferActivities(this.evmScan)(
+      walletAddress
+    );
   }
 
   async listMultichainNftTransferActivities(
-    walletAddress: TAddress,
-    chainNames: TChainName[]
+    walletAddress: TAddress
   ): Promise<TMultichain<TNftTransferActivity[]>> {
-    return chainsmithSdk(chainNames).token.listMultichainNftTransferActivities(
-      AdapterRegistry.Evmscan
-    )(walletAddress);
+    return this.chainsmithSdk.token.listMultichainNftTransferActivities(this.evmScan)(
+      walletAddress
+    );
   }
 
-  async getWalletTokenPortfolio(
-    walletAddress: TAddress,
-    chainNames: TChainName[]
-  ): Promise<TTokenPortfolio> {
-    return zerionPortfolioPlugin.getMultichainTokenPortfolio(walletAddress, chainNames);
+  async getWalletTokenPortfolio(walletAddress: TAddress): Promise<TTokenPortfolio> {
+    return this.zerionPortfolioPlugin.getMultichainTokenPortfolio(
+      walletAddress,
+      this.#chainNames()
+    );
   }
 
-  async getWalletNftPortfolio(
-    walletAddress: TAddress,
-    chainNames: TChainName[]
-  ): Promise<TNftPortfolio> {
-    return zerionPortfolioPlugin.getMultichainNftPortfolio(walletAddress, chainNames);
+  async getWalletNftPortfolio(walletAddress: TAddress): Promise<TNftPortfolio> {
+    return this.zerionPortfolioPlugin.getMultichainNftPortfolio(walletAddress, this.#chainNames());
+  }
+
+  #chainNames(): TChainName[] {
+    return this.chainsmithSdk.chainNames as any;
   }
 }

@@ -402,6 +402,45 @@ export type Database = {
           },
         ]
       }
+      user_personas: {
+        Row: {
+          activities: Json
+          created_at: string
+          error_message: string | null
+          id: string
+          identities: Json
+          last_synced_at: string | null
+          portfolio_snapshots: Json
+          retry_count: number | null
+          sync_status: Database["public"]["Enums"]["sync_status"]
+          updated_at: string
+        }
+        Insert: {
+          activities: Json
+          created_at?: string
+          error_message?: string | null
+          id: string
+          identities: Json
+          last_synced_at?: string | null
+          portfolio_snapshots: Json
+          retry_count?: number | null
+          sync_status?: Database["public"]["Enums"]["sync_status"]
+          updated_at?: string
+        }
+        Update: {
+          activities?: Json
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          identities?: Json
+          last_synced_at?: string | null
+          portfolio_snapshots?: Json
+          retry_count?: number | null
+          sync_status?: Database["public"]["Enums"]["sync_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           created_at: string
@@ -636,6 +675,7 @@ export type Database = {
       conversation_role: "user" | "assistant" | "system" | "admin"
       resource_type: "contract" | "link" | "document"
       status: "active" | "inactive"
+      sync_status: "pending" | "running" | "completed" | "failed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -754,6 +794,7 @@ export const Constants = {
       conversation_role: ["user", "assistant", "system", "admin"],
       resource_type: ["contract", "link", "document"],
       status: ["active", "inactive"],
+      sync_status: ["pending", "running", "completed", "failed"],
     },
   },
 } as const

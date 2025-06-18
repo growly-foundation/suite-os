@@ -78,3 +78,17 @@ export interface TalentScore {
   last_calculated_at: string;
   points: number;
 }
+
+export interface TalentSocialAccount {
+  identifier: string;
+  source: string;
+  owned_since: string | null;
+  connected_at: string;
+  username: string | null;
+}
+
+export interface WalletTalentData {
+  profile: TalentProfile;
+  score: TalentScore;
+  socialAccounts: TalentSocialAccount[];
+}
