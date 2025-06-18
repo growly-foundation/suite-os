@@ -2,9 +2,10 @@ import { Process, Processor } from '@nestjs/bull';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bull';
 
-import { ExtendedUserPersona, SuiteDatabaseCore, UserPersonaService } from '@getgrowly/core';
+import { SuiteDatabaseCore, UserPersonaMetadata, UserPersonaService } from '@getgrowly/core';
 import { Address } from '@getgrowly/persona';
 
+import { SUITE_CORE } from '../../constants/services';
 import { PersonaClient } from '../persona/persona.provider';
 
 export const PERSONA_QUEUE = 'queue:persona-processing';
@@ -24,7 +25,7 @@ export class PersonaQueueProcessor {
   }
 
   constructor(
-    @Inject('GROWLY_SUITE_CORE') private readonly suiteCore: SuiteDatabaseCore,
+    @Inject(SUITE_CORE) private readonly suiteCore: SuiteDatabaseCore,
     @Inject('PERSONA_CLIENT') private readonly personaClient: PersonaClient
   ) {}
 
@@ -66,44 +67,41 @@ export class PersonaQueueProcessor {
       ];
 
       // Transform the analysis result to match our database schema
-      const personaData: ExtendedUserPersona = {
+      const p: UserPersonaMetadata = {
         identities: {},
         activities: {},
         portfolio_snapshots: {},
       };
 
       // Identities
-      if (a) personaData['identities']['dominantTrait'] = a.dominantTrait;
-      if (a) personaData['identities']['traitScores'] = a.traitScores;
-      if (m) personaData['identities']['walletMetrics'] = m;
+      if (a) p.identities['dominantTrait'] = a.dominantTrait;
+      if (a) p.identities['traitScores'] = a.traitScores;
+      if (m) p.identities['walletMetrics'] = m;
 
       // External data
-      if (guildXyzData) personaData['identities']['guildXyz'] = guildXyzData;
-      if (talentData) personaData['identities']['talentProtocol'] = talentData;
+      if (guildXyzData) p.identities['guildXyz'] = guildXyzData;
+      if (talentData) p.identities['talentProtocol'] = talentData;
 
       // Activities
-      if (m) personaData['activities']['totalTransactions'] = m?.totalTokenActivitiesLast12Months;
-      if (m) personaData['activities']['daysActive'] = m?.activeDaysLast12Months;
-      if (m)
-        personaData['activities']['longestHoldingPeriodMonths'] = m?.longestHoldingPeriodMonths;
-      if (r) personaData['activities']['tokenActivity'] = r?.tokenActivities;
+      if (m) p.activities['totalTransactions'] = m?.totalTokenActivitiesLast12Months;
+      if (m) p.activities['daysActive'] = m?.activeDaysLast12Months;
+      if (m) p.activities['longestHoldingPeriodMonths'] = m?.longestHoldingPeriodMonths;
+      if (r) p.activities['tokenActivity'] = r?.tokenActivities;
 
       // Portfolio snapshots
-      if (m) personaData['portfolio_snapshots']['totalValue'] = m?.totalPortfolioValue;
-      if (m) personaData['portfolio_snapshots']['tokenValue'] = m?.tokenPortfolioValue;
-      if (m) personaData['portfolio_snapshots']['nftValue'] = m?.nftPortfolioValue;
-      if (m)
-        personaData['portfolio_snapshots']['tokenAllocationPercentage'] =
-          m?.tokenAllocationPercentage;
-      if (m) personaData['portfolio_snapshots']['topAssetValue'] = m?.topAssetValue;
-      if (m) personaData['portfolio_snapshots']['topAssetType'] = m?.topAssetType;
-      if (m) personaData['portfolio_snapshots']['topTokenSymbol'] = m?.topTokenSymbol;
-      if (m) personaData['portfolio_snapshots']['ethHolding'] = m?.ethHolding;
-      if (r) personaData['portfolio_snapshots']['tokenPortfolio'] = r?.tokenPortfolio;
-      if (r) personaData['portfolio_snapshots']['nftPortfolio'] = r?.nftPortfolio;
+      if (m) p.portfolio_snapshots['totalValue'] = m?.totalPortfolioValue;
+      if (m) p.portfolio_snapshots['tokenValue'] = m?.tokenPortfolioValue;
+      if (m) p.portfolio_snapshots['nftValue'] = m?.nftPortfolioValue;
+      if (m) p.portfolio_snapshots['tokenAllocationPercentage'] = m?.tokenAllocationPercentage;
+      if (m) p.portfolio_snapshots['topAssetValue'] = m?.topAssetValue;
+      if (m) p.portfolio_snapshots['topAssetType'] = m?.topAssetType;
+      if (m) p.portfolio_snapshots['topTokenSymbol'] = m?.topTokenSymbol;
+      if (m) p.portfolio_snapshots['ethHolding'] = m?.ethHolding;
+      if (r) p.portfolio_snapshots['tokenPortfolio'] = r?.tokenPortfolio;
+      if (r) p.portfolio_snapshots['nftPortfolio'] = r?.nftPortfolio;
 
       // Update the persona with built data
-      await this.userPersonaService.update(walletAddress, personaData);
+      await this.userPersonaService.update(walletAddress, p);
 
       this.logger.debug(`Successfully built persona for wallet: ${walletAddress}`);
     } catch (error) {

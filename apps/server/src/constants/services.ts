@@ -1,0 +1,2 @@
+export const SUITE_CORE = 'GROWLY_SUITE_CORE';
+export const PERSONA_CLIENT = 'PERSONA_CLIENT';

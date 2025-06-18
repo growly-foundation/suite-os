@@ -11,6 +11,8 @@ import {
 } from '@getgrowly/agents';
 import { MessageContent, SuiteDatabaseCore } from '@getgrowly/core';
 
+import { SUITE_CORE } from '../../constants/services';
+
 const buildThreadId = (agentId: string, userId: string) => `${agentId}-${userId}`;
 
 export interface AgentChatRequest {
@@ -30,7 +32,7 @@ export class AgentService {
 
   constructor(
     private readonly configService: ConfigService,
-    @Inject('GROWLY_SUITE_CORE') private readonly suiteCore: SuiteDatabaseCore
+    @Inject(SUITE_CORE) private readonly suiteCore: SuiteDatabaseCore
   ) {}
 
   // Use Langchain PromptTemplate for dynamic prompt construction

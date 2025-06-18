@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 
 import { ConversationRole, FnReturnType, Message, SuiteDatabaseCore } from '@getgrowly/core';
 
+import { SUITE_CORE } from '../../constants/services';
 import { MessageInterface } from './message.interface';
 
 @Injectable()
@@ -10,7 +11,7 @@ export class MessageRepository implements MessageInterface {
   private readonly logger = new Logger(MessageRepository.name);
 
   constructor(
-    @Inject('GROWLY_SUITE_CORE') private readonly suiteCore: SuiteDatabaseCore,
+    @Inject(SUITE_CORE) private readonly suiteCore: SuiteDatabaseCore,
     @Inject('OPENAI_CLIENT') private readonly openai: OpenAI
   ) {}
 

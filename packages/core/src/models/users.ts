@@ -1,12 +1,20 @@
 import { Tables } from '@/types/database.types';
 
-export type User = Tables<'users'> & UserOnchainData & UserOffchainData & UserChatSession;
+import { Address } from '@getgrowly/persona';
 
-export type ParsedUser = User & {
+import { ParsedUserPersona } from './user_personas';
+
+export type User = Tables<'users'>;
+
+export type ParsedUser = Omit<User, 'entities'> & {
   // TODO: Need to be associated table.
   entities: {
-    walletAddress: `0x${string}`;
+    walletAddress: Address;
   };
+} & {
+  onchainData: UserOnchainData;
+  offchainData: UserOffchainData;
+  chatSession: UserChatSession;
 };
 
 // TODO: Need to be fields in the database
@@ -15,52 +23,19 @@ export enum SessionStatus {
   Offline = 'Offline',
 }
 
-export type UserOnchainStats = {
-  stats: {
-    totalTransactions: number;
-    totalVolume: number;
-    nftCount: number;
-    tokenCount: number;
-    daysActive: number;
-  };
-  tokens: Array<{
-    symbol: string;
-    balance: number;
-    value: number;
-    change24h: number;
-  }>;
-  recentActivity: Array<{
-    type: 'send' | 'receive' | 'swap' | 'vote';
-    description: string;
-    timestamp: string;
-    value?: number;
-  }>;
-  nfts: Array<{
-    collection: string;
-    name: string;
-    image: string;
-  }>;
-  reputation: {
-    score: number;
-    level: string;
-    badges: string[];
-  };
-};
-
 export type UserOnchainData = {
   ensName?: string;
-  address: `0x${string}`;
   avatar?: string;
-} & UserOnchainStats;
+} & ParsedUserPersona;
 
 export type UserOffchainData = {
-  company: string;
-  description: string;
+  company?: string;
+  description?: string;
 };
 
 export type UserChatSession = {
   status: SessionStatus;
-  lastMessageTime: string;
+  lastMessageTime?: string;
   online: boolean;
   unread: boolean;
 };

@@ -1,4 +1,5 @@
 import { suiteCoreService } from '@/services/core.service';
+import { userService } from '@/services/user.service';
 import { Screen } from '@/types/screen';
 import { create } from 'zustand';
 
@@ -108,12 +109,9 @@ export const useSuiteSession = create<WidgetSession>((set, get) => ({
   },
   createUserFromAddressIfNotExist: async walletAddress => {
     try {
-      const user = await suiteCoreService.call('users', 'createUserFromAddressIfNotExist', [
-        walletAddress,
-      ]);
-
-      set({ user: user as ParsedUser });
-      return user as ParsedUser;
+      const user = await userService.createUserIfNotExist(walletAddress);
+      set({ user });
+      return user;
     } catch (error) {
       throw new Error(`Failed to fetch user from wallet address: ${error}`);
     }

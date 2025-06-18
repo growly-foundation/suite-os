@@ -3,8 +3,10 @@ import { ConfigService } from '@nestjs/config';
 
 import { SuiteDatabaseCore, createSuiteCore } from '@getgrowly/core';
 
+import { SUITE_CORE } from '../../constants/services';
+
 export const SuiteCoreProvider: Provider = {
-  provide: 'GROWLY_SUITE_CORE',
+  provide: SUITE_CORE,
   inject: [ConfigService],
   useFactory: (configService: ConfigService): SuiteDatabaseCore => {
     const supabaseUrl = configService.get<string>('SUPABASE_URL');

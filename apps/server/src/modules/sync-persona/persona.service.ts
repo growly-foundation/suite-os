@@ -12,6 +12,7 @@ import {
   second,
 } from '@getgrowly/core';
 
+import { SUITE_CORE } from '../../constants/services';
 import { processBatches } from '../../utils/batch.utils';
 import { PERSONA_BUILD_JOB, PERSONA_QUEUE } from './persona.queue';
 
@@ -29,7 +30,7 @@ export class SyncPersonaService {
   }
 
   constructor(
-    @Inject('GROWLY_SUITE_CORE') private readonly suiteCore: SuiteDatabaseCore,
+    @Inject(SUITE_CORE) private readonly suiteCore: SuiteDatabaseCore,
     @InjectQueue(PERSONA_QUEUE) private readonly personaQueue: Queue
   ) {
     this.logger.log('PersonaSyncService initialized with shared persona client');

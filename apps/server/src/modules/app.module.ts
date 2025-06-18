@@ -11,6 +11,7 @@ import { MessageModule } from './message/message.module';
 import { OpenAIModule } from './openai/openai.module';
 import { SuiteCoreModule } from './suite-core/suite-core.module';
 import { SyncPersonaModule } from './sync-persona/persona.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { SyncPersonaModule } from './sync-persona/persona.module';
     MessageModule,
     GrowlyModule,
     SuiteCoreModule,
+    UserModule,
   ],
 })
 export class AppModule implements NestModule {

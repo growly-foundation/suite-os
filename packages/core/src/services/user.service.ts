@@ -1,5 +1,6 @@
-import { ParsedUser, SessionStatus, User } from '@/models';
-import { Tables } from '@/types/database.types';
+import { ParsedUser, ParsedUserPersona, SessionStatus, User } from '@/models';
+
+import { Address } from '@getgrowly/persona';
 
 import { PublicDatabaseService } from './database.service';
 
@@ -7,62 +8,9 @@ export class UserService {
   constructor(
     private agentDatabaseService: PublicDatabaseService<'agents'>,
     private userDatabaseService: PublicDatabaseService<'users'>,
+    private userPersonaDatabaseService: PublicDatabaseService<'user_personas'>,
     private conversationDatabaseService: PublicDatabaseService<'conversation'>
   ) {}
-
-  // TODO: Remove this later
-  private fillMockData(user: Tables<'users'>): User {
-    const walletAddress = (user.entities as { walletAddress: string }).walletAddress as any;
-    return {
-      ...user,
-      ensName: 'admin.eth',
-      address: walletAddress,
-      company: 'Web3 Support',
-      description: 'Blockchain support specialist helping users navigate DeFi and Web3.',
-      avatar: undefined,
-      status: SessionStatus.Online,
-      lastMessageTime: user.created_at,
-      online: true,
-      unread: false,
-      stats: {
-        totalTransactions: 12450,
-        totalVolume: 1234,
-        nftCount: 89,
-        tokenCount: 67,
-        daysActive: 1825,
-      },
-      tokens: [
-        { symbol: 'ETH', balance: 234.5, value: 469000, change24h: 2.1 },
-        { symbol: 'USDC', balance: 50000, value: 50000, change24h: 0.1 },
-        { symbol: 'UNI', balance: 2500, value: 17500, change24h: -0.8 },
-      ],
-      recentActivity: [
-        {
-          type: 'receive',
-          description: 'Received support payment',
-          timestamp: new Date().toISOString(),
-          value: 0.5,
-        },
-        {
-          type: 'send',
-          description: 'Helped user with transaction',
-          timestamp: new Date().toISOString(),
-        },
-      ],
-      nfts: [
-        {
-          collection: 'Support Badge',
-          name: 'Expert Helper',
-          image: '/placeholder.svg?height=60&width=60',
-        },
-      ],
-      reputation: {
-        score: 95,
-        level: 'Expert',
-        badges: ['Support Expert', 'Community Helper', 'Trusted Agent'],
-      },
-    };
-  }
 
   async getUsersByAgentId(agent_id: string): Promise<ParsedUser[]> {
     const conversations = await this.conversationDatabaseService.getAllByFields(
@@ -80,15 +28,16 @@ export class UserService {
       if (!conversation.user_id) continue;
       const user = await this.getUserById(conversation.user_id);
       if (!user) continue;
-      users.push(user);
+      const parsedUser = await this.#getUserWithPersona(user);
+      users.push(parsedUser);
     }
     return users;
   }
 
-  async getUserById(agent_id: string): Promise<ParsedUser | null> {
-    const user = await this.userDatabaseService.getById(agent_id);
+  async getUserById(user_id: string): Promise<ParsedUser | null> {
+    const user = await this.userDatabaseService.getById(user_id);
     if (!user) return null;
-    return this.fillMockData(user) as ParsedUser;
+    return this.#getUserWithPersona(user);
   }
 
   async getUsersByOrganizationId(organization_id: string): Promise<ParsedUser[]> {
@@ -99,14 +48,14 @@ export class UserService {
       'agent_id',
       agents.map(agent => agent.id)
     );
-    const users: ParsedUser[] = await this.userDatabaseService
+    const users = await this.userDatabaseService
       .getManyByIds(
         conversations
           .filter(conversation => conversation.user_id)
           .map(conversation => conversation.user_id!)
       )
-      .then(users => users.map(user => this.fillMockData(user) as ParsedUser));
-    return users;
+      .then(users => users.map(user => this.#getUserWithPersona(user)));
+    return await Promise.all(users);
   }
 
   async getUserByWalletAddress(walletAddress: string): Promise<ParsedUser | null> {
@@ -115,17 +64,56 @@ export class UserService {
       return (user.entities as { walletAddress: string }).walletAddress === walletAddress;
     });
     if (!parsedUser) return null;
-    return this.fillMockData(parsedUser) as ParsedUser;
+    return this.#getUserWithPersona(parsedUser);
   }
 
-  async createUserFromAddressIfNotExist(walletAddress: string): Promise<ParsedUser | null> {
+  async createUserFromAddressIfNotExist(
+    walletAddress: string
+  ): Promise<{ user: ParsedUser | null; new: boolean }> {
     const user = await this.getUserByWalletAddress(walletAddress);
-    if (user) return user;
+    if (user) return { user, new: false };
     const newUser = await this.userDatabaseService.create({
       entities: {
         walletAddress,
       },
     });
-    return this.fillMockData(newUser) as ParsedUser;
+    await this.userPersonaDatabaseService.create({
+      id: (newUser.entities as { walletAddress: string }).walletAddress,
+      identities: {},
+      activities: {},
+      portfolio_snapshots: {},
+    });
+    return {
+      user: await this.#getUserWithPersona(newUser),
+      new: true,
+    };
+  }
+
+  async #getUserWithPersona(user: User): Promise<ParsedUser> {
+    const walletAddress = (user.entities as { walletAddress: string }).walletAddress as Address;
+    const userPersona = (await this.userPersonaDatabaseService.getById(
+      walletAddress
+    )) as ParsedUserPersona;
+    return {
+      ...user,
+      entities: {
+        walletAddress,
+      },
+      onchainData: {
+        ensName: 'admin.eth',
+        avatar: undefined,
+        ...userPersona,
+      },
+      offchainData: {
+        company: 'Web3 Support',
+        description: 'Blockchain support specialist helping users navigate DeFi and Web3.',
+      },
+      chatSession: {
+        status: SessionStatus.Online,
+        lastMessageTime: user.created_at,
+        online: true,
+        unread: false,
+      },
+    };
   }
 }
