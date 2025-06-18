@@ -72,7 +72,7 @@ export class EvmscanAdapter implements IOnchainActivityAdapter {
     const chain = getChainByName(chainName);
     let tokenActivities: TEVMScanTokenActivity[] = [];
 
-    let maxCalls = 4;
+    const maxCalls = 4;
     let calls = 0;
     let offset = 0;
     let previousResultCount = 0;
@@ -126,7 +126,7 @@ export class EvmscanAdapter implements IOnchainActivityAdapter {
     const chain = getChainByName(chainName);
     let nftActivities: TEVMScanTokenActivity[] = [];
 
-    let maxCalls = 5;
+    const maxCalls = 5;
     let calls = 0;
     let offset = 0;
     let previousResultCount = 0;

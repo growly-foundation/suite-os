@@ -159,7 +159,7 @@ export class SyncPersonaService {
       this.logger.debug(`Building persona data for wallet: ${walletAddress}`);
 
       // Use the persona classifier to analyze the wallet
-      let result = await Promise.all([
+      const result = await Promise.all([
         this.personaClient.buster.fetchPersonaAnalysis(walletAddress as Address).catch(() => {
           this.logger.error(`Failed to fetch persona analysis for wallet: ${walletAddress}`);
           return undefined;
@@ -184,7 +184,7 @@ export class SyncPersonaService {
       ];
 
       // Transform the analysis result to match our database schema
-      let personaData: ExtendedUserPersona = {
+      const personaData: ExtendedUserPersona = {
         identities: {},
         activities: {},
         portfolio_snapshots: {},
