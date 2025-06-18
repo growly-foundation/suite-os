@@ -111,7 +111,7 @@ export async function personaAnalysisExample(): Promise<void> {
 }
 
 export async function evmExample() {
-  const ens = await onchainBuster.fetchWalletEns('0x6c34c667632dc1aaf04f362516e6f44d006a58fa');
+  const ens = await onchainBuster.fetchWalletEns('0x87CA55485C2cbc6C3fe4fc152b624569467872B0');
   console.log(ens);
 }
 

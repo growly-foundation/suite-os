@@ -139,11 +139,11 @@ export class OnchainBusterService {
   };
 
   /**
-   * Get the ENS name and avatar for a wallet
+   * Get the ENS name, basename and avatar for a wallet
    */
   fetchWalletEns = async (
     addressInput: TAddress
-  ): Promise<{ ensName: string; ensAvatar: string }> => {
-    return this.evmChainService.getWalletEnsName(addressInput);
+  ): Promise<{ ensName: string; ensAvatar: string; basename: string }> => {
+    return this.evmChainService.getEns(addressInput);
   };
 }

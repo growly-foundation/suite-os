@@ -1,4 +1,5 @@
-import { PublicClient, createPublicClient, http } from 'viem';
+import { getBasename } from '@/utils/basename';
+import { createPublicClient, http } from 'viem';
 import { mainnet } from 'viem/chains';
 
 import { ChainsmithSdk } from '@getgrowly/chainsmith';
@@ -15,7 +16,7 @@ import {
 } from '@getgrowly/chainsmith/types';
 
 export class EvmChainService {
-  private readonly client: PublicClient;
+  private readonly client;
 
   constructor(
     private chainsmithSdk: ChainsmithSdk,
@@ -28,11 +29,15 @@ export class EvmChainService {
     });
   }
 
-  async getWalletEnsName(walletAddress: TAddress): Promise<{ ensName: string; ensAvatar: string }> {
+  async getEns(
+    walletAddress: TAddress
+  ): Promise<{ ensName: string; ensAvatar: string; basename: string }> {
     const ensName = await this.client.getEnsName({
       address: walletAddress,
       gatewayUrls: ['https://ccip.ens.xyz'],
     });
+
+    const basename = await getBasename(walletAddress);
 
     if (ensName) {
       const ensAvatar = await this.client.getEnsAvatar({
@@ -42,10 +47,11 @@ export class EvmChainService {
       return {
         ensName,
         ensAvatar: ensAvatar || '',
+        basename: basename || '',
       };
     }
 
-    return { ensName: '', ensAvatar: '' };
+    return { ensName: '', ensAvatar: '', basename: basename || '' };
   }
 
   async listMultichainTokenTransferActivities(
