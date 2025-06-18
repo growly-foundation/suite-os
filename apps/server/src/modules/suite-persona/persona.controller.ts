@@ -2,11 +2,11 @@ import { Body, Controller, Post } from '@nestjs/common';
 
 import { Address } from '@getgrowly/persona';
 
-import { PersonaService } from './persona.service';
+import { SuitePersonaService } from './persona.service';
 
 @Controller('persona')
-export class PersonaController {
-  constructor(private readonly personaService: PersonaService) {}
+export class SuitePersonaController {
+  constructor(private readonly personaService: SuitePersonaService) {}
 
   @Post('guild')
   async fetchGuildPersona(@Body('walletAddress') walletAddress: Address) {

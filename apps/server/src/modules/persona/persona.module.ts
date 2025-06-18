@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 
-import { DatabaseModule } from '../databases/database.module';
-import { QueueModule } from '../queue/queue.module';
-import { PersonaService } from './persona.service';
+import { PersonaProvider } from './persona.provider';
 
 @Module({
-  imports: [DatabaseModule, QueueModule],
-  providers: [PersonaService],
-  exports: [],
+  imports: [ConfigModule],
+  providers: [PersonaProvider],
+  exports: [PersonaProvider],
 })
 export class PersonaModule {}

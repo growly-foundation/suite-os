@@ -77,21 +77,23 @@ export async function personaAnalysisExample(): Promise<void> {
 
     const personaAnalysis = await onchainBuster.fetchPersonaAnalysis(walletAddress, chainNames);
 
-    console.log(`🏆 Your DeFi Persona: ${personaAnalysis.dominantTrait}`);
+    console.log(`🏆 Your DeFi Persona: ${personaAnalysis.analysis.dominantTrait}`);
     console.log(
-      `💰 Portfolio Value: $${personaAnalysis.walletMetrics.totalPortfolioValue.toLocaleString()}`
+      `💰 Portfolio Value: $${personaAnalysis.analysis.walletMetrics.totalPortfolioValue.toLocaleString()}`
     );
     console.log(
-      `💰 Token Portfolio Value: $${personaAnalysis.walletMetrics.tokenPortfolioValue.toLocaleString()}`
+      `💰 Token Portfolio Value: $${personaAnalysis.analysis.walletMetrics.tokenPortfolioValue.toLocaleString()}`
     );
     console.log(
-      `💰 NFT Portfolio Value: $${personaAnalysis.walletMetrics.nftPortfolioValue.toLocaleString()}`
+      `💰 NFT Portfolio Value: $${personaAnalysis.analysis.walletMetrics.nftPortfolioValue.toLocaleString()}`
     );
-    console.log(`💰 ETH Holding: ${personaAnalysis.walletMetrics.ethHolding.toLocaleString()}`);
+    console.log(
+      `💰 ETH Holding: ${personaAnalysis.analysis.walletMetrics.ethHolding.toLocaleString()}`
+    );
 
     // Show top 3 satisfied metrics for the dominant trait
-    const dominantTraitScore = personaAnalysis.traitScores.find(
-      t => t.trait === personaAnalysis.dominantTrait
+    const dominantTraitScore = personaAnalysis.analysis.traitScores.find(
+      t => t.trait === personaAnalysis.analysis.dominantTrait
     );
 
     if (dominantTraitScore) {

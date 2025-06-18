@@ -8,7 +8,7 @@ import {
   TalentProtocolService,
 } from '@getgrowly/persona';
 
-export interface SuitePersonaClient {
+export interface PersonaClient {
   buster: OnchainBusterService;
   guildXyz: GuildXyzService;
   evm: EvmChainService;
@@ -16,9 +16,9 @@ export interface SuitePersonaClient {
 }
 
 export const PersonaProvider: Provider = {
-  provide: 'SUITE_PERSONA_CLIENT',
+  provide: 'PERSONA_CLIENT',
   inject: [ConfigService],
-  useFactory: (configService: ConfigService) => {
+  useFactory: (configService: ConfigService): PersonaClient => {
     const evmChainService = new EvmChainService();
     return {
       evm: evmChainService,

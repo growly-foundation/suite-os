@@ -36,6 +36,7 @@ export class ZerionPortfolioPlugin {
   }
 
   getZerionAxiosInstance = (apiKey: string, baseURL: string) => {
+    console.log('apiKey', apiKey);
     let headers: Record<string, string> = {
       Accept: 'application/json',
     };
