@@ -12,6 +12,7 @@
     "@auth/supabase-adapter": "^1.9.0",
     "@dagrejs/dagre": "^1.1.4",
     "@faker-js/faker": "^9.8.0",
+    "@getgrowly/chainsmith": "workspace:*",
     "@getgrowly/core": "workspace:*",
     "@getgrowly/suite": "workspace:*",
     "@getgrowly/ui": "workspace:*",
@@ -74,6 +75,7 @@
     "uuid": "^11.1.0",
     "uuidv4": "^6.2.13",
     "vaul": "^0.9.6",
+    "viem": "^2.31.3",
     "zod": "^3.24.1",
     "zustand": "^5.0.4"
   },

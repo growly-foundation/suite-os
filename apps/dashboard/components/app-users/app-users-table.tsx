@@ -76,7 +76,7 @@ export function UsersTable({ users }: { users: ParsedUser[] }) {
             <TableHead className="w-[100px]">User</TableHead>
             <TableHead>Portfolio Value</TableHead>
             <TableHead>Activity</TableHead>
-            <TableHead>Badges</TableHead>
+            <TableHead>Trait</TableHead>
             <TableHead>Tokens</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>

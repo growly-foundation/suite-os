@@ -1,4 +1,4 @@
-import { ParsedUserPersona, UserPersonaStatus } from '@/models/user_personas';
+import { ParsedUserPersona, UserPersona, UserPersonaStatus } from '@/models/user_personas';
 import { day, isStale } from '@/utils/cache';
 
 import { PublicDatabaseService } from './database.service';
@@ -85,13 +85,13 @@ export class UserPersonaService {
   /**
    * Update persona sync status
    */
-  async updateStatus(walletAddress: string, status: UserPersonaStatus): Promise<void> {
+  async updateStatus(walletAddress: string, status: UserPersonaStatus): Promise<ParsedUserPersona> {
     const persona = await this.userPersonaDatabaseService.getById(walletAddress);
     if (persona) {
-      await this.userPersonaDatabaseService.update(walletAddress, {
+      return (await this.userPersonaDatabaseService.update(walletAddress, {
         sync_status: status,
         updated_at: new Date().toISOString(),
-      });
+      })) as ParsedUserPersona;
     } else {
       throw new Error(`Persona not found for wallet: ${walletAddress}`);
     }
@@ -107,10 +107,10 @@ export class UserPersonaService {
       activities: any;
       portfolio_snapshots: any;
     }
-  ): Promise<void> {
+  ): Promise<UserPersona> {
     const persona = await this.userPersonaDatabaseService.getById(walletAddress);
     if (persona) {
-      await this.userPersonaDatabaseService.update(walletAddress, {
+      return this.userPersonaDatabaseService.update(walletAddress, {
         identities: personaData.identities,
         activities: personaData.activities,
         portfolio_snapshots: personaData.portfolio_snapshots,

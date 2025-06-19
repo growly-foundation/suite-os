@@ -5,6 +5,7 @@ import { UsersTable } from '@/components/app-users/app-users-table';
 import { PrimaryButton } from '@/components/buttons/primary-button';
 import { SearchInput } from '@/components/inputs/search-input';
 import { generateMockUsers } from '@/constants/mockUsers';
+import { consumePersona } from '@/core/persona';
 import { useSelectedOrganizationUsersEffect } from '@/hooks/use-organization-effect';
 import React, { useState } from 'react';
 
@@ -15,11 +16,14 @@ export function UserDirectoryLayout({ users, loading }: { users: ParsedUser[]; l
   const [searchQuery, setSearchQuery] = useState('');
 
   // Filter users
-  const filteredUsers = users.filter(
-    user =>
-      user.ensName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.address.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // TODO: Improve with fuzzy search
+  const filteredUsers = users.filter(user => {
+    const chainNameService = consumePersona(user).nameService();
+    return (
+      chainNameService?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      chainNameService?.avatar?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
 
   const _users = viewDemo ? generateMockUsers(100) : filteredUsers;
   return (

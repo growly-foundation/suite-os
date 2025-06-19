@@ -11,11 +11,13 @@ import { MessageModule } from './message/message.module';
 import { OpenAIModule } from './openai/openai.module';
 import { SuiteCoreModule } from './suite-core/suite-core.module';
 import { SyncPersonaModule } from './sync-persona/persona.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
+    UserModule,
     BullModule,
     SyncPersonaModule,
     DatabaseModule,

@@ -2,11 +2,13 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 
 import { PublicDatabaseService, SuiteDatabaseCore } from '@getgrowly/core';
 
+import { SUITE_CORE } from '../../constants/services';
+
 @Injectable()
 export class SuiteCoreService {
   private readonly logger = new Logger(SuiteCoreService.name);
 
-  constructor(@Inject('GROWLY_SUITE_CORE') private readonly suiteCore: SuiteDatabaseCore) {}
+  constructor(@Inject(SUITE_CORE) private readonly suiteCore: SuiteDatabaseCore) {}
 
   async call<T extends keyof Omit<SuiteDatabaseCore, 'db'>>(
     service: T,

@@ -11,6 +11,7 @@ import {
 
 import { initializeChainsmith } from '../../config/chainsmith';
 import { SUPPORTED_CHAINS } from '../../constants/chains';
+import { PERSONA_CLIENT } from '../../constants/services';
 
 export interface PersonaClient {
   buster: OnchainBusterService;
@@ -20,7 +21,7 @@ export interface PersonaClient {
 }
 
 export const PersonaProvider: Provider = {
-  provide: 'PERSONA_CLIENT',
+  provide: PERSONA_CLIENT,
   inject: [ConfigService],
   useFactory: (configService: ConfigService): PersonaClient => {
     const { sdk, registry } = initializeChainsmith(configService);
