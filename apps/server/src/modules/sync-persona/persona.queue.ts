@@ -42,8 +42,8 @@ export class PersonaQueueProcessor {
 
       // Use the persona classifier to analyze the wallet
       const result = await Promise.all([
-        this.personaClient.buster.fetchWalletEns(walletAddress as Address).catch(() => {
-          this.logger.error(`Failed to fetch ENS data for wallet: ${walletAddress}`);
+        this.personaClient.buster.fetchWalletNameService(walletAddress as Address).catch(() => {
+          this.logger.error(`Failed to fetch name service data for wallet: ${walletAddress}`);
           return undefined;
         }),
         this.personaClient.buster.fetchPersonaAnalysis(walletAddress as Address).catch(() => {
@@ -77,7 +77,7 @@ export class PersonaQueueProcessor {
       };
 
       // Identities
-      if (ens) personaData['identities']['ens'] = ens;
+      if (ens) personaData['identities']['nameService'] = ens;
       if (a) personaData['identities']['dominantTrait'] = a.dominantTrait;
       if (a) personaData['identities']['traitScores'] = a.traitScores;
       if (m) personaData['identities']['walletMetrics'] = m;

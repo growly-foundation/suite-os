@@ -9,23 +9,25 @@ export const BASENAME_L2_RESOLVER_ADDRESS = '0xC6d566A56A1aFf6508b41f6c90ff13161
 
 const baseClient = createPublicClient({
   chain: base,
-  transport: http('https://base.llamarpc.com'),
+  transport: http('https://mainnet.base.org'),
 });
 
-// TODO: Always fail for now :/
+// TODO: Viem always fail for now :/
 export async function getBasenameAvatar(basename: Basename) {
   try {
-    const avatar = await baseClient.getEnsAvatar({
+    const baseEnsAvatar = await baseClient.getEnsAvatar({
       name: basename,
       universalResolverAddress: BASENAME_L2_RESOLVER_ADDRESS,
     });
 
-    return avatar;
-  } catch (error) {
-    console.error(error);
+    if (baseEnsAvatar) {
+      return baseEnsAvatar;
+    }
+  } catch {
+    // This is a best effort attempt, so we don't need to do anything here.
+    console.error('Error getting basename avatar for', basename);
+    return '';
   }
-
-  return '';
 }
 
 /**
@@ -69,5 +71,6 @@ export async function getBasename(address: Address) {
     }
   } catch (error) {
     console.error(error);
+    return '';
   }
 }
