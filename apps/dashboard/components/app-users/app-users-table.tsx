@@ -52,7 +52,7 @@ export function UsersTable({ users }: { users: ParsedUser[] }) {
         className="border-b"
         header={
           <TableRow>
-            <TableHead className="w-[50px]">
+            <TableHead border={false} className="w-[50px]">
               <Checkbox
                 className="border-gray-450"
                 checked={Object.values(selectedUsers).some(Boolean)}
@@ -73,8 +73,9 @@ export function UsersTable({ users }: { users: ParsedUser[] }) {
                 }}
               />
             </TableHead>
-            <TableHead className="w-[100px]">User</TableHead>
+            <TableHead>User</TableHead>
             <TableHead>Portfolio Value</TableHead>
+            <TableHead>Transactions</TableHead>
             <TableHead>Activity</TableHead>
             <TableHead>Trait</TableHead>
             <TableHead>Tokens</TableHead>
