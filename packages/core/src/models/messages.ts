@@ -22,6 +22,7 @@ export enum ConversationRole {
  */
 export type MessageContent =
   | TextMessageContent
+  | TextRecommendationMessageContent
   | SystemErrorMessageContent
   | OnchainKitMessageContent
   | UniswapSwapMessageContent;
@@ -32,6 +33,14 @@ export type MessageContent =
 export interface TextMessageContent {
   type: 'text';
   content: string;
+}
+
+/**
+ * Text recommendations for next message content.
+ */
+export interface TextRecommendationMessageContent {
+  type: 'text:recommendation';
+  content: Record<string, string>; // keyword -> full_text_message
 }
 
 /**
