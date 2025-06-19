@@ -2,7 +2,6 @@
 
 import { AnimatedLoadingSmall } from '@/components/animated-components/animated-loading-small';
 import { UsersTable } from '@/components/app-users/app-users-table';
-import { PrimaryButton } from '@/components/buttons/primary-button';
 import { SearchInput } from '@/components/inputs/search-input';
 import { generateMockUsers } from '@/constants/mockUsers';
 import { consumePersona } from '@/core/persona';
@@ -41,7 +40,7 @@ export function UserDirectoryLayout({ users, loading }: { users: ParsedUser[]; l
                 setSearchQuery={setSearchQuery}
                 placeholder="Search ENS or address"
               />
-              <PrimaryButton onClick={() => setViewDemo(true)}>View demo</PrimaryButton>
+              {/* <PrimaryButton onClick={() => setViewDemo(true)}>View demo</PrimaryButton> */}
             </div>
           </div>
           <UsersTable users={_users} />
