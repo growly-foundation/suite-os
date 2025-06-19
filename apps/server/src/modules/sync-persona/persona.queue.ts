@@ -37,7 +37,10 @@ export class PersonaQueueProcessor {
 
     try {
       // Update status to running
-      await this.userPersonaService.updateStatus(walletAddress, 'running');
+      const existingUserPersona = await this.userPersonaService.updateStatus(
+        walletAddress,
+        'running'
+      );
 
       this.logger.debug(`Building persona data for wallet: ${walletAddress}`);
 
@@ -68,9 +71,9 @@ export class PersonaQueueProcessor {
 
       // Transform the analysis result to match our database schema
       const p: UserPersonaMetadata = {
-        identities: {},
-        activities: {},
-        portfolio_snapshots: {},
+        identities: existingUserPersona.identities || {},
+        activities: existingUserPersona.activities || {},
+        portfolio_snapshots: existingUserPersona.portfolio_snapshots || {},
       };
 
       // Identities
