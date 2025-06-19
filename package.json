@@ -1,47 +1,51 @@
 {
   "name": "@getgrowly/monorepo",
+  "license": "MIT",
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint --debug --fix '**/*.{js,jsx,ts,tsx}'",
-    "install:website": "pnpm install --filter @getgrowly/website --filter @getgrowly/suite --filter @getgrowly/ui --filter @getgrowly/core && pnpm run postinstall:website",
-    "install:dashboard": "pnpm install --filter @getgrowly/dashboard --filter @getgrowly/suite --filter @getgrowly/ui --filter @getgrowly/core && pnpm run postinstall:dashboard",
-    "postinstall:website": "cd apps/website",
-    "postinstall:dashboard": "cd apps/dashboard",
-    "format": "pnpx prettier --config .prettierrc.cjs '**/*.{js,jsx,ts,tsx}' --write",
+    "build": "pnpm -r run build",
+    "build:all": "turbo run build",
+    "build:dashboard": "pnpm build:shared --filter @getgrowly/dashboard",
+    "build:shared": "pnpm run build:all --filter @getgrowly/chainsmith --filter @getgrowly/persona --filter @getgrowly/ui --filter @getgrowly/core --filter @getgrowly/suite",
+    "build:website": "pnpm build:shared --filter @getgrowly/website",
+    "changeset": "changeset",
+    "changeset:publish": "pnpm build && changeset publish",
+    "changeset:version": "changeset version",
     "check": "pnpx prettier --config .prettierrc.cjs '**/*.{js,jsx,ts,tsx}' --check && eslint '**/*.{js,jsx,ts,tsx}'",
+    "check:unused": "depcheck --ignore-dirs=node_modules,build,dist,.next",
+    "clean:node_modules": "rm -rf node_modules apps/*/node_modules packages/*/node_modules",
     "dev": "pnpm -r dev --parallel",
     "dev:custom": "sh -c 'for pkg in $(echo $PACKAGES | tr \",\" \" \"); do cd packages/$pkg && pnpm dev && cd -; done' || sh -c 'for pkg in $(echo $APPS | tr \",\" \" \"); do cd apps/$pkg && pnpm dev && cd -; done'",
     "dev:suite": "PACKAGES=ui,suite pnpm run dev:custom",
     "dev:website": "cd apps/website && pnpm dev && cd -",
-    "build": "pnpm -r run build",
-    "build:all": "turbo run build",
-    "build:shared": "pnpm run build:all --filter @getgrowly/ui --filter @getgrowly/core --filter @getgrowly/suite",
-    "build:website": "pnpm build:shared --filter @getgrowly/website",
-    "build:dashboard": "pnpm build:shared --filter @getgrowly/dashboard",
-    "clean:node_modules": "rm -rf node_modules apps/*/node_modules packages/*/node_modules",
     "f:agents": "pnpm --filter @getgrowly/agents",
     "f:core": "pnpm --filter @getgrowly/core",
     "f:dashboard": "pnpm --filter @getgrowly/dashboard",
-    "f:server": "pnpm --filter @getgrowly/server",
-    "f:ui": "pnpm --filter @getgrowly/ui",
-    "f:suite": "pnpm --filter @getgrowly/suite",
-    "f:website": "pnpm --filter @getgrowly/website",
     "f:play": "pnpm --filter @getgrowly/playground",
-    "changeset": "changeset",
-    "changeset:version": "changeset version",
-    "changeset:publish": "pnpm build && changeset publish",
+    "f:server": "pnpm --filter @getgrowly/server",
+    "f:suite": "pnpm --filter @getgrowly/suite",
+    "f:ui": "pnpm --filter @getgrowly/ui",
+    "f:website": "pnpm --filter @getgrowly/website",
+    "format": "pnpx prettier --config .prettierrc.cjs '**/*.{js,jsx,ts,tsx}' --write",
+    "preinstall": "npx only-allow pnpm",
+    "install:dashboard": "pnpm run install:shared && pnpm install --filter @getgrowly/dashboard && pnpm run postinstall:dashboard",
+    "postinstall:dashboard": "cd apps/dashboard",
+    "install:shared": "pnpm install --filter @getgrowly/suite --filter @getgrowly/ui --filter @getgrowly/chainsmith --filter @getgrowly/persona --filter @getgrowly/core",
+    "install:website": "pnpm run install:shared && pnpm install --filter @getgrowly/website && pnpm run postinstall:website",
+    "postinstall:website": "cd apps/website",
+    "lint": "eslint --debug --fix '**/*.{js,jsx,ts,tsx}'",
     "release:check": "changeset status --verbose --since=origin/main",
-    "release:version": "changeset version",
     "release:shared": "pnpm run build:shared && changeset version && changeset publish",
-    "check:unused": "depcheck --ignore-dirs=node_modules,build,dist,.next"
+    "release:version": "changeset version",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "precommit.silent": true,
   "pre-commit": [
     "format",
     "lint"
   ],
-  "license": "MIT",
+  "dependencies": {
+    "pino-pretty": "^13.0.0",
+    "react-toastify": "^11.0.5"
+  },
   "devDependencies": {
     "@changesets/cli": "^2.27.10",
     "@eslint/js": "^9.22.0",
@@ -66,12 +70,9 @@
     "typescript-eslint": "^8.26.1"
   },
   "packageManager": "pnpm@10.6.3",
-  "dependencies": {
-    "pino-pretty": "^13.0.0",
-    "react-toastify": "^11.0.5"
-  },
-  "engineStrict": true,
   "engines": {
     "node": ">=23.9.0"
-  }
+  },
+  "engineStrict": true,
+  "precommit.silent": true
 }
