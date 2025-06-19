@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import {
   EvmChainService,
   GuildXyzService,
+  NameService,
   OnchainBusterService,
   TalentProtocolService,
 } from '@getgrowly/persona';
@@ -29,9 +30,10 @@ export const PersonaProvider: Provider = {
       registry.Adapters.Evmscan,
       registry.Plugins.ZerionPortfolio
     );
+    const nameService = new NameService();
     return {
       evm: evmChainService,
-      buster: new OnchainBusterService(evmChainService),
+      buster: new OnchainBusterService(evmChainService, nameService),
       guildXyz: new GuildXyzService(),
       talent: new TalentProtocolService(
         configService.get('TALENT_API_KEY') || '',

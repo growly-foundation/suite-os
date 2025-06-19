@@ -1,19 +1,21 @@
 import { TAddress, TChainName } from '@getgrowly/chainsmith/types';
 
 import { EvmChainService } from '../src/services/evm';
+import { AdapterRegistry, chainsmithSdk, zerionPortfolioPlugin } from './config';
 
 const EXAMPLE_WALLET = '0x6c34C667632dC1aAF04F362516e6F44D006A58fa' as TAddress;
 
 // Supported chains to test
-const CHAINS: TChainName[] = ['mainnet', 'base', 'optimism'];
+const chainNames: TChainName[] = ['mainnet', 'base', 'optimism'];
+const sdk = chainsmithSdk(chainNames);
 
 async function demonstrateEvmChainService() {
-  const evmService = new EvmChainService();
+  const evmService = new EvmChainService(sdk, AdapterRegistry.Evmscan, zerionPortfolioPlugin);
 
   console.log('🚀 Testing EvmChainService Capabilities');
   console.log('='.repeat(60));
   console.log(`📍 Wallet Address: ${EXAMPLE_WALLET}`);
-  console.log(`🔗 Chains: ${CHAINS.join(', ')}`);
+  console.log(`🔗 Chains: ${chainNames.join(', ')}`);
   console.log('\n');
 
   try {
@@ -21,10 +23,7 @@ async function demonstrateEvmChainService() {
     console.log('📊 1. Fetching Token Transfer Activities...');
     console.log('-'.repeat(40));
 
-    const tokenActivities = await evmService.listMultichainTokenTransferActivities(
-      EXAMPLE_WALLET,
-      CHAINS
-    );
+    const tokenActivities = await evmService.listMultichainTokenTransferActivities(EXAMPLE_WALLET);
 
     console.log('Token Activities Summary:');
     for (const [chain, activities] of Object.entries(tokenActivities)) {
@@ -43,10 +42,7 @@ async function demonstrateEvmChainService() {
     console.log('🖼️  2. Fetching NFT Transfer Activities...');
     console.log('-'.repeat(40));
 
-    const nftActivities = await evmService.listMultichainNftTransferActivities(
-      EXAMPLE_WALLET,
-      CHAINS
-    );
+    const nftActivities = await evmService.listMultichainNftTransferActivities(EXAMPLE_WALLET);
 
     console.log('NFT Activities Summary:');
     for (const [chain, activities] of Object.entries(nftActivities)) {
@@ -65,7 +61,7 @@ async function demonstrateEvmChainService() {
     console.log('💰 3. Fetching Token Portfolio...');
     console.log('-'.repeat(40));
 
-    const tokenPortfolio = await evmService.getWalletTokenPortfolio(EXAMPLE_WALLET, CHAINS);
+    const tokenPortfolio = await evmService.getWalletTokenPortfolio(EXAMPLE_WALLET);
 
     console.log('Token Portfolio Summary:');
     console.log(
@@ -98,7 +94,7 @@ async function demonstrateEvmChainService() {
     console.log('🎨 4. Fetching NFT Portfolio...');
     console.log('-'.repeat(40));
 
-    const nftPortfolio = await evmService.getWalletNftPortfolio(EXAMPLE_WALLET, CHAINS);
+    const nftPortfolio = await evmService.getWalletNftPortfolio(EXAMPLE_WALLET);
 
     console.log('NFT Portfolio Summary:');
     console.log(`  Total NFT Value: $${nftPortfolio.totalUsdValue?.toLocaleString() || 'N/A'}`);
@@ -129,7 +125,7 @@ async function demonstrateEvmChainService() {
     console.log('🔍 5. Chain-by-Chain Analysis...');
     console.log('-'.repeat(40));
 
-    for (const chain of CHAINS) {
+    for (const chain of chainNames) {
       console.log(`\n📍 ${chain.toUpperCase()} Analysis:`);
 
       const chainTokenActivities = tokenActivities[chain] || [];

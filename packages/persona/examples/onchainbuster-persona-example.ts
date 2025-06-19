@@ -1,13 +1,14 @@
 import { TAddress, TChainName } from '@getgrowly/chainsmith/types';
 import { formatDuration } from '@getgrowly/chainsmith/utils';
 
-import { EvmChainService, OnchainBusterService } from '../src/services';
+import { EvmChainService, NameService, OnchainBusterService } from '../src/services';
 import { AdapterRegistry, chainsmithSdk, zerionPortfolioPlugin } from './config';
 
 const chainNames: TChainName[] = ['mainnet', 'base', 'optimism'];
 const sdk = chainsmithSdk(chainNames);
 const evmChainService = new EvmChainService(sdk, AdapterRegistry.Evmscan, zerionPortfolioPlugin);
-const onchainBuster = new OnchainBusterService(evmChainService);
+const nameService = new NameService();
+const onchainBuster = new OnchainBusterService(evmChainService, nameService);
 
 /**
  * Example usage of the enhanced OnchainBusterService with persona classification
@@ -111,7 +112,9 @@ export async function personaAnalysisExample(): Promise<void> {
 }
 
 export async function evmExample() {
-  const ens = await onchainBuster.fetchWalletEns('0x6c34c667632dc1aaf04f362516e6f44d006a58fa');
+  const ens = await onchainBuster.fetchWalletNameService(
+    '0x6c34c667632dc1aaf04f362516e6f44d006a58fa'
+  );
   console.log(ens);
 }
 

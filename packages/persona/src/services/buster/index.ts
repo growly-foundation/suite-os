@@ -18,12 +18,16 @@ import {
 } from '@getgrowly/chainsmith/utils';
 
 import { EvmChainService } from '../evm';
+import { NameService } from '../name-service';
 import { PersonaClassifierService } from '../persona-classifier';
 
 export class OnchainBusterService {
   private personaClassifier: PersonaClassifierService;
 
-  constructor(private evmChainService: EvmChainService) {
+  constructor(
+    private evmChainService: EvmChainService,
+    private nameService: NameService
+  ) {
     this.personaClassifier = new PersonaClassifierService(evmChainService);
   }
 
@@ -139,11 +143,18 @@ export class OnchainBusterService {
   };
 
   /**
-   * Get the ENS name and avatar for a wallet
+   * Get the multichain name and avatar for a wallet
    */
-  fetchWalletEns = async (
+  fetchWalletNameService = async (
     addressInput: TAddress
-  ): Promise<{ ensName: string; ensAvatar: string }> => {
-    return this.evmChainService.getWalletEnsName(addressInput);
+  ): Promise<TMultichain<{ name: string; avatar: string }>> => {
+    const ens = await this.nameService.getEthereumNameService(addressInput);
+    const basename = await this.nameService.getBaseNameService(addressInput);
+
+    // TODO: Add more chains when available
+    return {
+      mainnet: ens,
+      base: basename,
+    };
   };
 }
