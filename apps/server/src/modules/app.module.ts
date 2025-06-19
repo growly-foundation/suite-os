@@ -17,6 +17,7 @@ import { UserModule } from './user/user.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
+    UserModule,
     BullModule,
     SyncPersonaModule,
     DatabaseModule,
@@ -25,7 +26,6 @@ import { UserModule } from './user/user.module';
     MessageModule,
     GrowlyModule,
     SuiteCoreModule,
-    UserModule,
   ],
 })
 export class AppModule implements NestModule {
