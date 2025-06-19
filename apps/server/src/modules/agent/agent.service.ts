@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import {
   AgentOptions,
   ChatProvider,
+  RecommendationService,
   agentPromptTemplate,
   beastModeDescription,
   createAgent,
@@ -150,6 +151,42 @@ export class AgentService {
         response.agent += messages[0].content;
       }
     }
+
+    // Always generate recommendations using RecommendationService
+    if (response.agent.trim()) {
+      this.logger.debug('✨ [Generating recommendations]: Using RecommendationService directly');
+      try {
+        const recommendationService = new RecommendationService(provider, false);
+        const recommendations = await recommendationService.generateRecommendations({
+          userMessage: message,
+          agentResponse: response.agent,
+          agentCapabilities: [
+            'Portfolio analysis with Zerion',
+            'DeFi protocol information via DefiLlama',
+            'Token swaps through Uniswap',
+            'Crypto market research with Tavily',
+            'Risk assessment and rebalancing',
+            'Yield farming opportunities',
+          ],
+        });
+
+        if (
+          recommendations.recommendations &&
+          Object.keys(recommendations.recommendations).length > 0
+        ) {
+          response.tools.push({
+            type: 'text:recommendation',
+            content: recommendations.recommendations,
+          });
+          this.logger.debug(
+            `✨ [Generated recommendations]: ${JSON.stringify(recommendations.recommendations)}`
+          );
+        }
+      } catch (error) {
+        this.logger.error(`Failed to generate recommendations: ${error.message}`);
+      }
+    }
+
     return response;
   }
 

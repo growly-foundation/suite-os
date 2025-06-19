@@ -27,7 +27,7 @@ export function createSwapRecommendation(
   // We'll create a placeholder link and then update it asynchronously
   const uniswapLink = `https://app.uniswap.org/swap?chain=${chain}`;
 
-  let tokenAmount = 0;
+  let tokenAmount = valueToSwap;
   if (fromToken.price > 0) {
     tokenAmount = valueToSwap / fromToken.price;
   }
@@ -145,11 +145,11 @@ export async function createSwapBySymbols(
       name: fromSymbol, // Using symbol as name since we don't have the actual name
       chain,
       address: fromAddress,
-      value: amount, // Setting value to the amount for simplicity
+      value: 0, // We don't know the value yet
       percentage: 0, // Not relevant for direct swap
       type: 'wallet',
       price: 0, // We don't have price info here
-      quantity: 0, // We don't have quantity info here
+      quantity: amount, // Use from input
     };
 
     const toToken: TokenInfo = {

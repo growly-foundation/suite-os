@@ -56,6 +56,56 @@ export const ChatMessageView = ({
     return messages.slice(messages.length - visibleMessageCount);
   }, [messages, visibleMessageCount]);
 
+  // Group messages: combine agent text messages with ALL their following tool messages
+  const groupedMessages = React.useMemo(() => {
+    const grouped: Array<{
+      message: ParsedMessage;
+      toolMessages: ParsedMessage[];
+    }> = [];
+
+    for (let i = 0; i < visibleMessages.length; i++) {
+      const currentMessage = visibleMessages[i];
+
+      // Skip standalone tool messages (they'll be grouped with agent messages)
+      if (currentMessage.sender === 'assistant' && currentMessage.type !== 'text') {
+        continue;
+      }
+
+      // For agent text messages, collect ALL following tool messages
+      if (currentMessage.sender === 'assistant' && currentMessage.type === 'text') {
+        const toolMessages: ParsedMessage[] = [];
+
+        // Look ahead for consecutive tool messages from the same agent
+        let j = i + 1;
+        while (j < visibleMessages.length) {
+          const nextMessage = visibleMessages[j];
+
+          // If it's an agent message but not text, it's a tool message
+          if (nextMessage.sender === 'assistant' && nextMessage.type !== 'text') {
+            toolMessages.push(nextMessage);
+            j++;
+          } else {
+            // Stop when we hit a user message or another agent text message
+            break;
+          }
+        }
+
+        grouped.push({
+          message: currentMessage,
+          toolMessages,
+        });
+      } else {
+        // For user messages or other message types
+        grouped.push({
+          message: currentMessage,
+          toolMessages: [],
+        });
+      }
+    }
+
+    return grouped;
+  }, [visibleMessages]);
+
   // Handle loading more messages
   const loadPreviousMessages = () => {
     setVisibleMessageCount(prev => Math.min(prev + MESSAGES_PER_PAGE, messages.length));
@@ -99,15 +149,16 @@ export const ChatMessageView = ({
                   </Button>
                 </div>
               )}
-              {visibleMessages.map((message, index) => {
-                const previousMessage = index > 0 ? visibleMessages[index - 1] : null;
+              {groupedMessages.map((group, index) => {
+                const previousMessage = index > 0 ? groupedMessages[index - 1].message : null;
                 return (
                   <ChatResponse
-                    key={message.id}
-                    message={message}
+                    key={group.message.id}
+                    message={group.message}
                     viewAs={viewAs}
-                    showAvatar={shouldShowAvatar(message, previousMessage)}
+                    showAvatar={shouldShowAvatar(group.message, previousMessage)}
                     user={user}
+                    toolMessages={group.toolMessages}
                   />
                 );
               })}

@@ -1,4 +1,4 @@
-import { RenderMessage } from '@/components/messages';
+import { RenderMessage, RenderMessageContent } from '@/components/messages';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -98,15 +98,85 @@ const LeftResponseLayout = ({
   );
 };
 
+// Custom component to handle agent messages with all tool outputs
+const AgentMessageWithTools = ({
+  textMessage,
+  toolMessages,
+  showAvatar = true,
+  noAvatar = false,
+}: {
+  textMessage: ParsedMessage;
+  toolMessages: ParsedMessage[];
+  showAvatar?: boolean;
+  noAvatar?: boolean;
+}) => {
+  const { theme } = useTheme();
+
+  return (
+    <motion.div
+      id={textMessage.id}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="flex space-x-2"
+      style={{ marginBottom: showAvatar ? 10 : 2 }}>
+      {!noAvatar && (
+        <ChatResponseAvatar showAvatar={showAvatar}>
+          <SuiteUser width={30} height={30} style={{ minWidth: 30, minHeight: 30 }} />
+        </ChatResponseAvatar>
+      )}
+      <div className="flex-1">
+        {/* Agent message in grey card */}
+        <Card
+          className={cn('py-2 px-4 mb-2', text.body)}
+          style={{
+            backgroundColor: theme.background.paper,
+            color: theme.text.primary,
+            border: 'none',
+            boxShadow: 'none',
+          }}>
+          <RenderMessage message={textMessage} />
+        </Card>
+
+        {/* All tool outputs outside the card */}
+        {toolMessages.length > 0 && (
+          <div className="ml-0 space-y-2">
+            {toolMessages.map(toolMessage => (
+              <div key={toolMessage.id}>
+                <RenderMessageContent message={toolMessage} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+};
+
 const AgentResponse = ({
   message,
   showAvatar = true,
   noAvatar = false,
+  toolMessages,
 }: {
   message: ParsedMessage;
   showAvatar?: boolean;
   noAvatar?: boolean;
+  toolMessages?: ParsedMessage[];
 }) => {
+  // If this is a text message with tool outputs, use the special component
+  if (message.type === 'text' && toolMessages && toolMessages.length > 0) {
+    return (
+      <AgentMessageWithTools
+        textMessage={message}
+        toolMessages={toolMessages}
+        showAvatar={showAvatar}
+        noAvatar={noAvatar}
+      />
+    );
+  }
+
+  // For non-text messages or messages without tools, use the normal layout
   return (
     <LeftResponseLayout
       message={message}
@@ -184,12 +254,14 @@ const ChatResponse = ({
   showAvatar = true,
   ref,
   user,
+  toolMessages,
 }: {
   message: ParsedMessage;
   viewAs: ConversationRole;
   showAvatar?: boolean;
   ref?: React.RefObject<HTMLDivElement> | null;
   user: User;
+  toolMessages?: ParsedMessage[];
 }) => {
   switch (message.sender) {
     case ConversationRole.User:
@@ -212,6 +284,7 @@ const ChatResponse = ({
             message={message}
             noAvatar={viewAs === ConversationRole.Agent}
             showAvatar={showAvatar && viewAs !== ConversationRole.Agent}
+            toolMessages={toolMessages}
           />
         </div>
       );
