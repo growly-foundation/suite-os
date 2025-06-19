@@ -9,6 +9,7 @@ import { ParsedMessage } from '@getgrowly/core';
 import { buildOnchainKitSwapMessage, buildOnchainKitTokenChipMessage } from './onchainkit';
 import { buildSystemErrorMessage } from './system';
 import { buildMarkdownMessage } from './system/markdown';
+import { buildRecommendationChips } from './system/recommendations';
 import { buildTextMessage } from './system/text';
 import { buildUniswapSwapMessage } from './uniswap';
 
@@ -33,6 +34,9 @@ export const RenderMessageContent = ({ message }: { message: ParsedMessage }) =>
       return buildTextMessage(message.content);
     }
     return buildMarkdownMessage(message.content);
+  }
+  if (message.type === 'text:recommendation') {
+    return buildRecommendationChips(message.content);
   }
   if (message.type === 'system:error') {
     return buildSystemErrorMessage(message.content);
