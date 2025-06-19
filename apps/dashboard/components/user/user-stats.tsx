@@ -1,4 +1,5 @@
 import { consumePersona } from '@/core/persona';
+
 import { ParsedUser } from '@getgrowly/core';
 
 interface StatItemProps {
@@ -19,7 +20,7 @@ function StatItem({ label, value }: StatItemProps) {
 }
 
 /**
- * User statistics panel component 
+ * User statistics panel component
  */
 export function UserStats({ user }: { user: ParsedUser }) {
   const userPersona = consumePersona(user);

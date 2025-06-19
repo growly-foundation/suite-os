@@ -5,15 +5,15 @@ import { Award, ExternalLink } from 'lucide-react';
 import { ParsedUser } from '@getgrowly/core';
 import { WalletAddress } from '@getgrowly/ui';
 
-import { Badge } from '../ui/badge';
 import { AppUserAvatarWithStatus } from '../app-users/app-user-avatar-with-status';
+import { Badge } from '../ui/badge';
 
 interface UserProfileHeaderProps {
   user: ParsedUser;
 }
 
 /**
- * User profile header component displaying avatar, name, wallet address, 
+ * User profile header component displaying avatar, name, wallet address,
  * description and dominant trait information
  */
 export function UserProfileHeader({ user }: UserProfileHeaderProps) {

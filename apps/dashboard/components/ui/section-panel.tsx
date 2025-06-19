@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+
 import { SectionHeader, SectionHeaderProps } from './section-header';
 
 interface SectionPanelProps extends SectionHeaderProps {

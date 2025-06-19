@@ -1,7 +1,9 @@
 'use client';
 
 import { consumePersona } from '@/core/persona';
+
 import { ParsedUser } from '@getgrowly/core';
+
 import { ActivityPreview } from './activity-preview';
 
 interface ActivitiesListProps {
@@ -23,12 +25,7 @@ export function ActivitiesList({ user, limit = 5 }: ActivitiesListProps) {
   return (
     <div className="space-y-3">
       {activities.map((activity, index) => (
-        <ActivityPreview
-          key={index}
-          activity={activity}
-          userId={user.id}
-          variant="expanded"
-        />
+        <ActivityPreview key={index} activity={activity} userId={user.id} variant="expanded" />
       ))}
     </div>
   );

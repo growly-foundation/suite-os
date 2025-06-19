@@ -1,4 +1,5 @@
 import { formatNumber } from '@/lib/string.utils';
+
 import { AssetIcon } from '../ui/asset-icon';
 
 export interface TokenData {
@@ -19,11 +20,11 @@ interface TokenDisplayProps {
 /**
  * Reusable component for displaying token information
  */
-export function TokenDisplay({ 
-  token, 
-  showBalance = true, 
-  showPrice = true, 
-  showValue = true 
+export function TokenDisplay({
+  token,
+  showBalance = true,
+  showPrice = true,
+  showValue = true,
 }: TokenDisplayProps) {
   return (
     <div className="flex items-center justify-between">
@@ -47,9 +48,7 @@ export function TokenDisplay({
         </div>
       </div>
       {showValue && (
-        <div className="flex items-center gap-1 text-xs">
-          ${formatNumber(token.usdValue)}
-        </div>
+        <div className="flex items-center gap-1 text-xs">${formatNumber(token.usdValue)}</div>
       )}
     </div>
   );

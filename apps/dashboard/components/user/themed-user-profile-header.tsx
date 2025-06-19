@@ -3,13 +3,13 @@
 import { Button } from '@/components/ui/button';
 import { consumePersona } from '@/core/persona';
 import { Award, ExternalLink } from 'lucide-react';
-import { useTheme } from '@getgrowly/ui';
 
 import { ParsedUser } from '@getgrowly/core';
+import { useTheme } from '@getgrowly/ui';
 import { WalletAddress } from '@getgrowly/ui';
 
-import { Badge } from '../ui/badge';
 import { AppUserAvatarWithStatus } from '../app-users/app-user-avatar-with-status';
+import { Badge } from '../ui/badge';
 
 interface UserProfileHeaderProps {
   user: ParsedUser;
@@ -26,18 +26,14 @@ export function ThemedUserProfileHeader({ user }: UserProfileHeaderProps) {
   const dominantTraitScore = userPersona.dominantTraitScore();
 
   return (
-    <div 
+    <div
       className="flex flex-col items-center justify-center p-6 border-b"
-      style={{ 
+      style={{
         backgroundColor: theme.background.card,
         borderColor: theme.border.default,
-      }}
-    >
+      }}>
       <AppUserAvatarWithStatus user={user} size={80} />
-      <h3 
-        className="font-semibold text-lg" 
-        style={{ color: theme.text.default }}
-      >
+      <h3 className="font-semibold text-lg" style={{ color: theme.text.default }}>
         {nameService?.name}
       </h3>
       <div className="flex items-center gap-2 mt-1">
@@ -46,22 +42,18 @@ export function ThemedUserProfileHeader({ user }: UserProfileHeaderProps) {
           <ExternalLink className="h-3 w-3" />
         </Button>
       </div>
-      <p 
-        className="text-sm text-center mt-2"
-        style={{ color: theme.text.muted }}
-      >
+      <p className="text-sm text-center mt-2" style={{ color: theme.text.muted }}>
         {user.offchainData?.description || 'No description'}
       </p>
 
       {/* Reputation */}
       <div className="flex items-center gap-2 mt-3">
-        <Badge 
-          variant="secondary" 
+        <Badge
+          variant="secondary"
           style={{
             backgroundColor: theme.brand.accent + '20', // Adding transparency
-            color: theme.brand.accent
-          }}
-        >
+            color: theme.brand.accent,
+          }}>
           <Award className="h-3 w-3 mr-1" />
           {dominantTrait?.toString() || 'No dominant trait'} • {dominantTraitScore || 'No score'}
         </Badge>
