@@ -28,7 +28,7 @@ export class UserService {
       if (!conversation.user_id) continue;
       const user = await this.getUserById(conversation.user_id);
       if (!user) continue;
-      const parsedUser = await this.#getUserWithPersona(user);
+      const parsedUser = await this.getUserWithPersona(user);
       users.push(parsedUser);
     }
     return users;
@@ -37,7 +37,7 @@ export class UserService {
   async getUserById(user_id: string): Promise<ParsedUser | null> {
     const user = await this.userDatabaseService.getById(user_id);
     if (!user) return null;
-    return this.#getUserWithPersona(user);
+    return this.getUserWithPersona(user);
   }
 
   async getUsersByOrganizationId(organization_id: string): Promise<ParsedUser[]> {
@@ -54,7 +54,7 @@ export class UserService {
           .filter(conversation => conversation.user_id)
           .map(conversation => conversation.user_id!)
       )
-      .then(users => users.map(user => this.#getUserWithPersona(user)));
+      .then(users => users.map(user => this.getUserWithPersona(user)));
     return await Promise.all(users);
   }
 
@@ -64,7 +64,7 @@ export class UserService {
       return (user.entities as { walletAddress: string }).walletAddress === walletAddress;
     });
     if (!parsedUser) return null;
-    return this.#getUserWithPersona(parsedUser);
+    return this.getUserWithPersona(parsedUser);
   }
 
   async createUserFromAddressIfNotExist(
@@ -77,23 +77,17 @@ export class UserService {
         walletAddress,
       },
     });
-    await this.userPersonaDatabaseService.create({
-      id: (newUser.entities as { walletAddress: string }).walletAddress,
-      identities: {},
-      activities: {},
-      portfolio_snapshots: {},
-    });
+    await this.createUserPersonaIfNotExist(walletAddress);
+    const userWithPersona = await this.getUserWithPersona(newUser);
     return {
-      user: await this.#getUserWithPersona(newUser),
+      user: userWithPersona,
       new: true,
     };
   }
 
-  async #getUserWithPersona(user: User): Promise<ParsedUser> {
+  async getUserWithPersona(user: User): Promise<ParsedUser> {
     const walletAddress = (user.entities as { walletAddress: string }).walletAddress as Address;
-    const userPersona = (await this.userPersonaDatabaseService.getById(
-      walletAddress
-    )) as ParsedUserPersona;
+    const userPersona = await this.createUserPersonaIfNotExist(walletAddress);
     return {
       ...user,
       entities: {
@@ -115,5 +109,17 @@ export class UserService {
         unread: false,
       },
     };
+  }
+
+  async createUserPersonaIfNotExist(walletAddress: string): Promise<ParsedUserPersona> {
+    const userPersona = await this.userPersonaDatabaseService.getById(walletAddress);
+    if (userPersona) return userPersona as ParsedUserPersona;
+    const newUserPersona = await this.userPersonaDatabaseService.create({
+      id: walletAddress,
+      identities: {},
+      activities: {},
+      portfolio_snapshots: {},
+    });
+    return newUserPersona as ParsedUserPersona;
   }
 }
