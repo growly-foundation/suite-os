@@ -1,6 +1,7 @@
 import { Database, Tables } from '@/types/database.types';
 
 import { types } from '@getgrowly/chainsmith';
+import { TMultichain } from '@getgrowly/chainsmith/types';
 import {
   PersonaTrait,
   TraitScore,
@@ -22,6 +23,12 @@ export type UserPersonaMetadata = {
     // Third-party data.
     talentProtocol?: WalletTalentData;
     guildXyz?: WalletGuildData;
+
+    // Name service.
+    nameService?: TMultichain<{
+      name?: string;
+      avatar?: string;
+    }>;
   };
   activities: {
     totalTransactions?: number;

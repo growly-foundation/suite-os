@@ -93,19 +93,14 @@ export class UserService {
       entities: {
         walletAddress,
       },
-      onchainData: {
-        ensName: 'admin.eth',
-        avatar: undefined,
-        ...userPersona,
-      },
+      onchainData: userPersona,
       offchainData: {
-        company: 'Web3 Support',
-        description: 'Blockchain support specialist helping users navigate DeFi and Web3.',
+        company: '',
+        description: '',
       },
       chatSession: {
         status: SessionStatus.Online,
         lastMessageTime: user.created_at,
-        online: true,
         unread: false,
       },
     };

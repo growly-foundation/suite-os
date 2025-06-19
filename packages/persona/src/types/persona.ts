@@ -1,8 +1,8 @@
 export enum PersonaTrait {
-  OG = 'OG (Conservative)',
-  DEFI_CHAD = 'DeFi Chad (Moderate)',
-  DEGEN = 'Degen (Aggressive)',
-  VIRGIN_CT = 'Virgin CT (Newbie)',
+  OG = 'OG',
+  DEFI_CHAD = 'DeFi Chad',
+  DEGEN = 'Degen',
+  VIRGIN_CT = 'Virgin CT',
 }
 
 export enum WeightLevel {

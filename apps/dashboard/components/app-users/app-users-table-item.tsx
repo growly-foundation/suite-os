@@ -1,10 +1,12 @@
+import { consumePersona } from '@/core/persona';
 import { formatNumber } from '@/lib/string.utils';
 import { MoreHorizontal } from 'lucide-react';
 
+import { iterateObject } from '@getgrowly/chainsmith/utils';
 import { ParsedUser } from '@getgrowly/core';
 import { WalletAddress } from '@getgrowly/ui';
 
-import { ActivityIcon } from '../transactions/activity-icon';
+import { ActivityIcon, TxActivityType } from '../transactions/activity-icon';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
 import { TableCell, TableRow } from '../ui/table';
@@ -22,8 +24,10 @@ export const UserTableItem = ({
   selected: boolean;
   onCheckedChange: (checked: boolean) => void;
 }) => {
-  const lastActivity = user.recentActivity[0];
-  const totalPortfolioValue = user.tokens.reduce((acc, token) => acc + token.value, 0);
+  const lastActivity = consumePersona(user).getLatestActivity();
+  const totalPortfolioValue = user.onchainData?.portfolio_snapshots?.totalValue || 0;
+  const mutlichainTokenPortfolio =
+    user.onchainData.portfolio_snapshots.tokenPortfolio?.chainRecordsWithTokens;
   return (
     <TableRow
       key={user.id}
@@ -39,16 +43,19 @@ export const UserTableItem = ({
       <TableCell>
         <div className="flex items-center text-sm space-x-3">
           <AppUserAvatarWithStatus user={user} size={30} />
-          <WalletAddress
-            className="text-xs hover:underline"
-            truncate
-            truncateLength={{ startLength: 12, endLength: 4 }}
-            address={user.address}
-            onClick={e => {
-              e.stopPropagation();
-              handleUserClick(user);
-            }}
-          />
+          <div>
+            <h3 className="font-bold">{consumePersona(user).nameService()?.name}</h3>
+            <WalletAddress
+              className="text-xs hover:underline"
+              truncate
+              truncateLength={{ startLength: 12, endLength: 4 }}
+              address={user.onchainData.id}
+              onClick={e => {
+                e.stopPropagation();
+                handleUserClick(user);
+              }}
+            />
+          </div>
         </div>
       </TableCell>
       <TableCell>
@@ -57,26 +64,39 @@ export const UserTableItem = ({
       <TableCell>
         {lastActivity ? (
           <div className="flex items-center gap-2">
-            <ActivityIcon type={lastActivity.type} />
-            <span className="text-sm line-clamp-1">{lastActivity.description}</span>
+            <ActivityIcon
+              type={lastActivity.from === user.id ? TxActivityType.Send : TxActivityType.Receive}
+            />
+            <span className="text-sm line-clamp-1">
+              {lastActivity.from === user.id
+                ? `Sent ${lastActivity.value} to ${lastActivity.to}`
+                : `Received ${lastActivity.value} from ${lastActivity.from}`}
+            </span>
           </div>
         ) : (
           <span className="text-sm text-muted-foreground">No activity</span>
         )}
       </TableCell>
       <TableCell>
-        <UserBadges badges={user.reputation.badges} />
+        <UserBadges
+          badges={
+            user.onchainData.identities.traitScores?.map(traitScore =>
+              traitScore.trait.toString()
+            ) || []
+          }
+        />
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-1">
-          {user.tokens.slice(0, 2).map((token, i) => (
-            <span key={i} className="text-xs bg-slate-100 px-2 py-1 rounded">
-              {token.symbol}
+          {iterateObject(mutlichainTokenPortfolio || {}, (chainName, tokenList) => (
+            <span key={chainName} className="text-xs bg-slate-100 px-2 py-1 rounded">
+              {tokenList.tokens.slice(0, 2).map((token, i) => (
+                <span key={i} className="text-xs bg-slate-100 px-2 py-1 rounded">
+                  {token.symbol}
+                </span>
+              ))}
             </span>
           ))}
-          {user.tokens.length > 2 && (
-            <div className="text-xs bg-slate-100 px-2 py-1 rounded">+{user.tokens.length - 2}</div>
-          )}
         </div>
       </TableCell>
       <TableCell className="text-right">

@@ -1,30 +1,31 @@
-export const getActivityColor = (type: string) => {
+export enum TxActivityType {
+  Send = 'send',
+  Receive = 'receive',
+}
+
+export const getActivityColor = (type: TxActivityType) => {
   switch (type) {
-    case 'send':
+    case TxActivityType.Send:
       return 'bg-red-100 text-red-600';
-    case 'receive':
+    case TxActivityType.Receive:
       return 'bg-green-100 text-green-600';
-    case 'vote':
-      return 'bg-blue-100 text-blue-600';
     default:
       return 'bg-purple-100 text-purple-600';
   }
 };
 
-export const getActivityIcon = (type: string) => {
+export const getActivityIcon = (type: TxActivityType) => {
   switch (type) {
-    case 'send':
+    case TxActivityType.Send:
       return '↗';
-    case 'receive':
+    case TxActivityType.Receive:
       return '↙';
-    case 'vote':
-      return '🗳';
     default:
       return '↔';
   }
 };
 
-export const ActivityIcon = ({ type }: { type: string }) => {
+export const ActivityIcon = ({ type }: { type: TxActivityType }) => {
   return (
     <div
       className={`h-6 w-6 rounded-full flex items-center justify-center text-xs ${getActivityColor(type)}`}>

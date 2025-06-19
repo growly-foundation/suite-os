@@ -6,8 +6,8 @@ export const formatDate = (dateString: string) => {
   });
 };
 
-export const formatNumber = (num: number) =>
-  num.toLocaleString('en-US', {
+export const formatNumber = (num: number | string) =>
+  Number(num).toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });

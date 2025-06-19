@@ -12,6 +12,7 @@
     "@auth/supabase-adapter": "^1.9.0",
     "@dagrejs/dagre": "^1.1.4",
     "@faker-js/faker": "^9.8.0",
+    "@getgrowly/chainsmith": "workspace:*",
     "@getgrowly/core": "workspace:*",
     "@getgrowly/suite": "workspace:*",
     "@getgrowly/ui": "workspace:*",

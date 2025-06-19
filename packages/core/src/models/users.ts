@@ -23,10 +23,7 @@ export enum SessionStatus {
   Offline = 'Offline',
 }
 
-export type UserOnchainData = {
-  ensName?: string;
-  avatar?: string;
-} & ParsedUserPersona;
+export type UserOnchainData = ParsedUserPersona;
 
 export type UserOffchainData = {
   company?: string;
@@ -36,6 +33,5 @@ export type UserOffchainData = {
 export type UserChatSession = {
   status: SessionStatus;
   lastMessageTime?: string;
-  online: boolean;
   unread: boolean;
 };

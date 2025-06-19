@@ -1,21 +1,14 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { consumePersona } from '@/core/persona';
 import { formatDate, formatNumber } from '@/lib/string.utils';
-import {
-  Activity,
-  Award,
-  ExternalLink,
-  ImageIcon,
-  TrendingDown,
-  TrendingUp,
-  Wallet,
-} from 'lucide-react';
+import { Activity, Award, ExternalLink, ImageIcon, Wallet } from 'lucide-react';
 import React from 'react';
 
 import { ParsedUser } from '@getgrowly/core';
 import { WalletAddress } from '@getgrowly/ui';
 
-import { ActivityIcon } from '../transactions/activity-icon';
+import { ActivityIcon, TxActivityType } from '../transactions/activity-icon';
 import { AppUserAvatarWithStatus } from './app-user-avatar-with-status';
 import { UserBadges } from './app-user-badges';
 
@@ -24,25 +17,35 @@ interface UserDetailsProps {
 }
 
 export function UserDetails({ user }: UserDetailsProps) {
+  const userPersona = consumePersona(user);
+  const nameService = userPersona.nameService();
+  const dominantTrait = userPersona.dominantTrait();
+  const dominantTraitScore = userPersona.dominantTraitScore();
+
+  const totalNftCount = userPersona.totalNftCount();
+  const totalMultichainTransactions = userPersona.totalMultichainTransactions();
+
   return (
     <React.Fragment>
       {/* Profile Header */}
       <div className="flex flex-col items-center justify-center p-6 border-b bg-white">
         <AppUserAvatarWithStatus user={user} size={80} />
-        <h3 className="font-semibold text-lg">{user.ensName}</h3>
+        <h3 className="font-semibold text-lg">{nameService?.name}</h3>
         <div className="flex items-center gap-2 mt-1">
-          <WalletAddress truncate address={user.address} />
+          <WalletAddress truncate address={user.onchainData.id} />
           <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
             <ExternalLink className="h-3 w-3" />
           </Button>
         </div>
-        <p className="text-sm text-center text-muted-foreground mt-2">{user.description}</p>
+        <p className="text-sm text-center text-muted-foreground mt-2">
+          {user.offchainData?.description || 'No description'}
+        </p>
 
         {/* Reputation */}
         <div className="flex items-center gap-2 mt-3">
           <Badge variant="secondary" className="bg-green-100 text-green-800">
             <Award className="h-3 w-3 mr-1" />
-            {user.reputation.level} • {user.reputation.score}
+            {dominantTrait?.toString() || 'No dominant trait'} • {dominantTraitScore || 'No score'}
           </Badge>
         </div>
       </div>
@@ -57,19 +60,15 @@ export function UserDetails({ user }: UserDetailsProps) {
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
               <p className="text-muted-foreground">Transactions</p>
-              <p className="font-medium">{formatNumber(user.stats.totalTransactions)}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Volume</p>
-              <p className="font-medium">{formatNumber(user.stats.totalVolume)}</p>
+              <p className="font-medium">{formatNumber(totalMultichainTransactions)}</p>
             </div>
             <div>
               <p className="text-muted-foreground">NFTs</p>
-              <p className="font-medium">{formatNumber(user.stats.nftCount)}</p>
+              <p className="font-medium">{formatNumber(totalNftCount)}</p>
             </div>
             <div>
               <p className="text-muted-foreground">Days Active</p>
-              <p className="font-medium">{formatNumber(user.stats.daysActive)}</p>
+              <p className="font-medium">{formatNumber(userPersona.dayActive() || 0)}</p>
             </div>
           </div>
         </div>
@@ -81,7 +80,7 @@ export function UserDetails({ user }: UserDetailsProps) {
             Top Holdings
           </h4>
           <div className="space-y-3">
-            {user.tokens.map((token, index) => (
+            {userPersona.universalTokenList().map((token, index) => (
               <div key={index} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="h-8 w-8 bg-slate-200 rounded-full flex items-center justify-center text-xs font-medium">
@@ -91,17 +90,11 @@ export function UserDetails({ user }: UserDetailsProps) {
                     <p className="text-sm font-medium">
                       {token.balance} {token.symbol}
                     </p>
-                    <p className="text-xs text-muted-foreground">{formatNumber(token.value)}</p>
+                    <p className="text-xs text-muted-foreground">{formatNumber(token.usdValue)}</p>
                   </div>
                 </div>
-                <div
-                  className={`flex items-center gap-1 text-xs ${token.change24h >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {token.change24h >= 0 ? (
-                    <TrendingUp className="h-3 w-3" />
-                  ) : (
-                    <TrendingDown className="h-3 w-3" />
-                  )}
-                  {Math.abs(token.change24h).toFixed(2)}%
+                <div className={`flex items-center gap-1 text-xs`}>
+                  {Math.abs(token.marketPrice).toFixed(2)}
                 </div>
               </div>
             ))}
@@ -112,33 +105,42 @@ export function UserDetails({ user }: UserDetailsProps) {
         <div className="p-4 bg-white border-b">
           <h4 className="text-sm font-semibold mb-3">Recent Activity</h4>
           <div className="space-y-3">
-            {user.recentActivity.slice(0, 3).map((activity, index) => (
-              <div key={index} className="flex items-start gap-3">
-                <div
-                  className={`h-6 w-6 rounded-full flex items-center justify-center text-xs ${
-                    activity.type === 'send'
-                      ? 'bg-red-100 text-red-600'
-                      : activity.type === 'receive'
-                        ? 'bg-green-100 text-green-600'
-                        : activity.type === 'vote'
-                          ? 'bg-blue-100 text-blue-600'
+            {userPersona
+              .universalTransactions()
+              .slice(0, 5)
+              .map((activity, index) => (
+                <div key={index} className="flex items-start gap-3">
+                  <div
+                    className={`h-6 w-6 rounded-full flex items-center justify-center text-xs ${
+                      activity.from === user.id
+                        ? 'bg-red-100 text-red-600'
+                        : activity.to === user.id
+                          ? 'bg-green-100 text-green-600'
                           : 'bg-purple-100 text-purple-600'
-                  }`}>
-                  <ActivityIcon type={activity.type} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm">{activity.description}</p>
-                  <div className="flex justify-between items-center">
-                    <p className="text-xs text-muted-foreground">
-                      {formatDate(activity.timestamp)}
+                    }`}>
+                    <ActivityIcon
+                      type={
+                        activity.from === user.id ? TxActivityType.Send : TxActivityType.Receive
+                      }
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm">
+                      {activity.from === user.id
+                        ? `Sent ${activity.value} to ${activity.to}`
+                        : `Received ${activity.value} from ${activity.from}`}
                     </p>
-                    {activity.value && (
-                      <p className="text-xs font-medium">{formatNumber(activity.value)}</p>
-                    )}
+                    <div className="flex justify-between items-center">
+                      <p className="text-xs text-muted-foreground">
+                        {formatDate(activity.timestamp)}
+                      </p>
+                      {activity.value && (
+                        <p className="text-xs font-medium">{formatNumber(activity.value)}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
 
@@ -149,22 +151,31 @@ export function UserDetails({ user }: UserDetailsProps) {
             Featured NFTs
           </h4>
           <div className="grid grid-cols-3 gap-2">
-            {user.nfts.slice(0, 6).map((nft, index) => (
-              <div key={index} className="aspect-square bg-slate-100 rounded-lg overflow-hidden">
-                <img
-                  src={nft.image || '/placeholder.svg'}
-                  alt={nft.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ))}
+            {userPersona
+              .universalNftList()
+              .slice(0, 6)
+              .map((nft, index) => (
+                <div key={index} className="aspect-square bg-slate-100 rounded-lg overflow-hidden">
+                  <img
+                    src={nft.imageUrl || '/placeholder.svg'}
+                    alt={nft.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
           </div>
         </div>
 
         {/* Reputation Badges */}
         <div className="p-4 bg-white">
           <h4 className="text-sm font-semibold mb-3">Reputation Badges</h4>
-          <UserBadges badges={user.reputation.badges} showAll />
+          <UserBadges
+            badges={
+              user.onchainData.identities.traitScores?.map(traitScore =>
+                traitScore.trait.toString()
+              ) || []
+            }
+          />
         </div>
       </div>
     </React.Fragment>

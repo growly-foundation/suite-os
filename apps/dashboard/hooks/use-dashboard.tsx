@@ -106,6 +106,7 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
   fetchUsersByOrganizationId: async (organizationId: string) => {
     set({ organizationUserStatus: 'loading' });
     const users = await suiteCore.users.getUsersByOrganizationId(organizationId);
+    console.log(users);
     set({ organizationUsers: users, organizationUserStatus: 'idle' });
     return users;
   },
