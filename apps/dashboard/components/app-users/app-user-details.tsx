@@ -4,9 +4,10 @@ import { consumePersona } from '@/core/persona';
 import { formatDate, formatNumber } from '@/lib/string.utils';
 import { Activity, Award, ExternalLink, ImageIcon, Wallet } from 'lucide-react';
 import React from 'react';
+import { formatUnits } from 'viem';
 
 import { ParsedUser } from '@getgrowly/core';
-import { WalletAddress } from '@getgrowly/ui';
+import { WalletAddress, truncateAddress } from '@getgrowly/ui';
 
 import { ActivityIcon, TxActivityType } from '../transactions/activity-icon';
 import { AppUserAvatarWithStatus } from './app-user-avatar-with-status';
@@ -19,6 +20,7 @@ interface UserDetailsProps {
 export function UserDetails({ user }: UserDetailsProps) {
   const userPersona = consumePersona(user);
   const nameService = userPersona.nameService();
+  console.log(nameService);
   const dominantTrait = userPersona.dominantTrait();
   const dominantTraitScore = userPersona.dominantTraitScore();
 
@@ -60,15 +62,15 @@ export function UserDetails({ user }: UserDetailsProps) {
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
               <p className="text-muted-foreground">Transactions</p>
-              <p className="font-medium">{formatNumber(totalMultichainTransactions)}</p>
+              <p className="font-medium">{parseInt(totalMultichainTransactions.toString())}</p>
             </div>
             <div>
               <p className="text-muted-foreground">NFTs</p>
-              <p className="font-medium">{formatNumber(totalNftCount)}</p>
+              <p className="font-medium">{parseInt(totalNftCount.toString())}</p>
             </div>
             <div>
               <p className="text-muted-foreground">Days Active</p>
-              <p className="font-medium">{formatNumber(userPersona.dayActive() || 0)}</p>
+              <p className="font-medium">{userPersona.dayActive() || 0}</p>
             </div>
           </div>
         </div>
@@ -80,24 +82,41 @@ export function UserDetails({ user }: UserDetailsProps) {
             Top Holdings
           </h4>
           <div className="space-y-3">
-            {userPersona.universalTokenList().map((token, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 bg-slate-200 rounded-full flex items-center justify-center text-xs font-medium">
-                    {token.symbol}
+            {userPersona
+              .universalTokenList()
+              .filter(token => token.usdValue > 1)
+              .map((token, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="items-center flex justify-center flex-col text-black"
+                      style={{ width: 30, height: 30 }}>
+                      {token.logoURI ? (
+                        <img
+                          src={token.logoURI}
+                          alt={token.symbol}
+                          className="h-full w-full rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-8 w-8 bg-slate-200 rounded-full flex items-center justify-center text-xs font-medium">
+                          {token.symbol}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">
+                        {token.balance} {token.symbol}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        ${Math.abs(token.marketPrice).toFixed(2)}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium">
-                      {token.balance} {token.symbol}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{formatNumber(token.usdValue)}</p>
+                  <div className={`flex items-center gap-1 text-xs`}>
+                    ${formatNumber(token.usdValue)}
                   </div>
                 </div>
-                <div className={`flex items-center gap-1 text-xs`}>
-                  {Math.abs(token.marketPrice).toFixed(2)}
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
 
@@ -127,16 +146,25 @@ export function UserDetails({ user }: UserDetailsProps) {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm">
                       {activity.from === user.id
-                        ? `Sent ${activity.value} to ${activity.to}`
-                        : `Received ${activity.value} from ${activity.from}`}
+                        ? `Sent ${parseFloat(
+                            formatUnits(
+                              BigInt(activity.value.toString()),
+                              parseInt(activity.tokenDecimal || '18')
+                            )
+                          ).toFixed(2)} ${activity.symbol} from ${truncateAddress(activity.from)}`
+                        : `Received ${parseFloat(
+                            formatUnits(
+                              BigInt(activity.value.toString()),
+                              parseInt(activity.tokenDecimal || '18')
+                            )
+                          ).toFixed(2)} ${activity.symbol} to ${truncateAddress(activity.to)}`}
                     </p>
                     <div className="flex justify-between items-center">
                       <p className="text-xs text-muted-foreground">
-                        {formatDate(activity.timestamp)}
+                        {formatDate(
+                          new Date(parseInt(activity.timestamp) * 1000).toLocaleDateString()
+                        )}
                       </p>
-                      {activity.value && (
-                        <p className="text-xs font-medium">{formatNumber(activity.value)}</p>
-                      )}
                     </div>
                   </div>
                 </div>

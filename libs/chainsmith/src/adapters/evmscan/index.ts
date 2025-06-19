@@ -18,6 +18,7 @@ interface GetTokenActivityQueryOptions {
   offset: number;
   endblock: number;
   startblock: number;
+  sort: 'asc' | 'desc';
 }
 
 const MAX_CALLS = 5;
@@ -113,6 +114,7 @@ export class EvmscanAdapter implements IOnchainActivityAdapter {
         to: t.to as TAddress,
         value: t.value || 0,
         timestamp: t.timeStamp,
+        tokenDecimal: t.tokenDecimal || '18',
       };
     });
   }
@@ -182,6 +184,7 @@ export class EvmscanAdapter implements IOnchainActivityAdapter {
       offset: 0,
       startblock: 0,
       endblock: 99999999,
+      sort: 'desc',
     }
   ): Promise<TEVMScanResponse> {
     const params = objectToQueryString(queryOptions);

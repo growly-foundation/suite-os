@@ -4,8 +4,8 @@ export const generateColorFromString = (str: string, saturation = 80, lightness 
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
-  // Generate a hue between 0-360
-  const hue = hash % 360;
+  // Generate a hue between 0-360 with better distribution
+  const hue = Math.abs(hash) % 360;
   // Return HSL color with consistent saturation and lightness
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 };
@@ -21,12 +21,14 @@ export const BADGE_COLORS = [
   'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800',
 ];
 
-// Get a consistent color for a given string
+// Get a consistent color for a given string with better hash distribution
 export const getBadgeColor = (str: string) => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    hash = hash & hash; // Convert to 32-bit integer
   }
+  // Use a better distribution algorithm to minimize collisions
   const colorIndex = Math.abs(hash) % BADGE_COLORS.length;
   return BADGE_COLORS[colorIndex];
 };

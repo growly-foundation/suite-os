@@ -1,17 +1,18 @@
 import { consumePersona } from '@/core/persona';
+import { getBadgeColor } from '@/lib/color.utils';
 import { formatNumber } from '@/lib/string.utils';
-import { MoreHorizontal } from 'lucide-react';
+import { BadgeIcon, MoreHorizontal } from 'lucide-react';
+import { formatUnits } from 'viem';
 
-import { iterateObject } from '@getgrowly/chainsmith/utils';
 import { ParsedUser } from '@getgrowly/core';
 import { WalletAddress } from '@getgrowly/ui';
 
 import { ActivityIcon, TxActivityType } from '../transactions/activity-icon';
+import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
 import { TableCell, TableRow } from '../ui/table';
 import { AppUserAvatarWithStatus } from './app-user-avatar-with-status';
-import { UserBadges } from './app-user-badges';
 
 export const UserTableItem = ({
   user,
@@ -69,8 +70,8 @@ export const UserTableItem = ({
             />
             <span className="text-sm line-clamp-1">
               {lastActivity.from === user.id
-                ? `Sent ${lastActivity.value} to ${lastActivity.to}`
-                : `Received ${lastActivity.value} from ${lastActivity.from}`}
+                ? `Sent ${parseFloat(formatUnits(BigInt(lastActivity.value.toString()), parseInt(lastActivity.tokenDecimal || '18'))).toFixed(2)} ${lastActivity.symbol}`
+                : `Received ${parseFloat(formatUnits(BigInt(lastActivity.value.toString()), parseInt(lastActivity.tokenDecimal || '18'))).toFixed(2)} ${lastActivity.symbol}`}
             </span>
           </div>
         ) : (
@@ -78,25 +79,38 @@ export const UserTableItem = ({
         )}
       </TableCell>
       <TableCell>
-        <UserBadges
-          badges={
-            user.onchainData.identities.traitScores?.map(traitScore =>
-              traitScore.trait.toString()
-            ) || []
-          }
-        />
+        <Badge
+          className={getBadgeColor(
+            user.onchainData.identities.dominantTrait?.toString() || 'No dominant trait'
+          )}>
+          <BadgeIcon className="h-2 w-2 mr-1" /> {user.onchainData.identities.dominantTrait}
+        </Badge>
       </TableCell>
       <TableCell>
-        <div className="flex items-center gap-1">
-          {iterateObject(mutlichainTokenPortfolio || {}, (chainName, tokenList) => (
-            <span key={chainName} className="text-xs bg-slate-100 px-2 py-1 rounded">
-              {tokenList.tokens.slice(0, 2).map((token, i) => (
-                <span key={i} className="text-xs bg-slate-100 px-2 py-1 rounded">
-                  {token.symbol}
-                </span>
-              ))}
-            </span>
-          ))}
+        <div className="flex items-center gap-1 min-w-0 max-w-full overflow-hidden">
+          {(() => {
+            const allTokens = Object.values(mutlichainTokenPortfolio || {}).flatMap(
+              tokenList => tokenList.tokens
+            );
+            const distinctTokens = allTokens.filter(
+              (token, index, self) => index === self.findIndex(t => t.symbol === token.symbol)
+            );
+
+            return distinctTokens.slice(0, 3).map((token, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-1 text-xs bg-slate-100 px-1.5 py-0.5 rounded-sm flex-shrink-0 min-w-0">
+                {token.logoURI && (
+                  <img
+                    src={token.logoURI}
+                    alt={token.symbol}
+                    className="w-3 h-3 rounded-full flex-shrink-0"
+                  />
+                )}
+                <span className="truncate text-xs font-medium">{token.symbol}</span>
+              </div>
+            ));
+          })()}
         </div>
       </TableCell>
       <TableCell className="text-right">

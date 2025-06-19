@@ -10,11 +10,12 @@ export const consumePersona = (user: ParsedUser) => {
     onchainData.activities,
     onchainData.portfolio_snapshots,
   ];
+
   return {
     nameService: () =>
       SUPPORTED_CHAINS.map(chainName => identities?.nameService?.[chainName]).find(
-        nameService => !!nameService
-      ),
+        nameService => !!nameService?.name
+      ) || { name: '', avatar: '' },
     dominantTrait: () => identities?.dominantTrait,
     multichainTransactions: () => activities?.tokenActivity,
     universalTransactions: () =>

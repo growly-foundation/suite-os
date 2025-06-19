@@ -31,6 +31,7 @@ export interface TTokenTransferActivity {
   gasPriceBid?: string;
   cumulativeGasUsed: string;
   gasUsed: string;
+  tokenDecimal?: string;
 }
 
 export type TContractTokenMetadata = TTokenMetadata & {
