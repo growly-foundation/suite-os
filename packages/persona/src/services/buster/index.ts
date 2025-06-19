@@ -137,4 +137,13 @@ export class OnchainBusterService {
   }> => {
     return this.personaClassifier.analyzeWalletPersona(addressInput);
   };
+
+  /**
+   * Get the ENS name and avatar for a wallet
+   */
+  fetchWalletEns = async (
+    addressInput: TAddress
+  ): Promise<{ ensName: string; ensAvatar: string }> => {
+    return this.evmChainService.getWalletEnsName(addressInput);
+  };
 }
