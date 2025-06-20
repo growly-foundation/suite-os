@@ -168,14 +168,14 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     organizationDatabaseService,
     adminOrganizationDatabaseService,
     agentDatabaseService,
-    workflowService,
-    functionService
+    workflowService
   );
   const userService = new UserService(
     agentDatabaseService,
     userDatabaseService,
     userPersonasDatabaseService,
-    conversationDatabaseService
+    conversationDatabaseService,
+    messageDatabaseService
   );
   const conversationService = new ConversationService(
     messageDatabaseService,

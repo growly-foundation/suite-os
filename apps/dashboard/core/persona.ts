@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 import { types } from '@getgrowly/chainsmith';
 import { ParsedUser } from '@getgrowly/core';
 
@@ -63,5 +65,10 @@ export const consumePersona = (user: ParsedUser) => {
       }
       return lastActivity;
     },
+    walletCreatedAt: () => {
+      const creationDate = identities?.walletMetrics?.walletCreationDate;
+      return creationDate ? moment(creationDate).toDate() : null;
+    },
+    getHumanCheckmark: (): boolean => !!identities?.talentProtocol?.profile?.human_checkmark,
   };
 };

@@ -4,8 +4,8 @@ import { suiteCore } from '@/core/suite';
 import { usePrivy } from '@privy-io/react-auth';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useEffect } from 'react';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 import { Admin } from '@getgrowly/core';
 
@@ -79,6 +79,7 @@ export const useAuth = () => {
         );
         setIsLoading(false);
       } catch (error) {
+        toast.error(`Failed to identify user: ${error}`);
         setIsLoading(false);
       }
     } else {

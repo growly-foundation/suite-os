@@ -1,7 +1,6 @@
 import { AggregatedOrganization } from '@/models/organizations';
 
 import { PublicDatabaseService } from './database.service';
-import { FunctionService } from './function.service';
 import { WorkflowService } from './workflow.service';
 
 export class OrganizationService {
@@ -9,15 +8,15 @@ export class OrganizationService {
     private organizationDatabaseService: PublicDatabaseService<'organizations'>,
     private adminOrganizationDatabaseService: PublicDatabaseService<'admin_organizations'>,
     private agentDatabaseService: PublicDatabaseService<'agents'>,
-    private workflowService: WorkflowService,
-    private functionService: FunctionService
+    private workflowService: WorkflowService
   ) {}
 
   async getOrganizationsByAdminId(admin_id: string): Promise<AggregatedOrganization[]> {
     const aggregatedOrganizations: AggregatedOrganization[] = [];
-    const organizationIds = await this.functionService.invoke('get_admin_organizations', {
-      p_admin_id: admin_id,
-    });
+    const organizationIds = await this.adminOrganizationDatabaseService.getManyByFields(
+      'admin_id',
+      [admin_id]
+    );
     for (const { organization_id } of organizationIds) {
       const organization = await this.organizationDatabaseService.getById(organization_id);
       if (!organization) throw new Error('No organization found');

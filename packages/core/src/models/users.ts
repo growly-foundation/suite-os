@@ -32,6 +32,10 @@ export type UserOffchainData = {
 
 export type UserChatSession = {
   status: SessionStatus;
-  lastMessageTime?: string;
+  lastConversation?: {
+    conversationId: string;
+    agentId: string;
+    messageId: string;
+  };
   unread: boolean;
 };

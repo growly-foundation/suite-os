@@ -42,8 +42,8 @@ export function ActivityPreview({ activity, userId, variant = 'expanded' }: Acti
       <div className="flex-1 min-w-0">
         <p className="text-sm">
           {isOutgoing
-            ? `Sent ${formattedValue} ${activity.symbol} from ${truncateAddress(activity.from)}`
-            : `Received ${formattedValue} ${activity.symbol} to ${truncateAddress(activity.to)}`}
+            ? `Sent ${formattedValue} ${activity.symbol} to ${truncateAddress(activity.to)}`
+            : `Received ${formattedValue} ${activity.symbol} from ${truncateAddress(activity.from)}`}
         </p>
         {variant === 'expanded' && (
           <div className="flex justify-between items-center">

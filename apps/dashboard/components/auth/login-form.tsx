@@ -8,9 +8,14 @@ import { Loader2 } from 'lucide-react';
 
 import { useAuth } from '../providers/protected-auth-provider';
 
+/**
+ * Renders a login form with a sign-in button and authentication state handling.
+ *
+ * Displays a welcome message, an image, and a button that initiates the login process and user creation if needed. The button is disabled until the authentication system is ready or if the user is already signed in. Includes links to Terms of Service and Privacy Policy.
+ */
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
   const { createUserIfNotExists } = useAuth();
-  const { login, authenticated } = usePrivy();
+  const { login, authenticated, ready } = usePrivy();
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -33,9 +38,9 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                 await createUserIfNotExists();
               }}
               className="w-full"
-              disabled={authenticated}>
-              {authenticated ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ''}
-              {authenticated ? 'Signed in' : 'Sign in'}
+              disabled={!ready || authenticated}>
+              {!ready ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ''}
+              {!ready ? 'Loading' : authenticated ? 'Signed in' : 'Sign in'}
             </Button>
           </div>
         </CardContent>
