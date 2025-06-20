@@ -1,6 +1,6 @@
 'use client';
 
-import { TableColumn } from '@/components/app-users/types';
+import { ColumnType, TableColumn } from '@/components/app-users/types';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -48,17 +48,17 @@ export function SortableHeader<T>({
   // Generate appropriate sort options based on column type
   const getSortOptions = () => {
     switch (column.type) {
-      case 'date':
+      case ColumnType.DATE:
         return [
           { label: 'Newest first', value: 'desc' },
           { label: 'Oldest first', value: 'asc' },
         ];
-      case 'number':
+      case ColumnType.NUMBER:
         return [
           { label: 'Highest to lowest', value: 'desc' },
           { label: 'Lowest to highest', value: 'asc' },
         ];
-      case 'array':
+      case ColumnType.ARRAY:
         return [
           { label: 'Most to fewest', value: 'desc' },
           { label: 'Fewest to most', value: 'asc' },
