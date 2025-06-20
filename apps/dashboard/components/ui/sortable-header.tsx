@@ -19,6 +19,18 @@ interface SortableHeaderProps<T> {
   onSort: (key: string, direction: SortDirection) => void;
 }
 
+/**
+ * Renders a table column header with interactive sorting controls.
+ *
+ * Displays the column header text and, if the column is sortable, provides clickable sorting functionality and a dropdown menu for selecting sort order or clearing sorting. The available sort options are determined by the column's data type.
+ *
+ * @param column - The table column definition, including key, header label, type, and sortable flag
+ * @param sortKey - The key of the currently sorted column, or null if no sorting is active
+ * @param sortDirection - The current sort direction ('asc', 'desc', or null)
+ * @param onSort - Callback invoked with the column key and direction to update sorting state
+ *
+ * @returns A React element representing the sortable table header cell
+ */
 export function SortableHeader<T>({
   column,
   sortKey,
