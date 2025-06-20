@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import React from 'react';
 
 import {
@@ -13,6 +14,7 @@ import { Table, TableBody, TableHeader } from './table';
 export const PaginatedTable = ({
   header,
   content,
+  footer,
   pagination: {
     startIndex,
     totalItems,
@@ -27,6 +29,7 @@ export const PaginatedTable = ({
 }: {
   header: React.ReactNode;
   content: React.ReactNode;
+  footer: React.ReactNode;
   pagination: {
     startIndex: number;
     totalItems: number;
@@ -44,9 +47,11 @@ export const PaginatedTable = ({
   return (
     <React.Fragment>
       <div>
-        <Table className={className}>
+        <Table className={cn(className, showPagination ? 'border-b' : '')}>
           <TableHeader>{header}</TableHeader>
-          <TableBody>{content}</TableBody>
+          <TableBody>
+            {content} {footer}
+          </TableBody>
         </Table>
       </div>
       {showPagination && (

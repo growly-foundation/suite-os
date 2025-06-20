@@ -1,6 +1,7 @@
 import { SortDirection } from '@/components/app-users/smart-tables/sort-indicator';
 import {
   AdvancedColumnType,
+  AggregationOption,
   ColumnType,
   ExtractedRowData,
   SmartTableColumn,
@@ -25,14 +26,25 @@ export function columnStyle(column: TableColumn<any>) {
   return column.type === ColumnType.NUMBER ? 'text-right' : '';
 }
 
-export function checkColumnSortable(column: TableColumn<any>) {
-  return (
-    (column.type === ColumnType.STRING ||
-      column.type === ColumnType.NUMBER ||
-      column.type === ColumnType.DATE ||
-      column.type === ColumnType.ARRAY) &&
-    column.sortable
-  );
+/**
+ * Checks if a column exists based on its type and the `exists` property.
+ *
+ * @param column - The table column definition
+ * @returns `true` if the column exists, `false` otherwise
+ */
+export function checkColumnExists<T>(value: any, column: TableColumn<T>) {
+  switch (column.type) {
+    case ColumnType.STRING:
+      return !!value && value !== '';
+    case ColumnType.NUMBER:
+      return !!value && value > 0;
+    case ColumnType.DATE:
+      return !!value;
+    case ColumnType.ARRAY:
+      return !!value && value.length > 0;
+    default:
+      return !!value;
+  }
 }
 
 /**
@@ -46,23 +58,10 @@ export function checkColumnSortable(column: TableColumn<any>) {
  */
 export function getSortableValue<T>(item: T, column: TableColumn<T>): any {
   // If column provides a custom sorting value getter, use it
-  if (column.sortingValueGetter) {
+  if (column.sortable && column.sortingValueGetter) {
     return column.sortingValueGetter(item);
   }
-
-  // Default sorting by type
-  const rawValue = (item as any)[column.key];
-
-  switch (column.type) {
-    case ColumnType.DATE:
-      return rawValue ? new Date(rawValue).getTime() : 0;
-    case ColumnType.NUMBER:
-      return typeof rawValue === 'number' ? rawValue : 0;
-    case ColumnType.ARRAY:
-      return Array.isArray(rawValue) ? rawValue.length : 0;
-    default:
-      return rawValue ? String(rawValue).toLowerCase() : '';
-  }
+  return undefined;
 }
 
 /**
@@ -75,59 +74,15 @@ export function getSortableValue<T>(item: T, column: TableColumn<T>): any {
  * @param columns - The column definitions that define how to extract data
  * @returns An object containing extracted data for each column keyed by column key
  */
-export function extractRowData<T>(item: T, columns: SmartTableColumn<T>[]): ExtractedRowData {
+export function extractRowData<T>(item: T, columns: SmartTableColumn<T>[]): ExtractedRowData<any> {
   const flatColumns = getFlatColumns(columns, item);
-  const result: ExtractedRowData = {};
-
+  const result: ExtractedRowData<any> = {};
   for (const column of flatColumns) {
     // If the column has a data extractor, use it
     if (column.dataExtractor) {
       result[column.key] = column.dataExtractor(item);
     }
-    // Fall back to the sorting value getter for backward compatibility
-    else if (column.sortingValueGetter) {
-      const value = column.sortingValueGetter(item);
-      result[column.key] = {
-        raw: value,
-        display: value?.toString() || '',
-      };
-    }
-    // Default extraction based on column type
-    else {
-      const rawValue = (item as any)[column.key];
-
-      switch (column.type) {
-        case ColumnType.DATE:
-          const date = rawValue ? new Date(rawValue) : null;
-          result[column.key] = {
-            raw: date ? date.getTime() : 0,
-            display: date ? date.toLocaleDateString() : '',
-          };
-          break;
-        case ColumnType.NUMBER:
-          const numValue = typeof rawValue === 'number' ? rawValue : 0;
-          result[column.key] = {
-            raw: numValue,
-            display: numValue.toString(),
-          };
-          break;
-        case ColumnType.ARRAY:
-          const arrayLength = Array.isArray(rawValue) ? rawValue.length : 0;
-          result[column.key] = {
-            raw: arrayLength,
-            display: arrayLength.toString(),
-          };
-          break;
-        default: // string and others
-          const stringValue = rawValue ? String(rawValue).toLowerCase() : '';
-          result[column.key] = {
-            raw: stringValue,
-            display: stringValue,
-          };
-      }
-    }
   }
-
   return result;
 }
 
@@ -141,8 +96,27 @@ export function extractRowData<T>(item: T, columns: SmartTableColumn<T>[]): Extr
 export function extractTableData<T>(
   items: T[],
   columns: SmartTableColumn<T>[]
-): ExtractedRowData[] {
+): ExtractedRowData<any>[] {
   return items.map(item => extractRowData(item, columns));
+}
+
+export function aggregateColumnData<T>(
+  items: T[],
+  columns: TableColumn<T>[]
+): { text: string; value: string }[] {
+  const results: { text: string; value: string }[] = [];
+  const tableData = extractTableData(items, columns);
+  for (const column of columns) {
+    if (column.type === ColumnType.NUMBER) {
+      const values = tableData.map(row => row[column.key]);
+      const sum = values.reduce((acc, val) => acc + val, 0);
+      results.push({ text: AggregationOption.SUM, value: sum.toString() });
+    } else {
+      const count = tableData.filter(row => checkColumnExists(row[column.key], column)).length;
+      results.push({ text: AggregationOption.COUNT, value: count.toString() });
+    }
+  }
+  return results;
 }
 
 /**
@@ -156,7 +130,7 @@ export function extractTableData<T>(
  */
 export function filterItems<T>(
   items: T[],
-  extractedData: Record<string, ExtractedRowData>,
+  extractedData: Record<string, ExtractedRowData<any>>,
   filters: FilterConfig[],
   getItemId: (item: T) => string
 ): T[] {
@@ -218,7 +192,7 @@ export function sortItems<T>(
     item,
     index,
     value: sortColumn.dataExtractor
-      ? sortColumn.dataExtractor(item).raw
+      ? sortColumn.dataExtractor(item)
       : getSortableValue(item, sortColumn),
   }));
 
@@ -254,16 +228,13 @@ export function sortItems<T>(
 export function renderColumns<T>(
   item: T,
   columns: SmartTableColumn<T>[],
-  renderer: (column: TableColumn<T>, item: T) => React.ReactNode
+  renderer: (column: TableColumn<T>) => React.ReactNode
 ) {
   return getFlatColumns(columns, item).map(column => {
-    return renderer(
-      {
-        ...column,
-        className: cn(column.className, columnStyle(column)),
-      },
-      item
-    );
+    return renderer({
+      ...column,
+      className: cn(column.className, columnStyle(column)),
+    });
   });
 }
 
@@ -283,7 +254,6 @@ export function renderHeaders<T>(
   return getFlatColumns(columns).map(column => {
     return renderer({
       ...column,
-      sortable: checkColumnSortable(column),
       className: cn(column.className, columnStyle(column)),
     });
   });

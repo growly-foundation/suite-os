@@ -1,9 +1,12 @@
 'use client';
 
+import { formatNumber } from '@/lib/string.utils';
 import {
   FilterConfig,
+  aggregateColumnData,
   extractTableData,
   filterItems,
+  getFlatColumns,
   renderColumns,
   renderHeaders,
   sortItems,
@@ -17,12 +20,12 @@ import { PaginatedTable } from '../../ui/paginated-table';
 import { ResizableSheet } from '../../ui/resizable-sheet';
 import { TableCell, TableHead, TableRow } from '../../ui/table';
 import { UserDetails } from '../app-user-details';
-import { ExtractedRowData } from '../types';
+import { ColumnType, ExtractedRowData } from '../types';
 import { createUserTableColumns } from './app-user-table-columns';
 import { SortDirection } from './sort-indicator';
 import { SortableHeader } from './sortable-header';
 
-const ITEMS_PER_PAGE = 15;
+const ITEMS_PER_PAGE = 100;
 
 /**
  * Displays a paginated, sortable table of users with selectable rows and a detail panel.
@@ -107,8 +110,8 @@ export function UsersTable({ users }: { users: ParsedUser[] }) {
   );
 
   // Extract data from all users upfront for sorting and filtering
-  const extractedData = useMemo<Record<string, ExtractedRowData>>(() => {
-    const data: Record<string, ExtractedRowData> = {};
+  const extractedData = useMemo<Record<string, ExtractedRowData<any>>>(() => {
+    const data: Record<string, ExtractedRowData<any>> = {};
     const tableData = extractTableData(users, columns);
 
     // Store extracted data by user ID for easy access
@@ -135,6 +138,31 @@ export function UsersTable({ users }: { users: ParsedUser[] }) {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedUsers = filteredAndSortedUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
+  const footers = useMemo(() => {
+    const flatColumns = getFlatColumns(columns);
+    const results: { text: string; value: string }[] = aggregateColumnData(
+      paginatedUsers,
+      flatColumns
+    );
+    return flatColumns.map((column, index) => (
+      <TableCell
+        key={column.key}
+        border={column.border}
+        className={cn('text-muted-foreground text-xs border-r h-12', column.className)}>
+        {ColumnType.BOOLEAN !== column.type && (
+          <div className="flex items-center justify-between">
+            <span className="font-bold">{results[index].text}</span>
+            <span>
+              {column.type === ColumnType.NUMBER
+                ? formatNumber(results[index].value)
+                : results[index].value}
+            </span>
+          </div>
+        )}
+      </TableCell>
+    ));
+  }, [columns, paginatedUsers]);
+
   return (
     <>
       <PaginatedTable
@@ -156,13 +184,17 @@ export function UsersTable({ users }: { users: ParsedUser[] }) {
           <TableRow
             key={user.id}
             className={cn('hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors')}>
-            {renderColumns(user, columns, (column, item) => (
-              <TableCell key={column.key} border={column.border} className={column.className}>
-                {column.contentRenderer(item, extractedData[item.id])}
-              </TableCell>
-            ))}
+            {renderColumns(user, columns, column => {
+              const data = extractedData[user.id][column.key];
+              return (
+                <TableCell key={column.key} border={column.border} className={column.className}>
+                  {data && column.contentRenderer(data)}
+                </TableCell>
+              );
+            })}
           </TableRow>
         ))}
+        footer={<TableRow>{footers}</TableRow>}
         pagination={{
           startIndex,
           currentPage,
@@ -174,7 +206,6 @@ export function UsersTable({ users }: { users: ParsedUser[] }) {
           prevPage: goToPrevPage,
         }}
       />
-
       <ResizableSheet side="right" open={open} onOpenChange={handleCloseUserDetails}>
         {selectedUser && <UserDetails user={selectedUser} />}
       </ResizableSheet>

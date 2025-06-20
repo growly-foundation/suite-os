@@ -1,5 +1,6 @@
 'use client';
 
+import { TalentProtocolCheckmark } from '@/components/user/talent-protocol-checkmark';
 import { consumePersona } from '@/core/persona';
 import { getBadgeColor } from '@/lib/color.utils';
 import { formatNumber } from '@/lib/string.utils';
@@ -7,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { BadgeIcon, Calendar, CoinsIcon, DollarSign, Layers, UserIcon } from 'lucide-react';
 import moment from 'moment';
 
+import { TMarketToken, TTokenTransferActivity } from '@getgrowly/chainsmith/types';
 import { ParsedUser } from '@getgrowly/core';
 import { WalletAddress } from '@getgrowly/ui';
 
@@ -15,9 +17,21 @@ import { Badge } from '../../ui/badge';
 import { Checkbox } from '../../ui/checkbox';
 import { ActivityPreview } from '../../user/activity-preview';
 import { AppUserAvatarWithStatus } from '../app-user-avatar-with-status';
-import { AdvancedColumnType, ColumnType, ExtractedRowData, SmartTableColumn } from '../types';
+import { AdvancedColumnType, ColumnType, SmartTableColumn } from '../types';
 import { createChatSessionColumns } from './chat-session-columns';
 import { HeadLabelWithIcon } from './table-head-label';
+
+export const getDistinctTokens = (user: ParsedUser) => {
+  const mutlichainTokenPortfolio =
+    user.onchainData.portfolio_snapshots.tokenPortfolio?.chainRecordsWithTokens;
+  const allTokens = Object.values(mutlichainTokenPortfolio || {}).flatMap(
+    tokenList => tokenList.tokens
+  );
+  const distinctTokens = allTokens.filter(
+    (token, index, self) => index === self.findIndex(t => t.symbol === token.symbol)
+  );
+  return distinctTokens;
+};
 
 // Create dynamic column definitions
 export const createUserTableColumns = ({
@@ -36,7 +50,7 @@ export const createUserTableColumns = ({
       key: 'identity',
       sortable: false,
       header: (
-        <div className="flex items-center space-x-4 h-12 border-r">
+        <div className="flex items-center border-b space-x-4 h-12 border-r">
           <Checkbox
             className="border-gray-450"
             checked={Object.values(selectedUsers).some(Boolean)}
@@ -48,22 +62,16 @@ export const createUserTableColumns = ({
           />
         </div>
       ),
-      type: ColumnType.COMPONENT,
+      type: ColumnType.OBJECT,
       sticky: true,
       border: false,
-      className: 'sticky py-0 left-0 bg-white z-10',
-      dataExtractor: (user: ParsedUser) => {
+      className: 'sticky py-0 left-0 bg-white box-shadow shadow-sm z-10',
+      dataExtractor: (user: ParsedUser) => user,
+      contentRenderer: (user: ParsedUser) => {
         const userPersona = consumePersona(user);
         const name = userPersona.nameService()?.name || '';
-        return {
-          raw: name,
-          display: name,
-        };
-      },
-      contentRenderer: (user: ParsedUser, _extractedData?: ExtractedRowData) => {
-        const userPersona = consumePersona(user);
         return (
-          <div className="flex items-center space-x-4 h-12 border-r">
+          <div className="flex items-center border-b space-x-4 h-12 border-r">
             <Checkbox
               className="border-gray-450"
               checked={!!selectedUsers[user.id]}
@@ -72,7 +80,7 @@ export const createUserTableColumns = ({
             <div className="flex items-center text-sm space-x-3 pr-4">
               <AppUserAvatarWithStatus user={user} size={25} />
               <div>
-                <h3 className="font-bold text-xs">{userPersona.nameService()?.name}</h3>
+                <h3 className="font-bold text-xs">{name}</h3>
                 <WalletAddress
                   className="text-xs hover:underline"
                   truncate
@@ -90,8 +98,60 @@ export const createUserTableColumns = ({
       },
     },
     {
-      type: AdvancedColumnType.BATCH,
-      batchRenderer: createChatSessionColumns,
+      key: 'talentProtocolCheckMark',
+      sortable: false,
+      header: <HeadLabelWithIcon label="Verified" />,
+      type: ColumnType.BOOLEAN,
+      dataExtractor: (user: ParsedUser) => {
+        const persona = consumePersona(user);
+        return persona.getHumanCheckmark();
+      },
+      contentRenderer: (extractedData: boolean) => {
+        return (
+          <div className="flex items-center justify-center">
+            <span className="text-xs">
+              {extractedData && <TalentProtocolCheckmark width={20} height={20} />}
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'firstSignedIn',
+      sortable: true,
+      header: (
+        <HeadLabelWithIcon
+          icon={<Calendar className="h-3 w-3 text-muted-foreground" />}
+          label="First Signed In"
+        />
+      ),
+      type: ColumnType.DATE,
+      dataExtractor: (user: ParsedUser) => {
+        const date = new Date(user.created_at);
+        return date.getTime();
+      },
+      contentRenderer: (extractedData: number) => {
+        return <span className="text-xs">{moment(extractedData).fromNow()}</span>;
+      },
+    },
+    {
+      key: 'trait',
+      sortable: true,
+      header: (
+        <HeadLabelWithIcon
+          icon={<BadgeIcon className="h-3 w-3 text-muted-foreground" />}
+          label="Trait"
+        />
+      ),
+      type: ColumnType.STRING,
+      dataExtractor: (user: ParsedUser) => {
+        const userPersona = consumePersona(user);
+        const dominantTrait = userPersona.dominantTrait();
+        return dominantTrait?.toString() || '';
+      },
+      contentRenderer: (extractedData: string) => (
+        <Badge className={cn(getBadgeColor(extractedData), 'rounded-full')}>{extractedData}</Badge>
+      ),
     },
     {
       key: 'portfolioValue',
@@ -105,44 +165,11 @@ export const createUserTableColumns = ({
       type: ColumnType.NUMBER,
       dataExtractor: (user: ParsedUser) => {
         const totalPortfolioValue = user.onchainData?.portfolio_snapshots?.totalValue || 0;
-        return {
-          raw: totalPortfolioValue,
-          display: `$${formatNumber(totalPortfolioValue)}`,
-        };
+        return totalPortfolioValue;
       },
-      contentRenderer: (user: ParsedUser, extractedData?: ExtractedRowData) => {
-        // If we have pre-extracted data, use that
-        if (extractedData?.portfolioValue) {
-          return <span className="text-xs">{extractedData.portfolioValue.display}</span>;
-        }
-        // Fall back to calculating directly
-        const totalPortfolioValue = user.onchainData?.portfolio_snapshots?.totalValue || 0;
-        return <span className="text-xs">${formatNumber(totalPortfolioValue)}</span>;
-      },
-    },
-    {
-      key: 'createdAt',
-      sortable: true,
-      header: (
-        <HeadLabelWithIcon
-          icon={<Calendar className="h-3 w-3 text-muted-foreground" />}
-          label="Created At"
-        />
+      contentRenderer: (extractedData: number) => (
+        <span className="text-xs">{formatNumber(extractedData)} USD</span>
       ),
-      type: ColumnType.DATE,
-      dataExtractor: (user: ParsedUser) => {
-        const date = new Date(user.created_at);
-        return {
-          raw: date.getTime(),
-          display: moment(date).fromNow(),
-        };
-      },
-      contentRenderer: (user: ParsedUser, extractedData?: ExtractedRowData) => {
-        if (extractedData?.createdAt) {
-          return <span className="text-xs">{extractedData.createdAt.display}</span>;
-        }
-        return <span className="text-xs">{moment(user.created_at).fromNow()}</span>;
-      },
     },
     {
       key: 'transactions',
@@ -157,70 +184,9 @@ export const createUserTableColumns = ({
       dataExtractor: (user: ParsedUser) => {
         const userPersona = consumePersona(user);
         const txCount = userPersona.universalTransactions().length;
-        return {
-          raw: txCount,
-          display: txCount.toString(),
-        };
+        return txCount;
       },
-      contentRenderer: (user: ParsedUser, extractedData?: ExtractedRowData) => {
-        if (extractedData?.transactions) {
-          return <span className="text-xs">{extractedData.transactions.display}</span>;
-        }
-        const userPersona = consumePersona(user);
-        return <span className="text-xs">{userPersona.universalTransactions().length}</span>;
-      },
-    },
-    {
-      key: 'activity',
-      sortable: true,
-      header: 'Activity',
-      type: ColumnType.COMPONENT,
-      dataExtractor: (user: ParsedUser) => {
-        const userPersona = consumePersona(user);
-        const lastActivity = userPersona.getLatestActivity();
-        return {
-          raw: lastActivity ? lastActivity.timestamp : 0,
-          // Use a more generic approach that doesn't rely on specific activity properties
-          display: lastActivity ? new Date(lastActivity.timestamp).toLocaleDateString() : '',
-        };
-      },
-      contentRenderer: (user: ParsedUser, extractedData?: ExtractedRowData) => {
-        const userPersona = consumePersona(user);
-        const lastActivity = userPersona.getLatestActivity();
-        return (
-          lastActivity && (
-            <div className="flex items-center gap-2">
-              <ActivityPreview activity={lastActivity} userId={user.id} variant="compact" />
-            </div>
-          )
-        );
-      },
-    },
-    {
-      key: 'trait',
-      sortable: true,
-      header: (
-        <HeadLabelWithIcon
-          icon={<BadgeIcon className="h-3 w-3 text-muted-foreground" />}
-          label="Trait"
-        />
-      ),
-      type: ColumnType.COMPONENT,
-      dataExtractor: (user: ParsedUser) => {
-        const userPersona = consumePersona(user);
-        const dominantTrait = userPersona.dominantTrait();
-        const traitString = dominantTrait?.toString() || '';
-        return {
-          raw: traitString,
-          display: traitString,
-        };
-      },
-      contentRenderer: (_: ParsedUser, extractedData?: ExtractedRowData) => {
-        const traitString = extractedData?.trait.raw.toString() || '';
-        return (
-          <Badge className={cn(getBadgeColor(traitString), 'rounded-full')}>{traitString}</Badge>
-        );
-      },
+      contentRenderer: (extractedData: number) => <span className="text-xs">{extractedData}</span>,
     },
     {
       key: 'tokens',
@@ -233,51 +199,95 @@ export const createUserTableColumns = ({
       ),
       type: ColumnType.ARRAY,
       dataExtractor: (user: ParsedUser) => {
-        const mutlichainTokenPortfolio =
-          user.onchainData.portfolio_snapshots.tokenPortfolio?.chainRecordsWithTokens;
-
-        const allTokens = Object.values(mutlichainTokenPortfolio || {}).flatMap(
-          tokenList => tokenList.tokens
-        );
-
-        const distinctTokens = allTokens.filter(
-          (token, index, self) => index === self.findIndex(t => t.symbol === token.symbol)
-        );
-
-        return {
-          raw: distinctTokens.length,
-          display: distinctTokens.map(t => t.symbol).join(', '),
-        };
+        const distinctTokens = getDistinctTokens(user);
+        return distinctTokens;
       },
-      contentRenderer: (user: ParsedUser, extractedData?: ExtractedRowData) => {
-        const mutlichainTokenPortfolio =
-          user.onchainData.portfolio_snapshots.tokenPortfolio?.chainRecordsWithTokens;
+      sortingValueGetter: (user: ParsedUser) => {
+        const distinctTokens = getDistinctTokens(user);
+        return distinctTokens.length;
+      },
+      contentRenderer: (extractedData: TMarketToken[]) => {
+        const style =
+          'flex items-center gap-1 text-xs bg-slate-100 px-1.5 py-0.5 rounded-sm flex-shrink-0 min-w-0';
         return (
           <div className="flex items-center gap-1 min-w-0 max-w-full overflow-hidden">
-            {(() => {
-              const allTokens = Object.values(mutlichainTokenPortfolio || {}).flatMap(
-                tokenList => tokenList.tokens
-              );
-              const distinctTokens = allTokens.filter(
-                (token, index, self) => index === self.findIndex(t => t.symbol === token.symbol)
-              );
-              return distinctTokens.slice(0, 3).map((token, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-1 text-xs bg-slate-100 px-1.5 py-0.5 rounded-sm flex-shrink-0 min-w-0">
-                  <AssetIcon
-                    logoURI={token.logoURI}
-                    symbol={token.symbol}
-                    size="sm"
-                    className="flex-shrink-0"
-                  />
-                  <span className="truncate text-xs font-medium">{token.symbol}</span>
-                </div>
-              ));
-            })()}
+            {extractedData.slice(0, 3).map((token, i) => (
+              <div key={i} className={style}>
+                <AssetIcon
+                  logoURI={token.logoURI}
+                  symbol={token.symbol}
+                  size="sm"
+                  className="flex-shrink-0"
+                />
+                <span className="truncate text-xs font-medium">{token.symbol}</span>
+              </div>
+            ))}
+            {extractedData.length > 3 && (
+              <div className={style}>
+                <span className="truncate text-xs font-medium">+{extractedData.length - 3}</span>
+              </div>
+            )}
           </div>
         );
       },
+    },
+    {
+      key: 'activity',
+      sortable: true,
+      header: 'Activity',
+      type: ColumnType.OBJECT,
+      dataExtractor: (user: ParsedUser) => {
+        const userPersona = consumePersona(user);
+        const lastActivity = userPersona.getLatestActivity();
+        return {
+          lastActivity,
+          user,
+        };
+      },
+      sortingValueGetter: (user: ParsedUser): number => {
+        const userPersona = consumePersona(user);
+        const lastActivity = userPersona.getLatestActivity();
+        return lastActivity ? Number(lastActivity.timestamp) : 0;
+      },
+      contentRenderer: (extractedData: {
+        lastActivity: TTokenTransferActivity;
+        user: ParsedUser;
+      }) => {
+        return (
+          extractedData.lastActivity && (
+            <div className="flex items-center gap-2">
+              <ActivityPreview
+                activity={extractedData.lastActivity}
+                userId={extractedData.user.id}
+                variant="compact"
+              />
+            </div>
+          )
+        );
+      },
+    },
+    {
+      key: 'walletCreatedAt',
+      sortable: true,
+      header: (
+        <HeadLabelWithIcon
+          icon={<Calendar className="h-3 w-3 text-muted-foreground" />}
+          label="Wallet Created At"
+        />
+      ),
+      type: ColumnType.DATE,
+      dataExtractor: (user: ParsedUser) => {
+        const persona = consumePersona(user);
+        const date = persona.walletCreatedAt();
+        return date ? date.getTime() : undefined;
+      },
+      contentRenderer: (extractedData: number) => {
+        return <span className="text-xs">{moment(extractedData).format('DD/MM/YYYY HH:mm')}</span>;
+      },
+    },
+    {
+      type: AdvancedColumnType.BATCH,
+      batchRenderer: createChatSessionColumns,
     },
   ];
 };

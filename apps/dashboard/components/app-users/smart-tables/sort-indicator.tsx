@@ -1,8 +1,8 @@
 'use client';
 
+import { IconContainer } from '@/components/ui/icon-container';
 import { cn } from '@/lib/utils';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
-import React from 'react';
 
 export type SortDirection = 'asc' | 'desc' | null;
 
@@ -22,7 +22,7 @@ export interface SortIndicatorProps {
  */
 export function SortIndicator({ direction, className }: SortIndicatorProps) {
   return (
-    <div className={cn('ml-1 inline-flex', className)}>
+    <IconContainer className={cn('inline-flex', className)}>
       {direction === 'asc' ? (
         <ArrowUp className="h-3 w-3" />
       ) : direction === 'desc' ? (
@@ -30,6 +30,6 @@ export function SortIndicator({ direction, className }: SortIndicatorProps) {
       ) : (
         <ArrowUpDown className="h-3 w-3 text-muted-foreground opacity-50" />
       )}
-    </div>
+    </IconContainer>
   );
 }

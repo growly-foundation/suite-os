@@ -1,13 +1,13 @@
 'use client';
 
 import { ColumnType, TableColumn } from '@/components/app-users/types';
-import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { IconContainer } from '@/components/ui/icon-container';
 import { ChevronDown } from 'lucide-react';
 
 import { SortDirection, SortIndicator } from './sort-indicator';
@@ -86,38 +86,37 @@ export function SortableHeader<T>({
   };
 
   return (
-    <div className="flex items-center select-none">
-      <div
-        className="flex items-center cursor-pointer hover:text-primary transition-colors"
-        onClick={handleClickHeader}>
-        {column.header}
+    <div
+      className="flex items-center justify-between gap-5 cursor-pointer hover:text-primary transition-colors"
+      onClick={handleClickHeader}>
+      {column.header}
+      <div className="flex items-center gap-1">
         <SortIndicator direction={currentDirection} />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <IconContainer>
+              <ChevronDown className="h-3 w-3" />
+            </IconContainer>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            {sortOptions.map(option => (
+              <DropdownMenuItem
+                key={option.value}
+                className={
+                  currentDirection === option.value && sortKey === column.key ? 'bg-accent' : ''
+                }
+                onClick={() => onSort(column.key, option.value as SortDirection)}>
+                {option.label}
+              </DropdownMenuItem>
+            ))}
+            {isActive && (
+              <DropdownMenuItem onClick={() => onSort(null as any, null)}>
+                Clear sorting
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-5 w-5 ml-0.5">
-            <ChevronDown className="h-3 w-3" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
-          {sortOptions.map(option => (
-            <DropdownMenuItem
-              key={option.value}
-              className={
-                currentDirection === option.value && sortKey === column.key ? 'bg-accent' : ''
-              }
-              onClick={() => onSort(column.key, option.value as SortDirection)}>
-              {option.label}
-            </DropdownMenuItem>
-          ))}
-          {isActive && (
-            <DropdownMenuItem onClick={() => onSort(null as any, null)}>
-              Clear sorting
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
     </div>
   );
 }

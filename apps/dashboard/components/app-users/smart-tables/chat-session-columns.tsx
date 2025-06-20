@@ -52,10 +52,9 @@ export const createChatSessionColumns = (user?: ParsedUser): TableColumn<ParsedU
           label="Latest Message At"
         />
       ),
-      type: ColumnType.DATE,
-      contentRenderer: () => {
-        return <LatestMessageTime user={user} />;
-      },
+      type: ColumnType.OBJECT,
+      dataExtractor: (user: ParsedUser) => user,
+      contentRenderer: (extractedData: ParsedUser) => <LatestMessageTime user={extractedData} />,
       sortable: false,
     },
     {
@@ -66,10 +65,11 @@ export const createChatSessionColumns = (user?: ParsedUser): TableColumn<ParsedU
           label="Latest Interacted Agent"
         />
       ),
-      type: ColumnType.STRING,
-      contentRenderer: () => {
-        return <LatestInteractedAgent user={user} />;
-      },
+      type: ColumnType.OBJECT,
+      dataExtractor: (user: ParsedUser) => user,
+      contentRenderer: (extractedData: ParsedUser) => (
+        <LatestInteractedAgent user={extractedData} />
+      ),
       sortable: false,
     },
   ];
