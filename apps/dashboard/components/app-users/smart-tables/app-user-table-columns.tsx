@@ -1,33 +1,23 @@
 'use client';
 
 import { consumePersona } from '@/core/persona';
-import { suiteCore } from '@/core/suite';
 import { getBadgeColor } from '@/lib/color.utils';
 import { formatNumber } from '@/lib/string.utils';
 import { cn } from '@/lib/utils';
 import { BadgeIcon, Calendar, CoinsIcon, DollarSign, Layers, UserIcon } from 'lucide-react';
 import moment from 'moment';
-import { useEffect, useState } from 'react';
 
-import { Agent, Message, ParsedUser } from '@getgrowly/core';
+import { ParsedUser } from '@getgrowly/core';
 import { WalletAddress } from '@getgrowly/ui';
 
-import { AssetIcon } from '../ui/asset-icon';
-import { Badge } from '../ui/badge';
-import { Checkbox } from '../ui/checkbox';
-import { IconContainer } from '../ui/icon-container';
-import { Loadable } from '../ui/loadable';
-import { ActivityPreview } from '../user/activity-preview';
-import { AppUserAvatarWithStatus } from './app-user-avatar-with-status';
-import { SmartTableColumn, TableColumn } from './types';
-
-// Helper component for column headers with icons
-export const HeadLabelWithIcon = ({ icon, label }: { icon: React.ReactNode; label: string }) => (
-  <div className="flex items-center space-x-2 text-xs">
-    <IconContainer>{icon}</IconContainer>
-    <span>{label}</span>
-  </div>
-);
+import { AssetIcon } from '../../ui/asset-icon';
+import { Badge } from '../../ui/badge';
+import { Checkbox } from '../../ui/checkbox';
+import { ActivityPreview } from '../../user/activity-preview';
+import { AppUserAvatarWithStatus } from '../app-user-avatar-with-status';
+import { AdvancedColumnType, ColumnType, SmartTableColumn } from '../types';
+import { createChatSessionColumns } from './chat-session-columns';
+import { HeadLabelWithIcon } from './table-head-label';
 
 // Create dynamic column definitions
 export const createUserTableColumns = ({
@@ -57,7 +47,7 @@ export const createUserTableColumns = ({
           />
         </div>
       ),
-      type: 'component',
+      type: ColumnType.COMPONENT,
       sticky: true,
       border: false,
       className: 'sticky py-0 left-0 bg-white z-10',
@@ -91,7 +81,7 @@ export const createUserTableColumns = ({
       },
     },
     {
-      type: 'batch',
+      type: AdvancedColumnType.BATCH,
       batchRenderer: createChatSessionColumns,
     },
     {
@@ -102,7 +92,7 @@ export const createUserTableColumns = ({
           label="Portfolio Value"
         />
       ),
-      type: 'number',
+      type: ColumnType.NUMBER,
       contentRenderer: (user: ParsedUser) => {
         const totalPortfolioValue = user.onchainData?.portfolio_snapshots?.totalValue || 0;
         return <span className="text-xs">${formatNumber(totalPortfolioValue)}</span>;
@@ -116,7 +106,7 @@ export const createUserTableColumns = ({
           label="Created At"
         />
       ),
-      type: 'date',
+      type: ColumnType.DATE,
       contentRenderer: (user: ParsedUser) => {
         return <span className="text-xs">{moment(user.created_at).fromNow()}</span>;
       },
@@ -129,7 +119,7 @@ export const createUserTableColumns = ({
           label="Transactions"
         />
       ),
-      type: 'number',
+      type: ColumnType.NUMBER,
       contentRenderer: (user: ParsedUser) => {
         const userPersona = consumePersona(user);
         return <span className="text-xs">{userPersona.universalTransactions().length}</span>;
@@ -138,7 +128,7 @@ export const createUserTableColumns = ({
     {
       key: 'activity',
       header: 'Activity',
-      type: 'component',
+      type: ColumnType.COMPONENT,
       contentRenderer: (user: ParsedUser) => {
         const userPersona = consumePersona(user);
         const lastActivity = userPersona.getLatestActivity();
@@ -159,7 +149,7 @@ export const createUserTableColumns = ({
           label="Trait"
         />
       ),
-      type: 'component',
+      type: ColumnType.COMPONENT,
       contentRenderer: (user: ParsedUser) => {
         const userPersona = consumePersona(user);
         const dominantTrait = userPersona.dominantTrait();
@@ -184,7 +174,7 @@ export const createUserTableColumns = ({
           label="Tokens"
         />
       ),
-      type: 'array',
+      type: ColumnType.ARRAY,
       contentRenderer: (user: ParsedUser) => {
         const mutlichainTokenPortfolio =
           user.onchainData.portfolio_snapshots.tokenPortfolio?.chainRecordsWithTokens;
@@ -212,74 +202,6 @@ export const createUserTableColumns = ({
               ));
             })()}
           </div>
-        );
-      },
-    },
-  ];
-};
-
-export const createChatSessionColumns = (user?: ParsedUser): TableColumn<ParsedUser>[] => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [loading, setLoading] = useState(true);
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [latestMessage, setLatestMessage] = useState<Message | null>(null);
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [lastestAgent, setLastestAgent] = useState<Agent | null>(null);
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
-    const fetchLatestMessage = async () => {
-      if (!user) return;
-      setLoading(true);
-
-      const lastConversation = user.chatSession?.lastConversation;
-      if (!lastConversation?.messageId) return setLoading(false);
-
-      const message = await suiteCore.db.messages.getById(lastConversation.messageId);
-      if (!message) return setLoading(false);
-
-      const agent = await suiteCore.db.agents.getById(lastConversation.agentId);
-      if (!agent) return setLoading(false);
-
-      setLatestMessage(message);
-      setLastestAgent(agent);
-      setLoading(false);
-    };
-    fetchLatestMessage();
-  }, [!!user]);
-  return [
-    {
-      key: 'latestMessageAt',
-      header: (
-        <HeadLabelWithIcon
-          icon={<Calendar className="h-3 w-3 text-muted-foreground" />}
-          label="Latest Message At"
-        />
-      ),
-      type: 'date',
-      contentRenderer: () => {
-        return (
-          <Loadable loading={loading}>
-            {latestMessage && (
-              <span className="text-xs">{moment(latestMessage.created_at).fromNow()}</span>
-            )}
-          </Loadable>
-        );
-      },
-    },
-    {
-      key: 'latestInteractedAgent',
-      header: (
-        <HeadLabelWithIcon
-          icon={<Calendar className="h-3 w-3 text-muted-foreground" />}
-          label="Latest Interacted Agent"
-        />
-      ),
-      type: 'string',
-      contentRenderer: () => {
-        return (
-          <Loadable loading={loading}>
-            {lastestAgent && <span className="text-xs">{lastestAgent.name}</span>}
-          </Loadable>
         );
       },
     },

@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatedLoadingSmall } from '@/components/animated-components/animated-loading-small';
-import { UsersTable } from '@/components/app-users/app-users-table';
+import { UsersTable } from '@/components/app-users/smart-tables/app-users-table';
 import { SearchInput } from '@/components/inputs/search-input';
 import { generateMockUsers } from '@/constants/mockUsers';
 import { consumePersona } from '@/core/persona';

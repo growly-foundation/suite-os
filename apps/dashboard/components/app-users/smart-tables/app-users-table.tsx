@@ -6,13 +6,13 @@ import { useMemo, useState } from 'react';
 
 import { ParsedUser } from '@getgrowly/core';
 
-import { PaginatedTable } from '../ui/paginated-table';
-import { ResizableSheet } from '../ui/resizable-sheet';
-import { SortDirection } from '../ui/sort-indicator';
-import { SortableHeader } from '../ui/sortable-header';
-import { TableCell, TableHead, TableRow } from '../ui/table';
-import { UserDetails } from './app-user-details';
+import { PaginatedTable } from '../../ui/paginated-table';
+import { ResizableSheet } from '../../ui/resizable-sheet';
+import { TableCell, TableHead, TableRow } from '../../ui/table';
+import { UserDetails } from '../app-user-details';
 import { createUserTableColumns } from './app-user-table-columns';
+import { SortDirection } from './sort-indicator';
+import { SortableHeader } from './sortable-header';
 
 const ITEMS_PER_PAGE = 15;
 

@@ -124,7 +124,7 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
     }
     const { data, error } = await this.withOrderBy(queryBuilder, orderBy).limit(1);
     if (error) throw error;
-    return data;
+    return data?.[0] ?? null;
   }
 
   async create(

@@ -1,5 +1,10 @@
-import { SmartTableColumn, TableColumn } from '@/components/app-users/types';
-import { SortDirection } from '@/components/ui/sort-indicator';
+import { SortDirection } from '@/components/app-users/smart-tables/sort-indicator';
+import {
+  AdvancedColumnType,
+  ColumnType,
+  SmartTableColumn,
+  TableColumn,
+} from '@/components/app-users/types';
 import { cn } from '@/lib/utils';
 
 /**
@@ -11,7 +16,17 @@ import { cn } from '@/lib/utils';
  * @returns The CSS class name for the column
  */
 export function columnStyle(column: TableColumn<any>) {
-  return column.type === 'number' ? 'text-right' : '';
+  return column.type === ColumnType.NUMBER ? 'text-right' : '';
+}
+
+export function checkColumnSortable(column: TableColumn<any>) {
+  return (
+    column.type === ColumnType.STRING ||
+    column.type === ColumnType.NUMBER ||
+    column.type === ColumnType.DATE ||
+    column.type === ColumnType.ARRAY ||
+    column.sortable
+  );
 }
 
 /**
@@ -33,11 +48,11 @@ export function getSortableValue<T>(item: T, column: TableColumn<T>): any {
   const rawValue = (item as any)[column.key];
 
   switch (column.type) {
-    case 'date':
+    case ColumnType.DATE:
       return rawValue ? new Date(rawValue).getTime() : 0;
-    case 'number':
+    case ColumnType.NUMBER:
       return typeof rawValue === 'number' ? rawValue : 0;
-    case 'array':
+    case ColumnType.ARRAY:
       return Array.isArray(rawValue) ? rawValue.length : 0;
     default:
       return rawValue ? String(rawValue).toLowerCase() : '';
@@ -104,7 +119,7 @@ export function renderColumns<T>(
   columns: SmartTableColumn<T>[],
   renderer: (column: TableColumn<T>, item: T) => React.ReactNode
 ) {
-  return getFlatColumns(columns).map(column => {
+  return getFlatColumns(columns, item).map(column => {
     return renderer(
       {
         ...column,
@@ -131,6 +146,7 @@ export function renderHeaders<T>(
   return getFlatColumns(columns).map(column => {
     return renderer({
       ...column,
+      sortable: checkColumnSortable(column),
       className: cn(column.className, columnStyle(column)),
     });
   });
@@ -143,12 +159,12 @@ export function renderHeaders<T>(
  *
  * @returns A flat array of table columns with all nested batch columns expanded.
  */
-export function getFlatColumns<T>(columns: SmartTableColumn<T>[]): TableColumn<T>[] {
+export function getFlatColumns<T>(columns: SmartTableColumn<T>[], item?: T): TableColumn<T>[] {
   const flatColumns: TableColumn<T>[] = [];
   for (const column of columns) {
-    if (column.type === 'batch') {
-      const batchColumns = column.batchRenderer();
-      flatColumns.push(...getFlatColumns(batchColumns));
+    if (column.type === AdvancedColumnType.BATCH) {
+      const batchColumns = column.batchRenderer(item);
+      flatColumns.push(...getFlatColumns(batchColumns, item));
     } else {
       flatColumns.push(column as TableColumn<T>);
     }
