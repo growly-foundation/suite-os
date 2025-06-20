@@ -56,6 +56,7 @@ export const createChatSessionColumns = (user?: ParsedUser): TableColumn<ParsedU
       contentRenderer: () => {
         return <LatestMessageTime user={user} />;
       },
+      sortable: false,
     },
     {
       key: 'latestInteractedAgent',
@@ -69,6 +70,7 @@ export const createChatSessionColumns = (user?: ParsedUser): TableColumn<ParsedU
       contentRenderer: () => {
         return <LatestInteractedAgent user={user} />;
       },
+      sortable: false,
     },
   ];
 };

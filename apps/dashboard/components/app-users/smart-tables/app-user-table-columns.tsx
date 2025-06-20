@@ -15,7 +15,7 @@ import { Badge } from '../../ui/badge';
 import { Checkbox } from '../../ui/checkbox';
 import { ActivityPreview } from '../../user/activity-preview';
 import { AppUserAvatarWithStatus } from '../app-user-avatar-with-status';
-import { AdvancedColumnType, ColumnType, SmartTableColumn } from '../types';
+import { AdvancedColumnType, ColumnType, ExtractedRowData, SmartTableColumn } from '../types';
 import { createChatSessionColumns } from './chat-session-columns';
 import { HeadLabelWithIcon } from './table-head-label';
 
@@ -34,6 +34,7 @@ export const createUserTableColumns = ({
   return [
     {
       key: 'identity',
+      sortable: false,
       header: (
         <div className="flex items-center space-x-4 h-12 border-r">
           <Checkbox
@@ -51,7 +52,15 @@ export const createUserTableColumns = ({
       sticky: true,
       border: false,
       className: 'sticky py-0 left-0 bg-white z-10',
-      contentRenderer: (user: ParsedUser) => {
+      dataExtractor: (user: ParsedUser) => {
+        const userPersona = consumePersona(user);
+        const name = userPersona.nameService()?.name || '';
+        return {
+          raw: name,
+          display: name,
+        };
+      },
+      contentRenderer: (user: ParsedUser, _extractedData?: ExtractedRowData) => {
         const userPersona = consumePersona(user);
         return (
           <div className="flex items-center space-x-4 h-12 border-r">
@@ -86,6 +95,7 @@ export const createUserTableColumns = ({
     },
     {
       key: 'portfolioValue',
+      sortable: true,
       header: (
         <HeadLabelWithIcon
           icon={<DollarSign className="h-3 w-3 text-muted-foreground" />}
@@ -93,13 +103,26 @@ export const createUserTableColumns = ({
         />
       ),
       type: ColumnType.NUMBER,
-      contentRenderer: (user: ParsedUser) => {
+      dataExtractor: (user: ParsedUser) => {
+        const totalPortfolioValue = user.onchainData?.portfolio_snapshots?.totalValue || 0;
+        return {
+          raw: totalPortfolioValue,
+          display: `$${formatNumber(totalPortfolioValue)}`,
+        };
+      },
+      contentRenderer: (user: ParsedUser, extractedData?: ExtractedRowData) => {
+        // If we have pre-extracted data, use that
+        if (extractedData?.portfolioValue) {
+          return <span className="text-xs">{extractedData.portfolioValue.display}</span>;
+        }
+        // Fall back to calculating directly
         const totalPortfolioValue = user.onchainData?.portfolio_snapshots?.totalValue || 0;
         return <span className="text-xs">${formatNumber(totalPortfolioValue)}</span>;
       },
     },
     {
       key: 'createdAt',
+      sortable: true,
       header: (
         <HeadLabelWithIcon
           icon={<Calendar className="h-3 w-3 text-muted-foreground" />}
@@ -107,12 +130,23 @@ export const createUserTableColumns = ({
         />
       ),
       type: ColumnType.DATE,
-      contentRenderer: (user: ParsedUser) => {
+      dataExtractor: (user: ParsedUser) => {
+        const date = new Date(user.created_at);
+        return {
+          raw: date.getTime(),
+          display: moment(date).fromNow(),
+        };
+      },
+      contentRenderer: (user: ParsedUser, extractedData?: ExtractedRowData) => {
+        if (extractedData?.createdAt) {
+          return <span className="text-xs">{extractedData.createdAt.display}</span>;
+        }
         return <span className="text-xs">{moment(user.created_at).fromNow()}</span>;
       },
     },
     {
       key: 'transactions',
+      sortable: true,
       header: (
         <HeadLabelWithIcon
           icon={<Layers className="h-3 w-3 text-muted-foreground" />}
@@ -120,16 +154,37 @@ export const createUserTableColumns = ({
         />
       ),
       type: ColumnType.NUMBER,
-      contentRenderer: (user: ParsedUser) => {
+      dataExtractor: (user: ParsedUser) => {
+        const userPersona = consumePersona(user);
+        const txCount = userPersona.universalTransactions().length;
+        return {
+          raw: txCount,
+          display: txCount.toString(),
+        };
+      },
+      contentRenderer: (user: ParsedUser, extractedData?: ExtractedRowData) => {
+        if (extractedData?.transactions) {
+          return <span className="text-xs">{extractedData.transactions.display}</span>;
+        }
         const userPersona = consumePersona(user);
         return <span className="text-xs">{userPersona.universalTransactions().length}</span>;
       },
     },
     {
       key: 'activity',
+      sortable: true,
       header: 'Activity',
       type: ColumnType.COMPONENT,
-      contentRenderer: (user: ParsedUser) => {
+      dataExtractor: (user: ParsedUser) => {
+        const userPersona = consumePersona(user);
+        const lastActivity = userPersona.getLatestActivity();
+        return {
+          raw: lastActivity ? lastActivity.timestamp : 0,
+          // Use a more generic approach that doesn't rely on specific activity properties
+          display: lastActivity ? new Date(lastActivity.timestamp).toLocaleDateString() : '',
+        };
+      },
+      contentRenderer: (user: ParsedUser, extractedData?: ExtractedRowData) => {
         const userPersona = consumePersona(user);
         const lastActivity = userPersona.getLatestActivity();
         return (
@@ -143,6 +198,7 @@ export const createUserTableColumns = ({
     },
     {
       key: 'trait',
+      sortable: true,
       header: (
         <HeadLabelWithIcon
           icon={<BadgeIcon className="h-3 w-3 text-muted-foreground" />}
@@ -150,24 +206,25 @@ export const createUserTableColumns = ({
         />
       ),
       type: ColumnType.COMPONENT,
-      contentRenderer: (user: ParsedUser) => {
+      dataExtractor: (user: ParsedUser) => {
         const userPersona = consumePersona(user);
         const dominantTrait = userPersona.dominantTrait();
+        const traitString = dominantTrait?.toString() || '';
+        return {
+          raw: traitString,
+          display: traitString,
+        };
+      },
+      contentRenderer: (_: ParsedUser, extractedData?: ExtractedRowData) => {
+        const traitString = extractedData?.trait.raw.toString() || '';
         return (
-          dominantTrait && (
-            <Badge
-              className={cn(
-                getBadgeColor(dominantTrait?.toString() || 'No dominant trait'),
-                'rounded-full'
-              )}>
-              {dominantTrait?.toString()}
-            </Badge>
-          )
+          <Badge className={cn(getBadgeColor(traitString), 'rounded-full')}>{traitString}</Badge>
         );
       },
     },
     {
       key: 'tokens',
+      sortable: true,
       header: (
         <HeadLabelWithIcon
           icon={<CoinsIcon className="h-3 w-3 text-muted-foreground" />}
@@ -175,7 +232,24 @@ export const createUserTableColumns = ({
         />
       ),
       type: ColumnType.ARRAY,
-      contentRenderer: (user: ParsedUser) => {
+      dataExtractor: (user: ParsedUser) => {
+        const mutlichainTokenPortfolio =
+          user.onchainData.portfolio_snapshots.tokenPortfolio?.chainRecordsWithTokens;
+
+        const allTokens = Object.values(mutlichainTokenPortfolio || {}).flatMap(
+          tokenList => tokenList.tokens
+        );
+
+        const distinctTokens = allTokens.filter(
+          (token, index, self) => index === self.findIndex(t => t.symbol === token.symbol)
+        );
+
+        return {
+          raw: distinctTokens.length,
+          display: distinctTokens.map(t => t.symbol).join(', '),
+        };
+      },
+      contentRenderer: (user: ParsedUser, extractedData?: ExtractedRowData) => {
         const mutlichainTokenPortfolio =
           user.onchainData.portfolio_snapshots.tokenPortfolio?.chainRecordsWithTokens;
         return (

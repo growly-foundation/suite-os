@@ -2,10 +2,16 @@ import { SortDirection } from '@/components/app-users/smart-tables/sort-indicato
 import {
   AdvancedColumnType,
   ColumnType,
+  ExtractedRowData,
   SmartTableColumn,
   TableColumn,
 } from '@/components/app-users/types';
 import { cn } from '@/lib/utils';
+
+export type FilterConfig = {
+  columnKey: string;
+  value: string;
+};
 
 /**
  * Returns a CSS class name for a table column based on its type.
@@ -21,10 +27,10 @@ export function columnStyle(column: TableColumn<any>) {
 
 export function checkColumnSortable(column: TableColumn<any>) {
   return (
-    column.type === ColumnType.STRING ||
-    column.type === ColumnType.NUMBER ||
-    column.type === ColumnType.DATE ||
-    column.type === ColumnType.ARRAY ||
+    (column.type === ColumnType.STRING ||
+      column.type === ColumnType.NUMBER ||
+      column.type === ColumnType.DATE ||
+      column.type === ColumnType.ARRAY) &&
     column.sortable
   );
 }
@@ -60,6 +66,127 @@ export function getSortableValue<T>(item: T, column: TableColumn<T>): any {
 }
 
 /**
+ * Extracts data from an item using column definitions for use in sorting, filtering, etc.
+ *
+ * This extracts a normalized dataset that can be used across the table without needing
+ * to recalculate values for each operation.
+ *
+ * @param item - The data item to extract values from
+ * @param columns - The column definitions that define how to extract data
+ * @returns An object containing extracted data for each column keyed by column key
+ */
+export function extractRowData<T>(item: T, columns: SmartTableColumn<T>[]): ExtractedRowData {
+  const flatColumns = getFlatColumns(columns, item);
+  const result: ExtractedRowData = {};
+
+  for (const column of flatColumns) {
+    // If the column has a data extractor, use it
+    if (column.dataExtractor) {
+      result[column.key] = column.dataExtractor(item);
+    }
+    // Fall back to the sorting value getter for backward compatibility
+    else if (column.sortingValueGetter) {
+      const value = column.sortingValueGetter(item);
+      result[column.key] = {
+        raw: value,
+        display: value?.toString() || '',
+      };
+    }
+    // Default extraction based on column type
+    else {
+      const rawValue = (item as any)[column.key];
+
+      switch (column.type) {
+        case ColumnType.DATE:
+          const date = rawValue ? new Date(rawValue) : null;
+          result[column.key] = {
+            raw: date ? date.getTime() : 0,
+            display: date ? date.toLocaleDateString() : '',
+          };
+          break;
+        case ColumnType.NUMBER:
+          const numValue = typeof rawValue === 'number' ? rawValue : 0;
+          result[column.key] = {
+            raw: numValue,
+            display: numValue.toString(),
+          };
+          break;
+        case ColumnType.ARRAY:
+          const arrayLength = Array.isArray(rawValue) ? rawValue.length : 0;
+          result[column.key] = {
+            raw: arrayLength,
+            display: arrayLength.toString(),
+          };
+          break;
+        default: // string and others
+          const stringValue = rawValue ? String(rawValue).toLowerCase() : '';
+          result[column.key] = {
+            raw: stringValue,
+            display: stringValue,
+          };
+      }
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Extracts data from multiple items using column definitions
+ *
+ * @param items - The array of data items to process
+ * @param columns - The column definitions that define how to extract data
+ * @returns An array of objects mapping column keys to their extracted values
+ */
+export function extractTableData<T>(
+  items: T[],
+  columns: SmartTableColumn<T>[]
+): ExtractedRowData[] {
+  return items.map(item => extractRowData(item, columns));
+}
+
+/**
+ * Filters an array of items based on a filter configuration and pre-extracted data
+ *
+ * @param items - The array of items to filter
+ * @param extractedData - A record mapping item IDs to their extracted data
+ * @param filters - Array of filter configurations to apply
+ * @param getItemId - Function to get the ID from an item
+ * @returns A filtered array of items
+ */
+export function filterItems<T>(
+  items: T[],
+  extractedData: Record<string, ExtractedRowData>,
+  filters: FilterConfig[],
+  getItemId: (item: T) => string
+): T[] {
+  if (!filters || filters.length === 0) {
+    return items; // No filters applied
+  }
+
+  return items.filter(item => {
+    const itemId = getItemId(item);
+    const itemData = extractedData[itemId];
+
+    if (!itemData) return true; // If no extracted data, don't filter out
+
+    // Check all filters for this item
+    return filters.every(filter => {
+      const { columnKey, value } = filter;
+
+      if (!value || value.trim() === '') return true; // Empty filter always passes
+      if (!itemData[columnKey]) return true; // If column data doesn't exist, don't filter out
+
+      const cellData = itemData[columnKey];
+      const displayValue = cellData.display?.toLowerCase() || '';
+      const searchValue = value.toLowerCase();
+
+      return displayValue.includes(searchValue);
+    });
+  });
+}
+
+/**
  * Returns a sorted copy of the items array based on the specified sort configuration and column definitions.
  *
  * If no sort key or direction is provided, or if the sort key does not match any column, a shallow copy of the original array is returned. Sorting handles null or undefined values by placing them at the start or end depending on the sort direction.
@@ -86,22 +213,32 @@ export function sortItems<T>(
     return [...items];
   }
 
-  return [...items].sort((a, b) => {
-    const valueA = getSortableValue(a, sortColumn);
-    const valueB = getSortableValue(b, sortColumn);
+  // Extract all data first for more efficient sorting
+  const extractedData = items.map((item, index) => ({
+    item,
+    index,
+    value: sortColumn.dataExtractor
+      ? sortColumn.dataExtractor(item).raw
+      : getSortableValue(item, sortColumn),
+  }));
 
+  // Sort based on the extracted data
+  extractedData.sort((a, b) => {
     // Handle null/undefined values
-    if (valueA == null) return sortConfig.direction === 'asc' ? -1 : 1;
-    if (valueB == null) return sortConfig.direction === 'asc' ? 1 : -1;
+    if (a.value == null) return sortConfig.direction === 'asc' ? -1 : 1;
+    if (b.value == null) return sortConfig.direction === 'asc' ? 1 : -1;
 
-    if (valueA < valueB) {
+    if (a.value < b.value) {
       return sortConfig.direction === 'asc' ? -1 : 1;
     }
-    if (valueA > valueB) {
+    if (a.value > b.value) {
       return sortConfig.direction === 'asc' ? 1 : -1;
     }
     return 0;
   });
+
+  // Return the sorted items
+  return extractedData.map(entry => entry.item);
 }
 
 /**

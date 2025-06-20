@@ -1,6 +1,13 @@
 'use client';
 
-import { renderColumns, renderHeaders, sortItems } from '@/lib/tables.utils';
+import {
+  FilterConfig,
+  extractTableData,
+  filterItems,
+  renderColumns,
+  renderHeaders,
+  sortItems,
+} from '@/lib/tables.utils';
 import { cn } from '@/lib/utils';
 import { useMemo, useState } from 'react';
 
@@ -10,6 +17,7 @@ import { PaginatedTable } from '../../ui/paginated-table';
 import { ResizableSheet } from '../../ui/resizable-sheet';
 import { TableCell, TableHead, TableRow } from '../../ui/table';
 import { UserDetails } from '../app-user-details';
+import { ExtractedRowData } from '../types';
 import { createUserTableColumns } from './app-user-table-columns';
 import { SortDirection } from './sort-indicator';
 import { SortableHeader } from './sortable-header';
@@ -32,6 +40,10 @@ export function UsersTable({ users }: { users: ParsedUser[] }) {
     key: null,
     direction: null,
   });
+
+  // Add filtering state
+  const [filters, setFilters] = useState<FilterConfig[]>([]);
+  const [globalFilter, setGlobalFilter] = useState('');
 
   // User interaction handlers
   const handleUserClick = (user: ParsedUser) => {
@@ -83,23 +95,45 @@ export function UsersTable({ users }: { users: ParsedUser[] }) {
   };
 
   // Create dynamic columns
-  const columns = createUserTableColumns({
-    onUserClick: handleUserClick,
-    onCheckboxChange: handleUserSelect,
-    selectedUsers,
-    onSelectAll: handleSelectAll,
-  });
+  const columns = useMemo(
+    () =>
+      createUserTableColumns({
+        onUserClick: handleUserClick,
+        onCheckboxChange: handleUserSelect,
+        selectedUsers,
+        onSelectAll: handleSelectAll,
+      }),
+    [selectedUsers]
+  );
 
-  // Apply sorting to the data
-  const sortedUsers = useMemo(() => {
-    return sortItems(users, sortConfig, columns);
-  }, [users, sortConfig, columns]);
+  // Extract data from all users upfront for sorting and filtering
+  const extractedData = useMemo<Record<string, ExtractedRowData>>(() => {
+    const data: Record<string, ExtractedRowData> = {};
+    const tableData = extractTableData(users, columns);
+
+    // Store extracted data by user ID for easy access
+    users.forEach((user, index) => {
+      data[user.id] = tableData[index];
+    });
+
+    return data;
+  }, [users, columns]);
+
+  // Apply filtering, then sorting to the data
+  const filteredAndSortedUsers = useMemo(() => {
+    // First filter
+    const filtered =
+      filters.length > 0 ? filterItems(users, extractedData, filters, user => user.id) : users;
+
+    // Then sort the filtered results
+    return sortItems(filtered, sortConfig, columns);
+  }, [users, filters, extractedData, sortConfig, columns]);
 
   // Calculate pagination values
-  const totalItems = sortedUsers.length;
+  const totalItems = filteredAndSortedUsers.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedUsers = sortedUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const paginatedUsers = filteredAndSortedUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
     <>
@@ -124,7 +158,7 @@ export function UsersTable({ users }: { users: ParsedUser[] }) {
             className={cn('hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors')}>
             {renderColumns(user, columns, (column, item) => (
               <TableCell key={column.key} border={column.border} className={column.className}>
-                {column.contentRenderer(item)}
+                {column.contentRenderer(item, extractedData[item.id])}
               </TableCell>
             ))}
           </TableRow>
