@@ -20,6 +20,7 @@
   <a href="https://github.com/growly-foundation/suite/blob/main/LICENSE.md" target="_blank" rel="noopener noreferrer">
     <img src="https://img.shields.io/npm/l/@getgrowly/suite?style=flat-square&color=0052FF" alt="MIT License" />
   </a>
+    <img src="https://img.shields.io/coderabbit/prs/github/growly-foundation/suite?utm_source=oss&utm_medium=github&utm_campaign=growly-foundation%2Fsuite&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews&color=0052FF" alt="MIT License" />
 </p>
 
 <p>
