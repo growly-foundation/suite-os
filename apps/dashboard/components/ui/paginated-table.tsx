@@ -29,7 +29,7 @@ export const PaginatedTable = ({
 }: {
   header: React.ReactNode;
   content: React.ReactNode;
-  footer: React.ReactNode;
+  footer?: React.ReactNode;
   pagination: {
     startIndex: number;
     totalItems: number;
@@ -50,7 +50,7 @@ export const PaginatedTable = ({
         <Table className={cn(className, showPagination ? 'border-b' : '')}>
           <TableHeader>{header}</TableHeader>
           <TableBody>
-            {content} {footer}
+            {content} {footer && footer}
           </TableBody>
         </Table>
       </div>

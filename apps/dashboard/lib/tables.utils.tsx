@@ -61,6 +61,10 @@ export function getSortableValue<T>(item: T, column: TableColumn<T>): any {
   if (column.sortable && column.sortingValueGetter) {
     return column.sortingValueGetter(item);
   }
+  // Fallback to data extractor if no custom sorting getter
+  if (column.dataExtractor) {
+    return column.dataExtractor(item);
+  }
   return undefined;
 }
 

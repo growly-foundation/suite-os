@@ -8,7 +8,7 @@ import { useAgentUsersEffect } from '@/hooks/use-agent-effect';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { Sidebar } from 'lucide-react';
 import moment from 'moment';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import { AggregatedAgent, ParsedUser } from '@getgrowly/core';
 import { truncateAddress } from '@getgrowly/ui';
@@ -35,27 +35,34 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
   const [open, setOpen] = React.useState(false);
   const persona = selectedUser ? consumePersona(selectedUser) : null;
 
-  const sortedUsersByLatestMessage = async () => {
+  const sortedUsersByLatestMessage = useCallback(async () => {
     const userWithLatestMessage = await Promise.all(
       users.map(async user => {
-        const lastConversation = user.chatSession?.lastConversation;
-        if (!lastConversation?.messageId)
+        try {
+          const lastConversation = user.chatSession?.lastConversation;
+          if (!lastConversation?.messageId)
+            return { user, latestMessageDate: null, latestMessageContent: null };
+          const message = await suiteCore.db.messages.getById(lastConversation.messageId);
+          return {
+            user,
+            latestMessageDate: message?.created_at || null,
+            latestMessageContent: message?.content || null,
+          };
+        } catch (error) {
+          console.error(`Failed to fetch latest message for user ${user.id}:`, error);
           return { user, latestMessageDate: null, latestMessageContent: null };
-        const message = await suiteCore.db.messages.getById(lastConversation.messageId);
-        return {
-          user,
-          latestMessageDate: message?.created_at || null,
-          latestMessageContent: message?.content || null,
-        };
+        }
       })
     );
     return userWithLatestMessage.sort((a, b) => {
       const latestMessageA = a.latestMessageDate;
       const latestMessageB = b.latestMessageDate;
-      if (!latestMessageA || !latestMessageB) return -1;
+      if (!latestMessageA && !latestMessageB) return 0;
+      if (!latestMessageA) return 1; // A goes after B
+      if (!latestMessageB) return -1; // A goes before B
       return moment(latestMessageB).diff(moment(latestMessageA));
     });
-  };
+  }, [users]);
 
   useEffect(() => {
     const fetchUsersWithLatestMessage = async () => {

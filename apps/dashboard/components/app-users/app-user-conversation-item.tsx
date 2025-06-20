@@ -27,11 +27,13 @@ export const AppUserConversationItem = ({
       key={user.id}
       className={`hover:bg-slate-50 border-b gap-3 p-3 py-4 ${selectedUser.id === user.id ? 'bg-slate-50' : ''} cursor-pointer`}
       onClick={() => onSelectUser(user)}>
-      <div className={`flex items-center gap-3`} onClick={() => onSelectUser(user)}>
+      <div className={`flex items-center gap-3`}>
         <AppUserAvatarWithStatus user={user} />
         <div className="flex-1 min-w-0">
           <div className="flex justify-between items-center">
-            <p className="font-medium text-xs truncate">{persona.nameService()?.name}</p>
+            <p className="font-medium text-xs truncate">
+              {persona.nameService()?.name || 'Unknown User'}
+            </p>
           </div>
           <div className="flex justify-between items-center">
             <WalletAddress
@@ -59,17 +61,24 @@ export const AppUserConversationItem = ({
       {latestMessageContent && (
         <div className="text-xs text-muted-foreground mt-1">
           {(() => {
-            const parsedMessage = JSON.parse(latestMessageContent);
-            return (
-              <div className="text-xs text-muted-foreground">
-                <RenderMessageContent
-                  message={{
-                    ...parsedMessage,
-                    content: parsedMessage.content.slice(0, 100) + '...',
-                  }}
-                />
-              </div>
-            );
+            try {
+              const parsedMessage = JSON.parse(latestMessageContent);
+              return (
+                <div className="text-xs text-muted-foreground">
+                  <RenderMessageContent
+                    message={{
+                      ...parsedMessage,
+                      content: parsedMessage.content.slice(0, 100) + '...',
+                    }}
+                  />
+                </div>
+              );
+            } catch (error) {
+              console.error('Failed to parse message content:', error);
+              return (
+                <div className="text-xs text-muted-foreground">Message can't be previewed</div>
+              );
+            }
           })()}
         </div>
       )}

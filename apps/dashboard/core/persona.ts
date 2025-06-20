@@ -65,7 +65,10 @@ export const consumePersona = (user: ParsedUser) => {
       }
       return lastActivity;
     },
-    walletCreatedAt: () => moment(identities?.walletMetrics?.walletCreationDate).toDate(),
-    getHumanCheckmark: (): boolean => !!identities.talentProtocol?.profile?.human_checkmark,
+    walletCreatedAt: () => {
+      const creationDate = identities?.walletMetrics?.walletCreationDate;
+      return creationDate ? moment(creationDate).toDate() : null;
+    },
+    getHumanCheckmark: (): boolean => !!identities?.talentProtocol?.profile?.human_checkmark,
   };
 };

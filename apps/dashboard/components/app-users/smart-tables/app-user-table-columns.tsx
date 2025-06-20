@@ -279,7 +279,7 @@ export const createUserTableColumns = ({
       dataExtractor: (user: ParsedUser) => {
         const persona = consumePersona(user);
         const date = persona.walletCreatedAt();
-        return date ? date.getTime() : undefined;
+        return date ? date.getTime() : 0;
       },
       contentRenderer: (extractedData: number) => {
         return <span className="text-xs">{moment(extractedData).format('DD/MM/YYYY HH:mm')}</span>;
