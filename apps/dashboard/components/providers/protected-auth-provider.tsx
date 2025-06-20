@@ -4,8 +4,7 @@ import { suiteCore } from '@/core/suite';
 import { usePrivy } from '@privy-io/react-auth';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useEffect } from 'react';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Admin } from '@getgrowly/core';
 
