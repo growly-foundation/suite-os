@@ -16,6 +16,13 @@ import { createUserTableColumns } from './app-user-table-columns';
 
 const ITEMS_PER_PAGE = 15;
 
+/**
+ * Displays a paginated, sortable table of users with selectable rows and a detail panel.
+ *
+ * Integrates sorting, selection, and pagination controls, allowing users to view, select, and inspect user details in a side panel.
+ *
+ * @param users - The list of users to display in the table.
+ */
 export function UsersTable({ users }: { users: ParsedUser[] }) {
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<ParsedUser | null>(null);

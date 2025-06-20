@@ -11,6 +11,15 @@ export interface SortIndicatorProps {
   className?: string;
 }
 
+/**
+ * Displays an icon indicating the current sort direction.
+ *
+ * Renders an upward arrow for ascending, a downward arrow for descending, or a muted bidirectional arrow when no sort direction is specified.
+ *
+ * @param direction - The current sort direction; determines which icon is shown
+ * @param className - Optional additional CSS classes for the container
+ * @returns A JSX element representing the sort direction indicator
+ */
 export function SortIndicator({ direction, className }: SortIndicatorProps) {
   return (
     <div className={cn('ml-1 inline-flex', className)}>
