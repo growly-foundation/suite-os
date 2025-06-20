@@ -4,7 +4,7 @@ import { text } from '@/styles/theme';
 import { ChevronUp, Loader2, Pencil } from 'lucide-react';
 import React from 'react';
 
-import { Agent, ConversationRole, ParsedMessage, User } from '@getgrowly/core';
+import { Agent, ConversationRole, ParsedMessage, ParsedUser } from '@getgrowly/core';
 import { BRAND_NAME_CAPITALIZED } from '@getgrowly/ui';
 
 import ChatResponse from './ChatResponse';
@@ -13,7 +13,7 @@ import { ConnectWallet } from './ConnectWallet';
 export interface ChatMessageViewProps {
   messages: ParsedMessage[];
   agent: Agent | undefined | null;
-  user: User | undefined | null;
+  user: ParsedUser | undefined | null;
   viewAs?: ConversationRole;
   isLoadingMessages: boolean;
   isAgentThinking: boolean;

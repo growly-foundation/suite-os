@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { Loader } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Admin, ConversationRole, ParsedMessage, User } from '@getgrowly/core';
+import { Admin, ConversationRole, ParsedMessage, ParsedUser } from '@getgrowly/core';
 import { AdminAvatar, RandomAvatar, SuiteUser } from '@getgrowly/ui';
 
 const ChatResponseAvatar = ({
@@ -260,7 +260,7 @@ const ChatResponse = ({
   viewAs: ConversationRole;
   showAvatar?: boolean;
   ref?: React.RefObject<HTMLDivElement> | null;
-  user: User;
+  user: ParsedUser;
   toolMessages?: ParsedMessage[];
 }) => {
   switch (message.sender) {
@@ -269,7 +269,7 @@ const ChatResponse = ({
         <div ref={ref} className="w-full">
           <UserResponse
             key={message.id}
-            address={user?.address}
+            address={user?.entities.walletAddress}
             message={message}
             noAvatar={viewAs === ConversationRole.User}
             showAvatar={showAvatar && viewAs !== ConversationRole.User}

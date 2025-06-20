@@ -67,10 +67,10 @@ export function ChatPanelContainer({
 }) {
   return (
     <React.Fragment>
-      {user?.address ? (
+      {user?.entities.walletAddress ? (
         <>
           {integration?.onchainKit?.enabled && (
-            <Identity address={user.address} hasCopyAddressOnClick={false}>
+            <Identity address={user.entities.walletAddress} hasCopyAddressOnClick={false}>
               <Avatar />
               <Name>
                 <Badge tooltip={false} />
