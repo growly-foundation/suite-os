@@ -2,12 +2,15 @@
 
 import { UsersConversationSidebar } from '@/components/app-users/app-user-conversation-sidebar';
 import { ConversationArea } from '@/components/conversations/conversation-area';
+import { consumePersona } from '@/core/persona';
+import { suiteCore } from '@/core/suite';
 import { useAgentUsersEffect } from '@/hooks/use-agent-effect';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { Sidebar } from 'lucide-react';
-import React from 'react';
+import moment from 'moment';
+import React, { useEffect } from 'react';
 
-import { AggregatedAgent } from '@getgrowly/core';
+import { AggregatedAgent, ParsedUser } from '@getgrowly/core';
 import { truncateAddress } from '@getgrowly/ui';
 
 import { AnimatedLoadingSmall } from '../animated-components/animated-loading-small';
@@ -16,11 +19,51 @@ import { UserDetails } from '../app-users/app-user-details';
 import { InteractableIcon } from '../ui/interactable-icon';
 import { ResizableSheet } from '../ui/resizable-sheet';
 
+export type UserWithLatestMessage = {
+  user: ParsedUser;
+  latestMessageDate: string | null;
+  latestMessageContent: string | null;
+};
+
 export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
   const { agentUserStatus: userStatus, setSelectedAgentUser: setSelectedUser } =
     useDashboardState();
+  const [usersWithLatestMessage, setUsersWithLatestMessage] = React.useState<
+    UserWithLatestMessage[]
+  >([]);
   const { selectedUser, users } = useAgentUsersEffect(agent.id);
   const [open, setOpen] = React.useState(false);
+  const persona = selectedUser ? consumePersona(selectedUser) : null;
+
+  const sortedUsersByLatestMessage = async () => {
+    const userWithLatestMessage = await Promise.all(
+      users.map(async user => {
+        const lastConversation = user.chatSession?.lastConversation;
+        if (!lastConversation?.messageId)
+          return { user, latestMessageDate: null, latestMessageContent: null };
+        const message = await suiteCore.db.messages.getById(lastConversation.messageId);
+        return {
+          user,
+          latestMessageDate: message?.created_at || null,
+          latestMessageContent: message?.content || null,
+        };
+      })
+    );
+    return userWithLatestMessage.sort((a, b) => {
+      const latestMessageA = a.latestMessageDate;
+      const latestMessageB = b.latestMessageDate;
+      if (!latestMessageA || !latestMessageB) return -1;
+      return moment(latestMessageB).diff(moment(latestMessageA));
+    });
+  };
+
+  useEffect(() => {
+    const fetchUsersWithLatestMessage = async () => {
+      const usersWithLatestMessage = await sortedUsersByLatestMessage();
+      setUsersWithLatestMessage(usersWithLatestMessage);
+    };
+    fetchUsersWithLatestMessage();
+  }, [users]);
 
   return (
     <div className="flex w-full overflow-hidden h-[85.1vh]">
@@ -31,7 +74,7 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
       ) : users.length > 0 && selectedUser ? (
         <React.Fragment>
           <UsersConversationSidebar
-            users={users}
+            users={usersWithLatestMessage}
             selectedUser={selectedUser}
             onSelectUser={setSelectedUser}
           />
@@ -41,7 +84,8 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
                 <AppUserAvatarWithStatus user={selectedUser} size={35} />
                 <div>
                   <p className="font-medium text-sm">
-                    {selectedUser.ensName || truncateAddress(selectedUser.address, 10, 4)}
+                    {persona?.nameService().name ||
+                      truncateAddress(selectedUser.entities.walletAddress, 10, 4)}
                   </p>
                 </div>
               </div>

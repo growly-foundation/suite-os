@@ -1,5 +1,6 @@
 'use client';
 
+import { consumePersona } from '@/core/persona';
 import { suiteCore } from '@/core/suite';
 import { cn } from '@/lib/utils';
 import { Bot, Loader2, MessageCircle, User } from 'lucide-react';
@@ -41,8 +42,9 @@ export const MessageListCard = ({ message, selected, className }: MessageListCar
   const renderSender = () => {
     if (message.sender === 'user') {
       if (loadingUser) return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
-      return user?.ensName || user?.address
-        ? truncateAddress(user?.address || '', 8, 6)
+      return user
+        ? consumePersona(user)?.nameService().name ||
+            truncateAddress(user.entities.walletAddress, 10, 4)
         : 'Unknown User';
     }
     return 'Agent';
