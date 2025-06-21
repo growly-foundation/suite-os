@@ -1,18 +1,22 @@
 import Link from 'next/link';
 
+import { WaitlistForm } from './waitlist-form';
+
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t py-12 md:py-16">
+    <footer className="border-t py-6 md:py-16">
       <div className="container px-4 md:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold">Growly Foundation</h3>
-            <p className="text-sm text-muted-foreground">
-              Focus on shipping great products, we’ll handle the connection between your users and
-              your app
-            </p>
+        <div className="flex justify-center">
+          <div>
+            <div className="text-center space-y-2">
+              <h3 className="text-2xl font-bold">Join Our Waitlist</h3>
+              <p className="text-md text-muted-foreground">
+                Be the first to know when we launch new features
+              </p>
+              <WaitlistForm className="mx-auto" />
+            </div>
           </div>
           {/* <div className="space-y-4">
             <h3 className="text-sm font-bold">Product</h3>
