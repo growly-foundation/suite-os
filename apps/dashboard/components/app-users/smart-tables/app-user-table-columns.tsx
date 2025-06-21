@@ -50,7 +50,7 @@ export const createUserTableColumns = ({
       key: 'identity',
       sortable: false,
       header: (
-        <div className="flex items-center border-b space-x-4 h-12 border-r">
+        <div className="flex items-center space-x-4 h-12 border-r">
           <Checkbox
             className="border-gray-450"
             checked={Object.values(selectedUsers).some(Boolean)}
@@ -71,7 +71,7 @@ export const createUserTableColumns = ({
         const userPersona = consumePersona(user);
         const name = userPersona.nameService()?.name || '';
         return (
-          <div className="flex items-center border-b space-x-4 h-12 border-r">
+          <div className="flex items-center space-x-4 h-12 border-r">
             <Checkbox
               className="border-gray-450"
               checked={!!selectedUsers[user.id]}
