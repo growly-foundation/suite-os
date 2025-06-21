@@ -7,6 +7,7 @@ import {
   getFlatColumns,
   renderColumns,
   renderHeaders,
+  sortItems,
 } from '@/lib/tables.utils';
 import { cn } from '@/lib/utils';
 import { useMemo, useState } from 'react';
@@ -102,6 +103,11 @@ export function UsersTable({ users }: { users: ParsedUser[] }) {
     [selectedUsers]
   );
 
+  // Apply filtering, then sorting to the data
+  const filteredAndSortedUsers = useMemo(() => {
+    return sortItems(users, sortConfig, columns);
+  }, [users, sortConfig, columns]);
+
   // Extract data from all users upfront for sorting and filtering
   const extractedData = useMemo<Record<string, ExtractedRowData<any>>>(() => {
     const data: Record<string, ExtractedRowData<any>> = {};
@@ -116,10 +122,10 @@ export function UsersTable({ users }: { users: ParsedUser[] }) {
   }, [users, columns]);
 
   // Calculate pagination values
-  const totalItems = users.length;
+  const totalItems = filteredAndSortedUsers.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedUsers = users.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const paginatedUsers = filteredAndSortedUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const footers = useMemo(() => {
     const flatColumns = getFlatColumns(columns);
