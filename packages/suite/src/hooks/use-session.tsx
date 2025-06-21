@@ -91,8 +91,9 @@ export const useSuiteSession = create<WidgetSession>((set, get) => ({
       const messages: Message[] = await suiteCoreService.call(
         'conversations',
         'getMessagesOfAgentAndUser',
-        [agent.id, user.id]
+        [agent.id, user.id, true]
       );
+      console.log(messages);
       const parsedMessage: ParsedMessage[] = messages.map(message => {
         const messageContent = JSON.parse(message.content) as MessageContent;
         return {

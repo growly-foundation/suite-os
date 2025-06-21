@@ -22,7 +22,11 @@ export class ConversationService {
     return conversation;
   }
 
-  async getMessagesOfAgentAndUser(agent_id: string, user_id: string): Promise<Message[]> {
+  async getMessagesOfAgentAndUser(
+    agent_id: string,
+    user_id: string,
+    ascending = false
+  ): Promise<Message[]> {
     const conversation = await this.conversationDatabaseService.getOneByFields({
       agent_id,
       user_id,
@@ -37,7 +41,7 @@ export class ConversationService {
       undefined,
       {
         field: 'created_at',
-        ascending: false,
+        ascending,
       }
     );
   }
