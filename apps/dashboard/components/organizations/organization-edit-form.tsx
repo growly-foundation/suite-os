@@ -123,9 +123,7 @@ export function OrganizationEditForm({
   const handleCompanyNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value;
     setCompanyName(name);
-    if (!organizationHandle) {
-      setOrganizationHandle(generateHandle(name));
-    }
+    setOrganizationHandle(generateHandle(name));
   };
 
   const handleCompanyDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {

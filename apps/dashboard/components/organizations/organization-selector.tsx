@@ -20,16 +20,16 @@ export function OrganizationSelector() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center space-y-2">
+      <div className="flex flex-col items-center text-center space-y-2">
         <h1 className="text-3xl font-bold">Select Organization</h1>
         <p className="text-muted-foreground">Choose an organization to continue</p>
+        <Button
+          className="flex items-center justify-center primary"
+          onClick={() => router.push('/onboarding/organization')}>
+          <PlusIcon className="h-5 w-5 mr-2" />
+          <span>Create New Organization</span>
+        </Button>
       </div>
-      <Button
-        className="w-full max-w-[300px] justify-between primary"
-        onClick={() => router.push('/onboarding/organization')}>
-        <PlusIcon className="h-5 w-5 mr-2" />
-        <span>Create New Organization</span>
-      </Button>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {organizations.map(org => (
