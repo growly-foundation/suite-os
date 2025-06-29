@@ -2,11 +2,12 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { useDashboardState } from '@/hooks/use-dashboard';
+import { PlusIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { AggregatedOrganization } from '@getgrowly/core';
 
-import { CreateOrganizationDialog } from './create-organization-dialog';
+import { Button } from '../ui/button';
 
 export function OrganizationSelector() {
   const { organizations, setSelectedOrganization } = useDashboardState();
@@ -23,6 +24,12 @@ export function OrganizationSelector() {
         <h1 className="text-3xl font-bold">Select Organization</h1>
         <p className="text-muted-foreground">Choose an organization to continue</p>
       </div>
+      <Button
+        className="w-full max-w-[300px] justify-between primary"
+        onClick={() => router.push('/onboarding/organization')}>
+        <PlusIcon className="h-5 w-5 mr-2" />
+        <span>Create New Organization</span>
+      </Button>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {organizations.map(org => (
@@ -44,7 +51,6 @@ export function OrganizationSelector() {
             </CardContent>
           </Card>
         ))}
-        <CreateOrganizationDialog />
       </div>
     </div>
   );

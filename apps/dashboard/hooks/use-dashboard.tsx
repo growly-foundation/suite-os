@@ -1,4 +1,6 @@
 import { suiteCore } from '@/core/suite';
+import { uploadToSupabase } from '@/utils/supabase-storage';
+import { toast } from 'react-toastify';
 import { create } from 'zustand';
 
 import {
@@ -10,6 +12,7 @@ import {
   ParsedMessage,
   ParsedUser,
   WorkflowId,
+  generateHandle,
 } from '@getgrowly/core';
 
 export const STORAGE_KEY_SELECTED_ORGANIZATION_ID = (userId: string) =>
@@ -18,6 +21,22 @@ export const STORAGE_KEY_SELECTED_ORGANIZATION_ID = (userId: string) =>
 export type StateStatus = 'idle' | 'loading';
 
 export type ConversationStatus = StateStatus | 'sending' | 'agent-thinking';
+
+const handleOrganizationLogoUpload = async (logoFile: File | null | undefined, handle: string) => {
+  // Handle logo upload if provided
+  let logoUrl = null;
+  if (logoFile) {
+    toast.info('Uploading company logo...');
+    logoUrl = await uploadToSupabase(logoFile, 'organizations', `org-${handle}`);
+
+    if (!logoUrl) {
+      toast.warning('Logo upload failed, but organization will still be created');
+    } else {
+      toast.success('Logo uploaded successfully!');
+    }
+  }
+  return logoUrl;
+};
 
 /**
  * State storage for managing application state.
@@ -37,7 +56,22 @@ export type DashboardAppState = {
   fetchOrganizations: () => Promise<AggregatedOrganization[]>;
   organizations: AggregatedOrganization[];
   setOrganizations: (organizations: AggregatedOrganization[]) => void;
-  createOrganization: (name: string, description: string) => Promise<AggregatedOrganization>;
+  createOrganization: (
+    name: string,
+    description: string,
+    creatorRole: string,
+    handle?: string,
+    logoFile?: File,
+    referralSource?: string
+  ) => Promise<AggregatedOrganization>;
+  updateOrganization: (
+    organizationId: string,
+    name: string,
+    description: string,
+    handle?: string,
+    logoFile?: File,
+    referralSource?: string
+  ) => Promise<AggregatedOrganization>;
 
   // Agent Users
   organizationUserStatus: StateStatus;
@@ -156,17 +190,64 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
     set({ organizations, organizationStatus: 'idle' });
     return organizations;
   },
-  createOrganization: async (name: string, description: string) => {
+  createOrganization: async (
+    name: string,
+    description: string,
+    creatorRole: string,
+    handle?: string,
+    logoFile?: File,
+    referralSource?: string
+  ) => {
     set({ organizationStatus: 'loading' });
     const admin = get().admin;
     if (!admin || !admin.id) throw new Error('No admin authenticated');
+
+    handle = handle || generateHandle(name);
+    const logoUrl = await handleOrganizationLogoUpload(logoFile, handle);
     const organization = await suiteCore.organizations.createOrganization(
       name,
       description,
-      admin.id
+      admin.id,
+      creatorRole,
+      handle,
+      logoUrl,
+      referralSource
     );
     set({ organizations: [...get().organizations, organization], organizationStatus: 'idle' });
     return organization;
+  },
+  updateOrganization: async (
+    organizationId: string,
+    name: string,
+    description: string,
+    handle?: string | null | undefined,
+    logoFile?: File | null | undefined,
+    referralSource?: string | null | undefined
+  ) => {
+    set({ organizationStatus: 'loading' });
+    const admin = get().admin;
+    if (!admin || !admin.id) throw new Error('No admin authenticated');
+
+    const organization = await suiteCore.organizations.getOrganizationById(organizationId);
+    if (!organization) throw new Error('Organization not found');
+
+    handle = handle || generateHandle(name);
+    const logoUrl = await handleOrganizationLogoUpload(logoFile, handle);
+    const updatedOrganization = await suiteCore.db.organizations.update(organizationId, {
+      name: name || organization.name,
+      description: description || organization.description,
+      handle: handle || organization.handle,
+      logo_url: logoUrl || organization.logo_url,
+      referral_source: referralSource || organization.referral_source,
+    });
+    const updateOrganizations = get().organizations.map(org =>
+      org.id === organizationId ? (updatedOrganization as any) : org
+    );
+    set({ organizations: updateOrganizations, organizationStatus: 'idle' });
+    return {
+      ...organization,
+      ...updatedOrganization,
+    };
   },
 
   // Workflows

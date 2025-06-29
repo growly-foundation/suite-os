@@ -12,7 +12,14 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
-import { BotIcon, FileStackIcon, HomeIcon, UserIcon, WorkflowIcon } from 'lucide-react';
+import {
+  BotIcon,
+  FileStackIcon,
+  HomeIcon,
+  SettingsIcon,
+  UserIcon,
+  WorkflowIcon,
+} from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import * as React from 'react';
 
@@ -59,6 +66,13 @@ export const navigations = [
     url: '/dashboard/resources',
     icon: (selected: boolean) => (
       <NavigationIcon icon={<FileStackIcon className="h-3 w-3" />} selected={selected} />
+    ),
+  },
+  {
+    title: 'Settings',
+    url: '/dashboard/settings',
+    icon: (selected: boolean) => (
+      <NavigationIcon icon={<SettingsIcon className="h-3 w-3" />} selected={selected} />
     ),
   },
 ];

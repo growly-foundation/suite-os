@@ -68,7 +68,7 @@ export function OrganizationSwitcher() {
               ))}
               <CommandItem
                 className="cursor-pointer"
-                onSelect={() => router.push('/organizations/')}>
+                onSelect={() => router.push('/onboarding/organization')}>
                 <div className="flex h-5 w-5 items-center justify-center rounded-md bg-primary mr-2">
                   <span className="text-xs font-bold text-white">
                     <PlusCircle className="h-3 w-3" />

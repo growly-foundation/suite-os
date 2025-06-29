@@ -67,7 +67,6 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
   const handleSave = async () => {
     if (!workflow || !selectedOrganization) {
       toast.error('Please select an organization');
-      router.push('/organizations');
       return;
     }
     try {
@@ -107,7 +106,7 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
   useEffect(() => {
     async function init() {
       if (!selectedOrganization) {
-        router.push('/organizations');
+        router.push('/onboarding/organization');
         toast.error('Please select an organization');
         return;
       }
