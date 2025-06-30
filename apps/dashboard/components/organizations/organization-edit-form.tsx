@@ -64,8 +64,21 @@ export function OrganizationEditForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
+    if (event.target.files?.[0]) {
       const file = event.target.files[0];
+
+      // Validate file size (10MB limit as mentioned in UI)
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('File size must be less than 10MB');
+        return;
+      }
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select an image file');
+        return;
+      }
+
       setLogoFile(file);
       const reader = new FileReader();
       reader.onload = e => {

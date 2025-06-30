@@ -27,12 +27,13 @@ const handleOrganizationLogoUpload = async (logoFile: File | null | undefined, h
   let logoUrl = null;
   if (logoFile) {
     toast.info('Uploading company logo...');
-    logoUrl = await uploadToSupabase(logoFile, 'organizations', `org-${handle}`);
-
-    if (!logoUrl) {
-      toast.warning('Logo upload failed, but organization will still be created');
-    } else {
+    try {
+      logoUrl = await uploadToSupabase(logoFile, 'organizations', `org-${handle}`);
+      if (!logoUrl) throw new Error('Logo upload failed');
       toast.success('Logo uploaded successfully!');
+    } catch (error) {
+      console.error('Logo upload failed:', error);
+      toast.warning('Logo upload failed, but organization will still be created');
     }
   }
   return logoUrl;
@@ -243,7 +244,7 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
       referral_source: referralSource || organization.referral_source,
     });
     const updateOrganizations = get().organizations.map(org =>
-      org.id === organizationId ? (updatedOrganization as any) : org
+      org.id === organizationId ? { ...org, ...updatedOrganization } : org
     );
     set({ organizations: updateOrganizations, organizationStatus: 'idle' });
     return {

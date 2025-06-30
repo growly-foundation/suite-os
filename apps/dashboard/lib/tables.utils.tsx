@@ -119,7 +119,7 @@ function extractThenAggregate<T>(column: TableColumn<T>) {
   const aggregator = column.aggregate;
   return (item: T) => {
     const extractedValue: any = extractor(item);
-    if (!extractedValue) return null;
+    if (extractedValue == null || extractedValue === undefined) return null;
     if (aggregator) return aggregator(extractedValue);
     return extractedValue;
   };

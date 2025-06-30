@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     image_url TEXT,
     name TEXT,
-    description TEXT,
+    description TEXT
 );
 comment on table public.users is 'Users for the application.';
 
