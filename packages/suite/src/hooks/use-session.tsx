@@ -93,7 +93,6 @@ export const useSuiteSession = create<WidgetSession>((set, get) => ({
         'getMessagesOfAgentAndUser',
         [agent.id, user.id, true]
       );
-      console.log(messages);
       const parsedMessage: ParsedMessage[] = messages.map(message => {
         const messageContent = JSON.parse(message.content) as MessageContent;
         return {

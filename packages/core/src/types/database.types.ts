@@ -14,16 +14,19 @@ export type Database = {
           admin_id: string
           created_at: string
           organization_id: string
+          role: string
         }
         Insert: {
           admin_id: string
           created_at?: string
           organization_id: string
+          role?: string
         }
         Update: {
           admin_id?: string
           created_at?: string
           organization_id?: string
+          role?: string
         }
         Relationships: [
           {
@@ -47,18 +50,21 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          image_url: string | null
           name: string
         }
         Insert: {
           created_at?: string
           email: string
           id?: string
+          image_url?: string | null
           name: string
         }
         Update: {
           created_at?: string
           email?: string
           id?: string
+          image_url?: string | null
           name?: string
         }
         Relationships: []
@@ -251,20 +257,29 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
+          handle: string | null
           id: string
+          logo_url: string | null
           name: string
+          referral_source: string | null
         }
         Insert: {
           created_at?: string
           description?: string | null
+          handle?: string | null
           id?: string
+          logo_url?: string | null
           name: string
+          referral_source?: string | null
         }
         Update: {
           created_at?: string
           description?: string | null
+          handle?: string | null
           id?: string
+          logo_url?: string | null
           name?: string
+          referral_source?: string | null
         }
         Relationships: []
       }
@@ -444,21 +459,30 @@ export type Database = {
       users: {
         Row: {
           created_at: string
+          description: string | null
           entities: Json
           id: string
+          image_url: string | null
           is_anonymous: boolean | null
+          name: string | null
         }
         Insert: {
           created_at?: string
+          description?: string | null
           entities: Json
           id?: string
+          image_url?: string | null
           is_anonymous?: boolean | null
+          name?: string | null
         }
         Update: {
           created_at?: string
+          description?: string | null
           entities?: Json
           id?: string
+          image_url?: string | null
           is_anonymous?: boolean | null
+          name?: string | null
         }
         Relationships: []
       }

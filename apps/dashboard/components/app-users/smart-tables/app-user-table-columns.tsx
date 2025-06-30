@@ -265,6 +265,7 @@ export const createUserTableColumns = ({
           )
         );
       },
+      aggregate: ({ lastActivity }: { lastActivity: TTokenTransferActivity }) => lastActivity,
     },
     {
       key: 'walletCreatedAt',

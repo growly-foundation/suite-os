@@ -24,16 +24,18 @@ import {
   CreditCard,
   Loader,
   LogOut,
+  Mail,
   Sparkles,
 } from 'lucide-react';
-import { redirect } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 
 import { AdminAvatar } from '@getgrowly/ui';
 
 export function NavUser() {
   const { logout } = usePrivy();
   const { isMobile } = useSidebar();
-  const { admin } = useDashboardState();
+  const { admin, resetDashboardState } = useDashboardState();
+  const router = useRouter();
 
   const Admin = () => {
     return admin ? (
@@ -53,7 +55,7 @@ export function NavUser() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
               <Admin />
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{admin?.email}</span>
+                <span className="truncate font-medium">{admin?.name || admin?.email}</span>
                 <span className="truncate text-xs text-muted-foreground">Standard Plan</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
@@ -68,13 +70,17 @@ export function NavUser() {
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Admin />
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{admin?.email}</span>
+                  <span className="truncate font-medium">{admin?.name || admin?.email}</span>
                   <span className="truncate text-xs text-muted-foreground">Standard Plan</span>
                 </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
+              <div className="flex items-center gap-2 px-2 py-1.5 text-left text-sm text-muted-foreground">
+                <Mail className="h-4 w-4 mr-1" /> {admin?.email}
+              </div>
+              <DropdownMenuSeparator />
               <DropdownMenuItem disabled>
                 <Sparkles />
                 Upgrade to Pro
@@ -82,7 +88,7 @@ export function NavUser() {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem disabled>
+              <DropdownMenuItem onClick={() => router.push('/onboarding/profile')}>
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>
@@ -99,6 +105,7 @@ export function NavUser() {
             <DropdownMenuItem
               onClick={async () => {
                 await logout();
+                resetDashboardState();
                 redirect('/auth');
               }}>
               <LogOut />

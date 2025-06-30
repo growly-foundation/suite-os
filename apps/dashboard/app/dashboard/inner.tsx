@@ -29,7 +29,6 @@ import {
 } from 'lucide-react';
 import moment from 'moment';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -55,7 +54,7 @@ const AnimatedLoadingSmall = dynamic(
 );
 
 const MAX_RECENT_ACTIVITY = 6;
-const MAX_RECENT_MESSAGES = 5;
+const MAX_RECENT_MESSAGES = 10;
 
 export default function DashboardInner() {
   const {
@@ -201,11 +200,6 @@ export default function DashboardInner() {
             </div>
             <div style={{ width: 100 }}></div>
             <div className="flex items-center gap-2">
-              <Link href="/organizations">
-                <Button variant="outline" size="sm">
-                  Switch
-                </Button>
-              </Link>
               <AlertDialog open={openDeleteOrganization} onOpenChange={setOpenDeleteOrganization}>
                 <AlertDialogTrigger asChild>
                   <Button disabled={loadingDelete} variant="destructive" size="sm">

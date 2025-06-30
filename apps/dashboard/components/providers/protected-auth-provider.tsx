@@ -42,7 +42,7 @@ export const useAuth = () => {
   const redirectToCreateOrganization = async (userId: string, redirectedPath: string) => {
     const organizations = await fetchOrganizations();
     if (organizations.length === 0) {
-      return router.push('/organizations');
+      return router.push('/onboarding/organization');
     } else {
       // Check local storage if there is a selected organization
       const _selectedOrganizationId =
@@ -72,11 +72,28 @@ export const useAuth = () => {
     if (authenticated && user?.email) {
       try {
         const admin = await fetchCurrentAdmin(user.email.address);
-        // If current route is auth, redirect to organization if user does not have any organization. Otherwise, redirect to dashboard.
-        await redirectToCreateOrganization(
-          admin.id,
-          pathname === '/auth' ? '/dashboard' : pathname
-        );
+
+        // Check if user needs to go through onboarding
+        const isNewUser = admin.name.startsWith('user-');
+
+        if (isNewUser) {
+          // New user needs to complete profile onboarding
+          router.push('/onboarding/profile');
+          setIsLoading(false);
+          return;
+        }
+
+        // If current route is auth, check organizations
+        if (pathname === '/auth') {
+          await redirectToCreateOrganization(admin.id, '/dashboard');
+        } else if (pathname.startsWith('/onboarding')) {
+          // If user is already in onboarding flow, continue there
+          setIsLoading(false);
+        } else {
+          // For other routes, maintain them if user is already onboarded
+          await redirectToCreateOrganization(admin.id, pathname);
+        }
+
         setIsLoading(false);
       } catch (error) {
         toast.error(`Failed to identify user: ${error}`);

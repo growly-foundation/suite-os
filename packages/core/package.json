@@ -37,6 +37,7 @@
     "@getgrowly/persona": "workspace:*",
     "@supabase/supabase-js": "^2.49.4",
     "reflect-metadata": "^0.2.2",
+    "slugify": "^1.6.6",
     "tsyringe": "^4.10.0",
     "uuid": "^11.1.0"
   },
