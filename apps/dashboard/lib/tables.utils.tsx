@@ -3,6 +3,7 @@ import {
   AdvancedColumnType,
   AggregationOption,
   ColumnType,
+  ColumnValueExtractor,
   ExtractedRowData,
   SmartTableColumn,
   TableColumn,
@@ -42,6 +43,10 @@ export function checkColumnExists<T>(value: any, column: TableColumn<T>) {
       return !!value;
     case ColumnType.ARRAY:
       return !!value && value.length > 0;
+    case ColumnType.BOOLEAN:
+      return !!value;
+    case ColumnType.OBJECT:
+      return !!value;
     default:
       return !!value;
   }
@@ -78,13 +83,17 @@ export function getSortableValue<T>(item: T, column: TableColumn<T>): any {
  * @param columns - The column definitions that define how to extract data
  * @returns An object containing extracted data for each column keyed by column key
  */
-export function extractRowData<T>(item: T, columns: SmartTableColumn<T>[]): ExtractedRowData<any> {
+export function extractRowData<T>(
+  item: T,
+  columns: SmartTableColumn<T>[],
+  extractor: (column: TableColumn<T>) => ColumnValueExtractor<T, any>
+): ExtractedRowData<any> {
   const flatColumns = getFlatColumns(columns, item);
   const result: ExtractedRowData<any> = {};
   for (const column of flatColumns) {
     // If the column has a data extractor, use it
-    if (column.dataExtractor) {
-      result[column.key] = column.dataExtractor(item);
+    if (extractor(column)) {
+      result[column.key] = extractor(column)(item);
     }
   }
   return result;
@@ -99,9 +108,21 @@ export function extractRowData<T>(item: T, columns: SmartTableColumn<T>[]): Extr
  */
 export function extractTableData<T>(
   items: T[],
-  columns: SmartTableColumn<T>[]
+  columns: SmartTableColumn<T>[],
+  extractor: (column: TableColumn<T>) => ColumnValueExtractor<T, any>
 ): ExtractedRowData<any>[] {
-  return items.map(item => extractRowData(item, columns));
+  return items.map(item => extractRowData(item, columns, extractor));
+}
+
+function extractThenAggregate<T>(column: TableColumn<T>) {
+  const extractor = column.dataExtractor;
+  const aggregator = column.aggregate;
+  return (item: T) => {
+    const extractedValue: any = extractor(item);
+    if (!extractedValue) return null;
+    if (aggregator) return aggregator(extractedValue);
+    return extractedValue;
+  };
 }
 
 export function aggregateColumnData<T>(
@@ -109,7 +130,7 @@ export function aggregateColumnData<T>(
   columns: TableColumn<T>[]
 ): { text: string; value: string }[] {
   const results: { text: string; value: string }[] = [];
-  const tableData = extractTableData(items, columns);
+  const tableData = extractTableData(items, columns, extractThenAggregate);
   for (const column of columns) {
     if (column.type === ColumnType.NUMBER) {
       const values = tableData.map(row => row[column.key]);

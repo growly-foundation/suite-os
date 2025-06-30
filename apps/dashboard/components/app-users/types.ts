@@ -7,7 +7,10 @@ export enum ColumnType {
   OBJECT = 'OBJECT',
   DATE = 'DATE',
   BOOLEAN = 'BOOLEAN',
+  NULL = 'NULL',
 }
+
+export type ColumnValueExtractor<T, R> = (item: T) => R;
 
 export enum AdvancedColumnType {
   BATCH = 'BATCH',
@@ -20,37 +23,37 @@ export enum AggregationOption {
 
 export type DateColumn<T> = {
   type: ColumnType.DATE;
-  dataExtractor: (item: T) => number | undefined;
+  dataExtractor: ColumnValueExtractor<T, number | undefined>;
   contentRenderer(extractedData: number): React.ReactNode;
 };
 
 export type NumberColumn<T> = {
   type: ColumnType.NUMBER;
-  dataExtractor: (item: T) => number;
+  dataExtractor: ColumnValueExtractor<T, number>;
   contentRenderer(extractedData: number): React.ReactNode;
 };
 
 export type StringColumn<T> = {
   type: ColumnType.STRING;
-  dataExtractor: (item: T) => string;
+  dataExtractor: ColumnValueExtractor<T, string>;
   contentRenderer(extractedData: string): React.ReactNode;
 };
 
 export type ArrayColumn<T> = {
   type: ColumnType.ARRAY;
-  dataExtractor: (item: T) => any[];
+  dataExtractor: ColumnValueExtractor<T, any[]>;
   contentRenderer(extractedData: any[]): React.ReactNode;
 };
 
 export type ObjectColumn<T> = {
   type: ColumnType.OBJECT;
-  dataExtractor: (item: T) => Record<string, any>;
+  dataExtractor: ColumnValueExtractor<T, Record<string, any>>;
   contentRenderer(extractedData: Record<string, any>): React.ReactNode;
 };
 
 export type BooleanColumn<T> = {
   type: ColumnType.BOOLEAN;
-  dataExtractor: (item: T) => boolean;
+  dataExtractor: ColumnValueExtractor<T, boolean>;
   contentRenderer(extractedData: boolean): React.ReactNode;
 };
 
@@ -61,6 +64,7 @@ export interface BatchRenderTableColumn<T> {
 
 export type TableColumn<T> = TableColumnMeta &
   SortableColumn<T> &
+  AggregationColumn<T> &
   (
     | DateColumn<T>
     | NumberColumn<T>
@@ -71,6 +75,11 @@ export type TableColumn<T> = TableColumnMeta &
   );
 
 export type SmartTableColumn<T> = TableColumn<T> | BatchRenderTableColumn<T>;
+
+export interface AggregationColumn<T> {
+  aggregate?: (extractedData: any) => any;
+  aggregateDisabled?: boolean;
+}
 
 // Map the column key to the extracted data
 export type ExtractedRowData<T> = Record<string, T>;
@@ -89,7 +98,7 @@ export type TableColumnMeta = {
 export type SortableColumn<T> =
   | {
       sortable?: true;
-      sortingValueGetter?: (item: T) => any;
+      sortingValueGetter?: ColumnValueExtractor<T, any>;
     }
   | {
       sortable?: false;

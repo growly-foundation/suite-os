@@ -54,7 +54,7 @@ const AnimatedLoadingSmall = dynamic(
 );
 
 const MAX_RECENT_ACTIVITY = 6;
-const MAX_RECENT_MESSAGES = 5;
+const MAX_RECENT_MESSAGES = 10;
 
 export default function DashboardInner() {
   const {

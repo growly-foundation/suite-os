@@ -42,7 +42,7 @@ export function LatestInteractedAgent({ user }: UserMessageDisplayProps) {
   );
 }
 
-export const createChatSessionColumns = (user?: ParsedUser): TableColumn<ParsedUser>[] => {
+export const createChatSessionColumns = (): TableColumn<ParsedUser>[] => {
   return [
     {
       key: 'latestMessageAt',
@@ -56,6 +56,7 @@ export const createChatSessionColumns = (user?: ParsedUser): TableColumn<ParsedU
       dataExtractor: (user: ParsedUser) => user,
       contentRenderer: (extractedData: ParsedUser) => <LatestMessageTime user={extractedData} />,
       sortable: false,
+      aggregateDisabled: true,
     },
     {
       key: 'latestInteractedAgent',
@@ -71,6 +72,7 @@ export const createChatSessionColumns = (user?: ParsedUser): TableColumn<ParsedU
         <LatestInteractedAgent user={extractedData} />
       ),
       sortable: false,
+      aggregateDisabled: true,
     },
   ];
 };

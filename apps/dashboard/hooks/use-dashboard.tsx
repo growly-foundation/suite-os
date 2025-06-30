@@ -109,6 +109,8 @@ export type DashboardAppState = {
   currentConversationMessages: ParsedMessage[];
   addConversationMessage: (message: ParsedMessage) => void;
   fetchCurrentConversationMessages: () => Promise<ParsedMessage[]>;
+
+  resetDashboardState: () => void;
 };
 
 /**
@@ -330,5 +332,24 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
       set({ conversationStatus: 'idle' });
       throw new Error(`Failed to fetch messages: ${error}`);
     }
+  },
+  resetDashboardState: () => {
+    set({
+      authStatus: 'idle',
+      admin: null,
+      organizationStatus: 'idle',
+      selectedOrganization: null,
+      organizationAgents: [],
+      organizationUsers: [],
+      organizationWorkflows: [],
+      selectedAgent: null,
+      selectedAgentUser: null,
+      currentConversationMessages: [],
+      conversationStatus: 'idle',
+      agentUserStatus: 'idle',
+      agentUsers: [],
+      agentStatus: 'idle',
+      organizationUserStatus: 'idle',
+    });
   },
 }));

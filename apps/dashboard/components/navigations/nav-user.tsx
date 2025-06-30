@@ -34,7 +34,7 @@ import { AdminAvatar } from '@getgrowly/ui';
 export function NavUser() {
   const { logout } = usePrivy();
   const { isMobile } = useSidebar();
-  const { admin } = useDashboardState();
+  const { admin, resetDashboardState } = useDashboardState();
   const router = useRouter();
 
   const Admin = () => {
@@ -105,6 +105,7 @@ export function NavUser() {
             <DropdownMenuItem
               onClick={async () => {
                 await logout();
+                resetDashboardState();
                 redirect('/auth');
               }}>
               <LogOut />

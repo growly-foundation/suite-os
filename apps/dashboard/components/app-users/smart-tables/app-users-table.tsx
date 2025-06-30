@@ -111,7 +111,7 @@ export function UsersTable({ users }: { users: ParsedUser[] }) {
   // Extract data from all users upfront for sorting and filtering
   const extractedData = useMemo<Record<string, ExtractedRowData<any>>>(() => {
     const data: Record<string, ExtractedRowData<any>> = {};
-    const tableData = extractTableData(users, columns);
+    const tableData = extractTableData(users, columns, column => column.dataExtractor);
 
     // Store extracted data by user ID for easy access
     users.forEach((user, index) => {
@@ -136,18 +136,20 @@ export function UsersTable({ users }: { users: ParsedUser[] }) {
     return flatColumns.map((column, index) => (
       <TableCell
         key={column.key}
-        border={column.border}
-        className={cn('text-muted-foreground text-xs border-r h-12', column.className)}>
-        {ColumnType.BOOLEAN !== column.type && (
-          <div className="flex items-center justify-between">
-            <span className="font-bold">{results[index].text}</span>
-            <span>
-              {column.type === ColumnType.NUMBER
-                ? formatNumber(results[index].value)
-                : results[index].value}
-            </span>
-          </div>
-        )}
+        border={false}
+        className={cn('text-muted-foreground text-xs p-0', column.className)}>
+        <div className="h-12 border-r flex items-center">
+          {!column.aggregateDisabled && (
+            <div className="flex items-center space-x-4 w-full justify-between px-4">
+              <span className="font-bold">{results[index].text}</span>
+              <span>
+                {column.type === ColumnType.NUMBER
+                  ? formatNumber(results[index].value)
+                  : results[index].value}
+              </span>
+            </div>
+          )}
+        </div>
       </TableCell>
     ));
   }, [columns, paginatedUsers]);

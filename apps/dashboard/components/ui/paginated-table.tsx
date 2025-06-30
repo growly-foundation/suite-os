@@ -9,7 +9,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from './pagination';
-import { Table, TableBody, TableHeader } from './table';
+import { Table, TableBody, TableFooter, TableHeader } from './table';
 
 export const PaginatedTable = ({
   header,
@@ -49,9 +49,8 @@ export const PaginatedTable = ({
       <div>
         <Table className={cn(className, showPagination ? 'border-b' : '')}>
           <TableHeader>{header}</TableHeader>
-          <TableBody>
-            {content} {footer && footer}
-          </TableBody>
+          <TableBody>{content}</TableBody>
+          {footer && <TableFooter>{footer}</TableFooter>}
         </Table>
       </div>
       {showPagination && (
