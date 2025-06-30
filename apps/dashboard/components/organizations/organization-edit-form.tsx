@@ -139,9 +139,13 @@ export function OrganizationEditForm({
   return (
     <React.Fragment>
       <div className="text-left mb-8">
-        <h1 className="text-xl font-bold">Create your organization</h1>
+        <h1 className="text-xl font-bold">
+          {existingOrganization ? 'Edit' : 'Create'} your organization
+        </h1>
         <p className="text-md text-muted-foreground mt-2">
-          Set up your organization to get started with Suite.
+          {existingOrganization
+            ? 'Update your organization details'
+            : 'Set up your organization to get started with Suite.'}
         </p>
       </div>
       <div>
