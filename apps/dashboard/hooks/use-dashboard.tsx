@@ -5,6 +5,7 @@ import { create } from 'zustand';
 
 import {
   Admin,
+  Agent,
   AggregatedAgent,
   AggregatedOrganization,
   AggregatedWorkflow,
@@ -91,8 +92,8 @@ export type DashboardAppState = {
 
   // Agents
   agentStatus: StateStatus;
-  organizationAgents: AggregatedAgent[];
-  fetchOrganizationAgents: () => Promise<AggregatedAgent[]>;
+  organizationAgents: Agent[];
+  fetchOrganizationAgents: () => Promise<Agent[]>;
   fetchOrganizationAgentById: (agentId: string) => Promise<AggregatedAgent | null>;
   selectedAgent: AggregatedAgent | null;
   setSelectedAgent: (agent: AggregatedAgent | null) => void;
@@ -157,9 +158,7 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
     const selectedOrganization = get().selectedOrganization;
     if (!selectedOrganization) throw new Error('No organization selected');
 
-    const agents = await suiteCore.agents.getAggregatedAgentsByOrganizationId(
-      selectedOrganization.id
-    );
+    const agents = await suiteCore.agents.getAgentsByOrganizationId(selectedOrganization.id);
     set({
       organizationAgents: agents,
       agentStatus: 'idle',
@@ -319,16 +318,20 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
       if (!agent?.id || !user?.id) {
         throw new Error('Agent or user not found');
       }
-      const messages = await suiteCore.conversations.getMessagesOfAgentAndUser(agent.id, user.id);
-      const parsedMessage: ParsedMessage[] = messages.map(message => {
+      const messages = await suiteCore.conversations.getMessagesOfAgentAndUser(
+        agent.id,
+        user.id,
+        true
+      );
+      const parsedMessages: ParsedMessage[] = messages.map(message => {
         const messageContent = JSON.parse(message.content) as MessageContent;
         return {
           ...message,
           ...messageContent,
         };
       });
-      set({ currentConversationMessages: parsedMessage, conversationStatus: 'idle' });
-      return parsedMessage;
+      set({ currentConversationMessages: parsedMessages, conversationStatus: 'idle' });
+      return parsedMessages;
     } catch (error) {
       set({ conversationStatus: 'idle' });
       throw new Error(`Failed to fetch messages: ${error}`);

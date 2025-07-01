@@ -1,0 +1,438 @@
+'use client';
+
+import {
+  DASHBOARD_AGENTS_CACHE_TIME,
+  DASHBOARD_MESSAGES_CACHE_TIME,
+  DASHBOARD_USERS_CACHE_TIME,
+  DASHBOARD_WORKFLOWS_CACHE_TIME,
+} from '@/constants/cache';
+import { suiteCore } from '@/core/suite';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
+import { MessageContent, ParsedMessage } from '@getgrowly/core';
+
+const MAX_RECENT_MESSAGES = 5;
+
+/**
+ * Custom hook to fetch organization agents with React Query
+ */
+export function useOrganizationAgentsQuery(organizationId?: string, enabled = true) {
+  return useQuery({
+    queryKey: ['organizationAgents', organizationId],
+    queryFn: async () => {
+      if (!organizationId) return [];
+      // Use the same method as in useDashboardState
+      return await suiteCore.agents.getAgentsByOrganizationId(organizationId);
+    },
+    enabled: !!organizationId && enabled,
+    gcTime: DASHBOARD_AGENTS_CACHE_TIME,
+    staleTime: DASHBOARD_AGENTS_CACHE_TIME / 2,
+  });
+}
+
+/**
+ * Custom hook to fetch organization users with React Query
+ */
+export function useOrganizationUsersQuery(organizationId?: string, enabled = true) {
+  return useQuery({
+    queryKey: ['organizationUsers', organizationId],
+    queryFn: async () => {
+      if (!organizationId) return [];
+      return suiteCore.users.getUsersByOrganizationId(organizationId);
+    },
+    enabled: !!organizationId && enabled,
+    gcTime: DASHBOARD_USERS_CACHE_TIME,
+    staleTime: DASHBOARD_USERS_CACHE_TIME / 2,
+  });
+}
+
+/**
+ * Custom hook to fetch organization workflows with React Query
+ */
+export function useOrganizationWorkflowsQuery(organizationId?: string, enabled = true) {
+  return useQuery({
+    queryKey: ['organizationWorkflows', organizationId],
+    queryFn: async () => {
+      if (!organizationId) return [];
+      // Based on the implementation in useDashboardState
+      return await suiteCore.workflows.getWorkflowsByOrganizationId(organizationId);
+    },
+    enabled: !!organizationId && enabled,
+    gcTime: DASHBOARD_WORKFLOWS_CACHE_TIME,
+    staleTime: DASHBOARD_WORKFLOWS_CACHE_TIME / 2,
+  });
+}
+
+/**
+ * Custom hook to fetch recent messages for users with React Query
+ */
+export function useRecentMessagesQuery(userIds: string[], limit = 5, enabled = true) {
+  return useQuery({
+    queryKey: ['recentMessages', userIds, limit],
+    queryFn: async () => {
+      if (!userIds.length) return [];
+
+      const messages = await suiteCore.db.messages.getManyByFields('sender_id', userIds, limit, {
+        field: 'created_at',
+        ascending: false,
+      });
+
+      return messages.map(message => {
+        const messageContent = JSON.parse(message.content) as MessageContent;
+        return {
+          ...message,
+          ...messageContent,
+        } as ParsedMessage;
+      });
+    },
+    enabled: userIds.length > 0 && enabled,
+    gcTime: DASHBOARD_MESSAGES_CACHE_TIME,
+    staleTime: DASHBOARD_MESSAGES_CACHE_TIME / 2,
+  });
+}
+
+/**
+ * Types for mutations
+ */
+interface AgentCreateData {
+  name: string;
+  description?: string | null;
+  model: string; // Model is required
+  status?: 'active' | 'inactive';
+  organization_id?: string | null;
+  [key: string]: any;
+}
+
+interface AgentUpdateData {
+  agentId: string;
+  data: Partial<AgentCreateData>;
+}
+
+interface AgentDeleteData {
+  agentId: string;
+  organizationId?: string;
+}
+
+/**
+ * Custom hook for agent creation mutation with cache invalidation
+ */
+export function useCreateAgentMutation(organizationId?: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (agentData: AgentCreateData) => {
+      if (!organizationId) throw new Error('Organization ID is required');
+      // Use suiteCore.db.agents.create or the appropriate method based on what's available
+      return await suiteCore.db.agents.create({
+        ...agentData,
+        organization_id: organizationId,
+      });
+    },
+    onSuccess: () => {
+      // Invalidate agent queries to refresh the data
+      if (organizationId) {
+        queryClient.invalidateQueries({ queryKey: ['organizationAgents', organizationId] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['organizationAgents'] });
+      }
+    },
+  });
+}
+
+/**
+ * Custom hook for agent update mutation with cache invalidation
+ */
+export function useUpdateAgentMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ agentId, data }: AgentUpdateData) => {
+      // Use suiteCore.db.agents.update or the appropriate method based on what's available
+      return await suiteCore.db.agents.update(agentId, data);
+    },
+    onSuccess: (_, variables) => {
+      // Get the organization ID from the updated agent data if available
+      const organizationId = variables.data.organizationId;
+
+      // Invalidate specific agent query and organization agents
+      queryClient.invalidateQueries({ queryKey: ['agent', variables.agentId] });
+
+      if (organizationId) {
+        queryClient.invalidateQueries({ queryKey: ['organizationAgents', organizationId] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['organizationAgents'] });
+      }
+    },
+  });
+}
+
+/**
+ * Custom hook for agent deletion mutation with cache invalidation
+ */
+export function useDeleteAgentMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ agentId, organizationId: _ }: AgentDeleteData) => {
+      // Use suiteCore.db.agents.delete or the appropriate method based on what's available
+      return await suiteCore.db.agents.delete(agentId);
+    },
+    onSuccess: (_, variables) => {
+      // Invalidate specific agent query and organization agents
+      queryClient.invalidateQueries({ queryKey: ['agent', variables.agentId] });
+
+      if (variables.organizationId) {
+        queryClient.invalidateQueries({
+          queryKey: ['organizationAgents', variables.organizationId],
+        });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['organizationAgents'] });
+      }
+    },
+  });
+}
+
+/**
+ * Types for workflow mutations
+ */
+interface WorkflowCreateData {
+  name: string;
+  description?: string | null;
+  status?: 'active' | 'inactive';
+  organization_id?: string | null;
+  [key: string]: any;
+}
+
+interface WorkflowUpdateData {
+  workflowId: string;
+  data: Partial<WorkflowCreateData>;
+}
+
+interface WorkflowDeleteData {
+  workflowId: string;
+  organizationId?: string;
+}
+
+/**
+ * Custom hook for workflow creation mutation with cache invalidation
+ */
+export function useCreateWorkflowMutation(organizationId?: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (workflowData: WorkflowCreateData) => {
+      if (!organizationId) throw new Error('Organization ID is required');
+      // Use suiteCore.db.workflows.create or the appropriate method based on what's available
+      return await suiteCore.db.workflows.create({
+        ...workflowData,
+        organization_id: organizationId,
+      });
+    },
+    onSuccess: () => {
+      // Invalidate workflow queries to refresh the data
+      if (organizationId) {
+        queryClient.invalidateQueries({ queryKey: ['organizationWorkflows', organizationId] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['organizationWorkflows'] });
+      }
+    },
+  });
+}
+
+/**
+ * Custom hook for workflow update mutation with cache invalidation
+ */
+export function useUpdateWorkflowMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ workflowId, data }: WorkflowUpdateData) => {
+      // Use suiteCore.db.workflows.update or the appropriate method based on what's available
+      return await suiteCore.db.workflows.update(workflowId, data);
+    },
+    onSuccess: (_, variables) => {
+      // Get the organization ID from the updated workflow data if available
+      const organizationId = variables.data.organizationId;
+
+      // Invalidate specific workflow query and organization workflows
+      queryClient.invalidateQueries({ queryKey: ['workflow', variables.workflowId] });
+
+      if (organizationId) {
+        queryClient.invalidateQueries({ queryKey: ['organizationWorkflows', organizationId] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['organizationWorkflows'] });
+      }
+    },
+  });
+}
+
+/**
+ * Custom hook for workflow deletion mutation with cache invalidation
+ */
+export function useDeleteWorkflowMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ workflowId, organizationId }: WorkflowDeleteData) => {
+      // Use suiteCore.db.workflows.delete or the appropriate method based on what's available
+      return await suiteCore.db.workflows.delete(workflowId);
+    },
+    onSuccess: (_, variables) => {
+      // Invalidate specific workflow query and organization workflows
+      queryClient.invalidateQueries({ queryKey: ['workflow', variables.workflowId] });
+
+      if (variables.organizationId) {
+        queryClient.invalidateQueries({
+          queryKey: ['organizationWorkflows', variables.organizationId],
+        });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['organizationWorkflows'] });
+      }
+    },
+  });
+}
+
+/**
+ * Backward compatibility hooks for direct cache invalidation
+ */
+export function useAgentCacheInvalidation(organizationId?: string) {
+  const queryClient = useQueryClient();
+
+  // Function to invalidate agent queries
+  const invalidateAgentQueries = () => {
+    if (organizationId) {
+      queryClient.invalidateQueries({ queryKey: ['organizationAgents', organizationId] });
+    } else {
+      queryClient.invalidateQueries({ queryKey: ['organizationAgents'] });
+    }
+  };
+
+  // Return a function that can be called after agent mutations
+  return { invalidateAgentQueries };
+}
+
+/**
+ * Custom hook for cache invalidation when workflows are modified
+ */
+export function useWorkflowCacheInvalidation(organizationId?: string) {
+  const queryClient = useQueryClient();
+
+  // Function to invalidate workflow queries
+  const invalidateWorkflowQueries = () => {
+    if (organizationId) {
+      queryClient.invalidateQueries({ queryKey: ['organizationWorkflows', organizationId] });
+    } else {
+      queryClient.invalidateQueries({ queryKey: ['organizationWorkflows'] });
+    }
+  };
+
+  // Return a function that can be called after workflow mutations
+  return { invalidateWorkflowQueries };
+}
+
+/**
+ * Types for step mutations
+ */
+interface StepCreateData {
+  stepData: any[];
+  workflowId: string;
+}
+
+/**
+ * Mutation hook for creating workflow steps
+ */
+export function useCreateStepsMutation(workflowId?: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (stepData: any[]) => {
+      if (!workflowId) throw new Error('Workflow ID is required');
+      return await suiteCore.steps.createStep(stepData, workflowId);
+    },
+    onSuccess: () => {
+      // Invalidate workflow queries to refresh the data
+      if (workflowId) {
+        queryClient.invalidateQueries({ queryKey: ['workflow', workflowId] });
+      }
+      queryClient.invalidateQueries({ queryKey: ['organizationWorkflows'] });
+    },
+  });
+}
+
+/**
+ * Combined hook for dashboard data queries with refetch functionality
+ */
+export function useDashboardDataQueries(organizationId?: string, workflowId?: string) {
+  const agents = useOrganizationAgentsQuery(organizationId);
+  const users = useOrganizationUsersQuery(organizationId);
+  const workflows = useOrganizationWorkflowsQuery(organizationId);
+
+  // Only fetch messages if we have users
+  const userIds = users.data?.map(user => user.id) || [];
+  const messages = useRecentMessagesQuery(userIds, MAX_RECENT_MESSAGES, users.isSuccess);
+
+  // Set up agent mutation hooks
+  const createAgent = useCreateAgentMutation(organizationId);
+  const updateAgent = useUpdateAgentMutation();
+  const deleteAgent = useDeleteAgentMutation();
+
+  // Set up workflow mutation hooks
+  const createWorkflow = useCreateWorkflowMutation(organizationId);
+  const updateWorkflow = useUpdateWorkflowMutation();
+  const deleteWorkflow = useDeleteWorkflowMutation();
+
+  // Set up steps mutation hook (only if workflowId is provided)
+  const createSteps = useCreateStepsMutation(workflowId);
+
+  // Refetch functions to manually trigger data refresh
+  const refetchAll = async () => {
+    const results = await Promise.all([
+      agents.refetch(),
+      users.refetch(),
+      workflows.refetch(),
+      users.isSuccess ? messages.refetch() : Promise.resolve(),
+    ]);
+    return results;
+  };
+
+  const refetchAgents = () => agents.refetch();
+  const refetchUsers = () => users.refetch();
+  const refetchWorkflows = () => workflows.refetch();
+  const refetchMessages = () => messages.refetch();
+
+  const isLoading =
+    agents.isLoading || users.isLoading || workflows.isLoading || messages.isLoading;
+  const isError = agents.isError || users.isError || workflows.isError || messages.isError;
+
+  return {
+    // Query results
+    agents,
+    users,
+    workflows,
+    messages,
+    isLoading,
+    isError,
+    data: {
+      agents: agents.data || [],
+      users: users.data || [],
+      workflows: workflows.data || [],
+      messages: messages.data || [],
+    },
+    // Mutation hooks for agents
+    createAgent,
+    updateAgent,
+    deleteAgent,
+    // Mutation hooks for workflows
+    createWorkflow,
+    updateWorkflow,
+    deleteWorkflow,
+    // Mutation hook for workflow steps
+    createSteps,
+    // Refetch functions for manual refresh
+    refetchAll,
+    refetchAgents,
+    refetchUsers,
+    refetchWorkflows,
+    refetchMessages,
+  };
+}

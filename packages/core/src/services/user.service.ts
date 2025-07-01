@@ -1,4 +1,4 @@
-import { ParsedUser, ParsedUserPersona, SessionStatus, User, UserChatSession } from '@/models';
+import { ParsedUser, ParsedUserPersona, SessionStatus, User } from '@/models';
 
 import { Address } from '@getgrowly/persona';
 
@@ -89,7 +89,6 @@ export class UserService {
   async getUserWithPersona(user: User): Promise<ParsedUser> {
     const walletAddress = (user.entities as { walletAddress: string }).walletAddress as Address;
     const userPersona = await this.createUserPersonaIfNotExist(walletAddress);
-    const lastConversation = await this.getLastConversation(user.id);
 
     return {
       ...user,
@@ -103,41 +102,9 @@ export class UserService {
       },
       chatSession: {
         status: SessionStatus.Online,
-        lastConversation,
         unread: false,
       },
     };
-  }
-
-  async getLastConversation(
-    user_id: string
-  ): Promise<UserChatSession['lastConversation'] | undefined> {
-    try {
-      const message = await this.messageDatabaseService.getOneByFields(
-        {
-          sender_id: user_id,
-        },
-        {
-          field: 'created_at',
-          ascending: false,
-        }
-      );
-      if (!message || !message.conversation_id) return undefined;
-      const lastAgentId = await this.conversationDatabaseService.getOneByFields({
-        id: message.conversation_id,
-      });
-      if (!lastAgentId || !lastAgentId.agent_id) return undefined;
-      const agent = await this.agentDatabaseService.getById(lastAgentId.agent_id);
-      if (!agent) return undefined;
-      return {
-        conversationId: message.conversation_id,
-        agentId: agent.id,
-        messageId: message.id,
-      };
-    } catch (error) {
-      console.log(`Error getting last conversation of ${user_id}:`, error);
-      return undefined;
-    }
   }
 
   async createUserPersonaIfNotExist(walletAddress: string): Promise<ParsedUserPersona> {

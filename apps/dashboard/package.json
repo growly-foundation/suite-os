@@ -46,6 +46,7 @@
     "@radix-ui/react-toggle-group": "1.1.1",
     "@radix-ui/react-tooltip": "1.1.6",
     "@supabase/supabase-js": "^2.49.4",
+    "@tanstack/react-query": "^5.74.11",
     "autoprefixer": "^10.4.20",
     "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",

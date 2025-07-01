@@ -4,6 +4,7 @@ import { useDashboardState } from './use-dashboard';
 
 export const useAgentUsersEffect = (agentId: string) => {
   const {
+    agentUserStatus,
     fetchUsersByAgentId,
     setSelectedAgentUser: setSelectedUser,
     selectedAgentUser: selectedUser,
@@ -20,7 +21,7 @@ export const useAgentUsersEffect = (agentId: string) => {
     fetchUsers();
   }, [agentId]);
 
-  return { users, selectedUser };
+  return { status: agentUserStatus, users, selectedUser };
 };
 
 export const useSelectedAgentUsersEffect = () => {
@@ -34,5 +35,5 @@ export const useSelectedAgentUsersEffect = () => {
     fetchUsers();
   }, [selectedAgent]);
 
-  return { agentUsers, agentUserStatus };
+  return { status: agentUserStatus, agentUsers, agentUserStatus };
 };
