@@ -1,4 +1,4 @@
-import DashboardInner from './inner';
+import { DashboardInner } from './inner';
 import { PaddingLayout } from './layout';
 
 export default function Dashboard() {

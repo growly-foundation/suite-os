@@ -1,4 +1,4 @@
-import { ConversationRole, Message } from '@/models';
+import { ConversationRole, LatestConversation, Message } from '@/models';
 
 import { PublicDatabaseService } from './database.service';
 
@@ -31,9 +31,7 @@ export class ConversationService {
       agent_id,
       user_id,
     });
-    if (!conversation) {
-      throw new Error('Conversation not found');
-    }
+    if (!conversation) throw new Error('Conversation not found');
     return this.messageDatabaseService.getAllByFields(
       {
         conversation_id: conversation.id,
@@ -79,5 +77,48 @@ export class ConversationService {
       sender_id: getSenderId(sender),
       embedding: JSON.stringify(existingEmbedding),
     });
+  }
+
+  async getLatestConversation(user_id: string) {
+    return this.conversationDatabaseService.getOneByFields(
+      {
+        user_id,
+      },
+      {
+        field: 'created_at',
+        ascending: false,
+      }
+    );
+  }
+
+  async getLastestConversationMessage(
+    user_id: string,
+    agent_id: string
+  ): Promise<LatestConversation | undefined> {
+    try {
+      const conversation = await this.conversationDatabaseService.getOneByFields({
+        agent_id,
+        user_id,
+      });
+      if (!conversation) return undefined;
+      const message = await this.messageDatabaseService.getOneByFields(
+        {
+          conversation_id: conversation.id,
+        },
+        {
+          field: 'created_at',
+          ascending: false,
+        }
+      );
+      if (!message) return undefined;
+      return {
+        conversationId: conversation.id!,
+        agentId: agent_id,
+        message: message,
+      };
+    } catch (error) {
+      console.log(`Error getting last conversation of ${user_id}:`, error);
+      return undefined;
+    }
   }
 }

@@ -26,12 +26,11 @@ export type UserWithLatestMessage = {
 };
 
 export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
-  const { agentUserStatus: userStatus, setSelectedAgentUser: setSelectedUser } =
-    useDashboardState();
+  const { setSelectedAgentUser } = useDashboardState();
   const [usersWithLatestMessage, setUsersWithLatestMessage] = React.useState<
     UserWithLatestMessage[]
   >([]);
-  const { selectedUser, users } = useAgentUsersEffect(agent.id);
+  const { selectedUser, users, status } = useAgentUsersEffect(agent.id);
   const [open, setOpen] = React.useState(false);
   const persona = selectedUser ? consumePersona(selectedUser) : null;
 
@@ -39,14 +38,16 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
     const userWithLatestMessage = await Promise.all(
       users.map(async user => {
         try {
-          const lastConversation = user.chatSession?.lastConversation;
-          if (!lastConversation?.messageId)
+          const lastConversation = await suiteCore.conversations.getLastestConversationMessage(
+            user.id,
+            agent.id
+          );
+          if (!lastConversation?.message)
             return { user, latestMessageDate: null, latestMessageContent: null };
-          const message = await suiteCore.db.messages.getById(lastConversation.messageId);
           return {
             user,
-            latestMessageDate: message?.created_at || null,
-            latestMessageContent: message?.content || null,
+            latestMessageDate: lastConversation.message.created_at || null,
+            latestMessageContent: lastConversation.message.content || null,
           };
         } catch (error) {
           console.error(`Failed to fetch latest message for user ${user.id}:`, error);
@@ -74,7 +75,7 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
 
   return (
     <div className="flex w-full overflow-hidden h-[85.1vh]">
-      {userStatus === 'loading' ? (
+      {status === 'loading' ? (
         <div className="flex w-full items-center justify-center h-full">
           <AnimatedLoadingSmall />
         </div>
@@ -83,7 +84,7 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
           <UsersConversationSidebar
             users={usersWithLatestMessage}
             selectedUser={selectedUser}
-            onSelectUser={setSelectedUser}
+            onSelectUser={setSelectedAgentUser}
           />
           <div className="flex-1 flex flex-col">
             <div className="flex items-center justify-between px-4 py-2 border-b">

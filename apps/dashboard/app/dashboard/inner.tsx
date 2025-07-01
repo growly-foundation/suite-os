@@ -18,10 +18,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { IconContainer } from '@/components/ui/icon-container';
 import { suiteCore } from '@/core/suite';
 import { useDashboardState } from '@/hooks/use-dashboard';
+import { useDashboardDataQueries } from '@/hooks/use-dashboard-queries';
 import {
   Activity as ActivityIcon,
   Bot,
   Loader,
+  RefreshCw,
   Settings2,
   Trash2Icon,
   User2Icon,
@@ -30,20 +32,11 @@ import {
 import moment from 'moment';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
-import {
-  AggregatedAgent,
-  AggregatedWorkflow,
-  MessageContent,
-  ParsedMessage,
-  ParsedUser,
-  Status,
-} from '@getgrowly/core';
+import { Agent, AggregatedWorkflow, ParsedUser, Status } from '@getgrowly/core';
 import { truncateAddress } from '@getgrowly/ui';
-
-import { Activity } from './activity-card';
 
 const AnimatedLoadingSmall = dynamic(
   () =>
@@ -54,35 +47,39 @@ const AnimatedLoadingSmall = dynamic(
 );
 
 const MAX_RECENT_ACTIVITY = 6;
-const MAX_RECENT_MESSAGES = 10;
 
-export default function DashboardInner() {
-  const {
-    selectedOrganization,
-    setSelectedOrganization,
-    fetchOrganizationWorkflows,
-    fetchOrganizationAgents,
-    fetchUsersByOrganizationId,
-  } = useDashboardState();
+export function DashboardInner() {
+  const { selectedOrganization, setSelectedOrganization } = useDashboardState();
   const router = useRouter();
   const [showAllActivity, setShowAllActivity] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [loadingDelete, setLoadingDelete] = useState(false);
-  const [metrics, setMetrics] = useState({
-    newUsers30d: 0,
-    totalAgents: 0,
-    activeAgents: 0,
-    totalWorkflows: 0,
-    runningWorkflows: 0,
-    resourceUsage: 0,
-  });
-  const [recentActivity, setRecentActivity] = useState<Activity[]>([]);
-  const [recentMessages, setRecentMessages] = useState<ParsedMessage[]>([]);
   const [openDeleteOrganization, setOpenDeleteOrganization] = useState(false);
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
 
+  // Use the new React Query hooks for data fetching
+  const {
+    isLoading,
+    data: { agents, users, workflows, messages: recentMessages },
+    refetchAll,
+  } = useDashboardDataQueries(selectedOrganization?.id);
+
+  // Handle manual refresh
+  const handleRefresh = async () => {
+    try {
+      // Show loading toast
+      toast.info('Refreshing dashboard data...');
+
+      // Trigger refetch of all data
+      await refetchAll();
+      toast.success('Dashboard data refreshed!');
+    } catch (error: unknown) {
+      toast.error('Failed to refresh data');
+      console.error('Refresh error:', error);
+    }
+  };
+
   const calculateMetrics = (
-    agents: AggregatedAgent[],
+    agents: Agent[],
     users: ParsedUser[],
     workflows: AggregatedWorkflow[]
   ) => {
@@ -100,72 +97,47 @@ export default function DashboardInner() {
     };
   };
 
-  useEffect(() => {
-    async function fetchDashboardData() {
-      if (!selectedOrganization) return;
-      setLoading(true);
-      try {
-        // Fetch organization data
-        const agents = await fetchOrganizationAgents();
-        const users = await fetchUsersByOrganizationId(selectedOrganization.id);
-        const workflows = await fetchOrganizationWorkflows();
+  // Calculate metrics based on the fetched data
+  const metrics =
+    agents && users && workflows
+      ? calculateMetrics(agents, users, workflows)
+      : {
+          newUsers30d: 0,
+          totalAgents: 0,
+          activeAgents: 0,
+          totalWorkflows: 0,
+          runningWorkflows: 0,
+          resourceUsage: 0,
+        };
 
-        // Calculate metrics
-        setMetrics(calculateMetrics(agents, users, workflows));
+  // Create recent activity array from the fetched data
+  const recentActivity = React.useMemo(() => {
+    if (!agents || !users || !workflows) return [];
 
-        // Get recent activity
-        const activity = [
-          ...users.map(user => ({
-            type: 'user' as const,
-            title: `New user "${truncateAddress(user.entities.walletAddress, 8, 6)}" added`,
-            timestamp: user.created_at,
-            icon: <AppUserAvatarWithStatus user={user} withStatus={false} />,
-            color: '',
-          })),
-          ...agents.map(agent => ({
-            type: 'agent' as const,
-            title: `Agent "${agent.name}" ${agent.status === Status.Active ? 'activated' : 'deactivated'}`,
-            timestamp: agent.created_at,
-            icon: <Bot className="h-4 w-4 text-blue-600" />,
-            color: 'bg-blue-100',
-          })),
-          ...workflows.map(workflow => ({
-            type: 'workflow' as const,
-            title: `Workflow "${workflow.name}" ${workflow.status === Status.Active ? 'started' : 'stopped'}`,
-            timestamp: workflow.created_at,
-            icon: <WorkflowIcon className="h-4 w-4 text-green-600" />,
-            color: 'bg-green-100',
-          })),
-        ].sort((a, b) => moment(b.timestamp).unix() - moment(a.timestamp).unix());
-        setRecentActivity(activity);
-
-        // Get recent messages
-        const userIds = users.map(user => user.id);
-        const messages = await suiteCore.db.messages.getManyByFields(
-          'sender_id',
-          userIds,
-          MAX_RECENT_MESSAGES,
-          {
-            field: 'created_at',
-            ascending: false,
-          }
-        );
-        const parsedMessages: ParsedMessage[] = messages.map(message => {
-          const messageContent = JSON.parse(message.content) as MessageContent;
-          return {
-            ...message,
-            ...messageContent,
-          };
-        });
-        setRecentMessages(parsedMessages);
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchDashboardData();
-  }, [selectedOrganization]);
+    return [
+      ...users.map(user => ({
+        type: 'user' as const,
+        title: `New user "${truncateAddress(user.entities.walletAddress, 8, 6)}" added`,
+        timestamp: user.created_at,
+        icon: <AppUserAvatarWithStatus user={user} withStatus={false} />,
+        color: '',
+      })),
+      ...agents.map((agent: Agent) => ({
+        type: 'agent' as const,
+        title: `Agent "${agent.name}" ${agent.status === Status.Active ? 'activated' : 'deactivated'}`,
+        timestamp: agent.created_at,
+        icon: <Bot className="h-4 w-4 text-blue-600" />,
+        color: 'bg-blue-100',
+      })),
+      ...workflows.map((workflow: AggregatedWorkflow) => ({
+        type: 'workflow' as const,
+        title: `Workflow "${workflow.name}" ${workflow.status === Status.Active ? 'started' : 'stopped'}`,
+        timestamp: workflow.created_at,
+        icon: <WorkflowIcon className="h-4 w-4 text-green-600" />,
+        color: 'bg-green-100',
+      })),
+    ].sort((a, b) => moment(b.timestamp).unix() - moment(a.timestamp).unix());
+  }, [agents, users, workflows]);
 
   const handleDeleteOrganization = async () => {
     if (!selectedOrganization) return;
@@ -189,7 +161,7 @@ export default function DashboardInner() {
 
   return (
     <React.Fragment>
-      {loading ? (
+      {isLoading ? (
         <AnimatedLoadingSmall />
       ) : (
         <div className="flex flex-col gap-6 p-6 md:gap-8 md:p-8">
@@ -200,6 +172,9 @@ export default function DashboardInner() {
             </div>
             <div style={{ width: 100 }}></div>
             <div className="flex items-center gap-2">
+              <Button onClick={handleRefresh} variant="outline" className="gap-2">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
               <AlertDialog open={openDeleteOrganization} onOpenChange={setOpenDeleteOrganization}>
                 <AlertDialogTrigger asChild>
                   <Button disabled={loadingDelete} variant="destructive" size="sm">

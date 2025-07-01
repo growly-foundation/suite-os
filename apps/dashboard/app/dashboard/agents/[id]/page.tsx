@@ -10,6 +10,7 @@ import { IntegrationGuideDialog } from '@/components/steps/integration-guide-dia
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { suiteCore } from '@/core/suite';
 import { useDashboardState } from '@/hooks/use-dashboard';
+import { useQueryClient } from '@tanstack/react-query';
 import { Book, Code, Loader, MessageCircle, Settings2, Users, Workflow } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -27,6 +28,9 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
   const [loading, setLoading] = useState(true);
   const paramsValue = React.use(params);
   const searchParams = useSearchParams();
+
+  // Set up React Query client and mutation hooks
+  const queryClient = useQueryClient();
 
   const isNewAgent = paramsValue.id === 'new';
 
@@ -69,20 +73,32 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
   const handleAgentUpdate = async (updatedAgent: AggregatedAgent) => {
     try {
       if (!selectedOrganization) return;
+
+      // Use the original createOrUpdate logic
       const agent = await suiteCore.agents.createOrUpdate(
         selectedOrganization.id,
         updatedAgent,
         isNewAgent
       );
+
+      // After successful creation/update, manually invalidate the React Query cache
+      // This keeps the UI in sync without duplicating API calls
+      if (selectedOrganization?.id) {
+        queryClient.invalidateQueries({
+          queryKey: ['organizationAgents', selectedOrganization.id],
+        });
+      }
+
       setAgent(agent);
       toast.success(isNewAgent ? 'Agent created successfully' : 'Agent updated successfully');
+
       if (!isNewAgent) {
         router.push(`/dashboard/agents/${updatedAgent.id}`);
       } else {
         router.push('/dashboard/agents');
       }
     } catch (error) {
-      console.log(error);
+      console.error('Failed to update agent:', error);
       toast.error('Failed to update agent');
     }
   };

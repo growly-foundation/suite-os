@@ -2,6 +2,7 @@ import { Tables } from '@/types/database.types';
 
 import { Address } from '@getgrowly/persona';
 
+import { Message } from './messages';
 import { ParsedUserPersona } from './user_personas';
 
 export type User = Tables<'users'>;
@@ -32,10 +33,11 @@ export type UserOffchainData = {
 
 export type UserChatSession = {
   status: SessionStatus;
-  lastConversation?: {
-    conversationId: string;
-    agentId: string;
-    messageId: string;
-  };
   unread: boolean;
+};
+
+export type LatestConversation = {
+  conversationId: string;
+  agentId: string;
+  message: Message;
 };

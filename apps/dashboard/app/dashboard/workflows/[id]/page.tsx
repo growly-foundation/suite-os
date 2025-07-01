@@ -11,6 +11,7 @@ import { suiteCore } from '@/core/suite';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { useWorkflowDetailStore } from '@/hooks/use-workflow-details';
 import { generateId } from '@/lib/utils';
+import { useQueryClient } from '@tanstack/react-query';
 import { Loader2, Plus, Save, Settings } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
@@ -38,6 +39,8 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
   const [saving, setSaving] = useState(false);
   const paramsValue = React.use(params);
 
+  // Set up React Query client and mutation hooks (for cache invalidation)
+  const queryClient = useQueryClient();
   const isNewWorkflow = paramsValue.id === 'new';
 
   const fetchWorkflow = async () => {
@@ -82,15 +85,30 @@ export default function WorkflowDetailPage({ params }: { params: Promise<{ id: s
       } else {
         await suiteCore.db.workflows.update(workflow.id, workflowPayload);
       }
+
+      // Save steps using the original API
       await suiteCore.steps.createStep(workflow.steps, workflow.id);
+
+      // After successful creation/update, manually invalidate the React Query cache
+      // This keeps the UI in sync without duplicating API calls
+      if (selectedOrganization?.id) {
+        queryClient.invalidateQueries({
+          queryKey: ['organizationWorkflows', selectedOrganization.id],
+        });
+      }
+
       toast.success(
         isNewWorkflow ? 'Workflow created successfully' : 'Workflow updated successfully'
       );
-      // Redirect to the workflows page after saving
+
+      // Redirect back to workflows page for new workflows
       if (isNewWorkflow) {
         router.push('/dashboard/workflows');
+      } else {
+        router.push(`/dashboard/workflows/${workflow.id}`);
       }
     } catch (error) {
+      console.error('Failed to save workflow:', error);
       toast.error('Failed to save workflow');
     } finally {
       setSaving(false);

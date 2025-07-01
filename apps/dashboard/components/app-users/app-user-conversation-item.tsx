@@ -76,7 +76,7 @@ export const AppUserConversationItem = ({
             } catch (error) {
               console.error('Failed to parse message content:', error);
               return (
-                <div className="text-xs text-muted-foreground">Message can't be previewed</div>
+                <div className="text-md mt-1 text-muted-foreground">Message can't be previewed</div>
               );
             }
           })()}

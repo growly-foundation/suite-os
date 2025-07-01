@@ -1,8 +1,9 @@
 'use client';
 
 import { PrivyProvider } from '@privy-io/react-auth';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { ReactFlowProvider } from 'reactflow';
 
@@ -26,21 +27,29 @@ const AnimatedLoading = dynamic(
 );
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
+  // Create a new QueryClient instance for React Query
+  const [queryClient] = useState(() => new QueryClient());
   let baseComponent = (
-    <SuiteProviderWrapper>
-      <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-        <ReactFlowProvider>
-          <ComponentProvider>
-            <Suspense fallback={<AnimatedLoading />}>
-              {children}
-              <ChatWidget />
-              <ToastContainer />
-              <AddResourceDrawer />
-            </Suspense>
-          </ComponentProvider>
-        </ReactFlowProvider>
-      </ThemeProvider>
-    </SuiteProviderWrapper>
+    <QueryClientProvider client={queryClient}>
+      <SuiteProviderWrapper>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange>
+          <ReactFlowProvider>
+            <ComponentProvider>
+              <Suspense fallback={<AnimatedLoading />}>
+                {children}
+                <ChatWidget />
+                <ToastContainer />
+                <AddResourceDrawer />
+              </Suspense>
+            </ComponentProvider>
+          </ReactFlowProvider>
+        </ThemeProvider>
+      </SuiteProviderWrapper>
+    </QueryClientProvider>
   );
   // If environment variables for Privy credentials are not set,
   // do not wrap the component with PrivyProvider.

@@ -1,4 +1,4 @@
-import { AggregatedAgent, AggregatedWorkflow, ParsedResource, Status } from '@/models';
+import { Agent, AggregatedAgent, AggregatedWorkflow, ParsedResource, Status } from '@/models';
 import { TablesInsert } from '@/types/database.types';
 
 import { PublicDatabaseService } from './database.service';
@@ -63,8 +63,8 @@ export class AgentService {
     };
   }
 
-  async getAggregatedAgentsByOrganizationId(organization_id: string): Promise<AggregatedAgent[]> {
-    const agents = await this.agentDatabaseService.getAllByFields(
+  async getAgentsByOrganizationId(organization_id: string): Promise<Agent[]> {
+    return this.agentDatabaseService.getAllByFields(
       {
         organization_id,
       },
@@ -74,13 +74,6 @@ export class AgentService {
         ascending: false,
       }
     );
-    const aggregatedAgents: AggregatedAgent[] = [];
-    for (const agent of agents) {
-      const agentWithWorkflows = await this.getAggregatedAgent(agent.id);
-      if (!agentWithWorkflows) continue;
-      aggregatedAgents.push(agentWithWorkflows);
-    }
-    return aggregatedAgents;
   }
 
   async getAggregatedAgent(agent_id: string): Promise<AggregatedAgent | null> {
