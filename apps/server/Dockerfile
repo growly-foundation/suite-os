@@ -51,7 +51,7 @@ COPY --from=builder /app/apps/server/dist ./apps/server/dist
 
 # Install production dependencies only
 RUN npm install -g pnpm@10.6.3 && \
-    HUSKY=0 pnpm install --prod --no-optional
+    pnpm install --only=production --ignore-scripts
 
 # Set environment variables
 ENV NODE_ENV=production
