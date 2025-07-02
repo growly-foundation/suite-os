@@ -152,7 +152,7 @@ export function useUpdateAgentMutation() {
     },
     onSuccess: (_, variables) => {
       // Get the organization ID from the updated agent data if available
-      const organizationId = variables.data.organizationId;
+      const organizationId = variables.data.organization_id;
 
       // Invalidate specific agent query and organization agents
       queryClient.invalidateQueries({ queryKey: ['agent', variables.agentId] });
@@ -252,7 +252,7 @@ export function useUpdateWorkflowMutation() {
     },
     onSuccess: (_, variables) => {
       // Get the organization ID from the updated workflow data if available
-      const organizationId = variables.data.organizationId;
+      const organizationId = variables.data.organization_id;
 
       // Invalidate specific workflow query and organization workflows
       queryClient.invalidateQueries({ queryKey: ['workflow', variables.workflowId] });

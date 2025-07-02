@@ -91,7 +91,7 @@ export class ConversationService {
     );
   }
 
-  async getLastestConversationMessage(
+  async getLatestConversationMessage(
     user_id: string,
     agent_id: string
   ): Promise<LatestConversation | undefined> {
@@ -117,7 +117,7 @@ export class ConversationService {
         message: message,
       };
     } catch (error) {
-      console.log(`Error getting last conversation of ${user_id}:`, error);
+      console.error(`Error getting last conversation of ${user_id}:`, error);
       return undefined;
     }
   }

@@ -140,13 +140,12 @@ export const AgentCard = ({ agent }: { agent: Agent }) => {
                 label: `${agentDetails?.resources.length} resources`,
                 loading: loading,
               },
-            ].map((item, index) => (
+            ].map(item => (
               <Loadable
+                key={item.label}
                 loading={loading || !agentDetails}
                 fallback={<Skeleton className="h-6 w-24" />}>
-                <div
-                  key={index}
-                  className="flex flex-col items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 p-2">
+                <div className="flex flex-col items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 p-2">
                   {item.icon}
                   <span className="text-xs font-medium">{item.label}</span>
                 </div>

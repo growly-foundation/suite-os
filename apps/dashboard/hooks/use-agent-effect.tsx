@@ -35,5 +35,5 @@ export const useSelectedAgentUsersEffect = () => {
     fetchUsers();
   }, [selectedAgent]);
 
-  return { status: agentUserStatus, agentUsers, agentUserStatus };
+  return { status: agentUserStatus, agentUsers };
 };

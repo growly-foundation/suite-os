@@ -38,7 +38,7 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
     const userWithLatestMessage = await Promise.all(
       users.map(async user => {
         try {
-          const lastConversation = await suiteCore.conversations.getLastestConversationMessage(
+          const lastConversation = await suiteCore.conversations.getLatestConversationMessage(
             user.id,
             agent.id
           );
