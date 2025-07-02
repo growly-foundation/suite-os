@@ -54,17 +54,13 @@ export class PersonaQueueProcessor {
           this.logger.error(`Failed to fetch persona analysis for wallet: ${walletAddress}`);
           return undefined;
         }),
-        this.personaClient.guildXyz.getAggregatedWalletData(walletAddress as Address).catch(() => {
-          this.logger.error(`Failed to fetch guild xyz data for wallet: ${walletAddress}`);
-          return undefined;
-        }),
         this.personaClient.talent.getAggregatedWalletData(walletAddress as Address).catch(() => {
           this.logger.error(`Failed to fetch talent data for wallet: ${walletAddress}`);
           return undefined;
         }),
       ]);
 
-      const [ens, personaAnalysis, guildXyzData, talentData] = await result;
+      const [ens, personaAnalysis, talentData] = await result;
 
       // Destructure persona analysis
       const [a, m, r] = [
@@ -87,7 +83,6 @@ export class PersonaQueueProcessor {
       if (m) p.identities['walletMetrics'] = m;
 
       // External data
-      if (guildXyzData) p.identities['guildXyz'] = guildXyzData;
       if (talentData) p.identities['talentProtocol'] = talentData;
 
       // Activities
