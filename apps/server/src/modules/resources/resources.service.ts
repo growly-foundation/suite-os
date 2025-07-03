@@ -82,7 +82,7 @@ export class ResourcesService {
   private async deleteFile(bucket: string, path: string) {
     const { error } = await this.supabaseService.client.storage.from(bucket).remove([path]);
     if (error) {
-      console.error(`Failed to delete file: ${error.message}`);
+      throw new Error(`Failed to delete file from storage: ${error.message}`);
     }
   }
 
