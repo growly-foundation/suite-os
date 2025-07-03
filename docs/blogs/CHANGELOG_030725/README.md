@@ -36,10 +36,18 @@ For full details, see the [Suite Integration Guide](https://sphenoid-ethernet-3e
 
 ### Resource Management for the Agent
 
+<img src="./images//030725_resources.png" style="width: 100%; border-radius: 5px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin: 20px 0;" alt="Suite July 2025 Update">
+
 Agents can now be equipped with custom resources via our comprehensive resource management system:
 
 - **Multi-format Support**: Upload text content, website links, documents, and smart contracts to expand the Agent's knowledge base
+
+<img src="./images//030725_resources_contract.png" style="width: 100%; border-radius: 5px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin: 20px 0;" alt="Suite July 2025 Update">
+
 - **Contract Analysis**: View and explore the ABI of uploaded smart contracts directly within Suite with syntax highlighting
+
+<img src="./images//030725_agent_resources.png" style="width: 100%; border-radius: 5px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin: 20px 0;" alt="Suite July 2025 Update">
+
 - **Resource Assignment**: Easily assign resources to specific agents through an intuitive drag-and-drop interface
 - **Size Optimization**: Visual representation of resource usage with automatic byte counting to ensure optimal performance
 - **Context Management**: Resources are intelligently incorporated into agent prompts to maintain relevant context
@@ -47,6 +55,8 @@ Agents can now be equipped with custom resources via our comprehensive resource 
 This system ensures your agents always have the most current information about your protocols, documentation, and smart contract interfaces, enabling them to provide precise and tailored guidance to your users.
 
 ### Smart Tables for User Persona Management
+
+<img src="./images//030725_user_tables.png" style="width: 100%; border-radius: 5px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin: 20px 0;" alt="Suite July 2025 Update">
 
 Our new **Smart Tables** feature revolutionizes how organizations understand and segment their users:
 
@@ -59,6 +69,8 @@ Our new **Smart Tables** feature revolutionizes how organizations understand and
 Smart Tables help you move beyond one-size-fits-all approaches to create personalized, context-aware AI interactions that resonate with different user segments.
 
 ### Agent Intent Suggestions and Recommendations
+
+<img src="./images//030725_agent_recommendation.png" style="width: 100%; border-radius: 5px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin: 20px 0;" alt="Suite July 2025 Update">
 
 We've enhanced our agent intelligence system to better anticipate and guide user needs:
 
