@@ -72,7 +72,7 @@ export default function Demo() {
             </a>
             <a
               className="pl-4 opacity-100 transition-opacity duration-200 hover:opacity-70"
-              href="https://www.getgrowly.app/"
+              href="https://www.getsuite.io/"
               rel="noreferrer"
               target="_blank"
               title="View Growly Suite">

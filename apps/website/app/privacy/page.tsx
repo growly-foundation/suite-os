@@ -37,7 +37,7 @@ export default function PrivacyPolicy() {
 
             <PrivacyPolicyTemplate
               companyName="Growly Suite"
-              websiteUrl="https://getgrowly.app"
+              websiteUrl="https://getsuite.io"
               contactEmail="getgrowly@gmail.com"
               contactAddress={`Growly Foundation, Inc.\n123 AI Boulevard\nTech City, CA 94000\nUnited States`}
               lastUpdated={currentDate}
