@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://getgrowly.app/sitemap.xml
+Sitemap: https://getsuite.io/sitemap.xml

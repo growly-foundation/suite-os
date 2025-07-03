@@ -1,6 +1,6 @@
 <div align="center">
   <p>
-    <a href="https://getgrowly.app">
+    <a href="https://getsuite.io">
       <img width="500px" src="https://raw.githubusercontent.com/growly-foundation/assets/refs/heads/main/logo/suite-full.png"/>
     </a>
   </p>
@@ -46,10 +46,10 @@ Built on Base, Suite leverages the power of AI to help users navigate on-chain a
 
 | Resource Name               | Link                                                                                                  |
 | --------------------------- | ----------------------------------------------------------------------------------------------------- |
-| Website                     | https://getgrowly.app                                                                                 |
-| Suite Dashboard             | https://suite.getgrowly.app                                                                           |
-| Suite Playground            | https://playground.getgrowly.app                                                                      |
-| Suite Uniswap Demo          | https://uniswap.getgrowly.app                                                                         |
+| Website                     | https://getsuite.io                                                                                   |
+| Suite Dashboard             | https://app.getsuite.io                                                                               |
+| Suite Playground            | https://playground.getsuite.io                                                                        |
+| Suite Uniswap Demo          | https://uniswap.getsuite.io                                                                           |
 | Original Idea Pitch         | [View the original idea](https://github.com/user-attachments/files/19884167/growly-widget-deck.2.pdf) |
 | Pitch Deck for Base Batches | [View our pitch deck](https://www.figma.com/deck/uF0kJ0gn0ViJgPUUrdq1yn/-Growly-Suite--Pitch-Deck)    |
 
@@ -90,7 +90,7 @@ We truly ❤️ pull requests! If you wish to help, you can learn more about how
 
 ## Follow Us
 
-Join our growing community around the world! Check out our website [Website](https://getgrowly.app/). Follow us on [X](https://x.com/GrowlyFND), or join our live [Discord](https://discord.gg/NB4Ug72yyS) server for more help, ideas, and discussions.
+Join our growing community around the world! Check out our website [Website](https://getsuite.io/). Follow us on [X](https://x.com/GrowlyFND), or join our live [Discord](https://discord.gg/NB4Ug72yyS) server for more help, ideas, and discussions.
 
 ## License
 

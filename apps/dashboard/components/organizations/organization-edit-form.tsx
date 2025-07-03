@@ -224,7 +224,7 @@ export function OrganizationEditForm({
               Organization handle
             </Label>
             <div className="flex items-center">
-              <span className="text-muted-foreground text-sm mr-2">suite.getgrowly.app/</span>
+              <span className="text-muted-foreground text-sm mr-2">app.getsuite.io/</span>
               <Input
                 id="organizationHandle"
                 placeholder="my-organization"

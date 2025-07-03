@@ -51,7 +51,7 @@ export default function Navbar() {
           <Button
             asChild
             className="max-sm:hidden md:flex gap-3 px-4 py-2 bg-[#0052ff] hover:bg-[#3c79fd] text-white rounded-xl border-0 h-auto dark:bg-[#0052ff] dark:hover:bg-[#0052ff]/90 dark:shadow-[0_0_10px_rgba(36,101,237,0.4)]">
-            <Link href="https://suite.getgrowly.app">
+            <Link href="https://app.getsuite.io">
               <ArrowRight className="h-4 w-4 text-white" />
               <div className="flex flex-col items-start">
                 <span className="text-sm font-medium">Getting Started</span>
@@ -81,7 +81,7 @@ export default function Navbar() {
                   <Button
                     asChild
                     className="w-full flex items-center gap-3 px-4 py-2 bg-[#0052ff] hover:bg-[#3c79fd] text-white rounded-xl border-0 h-auto dark:bg-[#0052ff] dark:hover:bg-[#0052ff]/90 dark:shadow-[0_0_10px_rgba(36,101,237,0.4)]">
-                    <Link href="https://suite.getgrowly.app" onClick={() => setIsOpen(false)}>
+                    <Link href="https://app.getsuite.io" onClick={() => setIsOpen(false)}>
                       <ArrowRight className="h-4 w-4 text-white" />
                       <div className="flex flex-col items-start">
                         <span className="text-sm font-medium">Getting Started</span>

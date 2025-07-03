@@ -1,6 +1,6 @@
 <div align="center">
   <p>
-    <a href="https://getgrowly.app">
+    <a href="https://getsuite.io">
       <img width="500px" src="https://raw.githubusercontent.com/growly-foundation/assets/refs/heads/main/logo/suite-full.png"/>
     </a>
   </p>
@@ -13,11 +13,11 @@ Suite is an AI-powered engine designed to streamline DeFi adoption by integratin
 
 Built on Base, Suite leverages the power of AI to help users navigate on-chain actions, understand DeFi opportunities, and make informed decisions without requiring deep technical knowledge of blockchain.
 
-| Resource Name      | Link                          |
-| ------------------ | ----------------------------- |
-| Website            | https://getgrowly.app         |
-| Suite Dashboard    | https://suite.getgrowly.app   |
-| Suite Uniswap Demo | https://uniswap.getgrowly.app |
+| Resource Name      | Link                        |
+| ------------------ | --------------------------- |
+| Website            | https://getsuite.io         |
+| Suite Dashboard    | https://app.getsuite.io     |
+| Suite Uniswap Demo | https://uniswap.getsuite.io |
 
 ## Getting Started
 
@@ -34,10 +34,10 @@ Integrates the `SuiteProvider` to your React app. This is required for Suite wid
 Required version: `> v15.0.0`
 
 ```tsx
-import { SuiteProvider, ChatWidget } from '@getgrowly/suite';
+import { ChatWidget, SuiteProvider } from '@getgrowly/suite';
 import '@getgrowly/suite/dist/styles.css';
 
-// Agent Id and Organization Id can be retrieved on `suite.getgrowly.app` (Agents > Integration Guide).
+// Agent Id and Organization Id can be retrieved on `app.getsuite.io` (Agents > Integration Guide).
 export const Provider = ({ children }: { children: React.ReactNode }) => {
   return (
     <SuiteProvider
@@ -72,7 +72,7 @@ const ChatWidget = dynamic(() => import('@getgrowly/suite').then(suite => suite.
   ssr: false,
 });
 
-// Agent Id and Organization Id can be retrieved on `suite.getgrowly.app` (Agents > Integration Guide).
+// Agent Id and Organization Id can be retrieved on `app.getsuite.io` (Agents > Integration Guide).
 export const Provider = ({ children }: { children: React.ReactNode }) => {
   return (
     <SuiteProvider

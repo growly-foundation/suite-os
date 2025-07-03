@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://suite.getgrowly.app',
+    url: 'https://app.getsuite.io',
     title: 'Growly Suite Dashboard',
     description: 'Manage your AI agents for Growly Suite and workflows with ease.',
     siteName: 'Growly Suite Dashboard',
