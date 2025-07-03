@@ -19,12 +19,16 @@ export default function ResourcePage() {
   const { open } = useComponent(ADD_RESOURCE_DRAWER);
 
   const handleUpdateResource = async (updatedResource: TypedResource<ResourceType>) => {
-    setOrganizationResources(
-      organizationResources.map(resource =>
-        resource.id === updatedResource.id ? updatedResource : resource
-      )
-    );
-    await fetchCurrentOrganizationResources();
+    try {
+      setOrganizationResources(
+        organizationResources.map(resource =>
+          resource.id === updatedResource.id ? updatedResource : resource
+        )
+      );
+      await fetchCurrentOrganizationResources();
+    } catch (error) {
+      console.error('Failed to refetch resources:', error);
+    }
   };
 
   return (

@@ -52,7 +52,6 @@ export function TextForm({ onChange, initialData }: TextFormProps) {
           <SelectContent>
             <SelectItem value="plain">Plain Text</SelectItem>
             <SelectItem value="markdown">Markdown</SelectItem>
-            <SelectItem value="html">HTML</SelectItem>
           </SelectContent>
         </Select>
       </div>

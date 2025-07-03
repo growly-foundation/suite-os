@@ -14,8 +14,6 @@ import {
   ParsedResource,
   ParsedUser,
   Resource,
-  ResourceType,
-  TypedResource,
   WorkflowId,
   generateHandle,
 } from '@getgrowly/core';
@@ -96,7 +94,6 @@ export type DashboardAppState = {
   setAgentResources: (resources: Resource[]) => void;
   fetchAgentResources: (agentId: string) => Promise<Resource[]>;
   fetchCurrentAgentResources: () => Promise<Resource[]>;
-  handleUpdateAgentResource: (updatedResource: TypedResource<ResourceType>) => Promise<void>;
 
   // Workflows
   workflowStatus: StateStatus;
@@ -222,15 +219,6 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
     const selectedAgent = get().selectedAgent;
     if (!selectedAgent) throw new Error('No agent selected');
     return await get().fetchAgentResources(selectedAgent.id);
-  },
-  handleUpdateAgentResource: async (updatedResource: TypedResource<ResourceType>) => {
-    const selectedAgent = get().selectedAgent;
-    if (!selectedAgent) return;
-    await suiteCore.db.agent_resources.create({
-      agent_id: selectedAgent.id,
-      resource_id: updatedResource.id,
-    });
-    await get().fetchAgentResources(selectedAgent.id);
   },
 
   // Organizations

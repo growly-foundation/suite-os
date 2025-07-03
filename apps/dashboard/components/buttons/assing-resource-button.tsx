@@ -34,7 +34,7 @@ type Props = {
 const AssignResourceButton = ({ agent, onUpdate }: Props) => {
   const { organizationResources } = useDashboardState();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedResources, setSelectedResources] = useState<Resource[]>([...agent.resources]);
+  const [selectedResources, setSelectedResources] = useState<Resource[]>(agent.resources);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -43,7 +43,7 @@ const AssignResourceButton = ({ agent, onUpdate }: Props) => {
     resource.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleSaveWorkflows = async () => {
+  const handleSaveResources = async () => {
     setIsSaving(true);
     try {
       const updatedAgent = {
@@ -116,7 +116,7 @@ const AssignResourceButton = ({ agent, onUpdate }: Props) => {
           <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSaveWorkflows} disabled={isSaving}>
+          <Button onClick={handleSaveResources} disabled={isSaving}>
             {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isSaving ? 'Saving...' : 'Save'}
           </Button>

@@ -36,9 +36,9 @@ export class ResourceService {
    */
   static async getContractABI(address: string, network?: string): Promise<any[]> {
     try {
-      const response = await axios.get(`${API_URL}/resources/contract/${address}`, {
-        params: { network },
-      });
+      const response = await axios.get(
+        `${API_URL}/resources/contract/${address}?network=${network}`
+      );
       return response.data.abi;
     } catch (error) {
       console.error(`Failed to get contract ABI for address ${address}:`, error);

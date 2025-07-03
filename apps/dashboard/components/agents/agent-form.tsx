@@ -110,8 +110,14 @@ export function AgentForm({ formData, setFormData, onSave }: AgentFormProps) {
   };
 
   useEffect(() => {
-    fetchOrganizationWorkflows();
-    fetchCurrentOrganizationResources();
+    const fetchData = async () => {
+      try {
+        await Promise.all([fetchOrganizationWorkflows(), fetchCurrentOrganizationResources()]);
+      } catch (error) {
+        console.error('Failed to fetch organization data:', error);
+      }
+    };
+    fetchData();
   }, []);
 
   return (

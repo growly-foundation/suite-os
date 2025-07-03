@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -28,7 +29,7 @@ export class ResourcesController {
   }
 
   @Get('contract/:address')
-  async getContractABI(@Param('address') address: string, @Body('network') network?: string) {
+  async getContractABI(@Param('address') address: string, @Query('network') network?: string) {
     return {
       abi: await this.resourcesService.getContractABI(address, network),
     };

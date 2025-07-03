@@ -5,6 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  isContractResource,
+  isDocumentResource,
+  isLinkResource,
+  isTextResource,
+} from '@/utils/resource.utils';
 import { format } from 'date-fns';
 import { Code as CodeIcon, ExternalLink, File, Pencil, Save, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -12,14 +18,7 @@ import { useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
-import {
-  ContractValue,
-  DocumentValue,
-  LinkValue,
-  ResourceType,
-  TextValue,
-  TypedResource,
-} from '@getgrowly/core';
+import { ResourceType, TypedResource } from '@getgrowly/core';
 
 import { PrimaryButton } from '../buttons/primary-button';
 import { ResourceIcon } from './resource-icon';
@@ -63,7 +62,7 @@ export function ResourceDetails({ resource, onSave, onClose }: ResourceDetailsPr
           />
         </div>
 
-        {editedResource.type === 'text' && (
+        {isTextResource(editedResource) && (
           <div className="space-y-2">
             <Label htmlFor="content">Content</Label>
             <div className="flex items-center gap-2 mb-2">
@@ -73,14 +72,14 @@ export function ResourceDetails({ resource, onSave, onClose }: ResourceDetailsPr
               <select
                 id="format"
                 className="text-sm px-2 py-1 rounded-md border bg-background"
-                value={(editedResource.value as any).format || ''}
+                value={editedResource.value.format || ''}
                 onChange={e =>
                   setEditedResource(
                     prev =>
                       ({
                         ...prev,
                         value: {
-                          ...(prev.value as any),
+                          ...prev.value,
                           format: e.target.value || undefined,
                         },
                       }) as TypedResource<ResourceType>
@@ -92,14 +91,14 @@ export function ResourceDetails({ resource, onSave, onClose }: ResourceDetailsPr
             </div>
             <Textarea
               id="content"
-              value={(editedResource.value as any).content || ''}
+              value={editedResource.value.content || ''}
               onChange={e =>
                 setEditedResource(
                   prev =>
                     ({
                       ...prev,
                       value: {
-                        ...(prev.value as any),
+                        ...prev.value,
                         content: e.target.value,
                       },
                     }) as TypedResource<ResourceType>
@@ -107,36 +106,35 @@ export function ResourceDetails({ resource, onSave, onClose }: ResourceDetailsPr
               }
               className="min-h-[300px] font-mono text-sm"
               placeholder={
-                (editedResource.value as any).format === 'markdown'
+                editedResource.value.format === 'markdown'
                   ? '# Markdown supported\n\nYou can write **bold**, *italic*, and `code` here.'
                   : 'Enter content here'
               }
             />
-            {(editedResource.value as any).format === 'markdown' &&
-              (editedResource.value as any).content && (
-                <div className="mt-4">
-                  <Label className="mb-2 block">Preview:</Label>
-                  <div className="rounded-md border p-4 bg-muted/10">
-                    <MarkdownPreview source={(editedResource.value as any).content} />
-                  </div>
+            {editedResource.value.format === 'markdown' && editedResource.value.content && (
+              <div className="mt-4">
+                <Label className="mb-2 block">Preview:</Label>
+                <div className="rounded-md border p-4 bg-muted/10">
+                  <MarkdownPreview source={editedResource.value.content} />
                 </div>
-              )}
+              </div>
+            )}
           </div>
         )}
 
-        {editedResource.type === 'link' && (
+        {isLinkResource(editedResource) && (
           <div className="space-y-2">
             <Label htmlFor="url">URL</Label>
             <Input
               id="url"
-              value={(editedResource.value as any).url || ''}
+              value={editedResource.value.url || ''}
               onChange={e =>
                 setEditedResource(
                   prev =>
                     ({
                       ...prev,
                       value: {
-                        ...(prev.value as any),
+                        ...prev.value,
                         url: e.target.value,
                       },
                     }) as TypedResource<ResourceType>
@@ -146,20 +144,20 @@ export function ResourceDetails({ resource, onSave, onClose }: ResourceDetailsPr
           </div>
         )}
 
-        {editedResource.type === 'contract' && (
+        {isContractResource(editedResource) && (
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="address">Contract Address</Label>
               <Input
                 id="address"
-                value={(editedResource.value as any).address || ''}
+                value={editedResource.value.address || ''}
                 onChange={e =>
                   setEditedResource(
                     prev =>
                       ({
                         ...prev,
                         value: {
-                          ...(prev.value as any),
+                          ...prev.value,
                           address: e.target.value,
                         },
                       }) as TypedResource<ResourceType>
@@ -173,26 +171,21 @@ export function ResourceDetails({ resource, onSave, onClose }: ResourceDetailsPr
               <select
                 id="network"
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                value={(editedResource.value as any).network || 'ethereum'}
+                value={editedResource.value.network || 'mainnet'}
                 onChange={e =>
                   setEditedResource(
                     prev =>
                       ({
                         ...prev,
                         value: {
-                          ...(prev.value as any),
+                          ...prev.value,
                           network: e.target.value,
                         },
                       }) as TypedResource<ResourceType>
                   )
                 }>
-                <option value="ethereum">Ethereum</option>
+                <option value="mainnet">Ethereum Mainnet</option>
                 <option value="base">Base</option>
-                <option value="optimism">Optimism</option>
-                <option value="polygon">Polygon</option>
-                <option value="arbitrum">Arbitrum</option>
-                <option value="sepolia">Sepolia (Testnet)</option>
-                <option value="goerli">Goerli (Testnet)</option>
               </select>
             </div>
           </div>
@@ -230,38 +223,38 @@ export function ResourceDetails({ resource, onSave, onClose }: ResourceDetailsPr
           </div>
         </div>
 
-        {resource.type === 'text' && (
+        {isTextResource(resource) && (
           <div className="space-y-2">
             <Label className="text-sm font-medium text-muted-foreground">Content</Label>
-            {(resource.value as TextValue).format === 'markdown' ? (
+            {resource.value.format === 'markdown' ? (
               <div className="rounded-md border overflow-hidden">
                 <MarkdownPreview
-                  source={(resource.value as TextValue).content || 'No content'}
+                  source={resource.value.content || 'No content'}
                   className="p-4 bg-card"
                 />
               </div>
             ) : (
               <div className="rounded-md border p-4 text-sm whitespace-pre-wrap bg-muted/10">
-                {(resource.value as TextValue).content || 'No content'}
+                {resource.value.content || 'No content'}
               </div>
             )}
           </div>
         )}
 
-        {resource.type === 'document' && (
+        {isDocumentResource(resource) && (
           <div className="space-x-4">
             <Label className="text-sm font-medium text-muted-foreground">Document</Label>
-            {(resource.value as DocumentValue).documentUrl ? (
+            {resource.value.documentUrl ? (
               <div className="rounded-md border p-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <File className="h-5 w-5 text-muted-foreground" />
                   <span className="text-sm font-medium">
-                    {(resource.value as DocumentValue).documentType?.toUpperCase() || 'Document'}
+                    {resource.value.documentType?.toUpperCase() || 'Document'}
                   </span>
                 </div>
                 <div className="flex gap-2">
                   <a
-                    href={(resource.value as DocumentValue).documentUrl}
+                    href={resource.value.documentUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-blue-600 hover:underline flex items-center gap-1">
@@ -277,35 +270,35 @@ export function ResourceDetails({ resource, onSave, onClose }: ResourceDetailsPr
           </div>
         )}
 
-        {resource.type === 'link' && (
+        {isLinkResource(resource) && (
           <div className="space-x-4">
             <Label className="text-sm font-medium text-muted-foreground">URL</Label>
             <a
-              href={(resource.value as LinkValue).url}
+              href={resource.value.url}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center text-sm text-blue-600 hover:underline break-all bg-muted/10 p-3 rounded-md border block">
-              {(resource.value as LinkValue).url}
+              {resource.value.url}
               <ExternalLink className="ml-1 h-3 w-3 flex-shrink-0" />
             </a>
           </div>
         )}
 
-        {resource.type === 'contract' && (
+        {isContractResource(resource) && (
           <div className="space-y-4">
             <div className="space-y-2">
               <Label className="text-sm font-medium text-muted-foreground">Contract Address</Label>
               <div className="rounded-md bg-muted p-2 font-mono text-sm border">
-                {(resource.value as ContractValue).address || 'No address'}
+                {resource.value.address || 'No address'}
               </div>
             </div>
-            {(resource.value as ContractValue).network && (
+            {resource.value.network && (
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-muted-foreground">Network</Label>
-                <div className="text-sm">{(resource.value as ContractValue).network}</div>
+                <div className="text-sm">{resource.value.network}</div>
               </div>
             )}
-            {(resource.value as ContractValue).abi && (
+            {resource.value.abi && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-medium text-muted-foreground">Contract ABI</Label>
@@ -318,9 +311,9 @@ export function ResourceDetails({ resource, onSave, onClose }: ResourceDetailsPr
                     language="json"
                     style={oneLight}
                     customStyle={{ margin: 0, borderRadius: '0.375rem' }}>
-                    {typeof (resource.value as ContractValue).abi === 'string'
-                      ? (resource.value as ContractValue).abi
-                      : JSON.stringify((resource.value as ContractValue).abi, null, 2)}
+                    {typeof resource.value.abi === 'string'
+                      ? resource.value.abi
+                      : JSON.stringify(resource.value.abi, null, 2)}
                   </SyntaxHighlighter>
                 </div>
               </div>

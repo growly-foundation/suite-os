@@ -1,4 +1,5 @@
 import { Label } from '@/components/ui/label';
+import { getDocumentType } from '@/utils/file.utils';
 import { FileText as FileTextIcon, Upload } from 'lucide-react';
 import { useCallback, useState } from 'react';
 
@@ -14,7 +15,7 @@ export function DocumentForm({ onChange, initialData }: DocumentFormProps) {
     documentUrl: '',
     documentName: '',
     documentSize: 0,
-    documentType: 'pdf',
+    documentType: '',
     ...initialData,
   } as DocumentValue);
 
@@ -26,7 +27,7 @@ export function DocumentForm({ onChange, initialData }: DocumentFormProps) {
           ...prev,
           documentName: file.name,
           documentSize: file.size,
-          documentType: 'pdf',
+          documentType: getDocumentType(file.name),
         };
         onChange(updatedData);
         return updatedData;

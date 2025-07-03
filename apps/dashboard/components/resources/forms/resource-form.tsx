@@ -85,7 +85,7 @@ export function ResourceForm({ onSubmit, isSubmitting }: ResourceFormProps) {
             </TabsTrigger>
             <TabsTrigger disabled value="document" onClick={() => handleTypeChange('document')}>
               <FileText className="mr-2 h-4 w-4" />
-              Document
+              Document (WIP)
             </TabsTrigger>
             <TabsTrigger value="link" onClick={() => handleTypeChange('link')}>
               <LinkIcon className="mr-2 h-4 w-4" />

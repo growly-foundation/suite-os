@@ -40,8 +40,7 @@ export class AgentService {
         });
         visitedWorkflows[workflow.id] = true;
       } catch (error) {
-        console.log(error);
-        continue;
+        console.error('Failed to create agent-workflow association:', error);
       }
     }
 
@@ -56,8 +55,7 @@ export class AgentService {
         });
         visitedResources[resource.id] = true;
       } catch (error) {
-        console.log(error);
-        continue;
+        console.error('Failed to create agent-resource association:', error);
       }
     }
 

@@ -1,10 +1,11 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SupabaseClient, createClient } from '@supabase/supabase-js';
 
 @Injectable()
 export class SupabaseService implements OnModuleInit {
   private _client: SupabaseClient;
+  private readonly logger = new Logger(SupabaseService.name);
 
   constructor(private readonly configService: ConfigService) {}
 
@@ -13,8 +14,7 @@ export class SupabaseService implements OnModuleInit {
     const supabaseKey = this.configService.get<string>('SUPABASE_SERVICE_KEY');
 
     if (!supabaseUrl || !supabaseKey) {
-      console.error('Missing Supabase credentials in environment variables');
-      return;
+      throw new Error('Missing Supabase credentials in environment variables');
     }
 
     this._client = createClient(supabaseUrl, supabaseKey, {
@@ -28,6 +28,9 @@ export class SupabaseService implements OnModuleInit {
   }
 
   get client(): SupabaseClient {
+    if (!this._client) {
+      throw new Error('Supabase client not initialized');
+    }
     return this._client;
   }
 
@@ -37,7 +40,7 @@ export class SupabaseService implements OnModuleInit {
       const { data: buckets, error } = await this._client.storage.listBuckets();
 
       if (error) {
-        console.error('Error checking storage buckets:', error);
+        this.logger.error('Error checking storage buckets:', error);
         return;
       }
 
@@ -51,13 +54,13 @@ export class SupabaseService implements OnModuleInit {
         });
 
         if (createError) {
-          console.error('Error creating documents bucket:', createError);
+          this.logger.error('Error creating documents bucket:', createError);
         } else {
           console.log('Created documents storage bucket');
         }
       }
     } catch (error) {
-      console.error('Error initializing storage:', error);
+      this.logger.error('Error initializing storage:', error);
     }
   }
 }
