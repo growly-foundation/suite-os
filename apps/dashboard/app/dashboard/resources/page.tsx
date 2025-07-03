@@ -3,19 +3,38 @@
 import { ResourcePageLayout } from '@/components/layouts/resource-page-layout';
 import { useComponent } from '@/components/providers/component-provider';
 import { ADD_RESOURCE_DRAWER } from '@/constants/component-registry';
-import { useAgentResourceActions } from '@/hooks/use-resource-actions';
+import { useDashboardState } from '@/hooks/use-dashboard';
+import { useOrganizationResourceActions } from '@/hooks/use-resource-actions';
+
+import { ParsedResource, ResourceType, TypedResource } from '@getgrowly/core';
 
 export default function ResourcePage() {
-  const { resources, handleDeleteResource } = useAgentResourceActions();
+  const { fetchCurrentOrganizationResources } = useDashboardState();
+  const {
+    organizationResources,
+    handleDeleteResource,
+    organizationResourceStatus,
+    setOrganizationResources,
+  } = useOrganizationResourceActions();
   const { open } = useComponent(ADD_RESOURCE_DRAWER);
+
+  const handleUpdateResource = async (updatedResource: TypedResource<ResourceType>) => {
+    setOrganizationResources(
+      organizationResources.map(resource =>
+        resource.id === updatedResource.id ? updatedResource : resource
+      )
+    );
+    await fetchCurrentOrganizationResources();
+  };
 
   return (
     <ResourcePageLayout
       title="Resources"
-      resources={resources}
+      resourceLoading={organizationResourceStatus === 'loading'}
+      resources={organizationResources as ParsedResource[]}
       onResourceDelete={handleDeleteResource}
+      onResourceUpdate={handleUpdateResource}
       onResourceAdd={open}
-      agentId={undefined}
     />
   );
 }

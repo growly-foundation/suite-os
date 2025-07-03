@@ -1,8 +1,9 @@
-import { Tables } from '@/types/database.types';
+import { Tables, TablesInsert } from '@/types/database.types';
 
 import { SupportedNetwork } from './chain';
 
 export type Resource = Tables<'resources'>;
+export type ResourceInsert = TablesInsert<'resources'>;
 export type ResourceType = 'text' | 'contract' | 'link' | 'document';
 export type ResourceValue =
   | TypedResource<'text'>
@@ -10,35 +11,41 @@ export type ResourceValue =
   | TypedResource<'link'>
   | TypedResource<'document'>;
 export type ParsedResource = Omit<Resource, 'value'> & ResourceValue;
-export type ParsedResourceInsert = Omit<Resource, 'id' | 'created_at'> & ResourceValue;
+export type ParsedResourceInsert = Omit<
+  ResourceInsert,
+  'value' | 'created_at' | 'id' | 'updated_at'
+> &
+  ResourceValue;
 export type TypedResource<T extends ResourceType> = Omit<Resource, 'value'> & TypedResourceValue<T>;
 export type TypedResourceValue<T extends ResourceType> = {
   type: T;
   value: T extends keyof ResourceMap ? ResourceMap[T] : never;
 };
 
-type ContractValue = {
+export type ContractValue = {
   address: string;
   network: SupportedNetwork;
   abi?: any;
 };
 
-type LinkValue = {
+export type LinkValue = {
   url: string;
-  title?: string;
+  description?: string;
 };
 
-type DocumentValue = {
+export type DocumentValue = {
   documentUrl: string;
+  documentName: string;
   documentType: 'pdf' | 'docx' | 'csv' | 'txt';
+  documentSize: number;
 };
 
-type TextValue = {
+export type TextValue = {
   content: string;
-  format?: 'plain' | 'markdown' | 'html';
+  format?: 'plain' | 'markdown';
 };
 
-type ResourceMap = {
+export type ResourceMap = {
   contract: ContractValue;
   link: LinkValue;
   document: DocumentValue;

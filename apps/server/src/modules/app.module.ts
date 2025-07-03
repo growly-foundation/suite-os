@@ -9,6 +9,7 @@ import { DatabaseModule } from './databases/database.module';
 import { GrowlyModule } from './growly/growly.module';
 import { MessageModule } from './message/message.module';
 import { OpenAIModule } from './openai/openai.module';
+import { ResourcesModule } from './resources/resources.module';
 import { SuiteCoreModule } from './suite-core/suite-core.module';
 import { SyncPersonaModule } from './sync-persona/persona.module';
 import { UserModule } from './user/user.module';
@@ -26,6 +27,7 @@ import { UserModule } from './user/user.module';
     MessageModule,
     GrowlyModule,
     SuiteCoreModule,
+    ResourcesModule,
   ],
 })
 export class AppModule implements NestModule {

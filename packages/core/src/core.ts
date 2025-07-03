@@ -37,6 +37,9 @@ export interface SuiteDatabaseCore {
     /** Manages agent workflows relationship. */
     agent_workflows: PublicDatabaseService<'agent_workflows'>;
 
+    /** Manages agent resources relationship. */
+    agent_resources: PublicDatabaseService<'agent_resources'>;
+
     /** The Supabase client. */
     client: SupabaseClient;
 
@@ -192,6 +195,7 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     admin_organizations: adminOrganizationDatabaseService,
     agents: agentDatabaseService,
     agent_workflows: agentWorkflowsService,
+    agent_resources: agentResourcesDatabaseService,
     conversation: conversationDatabaseService,
     client: supabaseClientService,
     organizations: organizationDatabaseService,

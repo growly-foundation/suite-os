@@ -4,7 +4,7 @@ import { ResourceType } from '@getgrowly/core';
 
 import { IconContainer } from '../ui/icon-container';
 
-export const ResourceIcon = ({ type }: { type: ResourceType }) => {
+export const ResourceIcon = ({ type, className }: { type: ResourceType; className?: string }) => {
   const icon = (type: ResourceType) => {
     switch (type) {
       case 'contract':
@@ -17,5 +17,9 @@ export const ResourceIcon = ({ type }: { type: ResourceType }) => {
         return <TextIcon className="h-3 w-3" />;
     }
   };
-  return <IconContainer className="bg-primary text-white">{icon(type)}</IconContainer>;
+  return (
+    <IconContainer type="primary" className={className}>
+      {icon(type)}
+    </IconContainer>
+  );
 };

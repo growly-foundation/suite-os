@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Code, FileText, Link as LinkIcon, Text as TextIcon } from 'lucide-react';
+import { Code, FileText, Link as LinkIcon, Loader2, Plus, Text as TextIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import { ResourceType, ResourceValue } from '@getgrowly/core';
@@ -15,7 +15,6 @@ import { TextForm } from './text-form';
 interface ResourceFormProps {
   onSubmit: (data: { name: string } & ResourceValue) => void;
   isSubmitting: boolean;
-  onCancel?: () => void;
 }
 
 type ResourceFormState = {
@@ -24,7 +23,7 @@ type ResourceFormState = {
   formData: any;
 };
 
-export function ResourceForm({ onSubmit, isSubmitting, onCancel }: ResourceFormProps) {
+export function ResourceForm({ onSubmit, isSubmitting }: ResourceFormProps) {
   const [state, setState] = useState<ResourceFormState>({
     type: 'text',
     name: '',
@@ -84,7 +83,7 @@ export function ResourceForm({ onSubmit, isSubmitting, onCancel }: ResourceFormP
               <TextIcon className="mr-2 h-4 w-4" />
               Text
             </TabsTrigger>
-            <TabsTrigger value="document" onClick={() => handleTypeChange('document')}>
+            <TabsTrigger disabled value="document" onClick={() => handleTypeChange('document')}>
               <FileText className="mr-2 h-4 w-4" />
               Document
             </TabsTrigger>
@@ -111,10 +110,12 @@ export function ResourceForm({ onSubmit, isSubmitting, onCancel }: ResourceFormP
         {renderForm()}
       </div>
       <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
-          Cancel
-        </Button>
         <Button type="submit" size="sm" disabled={isSubmitting || !state.formData}>
+          {isSubmitting ? (
+            <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+          ) : (
+            <Plus className="mr-1 h-4 w-4" />
+          )}
           {isSubmitting ? 'Adding...' : 'Add Resource'}
         </Button>
       </div>

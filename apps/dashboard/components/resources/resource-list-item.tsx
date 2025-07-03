@@ -14,14 +14,20 @@ import { ResourceIcon } from './resource-icon';
 
 interface ResourceListItemProps<T extends ResourceType = ResourceType> {
   resource: TypedResource<T>;
-  onDelete: (id: string) => void;
+  onDelete?: (id: string) => void;
   onClick?: (resource: TypedResource<T>) => void;
+  disabled?: boolean;
+  className?: string;
+  noPreview?: boolean;
 }
 
 export function ResourceListItem<T extends ResourceType>({
   resource,
   onDelete,
   onClick,
+  disabled,
+  className,
+  noPreview,
 }: ResourceListItemProps<T>) {
   const renderPreview = () => {
     switch (resource.type) {
@@ -78,6 +84,17 @@ export function ResourceListItem<T extends ResourceType>({
           </div>
         );
       }
+      case 'text': {
+        const value = resource as TypedResource<'text'>;
+        return (
+          <div className="space-y-1">
+            <p className="text-sm line-clamp-2">{value.value.content}</p>
+            {value.value.format && (
+              <div className="text-xs text-muted-foreground">Format: {value.value.format}</div>
+            )}
+          </div>
+        );
+      }
       default:
         return null;
     }
@@ -90,14 +107,18 @@ export function ResourceListItem<T extends ResourceType>({
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (onClick) {
-      onClick(resource);
-    }
+    if (onClick) onClick(resource);
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={handleClick}>
-      <CardHeader className="pb-2">
+    <Card
+      className={cn(
+        'hover:shadow-md transition-shadow cursor-pointer',
+        noPreview ? 'pb-3' : 'pb-0',
+        className
+      )}
+      onClick={handleClick}>
+      <CardHeader className={cn(noPreview ? 'pb-2 border-none' : 'pb-0')}>
         <div className="flex items-start justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -112,7 +133,7 @@ export function ResourceListItem<T extends ResourceType>({
             <Badge className={cn(getBadgeColor(resource.type), 'rounded-full')}>
               {getTypeLabel(resource.type)}
             </Badge>
-            {onDelete && (
+            {onDelete && !disabled && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -132,7 +153,7 @@ export function ResourceListItem<T extends ResourceType>({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-3">{renderPreview()}</CardContent>
+      {!noPreview && <CardContent className="pt-3">{renderPreview()}</CardContent>}
     </Card>
   );
 }

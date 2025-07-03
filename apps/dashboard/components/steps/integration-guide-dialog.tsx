@@ -10,6 +10,8 @@ import {
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Copy } from 'lucide-react';
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import { AggregatedAgent } from '@getgrowly/core';
 
@@ -88,9 +90,12 @@ export default function IntegrationWidget() {
               <div className="space-y-2">
                 <h3 className="text-lg font-medium">Install the package</h3>
                 <div className="relative">
-                  <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-md overflow-x-auto">
-                    <code>{npmInstallCode}</code>
-                  </pre>
+                  <SyntaxHighlighter
+                    customStyle={{ margin: 0, borderRadius: '0.375rem' }}
+                    language="bash"
+                    style={oneLight}>
+                    {npmInstallCode}
+                  </SyntaxHighlighter>
                   <Button
                     size="sm"
                     variant="ghost"
@@ -110,9 +115,12 @@ export default function IntegrationWidget() {
                   component.
                 </p>
                 <div className="relative">
-                  <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-md overflow-x-auto">
-                    <code>{providerCode}</code>
-                  </pre>
+                  <SyntaxHighlighter
+                    customStyle={{ margin: 0, borderRadius: '0.375rem' }}
+                    language="javascript"
+                    style={oneLight}>
+                    {providerCode}
+                  </SyntaxHighlighter>
                   <Button
                     size="sm"
                     variant="ghost"
@@ -129,9 +137,12 @@ export default function IntegrationWidget() {
                   Add the ChatWidget component to your layout to enable chat interactions.
                 </p>
                 <div className="relative">
-                  <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-md overflow-x-auto">
-                    <code>{widgetCode}</code>
-                  </pre>
+                  <SyntaxHighlighter
+                    customStyle={{ margin: 0, borderRadius: '0.375rem' }}
+                    language="javascript"
+                    style={oneLight}>
+                    {widgetCode}
+                  </SyntaxHighlighter>
                   <Button
                     size="sm"
                     variant="ghost"
@@ -151,9 +162,12 @@ export default function IntegrationWidget() {
                   interactions.
                 </p>
                 <div className="relative">
-                  <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-md overflow-x-auto">
-                    <code>{stepCode}</code>
-                  </pre>
+                  <SyntaxHighlighter
+                    customStyle={{ margin: 0, borderRadius: '0.375rem' }}
+                    language="javascript"
+                    style={oneLight}>
+                    {stepCode}
+                  </SyntaxHighlighter>
                   <Button
                     size="sm"
                     variant="ghost"

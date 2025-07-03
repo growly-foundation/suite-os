@@ -11,7 +11,11 @@ import {
   AggregatedWorkflow,
   MessageContent,
   ParsedMessage,
+  ParsedResource,
   ParsedUser,
+  Resource,
+  ResourceType,
+  TypedResource,
   WorkflowId,
   generateHandle,
 } from '@getgrowly/core';
@@ -75,12 +79,24 @@ export type DashboardAppState = {
     referralSource?: string
   ) => Promise<AggregatedOrganization>;
 
+  // Organization Resources
+  organizationResourceStatus: StateStatus;
+  organizationResources: Resource[];
+  setOrganizationResources: (resources: Resource[]) => void;
+  fetchCurrentOrganizationResources: () => Promise<Resource[]>;
+
   // Agent Users
   organizationUserStatus: StateStatus;
   organizationUsers: ParsedUser[];
   fetchUsersByOrganizationId: (organizationId: string) => Promise<ParsedUser[]>;
   selectedOrganizationUser: ParsedUser | null;
   setSelectedOrganizationUser: (user: ParsedUser | null) => void;
+
+  // Agent Resources
+  setAgentResources: (resources: Resource[]) => void;
+  fetchAgentResources: (agentId: string) => Promise<Resource[]>;
+  fetchCurrentAgentResources: () => Promise<Resource[]>;
+  handleUpdateAgentResource: (updatedResource: TypedResource<ResourceType>) => Promise<void>;
 
   // Workflows
   workflowStatus: StateStatus;
@@ -181,6 +197,42 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
   selectedAgent: null,
   setSelectedAgent: (agent: AggregatedAgent | null) => set({ selectedAgent: agent }),
 
+  // Agent Resources
+  setAgentResources: (resources: Resource[]) => {
+    const selectedAgent = get().selectedAgent;
+    if (!selectedAgent) return;
+    set({
+      selectedAgent: {
+        ...selectedAgent,
+        resources: resources as ParsedResource[],
+      },
+    });
+  },
+  fetchAgentResources: async (agentId: string) => {
+    const agentResourceIds = await suiteCore.db.agent_resources.getAllByFields({
+      agent_id: agentId,
+    });
+    const resources = await suiteCore.db.resources.getManyByFields(
+      'id',
+      agentResourceIds.map(ar => ar.resource_id)
+    );
+    return resources;
+  },
+  fetchCurrentAgentResources: async () => {
+    const selectedAgent = get().selectedAgent;
+    if (!selectedAgent) throw new Error('No agent selected');
+    return await get().fetchAgentResources(selectedAgent.id);
+  },
+  handleUpdateAgentResource: async (updatedResource: TypedResource<ResourceType>) => {
+    const selectedAgent = get().selectedAgent;
+    if (!selectedAgent) return;
+    await suiteCore.db.agent_resources.create({
+      agent_id: selectedAgent.id,
+      resource_id: updatedResource.id,
+    });
+    await get().fetchAgentResources(selectedAgent.id);
+  },
+
   // Organizations
   organizations: [],
   setOrganizations: (organizations: AggregatedOrganization[]) => set({ organizations }),
@@ -250,6 +302,22 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
       ...organization,
       ...updatedOrganization,
     };
+  },
+
+  // Organization Resources
+  organizationResourceStatus: 'idle',
+  organizationResources: [],
+  setOrganizationResources: (resources: Resource[]) => set({ organizationResources: resources }),
+  fetchCurrentOrganizationResources: async () => {
+    const selectedOrganization = get().selectedOrganization;
+    if (!selectedOrganization) throw new Error('No organization selected');
+
+    set({ organizationResourceStatus: 'loading' });
+    const resources = await suiteCore.db.resources.getAllByFields({
+      organization_id: selectedOrganization.id,
+    });
+    set({ organizationResources: resources, organizationResourceStatus: 'idle' });
+    return resources;
   },
 
   // Workflows
@@ -338,7 +406,9 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
     }
   },
   resetDashboardState: () => {
-    set({
+    // Only reset state properties, not function properties
+    set(state => ({
+      ...state, // Keep all function properties intact
       authStatus: 'idle',
       admin: null,
       organizationStatus: 'idle',
@@ -346,6 +416,7 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
       organizationAgents: [],
       organizationUsers: [],
       organizationWorkflows: [],
+      organizationResources: [],
       selectedAgent: null,
       selectedAgentUser: null,
       currentConversationMessages: [],
@@ -354,6 +425,7 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
       agentUsers: [],
       agentStatus: 'idle',
       organizationUserStatus: 'idle',
-    });
+      organizationResourceStatus: 'idle',
+    }));
   },
 }));

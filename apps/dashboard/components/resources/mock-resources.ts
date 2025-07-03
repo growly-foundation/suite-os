@@ -10,7 +10,7 @@ export const mockResources: TypedResource<ResourceType>[] = [
     organization_id: 'org-123',
     value: {
       address: '0x1234567890abcdef1234567890abcdef12345678',
-      network: 'ethereum',
+      network: 'mainnet',
       abi: [],
     },
   },
@@ -24,6 +24,8 @@ export const mockResources: TypedResource<ResourceType>[] = [
     value: {
       documentUrl: 'https://ethereum.org/en/developers/docs/',
       documentType: 'pdf',
+      documentName: 'Ethereum Developer Documentation',
+      documentSize: 1024,
     },
   },
   {
@@ -35,7 +37,7 @@ export const mockResources: TypedResource<ResourceType>[] = [
     organization_id: 'org-123',
     value: {
       url: 'https://ethereum.org/en/developers/docs/',
-      title: 'Ethereum Developer Documentation',
+      documentName: 'Ethereum Developer Documentation',
     },
   },
   {
@@ -48,6 +50,8 @@ export const mockResources: TypedResource<ResourceType>[] = [
     value: {
       documentUrl: 'https://ethereum.org/en/developers/docs/',
       documentType: 'pdf',
+      documentName: 'Ethereum Developer Documentation',
+      documentSize: 1024,
     },
   },
   {
@@ -60,6 +64,8 @@ export const mockResources: TypedResource<ResourceType>[] = [
     value: {
       documentUrl: 'https://ethereum.org/en/developers/docs/',
       documentType: 'pdf',
+      documentName: 'Ethereum Developer Documentation',
+      documentSize: 1024,
     },
   },
 ];

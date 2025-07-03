@@ -8,6 +8,9 @@ export default function ResourceDemoPage() {
     <ResourcePageLayout
       title="Resources Demo"
       resources={mockResources}
+      onResourceUpdate={updatedResource => {
+        console.log('Update resource:', updatedResource);
+      }}
       onResourceDelete={id => {
         console.log('Delete resource:', id);
       }}

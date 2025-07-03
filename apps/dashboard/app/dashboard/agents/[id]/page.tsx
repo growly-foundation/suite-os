@@ -169,7 +169,7 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
           <AgentWorkflows agent={agent} onUpdate={handleAgentUpdate} />
         </TabsContent>
         <TabsContent value="resources">
-          <AgentResources />
+          <AgentResources agent={agent} onUpdate={handleAgentUpdate} />
         </TabsContent>
       </Tabs>
       <IntegrationGuideDialog

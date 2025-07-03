@@ -9,12 +9,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
 
-import { TypedResource } from '@getgrowly/core';
-
-type TextValue = {
-  content: string;
-  format?: 'plain' | 'markdown' | 'html';
-};
+import { TextValue } from '@getgrowly/core';
 
 interface TextFormProps {
   onChange: (data: TextValue) => void;
@@ -42,7 +37,7 @@ export function TextForm({ onChange, initialData }: TextFormProps) {
           id="content"
           value={formData.content}
           onChange={e => handleChange({ content: e.target.value })}
-          className="min-h-[200px]"
+          className="min-h-[200px] text-sm"
           placeholder="Enter your text content here..."
         />
       </div>
@@ -50,7 +45,7 @@ export function TextForm({ onChange, initialData }: TextFormProps) {
         <Label htmlFor="format">Format</Label>
         <Select
           value={formData.format}
-          onValueChange={value => handleChange({ format: value as 'plain' | 'markdown' | 'html' })}>
+          onValueChange={value => handleChange({ format: value as 'plain' | 'markdown' })}>
           <SelectTrigger>
             <SelectValue placeholder="Select format" />
           </SelectTrigger>
