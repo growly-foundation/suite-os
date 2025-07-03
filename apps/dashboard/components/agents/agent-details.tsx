@@ -44,8 +44,11 @@ export function AgentDetails({
             CONTRACT_EXTRA_SIZE_COST
         );
       case 'link':
+      case 'link': {
         const linkValue = resource.value as LinkValue;
-        return countBytes(linkValue.url + LINK_EXTRA_SIZE_COST);
+-        return countBytes(linkValue.url + LINK_EXTRA_SIZE_COST);
++        return countBytes(linkValue.url + (linkValue.description || '')) + LINK_EXTRA_SIZE_COST;
+      }
       case 'document':
         const documentValue = resource.value as DocumentValue;
         return countBytes(documentValue.documentUrl);
