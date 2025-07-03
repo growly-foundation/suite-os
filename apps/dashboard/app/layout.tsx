@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     siteName: 'Growly Suite Dashboard',
     images: [
       {
-        url: 'https://getgrowly.app/banners/dashboard-banner.png',
+        url: 'https://getsuite.io/banners/dashboard-banner.png',
         width: 1200,
         height: 630,
         alt: 'Growly Suite Dashboard',
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     title:
       'Growly Suite Dashboard | Manage your AI agents for Growly Suite and workflows with ease.',
     description: 'Manage your AI agents for Growly Suite and workflows with ease.',
-    images: ['https://getgrowly.app/banners/dashboard-banner.png'],
+    images: ['https://getsuite.io/banners/dashboard-banner.png'],
   },
   robots: {
     index: true,

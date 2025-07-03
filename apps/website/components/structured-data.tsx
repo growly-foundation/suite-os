@@ -30,10 +30,10 @@ export function StructuredData() {
       'Enterprise Knowledge Base',
       'Prompt Templates',
     ],
-    screenshot: 'https://getgrowly.app/banners/suite-preview-banner.png',
+    screenshot: 'https://getsuite.io/banners/suite-preview-banner.png',
     softwareVersion: '1.0',
     applicationSubCategory: 'DeFi, Web3, Enterprise',
-    downloadUrl: 'https://getgrowly.app',
+    downloadUrl: 'https://getsuite.io',
   };
 
   // Organization schema
@@ -41,8 +41,8 @@ export function StructuredData() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'Growly',
-    url: 'https://getgrowly.app',
-    logo: 'https://getgrowly.app/logo.png',
+    url: 'https://getsuite.io',
+    logo: 'https://getsuite.io/logo.png',
     sameAs: ['https://twitter.com/getgrowly', 'https://github.com/getgrowly'],
     description: 'Provider of enterprise AI solutions for Web3 and DeFi applications.',
   };

@@ -13,8 +13,8 @@ export function constructMetadata({
   path = '',
   image = '/banners/suite-preview-banner.png',
 }: MetadataProps = {}): Metadata {
-  const url = `https://getgrowly.app${path}`;
-  const imageUrl = image.startsWith('http') ? image : `https://getgrowly.app${image}`;
+  const url = `https://getsuite.io${path}`;
+  const imageUrl = image.startsWith('http') ? image : `https://getsuite.io${image}`;
 
   return {
     title,
@@ -24,11 +24,11 @@ export function constructMetadata({
     authors: [{ name: 'Growly Team' }],
     creator: 'Growly',
     publisher: 'Growly',
-    metadataBase: new URL('https://getgrowly.app'),
+    metadataBase: new URL('https://getsuite.io'),
     alternates: {
       canonical: url,
       languages: {
-        'en-US': `https://getgrowly.app/en-us${path}`,
+        'en-US': `https://getsuite.io/en-us${path}`,
       },
     },
     openGraph: {

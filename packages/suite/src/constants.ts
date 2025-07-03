@@ -1,1 +1,1 @@
-export const API_URL = 'https://api.getgrowly.app';
+export const API_URL = 'https://api.getsuite.io';
