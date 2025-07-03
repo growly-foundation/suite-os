@@ -96,13 +96,6 @@ export type Database = {
             referencedRelation: "agents"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "agent_resources_resource_id_fkey"
-            columns: ["resource_id"]
-            isOneToOne: false
-            referencedRelation: "resources"
-            referencedColumns: ["id"]
-          },
         ]
       }
       agent_workflows: {
@@ -697,7 +690,7 @@ export type Database = {
     }
     Enums: {
       conversation_role: "user" | "assistant" | "system" | "admin"
-      resource_type: "contract" | "link" | "document"
+      resource_type: "contract" | "link" | "document" | "text"
       status: "active" | "inactive"
       sync_status: "pending" | "running" | "completed" | "failed"
     }
@@ -816,7 +809,7 @@ export const Constants = {
   public: {
     Enums: {
       conversation_role: ["user", "assistant", "system", "admin"],
-      resource_type: ["contract", "link", "document"],
+      resource_type: ["contract", "link", "document", "text"],
       status: ["active", "inactive"],
       sync_status: ["pending", "running", "completed", "failed"],
     },

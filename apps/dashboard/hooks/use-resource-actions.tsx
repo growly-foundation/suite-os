@@ -1,14 +1,12 @@
 import { suiteCore } from '@/core/suite';
 import { useCallback, useEffect, useState } from 'react';
 
-import { ParsedResource, ResourceType, Status } from '@getgrowly/core';
+import { ParsedResource, ResourceType, Status, TypedResourceValue } from '@getgrowly/core';
 
 import { useDashboardState } from './use-dashboard';
 
-type ResourceInput = {
+export type ResourceInput = TypedResourceValue<ResourceType> & {
   name: string;
-  type: ResourceType;
-  value: any;
   status: Status;
   organization_id: string;
 };

@@ -4,21 +4,13 @@ import { useComponent } from '@/components/providers/component-provider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ADD_RESOURCE_DRAWER } from '@/constants/component-registry';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { useResourceActions } from '@/hooks/use-resource-actions';
+import { ResourceInput, useResourceActions } from '@/hooks/use-resource-actions';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 
-import { ResourceType, Status } from '@getgrowly/core';
+import { ResourceType, Status, TypedResourceValue } from '@getgrowly/core';
 
 import { ResourceForm } from './forms/resource-form';
-
-type ParsedResourceInsert = {
-  name: string;
-  type: ResourceType;
-  value: Record<string, any>;
-  status: Status;
-  organization_id: string;
-};
 
 export function AddResourceDrawer() {
   const { selectedOrganization } = useDashboardState();
@@ -26,11 +18,11 @@ export function AddResourceDrawer() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { isOpen, close } = useComponent(ADD_RESOURCE_DRAWER);
 
-  const handleSubmit = async (data: {
-    name: string;
-    type: ResourceType;
-    value: Record<string, any>;
-  }) => {
+  async function handleSubmit<T extends ResourceType>(
+    data: TypedResourceValue<T> & {
+      name: string;
+    }
+  ) {
     if (!selectedOrganization?.id) {
       toast.error('No organization selected');
       return;
@@ -38,7 +30,7 @@ export function AddResourceDrawer() {
 
     setIsSubmitting(true);
     try {
-      const resourceData: ParsedResourceInsert = {
+      const resourceData: ResourceInput = {
         name: data.name,
         type: data.type,
         value: data.value,
@@ -57,7 +49,7 @@ export function AddResourceDrawer() {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && close()}>

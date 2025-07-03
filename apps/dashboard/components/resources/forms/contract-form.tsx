@@ -4,21 +4,21 @@ import { Label } from '@/components/ui/label';
 import { Network } from 'lucide-react';
 import { useState } from 'react';
 
-import { ContractResourceValue } from '@getgrowly/core';
+import { TypedResource } from '@getgrowly/core';
 
 interface ContractFormProps {
-  onChange: (data: ContractResourceValue['value']) => void;
-  initialData?: Partial<ContractResourceValue['value']>;
+  onChange: (data: TypedResource<'contract'>['value']) => void;
+  initialData?: Partial<TypedResource<'contract'>['value']>;
 }
 
 export function ContractForm({ onChange, initialData }: ContractFormProps) {
-  const [formData, setFormData] = useState<ContractResourceValue['value']>({
+  const [formData, setFormData] = useState<TypedResource<'contract'>['value']>({
     address: '',
     network: 'ethereum',
     ...initialData,
   });
 
-  const handleChange = (updates: Partial<ContractResourceValue['value']>) => {
+  const handleChange = (updates: Partial<TypedResource<'contract'>['value']>) => {
     setFormData(prev => {
       const updatedData = {
         ...prev,

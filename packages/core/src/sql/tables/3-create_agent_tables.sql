@@ -2,7 +2,7 @@
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'resource_type') THEN
-        CREATE TYPE resource_type AS ENUM ('contract', 'link', 'document');
+        CREATE TYPE resource_type AS ENUM ('contract', 'link', 'document', 'text');
     END IF;
 END
 $$;

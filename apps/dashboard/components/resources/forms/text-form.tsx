@@ -1,0 +1,66 @@
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { useState } from 'react';
+
+import { TypedResource } from '@getgrowly/core';
+
+type TextValue = {
+  content: string;
+  format?: 'plain' | 'markdown' | 'html';
+};
+
+interface TextFormProps {
+  onChange: (data: TextValue) => void;
+  initialData?: Partial<TextValue>;
+}
+
+export function TextForm({ onChange, initialData }: TextFormProps) {
+  const [formData, setFormData] = useState<TextValue>({
+    content: '',
+    format: 'plain',
+    ...(initialData || {}),
+  });
+
+  const handleChange = (updates: Partial<TextValue>) => {
+    const newData = { ...formData, ...updates };
+    setFormData(newData);
+    onChange(newData);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="content">Content</Label>
+        <Textarea
+          id="content"
+          value={formData.content}
+          onChange={e => handleChange({ content: e.target.value })}
+          className="min-h-[200px]"
+          placeholder="Enter your text content here..."
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="format">Format</Label>
+        <Select
+          value={formData.format}
+          onValueChange={value => handleChange({ format: value as 'plain' | 'markdown' | 'html' })}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select format" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="plain">Plain Text</SelectItem>
+            <SelectItem value="markdown">Markdown</SelectItem>
+            <SelectItem value="html">HTML</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+}

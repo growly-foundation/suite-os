@@ -1,14 +1,21 @@
-import { Code, FileText, Globe } from 'lucide-react';
+import { Code, FileText, Globe, Text as TextIcon } from 'lucide-react';
 
 import { ResourceType } from '@getgrowly/core';
 
+import { IconContainer } from '../ui/icon-container';
+
 export const ResourceIcon = ({ type }: { type: ResourceType }) => {
-  switch (type) {
-    case 'contract':
-      return <Code className="h-4 w-4" />;
-    case 'link':
-      return <Globe className="h-4 w-4" />;
-    case 'document':
-      return <FileText className="h-4 w-4" />;
-  }
+  const icon = (type: ResourceType) => {
+    switch (type) {
+      case 'contract':
+        return <Code className="h-3 w-3" />;
+      case 'link':
+        return <Globe className="h-3 w-3" />;
+      case 'document':
+        return <FileText className="h-3 w-3" />;
+      case 'text':
+        return <TextIcon className="h-3 w-3" />;
+    }
+  };
+  return <IconContainer className="bg-primary text-white">{icon(type)}</IconContainer>;
 };

@@ -19,6 +19,7 @@ import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
 import { WorkflowSmallCard } from '../workflows/workflow-small-card';
 import { NewWorkflowButton } from './new-workflow-button';
+import { PrimaryButton } from './primary-button';
 
 type Props = {
   agent: AggregatedAgent;
@@ -61,10 +62,10 @@ const AssignWorkflowButton = ({ agent, onUpdate }: Props) => {
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button className="rounded-full" disabled={isSaving}>
+        <PrimaryButton disabled={isSaving}>
           <Plus className="mr-2 h-4 w-4" />
           Assign Workflows
-        </Button>
+        </PrimaryButton>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>

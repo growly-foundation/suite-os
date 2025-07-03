@@ -2,14 +2,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Code, FileText, Link as LinkIcon } from 'lucide-react';
+import { Code, FileText, Link as LinkIcon, Text as TextIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { ResourceType, ResourceValue, ResourceValueValue } from '@getgrowly/core';
+import { ResourceType, ResourceValue } from '@getgrowly/core';
 
 import { ContractForm } from './contract-form';
 import { DocumentForm } from './document-form';
 import { LinkForm } from './link-form';
+import { TextForm } from './text-form';
 
 interface ResourceFormProps {
   onSubmit: (data: { name: string } & ResourceValue) => void;
@@ -20,14 +21,14 @@ interface ResourceFormProps {
 type ResourceFormState = {
   type: ResourceType;
   name: string;
-  formData: ResourceValueValue | null;
+  formData: any;
 };
 
 export function ResourceForm({ onSubmit, isSubmitting, onCancel }: ResourceFormProps) {
   const [state, setState] = useState<ResourceFormState>({
-    type: 'document',
+    type: 'text',
     name: '',
-    formData: null,
+    formData: { content: '', format: 'plain' },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -45,7 +46,7 @@ export function ResourceForm({ onSubmit, isSubmitting, onCancel }: ResourceFormP
     setState(prev => ({
       ...prev,
       type,
-      formData: null, // Reset form data when type changes
+      formData: null,
     }));
   };
 
@@ -64,28 +65,12 @@ export function ResourceForm({ onSubmit, isSubmitting, onCancel }: ResourceFormP
         return <LinkForm onChange={handleFormDataChange} />;
       case 'document':
         return <DocumentForm onChange={handleFormDataChange} />;
+      case 'text':
+        return <TextForm onChange={handleFormDataChange} />;
       default:
         return null;
     }
   };
-
-  const resourceTabs = [
-    {
-      id: 'contract',
-      label: 'Contract',
-      icon: <Code className="h-4 w-4 mr-2" />,
-    },
-    {
-      id: 'link',
-      label: 'Link',
-      icon: <LinkIcon className="h-4 w-4 mr-2" />,
-    },
-    {
-      id: 'document',
-      label: 'Document',
-      icon: <FileText className="h-4 w-4 mr-2" />,
-    },
-  ];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -94,19 +79,25 @@ export function ResourceForm({ onSubmit, isSubmitting, onCancel }: ResourceFormP
           value={state.type}
           onValueChange={value => handleTypeChange(value as ResourceType)}
           className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            {resourceTabs.map(tab => (
-              <TabsTrigger
-                key={tab.id}
-                value={tab.id}
-                className="flex items-center justify-center gap-2">
-                {tab.icon}
-                {tab.label}
-              </TabsTrigger>
-            ))}
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="text" onClick={() => handleTypeChange('text')}>
+              <TextIcon className="mr-2 h-4 w-4" />
+              Text
+            </TabsTrigger>
+            <TabsTrigger value="document" onClick={() => handleTypeChange('document')}>
+              <FileText className="mr-2 h-4 w-4" />
+              Document
+            </TabsTrigger>
+            <TabsTrigger value="link" onClick={() => handleTypeChange('link')}>
+              <LinkIcon className="mr-2 h-4 w-4" />
+              Link
+            </TabsTrigger>
+            <TabsTrigger value="contract" onClick={() => handleTypeChange('contract')}>
+              <Code className="mr-2 h-4 w-4" />
+              Contract
+            </TabsTrigger>
           </TabsList>
         </Tabs>
-
         <div className="space-y-2">
           <Label htmlFor="name">Name</Label>
           <Input
@@ -117,15 +108,13 @@ export function ResourceForm({ onSubmit, isSubmitting, onCancel }: ResourceFormP
             required
           />
         </div>
-
         {renderForm()}
       </div>
-
       <div className="flex justify-end space-x-2">
         <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
           Cancel
         </Button>
-        <Button type="submit" disabled={isSubmitting || !state.formData}>
+        <Button type="submit" size="sm" disabled={isSubmitting || !state.formData}>
           {isSubmitting ? 'Adding...' : 'Add Resource'}
         </Button>
       </div>
