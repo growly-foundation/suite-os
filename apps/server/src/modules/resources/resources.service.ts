@@ -43,7 +43,19 @@ export class ResourcesService {
   }
 
   async uploadDocument(file: any, documentType: string) {
+    // Validate file size (e.g., 10MB limit)
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    if (file.buffer.length > MAX_FILE_SIZE) {
+      throw new Error('File size exceeds 10MB limit');
+    }
+    
+    // Validate file type
+    const allowedTypes = ['pdf', 'docx', 'csv', 'txt'];
     const fileExt = file.originalname.split('.').pop();
+    if (!allowedTypes.includes(fileExt.toLowerCase())) {
+      throw new Error(`File type ${fileExt} is not allowed`);
+    }
+    
     const fileName = `${uuidv4()}.${fileExt}`;
     const filePath = `${fileName}`;
 
