@@ -1,24 +1,23 @@
-import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
 
-import { LinkResourceValue } from '@getgrowly/core';
+import { LinkValue } from '@getgrowly/core';
 
 interface LinkFormProps {
-  onChange: (data: LinkResourceValue['value']) => void;
-  initialData?: Partial<LinkResourceValue['value']>;
+  onChange: (data: LinkValue) => void;
+  initialData?: Partial<LinkValue>;
 }
 
 export function LinkForm({ onChange, initialData }: LinkFormProps) {
-  const [formData, setFormData] = useState<LinkResourceValue['value']>({
+  const [formData, setFormData] = useState<LinkValue>({
     url: '',
-    included_path: '',
-    exclude_path: '',
+    description: '',
     ...initialData,
   });
 
-  const handleChange = (updates: Partial<LinkResourceValue['value']>) => {
+  const handleChange = (updates: Partial<LinkValue>) => {
     setFormData(prev => {
       const updatedData = {
         ...prev,
@@ -31,45 +30,29 @@ export function LinkForm({ onChange, initialData }: LinkFormProps) {
 
   return (
     <div className="space-y-4">
-      <Card>
-        <CardContent className="pt-6 space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="url">URL</Label>
-            <Input
-              id="url"
-              type="url"
-              placeholder="https://example.com"
-              value={formData.url}
-              onChange={e => handleChange({ url: e.target.value })}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="included-path">Included Path (Optional)</Label>
-            <Input
-              id="included-path"
-              placeholder="/docs"
-              value={formData.included_path}
-              onChange={e => handleChange({ included_path: e.target.value })}
-            />
-            <p className="text-xs text-muted-foreground">
-              Only include pages under this path (e.g., /docs)
-            </p>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="exclude-path">Exclude Path (Optional)</Label>
-            <Input
-              id="exclude-path"
-              placeholder="/docs/archive"
-              value={formData.exclude_path}
-              onChange={e => handleChange({ exclude_path: e.target.value })}
-            />
-            <p className="text-xs text-muted-foreground">
-              Exclude pages under this path (e.g., /docs/archive)
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="space-y-2">
+        <Label htmlFor="url">URL</Label>
+        <Input
+          id="url"
+          type="url"
+          placeholder="https://example.com"
+          value={formData.url}
+          onChange={e => handleChange({ url: e.target.value })}
+          required
+        />
+        <p className="text-xs text-muted-foreground">The URL of the link</p>
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="description">Description (Optional)</Label>
+        <Textarea
+          id="description"
+          placeholder="Description"
+          className="text-sm"
+          value={formData.description}
+          onChange={e => handleChange({ description: e.target.value })}
+        />
+        <p className="text-xs text-muted-foreground">The description of the link</p>
+      </div>
     </div>
   );
 }

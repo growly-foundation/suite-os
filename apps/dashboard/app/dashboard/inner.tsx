@@ -289,7 +289,7 @@ export function DashboardInner() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
-            <Card className="col-span-1">
+            <Card className="col-span-1 h-fit">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
@@ -335,7 +335,7 @@ export function DashboardInner() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="col-span-2">
+            <Card className="col-span-2 h-fit">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">

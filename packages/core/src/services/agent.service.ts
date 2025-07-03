@@ -30,7 +30,7 @@ export class AgentService {
       : await this.agentDatabaseService.update(agent.id, payload);
 
     // Update associations and track visited workflows.
-    const visited: Record<string, boolean> = {};
+    const visitedWorkflows: Record<string, boolean> = {};
     for (const workflow of agent.workflows) {
       try {
         await this.agentWorkflowsDatabaseService.create({
@@ -38,10 +38,24 @@ export class AgentService {
           workflow_id: workflow.id,
           status: Status.Active,
         });
-        visited[workflow.id] = true;
+        visitedWorkflows[workflow.id] = true;
       } catch (error) {
-        console.log(error);
-        continue;
+        console.error('Failed to create agent-workflow association:', error);
+      }
+    }
+
+    // Update resources and track visited resources.
+    const visitedResources: Record<string, boolean> = {};
+    for (const resource of agent.resources) {
+      try {
+        await this.agentResourcesDatabaseService.create({
+          agent_id: updatedAgent.id,
+          resource_id: resource.id,
+          status: Status.Active,
+        });
+        visitedResources[resource.id] = true;
+      } catch (error) {
+        console.error('Failed to create agent-resource association:', error);
       }
     }
 
@@ -50,10 +64,22 @@ export class AgentService {
       agent_id: updatedAgent.id,
     });
     for (const workflow of existingWorkflows) {
-      if (visited[workflow.workflow_id]) continue;
+      if (visitedWorkflows[workflow.workflow_id]) continue;
       await this.agentWorkflowsDatabaseService.deleteByFields({
         agent_id: updatedAgent.id,
         workflow_id: workflow.workflow_id,
+      });
+    }
+
+    // Remove associations that are no longer in the list
+    const existingResources = await this.agentResourcesDatabaseService.getAllByFields({
+      agent_id: updatedAgent.id,
+    });
+    for (const resource of existingResources) {
+      if (visitedResources[resource.resource_id]) continue;
+      await this.agentResourcesDatabaseService.deleteByFields({
+        agent_id: updatedAgent.id,
+        resource_id: resource.resource_id,
       });
     }
     return {

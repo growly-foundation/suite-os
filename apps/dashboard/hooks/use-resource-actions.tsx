@@ -1,120 +1,125 @@
 import { suiteCore } from '@/core/suite';
+import { ResourceService } from '@/services/resource.service';
 import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
-import { ParsedResource, ResourceType, Status } from '@getgrowly/core';
+import {
+  ContractValue,
+  ParsedResource,
+  ParsedResourceInsert,
+  Resource,
+  ResourceType,
+  TypedResource,
+} from '@getgrowly/core';
 
 import { useDashboardState } from './use-dashboard';
 
-type ResourceInput = {
-  name: string;
-  type: ResourceType;
-  value: any;
-  status: Status;
-  organization_id: string;
-};
+export const useOrganizationResourceActions = () => {
+  const {
+    organizationResources,
+    setOrganizationResources,
+    fetchCurrentOrganizationResources,
+    organizationResourceStatus,
+  } = useDashboardState();
 
-export const useAgentResourceActions = () => {
-  const { selectedAgent } = useDashboardState();
-  const resourceActions = useResourceActions();
+  const actions = useResourceActions({
+    resources: organizationResources,
+    setResources: setOrganizationResources,
+  });
 
   useEffect(() => {
-    if (selectedAgent?.resources) {
-      resourceActions.setResources(selectedAgent.resources);
-    }
-  }, [selectedAgent?.resources]);
+    fetchCurrentOrganizationResources();
+  }, []);
 
   return {
-    ...resourceActions,
+    ...actions,
+    organizationResources,
+    setOrganizationResources,
+    organizationResourceStatus,
   };
 };
 
-export const useResourceActions = () => {
-  const [resources, setResources] = useState<ParsedResource[]>([]);
+export const useResourceActions = ({
+  resources,
+  setResources,
+}: {
+  resources: Resource[];
+  setResources: (resources: Resource[]) => void;
+}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const handleAddResource = useCallback(async (resource: ResourceInput) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const newResource = await suiteCore.db.resources.create(resource);
-      setResources(prevResources => {
-        // Ensure we're not duplicating the resource
-        if (prevResources.some(r => r.id === (newResource as ParsedResource).id)) {
-          return prevResources;
-        }
-        return [...prevResources, newResource as ParsedResource];
-      });
-      return newResource as ParsedResource;
-    } catch (err) {
-      console.error('Error creating resource:', err);
-      const error = err instanceof Error ? err : new Error('Failed to create resource');
-      setError(error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const handleUpdateResource = useCallback(
-    async (id: string, updates: Partial<Omit<ResourceInput, 'id' | 'created_at'>>) => {
+  const handleAddResource = useCallback(
+    async (resource: ParsedResourceInsert) => {
       setIsLoading(true);
       setError(null);
 
       try {
-        const updatedResource = await suiteCore.db.resources.update(id, updates);
-        setResources(prevResources =>
-          prevResources.map(resource =>
-            resource.id === id ? ({ ...resource, ...updatedResource } as ParsedResource) : resource
-          )
-        );
-        return updatedResource as ParsedResource;
+        const resourceWithABI = await getResourceWithABI(resource);
+        const newResource = await suiteCore.db.resources.create(resourceWithABI);
+        const updatedResources = [...resources, newResource as ParsedResource];
+        setResources(updatedResources);
+        toast.success('Resource created successfully');
+        return newResource as ParsedResource;
       } catch (err) {
-        console.error('Error updating resource:', err);
-        const error = err instanceof Error ? err : new Error('Failed to update resource');
+        const error = err instanceof Error ? err : new Error('Failed to create resource');
         setError(error);
         throw error;
       } finally {
         setIsLoading(false);
       }
     },
-    []
+    [resources]
   );
 
-  const handleDeleteResource = useCallback(async (id: string) => {
-    setIsLoading(true);
-    setError(null);
+  const handleDeleteResource = useCallback(
+    async (id: string) => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      await suiteCore.db.resources.delete(id);
-      setResources(prevResources => prevResources.filter(resource => resource.id !== id));
-    } catch (err) {
-      console.error('Error deleting resource:', err);
-      const error = err instanceof Error ? err : new Error('Failed to delete resource');
-      setError(error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Load resources for the current agent if needed
-  const { selectedAgent } = useDashboardState();
-
-  useEffect(() => {
-    if (selectedAgent?.resources) {
-      setResources(selectedAgent.resources);
-    }
-  }, [selectedAgent?.resources]);
+      try {
+        await suiteCore.db.resources.delete(id);
+        toast.success('Resource deleted successfully');
+        setResources(resources.filter(resource => resource.id !== id));
+      } catch (err) {
+        setError(error);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [resources]
+  );
 
   return {
-    resources,
-    setResources,
     isLoading,
     error,
     handleAddResource,
-    handleUpdateResource,
     handleDeleteResource,
   };
+};
+
+export const getResourceWithABI = async (updatedResource: TypedResource<ResourceType>) => {
+  if (updatedResource.type !== 'contract') {
+    return updatedResource;
+  }
+
+  const value = updatedResource.value as ContractValue;
+  try {
+    // Attempt to fetch the contract ABI
+    const abi = await ResourceService.getContractABI(value.address, value.network);
+    // Update the resource with the ABI
+    updatedResource = {
+      ...updatedResource,
+      value: {
+        ...value,
+        abi,
+      },
+    } as TypedResource<'contract'>;
+    return updatedResource;
+  } catch (abiError) {
+    console.error('Failed to fetch contract ABI:', abiError);
+    toast.error('Could not retrieve contract ABI. The contract may not be verified.');
+    return updatedResource;
+  }
 };

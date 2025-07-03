@@ -1,6 +1,5 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,14 +14,22 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { availableModels } from '@/constants/agents';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { Loader, PlusCircle, SaveIcon, X } from 'lucide-react';
+import { Loader, SaveIcon } from 'lucide-react';
 import type React from 'react';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
-import { AggregatedAgent, Status, Workflow } from '@getgrowly/core';
+import {
+  AggregatedAgent,
+  ParsedResource,
+  ResourceType,
+  Status,
+  TypedResource,
+  Workflow,
+} from '@getgrowly/core';
 
 import { PrimaryButton } from '../buttons/primary-button';
+import { ResourceListItem } from '../resources/resource-list-item';
 import { WorkflowSmallCard } from '../workflows/workflow-small-card';
 import { AgentModelCard } from './agent-model-card';
 
@@ -33,10 +40,13 @@ interface AgentFormProps {
 }
 
 export function AgentForm({ formData, setFormData, onSave }: AgentFormProps) {
-  const { organizationWorkflows, fetchOrganizationWorkflows } = useDashboardState();
+  const {
+    organizationWorkflows,
+    organizationResources,
+    fetchOrganizationWorkflows,
+    fetchCurrentOrganizationResources,
+  } = useDashboardState();
   const [isSaving, setIsSaving] = useState(false);
-
-  const [newResource, setNewResource] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -54,15 +64,6 @@ export function AgentForm({ formData, setFormData, onSave }: AgentFormProps) {
     setFormData(prev => ({ ...prev, model: value }));
   };
 
-  const addResource = () => {};
-
-  const removeResource = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      resources: prev.resources.filter((_, i) => i !== index),
-    }));
-  };
-
   const toggleWorkflow = (workflow: Workflow) => {
     setFormData(prev => {
       if (prev.workflows.some(w => w.id === workflow.id)) {
@@ -74,6 +75,22 @@ export function AgentForm({ formData, setFormData, onSave }: AgentFormProps) {
         return {
           ...prev,
           workflows: [...prev.workflows, workflow],
+        };
+      }
+    });
+  };
+
+  const toggleResource = (resource: TypedResource<ResourceType>) => {
+    setFormData(prev => {
+      if (prev.resources.some(r => r.id === resource.id)) {
+        return {
+          ...prev,
+          resources: prev.resources.filter(r => r.id !== resource.id) as ParsedResource[],
+        };
+      } else {
+        return {
+          ...prev,
+          resources: [...prev.resources, resource] as ParsedResource[],
         };
       }
     });
@@ -93,7 +110,14 @@ export function AgentForm({ formData, setFormData, onSave }: AgentFormProps) {
   };
 
   useEffect(() => {
-    fetchOrganizationWorkflows();
+    const fetchData = async () => {
+      try {
+        await Promise.all([fetchOrganizationWorkflows(), fetchCurrentOrganizationResources()]);
+      } catch (error) {
+        console.error('Failed to fetch organization data:', error);
+      }
+    };
+    fetchData();
   }, []);
 
   return (
@@ -169,49 +193,32 @@ export function AgentForm({ formData, setFormData, onSave }: AgentFormProps) {
       <div className="space-y-4">
         <div>
           <Label className="text-base">Resources</Label>
-          <p className="text-sm text-muted-foreground mb-2">
-            Add resources that this agent can access
-          </p>
-
-          <div className="flex space-x-2 mb-2">
-            <Input
-              value={newResource}
-              onChange={e => setNewResource(e.target.value)}
-              placeholder="Add a resource"
-              className="flex-1 bg-gray-50 dark:bg-gray-900"
-            />
-            <Button type="button" onClick={addResource} size="sm" variant="secondary">
-              <PlusCircle className="h-4 w-4 mr-1" /> Add
-            </Button>
-          </div>
-
-          <div className="flex flex-wrap gap-2 mt-2">
-            {formData.resources.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No resources added</p>
+          <p className="text-sm text-muted-foreground mb-2">Resources that this agent can access</p>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-2">
+            {organizationResources.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No resources available</p>
             ) : (
-              formData.resources.map((resource, index) => (
-                <Badge
-                  key={index}
-                  variant="secondary"
-                  className="flex items-center gap-1 px-3 py-1">
-                  {resource.name}
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-4 w-4 p-0 ml-1"
-                    onClick={() => removeResource(index)}>
-                    <X className="h-3 w-3" />
-                    <span className="sr-only">Remove</span>
-                  </Button>
-                </Badge>
+              organizationResources.map(resource => (
+                <ResourceListItem
+                  key={resource.id}
+                  resource={resource as TypedResource<ResourceType>}
+                  onClick={toggleResource}
+                  className={
+                    formData.resources.some(r => r.id === resource.id)
+                      ? 'border-primary bg-primary/5 text-primary dark:bg-primary/10 dark:text-primary'
+                      : ''
+                  }
+                  noPreview
+                />
               ))
             )}
           </div>
         </div>
         <div>
           <Label className="text-base">Workflows</Label>
-          <p className="text-sm text-muted-foreground mb-2"></p>
+          <p className="text-sm text-muted-foreground mb-2">
+            Workflows that the agent executes when triggered
+          </p>
 
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-2">
             {organizationWorkflows.length === 0 ? (

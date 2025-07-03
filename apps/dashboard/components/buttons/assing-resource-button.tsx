@@ -3,8 +3,15 @@ import { Loader2, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 
-import { AggregatedAgent, Workflow } from '@getgrowly/core';
+import {
+  AggregatedAgent,
+  ParsedResource,
+  Resource,
+  ResourceType,
+  TypedResource,
+} from '@getgrowly/core';
 
+import { ResourceListItem } from '../resources/resource-list-item';
 import { Button } from '../ui/button';
 import {
   Dialog,
@@ -17,93 +24,87 @@ import {
 } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
-import { WorkflowSmallCard } from '../workflows/workflow-small-card';
-import { NewWorkflowButton } from './new-workflow-button';
 import { PrimaryButton } from './primary-button';
 
 type Props = {
   agent: AggregatedAgent;
-  onUpdate: (agent: AggregatedAgent) => Promise<void>;
+  onUpdate: (agent: AggregatedAgent) => void;
 };
 
-const AssignWorkflowButton = ({ agent, onUpdate }: Props) => {
-  const { organizationWorkflows } = useDashboardState();
+const AssignResourceButton = ({ agent, onUpdate }: Props) => {
+  const { organizationResources } = useDashboardState();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedWorkflows, setSelectedWorkflows] = useState<Workflow[]>([...agent.workflows]);
+  const [selectedResources, setSelectedResources] = useState<Resource[]>(agent.resources);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Filter workflows by organization and search query.
-  const filteredWorkflows = organizationWorkflows.filter(
-    workflow =>
-      workflow.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (workflow.description &&
-        workflow.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  // Filter resources by organization and search query.
+  const filteredResources = organizationResources.filter(resource =>
+    resource.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleSaveWorkflows = async () => {
+  const handleSaveResources = async () => {
     setIsSaving(true);
     try {
       const updatedAgent = {
         ...agent,
-        workflows: selectedWorkflows,
+        resources: selectedResources as ParsedResource[],
       };
-      await onUpdate(updatedAgent);
+      onUpdate(updatedAgent);
     } catch (error) {
-      toast.error('Failed to update agent workflows');
+      toast.error('Failed to update agent resources');
     }
     setIsDialogOpen(false);
     setIsSaving(false);
   };
 
-  const isWorkflowAssigned = (workflowId: string) =>
-    selectedWorkflows.some(w => w.id === workflowId);
+  const isResourceAssigned = (resourceId: string) =>
+    selectedResources.some(r => r.id === resourceId);
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <PrimaryButton disabled={isSaving}>
           <Plus className="mr-2 h-4 w-4" />
-          Assign Workflows
+          Assign Resources
         </PrimaryButton>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Assign Workflows</DialogTitle>
+          <DialogTitle>Assign Resources</DialogTitle>
           <DialogDescription>
-            Select workflows to assign to this agent. The agent will be able to execute these
-            workflows.
+            Select resources to assign to this agent. The agent will be able to load these resources
+            to expand their capabilities.
           </DialogDescription>
         </DialogHeader>
 
         <div className="py-4 space-y-4">
           <Input
-            placeholder="Search workflows..."
+            placeholder="Search resources..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="mb-4"
           />
           <ScrollArea className="h-[300px] pr-4">
-            {filteredWorkflows.length === 0 ? (
+            {filteredResources.length === 0 ? (
               <div className="flex flex-col items-center justify-center">
-                <p className="text-sm text-muted-foreground text-center py-4">No workflows found</p>
-                <NewWorkflowButton />
+                <p className="text-sm text-muted-foreground text-center py-4">No resources found</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {filteredWorkflows.map(workflow => (
-                  <WorkflowSmallCard
-                    key={workflow.id}
-                    isSelected={isWorkflowAssigned(workflow.id)}
-                    workflow={workflow}
+                {filteredResources.map(resource => (
+                  <ResourceListItem
+                    key={resource.id}
+                    className={isResourceAssigned(resource.id) ? 'bg-primary/5' : ''}
+                    resource={resource as TypedResource<ResourceType>}
                     onClick={() => {
-                      let updatedWorkflows = selectedWorkflows;
-                      if (isWorkflowAssigned(workflow.id)) {
-                        updatedWorkflows = selectedWorkflows.filter(w => w.id !== workflow.id);
+                      let updatedResources = selectedResources;
+                      if (isResourceAssigned(resource.id)) {
+                        updatedResources = selectedResources.filter(r => r.id !== resource.id);
                       } else {
-                        updatedWorkflows = [...selectedWorkflows, workflow];
+                        updatedResources = [...selectedResources, resource];
                       }
-                      setSelectedWorkflows(updatedWorkflows);
+                      setSelectedResources(updatedResources);
                     }}
                   />
                 ))}
@@ -115,7 +116,7 @@ const AssignWorkflowButton = ({ agent, onUpdate }: Props) => {
           <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSaveWorkflows} disabled={isSaving}>
+          <Button onClick={handleSaveResources} disabled={isSaving}>
             {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isSaving ? 'Saving...' : 'Save'}
           </Button>
@@ -125,4 +126,4 @@ const AssignWorkflowButton = ({ agent, onUpdate }: Props) => {
   );
 };
 
-export default AssignWorkflowButton;
+export default AssignResourceButton;
