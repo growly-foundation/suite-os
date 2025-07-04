@@ -177,3 +177,188 @@ update_cursor(
 3. **Code Reuse**: Common functionality is centralized to avoid duplication
 4. **Safety First**: Always check the cursor before loading data, regardless of load type
 5. **Logging**: Comprehensive logging throughout the application
+
+# Blockchain Analytics API
+
+A high-performance FastAPI-based analytics API for blockchain data stored in Apache Iceberg tables. This API provides comprehensive analytics for blockchain addresses, including wallet interactions, contract usage, and transaction metrics.
+
+## Features
+
+- **Address Analytics**: Automatic detection of address type (wallet or contract) with tailored analytics
+- **Wallet Interactions**: Track how wallets interact with different contracts and dApps
+- **Contract Analytics**: Comprehensive metrics for contract usage including user segments and method distribution
+- **Time-Based Filtering**: Filter analytics by various time windows (24h, 7d, 30d, etc.)
+- **High Performance**: Built with PyIceberg and Polars for efficient data processing
+- **Modular Design**: Clean separation of concerns with dedicated modules for routes, analytics, and data access
+
+## Tech Stack
+
+- **FastAPI**: Modern, high-performance web framework for building APIs
+- **PyIceberg**: Python implementation of Apache Iceberg for efficient table access
+- **Polars**: High-performance DataFrame library for data manipulation
+- **Web3.py**: Library for interacting with Ethereum nodes
+- **AWS Glue**: Metadata catalog for Apache Iceberg tables
+- **S3**: Storage for Apache Iceberg data files
+
+## Installation
+
+1. Install dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. Configure your environment by creating a `.env` file:
+   ```
+   AWS_REGION=ap-southeast-1
+   ICEBERG_BUCKET=suite
+   ICEBERG_CATALOG=s3tablecatalog
+   WEB3_PROVIDER_URL=https://base.llamarpc.com
+   ```
+
+## Running the API
+
+### Development Mode
+
+```bash
+fastapi dev main.py
+```
+
+### Production Mode
+
+```bash
+fastapi run main.py
+```
+
+### Using the Start Script
+
+```bash
+chmod +x start_api.sh
+./start_api.sh
+```
+
+## API Endpoints
+
+### Core Endpoints
+
+- `GET /api/v1/health` - Health check endpoint
+- `GET /api/v1/address/{address}` - Get analytics for any blockchain address (automatically detects if it's a wallet or contract)
+- `GET /api/v1/debug/address/{address}` - Debug endpoint to check address normalization and contract detection
+
+### Wallet Endpoints
+
+- `GET /api/v1/wallet/{wallet_address}/interactions` - Get a wallet's interactions with different contracts/dApps
+
+### Contract Endpoints
+
+- `GET /api/v1/contract/{contract_address}/analytics` - Get comprehensive analytics for a contract
+- `GET /api/v1/contract/{contract_address}/addresses` - Get addresses that have interacted with a contract
+
+### Query Parameters
+
+All analytics endpoints support the following query parameters:
+
+- `chain_id` (int, default=1): Blockchain ID (1=Ethereum, 8453=Base, etc.)
+- `time_window` (string, optional): Time window for analytics. Valid values include:
+  - `24h` - Last 24 hours
+  - `48h` - Last 48 hours
+  - `7d` - Last 7 days
+  - `14d` - Last 14 days
+  - `30d` - Last 30 days
+  - `90d` - Last 90 days
+  - `180d` - Last 180 days
+  - `365d` - Last 365 days
+
+## Example API Requests
+
+### Get Analytics for a Wallet Address
+
+```bash
+curl -X GET "http://localhost:8000/api/v1/wallet/0x123456789abcdef/interactions?chain_id=8453&time_window=7d"
+```
+
+### Get Analytics for a Contract Address
+
+```bash
+curl -X GET "http://localhost:8000/api/v1/contract/0xa3dcf3ca587d9929d540868c924f208726dc9ab6/analytics?chain_id=8453&time_window=30d"
+```
+
+### Get Addresses Interacting with a Contract
+
+```bash
+curl -X GET "http://localhost:8000/api/v1/contract/0xa3dcf3ca587d9929d540868c924f208726dc9ab6/interacting-addresses?chain_id=8453&limit=100&offset=0"
+```
+
+## Project Structure
+
+```
+.
+├── api/                           # API module
+│   ├── __init__.py                # FastAPI app factory
+│   ├── dependencies.py            # FastAPI dependencies
+│   ├── models/                    # Pydantic models for API
+│   └── routes/                    # API route definitions
+│       ├── core.py                # Core API routes
+│       ├── wallet.py              # Wallet-specific routes
+│       └── contract.py            # Contract-specific routes
+├── analytics/                     # Analytics module
+│   └── blockchain_analytics.py    # Core analytics functions
+├── db/                            # Database module
+│   └── iceberg.py                 # Iceberg table operations
+├── static/                        # Static data
+│   └── contracts.py               # Known contract addresses
+├── utils/                         # Utility functions
+│   ├── aws_config.py              # AWS configuration
+│   ├── blockchain.py              # Blockchain utilities
+│   └── logging_config.py          # Logging configuration
+├── main.py                        # Application entry point
+└── requirements.txt               # Project dependencies
+```
+
+## Analytics Features
+
+### Wallet Analytics
+
+- **Contract Interactions**: List of contracts a wallet has interacted with
+- **Interaction Counts**: Number of transactions with each contract
+- **Direction Analysis**: Whether interactions are incoming, outgoing, or both
+- **Contract Metadata**: Name, category, and dApp for known contracts
+
+### Contract Analytics
+
+- **Basic Metrics**: Unique users, transaction count, total fees, total value
+- **Daily Activity**: Transaction count and unique users by day
+- **Top Users**: List of addresses with the most interactions
+- **User Segments**: Analysis of new vs returning users
+- **Method Distribution**: Breakdown of contract function calls
+
+## Adding Known Contracts
+
+You can add known contracts to the `static/contracts.py` file:
+
+```python
+KNOWN_CONTRACTS = {
+    # Chain ID: {contract_address: contract_info}
+    8453: {
+        "0x6cb442acf35158d5eda88fe602221b67b400be3e": {
+            "name": "Router",
+            "dapp": "Aerodrome",
+            "category": "DEX",
+        }
+        # Add more contracts here
+    }
+}
+```
+
+## Development
+
+### Adding New Routes
+
+1. Create a new route file in `api/routes/`
+2. Define your routes using FastAPI
+3. Import and include your router in `api/__init__.py`
+
+### Adding New Analytics
+
+1. Add your analytics function to `analytics/blockchain_analytics.py`
+2. Create appropriate API routes that use your analytics function
