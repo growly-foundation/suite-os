@@ -435,6 +435,7 @@ async def update_contract(
 async def get_contract(
     contract_address: constr(min_length=40, max_length=42),
     chain_id: int = Query(1, description="Blockchain ID (1=Ethereum, 8453=Base, etc.)"),
+    include_abi: bool = Query(False, description="Include ABI JSON in response"),
     catalog=Depends(get_catalog),
 ):
     """
@@ -454,7 +455,6 @@ async def get_contract(
         raise HTTPException(status_code=404, detail="Contract not found")
 
     # Remove ABI from response for brevity unless specifically requested
-    include_abi = False
     if not include_abi:
         contract.pop("abi_json", None)
 
