@@ -254,9 +254,28 @@ chmod +x start_api.sh
 
 ### Contract Endpoints
 
-- `GET /api/v1/contracts/{contract_address}/analytics` - Get comprehensive analytics for a contract
-- `GET /api/v1/contracts/{contract_address}/interacting-addresses` - Get addresses that have interacted with a contract
+- `GET /api/v1/contracts/{contract_address}/summary` - Get comprehensive analytics for a contract
+- `GET /api/v1/contracts/{contract_address}/interactions/addresses` - Get addresses that have interacted with a contract
+- `GET /api/v1/contracts/{contract_address}/interactions/functions` - Get detailed information about interactions with a specific function/method
 - `POST /api/v1/contracts` - Add a contract to the standardized contracts table
+
+#### Contract Interactions Endpoints
+
+The `/interactions` group provides detailed analysis of contract interactions:
+
+**`/interactions/addresses`**
+
+- Returns a paginated list of unique addresses that have interacted with the contract
+- Supports filtering by time window
+- Includes interaction counts, timestamps, and value transferred
+- Parameters: `chain_id`, `time_window`, `limit`, `offset`
+
+**`/interactions/functions`**
+
+- Returns detailed information about interactions with a specific contract function
+- Requires `function` query parameter to specify the function name
+- Shows which addresses called the function and their interaction patterns
+- Parameters: `function` (required), `chain_id`, `time_window`, `limit`, `offset`
 
 ### ETL Endpoints
 
@@ -289,13 +308,19 @@ curl -X GET "http://localhost:8000/api/v1/wallet/0x123456789abcdef/interactions?
 ### Get Analytics for a Contract Address
 
 ```bash
-curl -X GET "http://localhost:8000/api/v1/contract/0xa3dcf3ca587d9929d540868c924f208726dc9ab6/analytics?chain_id=8453&time_window=30d"
+curl -X GET "http://localhost:8000/api/v1/contract/0xa3dcf3ca587d9929d540868c924f208726dc9ab6/summary?chain_id=8453&time_window=30d"
 ```
 
 ### Get Addresses Interacting with a Contract
 
 ```bash
-curl -X GET "http://localhost:8000/api/v1/contract/0xa3dcf3ca587d9929d540868c924f208726dc9ab6/interacting-addresses?chain_id=8453&limit=100&offset=0"
+curl -X GET "http://localhost:8000/api/v1/contracts/0xa3dcf3ca587d9929d540868c924f208726dc9ab6/interactions/addresses?chain_id=8453&limit=100&offset=0"
+```
+
+### Get Interactions with a Specific Contract Function
+
+```bash
+curl -X GET "http://localhost:8000/api/v1/contracts/0xa3dcf3ca587d9929d540868c924f208726dc9ab6/interactions/functions?function=transfer&chain_id=8453&time_window=7d&limit=50"
 ```
 
 ### Sync Transactions for a Contract Address
@@ -406,5 +431,5 @@ KNOWN_CONTRACTS = {
 
 ### Adding New Analytics
 
-1. Add your analytics function to `analytics/blockchain_analytics.py`
+1. Add your analytics function to `analytics/`
 2. Create appropriate API routes that use your analytics function

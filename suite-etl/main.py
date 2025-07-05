@@ -7,13 +7,13 @@ Main entry point for the FastAPI application.
 
 import sys
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Add the project root directory to the Python path
 # This ensures that all modules can be imported regardless of how the script is run
 current_dir = Path(__file__).parent.absolute()
-sys.path.insert(0, str(current_dir))
-
-from dotenv import load_dotenv
+if str(current_dir) not in sys.path:
+    sys.path.insert(0, str(current_dir))
 
 # Load environment variables
 load_dotenv()

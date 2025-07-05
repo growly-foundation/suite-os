@@ -63,7 +63,9 @@ def load_transactions_with_safety(
         if load_type == "overwrite":
             overwrite_data(table, data, schema)
         elif load_type == "upsert":
-            upsert_data(table, data, schema)
+            upsert_data(
+                table, data, schema, join_cols=["chain_id", "block_number", "hash"]
+            )
         else:  # Default to append
             append_data(table, data, schema)
 

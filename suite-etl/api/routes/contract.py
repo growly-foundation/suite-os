@@ -11,18 +11,20 @@ import os
 from datetime import datetime
 import polars as pl
 
-from api.models.blockchain import (
+from api.models.raw_analytics import (
     ContractAnalyticsResponse,
     ContractInteractingAddressesResponse,
+    ContractFunctionInteractionsResponse,
 )
 from api.dependencies import get_catalog, validate_time_window
 from utils.blockchain import is_valid_address, is_contract_address, is_proxy_contract
 from utils.logging_config import get_logger
-from analytics.blockchain_analytics import (
+from analytics.contract_analytics import (
     get_contract_analytics,
     get_contract_interacting_addresses,
+    get_contract_function_interactions,
 )
-from db.iceberg import load_table, reorder_records, append_data, upsert_data
+from db.iceberg import load_table, reorder_records, upsert_data
 from providers.etherscan_provider import EtherscanProvider
 
 logger = get_logger(__name__)
@@ -50,7 +52,7 @@ class ContractUpdateRequest(BaseModel):
     is_proxy: Optional[bool] = Field(None, description="Update proxy status")
 
 
-@router.get("/{contract_address}/analytics")
+@router.get("/{contract_address}/summary")
 async def get_contract_usage(
     contract_address: constr(min_length=40, max_length=42),
     chain_id: int = Query(
@@ -93,8 +95,8 @@ async def get_contract_usage(
         return analytics
 
 
-@router.get("/{contract_address}/interacting-addresses")
-async def get_contract_interacting_addresses_api(
+@router.get("/{contract_address}/interactions/addresses")
+async def get_contract_interactions_addresses(
     contract_address: constr(min_length=40, max_length=42),
     chain_id: int = Query(
         1, description="Blockchain ID (1=Ethereum, 137=Polygon, etc.)"
@@ -143,8 +145,64 @@ async def get_contract_interacting_addresses_api(
         return result
 
 
+@router.get("/{contract_address}/interactions/functions")
+async def get_contract_interactions_functions(
+    contract_address: constr(min_length=40, max_length=42),
+    function: str = Query(..., description="Function name to analyze"),
+    chain_id: int = Query(
+        1, description="Blockchain ID (1=Ethereum, 137=Polygon, etc.)"
+    ),
+    time_window: Optional[str] = Query(
+        None, description="Time window (e.g., 24h, 7d, 30d)"
+    ),
+    limit: int = Query(
+        100, description="Maximum number of interactions to return", ge=1, le=1000
+    ),
+    offset: int = Query(0, description="Offset for pagination", ge=0),
+    catalog=Depends(get_catalog),
+):
+    """
+    Get detailed information about interactions with a specific function/method of a contract.
+    Returns addresses that called the function and their interaction details.
+    """
+    # Validate address
+    if not is_valid_address(contract_address):
+        raise HTTPException(status_code=400, detail="Invalid contract address")
+
+    # Validate time window
+    validate_time_window(time_window)
+
+    # Check that it's a contract address
+    if not is_contract_address(contract_address, chain_id):
+        raise HTTPException(
+            status_code=400, detail="The provided address is not a contract"
+        )
+
+    # Get function interactions
+    result = get_contract_function_interactions(
+        catalog, chain_id, contract_address, function, time_window, limit, offset
+    )
+
+    if not result:
+        raise HTTPException(
+            status_code=404,
+            detail="No data found for the contract address and function",
+        )
+
+    try:
+        # Try to validate with the Pydantic model
+        return ContractFunctionInteractionsResponse(**result)
+    except Exception as e:
+        # If validation fails, log the error and return the raw result
+        logger.error(f"Error validating contract function interactions: {e}")
+        return result
+
+
+###### Functions to interact with metadata contracts table ######
+
+
 # Helper function to get contract from database
-async def get_contract_from_db(catalog, chain_id, contract_address):
+def get_contract_from_db(catalog, chain_id, contract_address):
     """
     Get contract details from the database.
 
@@ -206,7 +264,7 @@ async def create_contract(request: ContractCreateRequest, catalog=Depends(get_ca
         raise HTTPException(status_code=500, detail="Failed to load contracts table")
 
     # Check if contract already exists
-    existing_contract = await get_contract_from_db(
+    existing_contract = get_contract_from_db(
         catalog, request.chain_id, contract_address
     )
 
@@ -279,7 +337,9 @@ async def create_contract(request: ContractCreateRequest, catalog=Depends(get_ca
         }
     except Exception as e:
         logger.error(f"Error adding contract to table: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to add contract: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to add contract: {str(e)}"
+        ) from e
 
 
 # Add PUT endpoint for updating existing contracts
@@ -303,7 +363,7 @@ async def update_contract(
     contract_address = contract_address.lower()
 
     # Check if contract exists
-    existing_contract = await get_contract_from_db(catalog, chain_id, contract_address)
+    existing_contract = get_contract_from_db(catalog, chain_id, contract_address)
     if not existing_contract:
         raise HTTPException(status_code=404, detail="Contract not found")
 
@@ -362,7 +422,7 @@ async def update_contract(
         logger.error(f"Error updating contract: {e}")
         raise HTTPException(
             status_code=500, detail=f"Failed to update contract: {str(e)}"
-        )
+        ) from e
 
 
 # Add GET endpoint to retrieve contract details
@@ -383,7 +443,8 @@ async def get_contract(
     contract_address = contract_address.lower()
 
     # Check if contract exists
-    contract = await get_contract_from_db(catalog, chain_id, contract_address)
+
+    contract = get_contract_from_db(catalog, chain_id, contract_address)
     if not contract:
         raise HTTPException(status_code=404, detail="Contract not found")
 

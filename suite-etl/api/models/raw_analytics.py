@@ -1,12 +1,12 @@
 """
-Blockchain API Models
+Raw analytics models
 
-This module defines Pydantic models for the blockchain API responses.
+This module defines Pydantic models for the raw analytics from the raw database.
 """
 
 from typing import List, Optional
 from datetime import date
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class ContractInteraction(BaseModel):
@@ -58,6 +58,8 @@ class MethodDistribution(BaseModel):
 
     function_name: str
     call_count: int
+    unique_addresses: List[str]
+    unique_address_count: int
 
 
 class ContractBasicMetrics(BaseModel):
@@ -102,3 +104,27 @@ class ContractInteractingAddressesResponse(BaseModel):
     offset: int
     limit: int
     addresses: List[AddressInteraction]
+
+
+class FunctionInteraction(BaseModel):
+    """Model for function interaction data."""
+
+    address: str
+    tx_count: int
+    first_interaction: str
+    last_interaction: str
+    total_value_eth: float
+
+
+class ContractFunctionInteractionsResponse(BaseModel):
+    """Response model for contract function interactions."""
+
+    contract_address: str
+    chain_id: int
+    function_name: str
+    time_window: Optional[str] = None
+    total_count: int
+    unique_address_count: int
+    offset: int
+    limit: int
+    interactions: List[FunctionInteraction]

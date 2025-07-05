@@ -10,6 +10,11 @@ Each contract has:
 - category: The category of the contract (e.g., DEX, Lending)
 """
 
+from utils.logging_config import get_logger
+from utils.blockchain import normalize_address_with_prefix
+
+logger = get_logger(__name__)
+
 # Dictionary of known contracts by chain_id and address
 # TODO: It should be queryable from the database
 KNOWN_CONTRACTS = {
@@ -83,7 +88,7 @@ def get_contract_info(chain_id, contract_address):
         if not isinstance(contract_address, str):
             return None
 
-        contract_address = "0x" + contract_address.lower()
+        contract_address = normalize_address_with_prefix(contract_address)
 
         # Get contracts for the chain
         chain_contracts = KNOWN_CONTRACTS.get(chain_id, {})
@@ -91,10 +96,6 @@ def get_contract_info(chain_id, contract_address):
         # Return contract info or None
         contract_info = chain_contracts.get(contract_address)
 
-        # For debugging
-        from utils.logging_config import get_logger
-
-        logger = get_logger(__name__)
         if contract_info:
             logger.info(
                 f"Found contract info for {chain_id}:{contract_address} - {contract_info.get('name')}"
@@ -139,7 +140,7 @@ def is_known_contract(chain_id, contract_address):
         if not isinstance(contract_address, str):
             return False
 
-        contract_address = contract_address.lower()
+        contract_address = normalize_address_with_prefix(contract_address)
 
         # For debugging
         from utils.logging_config import get_logger

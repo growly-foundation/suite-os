@@ -8,11 +8,11 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Query, Depends
 from pydantic import constr
 
-from api.models.blockchain import WalletInteractionsResponse
+from api.models.raw_analytics import WalletInteractionsResponse
 from api.dependencies import get_catalog, validate_time_window
 from utils.blockchain import is_valid_address, is_contract_address
 from utils.logging_config import get_logger
-from analytics.blockchain_analytics import get_wallet_contract_interactions
+from analytics.wallet_analytics import get_wallet_contract_interactions
 
 logger = get_logger(__name__)
 

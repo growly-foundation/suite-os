@@ -7,7 +7,6 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routes.core import router as core_router
 from api.routes.wallet import router as wallet_router
 from api.routes.contract import router as contract_router
 from api.routes.etl import router as etl_router
@@ -63,7 +62,6 @@ def create_app():
     )
 
     # Add routes
-    app.include_router(core_router)
     app.include_router(wallet_router)
     app.include_router(contract_router)
     app.include_router(etl_router)
