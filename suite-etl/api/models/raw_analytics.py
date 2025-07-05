@@ -71,7 +71,7 @@ class ContractBasicMetrics(BaseModel):
     total_value_eth: float
 
 
-class ContractAnalyticsResponse(BaseModel):
+class ContractSummaryResponse(BaseModel):
     """Response model for contract analytics."""
 
     basic_metrics: ContractBasicMetrics

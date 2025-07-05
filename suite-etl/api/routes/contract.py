@@ -5,14 +5,15 @@ This module defines FastAPI routes for contract analytics.
 """
 
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, HTTPException, Query, Depends, Body
 from pydantic import BaseModel, constr, Field
 import os
 from datetime import datetime
 import polars as pl
+from pyiceberg.expressions import EqualTo, And, Reference, literal
 
 from api.models.raw_analytics import (
-    ContractAnalyticsResponse,
+    ContractSummaryResponse,
     ContractInteractingAddressesResponse,
     ContractFunctionInteractionsResponse,
 )
@@ -20,8 +21,8 @@ from api.dependencies import get_catalog, validate_time_window
 from utils.blockchain import is_valid_address, is_contract_address, is_proxy_contract
 from utils.logging_config import get_logger
 from analytics.contract_analytics import (
-    get_contract_analytics,
-    get_contract_interacting_addresses,
+    get_contract_summary,
+    get_contract_addresses_interactions,
     get_contract_function_interactions,
 )
 from db.iceberg import load_table, reorder_records, upsert_data
@@ -53,7 +54,7 @@ class ContractUpdateRequest(BaseModel):
 
 
 @router.get("/{contract_address}/summary")
-async def get_contract_usage(
+async def get_summary(
     contract_address: constr(min_length=40, max_length=42),
     chain_id: int = Query(
         1, description="Blockchain ID (1=Ethereum, 137=Polygon, etc.)"
@@ -79,24 +80,24 @@ async def get_contract_usage(
             status_code=400, detail="The provided address is not a contract"
         )
 
-    # Get contract analytics
-    analytics = get_contract_analytics(catalog, chain_id, contract_address, time_window)
-    if not analytics:
+    # Get contract summary
+    summary = get_contract_summary(catalog, chain_id, contract_address, time_window)
+    if not summary:
         raise HTTPException(
             status_code=404, detail="No data found for the contract address"
         )
 
     try:
         # Try to validate with the Pydantic model
-        return ContractAnalyticsResponse(**analytics)
+        return ContractSummaryResponse(**summary)
     except Exception as e:
         # If validation fails, log the error and return the raw analytics
-        logger.error(f"Error validating contract analytics: {e}")
-        return analytics
+        logger.error(f"Error validating contract summary: {e}")
+        return summary
 
 
 @router.get("/{contract_address}/interactions/addresses")
-async def get_contract_interactions_addresses(
+async def get_addresses_interactions(
     contract_address: constr(min_length=40, max_length=42),
     chain_id: int = Query(
         1, description="Blockchain ID (1=Ethereum, 137=Polygon, etc.)"
@@ -127,7 +128,7 @@ async def get_contract_interactions_addresses(
         )
 
     # Get interacting addresses
-    result = get_contract_interacting_addresses(
+    result = get_contract_addresses_interactions(
         catalog, chain_id, contract_address, time_window, limit, offset
     )
 
@@ -146,7 +147,7 @@ async def get_contract_interactions_addresses(
 
 
 @router.get("/{contract_address}/interactions/functions")
-async def get_contract_interactions_functions(
+async def get_functions_interactions(
     contract_address: constr(min_length=40, max_length=42),
     function: str = Query(..., description="Function name to analyze"),
     chain_id: int = Query(
@@ -225,12 +226,14 @@ def get_contract_from_db(catalog, chain_id, contract_address):
 
     # Query the table
     try:
-        df = contracts_table.scan(
-            row_filter=(
-                (pl.col("chain_id") == chain_id)
-                & (pl.col("contract_address") == contract_address)
-            )
-        ).to_pandas()
+        # Use PyIceberg expressions for row_filter
+        chain_id_filter = EqualTo(Reference("chain_id"), literal(chain_id))
+        address_filter = EqualTo(
+            Reference("contract_address"), literal(contract_address)
+        )
+        combined_filter = And(chain_id_filter, address_filter)
+
+        df = contracts_table.scan(row_filter=combined_filter).to_pandas()
 
         if len(df) == 0:
             return None
@@ -347,7 +350,7 @@ async def create_contract(request: ContractCreateRequest, catalog=Depends(get_ca
 async def update_contract(
     contract_address: constr(min_length=40, max_length=42),
     chain_id: int = Query(1, description="Blockchain ID (1=Ethereum, 8453=Base, etc.)"),
-    request: ContractUpdateRequest = None,
+    request: Optional[ContractUpdateRequest] = Body(None),
     catalog=Depends(get_catalog),
 ):
     """
@@ -375,22 +378,24 @@ async def update_contract(
     # Update fields based on request
     updated_data = dict(existing_contract)
 
-    if request.label is not None:
-        updated_data["label"] = request.label
+    # Check if request body is provided
+    if request is not None:
+        if request.label is not None:
+            updated_data["label"] = request.label
 
-    if request.abi_json is not None:
-        updated_data["abi_json"] = request.abi_json
+        if request.abi_json is not None:
+            updated_data["abi_json"] = request.abi_json
 
-        # Re-check proxy status if ABI is updated
-        try:
-            updated_data["is_proxy"] = is_proxy_contract(
-                contract_address, request.abi_json, chain_id
-            )
-        except Exception as e:
-            logger.error(f"Error checking if contract is proxy: {e}")
+            # Re-check proxy status if ABI is updated
+            try:
+                updated_data["is_proxy"] = is_proxy_contract(
+                    contract_address, request.abi_json, chain_id
+                )
+            except Exception as e:
+                logger.error(f"Error checking if contract is proxy: {e}")
 
-    if request.is_proxy is not None:
-        updated_data["is_proxy"] = request.is_proxy
+        if request.is_proxy is not None:
+            updated_data["is_proxy"] = request.is_proxy
 
     # Update timestamp
     updated_data["updated_at"] = datetime.now()

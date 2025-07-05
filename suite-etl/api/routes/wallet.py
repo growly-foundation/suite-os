@@ -66,11 +66,6 @@ async def get_wallet_interactions(
     # Convert to response format
     interactions_list = interactions.to_dicts()
 
-    # Log the results
-    logger.info(
-        f"Found {len(interactions_list)} contract interactions for wallet {wallet_address}"
-    )
-
     return WalletInteractionsResponse(
         wallet_address=wallet_address,
         chain_id=chain_id,

@@ -12,8 +12,8 @@ from .wallet_analytics import get_wallet_contract_interactions
 
 # Import contract analytics functions
 from .contract_analytics import (
-    get_contract_analytics,
-    get_contract_interacting_addresses,
+    get_contract_summary,
+    get_contract_addresses_interactions,
     get_contract_function_interactions,
 )
 
@@ -22,7 +22,7 @@ __all__ = [
     # Wallet analytics
     "get_wallet_contract_interactions",
     # Contract analytics
-    "get_contract_analytics",
-    "get_contract_interacting_addresses",
+    "get_contract_summary",
+    "get_contract_addresses_interactions",
     "get_contract_function_interactions",
 ]

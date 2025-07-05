@@ -107,9 +107,6 @@ def get_contract_info(chain_id, contract_address):
             return None
     except Exception as e:
         # If anything goes wrong, return None
-        from utils.logging_config import get_logger
-
-        logger = get_logger(__name__)
         logger.error(f"Error in get_contract_info: {e}")
         return None
 
@@ -142,17 +139,11 @@ def is_known_contract(chain_id, contract_address):
 
         contract_address = normalize_address_with_prefix(contract_address)
 
-        # For debugging
-        from utils.logging_config import get_logger
-
-        logger = get_logger(__name__)
-
         # Get contract info using the enhanced function
-        chain_contracts = KNOWN_CONTRACTS.get(chain_id, {})
-        is_known = contract_address in chain_contracts
+        contract_info = get_contract_info(chain_id, contract_address)
+        is_known = contract_info is not None
 
         if is_known:
-            contract_info = chain_contracts.get(contract_address)
             logger.info(
                 f"Contract {contract_address} is known: {contract_info.get('name')}"
             )
@@ -162,9 +153,6 @@ def is_known_contract(chain_id, contract_address):
         return is_known
     except Exception as e:
         # If anything goes wrong, return False
-        from utils.logging_config import get_logger
-
-        logger = get_logger(__name__)
         logger.error(f"Error in is_known_contract: {e}")
         return False
 
@@ -193,25 +181,3 @@ def get_all_contracts(chain_id=None):
             }
 
     return all_contracts
-
-
-def debug_list_all_contracts():
-    """
-    Debug function to list all known contracts.
-
-    Returns:
-        str: A formatted string listing all known contracts
-    """
-    from utils.logging_config import get_logger
-
-    logger = get_logger(__name__)
-
-    result = []
-    for chain_id, contracts in KNOWN_CONTRACTS.items():
-        result.append(f"Chain ID: {chain_id}")
-        for address, info in contracts.items():
-            result.append(f"  {address} - {info.get('name')} ({info.get('dapp')})")
-
-    output = "\n".join(result)
-    logger.info(f"All known contracts:\n{output}")
-    return output

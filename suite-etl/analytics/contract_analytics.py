@@ -13,18 +13,10 @@ import polars as pl
 from utils.logging_config import get_logger
 from db.iceberg import load_table
 from utils.blockchain import (
-    get_time_window_filter,
     normalize_address,
     normalize_address_with_prefix,
 )
-from pyiceberg.expressions import (
-    GreaterThanOrEqual,
-    LessThanOrEqual,
-    And,
-    Reference,
-    EqualTo,
-    literal,
-)
+from analytics.helpers import _apply_time_window_filter
 
 logger = get_logger(__name__)
 
@@ -279,12 +271,9 @@ def _analyze_user_segments(query):
         return []
 
 
-def get_contract_analytics(catalog, chain_id, contract_address, time_window=None):
+def get_contract_summary(catalog, chain_id, contract_address, time_window=None):
     """
-    Get comprehensive analytics for a contract in a given time window.
-
-    For contract addresses, we look at the 'to' field to find transactions sent to the contract.
-    The 'from' field contains the wallets that interacted with the contract.
+    Get comprehensive analytics for a contract address.
 
     Args:
         catalog: Iceberg catalog
@@ -293,10 +282,8 @@ def get_contract_analytics(catalog, chain_id, contract_address, time_window=None
         time_window: Time window string ('24h', '48h', '7d', etc.) or None for all time
 
     Returns:
-        dict: Comprehensive analytics including:
-            - unique_users: Number of unique addresses that interacted with the contract
-            - transaction_count: Total number of transactions
-            - total_fees_eth: Total fees generated in ETH
+        dict: Dictionary containing:
+            - basic_metrics: Basic usage metrics (users, transactions, fees)
             - daily_activity: Transaction count aggregated by day
             - top_users: List of addresses with the most interactions
             - value_flow: Analysis of value flowing in/out of the contract
@@ -309,29 +296,10 @@ def get_contract_analytics(catalog, chain_id, contract_address, time_window=None
             logger.error("Failed to load transactions table")
             return None
 
-        # Get time window filter
-        start_time, end_time = get_time_window_filter(time_window)
-
-        # Convert datetime to date for filtering on block_date
-        start_date = start_time.date() if start_time else None
-        end_date = end_time.date() if end_time else None
-
-        # Build query with time filter if specified
-        query = table.scan()
-
-        # Filter by chain_id at the Iceberg level for better performance
-        chain_id_ref = Reference("chain_id")
-        query = query.filter(EqualTo(chain_id_ref, literal(chain_id)))
-
-        if start_date and end_date:
-            # Use block_date for partition pruning with proper literal types
-            block_date_ref = Reference("block_date")
-            start_filter = GreaterThanOrEqual(block_date_ref, literal(start_date))
-            end_filter = LessThanOrEqual(block_date_ref, literal(end_date))
-            date_filter = And(start_filter, end_filter)
-
-            # Apply the filter
-            query = query.filter(date_filter)
+        # Apply time window filter using helper function
+        query, start_time, end_time = _apply_time_window_filter(
+            table, chain_id, time_window
+        )
 
         # Convert to polars DataFrame - using correct conversion method
         arrow_table = query.to_arrow()
@@ -427,7 +395,7 @@ def get_contract_analytics(catalog, chain_id, contract_address, time_window=None
         return None
 
 
-def get_contract_interacting_addresses(
+def get_contract_addresses_interactions(
     catalog, chain_id, contract_address, time_window=None, limit=100, offset=0
 ):
     """
@@ -458,29 +426,10 @@ def get_contract_interacting_addresses(
             logger.error("Failed to load transactions table")
             return None
 
-        # Get time window filter
-        start_time, end_time = get_time_window_filter(time_window)
-
-        # Convert datetime to date for filtering on block_date
-        start_date = start_time.date() if start_time else None
-        end_date = end_time.date() if end_time else None
-
-        # Build query with time filter if specified
-        query = table.scan()
-
-        # Filter by chain_id at the Iceberg level for better performance
-        chain_id_ref = Reference("chain_id")
-        query = query.filter(EqualTo(chain_id_ref, literal(chain_id)))
-
-        if start_date and end_date:
-            # Use block_date for partition pruning with proper literal types
-            block_date_ref = Reference("block_date")
-            start_filter = GreaterThanOrEqual(block_date_ref, literal(start_date))
-            end_filter = LessThanOrEqual(block_date_ref, literal(end_date))
-            date_filter = And(start_filter, end_filter)
-
-            # Apply the filter
-            query = query.filter(date_filter)
+        # Apply time window filter using helper function
+        query, start_time, end_time = _apply_time_window_filter(
+            table, chain_id, time_window
+        )
 
         # Convert to polars DataFrame - using correct conversion method
         arrow_table = query.to_arrow()
@@ -654,15 +603,10 @@ def get_contract_function_interactions(
             - contract_address: The contract address
             - chain_id: The chain ID
             - function_name: The function name
-            - time_window: The time window
-            - total_count: Total number of interactions with this function
+            - time_window: The time window used
+            - total_count: Total number of interactions
             - unique_address_count: Number of unique addresses that called this function
-            - interactions: List of interaction details including:
-                - address: The wallet address that called the function
-                - tx_count: Number of times this address called the function
-                - first_interaction: Timestamp of first interaction
-                - last_interaction: Timestamp of last interaction
-                - total_value_eth: Total value transferred in these interactions
+            - interactions: List of interaction details
     """
     try:
         # Load transactions table
@@ -671,29 +615,10 @@ def get_contract_function_interactions(
             logger.error("Failed to load transactions table")
             return None
 
-        # Get time window filter
-        start_time, end_time = get_time_window_filter(time_window)
-
-        # Convert datetime to date for filtering on block_date
-        start_date = start_time.date() if start_time else None
-        end_date = end_time.date() if end_time else None
-
-        # Build query with time filter if specified
-        query = table.scan()
-
-        # Filter by chain_id at the Iceberg level for better performance
-        chain_id_ref = Reference("chain_id")
-        query = query.filter(EqualTo(chain_id_ref, literal(chain_id)))
-
-        if start_date and end_date:
-            # Use block_date for partition pruning with proper literal types
-            block_date_ref = Reference("block_date")
-            start_filter = GreaterThanOrEqual(block_date_ref, literal(start_date))
-            end_filter = LessThanOrEqual(block_date_ref, literal(end_date))
-            date_filter = And(start_filter, end_filter)
-
-            # Apply the filter
-            query = query.filter(date_filter)
+        # Apply time window filter using helper function
+        query, start_time, end_time = _apply_time_window_filter(
+            table, chain_id, time_window
+        )
 
         # Convert to polars DataFrame - using correct conversion method
         arrow_table = query.to_arrow()

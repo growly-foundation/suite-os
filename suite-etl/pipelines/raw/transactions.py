@@ -7,7 +7,6 @@ This module provides functions for interacting with the transactions table:
 - Processing transactions
 """
 
-import pyarrow as pa
 import traceback
 from db.iceberg import (
     load_table,
