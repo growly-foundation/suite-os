@@ -321,3 +321,50 @@ class EtherscanProvider:
         }
         logger.debug(f"Provider info: {info}")
         return info
+
+    async def get_contract_abi(self, address: str, chain_id: int) -> str:
+        """
+        Fetch contract ABI from Etherscan API.
+
+        Args:
+            address: Contract address
+            chain_id: Blockchain chain ID (1 for Ethereum mainnet, 8453 for Base)
+
+        Returns:
+            Contract ABI as a JSON string, or empty JSON object string if not found
+        """
+        logger.info(f"Fetching ABI for contract {address} on chain {chain_id}")
+
+        # Only Ethereum mainnet and Base are supported
+        if chain_id not in [1, 8453]:
+            logger.warning(f"Chain ID {chain_id} not supported for ABI fetching")
+            return "{}"
+
+        params = {
+            "chainid": chain_id,
+            "module": "contract",
+            "action": "getabi",
+            "address": address,
+            "apikey": self.api_key,
+        }
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(self.base_url, params=params) as response:
+                    if response.status != 200:
+                        logger.error(
+                            f"API request failed with status {response.status}"
+                        )
+                        return "{}"
+
+                    data = await response.json()
+
+                    if data.get("status") == "1" and data.get("message") == "OK":
+                        logger.info(f"Successfully fetched ABI for contract {address}")
+                        return data.get("result", "{}")
+                    else:
+                        logger.warning(f"Etherscan API error: {data.get('message')}")
+                        return "{}"
+        except Exception as e:
+            logger.error(f"Error fetching ABI from Etherscan: {e}")
+            return "{}"

@@ -4,37 +4,33 @@ API Dependencies
 This module defines dependencies for FastAPI routes.
 """
 
-from fastapi import Depends, HTTPException
-import os
+from fastapi import HTTPException, Request
 
-from utils.aws_config import initialize_catalog
 from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
-
-# Environment variables
-AWS_REGION = os.getenv("AWS_REGION", "ap-southeast-1")
-ICEBERG_BUCKET = os.getenv("ICEBERG_BUCKET", "suite")
-ICEBERG_CATALOG = os.getenv("ICEBERG_CATALOG", "s3tablescatalog")
 
 # Valid time windows for filtering
 VALID_TIME_WINDOWS = ["24h", "48h", "7d", "14d", "30d", "90d", "180d", "365d"]
 
 
-def get_catalog():
+def get_catalog(request: Request):
     """
-    Dependency to get the Iceberg catalog.
+    Dependency to get the Iceberg catalog from app.state.
+
+    Args:
+        request: FastAPI request object
 
     Returns:
         Iceberg catalog object
 
     Raises:
-        HTTPException: If catalog initialization fails
+        HTTPException: If catalog is not available
     """
-    catalog = initialize_catalog(ICEBERG_CATALOG, ICEBERG_BUCKET, AWS_REGION)
+    catalog = request.app.state.catalog
     if not catalog:
-        logger.error("Failed to initialize catalog")
-        raise HTTPException(status_code=500, detail="Failed to connect to data catalog")
+        logger.error("Catalog not available in app.state")
+        raise HTTPException(status_code=500, detail="Data catalog is not available")
     return catalog
 
 

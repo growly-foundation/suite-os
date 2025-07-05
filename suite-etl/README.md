@@ -190,6 +190,8 @@ A high-performance FastAPI-based analytics API for blockchain data stored in Apa
 - **Time-Based Filtering**: Filter analytics by various time windows (24h, 7d, 30d, etc.)
 - **High Performance**: Built with PyIceberg and Polars for efficient data processing
 - **Modular Design**: Clean separation of concerns with dedicated modules for routes, analytics, and data access
+- **ETL Operations**: API endpoints for syncing blockchain data from Etherscan to Iceberg tables
+- **Shared Resources**: Efficient resource management with shared Iceberg catalog
 
 ## Tech Stack
 
@@ -214,6 +216,7 @@ A high-performance FastAPI-based analytics API for blockchain data stored in Apa
    ICEBERG_BUCKET=suite
    ICEBERG_CATALOG=s3tablecatalog
    WEB3_PROVIDER_URL=https://base.llamarpc.com
+   ETHERSCAN_API_KEY=your_etherscan_api_key
    ```
 
 ## Running the API
@@ -251,8 +254,14 @@ chmod +x start_api.sh
 
 ### Contract Endpoints
 
-- `GET /api/v1/contract/{contract_address}/analytics` - Get comprehensive analytics for a contract
-- `GET /api/v1/contract/{contract_address}/addresses` - Get addresses that have interacted with a contract
+- `GET /api/v1/contracts/{contract_address}/analytics` - Get comprehensive analytics for a contract
+- `GET /api/v1/contracts/{contract_address}/interacting-addresses` - Get addresses that have interacted with a contract
+- `POST /api/v1/contracts` - Add a contract to the standardized contracts table
+
+### ETL Endpoints
+
+- `POST /api/v1/etl/sync` - Start a background task to sync transactions for a contract or wallet address
+- `GET /api/v1/etl/sync/{task_id}` - Check the status of a sync task
 
 ### Query Parameters
 
@@ -289,18 +298,41 @@ curl -X GET "http://localhost:8000/api/v1/contract/0xa3dcf3ca587d9929d540868c924
 curl -X GET "http://localhost:8000/api/v1/contract/0xa3dcf3ca587d9929d540868c924f208726dc9ab6/interacting-addresses?chain_id=8453&limit=100&offset=0"
 ```
 
-## Project Structure
+### Sync Transactions for a Contract Address
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/etl/sync" \
+  -H "Content-Type: application/json" \
+  -d '{"address": "0xa3dcf3ca587d9929d540868c924f208726dc9ab6", "chain_id": 8453, "mode": "incremental"}'
+```
+
+### Add a Contract to the Standardized Contracts Table
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/contract/contracts" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "chain_id": 8453,
+    "contract_address": "0x6cb442acf35158d5eda88fe602221b67b400be3e",
+    "label": "Aerodrome Router"
+  }'
+```
+
+## Application Architecture
+
+The application follows a modular architecture with clean separation of concerns:
 
 ```
 .
 ├── api/                           # API module
-│   ├── __init__.py                # FastAPI app factory
+│   ├── __init__.py                # FastAPI app factory with shared catalog
 │   ├── dependencies.py            # FastAPI dependencies
 │   ├── models/                    # Pydantic models for API
 │   └── routes/                    # API route definitions
 │       ├── core.py                # Core API routes
 │       ├── wallet.py              # Wallet-specific routes
-│       └── contract.py            # Contract-specific routes
+│       ├── contract.py            # Contract-specific routes
+│       └── etl.py                 # ETL operation routes
 ├── analytics/                     # Analytics module
 │   └── blockchain_analytics.py    # Core analytics functions
 ├── db/                            # Database module
@@ -311,9 +343,23 @@ curl -X GET "http://localhost:8000/api/v1/contract/0xa3dcf3ca587d9929d540868c924
 │   ├── aws_config.py              # AWS configuration
 │   ├── blockchain.py              # Blockchain utilities
 │   └── logging_config.py          # Logging configuration
-├── main.py                        # Application entry point
+├── scripts/                       # Utility scripts
+│   └── raw_etl.py                 # ETL script for command-line use
+├── main.py                        # Legacy application entry point
+├── run_api.py                     # Application entry point with shared catalog
+├── start_api.sh                   # Script to start the API server
 └── requirements.txt               # Project dependencies
 ```
+
+### Key Design Patterns
+
+1. **Shared Resources**: The Iceberg catalog is initialized once during application startup and stored in `app.state` for efficient access throughout the application.
+
+2. **Dependency Injection**: FastAPI's dependency injection system is used to provide the catalog to routes that need it.
+
+3. **Background Tasks**: ETL operations run as background tasks to avoid blocking API requests.
+
+4. **Modular Routes**: API endpoints are organized into domain-specific modules for better maintainability.
 
 ## Analytics Features
 
