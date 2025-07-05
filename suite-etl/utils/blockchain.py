@@ -173,7 +173,7 @@ def is_proxy_contract(address, abi_json=None, chain_id=1):
 
         return False
     except Exception as e:
-        logger.error(f"Error checking if contract is proxy: {e}")
+        logger.error(f"Error checking if contract is proxy for {address}: {e}")
         return False
 
 

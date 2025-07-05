@@ -6,9 +6,10 @@ This module defines FastAPI routes for wallet analytics.
 
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Query, Depends
-from pydantic import constr
+from pydantic import BaseModel, constr, Field
 
 from api.models.raw_analytics import WalletInteractionsResponse
+from api.models.query_models import WalletAnalyticsQuery
 from api.dependencies import get_catalog, validate_time_window
 from utils.blockchain import is_valid_address, is_contract_address
 from utils.logging_config import get_logger
@@ -23,12 +24,7 @@ router = APIRouter(prefix="/api/v1/wallet", tags=["wallet"])
 @router.get("/{wallet_address}/interactions", response_model=WalletInteractionsResponse)
 async def get_wallet_interactions(
     wallet_address: constr(min_length=40, max_length=42),
-    chain_id: int = Query(
-        1, description="Blockchain ID (1=Ethereum, 137=Polygon, etc.)"
-    ),
-    time_window: Optional[str] = Query(
-        None, description="Time window (e.g., 24h, 7d, 30d)"
-    ),
+    query: WalletAnalyticsQuery = Depends(),
     catalog=Depends(get_catalog),
 ):
     """
@@ -39,17 +35,17 @@ async def get_wallet_interactions(
         raise HTTPException(status_code=400, detail="Invalid wallet address")
 
     # Validate time window
-    validate_time_window(time_window)
+    validate_time_window(query.time_window)
 
     # Check that it's not a contract address
-    if is_contract_address(wallet_address, chain_id):
+    if is_contract_address(wallet_address, query.chain_id):
         raise HTTPException(
             status_code=400, detail="The provided address is a contract, not a wallet"
         )
 
     # Get wallet interactions
     interactions = get_wallet_contract_interactions(
-        catalog, chain_id, wallet_address, time_window
+        catalog, query.chain_id, wallet_address, query.time_window
     )
 
     # We now always return a DataFrame, even if empty
@@ -58,8 +54,8 @@ async def get_wallet_interactions(
         # Return empty interactions
         return WalletInteractionsResponse(
             wallet_address=wallet_address,
-            chain_id=chain_id,
-            time_window=time_window,
+            chain_id=query.chain_id,
+            time_window=query.time_window,
             interactions=[],
         )
 
@@ -68,7 +64,7 @@ async def get_wallet_interactions(
 
     return WalletInteractionsResponse(
         wallet_address=wallet_address,
-        chain_id=chain_id,
-        time_window=time_window,
+        chain_id=query.chain_id,
+        time_window=query.time_window,
         interactions=interactions_list,
     )

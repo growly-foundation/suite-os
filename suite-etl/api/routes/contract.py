@@ -9,13 +9,17 @@ from fastapi import APIRouter, HTTPException, Query, Depends, Body
 from pydantic import BaseModel, constr, Field
 import os
 from datetime import datetime
-import polars as pl
 from pyiceberg.expressions import EqualTo, And, Reference, literal
 
 from api.models.raw_analytics import (
     ContractSummaryResponse,
     ContractInteractingAddressesResponse,
     ContractFunctionInteractionsResponse,
+)
+from api.models.query_models import (
+    ContractSummaryQuery,
+    ContractAnalyticsQuery,
+    ContractFunctionQuery,
 )
 from api.dependencies import get_catalog, validate_time_window
 from utils.blockchain import is_valid_address, is_contract_address, is_proxy_contract
@@ -56,12 +60,7 @@ class ContractUpdateRequest(BaseModel):
 @router.get("/{contract_address}/summary")
 async def get_summary(
     contract_address: constr(min_length=40, max_length=42),
-    chain_id: int = Query(
-        1, description="Blockchain ID (1=Ethereum, 137=Polygon, etc.)"
-    ),
-    time_window: Optional[str] = Query(
-        None, description="Time window (e.g., 24h, 7d, 30d)"
-    ),
+    query: ContractSummaryQuery = Depends(),
     catalog=Depends(get_catalog),
 ):
     """
@@ -72,16 +71,18 @@ async def get_summary(
         raise HTTPException(status_code=400, detail="Invalid contract address")
 
     # Validate time window
-    validate_time_window(time_window)
+    validate_time_window(query.time_window)
 
     # Check that it's a contract address
-    if not is_contract_address(contract_address, chain_id):
+    if not is_contract_address(contract_address, query.chain_id):
         raise HTTPException(
             status_code=400, detail="The provided address is not a contract"
         )
 
     # Get contract summary
-    summary = get_contract_summary(catalog, chain_id, contract_address, time_window)
+    summary = get_contract_summary(
+        catalog, query.chain_id, contract_address, query.time_window
+    )
     if not summary:
         raise HTTPException(
             status_code=404, detail="No data found for the contract address"
@@ -99,16 +100,7 @@ async def get_summary(
 @router.get("/{contract_address}/interactions/addresses")
 async def get_addresses_interactions(
     contract_address: constr(min_length=40, max_length=42),
-    chain_id: int = Query(
-        1, description="Blockchain ID (1=Ethereum, 137=Polygon, etc.)"
-    ),
-    time_window: Optional[str] = Query(
-        None, description="Time window (e.g., 24h, 7d, 30d)"
-    ),
-    limit: int = Query(
-        100, description="Maximum number of addresses to return", ge=1, le=1000
-    ),
-    offset: int = Query(0, description="Offset for pagination", ge=0),
+    query: ContractAnalyticsQuery = Depends(),
     catalog=Depends(get_catalog),
 ):
     """
@@ -119,17 +111,22 @@ async def get_addresses_interactions(
         raise HTTPException(status_code=400, detail="Invalid contract address")
 
     # Validate time window
-    validate_time_window(time_window)
+    validate_time_window(query.time_window)
 
     # Check that it's a contract address
-    if not is_contract_address(contract_address, chain_id):
+    if not is_contract_address(contract_address, query.chain_id):
         raise HTTPException(
             status_code=400, detail="The provided address is not a contract"
         )
 
     # Get interacting addresses
     result = get_contract_addresses_interactions(
-        catalog, chain_id, contract_address, time_window, limit, offset
+        catalog,
+        query.chain_id,
+        contract_address,
+        query.time_window,
+        query.limit,
+        query.offset,
     )
 
     if not result:
@@ -149,17 +146,7 @@ async def get_addresses_interactions(
 @router.get("/{contract_address}/interactions/functions")
 async def get_functions_interactions(
     contract_address: constr(min_length=40, max_length=42),
-    function: str = Query(..., description="Function name to analyze"),
-    chain_id: int = Query(
-        1, description="Blockchain ID (1=Ethereum, 137=Polygon, etc.)"
-    ),
-    time_window: Optional[str] = Query(
-        None, description="Time window (e.g., 24h, 7d, 30d)"
-    ),
-    limit: int = Query(
-        100, description="Maximum number of interactions to return", ge=1, le=1000
-    ),
-    offset: int = Query(0, description="Offset for pagination", ge=0),
+    query: ContractFunctionQuery = Depends(),
     catalog=Depends(get_catalog),
 ):
     """
@@ -171,17 +158,23 @@ async def get_functions_interactions(
         raise HTTPException(status_code=400, detail="Invalid contract address")
 
     # Validate time window
-    validate_time_window(time_window)
+    validate_time_window(query.time_window)
 
     # Check that it's a contract address
-    if not is_contract_address(contract_address, chain_id):
+    if not is_contract_address(contract_address, query.chain_id):
         raise HTTPException(
             status_code=400, detail="The provided address is not a contract"
         )
 
     # Get function interactions
     result = get_contract_function_interactions(
-        catalog, chain_id, contract_address, function, time_window, limit, offset
+        catalog,
+        query.chain_id,
+        contract_address,
+        query.function,
+        query.time_window,
+        query.limit,
+        query.offset,
     )
 
     if not result:
@@ -295,7 +288,7 @@ async def create_contract(request: ContractCreateRequest, catalog=Depends(get_ca
     try:
         is_proxy = is_proxy_contract(contract_address, abi_json, request.chain_id)
     except Exception as e:
-        logger.error(f"Error checking if contract is proxy: {e}")
+        logger.error(f"Error checking if contract is proxy for {contract_address}: {e}")
 
     # Prepare contract data
     contract_data = [
