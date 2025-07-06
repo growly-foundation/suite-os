@@ -10,13 +10,10 @@ This module provides functions to analyze contract interactions with blockchain 
 """
 
 import polars as pl
-from utils.logging_config import get_logger
-from db.iceberg import load_table
-from utils.blockchain import (
-    normalize_address,
-    normalize_address_with_prefix,
-)
 from analytics.helpers import _apply_time_window_filter
+from db.iceberg import load_table
+from utils.blockchain import normalize_address, normalize_address_with_prefix
+from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 
@@ -144,6 +141,44 @@ def _analyze_top_users(query):
         return []
 
 
+def _process_method_distribution_row(row, i):
+    """Process a single row from method distribution results."""
+    try:
+        fn_name = str(row.get("function_name", "Unknown"))
+
+        # Safely convert call_count to integer
+        try:
+            call_count = int(row.get("call_count", 1))
+        except (TypeError, ValueError):
+            call_count = 1
+
+        # Safely convert unique_address_count to integer
+        try:
+            unique_address_count = int(row.get("unique_address_count", 0))
+        except (TypeError, ValueError):
+            unique_address_count = 0
+
+        # Get unique addresses list
+        unique_addresses = row.get("unique_addresses", [])
+        if unique_addresses is None:
+            unique_addresses = []
+        elif not isinstance(unique_addresses, list):
+            try:
+                unique_addresses = list(unique_addresses)
+            except (TypeError, ValueError):
+                unique_addresses = []
+
+        return {
+            "function_name": fn_name,
+            "call_count": call_count,
+            "unique_addresses": unique_addresses,
+            "unique_address_count": unique_address_count,
+        }
+    except Exception as e:
+        logger.warning(f"Error processing method distribution row {i}: {e}")
+        return None
+
+
 def _analyze_method_distribution(query):
     """
     Analyze method distribution for contract analytics.
@@ -195,43 +230,10 @@ def _analyze_method_distribution(query):
         method_dist_dicts = []
         if method_distribution.shape[0] > 0:
             for i in range(method_distribution.shape[0]):
-                try:
-                    row = method_distribution.row(i, named=True)
-                    fn_name = str(row.get("function_name", "Unknown"))
-
-                    # Safely convert call_count to integer
-                    try:
-                        call_count = int(row.get("call_count", 1))
-                    except (TypeError, ValueError):
-                        call_count = 1
-
-                    # Safely convert unique_address_count to integer
-                    try:
-                        unique_address_count = int(row.get("unique_address_count", 0))
-                    except (TypeError, ValueError):
-                        unique_address_count = 0
-
-                    # Get unique addresses list
-                    unique_addresses = row.get("unique_addresses", [])
-                    if unique_addresses is None:
-                        unique_addresses = []
-                    elif not isinstance(unique_addresses, list):
-                        # Convert to list if it's not already
-                        try:
-                            unique_addresses = list(unique_addresses)
-                        except (TypeError, ValueError):
-                            unique_addresses = []
-
-                    method_dist_dicts.append(
-                        {
-                            "function_name": fn_name,
-                            "call_count": call_count,
-                            "unique_addresses": unique_addresses,
-                            "unique_address_count": unique_address_count,
-                        }
-                    )
-                except Exception as e:
-                    logger.warning(f"Error processing method distribution row {i}: {e}")
+                row = method_distribution.row(i, named=True)
+                processed_row = _process_method_distribution_row(row, i)
+                if processed_row:
+                    method_dist_dicts.append(processed_row)
 
         return method_dist_dicts
     except Exception as e:

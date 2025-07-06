@@ -10,8 +10,8 @@ Each contract has:
 - category: The category of the contract (e.g., DEX, Lending)
 """
 
-from utils.logging_config import get_logger
 from utils.blockchain import normalize_address_with_prefix
+from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 
@@ -172,11 +172,11 @@ def get_all_contracts(chain_id=None):
 
     # Combine all contracts across chains
     all_contracts = {}
-    for chain_id, contracts in KNOWN_CONTRACTS.items():
+    for cid, contracts in KNOWN_CONTRACTS.items():
         for address, info in contracts.items():
-            all_contracts[f"{chain_id}:{address}"] = {
+            all_contracts[f"{cid}:{address}"] = {
                 **info,
-                "chain_id": chain_id,
+                "chain_id": cid,
                 "contract_address": address,
             }
 

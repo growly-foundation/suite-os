@@ -8,18 +8,15 @@ This module provides utility functions for blockchain operations:
 - Timeframe conversion
 """
 
-import re
-import os
 import json
-from web3 import Web3
+import os
+import re
 from datetime import datetime, timedelta
+
 from utils.logging_config import get_logger
+from web3 import Web3
 
 logger = get_logger(__name__)
-
-# Get Ethereum node URL from environment variable or use a default value
-ETH_NODE_URL = os.getenv("WEB3_PROVIDER_URL", "https://base.llamarpc.com")
-web3 = Web3(Web3.HTTPProvider(ETH_NODE_URL))
 
 
 # Initialize web3 instances for different chains

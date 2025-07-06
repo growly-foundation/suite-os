@@ -4,12 +4,12 @@ API package for blockchain analytics.
 
 import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 
-from api.routes.wallet import router as wallet_router
 from api.routes.contract import router as contract_router
 from api.routes.etl import router as etl_router
+from api.routes.wallet import router as wallet_router
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from utils.aws_config import initialize_catalog
 from utils.logging_config import get_logger
 
@@ -57,7 +57,7 @@ def create_app():
         CORSMiddleware,
         allow_origins=["*"],
         allow_credentials=True,
-        allow_methods=["*"],
+        allow_methods=["GET", "POST", "PUT", "DELETE"],
         allow_headers=["*"],
     )
 
@@ -69,6 +69,6 @@ def create_app():
     # Root endpoint
     @app.get("/")
     async def read_root():
-        return {"status": "ok", "message": "Blockchain Analytics API is running"}
+        return {"status": "ok", "message": "Suite API is running"}
 
     return app
