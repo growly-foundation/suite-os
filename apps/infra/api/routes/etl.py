@@ -206,20 +206,21 @@ async def sync_transactions(
 
 
 @router.get("/sync/{task_id}", response_model=SyncStatusResponse)
-async def get_sync_status(task_id: str):
+async def get_sync_status(task_id: str, catalog=Depends(get_catalog)):
     """
     Get the status of a sync task.
-
-    Note: This is a placeholder implementation. In a production environment,
-    you would store task status in a database or cache.
     """
-    # In a real implementation, you would check a database or cache for task status
-    # For now, we'll just return a generic response
-    return SyncStatusResponse(
-        status="unknown",
-        message="Task status tracking not implemented yet",
-        task_id=task_id,
-        address="unknown",
-        chain_id=0,
-        mode="unknown",
+    # Query task status from database/cache
+    # Return actual status, progress, and completion details
+    # For now, you could store task status in a simple in-memory dict
+    # or use Redis/database for persistence
+
+    # Example implementation:
+    # task_status = get_task_status_from_store(task_id)
+    # if not task_status:
+    #     raise HTTPException(status_code=404, detail="Task not found")
+    # return task_status
+
+    raise HTTPException(
+        status_code=501, detail="Task status tracking not implemented yet"
     )

@@ -14,7 +14,7 @@ from .wallet_analytics import get_wallet_contract_interactions
 from .contract_analytics import (
     get_contract_summary,
     get_contract_addresses_interactions,
-    get_contract_function_interactions,
+    get_contract_function_distribution,
 )
 
 # Export all functions for easy access
@@ -24,5 +24,5 @@ __all__ = [
     # Contract analytics
     "get_contract_summary",
     "get_contract_addresses_interactions",
-    "get_contract_function_interactions",
+    "get_contract_function_distribution",
 ]

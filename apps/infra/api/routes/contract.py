@@ -10,17 +10,16 @@ from typing import Optional
 
 from analytics.contract_analytics import (
     get_contract_addresses_interactions,
-    get_contract_function_interactions,
+    get_contract_function_distribution,
     get_contract_summary,
 )
 from api.dependencies import get_catalog, validate_time_window
 from api.models.query_models import (
     ContractAnalyticsQuery,
-    ContractFunctionQuery,
     ContractSummaryQuery,
 )
 from api.models.raw_analytics import (
-    ContractFunctionInteractionsResponse,
+    ContractFunctionDistributionResponse,
     ContractInteractingAddressesResponse,
     ContractSummaryResponse,
 )
@@ -105,6 +104,7 @@ async def get_addresses_interactions(
 ):
     """
     Get a list of unique addresses that have interacted with a contract within a time window.
+    Optionally filter by function name.
     """
     # Validate address
     if not is_valid_address(contract_address, query.chain_id):
@@ -127,6 +127,7 @@ async def get_addresses_interactions(
         query.time_window,
         query.limit,
         query.offset,
+        query.function,
     )
 
     if not result:
@@ -146,12 +147,12 @@ async def get_addresses_interactions(
 @router.get("/{contract_address}/interactions/functions")
 async def get_functions_interactions(
     contract_address: constr(min_length=40, max_length=42),
-    query: ContractFunctionQuery = Depends(),
+    query: ContractAnalyticsQuery = Depends(),
     catalog=Depends(get_catalog),
 ):
     """
-    Get detailed information about interactions with a specific function/method of a contract.
-    Returns addresses that called the function and their interaction details.
+    Get the distribution of functions/methods called on a contract.
+    Returns unique functions found in the contract with their call statistics.
     """
     # Validate address
     if not is_valid_address(contract_address, query.chain_id):
@@ -166,12 +167,11 @@ async def get_functions_interactions(
             status_code=400, detail="The provided address is not a contract"
         )
 
-    # Get function interactions
-    result = get_contract_function_interactions(
+    # Get function distribution
+    result = get_contract_function_distribution(
         catalog,
         query.chain_id,
         contract_address,
-        query.function,
         query.time_window,
         query.limit,
         query.offset,
@@ -179,16 +179,15 @@ async def get_functions_interactions(
 
     if not result:
         raise HTTPException(
-            status_code=404,
-            detail="No data found for the contract address and function",
+            status_code=404, detail="No data found for the contract address"
         )
 
     try:
         # Try to validate with the Pydantic model
-        return ContractFunctionInteractionsResponse(**result)
+        return ContractFunctionDistributionResponse(**result)
     except Exception as e:
         # If validation fails, log the error and return the raw result
-        logger.error(f"Error validating contract function interactions: {e}")
+        logger.error(f"Error validating contract function distribution: {e}")
         return result
 
 

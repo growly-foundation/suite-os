@@ -390,7 +390,13 @@ def get_contract_summary(catalog, chain_id, contract_address, time_window=None):
 
 
 def get_contract_addresses_interactions(
-    catalog, chain_id, contract_address, time_window=None, limit=100, offset=0
+    catalog,
+    chain_id,
+    contract_address,
+    time_window=None,
+    limit=100,
+    offset=0,
+    function_name=None,
 ):
     """
     Get a list of unique addresses that have interacted with a contract within a time window.
@@ -402,6 +408,7 @@ def get_contract_addresses_interactions(
         time_window: Time window string ('24h', '48h', '7d', etc.) or None for all time
         limit: Maximum number of addresses to return
         offset: Offset for pagination
+        function_name: Optional function name to filter by
 
     Returns:
         dict: Dictionary containing:
@@ -472,6 +479,18 @@ def get_contract_addresses_interactions(
         # For contract addresses, we're interested in transactions where the contract is in the 'to' field
         # (i.e., transactions sent to the contract)
         query = query.filter(pl.col("to_normalized") == normalized_contract_with_prefix)
+
+        # Filter by function name if provided
+        if function_name:
+            if "function_name" in query.columns:
+                query = query.filter(
+                    pl.col("function_name").fill_null("Unknown") == function_name
+                )
+                logger.info(f"Applied function filter: {function_name}")
+            else:
+                logger.warning(
+                    "function_name column not found in transactions data, ignoring function filter"
+                )
 
         # Log the number of transactions after filtering
         tx_count = len(query)
@@ -571,36 +590,27 @@ def get_contract_addresses_interactions(
         return None
 
 
-def get_contract_function_interactions(
-    catalog,
-    chain_id,
-    contract_address,
-    function_name,
-    time_window=None,
-    limit=100,
-    offset=0,
+def get_contract_function_distribution(
+    catalog, chain_id, contract_address, time_window=None, limit=100, offset=0
 ):
     """
-    Get detailed information about interactions with a specific function/method of a contract.
+    Get the distribution of functions/methods called on a contract.
 
     Args:
         catalog: Iceberg catalog
         chain_id: Chain ID (e.g., 1 for Ethereum mainnet)
         contract_address: Contract address to analyze
-        function_name: Name of the function to analyze
         time_window: Time window string ('24h', '48h', '7d', etc.) or None for all time
-        limit: Maximum number of interactions to return
+        limit: Maximum number of functions to return
         offset: Offset for pagination
 
     Returns:
         dict: Dictionary containing:
             - contract_address: The contract address
             - chain_id: The chain ID
-            - function_name: The function name
             - time_window: The time window used
-            - total_count: Total number of interactions
-            - unique_address_count: Number of unique addresses that called this function
-            - interactions: List of interaction details
+            - total_count: Total number of unique functions
+            - functions: List of function distribution data matching MethodDistribution model
     """
     try:
         # Load transactions table
@@ -661,125 +671,44 @@ def get_contract_function_interactions(
         # Filter by contract address (transactions sent to the contract)
         query = query.filter(pl.col("to_normalized") == normalized_contract_with_prefix)
 
-        # Check if function_name column exists
-        if "function_name" not in query.columns:
-            logger.warning("function_name column not found in transactions data")
-            return {
-                "contract_address": contract_address,
-                "chain_id": chain_id,
-                "function_name": function_name,
-                "time_window": time_window,
-                "total_count": 0,
-                "unique_address_count": 0,
-                "offset": offset,
-                "limit": limit,
-                "interactions": [],
-            }
-
-        # Filter by function name
-        query = query.filter(
-            pl.col("function_name").fill_null("Unknown") == function_name
-        )
-
         # Log the number of transactions after filtering
         tx_count = len(query)
         logger.info(
-            f"Found {tx_count} transactions for function '{function_name}' on contract {normalized_contract_with_prefix}"
+            f"Found {tx_count} transactions to contract {normalized_contract_with_prefix}"
         )
 
         if tx_count == 0:
-            logger.warning(
-                f"No transactions found for function '{function_name}' on contract {contract_address}"
-            )
+            logger.warning(f"No transactions found for contract {contract_address}")
             return {
                 "contract_address": contract_address,
                 "chain_id": chain_id,
-                "function_name": function_name,
                 "time_window": time_window,
                 "total_count": 0,
-                "unique_address_count": 0,
                 "offset": offset,
                 "limit": limit,
-                "interactions": [],
+                "functions": [],
             }
 
-        # Convert value to numeric
-        query = query.with_columns(
-            [
-                pl.col("value").cast(pl.Float64).fill_null(0).alias("value_float"),
-                pl.col("block_time").cast(pl.Datetime).alias("block_time_dt"),
-            ]
-        )
+        # Use the existing _analyze_method_distribution function
+        method_distribution = _analyze_method_distribution(query)
 
-        # Calculate value in ETH
-        query = query.with_columns([(pl.col("value_float") / 1e18).alias("value_eth")])
-
-        # Calculate total unique addresses
-        total_unique_addresses = query.select(
-            pl.col("from_normalized").n_unique()
-        ).item()
-        logger.info(
-            f"Found {total_unique_addresses} unique addresses calling function '{function_name}'"
-        )
-
-        # Group by address and calculate metrics
-        address_metrics = (
-            query.group_by("from", "from_normalized")
-            .agg(
-                [
-                    pl.count().alias("tx_count"),
-                    pl.min("block_time_dt").alias("first_interaction"),
-                    pl.max("block_time_dt").alias("last_interaction"),
-                    pl.sum("value_eth").alias("total_value_eth"),
-                ]
-            )
-            .sort("tx_count", descending=True)
-        )
-
-        # Apply pagination using slice instead of offset/limit methods
-        # Polars uses slice with start and length
-        address_metrics_paginated = address_metrics.slice(offset, limit)
+        # Apply pagination to the method distribution
+        total_functions = len(method_distribution)
+        paginated_functions = method_distribution[offset : offset + limit]
 
         logger.info(
-            f"Returning {len(address_metrics_paginated)} interactions (offset={offset}, limit={limit})"
+            f"Returning {len(paginated_functions)} functions (offset={offset}, limit={limit})"
         )
-
-        # Convert to list of dictionaries
-        interactions_list = []
-        try:
-            if address_metrics_paginated.shape[0] > 0:
-                for i in range(address_metrics_paginated.shape[0]):
-                    try:
-                        row = address_metrics_paginated.row(i, named=True)
-                        interactions_list.append(
-                            {
-                                "address": row.get("from", ""),
-                                "tx_count": int(row.get("tx_count", 0)),
-                                "first_interaction": str(
-                                    row.get("first_interaction", "")
-                                ),
-                                "last_interaction": str(
-                                    row.get("last_interaction", "")
-                                ),
-                                "total_value_eth": float(row.get("total_value_eth", 0)),
-                            }
-                        )
-                    except Exception as e:
-                        logger.warning(f"Error processing interaction row {i}: {e}")
-        except Exception as e:
-            logger.error(f"Error converting interaction metrics to list: {e}")
 
         return {
             "contract_address": contract_address,
             "chain_id": chain_id,
-            "function_name": function_name,
             "time_window": time_window,
-            "total_count": tx_count,
-            "unique_address_count": total_unique_addresses,
+            "total_count": total_functions,
             "offset": offset,
             "limit": limit,
-            "interactions": interactions_list,
+            "functions": paginated_functions,
         }
     except Exception as e:
-        logger.error(f"Error getting contract function interactions: {e}")
+        logger.error(f"Error getting contract function distribution: {e}")
         return None

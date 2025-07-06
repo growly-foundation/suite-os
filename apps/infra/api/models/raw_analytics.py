@@ -106,25 +106,13 @@ class ContractInteractingAddressesResponse(BaseModel):
     addresses: List[AddressInteraction]
 
 
-class FunctionInteraction(BaseModel):
-    """Model for function interaction data."""
-
-    address: str
-    tx_count: int
-    first_interaction: str
-    last_interaction: str
-    total_value_eth: float
-
-
-class ContractFunctionInteractionsResponse(BaseModel):
-    """Response model for contract function interactions."""
+class ContractFunctionDistributionResponse(BaseModel):
+    """Response model for contract function distribution."""
 
     contract_address: str
     chain_id: int
-    function_name: str
     time_window: Optional[str] = None
     total_count: int
-    unique_address_count: int
     offset: int
     limit: int
-    interactions: List[FunctionInteraction]
+    functions: List[MethodDistribution]

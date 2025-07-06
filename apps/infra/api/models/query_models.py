@@ -38,7 +38,9 @@ class ContractSummaryQuery(BaseAnalyticsQuery):
 class ContractAnalyticsQuery(PaginatedAnalyticsQuery):
     """Query parameters for contract analytics endpoints with pagination"""
 
-    pass
+    function: Optional[str] = Field(
+        None, description="Optional function name to filter by"
+    )
 
 
 class ContractFunctionQuery(PaginatedAnalyticsQuery):
