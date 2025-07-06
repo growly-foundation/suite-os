@@ -212,7 +212,7 @@ A high-performance FastAPI-based analytics API for blockchain data stored in Apa
 
 2. Configure your environment by creating a `.env` file:
    ```
-   AWS_REGION=ap-southeast-1
+   AWS_DEFAULT_REGION=ap-southeast-1
    ICEBERG_BUCKET=suite
    ICEBERG_CATALOG=s3tablecatalog
    WEB3_PROVIDER_URL=https://base.llamarpc.com

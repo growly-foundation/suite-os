@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
     catalog = initialize_catalog(
         os.getenv("ICEBERG_CATALOG", "s3tablescatalog"),
         os.getenv("ICEBERG_BUCKET", "suite"),
-        os.getenv("AWS_REGION", "ap-southeast-1"),
+        os.getenv("AWS_DEFAULT_REGION", "ap-southeast-1"),
     )
     if catalog:
         logger.info("Iceberg catalog initialized successfully")
