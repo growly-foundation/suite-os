@@ -13,7 +13,7 @@ from config.logging_config import get_logger
 from db.iceberg import append_data, load_table, reorder_records
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pipelines.raw.cursor import get_cursor, update_cursor
-from providers.etherscan_provider import EtherscanProvider, FetchMode
+from providers.etherscan import EtherscanProvider, FetchMode
 from pydantic import BaseModel, Field, constr
 from utils.blockchain import is_valid_address
 
@@ -126,7 +126,7 @@ async def sync_transactions_task(
             return
 
         etherscan_provider = EtherscanProvider(api_key=etherscan_api_key)
-        transactions = await etherscan_provider.get_all_transactions_full(
+        transactions = await etherscan_provider.get_all_transactions(
             address=address,
             chain_id=chain_id,
             mode=fetch_mode,

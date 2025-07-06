@@ -105,7 +105,13 @@ The codebase is organized into the following modules:
 │   ├── aws_config.py              # AWS-specific utilities
 │   └── logging_config.py          # Logging configuration
 ├── providers/
-│   └── etherscan_provider.py      # Etherscan API client
+│   └── etherscan/                 # Modular Etherscan API providers
+│       ├── __init__.py            # Package exports
+│       ├── base.py                # Shared base functionality
+│       ├── account.py             # Account operations (txlist)
+│       ├── contract.py            # Contract operations (getabi, getsourcecode)
+│       ├── proxy.py               # Proxy operations (eth_blockNumber, eth_gasPrice)
+│       └── provider.py            # Unified provider for backward compatibility
 └── pipelines/
     ├── __init__.py
     └── raw/
@@ -120,17 +126,36 @@ The codebase is organized into the following modules:
 
 ```python
 import asyncio
-from providers.etherscan_provider import EtherscanProvider, FetchMode
+from providers.etherscan import EtherscanProvider, FetchMode
 
 async def fetch_transactions():
     provider = EtherscanProvider(api_key="your_etherscan_api_key")
-    transactions = await provider.get_all_transactions_full(
+    transactions = await provider.get_all_transactions(
         address="0x123456789abcdef",
         chain_id=1,
         mode=FetchMode.INCREMENTAL,
         last_block_number=12345678
     )
     return transactions
+
+# Or use specialized providers
+from providers.etherscan import EtherscanAccountProvider, EtherscanContractProvider
+
+async def specialized_usage():
+    account_provider = EtherscanAccountProvider(api_key="your_api_key")
+    contract_provider = EtherscanContractProvider(api_key="your_api_key")
+
+    # Fetch transactions using account provider
+    transactions = await account_provider.get_all_transactions(
+        address="0x123456789abcdef", chain_id=1
+    )
+
+    # Fetch ABI using contract provider
+    abi = await contract_provider.get_contract_abi(
+        address="0xcontract_address", chain_id=1
+    )
+
+    return transactions, abi
 
 # Run the async function
 transactions = asyncio.run(fetch_transactions())

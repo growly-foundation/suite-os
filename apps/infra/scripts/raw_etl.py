@@ -38,7 +38,7 @@ from config.logging_config import get_logger
 from db.iceberg import append_data, load_table, read_table_data, reorder_records
 from dotenv import load_dotenv
 from pipelines.raw.cursor import get_cursor, update_cursor
-from providers.etherscan_provider import EtherscanProvider, FetchMode
+from providers.etherscan import EtherscanProvider, FetchMode
 
 # Create a logger for this module
 logger = get_logger(__name__)
@@ -279,7 +279,7 @@ async def fetch_transactions(
 
     # Fetch transactions
     etherscan_provider = EtherscanProvider(api_key=etherscan_api_key)
-    transactions = await etherscan_provider.get_all_transactions_full(
+    transactions = await etherscan_provider.get_all_transactions(
         address=wallet_address,
         chain_id=chain_id,
         mode=fetch_config.mode,

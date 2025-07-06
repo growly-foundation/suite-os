@@ -14,7 +14,3 @@ dependencies = [
     "web3>=6.0.0,<7.0.0",
 ]
 
-[tool.uv.workspace]
-members = [
-    "celary",
-]
