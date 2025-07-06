@@ -4,33 +4,33 @@ Contract API Routes
 This module defines FastAPI routes for contract analytics.
 """
 
-from typing import Optional
-from fastapi import APIRouter, HTTPException, Query, Depends, Body
-from pydantic import BaseModel, constr, Field
 import os
 from datetime import datetime
-from pyiceberg.expressions import EqualTo, And, Reference, literal
+from typing import Optional
 
-from api.models.raw_analytics import (
-    ContractSummaryResponse,
-    ContractInteractingAddressesResponse,
-    ContractFunctionInteractionsResponse,
-)
-from api.models.query_models import (
-    ContractSummaryQuery,
-    ContractAnalyticsQuery,
-    ContractFunctionQuery,
-)
-from api.dependencies import get_catalog, validate_time_window
-from utils.blockchain import is_valid_address, is_contract_address, is_proxy_contract
-from utils.logging_config import get_logger
 from analytics.contract_analytics import (
-    get_contract_summary,
     get_contract_addresses_interactions,
     get_contract_function_interactions,
+    get_contract_summary,
 )
+from api.dependencies import get_catalog, validate_time_window
+from api.models.query_models import (
+    ContractAnalyticsQuery,
+    ContractFunctionQuery,
+    ContractSummaryQuery,
+)
+from api.models.raw_analytics import (
+    ContractFunctionInteractionsResponse,
+    ContractInteractingAddressesResponse,
+    ContractSummaryResponse,
+)
+from config.logging_config import get_logger
 from db.iceberg import load_table, reorder_records, upsert_data
+from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from providers.etherscan_provider import EtherscanProvider
+from pydantic import BaseModel, Field, constr
+from pyiceberg.expressions import And, EqualTo, Reference, literal
+from utils.blockchain import is_contract_address, is_proxy_contract, is_valid_address
 
 logger = get_logger(__name__)
 
@@ -67,7 +67,7 @@ async def get_summary(
     Get analytics for a contract including unique users, transaction count, and fees
     """
     # Validate address
-    if not is_valid_address(contract_address):
+    if not is_valid_address(contract_address, query.chain_id):
         raise HTTPException(status_code=400, detail="Invalid contract address")
 
     # Validate time window
@@ -107,7 +107,7 @@ async def get_addresses_interactions(
     Get a list of unique addresses that have interacted with a contract within a time window.
     """
     # Validate address
-    if not is_valid_address(contract_address):
+    if not is_valid_address(contract_address, query.chain_id):
         raise HTTPException(status_code=400, detail="Invalid contract address")
 
     # Validate time window
@@ -154,7 +154,7 @@ async def get_functions_interactions(
     Returns addresses that called the function and their interaction details.
     """
     # Validate address
-    if not is_valid_address(contract_address):
+    if not is_valid_address(contract_address, query.chain_id):
         raise HTTPException(status_code=400, detail="Invalid contract address")
 
     # Validate time window
@@ -248,7 +248,7 @@ async def create_contract(request: ContractCreateRequest, catalog=Depends(get_ca
     The is_proxy field will be determined using Web3.
     """
     # Validate address
-    if not is_valid_address(request.contract_address):
+    if not is_valid_address(request.contract_address, request.chain_id):
         raise HTTPException(status_code=400, detail="Invalid contract address")
 
     # Normalize address
@@ -352,7 +352,7 @@ async def update_contract(
     Only the fields provided in the request will be updated.
     """
     # Validate address
-    if not is_valid_address(contract_address):
+    if not is_valid_address(contract_address, chain_id):
         raise HTTPException(status_code=400, detail="Invalid contract address")
 
     # Normalize address
@@ -435,7 +435,7 @@ async def get_contract(
     Get contract details from the standardized.contracts table.
     """
     # Validate address
-    if not is_valid_address(contract_address):
+    if not is_valid_address(contract_address, chain_id):
         raise HTTPException(status_code=400, detail="Invalid contract address")
 
     # Normalize address

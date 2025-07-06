@@ -139,7 +139,7 @@ transactions = asyncio.run(fetch_transactions())
 ### Working with Iceberg Tables
 
 ```python
-from utils.aws_config import initialize_catalog
+from config.aws_config import initialize_catalog
 from db.iceberg import load_table, append_data
 
 # Initialize catalog

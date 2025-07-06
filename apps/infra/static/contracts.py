@@ -10,8 +10,8 @@ Each contract has:
 - category: The category of the contract (e.g., DEX, Lending)
 """
 
+from config.logging_config import get_logger
 from utils.blockchain import normalize_address_with_prefix
-from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 

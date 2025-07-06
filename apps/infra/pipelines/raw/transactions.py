@@ -8,15 +8,16 @@ This module provides functions for interacting with the transactions table:
 """
 
 import traceback
+
+from config.logging_config import get_logger
 from db.iceberg import (
-    load_table,
     append_data,
+    get_record_by_filter,
+    load_table,
     overwrite_data,
     upsert_data,
-    get_record_by_filter,
 )
 from pipelines.raw.cursor import check_cursor_before_load
-from utils.logging_config import get_logger
 
 # Create a logger for this module
 logger = get_logger(__name__)

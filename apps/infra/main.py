@@ -7,6 +7,9 @@ Main entry point for the FastAPI application.
 
 import sys
 from pathlib import Path
+
+# Import the application factory
+from api import create_app
 from dotenv import load_dotenv
 
 # Add the project root directory to the Python path
@@ -18,8 +21,6 @@ if str(current_dir) not in sys.path:
 # Load environment variables
 load_dotenv()
 
-# Import the application factory
-from api import create_app
 
 # Create the FastAPI application
 app = create_app()

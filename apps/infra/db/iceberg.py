@@ -8,11 +8,12 @@ This module provides base functions for interacting with Apache Iceberg tables:
 - Base write operations (append, overwrite, upsert)
 """
 
-import pyarrow as pa
 import traceback
 from collections import OrderedDict
+
+import pyarrow as pa
+from config.logging_config import get_logger
 from pyiceberg.schema import Schema
-from utils.logging_config import get_logger
 
 # Create a logger for this module
 logger = get_logger(__name__)

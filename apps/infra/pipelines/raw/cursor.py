@@ -10,8 +10,9 @@ This module provides functions for interacting with the cursor table:
 
 import datetime
 import traceback
-from db.iceberg import load_table, get_record_by_filter, update_or_insert_record
-from utils.logging_config import get_logger
+
+from config.logging_config import get_logger
+from db.iceberg import get_record_by_filter, load_table, update_or_insert_record
 
 # Create a logger for this module
 logger = get_logger(__name__)

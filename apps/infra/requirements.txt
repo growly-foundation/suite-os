@@ -4,3 +4,4 @@ aiohttp>=3.8.0
 python-dotenv>=1.0.0 
 fastapi[standard]>=0.109.1
 web3>=6.0.0,<7.0.0
+pydantic>=2.7.0,<3.0.0

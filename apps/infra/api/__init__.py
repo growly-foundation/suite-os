@@ -8,10 +8,10 @@ from contextlib import asynccontextmanager
 from api.routes.contract import router as contract_router
 from api.routes.etl import router as etl_router
 from api.routes.wallet import router as wallet_router
+from config.aws_config import initialize_catalog
+from config.logging_config import get_logger
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from utils.aws_config import initialize_catalog
-from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 
@@ -30,7 +30,7 @@ async def lifespan(app: FastAPI):
         app.state.catalog = catalog
     else:
         logger.error("Failed to initialize Iceberg catalog")
-        app.state.catalog = None
+        raise RuntimeError("Failed to initialize Iceberg catalog - cannot start API")
 
     yield
 

@@ -7,10 +7,11 @@ This module provides functions for AWS integration:
 - Iceberg catalog initialization
 """
 
-import boto3
 import traceback
+
+import boto3
+from config.logging_config import get_logger
 from pyiceberg.catalog import load_catalog
-from utils.logging_config import get_logger
 
 # Create a logger for this module
 logger = get_logger(__name__)
@@ -62,7 +63,6 @@ def initialize_catalog(catalog_name, bucket_name, region):
                 "rest.signing-region": region,
             },
         )
-        logger.info("Catalog loaded successfully!")
         return rest_catalog
     except Exception as e:
         logger.error(f"Error loading catalog: {e}")

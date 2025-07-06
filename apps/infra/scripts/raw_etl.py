@@ -21,24 +21,24 @@ Requirements:
 - ETHERSCAN_API_KEY environment variable set
 """
 
+import argparse
+import asyncio
 import os
 import sys
-import asyncio
-import argparse
-from typing import Optional, Tuple, List, Dict, Any
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Tuple
 
 # Add parent directory to path when script is run directly
 if __name__ == "__main__":
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     sys.path.insert(0, parent_dir)
 
+from config.aws_config import initialize_catalog
+from config.logging_config import get_logger
+from db.iceberg import append_data, load_table, read_table_data, reorder_records
 from dotenv import load_dotenv
-from providers.etherscan_provider import EtherscanProvider, FetchMode
-from utils.aws_config import initialize_catalog
-from db.iceberg import load_table, reorder_records, append_data, read_table_data
 from pipelines.raw.cursor import get_cursor, update_cursor
-from utils.logging_config import get_logger
+from providers.etherscan_provider import EtherscanProvider, FetchMode
 
 # Create a logger for this module
 logger = get_logger(__name__)
@@ -72,6 +72,21 @@ class FetchConfig:
     last_block_number: Optional[int] = None
 
 
+def valid_ethereum_address(address: str) -> str:
+    """Validate Ethereum address format."""
+    if not address.startswith("0x"):
+        raise argparse.ArgumentTypeError("Address must start with '0x'")
+    if len(address) != 42:
+        raise argparse.ArgumentTypeError("Address must be 42 characters long")
+    try:
+        int(address[2:], 16)
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            "Address must contain only hexadecimal characters"
+        )
+    return address.lower()
+
+
 def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
@@ -80,7 +95,9 @@ def parse_arguments():
 
     # Required arguments
     parser.add_argument(
-        "wallet_address", help="Ethereum wallet address to fetch transactions for"
+        "wallet_address",
+        type=valid_ethereum_address,
+        help="Ethereum wallet address to fetch transactions for",
     )
 
     # Optional arguments

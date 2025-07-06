@@ -4,16 +4,15 @@ Wallet API Routes
 This module defines FastAPI routes for wallet analytics.
 """
 
-from typing import Optional
-from fastapi import APIRouter, HTTPException, Query, Depends
-from pydantic import BaseModel, constr, Field
 
-from api.models.raw_analytics import WalletInteractionsResponse
-from api.models.query_models import WalletAnalyticsQuery
-from api.dependencies import get_catalog, validate_time_window
-from utils.blockchain import is_valid_address, is_contract_address
-from utils.logging_config import get_logger
 from analytics.wallet_analytics import get_wallet_contract_interactions
+from api.dependencies import get_catalog, validate_time_window
+from api.models.query_models import WalletAnalyticsQuery
+from api.models.raw_analytics import WalletInteractionsResponse
+from config.logging_config import get_logger
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import constr
+from utils.blockchain import is_contract_address, is_valid_address
 
 logger = get_logger(__name__)
 
@@ -31,7 +30,7 @@ async def get_wallet_interactions(
     Get a wallet's interactions with different contracts/dApps
     """
     # Validate address
-    if not is_valid_address(wallet_address):
+    if not is_valid_address(wallet_address, query.chain_id):
         raise HTTPException(status_code=400, detail="Invalid wallet address")
 
     # Validate time window

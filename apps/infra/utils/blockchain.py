@@ -13,14 +13,17 @@ import os
 import re
 from datetime import datetime, timedelta
 
-from utils.logging_config import get_logger
+from config.logging_config import get_logger
 from web3 import Web3
 
 logger = get_logger(__name__)
 
+ETH_NODE_URL = "https://eth.llamarpc.com"
+BASE_NODE_URL = "https://base.llamarpc.com"
+
 
 # Initialize web3 instances for different chains
-def get_web3_for_chain(chain_id=1):
+def get_web3_for_chain(chain_id=8453):
     """
     Get a Web3 instance for the specified chain.
 
@@ -36,12 +39,12 @@ def get_web3_for_chain(chain_id=1):
     # Use chain-specific endpoints if environment variable not set
     if not env_rpc_url:
         if chain_id == 1:  # Ethereum Mainnet
-            rpc_url = "https://eth.llamarpc.com"
-        elif chain_id == 8453:  # Base
-            rpc_url = "https://base.llamarpc.com"
-        else:
-            # Default to the global ETH_NODE_URL
             rpc_url = ETH_NODE_URL
+        elif chain_id == 8453:  # Base
+            rpc_url = BASE_NODE_URL
+        else:
+            # Default to the global BASE_NODE_URL
+            rpc_url = BASE_NODE_URL
             logger.warning(
                 f"No specific RPC URL for chain_id {chain_id}, using default"
             )
@@ -51,7 +54,7 @@ def get_web3_for_chain(chain_id=1):
     return Web3(Web3.HTTPProvider(rpc_url))
 
 
-def is_valid_address(address):
+def is_valid_address(address, chain_id=8453):
     """
     Check if an address is a valid Ethereum address.
 
@@ -65,16 +68,16 @@ def is_valid_address(address):
         return False
 
     # Check if address has valid format
-    return web3.is_address(address)
+    return get_web3_for_chain(chain_id).is_address(address)
 
 
-def is_contract_address(address, chain_id=1):
+def is_contract_address(address, chain_id=8453):
     """
     Check if an address is a contract address.
 
     Args:
         address: The address to check
-        chain_id: Chain ID (default: 1 for Ethereum mainnet)
+        chain_id: Chain ID (default: 8453 for Base)
 
     Returns:
         bool: True if address is a contract, False if EOA (user wallet)
@@ -94,14 +97,14 @@ def is_contract_address(address, chain_id=1):
         return False
 
 
-def is_proxy_contract(address, abi_json=None, chain_id=1):
+def is_proxy_contract(address, abi_json=None, chain_id=8453):
     """
     Check if a contract is a proxy contract.
 
     Args:
         address: The contract address to check
         abi_json: Optional ABI JSON string for the contract
-        chain_id: Chain ID (default: 1 for Ethereum mainnet)
+        chain_id: Chain ID (default: 8453 for Base)
 
     Returns:
         bool: True if the contract is a proxy, False otherwise

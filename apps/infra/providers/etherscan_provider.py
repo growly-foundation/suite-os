@@ -6,13 +6,14 @@ This provider focuses solely on Etherscan API operations without Web3 dependenci
 """
 
 import asyncio
-import aiohttp
-from datetime import datetime
-from typing import List, Dict, Optional
-from dataclasses import dataclass
-from enum import Enum
 import re
-from utils.logging_config import get_logger
+from dataclasses import dataclass
+from datetime import datetime
+from enum import Enum
+from typing import Dict, List, Optional
+
+import aiohttp
+from config.logging_config import get_logger
 
 # Create a logger for this module
 logger = get_logger(__name__)

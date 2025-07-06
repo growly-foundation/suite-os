@@ -4,9 +4,8 @@ API Dependencies
 This module defines dependencies for FastAPI routes.
 """
 
+from config.logging_config import get_logger
 from fastapi import HTTPException, Request
-
-from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 

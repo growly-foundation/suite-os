@@ -9,14 +9,11 @@ This module provides functions to analyze wallet interactions with blockchain da
 """
 
 import polars as pl
-from utils.logging_config import get_logger
-from db.iceberg import load_table
-from utils.blockchain import (
-    normalize_address,
-    normalize_address_with_prefix,
-)
 from analytics.helpers import _apply_time_window_filter
+from config.logging_config import get_logger
+from db.iceberg import load_table
 from static.contracts import get_contract_info
+from utils.blockchain import normalize_address, normalize_address_with_prefix
 
 logger = get_logger(__name__)
 
@@ -115,10 +112,9 @@ def _enrich_with_contract_metadata(result):
         # Create contract info mappings with proper error handling
         contract_info_map = {}
         for row in contracts_data:
+            chain_id_val = row.get("chain_id")
+            contract_addr = row.get("contract_address_normalized", "")
             try:
-                chain_id_val = row.get("chain_id")
-                contract_addr = row.get("contract_address_normalized", "")
-
                 # Make sure we're using the same format as in the contracts.py file
                 # Remove 0x prefix if present for lookup in static/contracts.py
                 lookup_addr = normalize_address(contract_addr)

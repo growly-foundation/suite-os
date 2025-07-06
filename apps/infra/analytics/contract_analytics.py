@@ -11,9 +11,9 @@ This module provides functions to analyze contract interactions with blockchain 
 
 import polars as pl
 from analytics.helpers import _apply_time_window_filter
+from config.logging_config import get_logger
 from db.iceberg import load_table
 from utils.blockchain import normalize_address, normalize_address_with_prefix
-from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 
@@ -198,10 +198,6 @@ def _analyze_method_distribution(query):
         if "function_name" not in query.columns:
             return []
 
-        # Log sample data to understand what we're working with
-        sample_data = query.select("function_name").head(3)
-        logger.info(f"Sample function_name data: {sample_data}")
-
         # Group by function name and aggregate both count and unique addresses
         method_distribution = (
             query.select(["function_name", "from", "from_normalized"])
@@ -221,10 +217,6 @@ def _analyze_method_distribution(query):
             method_distribution = method_distribution.with_columns(
                 pl.col("function_name").fill_null("Unknown")
             )
-
-        # Log the structure to verify
-        logger.info(f"Method distribution columns: {method_distribution.columns}")
-        logger.info(f"Method distribution sample: {method_distribution.head(2)}")
 
         # Convert to list of dictionaries with proper error handling
         method_dist_dicts = []

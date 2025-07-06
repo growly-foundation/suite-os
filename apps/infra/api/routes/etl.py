@@ -5,17 +5,17 @@ This module defines FastAPI routes for ETL operations.
 """
 
 import os
-import asyncio
+import uuid
 from typing import Optional
-from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends, Query, Request
-from pydantic import BaseModel, constr, Field
 
 from api.dependencies import get_catalog
-from utils.logging_config import get_logger
-from utils.blockchain import is_valid_address
-from providers.etherscan_provider import EtherscanProvider, FetchMode
-from db.iceberg import load_table, reorder_records, append_data
+from config.logging_config import get_logger
+from db.iceberg import append_data, load_table, reorder_records
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pipelines.raw.cursor import get_cursor, update_cursor
+from providers.etherscan_provider import EtherscanProvider, FetchMode
+from pydantic import BaseModel, Field, constr
+from utils.blockchain import is_valid_address
 
 logger = get_logger(__name__)
 
@@ -170,7 +170,7 @@ async def sync_transactions(
     and store them in the raw.transactions table.
     """
     # Validate address
-    if not is_valid_address(request.address):
+    if not is_valid_address(request.address, request.chain_id):
         raise HTTPException(status_code=400, detail="Invalid blockchain address")
 
     # Validate mode
@@ -181,9 +181,6 @@ async def sync_transactions(
 
     # Normalize address
     address = request.address.lower()
-
-    # Generate task ID
-    import uuid
 
     task_id = str(uuid.uuid4())
 
