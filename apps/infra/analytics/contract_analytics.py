@@ -265,6 +265,88 @@ def _analyze_user_segments(query):
         return []
 
 
+def _load_and_filter_transactions(catalog, chain_id, contract_address, time_window):
+    """
+    Common logic for loading and filtering transaction data.
+
+    Args:
+        catalog: Iceberg catalog
+        chain_id: Chain ID (e.g., 1 for Ethereum mainnet)
+        contract_address: Contract address to analyze
+        time_window: Time window string ('24h', '48h', '7d', etc.) or None for all time
+
+    Returns:
+        filtered_query: Polars DataFrame with transaction data
+    """
+    try:
+        # Load transactions table
+        table = load_table(catalog, "raw", "transactions")
+        if not table:
+            logger.error("Failed to load transactions table")
+            return None, None, None
+
+        # Apply time window filter
+        query, start_time, end_time = _apply_time_window_filter(
+            table, chain_id, time_window
+        )
+
+        # Convert and normalize addresses
+        arrow_table = query.to_arrow()
+        transactions_pl = pl.from_arrow(arrow_table)
+
+        # Log the number of transactions loaded
+        logger.info(
+            f"Loaded {len(transactions_pl)} transactions for chain_id {chain_id}"
+        )
+
+        normalized_contract = normalize_address(contract_address)
+        normalized_contract_with_prefix = normalize_address_with_prefix(
+            contract_address
+        )
+
+        logger.info(f"Normalized contract address: {normalized_contract}")
+        logger.info(
+            f"Using normalized contract with prefix for filtering: {normalized_contract_with_prefix}"
+        )
+
+        # Apply address normalization
+        query = transactions_pl.with_columns(
+            [
+                pl.col("from")
+                .map_elements(lambda x: x.lower() if x else "", return_dtype=pl.Utf8)
+                .alias("from_normalized"),
+                pl.col("to")
+                .map_elements(lambda x: x.lower() if x else "", return_dtype=pl.Utf8)
+                .alias("to_normalized"),
+            ]
+        )
+
+        # Apply time filter if needed
+        if start_time and end_time:
+            query = query.with_columns(
+                pl.col("block_time").cast(pl.Datetime).alias("ts")
+            )
+            query = query.filter(
+                (pl.col("ts") >= start_time) & (pl.col("ts") <= end_time)
+            )
+            logger.info(f"Applied time filter: {start_time} to {end_time}")
+
+        # Filter by contract address (transactions sent to the contract)
+        query = query.filter(pl.col("to_normalized") == normalized_contract_with_prefix)
+
+        # Log the number of transactions after filtering
+        tx_count = len(query)
+        logger.info(
+            f"Found {tx_count} transactions to contract {normalized_contract_with_prefix}"
+        )
+
+        return query
+
+    except Exception as e:
+        logger.error(f"Error loading and filtering transactions: {e}")
+        return None, None, None
+
+
 def get_contract_summary(catalog, chain_id, contract_address, time_window=None):
     """
     Get comprehensive analytics for a contract address.
@@ -284,71 +366,16 @@ def get_contract_summary(catalog, chain_id, contract_address, time_window=None):
             - method_distribution: Distribution of function calls (if available)
     """
     try:
-        # Load transactions table
-        table = load_table(catalog, "raw", "transactions")
-        if not table:
-            logger.error("Failed to load transactions table")
+        # Use the common helper function to load and filter transactions
+        query = _load_and_filter_transactions(
+            catalog, chain_id, contract_address, time_window
+        )
+
+        if query is None:
             return None
 
-        # Apply time window filter using helper function
-        query, start_time, end_time = _apply_time_window_filter(
-            table, chain_id, time_window
-        )
-
-        # Convert to polars DataFrame - using correct conversion method
-        arrow_table = query.to_arrow()
-        transactions_pl = pl.from_arrow(arrow_table)
-
-        # Log the number of transactions loaded
-        logger.info(
-            f"Loaded {len(transactions_pl)} transactions for chain_id {chain_id}"
-        )
-
-        # Normalize the contract address
-        normalized_contract = normalize_address(contract_address)
-        logger.info(f"Normalized contract address: {normalized_contract}")
-
-        # For filtering, we need the address with 0x prefix
-        normalized_contract_with_prefix = normalize_address_with_prefix(
-            contract_address
-        )
-        logger.info(
-            f"Using normalized contract with prefix for filtering: {normalized_contract_with_prefix}"
-        )
-
-        # Normalize addresses in the dataframe for comparison
-        # Keep the 0x prefix for proper matching with blockchain data
-        query = transactions_pl.with_columns(
-            [
-                pl.col("from")
-                .map_elements(lambda x: x.lower() if x else "", return_dtype=pl.Utf8)
-                .alias("from_normalized"),
-                pl.col("to")
-                .map_elements(lambda x: x.lower() if x else "", return_dtype=pl.Utf8)
-                .alias("to_normalized"),
-            ]
-        )
-
-        # Further refine time filtering if needed using block_time for more precise filtering
-        if start_time and end_time:
-            query = query.with_columns(
-                pl.col("block_time").cast(pl.Datetime).alias("ts")
-            )
-            query = query.filter(
-                (pl.col("ts") >= start_time) & (pl.col("ts") <= end_time)
-            )
-            logger.info(f"Applied time filter: {start_time} to {end_time}")
-
-        # For contract addresses, we're interested in transactions where the contract is in the 'to' field
-        # (i.e., transactions sent to the contract)
-        query = query.filter(pl.col("to_normalized") == normalized_contract_with_prefix)
-
-        # Log the number of transactions after filtering
+        # Check if we have any transactions
         tx_count = len(query)
-        logger.info(
-            f"Found {tx_count} transactions to contract {normalized_contract_with_prefix}"
-        )
-
         if tx_count == 0:
             logger.warning(f"No transactions found for contract {contract_address}")
             return {
@@ -421,64 +448,13 @@ def get_contract_addresses_interactions(
                 - total_value: Total value transferred to the contract
     """
     try:
-        # Load transactions table
-        table = load_table(catalog, "raw", "transactions")
-        if not table:
-            logger.error("Failed to load transactions table")
+        # Use the common helper function to load and filter transactions
+        query = _load_and_filter_transactions(
+            catalog, chain_id, contract_address, time_window
+        )
+
+        if query is None:
             return None
-
-        # Apply time window filter using helper function
-        query, start_time, end_time = _apply_time_window_filter(
-            table, chain_id, time_window
-        )
-
-        # Convert to polars DataFrame - using correct conversion method
-        arrow_table = query.to_arrow()
-        transactions_pl = pl.from_arrow(arrow_table)
-
-        # Log the number of transactions loaded
-        logger.info(
-            f"Loaded {len(transactions_pl)} transactions for chain_id {chain_id}"
-        )
-
-        # Normalize the contract address
-        normalized_contract = normalize_address(contract_address)
-        logger.info(f"Normalized contract address: {normalized_contract}")
-
-        # For filtering, we need the address with 0x prefix
-        normalized_contract_with_prefix = normalize_address_with_prefix(
-            contract_address
-        )
-        logger.info(
-            f"Using normalized contract with prefix for filtering: {normalized_contract_with_prefix}"
-        )
-
-        # Normalize addresses in the dataframe for comparison
-        # Keep the 0x prefix for proper matching with blockchain data
-        query = transactions_pl.with_columns(
-            [
-                pl.col("from")
-                .map_elements(lambda x: x.lower() if x else "", return_dtype=pl.Utf8)
-                .alias("from_normalized"),
-                pl.col("to")
-                .map_elements(lambda x: x.lower() if x else "", return_dtype=pl.Utf8)
-                .alias("to_normalized"),
-            ]
-        )
-
-        # Further refine time filtering if needed using block_time for more precise filtering
-        if start_time and end_time:
-            query = query.with_columns(
-                pl.col("block_time").cast(pl.Datetime).alias("ts")
-            )
-            query = query.filter(
-                (pl.col("ts") >= start_time) & (pl.col("ts") <= end_time)
-            )
-            logger.info(f"Applied time filter: {start_time} to {end_time}")
-
-        # For contract addresses, we're interested in transactions where the contract is in the 'to' field
-        # (i.e., transactions sent to the contract)
-        query = query.filter(pl.col("to_normalized") == normalized_contract_with_prefix)
 
         # Filter by function name if provided
         if function_name:
@@ -492,12 +468,8 @@ def get_contract_addresses_interactions(
                     "function_name column not found in transactions data, ignoring function filter"
                 )
 
-        # Log the number of transactions after filtering
+        # Check if we have any transactions after filtering
         tx_count = len(query)
-        logger.info(
-            f"Found {tx_count} transactions to contract {normalized_contract_with_prefix}"
-        )
-
         if tx_count == 0:
             logger.warning(f"No transactions found for contract {contract_address}")
             return {
@@ -613,70 +585,16 @@ def get_contract_function_distribution(
             - functions: List of function distribution data matching MethodDistribution model
     """
     try:
-        # Load transactions table
-        table = load_table(catalog, "raw", "transactions")
-        if not table:
-            logger.error("Failed to load transactions table")
+        # Use the common helper function to load and filter transactions
+        query = _load_and_filter_transactions(
+            catalog, chain_id, contract_address, time_window
+        )
+
+        if query is None:
             return None
 
-        # Apply time window filter using helper function
-        query, start_time, end_time = _apply_time_window_filter(
-            table, chain_id, time_window
-        )
-
-        # Convert to polars DataFrame - using correct conversion method
-        arrow_table = query.to_arrow()
-        transactions_pl = pl.from_arrow(arrow_table)
-
-        # Log the number of transactions loaded
-        logger.info(
-            f"Loaded {len(transactions_pl)} transactions for chain_id {chain_id}"
-        )
-
-        # Normalize the contract address
-        normalized_contract = normalize_address(contract_address)
-        logger.info(f"Normalized contract address: {normalized_contract}")
-
-        # For filtering, we need the address with 0x prefix
-        normalized_contract_with_prefix = normalize_address_with_prefix(
-            contract_address
-        )
-        logger.info(
-            f"Using normalized contract with prefix for filtering: {normalized_contract_with_prefix}"
-        )
-
-        # Normalize addresses in the dataframe for comparison
-        # Keep the 0x prefix for proper matching with blockchain data
-        query = transactions_pl.with_columns(
-            [
-                pl.col("from")
-                .map_elements(lambda x: x.lower() if x else "", return_dtype=pl.Utf8)
-                .alias("from_normalized"),
-                pl.col("to")
-                .map_elements(lambda x: x.lower() if x else "", return_dtype=pl.Utf8)
-                .alias("to_normalized"),
-            ]
-        )
-
-        # Further refine time filtering if needed using block_time for more precise filtering
-        if start_time and end_time:
-            query = query.with_columns(
-                pl.col("block_time").cast(pl.Datetime).alias("ts")
-            )
-            query = query.filter(
-                (pl.col("ts") >= start_time) & (pl.col("ts") <= end_time)
-            )
-            logger.info(f"Applied time filter: {start_time} to {end_time}")
-
-        # Filter by contract address (transactions sent to the contract)
-        query = query.filter(pl.col("to_normalized") == normalized_contract_with_prefix)
-
-        # Log the number of transactions after filtering
+        # Check if we have any transactions
         tx_count = len(query)
-        logger.info(
-            f"Found {tx_count} transactions to contract {normalized_contract_with_prefix}"
-        )
-
         if tx_count == 0:
             logger.warning(f"No transactions found for contract {contract_address}")
             return {

@@ -54,6 +54,42 @@ class SyncStatusResponse(BaseModel):
     transactions_count: Optional[int] = None
 
 
+async def _initialize_etl_tables(catalog, task_id):
+    """Initialize and load required tables for ETL."""
+    transactions_table = load_table(catalog, "raw", "transactions")
+    cursor_table = load_table(catalog, "raw", "cursor")
+
+    if not transactions_table or not cursor_table:
+        logger.error(f"Task {task_id}: Failed to load tables")
+        return None, None
+
+    return transactions_table, cursor_table
+
+
+async def _determine_fetch_mode(cursor_table, chain_id, address, mode, task_id):
+    """Determine fetch mode and starting block for incremental sync."""
+    # Get last block number for incremental mode
+    last_block_number = None
+    fetch_mode = FetchMode.FULL_REFRESH if mode == "full" else FetchMode.INCREMENTAL
+
+    if fetch_mode == FetchMode.INCREMENTAL:
+        last_block_number = get_cursor(cursor_table, chain_id, address)
+        if last_block_number is not None:
+            try:
+                last_block_number = int(last_block_number)
+                logger.info(f"Task {task_id}: Starting from block {last_block_number}")
+            except ValueError:
+                logger.warning(
+                    f"Task {task_id}: Invalid block number in cursor: {last_block_number}"
+                )
+                last_block_number = None
+                fetch_mode = FetchMode.FULL_REFRESH
+        else:
+            logger.info(f"Task {task_id}: No cursor found, using full refresh mode")
+            fetch_mode = FetchMode.FULL_REFRESH
+    return fetch_mode, last_block_number
+
+
 # Background task to sync transactions
 async def sync_transactions_task(
     catalog, address: str, chain_id: int, mode: str, task_id: str
@@ -73,35 +109,15 @@ async def sync_transactions_task(
             f"Starting sync task {task_id} for {address} on chain {chain_id}, mode: {mode}"
         )
 
-        # Load tables
-        transactions_table = load_table(catalog, "raw", "transactions")
-        cursor_table = load_table(catalog, "raw", "cursor")
-
-        if not transactions_table or not cursor_table:
-            logger.error(f"Task {task_id}: Failed to load tables")
+        transactions_table, cursor_table = await _initialize_etl_tables(
+            catalog, task_id
+        )
+        if not transactions_table:
             return
 
-        # Get last block number for incremental mode
-        last_block_number = None
-        fetch_mode = FetchMode.FULL_REFRESH if mode == "full" else FetchMode.INCREMENTAL
-
-        if fetch_mode == FetchMode.INCREMENTAL:
-            last_block_number = get_cursor(cursor_table, chain_id, address)
-            if last_block_number is not None:
-                try:
-                    last_block_number = int(last_block_number)
-                    logger.info(
-                        f"Task {task_id}: Starting from block {last_block_number}"
-                    )
-                except ValueError:
-                    logger.warning(
-                        f"Task {task_id}: Invalid block number in cursor: {last_block_number}"
-                    )
-                    last_block_number = None
-                    fetch_mode = FetchMode.FULL_REFRESH
-            else:
-                logger.info(f"Task {task_id}: No cursor found, using full refresh mode")
-                fetch_mode = FetchMode.FULL_REFRESH
+        fetch_mode, last_block_number = await _determine_fetch_mode(
+            cursor_table, chain_id, address, mode, task_id
+        )
 
         # Fetch transactions from Etherscan
         etherscan_api_key = os.getenv("ETHERSCAN_API_KEY")
