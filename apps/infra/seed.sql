@@ -33,11 +33,13 @@ TBLPROPERTIES ('table_type' = 'iceberg')
 CREATE TABLE IF NOT EXISTS `raw`.cursor (
   chain_id int,
   contract_address string,
-  block_number string,
+  start_block string,
+  end_block string,
   updated_at timestamp
 )
 PARTITIONED BY (chain_id)
 TBLPROPERTIES ('table_type' = 'iceberg')
+;
 
 -- Create the STANDARDIZED contracts table
 CREATE TABLE IF NOT EXISTS `standardized`.contracts (

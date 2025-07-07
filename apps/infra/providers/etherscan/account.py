@@ -1,18 +1,27 @@
 """
 Etherscan Account Provider
 
-Provider for account-related Etherscan API operations.
-Handles transaction fetching, pagination, and account-specific data.
+Handles account-related operations via the Etherscan API:
+- Normal transactions
+- Internal transactions
+- ERC-20 token transfers
+- ERC-721 (NFT) token transfers
+- ERC-1155 multi-token transfers
+
+Supports both Ethereum mainnet and Base network.
 """
 
 import asyncio
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 
 import aiohttp
 from config.logging_config import get_logger
 
-from .base import EtherscanBaseProvider, FetchMode
+from .base import EtherscanBaseProvider
+from models import FetchMode, TimePeriod
+from .block import EtherscanBlockProvider
 
 # Create a logger for this module
 logger = get_logger(__name__)
@@ -155,6 +164,7 @@ class EtherscanAccountProvider(EtherscanBaseProvider):
         chain_id: int,
         mode: FetchMode = FetchMode.FULL_REFRESH,
         last_block_number: Optional[int] = None,
+        time_period: Optional[TimePeriod] = None,
     ) -> List:
         """
         Fetch all transactions for a given address.
@@ -162,9 +172,9 @@ class EtherscanAccountProvider(EtherscanBaseProvider):
         Args:
             address: Wallet/contract address to fetch transactions for
             chain_id: Blockchain chain ID (1 for Ethereum mainnet)
-            mode: FetchMode.INCREMENTAL or FetchMode.FULL_REFRESH
+            mode: FetchMode.INCREMENTAL, FetchMode.FULL_REFRESH, or FetchMode.TIME_RANGE
             last_block_number: Starting block number for incremental mode
-            return_full_objects: If True, return full transaction objects; if False, return only hashes
+            time_period: TimePeriod for TIME_RANGE mode (defaults to 7 days if not specified)
 
         Returns:
             List of transaction hashes or full transaction objects
@@ -182,6 +192,13 @@ class EtherscanAccountProvider(EtherscanBaseProvider):
         if mode == FetchMode.INCREMENTAL and last_block_number is not None:
             next_block = last_block_number + 1
             logger.info(f"Starting from block: {next_block} (incremental mode)")
+        elif mode == FetchMode.TIME_RANGE:
+            # Use provided time_period or default to 7 days
+            period = time_period or TimePeriod.DAYS_7
+            next_block = await self._get_time_based_start_block(chain_id, period)
+            logger.info(
+                f"Starting from block: {next_block} (time-range mode - {period.value})"
+            )
         else:
             next_block = 0
             logger.info("Starting from genesis block (full refresh mode)")
@@ -233,3 +250,47 @@ class EtherscanAccountProvider(EtherscanBaseProvider):
         logger.info(f"Fetching complete! Total transactions: {total_transactions}")
 
         return all_transactions
+
+    async def _get_time_based_start_block(
+        self, chain_id: int, time_period: TimePeriod
+    ) -> int:
+        """
+        Calculate the starting block number for time-based modes.
+
+        Args:
+            chain_id: Blockchain chain ID
+            time_period: Time period to look back
+
+        Returns:
+            Block number from the specified time period ago, or 0 if calculation fails
+        """
+        try:
+            # Calculate timestamp for the specified period ago
+            period_ago = datetime.now(timezone.utc) - timedelta(days=time_period.days)
+            timestamp_period_ago = int(period_ago.timestamp())
+
+            logger.info(
+                f"Calculating block number for {time_period.value} ({time_period.days} days ago) "
+                f"- timestamp: {timestamp_period_ago}"
+            )
+
+            block_provider = EtherscanBlockProvider(self.api_key)
+            block_number_str = await block_provider.get_block_number_by_timestamp(
+                timestamp_period_ago, chain_id
+            )
+
+            # Convert to integer
+            if block_number_str and block_number_str != "{}":
+                block_number = int(block_number_str)
+                logger.info(f"{time_period.value} block number: {block_number}")
+                return block_number
+            else:
+                logger.warning(
+                    f"Could not determine block number for {time_period.value} ago, starting from genesis"
+                )
+                return 0
+
+        except Exception as e:
+            logger.error(f"Error calculating time-based start block: {e}")
+            logger.info("Falling back to genesis block")
+            return 0

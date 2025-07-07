@@ -7,9 +7,7 @@ from pyiceberg.expressions import (
     literal,
 )
 
-from utils.blockchain import (
-    get_time_window_filter,
-)
+from models import TimePeriod
 
 
 def _apply_time_window_filter(table, chain_id, time_window):
@@ -19,8 +17,12 @@ def _apply_time_window_filter(table, chain_id, time_window):
     Returns:
         Tuple of (filtered_query, start_time, end_time)
     """
-    # Get time window filter
-    start_time, end_time = get_time_window_filter(time_window)
+    # Get time window filter using the new unified system
+    if time_window:
+        period = TimePeriod.from_string(time_window)
+        start_time, end_time = period.to_datetime_range()
+    else:
+        start_time = end_time = None
 
     # Convert datetime to date for filtering on block_date
     start_date = start_time.date() if start_time else None

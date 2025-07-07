@@ -9,21 +9,15 @@ import re
 from abc import ABC
 from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum
-from typing import Dict
+from typing import Dict, Any
 
 import aiohttp
+
 from config.logging_config import get_logger
+
 
 # Create a logger for this module
 logger = get_logger(__name__)
-
-
-class FetchMode(Enum):
-    """Enumeration for different fetch modes."""
-
-    INCREMENTAL = "incremental"
-    FULL_REFRESH = "full_refresh"
 
 
 @dataclass
@@ -32,7 +26,7 @@ class EtherscanResponse:
 
     status: str
     message: str
-    result: any
+    result: Any
 
 
 class EtherscanBaseProvider(ABC):

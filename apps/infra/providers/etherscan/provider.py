@@ -10,9 +10,10 @@ from typing import Dict
 from config.logging_config import get_logger
 
 from .account import EtherscanAccountProvider
+from .block import EtherscanBlockProvider
 from .contract import EtherscanContractProvider
-from .proxy import EtherscanProxyProvider
 from .logs import EtherscanLogsProvider
+from .proxy import EtherscanProxyProvider
 
 # Create a logger for this module
 logger = get_logger(__name__)
@@ -40,6 +41,7 @@ class EtherscanProvider:
         self.account = EtherscanAccountProvider(api_key)
         self.contract = EtherscanContractProvider(api_key)
         self.proxy = EtherscanProxyProvider(api_key)
+        self.block = EtherscanBlockProvider(api_key)
         self.logs = EtherscanLogsProvider(api_key)
 
         # Backward compatibility attributes
@@ -68,6 +70,10 @@ class EtherscanProvider:
     async def get_latest_block_number(self, *args, **kwargs):
         """Delegate to proxy provider."""
         return await self.proxy.get_latest_block_number(*args, **kwargs)
+
+    async def get_block_number_by_timestamp(self, *args, **kwargs):
+        """Delegate to block provider."""
+        return await self.block.get_block_number_by_timestamp(*args, **kwargs)
 
     # Utility methods
     def _camel_to_snake(self, name: str) -> str:

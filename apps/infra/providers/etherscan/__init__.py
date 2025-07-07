@@ -5,8 +5,9 @@ This package provides modular access to Etherscan API operations with specialize
 for different API modules and shared base functionality.
 """
 
-from .account import EtherscanAccountProvider, FetchMode, TransactionBatch
+from .account import EtherscanAccountProvider, TransactionBatch
 from .base import EtherscanBaseProvider, EtherscanResponse
+from models import FetchMode, TimePeriod
 from .contract import EtherscanContractProvider
 from .logs import EtherscanLogsProvider, LogsBatch
 from .provider import EtherscanProvider
@@ -31,6 +32,7 @@ __all__ = [
     "EtherscanResponse",
     # Enums and data classes
     "FetchMode",
+    "TimePeriod",
     "TransactionBatch",
     "LogsBatch",
     # Pydantic models

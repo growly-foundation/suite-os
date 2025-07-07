@@ -1,8 +1,13 @@
 """
 Etherscan Logs Provider
 
-Provider for logs-related Etherscan API operations.
-Handles event log fetching, topic filtering, and address-specific log queries.
+Handles logs-related operations via the Etherscan API:
+- Event logs by address
+- Event logs by topics with filtering
+- Event logs by address with topic filtering
+- Pagination and result processing
+
+Supports both Ethereum mainnet and Base network.
 """
 
 import asyncio
@@ -12,7 +17,8 @@ from typing import Dict, List, Optional
 import aiohttp
 from config.logging_config import get_logger
 
-from .base import EtherscanBaseProvider, FetchMode
+from .base import EtherscanBaseProvider
+from models import FetchMode
 
 # Create a logger for this module
 logger = get_logger(__name__)
@@ -339,7 +345,7 @@ class EtherscanLogsProvider(EtherscanBaseProvider):
                         f"Invalid topic operator '{operator_value}'. Must be one of: {valid_operators}"
                     )
 
-        logger.info(f"Starting logs fetch by topics")
+        logger.info("Starting logs fetch by topics")
         logger.info(f"Mode: {mode.value}")
         logger.info(f"Chain ID: {chain_id}")
         logger.info(f"Topics: {topics}")

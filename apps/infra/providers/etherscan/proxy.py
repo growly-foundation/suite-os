@@ -22,9 +22,6 @@ class EtherscanProxyProvider(EtherscanBaseProvider):
 
     Handles:
     - Latest block number fetching (eth_blockNumber action)
-    - Gas price information
-    - Block information retrieval
-    - Network status queries
     """
 
     def __init__(self, api_key: str):

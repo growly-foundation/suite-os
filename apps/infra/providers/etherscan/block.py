@@ -16,12 +16,12 @@ from .base import EtherscanBaseProvider
 logger = get_logger(__name__)
 
 
-class EtherscanContractProvider(EtherscanBaseProvider):
+class EtherscanBlockProvider(EtherscanBaseProvider):
     """
-    Contract-specific provider for Etherscan API operations.
+    Block-specific provider for Etherscan API operations.
 
     Handles:
-    - Contract ABI fetching (getabi action)
+    - Contract blockNumber from timestamp
     """
 
     def __init__(self, api_key: str):
@@ -33,46 +33,54 @@ class EtherscanContractProvider(EtherscanBaseProvider):
         """
         super().__init__(api_key)
 
-    def _get_contract_params(
-        self, chain_id: int, action: str, address: str, **kwargs
+    def _get_block_params(
+        self, chain_id: int, action: str, timestamp: int, **kwargs
     ) -> Dict:
         """
         Get parameters for contract module requests.
 
         Args:
             chain_id: Blockchain chain ID
-            action: Contract action (e.g., "getabi", "getsourcecode")
-            address: Contract address
-            **kwargs: Additional contract-specific parameters
+            action: Block action (e.g., "getblocknobytime")
+            timestamp: Timestamp in seconds
 
         Returns:
-            Dictionary with contract-specific parameters
+            Dictionary with block-specific parameters
         """
-        base_params = self._get_base_params(chain_id, "contract", action)
+        base_params = self._get_base_params(chain_id, "block", action)
 
-        contract_params = {"address": address, **kwargs}
+        block_params = {
+            "timestamp": timestamp,
+            "closest": "before",
+            "apikey": self.api_key,
+            **kwargs,
+        }
 
-        return {**base_params, **contract_params}
+        return {**base_params, **block_params}
 
-    async def get_contract_abi(self, address: str, chain_id: int) -> str:
+    async def get_block_number_by_timestamp(self, timestamp: int, chain_id: int) -> str:
         """
-        Fetch contract ABI from Etherscan API.
+        Fetch block number from Etherscan API.
 
         Args:
-            address: Contract address
+            timestamp: Timestamp in seconds
             chain_id: Blockchain chain ID (1 for Ethereum mainnet, 8453 for Base)
 
         Returns:
             Contract ABI as a JSON string, or empty JSON object string if not found
         """
-        logger.info(f"Fetching ABI for contract {address} on chain {chain_id}")
+        logger.info(
+            f"Fetching block number for timestamp {timestamp} on chain {chain_id}"
+        )
 
         if not self._validate_chain_id(chain_id):
-            logger.warning(f"Chain ID {chain_id} not supported for ABI fetching")
+            logger.warning(
+                f"Chain ID {chain_id} not supported for block number fetching"
+            )
             return "{}"
 
-        params = self._get_contract_params(
-            chain_id=chain_id, action="getabi", address=address
+        params = self._get_block_params(
+            chain_id=chain_id, action="getblocknobytime", timestamp=timestamp
         )
 
         try:
@@ -80,12 +88,14 @@ class EtherscanContractProvider(EtherscanBaseProvider):
                 response = await self._make_request(session, params)
 
                 if response.status == "1" and response.message == "OK":
-                    logger.info(f"Successfully fetched ABI for contract {address}")
+                    logger.info(
+                        f"Successfully fetched block number for timestamp {timestamp}"
+                    )
                     return response.result or "{}"
                 else:
                     logger.warning(f"Etherscan API error: {response.message}")
                     return "{}"
 
         except Exception as e:
-            logger.error(f"Error fetching ABI from Etherscan: {e}")
+            logger.error(f"Error fetching block number from Etherscan: {e}")
             return "{}"
