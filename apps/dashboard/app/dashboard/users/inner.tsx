@@ -1,9 +1,9 @@
 'use client';
 
 import { AnimatedLoadingSmall } from '@/components/animated-components/animated-loading-small';
+import { ImportUserButton } from '@/components/app-users/integrations/import-user-button';
 import { UsersTable } from '@/components/app-users/smart-tables/app-users-table';
 import { SearchInput } from '@/components/inputs/search-input';
-import { generateMockUsers } from '@/constants/mockUsers';
 import { consumePersona } from '@/core/persona';
 import { useSelectedOrganizationUsersEffect } from '@/hooks/use-organization-effect';
 import React, { useState } from 'react';
@@ -11,7 +11,6 @@ import React, { useState } from 'react';
 import { ParsedUser } from '@getgrowly/core';
 
 export function UserDirectoryLayout({ users, loading }: { users: ParsedUser[]; loading: boolean }) {
-  const [viewDemo, setViewDemo] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Filter users
@@ -24,7 +23,12 @@ export function UserDirectoryLayout({ users, loading }: { users: ParsedUser[]; l
     );
   });
 
-  const _users = viewDemo ? generateMockUsers(100) : filteredUsers;
+  const handleImportComplete = () => {
+    // Refresh the user list or any other action needed
+    // This is a placeholder - you might want to fetch updated users
+    // Optional: Show a message or trigger a refresh
+  };
+
   return (
     <React.Fragment>
       {loading ? (
@@ -32,7 +36,9 @@ export function UserDirectoryLayout({ users, loading }: { users: ParsedUser[]; l
       ) : (
         <React.Fragment>
           <div className="flex items-center justify-between border-b p-2 px-4">
-            <span className="text-sm text-muted-foreground">There are {_users.length} users</span>
+            <span className="text-sm text-muted-foreground">
+              There are {filteredUsers.length} users
+            </span>
             <div className="flex items-center gap-2">
               <SearchInput
                 className="p-2"
@@ -40,10 +46,10 @@ export function UserDirectoryLayout({ users, loading }: { users: ParsedUser[]; l
                 setSearchQuery={setSearchQuery}
                 placeholder="Search ENS or address"
               />
-              {/* <PrimaryButton onClick={() => setViewDemo(true)}>View demo</PrimaryButton> */}
+              <ImportUserButton onImportComplete={handleImportComplete} />
             </div>
           </div>
-          <UsersTable users={_users} />
+          <UsersTable users={filteredUsers} />
         </React.Fragment>
       )}
     </React.Fragment>

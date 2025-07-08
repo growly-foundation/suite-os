@@ -29,6 +29,11 @@ export type UserOnchainData = ParsedUserPersona;
 export type UserOffchainData = {
   company?: string;
   description?: string;
+  // Additional fields for integration metadata
+  source?: string; // Source of the user (privy, guildxyz, contract, etc.)
+  sourceId?: string; // ID in the source system
+  sourceData?: Record<string, any>; // Structured data from the source
+  importedAt?: string; // When the user was imported
 };
 
 export type UserChatSession = {
