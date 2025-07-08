@@ -19,16 +19,33 @@ The application performs the following tasks:
 
 ## Installation
 
-1. Install dependencies:
+1. Install `uv`: https://docs.astral.sh/uv/getting-started/installation/
+2. Init project
 
    ```bash
-   pip install -r requirements.txt
+   uv sync
    ```
 
-2. Create a `.env` file with your API keys:
+3. Create a `.env` file with your API keys:
    ```
    ETHERSCAN_API_KEY=your_etherscan_api_key
    ```
+
+## Quick start
+
+1. Start server
+
+```bash
+uv run fastapi dev main.py
+```
+
+2. Start dashboard
+
+```bash
+uv run streamlit run dashboard.py
+```
+
+To run CLI, please check the below options
 
 ## Command-Line Usage
 
@@ -37,7 +54,7 @@ The application provides a command-line interface for fetching and processing Et
 ### Basic Usage
 
 ```bash
-python main.py 0x123456789abcdef --chain-id 8453
+uv run python main.py 0x123456789abcdef --chain-id 8453
 ```
 
 This will fetch all transactions for the specified wallet address on Ethereum mainnet (chain ID 1) and store them in the Iceberg table.
@@ -45,21 +62,23 @@ This will fetch all transactions for the specified wallet address on Ethereum ma
 ### Available Options
 
 ```bash
-python main.py <wallet_address> [options]
+uv run python main.py <wallet_address> [options]
 ```
 
 Options:
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--chain-id INT` | Blockchain chain ID | 8453 (Base mainnet) |
-| `--mode {full,incremental}` | Fetch mode | incremental |
-| `--no-read` | Skip reading table data after append | false |
-| `--read-only` | Only fetch and display data without writing to Iceberg | false |
-| `--catalog NAME` | AWS Glue catalog name | s3tablescatalog |
-| `--bucket NAME` | S3 bucket name | suite |
-| `--database NAME` | Database name | raw |
-| `--table NAME` | Table name | transactions |
-| `--region NAME` | AWS region | ap-southeast-1 |
+
+| Option                                 | Description                                            | Default             |
+| -------------------------------------- | ------------------------------------------------------ | ------------------- |
+| `--chain-id INT`                       | Blockchain chain ID                                    | 8453 (Base mainnet) |
+| `--mode {full,incremental,time_range}` | Fetch mode                                             | incremental         |
+| `--time-period`                        | Time period (7d, 30d,...)                              | 7d                  |
+| `--no-read`                            | Skip reading table data after append                   | false               |
+| `--read-only`                          | Only fetch and display data without writing to Iceberg | false               |
+| `--catalog NAME`                       | AWS Glue catalog name                                  | s3tablescatalog     |
+| `--bucket NAME`                        | S3 bucket name                                         | suite               |
+| `--database NAME`                      | Database name                                          | raw                 |
+| `--table NAME`                         | Table name                                             | transactions        |
+| `--region NAME`                        | AWS region                                             | ap-southeast-1      |
 
 ### Examples
 
@@ -68,7 +87,7 @@ Options:
 Fetches only new transactions since the last processed block:
 
 ```bash
-python main.py 0x123456789abcdef --chain-id 1
+uv run python main.py 0x123456789abcdef --chain-id 1
 ```
 
 #### Full Refresh
@@ -76,7 +95,7 @@ python main.py 0x123456789abcdef --chain-id 1
 Fetches all transactions from the beginning:
 
 ```bash
-python main.py 0x123456789abcdef --chain-id 1 --mode full
+uv run python main.py 0x123456789abcdef --chain-id 1 --mode full
 ```
 
 #### Read-Only Mode
@@ -120,119 +139,16 @@ The codebase is organized into the following modules:
         └── transactions.py        # Transactions table operations
 ```
 
-## Programmatic Usage
-
-### Fetching Transactions from Etherscan
-
-```python
-import asyncio
-from providers.etherscan import EtherscanProvider, FetchMode
-
-async def fetch_transactions():
-    provider = EtherscanProvider(api_key="your_etherscan_api_key")
-    transactions = await provider.get_all_transactions(
-        address="0x123456789abcdef",
-        chain_id=1,
-        mode=FetchMode.INCREMENTAL,
-        last_block_number=12345678
-    )
-    return transactions
-
-# Or use specialized providers
-from providers.etherscan import EtherscanAccountProvider, EtherscanContractProvider
-
-async def specialized_usage():
-    account_provider = EtherscanAccountProvider(api_key="your_api_key")
-    contract_provider = EtherscanContractProvider(api_key="your_api_key")
-
-    # Fetch transactions using account provider
-    transactions = await account_provider.get_all_transactions(
-        address="0x123456789abcdef", chain_id=1
-    )
-
-    # Fetch ABI using contract provider
-    abi = await contract_provider.get_contract_abi(
-        address="0xcontract_address", chain_id=1
-    )
-
-    return transactions, abi
-
-# Run the async function
-transactions = asyncio.run(fetch_transactions())
-```
-
-### Working with Iceberg Tables
-
-```python
-from config.aws_config import initialize_catalog
-from db.iceberg import load_table, append_data
-
-# Initialize catalog
-catalog = initialize_catalog("my-catalog", "my-bucket", "us-west-2")
-
-# Load table
-table = load_table(catalog, "raw", "transactions")
-
-# Get schema
-schema = table.schema().as_arrow()
-
-# Append data
-append_data(table, transactions_data, schema)
-```
-
-### Updating the Cursor
-
-```python
-from pipelines.raw.cursor import update_cursor
-
-# Update cursor with the latest block number
-update_cursor(
-    catalog,
-    "raw",
-    chain_id=1,
-    contract_address="0x123456789abcdef",
-    block_number=12345678
-)
-```
-
-## Design Principles
-
-1. **Atomic Operations**: `db/iceberg.py` provides atomic operations that can be reused by any table handler
-2. **Separation of Concerns**: Each module has a specific responsibility
-3. **Code Reuse**: Common functionality is centralized to avoid duplication
-4. **Safety First**: Always check the cursor before loading data, regardless of load type
-5. **Logging**: Comprehensive logging throughout the application
-
 # Blockchain Analytics API
 
 A high-performance FastAPI-based analytics API for blockchain data stored in Apache Iceberg tables. This API provides comprehensive analytics for blockchain addresses, including wallet interactions, contract usage, and transaction metrics.
-
-## Features
-
-- **Address Analytics**: Automatic detection of address type (wallet or contract) with tailored analytics
-- **Wallet Interactions**: Track how wallets interact with different contracts and dApps
-- **Contract Analytics**: Comprehensive metrics for contract usage including user segments and method distribution
-- **Time-Based Filtering**: Filter analytics by various time windows (24h, 7d, 30d, etc.)
-- **High Performance**: Built with PyIceberg and Polars for efficient data processing
-- **Modular Design**: Clean separation of concerns with dedicated modules for routes, analytics, and data access
-- **ETL Operations**: API endpoints for syncing blockchain data from Etherscan to Iceberg tables
-- **Shared Resources**: Efficient resource management with shared Iceberg catalog
-
-## Tech Stack
-
-- **FastAPI**: Modern, high-performance web framework for building APIs
-- **PyIceberg**: Python implementation of Apache Iceberg for efficient table access
-- **Polars**: High-performance DataFrame library for data manipulation
-- **Web3.py**: Library for interacting with Ethereum nodes
-- **AWS Glue**: Metadata catalog for Apache Iceberg tables
-- **S3**: Storage for Apache Iceberg data files
 
 ## Installation
 
 1. Install dependencies:
 
    ```bash
-   pip install -r requirements.txt
+   uv sync
    ```
 
 2. Configure your environment by creating a `.env` file:
@@ -249,20 +165,13 @@ A high-performance FastAPI-based analytics API for blockchain data stored in Apa
 ### Development Mode
 
 ```bash
-fastapi dev main.py
+uv run fastapi dev main.py
 ```
 
 ### Production Mode
 
 ```bash
-fastapi run main.py
-```
-
-### Using the Start Script
-
-```bash
-chmod +x start_api.sh
-./start_api.sh
+uv run fastapi run main.py
 ```
 
 ## API Endpoints
@@ -281,7 +190,7 @@ chmod +x start_api.sh
 
 - `GET /api/v1/contracts/{contract_address}/summary` - Get comprehensive analytics for a contract
 - `GET /api/v1/contracts/{contract_address}/interactions/addresses` - Get addresses that have interacted with a contract
-- `GET /api/v1/contracts/{contract_address}/interactions/functions` - Get detailed information about interactions with a specific function/method
+- `GET /api/v1/contracts/{contract_address}/interactions/functions` - Get detailed information about interactions with all functions
 - `POST /api/v1/contracts` - Add a contract to the standardized contracts table
 
 #### Contract Interactions Endpoints
@@ -293,14 +202,14 @@ The `/interactions` group provides detailed analysis of contract interactions:
 - Returns a paginated list of unique addresses that have interacted with the contract
 - Supports filtering by time window
 - Includes interaction counts, timestamps, and value transferred
-- Parameters: `chain_id`, `time_window`, `limit`, `offset`
+- Can filter by function name
+- Parameters: `chain_id`, `time_window`, `limit`, `offset`, `function`
 
 **`/interactions/functions`**
 
-- Returns detailed information about interactions with a specific contract function
-- Requires `function` query parameter to specify the function name
+- Returns detailed information about interactions with all contract function
 - Shows which addresses called the function and their interaction patterns
-- Parameters: `function` (required), `chain_id`, `time_window`, `limit`, `offset`
+- Parameters: `chain_id`, `time_window`, `limit`, `offset`
 
 ### ETL Endpoints
 
@@ -400,16 +309,6 @@ The application follows a modular architecture with clean separation of concerns
 ├── start_api.sh                   # Script to start the API server
 └── requirements.txt               # Project dependencies
 ```
-
-### Key Design Patterns
-
-1. **Shared Resources**: The Iceberg catalog is initialized once during application startup and stored in `app.state` for efficient access throughout the application.
-
-2. **Dependency Injection**: FastAPI's dependency injection system is used to provide the catalog to routes that need it.
-
-3. **Background Tasks**: ETL operations run as background tasks to avoid blocking API requests.
-
-4. **Modular Routes**: API endpoints are organized into domain-specific modules for better maintainability.
 
 ## Analytics Features
 

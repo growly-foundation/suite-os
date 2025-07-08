@@ -4,7 +4,6 @@ Wallet API Routes
 This module defines FastAPI routes for wallet analytics.
 """
 
-
 from analytics.wallet_analytics import get_wallet_contract_interactions
 from api.dependencies import get_catalog, validate_time_window
 from api.models.query_models import WalletAnalyticsQuery
@@ -43,27 +42,41 @@ async def get_wallet_interactions(
         )
 
     # Get wallet interactions
-    interactions = get_wallet_contract_interactions(
+    result = get_wallet_contract_interactions(
         catalog, query.chain_id, wallet_address, query.time_window
     )
 
-    # We now always return a DataFrame, even if empty
-    if interactions is None:
+    # Handle the new dict return format
+    if result is None:
         logger.error(f"Unexpected None result for wallet {wallet_address}")
         # Return empty interactions
         return WalletInteractionsResponse(
             wallet_address=wallet_address,
             chain_id=query.chain_id,
             time_window=query.time_window,
+            first_transaction=None,
+            last_transaction=None,
+            total_transaction_count=0,
             interactions=[],
         )
 
-    # Convert to response format
-    interactions_list = interactions.to_dicts()
+    # Extract data from the result dict
+    interactions_df = result.get("interactions")
+    first_transaction = result.get("first_transaction")
+    last_transaction = result.get("last_transaction")
+    total_transaction_count = result.get("total_transaction_count", 0)
+
+    # Convert interactions DataFrame to response format
+    interactions_list = []
+    if interactions_df is not None and len(interactions_df) > 0:
+        interactions_list = interactions_df.to_dicts()
 
     return WalletInteractionsResponse(
         wallet_address=wallet_address,
         chain_id=query.chain_id,
         time_window=query.time_window,
+        first_transaction=first_transaction,
+        last_transaction=last_transaction,
+        total_transaction_count=total_transaction_count,
         interactions=interactions_list,
     )
