@@ -158,6 +158,38 @@ class EtherscanAccountProvider(EtherscanBaseProvider):
             logger.error(f"Error fetching transaction batch: {e}")
             raise
 
+    def _deduplicate_transactions(self, transactions: List[Dict]) -> List[Dict]:
+        """
+        Remove duplicate transactions based on transaction hash.
+
+        This is needed because we use last_block - 1 pagination strategy
+        which can cause overlap between batches.
+
+        Args:
+            transactions: List of transaction dictionaries
+
+        Returns:
+            List of unique transactions, preserving order
+        """
+        seen_hashes = set()
+        unique_transactions = []
+
+        for tx in transactions:
+            tx_hash = tx.get("hash")
+            if tx_hash and tx_hash not in seen_hashes:
+                seen_hashes.add(tx_hash)
+                unique_transactions.append(tx)
+            elif tx_hash in seen_hashes:
+                logger.debug(f"Skipping duplicate transaction: {tx_hash}")
+
+        if len(transactions) != len(unique_transactions):
+            logger.info(
+                f"Deduplicated {len(transactions) - len(unique_transactions)} "
+                f"duplicate transactions out of {len(transactions)} total"
+            )
+
+        return unique_transactions
+
     async def get_all_transactions(
         self,
         address: str,
@@ -237,7 +269,14 @@ class EtherscanAccountProvider(EtherscanBaseProvider):
                         break
 
                     # Prepare for next batch
-                    next_block = batch.last_block_number + 1
+                    # Follow Etherscan guide: set next block to last block - 1
+                    # This handles cases where transactions from the last block were cut off by the limit
+                    next_block = batch.last_block_number - 1
+
+                    logger.debug(
+                        f"Setting next batch start block to {next_block} "
+                        f"(last_block - 1 = {batch.last_block_number} - 1)"
+                    )
 
                     # Rate limiting
                     await asyncio.sleep(0.2)
@@ -247,7 +286,14 @@ class EtherscanAccountProvider(EtherscanBaseProvider):
                     break
 
         total_transactions = len(all_transactions)
-        logger.info(f"Fetching complete! Total transactions: {total_transactions}")
+        logger.info(
+            f"Fetching complete! Total transactions before deduplication: {total_transactions}"
+        )
+
+        # Deduplicate transactions due to overlapping pagination
+        all_transactions = self._deduplicate_transactions(all_transactions)
+        final_count = len(all_transactions)
+        logger.info(f"Final count after deduplication: {final_count}")
 
         return all_transactions
 

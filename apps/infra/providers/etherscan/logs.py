@@ -204,6 +204,44 @@ class EtherscanLogsProvider(EtherscanBaseProvider):
             logger.error(f"Error fetching logs batch: {e}")
             raise
 
+    def _deduplicate_logs(self, logs: List[Dict]) -> List[Dict]:
+        """
+        Remove duplicate logs based on a combination of transaction hash, log index, and block number.
+
+        This is needed because we use last_block - 1 pagination strategy
+        which can cause overlap between batches.
+
+        Args:
+            logs: List of log dictionaries
+
+        Returns:
+            List of unique logs, preserving order
+        """
+        seen_logs = set()
+        unique_logs = []
+
+        for log in logs:
+            # Create a unique identifier from transaction hash, log index, and block number
+            log_id = (
+                log.get("transaction_hash"),
+                log.get("log_index"),
+                log.get("block_number"),
+            )
+
+            if log_id not in seen_logs:
+                seen_logs.add(log_id)
+                unique_logs.append(log)
+            else:
+                logger.debug(f"Skipping duplicate log: {log_id}")
+
+        if len(logs) != len(unique_logs):
+            logger.info(
+                f"Deduplicated {len(logs) - len(unique_logs)} "
+                f"duplicate logs out of {len(logs)} total"
+            )
+
+        return unique_logs
+
     async def get_logs_by_address(
         self,
         chain_id: int,
@@ -287,7 +325,14 @@ class EtherscanLogsProvider(EtherscanBaseProvider):
                         break
 
                     # Prepare for next batch
-                    next_block = batch.last_block_number + 1
+                    # Follow Etherscan guide: set next block to last block - 1
+                    # This handles cases where logs from the last block were cut off by the limit
+                    next_block = batch.last_block_number - 1
+
+                    logger.debug(
+                        f"Setting next batch start block to {next_block} "
+                        f"(last_block - 1 = {batch.last_block_number} - 1)"
+                    )
 
                     # Rate limiting
                     await asyncio.sleep(0.2)
@@ -297,7 +342,12 @@ class EtherscanLogsProvider(EtherscanBaseProvider):
                     break
 
         total_logs = len(all_logs)
-        logger.info(f"Fetching complete! Total logs: {total_logs}")
+        logger.info(f"Fetching complete! Total logs before deduplication: {total_logs}")
+
+        # Deduplicate logs due to overlapping pagination
+        all_logs = self._deduplicate_logs(all_logs)
+        final_count = len(all_logs)
+        logger.info(f"Final count after deduplication: {final_count}")
 
         return all_logs
 
@@ -400,7 +450,14 @@ class EtherscanLogsProvider(EtherscanBaseProvider):
                         break
 
                     # Prepare for next batch
-                    next_block = batch.last_block_number + 1
+                    # Follow Etherscan guide: set next block to last block - 1
+                    # This handles cases where logs from the last block were cut off by the limit
+                    next_block = batch.last_block_number - 1
+
+                    logger.debug(
+                        f"Setting next batch start block to {next_block} "
+                        f"(last_block - 1 = {batch.last_block_number} - 1)"
+                    )
 
                     # Rate limiting
                     await asyncio.sleep(0.2)
@@ -410,7 +467,12 @@ class EtherscanLogsProvider(EtherscanBaseProvider):
                     break
 
         total_logs = len(all_logs)
-        logger.info(f"Fetching complete! Total logs: {total_logs}")
+        logger.info(f"Fetching complete! Total logs before deduplication: {total_logs}")
+
+        # Deduplicate logs due to overlapping pagination
+        all_logs = self._deduplicate_logs(all_logs)
+        final_count = len(all_logs)
+        logger.info(f"Final count after deduplication: {final_count}")
 
         return all_logs
 
@@ -516,7 +578,14 @@ class EtherscanLogsProvider(EtherscanBaseProvider):
                         break
 
                     # Prepare for next batch
-                    next_block = batch.last_block_number + 1
+                    # Follow Etherscan guide: set next block to last block - 1
+                    # This handles cases where logs from the last block were cut off by the limit
+                    next_block = batch.last_block_number - 1
+
+                    logger.debug(
+                        f"Setting next batch start block to {next_block} "
+                        f"(last_block - 1 = {batch.last_block_number} - 1)"
+                    )
 
                     # Rate limiting
                     await asyncio.sleep(0.2)
@@ -526,6 +595,11 @@ class EtherscanLogsProvider(EtherscanBaseProvider):
                     break
 
         total_logs = len(all_logs)
-        logger.info(f"Fetching complete! Total logs: {total_logs}")
+        logger.info(f"Fetching complete! Total logs before deduplication: {total_logs}")
+
+        # Deduplicate logs due to overlapping pagination
+        all_logs = self._deduplicate_logs(all_logs)
+        final_count = len(all_logs)
+        logger.info(f"Final count after deduplication: {final_count}")
 
         return all_logs
