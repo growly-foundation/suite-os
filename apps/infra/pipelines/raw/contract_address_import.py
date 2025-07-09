@@ -528,7 +528,12 @@ class ContractAddressImporter:
         Returns:
             True if successful (including skipped duplicates), False otherwise
         """
-        if not catalog or not cursor_table or not highest_block or not lowest_block:
+        if (
+            (not catalog)
+            or (not cursor_table)
+            or (highest_block is None)
+            or (lowest_block is None)
+        ):
             if catalog and cursor_table:
                 logger.warning(
                     f"Task {task_id}: Cannot update cursor - missing block range data "
@@ -723,7 +728,7 @@ class ContractAddressImporter:
         )
 
         # Convert set to sorted list
-        unique_addresses_list = list(self.unique_addresses)
+        unique_addresses_list = sorted(self.unique_addresses)
 
         # Create and return result
         result = ContractAddressImportResult(
@@ -806,7 +811,7 @@ class ContractAddressImporter:
             )
 
             # Convert set to sorted list
-            unique_addresses_list = list(self.unique_addresses)
+            unique_addresses_list = sorted(self.unique_addresses)
 
             # Create and return result (without database operations)
             result = ContractAddressImportResult(
