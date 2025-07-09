@@ -1,17 +1,14 @@
 'use client';
 
 import { ContractImportTab } from '@/components/app-users/integrations/sources/contract-import-tab';
-import { GuildImportTab } from '@/components/app-users/integrations/sources/guild-import-tab';
 import { PrivyImportTab } from '@/components/app-users/integrations/sources/privy-import-tab';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-// Pre-load service definitions
-import '@/lib/services/contract-user.service';
-import '@/lib/services/guildxyz.service';
-import '@/lib/services/privy.service';
-import { ImportSource } from '@/lib/services/user-import.service';
 import { cn } from '@/lib/utils';
-import { Code, ShieldCheck, Users } from 'lucide-react';
+import { Code, File } from 'lucide-react';
+import Image from 'next/image';
 import { useState } from 'react';
+
+import { UserImportSource } from '@getgrowly/core';
 
 interface ImportUserModalProps {
   open: boolean;
@@ -20,14 +17,17 @@ interface ImportUserModalProps {
 }
 
 type IntegrationOption = {
-  id: ImportSource;
+  id: UserImportSource;
   name: string;
   description: string;
   icon: React.ReactNode;
+  disabled?: boolean;
 };
 
 export function ImportUserModal({ open, onOpenChange, onImportComplete }: ImportUserModalProps) {
-  const [activeIntegration, setActiveIntegration] = useState<ImportSource>('privy');
+  const [activeIntegration, setActiveIntegration] = useState<UserImportSource>(
+    UserImportSource.Privy
+  );
 
   // Handler for when import is completed from any source
   const handleImportComplete = () => {
@@ -37,22 +37,48 @@ export function ImportUserModal({ open, onOpenChange, onImportComplete }: Import
   // Available integration options
   const integrationOptions: IntegrationOption[] = [
     {
-      id: 'privy',
+      id: UserImportSource.Privy,
       name: 'Privy',
       description: 'Import users from your Privy application',
-      icon: <Users className="h-5 w-5" />,
+      disabled: false,
+      icon: (
+        <Image
+          src={'/logos/integrations/privy-logo.jpg'}
+          width={24}
+          height={24}
+          alt="Privy"
+          className="rounded-full"
+        />
+      ),
     },
     {
-      id: 'guildxyz',
-      name: 'Guild.xyz',
-      description: 'Import members from Guild.xyz communities',
-      icon: <ShieldCheck className="h-5 w-5" />,
-    },
-    {
-      id: 'contract',
+      id: UserImportSource.Contract,
       name: 'Smart Contract',
       description: 'Import users who interacted with your contracts',
+      disabled: false,
       icon: <Code className="h-5 w-5" />,
+    },
+    {
+      id: UserImportSource.Csv,
+      name: 'Upload from CSV',
+      description: 'Import users from a CSV file',
+      disabled: false,
+      icon: <File className="h-5 w-5" />,
+    },
+    {
+      id: UserImportSource.Guildxyz,
+      name: 'Guild.xyz',
+      description: 'Import members from Guild.xyz communities',
+      disabled: true,
+      icon: (
+        <Image
+          src={'/logos/integrations/guildxyz-logo.jpg'}
+          width={24}
+          height={24}
+          alt="Guild.xyz"
+          className="rounded-full"
+        />
+      ),
     },
   ];
 
@@ -72,9 +98,10 @@ export function ImportUserModal({ open, onOpenChange, onImportComplete }: Import
                   className={cn(
                     'flex items-start gap-3 px-4 py-3 hover:bg-neutral-300/40 text-left transition-colors',
                     activeIntegration === option.id &&
-                      'bg-primary text-primary-foreground hover:bg-primary/80'
+                      'bg-primary text-primary-foreground hover:bg-primary/80',
+                    option.disabled && 'opacity-50 cursor-not-allowed'
                   )}
-                  onClick={() => setActiveIntegration(option.id)}>
+                  onClick={option.disabled ? undefined : () => setActiveIntegration(option.id)}>
                   <div
                     className={cn(
                       'mt-0.5',
@@ -96,18 +123,12 @@ export function ImportUserModal({ open, onOpenChange, onImportComplete }: Import
               ))}
             </div>
           </div>
-
           {/* Content area */}
           <div className="flex-1 p-6 mt-6 overflow-y-auto">
-            {activeIntegration === 'privy' && (
+            {activeIntegration === UserImportSource.Privy && (
               <PrivyImportTab onImportComplete={handleImportComplete} />
             )}
-
-            {activeIntegration === 'guildxyz' && (
-              <GuildImportTab onImportComplete={handleImportComplete} />
-            )}
-
-            {activeIntegration === 'contract' && (
+            {activeIntegration === UserImportSource.Contract && (
               <ContractImportTab onImportComplete={handleImportComplete} />
             )}
           </div>

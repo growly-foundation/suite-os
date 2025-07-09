@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from '@/components/ui/use-toast';
-import { ResourceService } from '@/services/resource.service';
+import { ResourceService } from '@/lib/services/resource.service';
 import { Upload } from 'lucide-react';
 import { useState } from 'react';
 

@@ -1,5 +1,4 @@
 import { ParsedUser } from '@getgrowly/core';
-import { Address } from '@getgrowly/persona';
 
 export interface ContractUser {
   address: string;

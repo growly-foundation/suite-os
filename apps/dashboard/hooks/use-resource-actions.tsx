@@ -1,5 +1,5 @@
 import { suiteCore } from '@/core/suite';
-import { ResourceService } from '@/services/resource.service';
+import { ResourceService } from '@/lib/services/resource.service';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 

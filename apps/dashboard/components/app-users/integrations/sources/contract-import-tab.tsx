@@ -1,6 +1,7 @@
 'use client';
 
 import { UserSelectionList } from '@/components/app-users/integrations/user-selection-list';
+import { ChainSelector, SUPPORTED_CHAINS } from '@/components/chains/chain-selecter';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,31 +13,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  ContractUser,
-  ContractUserService,
-  SmartContract,
-} from '@/lib/services/contract-user.service';
 import { UserImportService } from '@/lib/services/user-import.service';
 import { InfoIcon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { Chain } from 'viem';
 
+import { ImportUserOutput, UserImportSource } from '@getgrowly/core';
+
+type SmartContract = {
+  address: string;
+  chainId: Chain['id'];
+  name?: string;
+  type?: string;
+};
 interface ContractImportTabProps {
   onImportComplete?: () => void;
 }
 
 export function ContractImportTab({ onImportComplete }: ContractImportTabProps) {
+  const [selectedChain, setSelectedChain] = useState<Chain['id']>(1);
   const [contractAddress, setContractAddress] = useState('');
-  const [chainId, setChainId] = useState('1'); // Default to Ethereum Mainnet
   const [loading, setLoading] = useState(false);
   const [contract, setContract] = useState<SmartContract | null>(null);
-  const [contractUsers, setContractUsers] = useState<ContractUser[]>([]);
+  const [contractUsers, setContractUsers] = useState<ImportUserOutput[]>([]);
   const [importing, setImporting] = useState(false);
   const [filterType, setFilterType] = useState<'all' | 'holders' | 'interactions'>('all');
-
-  // Create a service instance
-  const contractService = new ContractUserService();
 
   // Get users from a contract
   const handleSearch = async () => {
@@ -44,25 +46,10 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
 
     setLoading(true);
     try {
-      // Get contract info
-      const contractInfo = await contractService.getContractInfo(
-        contractAddress,
-        parseInt(chainId, 10)
-      );
+      // TODO: Set smart contract details
+      setContract(null);
 
-      if (!contractInfo) {
-        toast.error('Could not retrieve contract information');
-        return;
-      }
-
-      setContract(contractInfo);
-
-      // Get users based on filter type
-      const users = await contractService.getContractUsers(contractAddress, parseInt(chainId, 10), {
-        tokenHolders: filterType === 'holders' || filterType === 'all',
-        minTransactions: filterType === 'interactions' ? 1 : undefined,
-      });
-
+      const users: ImportUserOutput[] = [];
       if (users.length > 0) {
         setContractUsers(users);
       } else {
@@ -79,8 +66,8 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   };
 
   // Import selected users
-  const handleImport = async (usersToImport: ContractUser[]) => {
-    if (!contractAddress || !chainId) return;
+  const handleImport = async (usersToImport: ImportUserOutput[]) => {
+    if (!contractAddress || !selectedChain) return;
 
     if (usersToImport.length === 0) {
       toast.warning('Please select at least one user to import');
@@ -90,11 +77,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
     setImporting(true);
     try {
       // Import users in batch
-      const result = await UserImportService.importBatch('contract', usersToImport, {
-        contractAddress,
-        chainId,
-        filter: filterType,
-      });
+      const result = await UserImportService.importBatch(UserImportSource.Contract, usersToImport);
 
       // Show success/failure messages
       if (result.success.length > 0) {
@@ -119,16 +102,6 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
     }
   };
 
-  // List of chains
-  const chains = [
-    { id: '1', name: 'Ethereum Mainnet' },
-    { id: '137', name: 'Polygon' },
-    { id: '56', name: 'BSC' },
-    { id: '43114', name: 'Avalanche' },
-    { id: '10', name: 'Optimism' },
-    { id: '42161', name: 'Arbitrum' },
-  ];
-
   return (
     <div className="space-y-4">
       <Alert variant="default" className="bg-muted">
@@ -151,18 +124,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
           </div>
           <div className="w-40">
             <Label htmlFor="chain-id">Chain</Label>
-            <Select value={chainId} onValueChange={setChainId}>
-              <SelectTrigger id="chain-id">
-                <SelectValue placeholder="Select chain" />
-              </SelectTrigger>
-              <SelectContent>
-                {chains.map(chain => (
-                  <SelectItem key={chain.id} value={chain.id}>
-                    {chain.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <ChainSelector value={selectedChain} onChange={setSelectedChain} />
           </div>
         </div>
 
@@ -186,7 +148,6 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
             {loading ? 'Searching...' : 'Search'}
           </Button>
         </div>
-
         {contract && (
           <div className="border rounded-md p-4">
             <h3 className="font-semibold">Contract Details</h3>
@@ -195,7 +156,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
               <div className="font-mono">{contract.address}</div>
               <div className="text-muted-foreground">Chain ID:</div>
               <div>
-                {contract.chainId} ({chains.find(c => c.id === String(contract.chainId))?.name})
+                {contract.chainId} ({SUPPORTED_CHAINS.find(c => c.id === contract.chainId)?.name})
               </div>
               {contract.name && (
                 <>
@@ -212,25 +173,15 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
             </div>
           </div>
         )}
-
         {contractUsers.length > 0 && (
           <UserSelectionList
-            users={contractUsers.map(user => ({
-              id: user.address,
-              displayName: `${user.address.substring(0, 8)}...${user.address.substring(user.address.length - 4)}`,
-              subtitle: user.tokenBalance
-                ? `Balance: ${user.tokenBalance}`
-                : user.transactionCount
-                  ? `Txns: ${user.transactionCount}`
-                  : '',
-              metadata: user,
-            }))}
+            users={contractUsers}
             title="Contract Users"
             importButtonText={importing ? 'Importing...' : 'Import Users'}
             isImporting={importing}
             onImport={async (selectedUserIds: string[]) => {
               const usersToImport = contractUsers.filter(user =>
-                selectedUserIds.includes(user.address)
+                selectedUserIds.includes(user.walletAddress!)
               );
               await handleImport(usersToImport);
             }}

@@ -5,11 +5,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PrivyService, PrivyUser } from '@/lib/services/privy.service';
 import { UserImportService } from '@/lib/services/user-import.service';
 import { InfoIcon } from 'lucide-react';
 import { useState } from 'react';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
+
+import { ImportPrivyUserOutput, UserImportSource } from '@getgrowly/core';
 
 interface PrivyImportTabProps {
   onImportComplete?: () => void;
@@ -21,7 +22,7 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
   const [loading, setLoading] = useState(false);
   const [configuring, setConfiguring] = useState(false);
   const [configured, setConfigured] = useState(false);
-  const [privyUsers, setPrivyUsers] = useState<PrivyUser[]>([]);
+  const [privyUsers, setPrivyUsers] = useState<ImportPrivyUserOutput[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<Record<string, boolean>>({});
   const [importing, setImporting] = useState(false);
 
@@ -34,18 +35,8 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
 
     setConfiguring(true);
     try {
-      const service = new PrivyService(appId, appSecret);
-      const isValid = await service.validateCredentials();
-
-      if (isValid) {
-        setConfigured(true);
-        toast.success('Privy credentials validated successfully');
-
-        // Fetch users
-        await handleFetchUsers();
-      } else {
-        toast.error('Invalid Privy credentials');
-      }
+      // Fetch users
+      await handleFetchUsers();
     } catch (error) {
       console.error('Error configuring Privy:', error);
       toast.error(
@@ -60,14 +51,9 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
   const handleFetchUsers = async () => {
     setLoading(true);
     try {
-      const service = new PrivyService(appId, appSecret);
-      const response = await service.getUsers();
-
-      if (response.data && response.data.length > 0) {
-        setPrivyUsers(response.data);
-      } else {
-        toast.warning('No users found in Privy');
-      }
+      const response = await UserImportService.importPrivyUsers(appId, appSecret);
+      setPrivyUsers(response);
+      setConfigured(true);
     } catch (error) {
       console.error('Error fetching Privy users:', error);
       toast.error(
@@ -79,7 +65,7 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
   };
 
   // Import selected users
-  const handleImport = async (usersToImport: PrivyUser[]) => {
+  const handleImport = async (usersToImport: ImportPrivyUserOutput[]) => {
     if (usersToImport.length === 0) {
       toast.warning('Please select at least one user to import');
       return;
@@ -88,21 +74,14 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
     setImporting(true);
     try {
       // Import users in batch
-      const result = await UserImportService.importBatch('privy', usersToImport);
-
+      const result = await UserImportService.importBatch(UserImportSource.Privy, usersToImport);
       // Show success/failure messages
-      if (result.success.length > 0) {
+      if (result.success.length > 0)
         toast.success(`Successfully imported ${result.success.length} Privy users`);
-      }
-
-      if (result.failed.length > 0) {
+      if (result.failed.length > 0)
         toast.error(`Failed to import ${result.failed.length} Privy users`);
-      }
-
       // If all successful, trigger completion callback
-      if (result.failed.length === 0 && result.success.length > 0) {
-        onImportComplete?.();
-      }
+      if (result.failed.length === 0 && result.success.length > 0) onImportComplete?.();
     } catch (error) {
       console.error('Error importing Privy users:', error);
       toast.error(
@@ -115,9 +94,9 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
 
   return (
     <div className="space-y-4">
-      <Alert variant="default" className="bg-muted">
+      <Alert variant="default">
         <InfoIcon className="h-4 w-4" />
-        <AlertDescription className="text-sm">
+        <AlertDescription>
           Import users from your Privy application by entering your App ID and App Secret.
         </AlertDescription>
       </Alert>
@@ -171,25 +150,29 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
               </div>
             </div>
 
-            {privyUsers.length > 0 && (
+            {privyUsers.length > 0 ? (
               <UserSelectionList
-                users={privyUsers.map(user => ({
-                  id: user.id,
-                  displayName: user.profile?.name || user.email || user.id.substring(0, 8),
-                  subtitle: user.email,
-                  avatarUrl: user.profile?.avatar,
-                  metadata: user,
-                }))}
+                users={privyUsers}
                 title="Privy Users"
                 importButtonText={importing ? 'Importing...' : `Import Users`}
                 isImporting={importing}
+                onUserSelect={user => {
+                  setSelectedUsers({
+                    [user.walletAddress!]: !selectedUsers[user.walletAddress!],
+                  });
+                }}
                 onImport={async (selectedUserIds: string[]) => {
                   const usersToImport = privyUsers.filter(user =>
-                    selectedUserIds.includes(user.id)
+                    selectedUserIds.includes(user.walletAddress!)
                   );
                   await handleImport(usersToImport);
                 }}
               />
+            ) : (
+              <Alert variant="default">
+                <InfoIcon className="h-4 w-4" />
+                <AlertDescription>No users found</AlertDescription>
+              </Alert>
             )}
           </>
         )}
