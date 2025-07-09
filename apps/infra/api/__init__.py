@@ -10,6 +10,7 @@ from api.routes.etl import router as etl_router
 from api.routes.wallet import router as wallet_router
 from config.aws_config import initialize_catalog
 from config.logging_config import get_logger
+from config.redis_config import redis_manager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -32,10 +33,25 @@ async def lifespan(app: FastAPI):
         logger.error("Failed to initialize Iceberg catalog")
         raise RuntimeError("Failed to initialize Iceberg catalog - cannot start API")
 
+    # Initialize Redis connection
+    logger.info("Initializing Redis connection...")
+    redis_connected = await redis_manager.connect()
+    if redis_connected:
+        logger.info("Redis connected successfully")
+        app.state.redis_manager = redis_manager
+    else:
+        logger.warning("Redis connection failed - caching will be unavailable")
+        # Don't fail startup if Redis is unavailable, just log warning
+
     yield
 
-    # Cleanup on shutdown if needed
+    # Cleanup on shutdown
     logger.info("Shutting down API...")
+
+    # Close Redis connection
+    if hasattr(app.state, "redis_manager"):
+        await app.state.redis_manager.disconnect()
+        logger.info("Redis connection closed")
 
 
 def create_app():

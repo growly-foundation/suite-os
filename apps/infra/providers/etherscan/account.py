@@ -104,6 +104,7 @@ class EtherscanAccountProvider(EtherscanBaseProvider):
         start_block: int = 0,
         end_block: str = "latest",
         limit: int = 10000,
+        sort: str = "asc",
     ) -> TransactionBatch:
         """
         Fetch a single batch of transactions from Etherscan API.
@@ -115,6 +116,7 @@ class EtherscanAccountProvider(EtherscanBaseProvider):
             start_block: Starting block number
             end_block: Ending block number or "latest"
             limit: Maximum number of transactions to fetch
+            sort: Sort order ("asc" or "desc")
 
         Returns:
             TransactionBatch containing transactions and metadata
@@ -126,9 +128,13 @@ class EtherscanAccountProvider(EtherscanBaseProvider):
             start_block=start_block,
             end_block=end_block,
             offset=limit,
+            sort=sort,
         )
 
-        logger.debug(f"Requesting transactions from block {start_block} to {end_block}")
+        sort_desc = f" ({sort.upper()} order)" if sort else ""
+        logger.debug(
+            f"Requesting transactions from block {start_block} to {end_block}{sort_desc}"
+        )
 
         try:
             response = await self._make_request(session, params)
@@ -138,16 +144,24 @@ class EtherscanAccountProvider(EtherscanBaseProvider):
                 return TransactionBatch([], start_block, 0)
 
             transactions = response.result or []
-            logger.info(f"Received {len(transactions)} transactions from API")
+            logger.info(
+                f"Received {len(transactions)} transactions from API{sort_desc}"
+            )
 
             # Enhance each transaction with additional fields
             enhanced_transactions = [
                 self._enhance_transaction(tx, chain_id) for tx in transactions
             ]
 
+            # Determine last_block based on sort order
             last_block = 0
             if enhanced_transactions:
-                last_block = int(enhanced_transactions[-1]["block_number"])
+                if sort == "desc":
+                    # For descending order, the first transaction has the highest block number
+                    last_block = int(enhanced_transactions[0]["block_number"])
+                else:
+                    # For ascending order, the last transaction has the highest block number
+                    last_block = int(enhanced_transactions[-1]["block_number"])
                 logger.debug(f"Last block in batch: {last_block}")
 
             return TransactionBatch(
