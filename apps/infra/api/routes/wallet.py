@@ -47,7 +47,7 @@ async def get_wallet_interactions(
     )
 
     # Handle the new dict return format
-    if result is None:
+    if result is None or not isinstance(result, dict):
         logger.error(f"Unexpected None result for wallet {wallet_address}")
         # Return empty interactions
         return WalletInteractionsResponse(

@@ -103,7 +103,7 @@ def _display_transaction_timeline(
                     first_transaction.replace("Z", "+00:00")
                 )
                 first_tx_display = first_dt.strftime("%Y-%m-%d %H:%M")
-            except:
+            except (ValueError, TypeError) as e:
                 first_tx_display = first_transaction[:10]  # Just date part
 
         st.metric(
@@ -160,9 +160,6 @@ def _display_transaction_timeline(
             activity_period,
             help="Time span between first and last transaction",
         )
-
-    # Add total transaction count
-    col1, col2, col3 = st.columns(3)
 
 
 def _display_wallet_visualizations(df):

@@ -143,7 +143,10 @@ def _handle_sync_submission(address, chain_id, mode, time_period):
             "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "Address": f"{address[:10]}...{address[-8:]}",
             "Chain": (
-                CHAIN_IDS[chain_id] if chain_id in CHAIN_IDS.values() else "Unknown"
+                next(
+                    (name for name, id in CHAIN_IDS.items() if id == chain_id),
+                    "Unknown",
+                )
             ),
             "Mode": mode.title(),
             "Time Period": time_period if time_period else "N/A",

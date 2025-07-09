@@ -20,7 +20,8 @@ class APIClient:
         try:
             response = requests.get(f"{self.base_url}/", timeout=5)
             return response.status_code == 200
-        except:
+        except (requests.RequestException, requests.Timeout) as e:
+            st.error(f"Error testing connection: {e}")
             return False
 
     def get_wallet_interactions(

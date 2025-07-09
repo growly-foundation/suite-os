@@ -1,8 +1,8 @@
 """
-Etherscan Contract Provider
+Etherscan Block Provider
 
-Provider for contract-related Etherscan API operations.
-Handles ABI fetching and other contract-specific data.
+Provider for block-related Etherscan API operations.
+Handles block number fetching from timestamp.
 """
 
 from typing import Dict
@@ -21,12 +21,12 @@ class EtherscanBlockProvider(EtherscanBaseProvider):
     Block-specific provider for Etherscan API operations.
 
     Handles:
-    - Contract blockNumber from timestamp
+    - Get blockNumber from timestamp
     """
 
     def __init__(self, api_key: str):
         """
-        Initialize the contract provider.
+        Initialize the block provider.
 
         Args:
             api_key: Etherscan API key
@@ -37,7 +37,7 @@ class EtherscanBlockProvider(EtherscanBaseProvider):
         self, chain_id: int, action: str, timestamp: int, **kwargs
     ) -> Dict:
         """
-        Get parameters for contract module requests.
+        Get parameters for block module requests.
 
         Args:
             chain_id: Blockchain chain ID
@@ -67,7 +67,7 @@ class EtherscanBlockProvider(EtherscanBaseProvider):
             chain_id: Blockchain chain ID (1 for Ethereum mainnet, 8453 for Base)
 
         Returns:
-            Contract ABI as a JSON string, or empty JSON object string if not found
+            Block number as a JSON string, or empty JSON object string if not found
         """
         logger.info(
             f"Fetching block number for timestamp {timestamp} on chain {chain_id}"

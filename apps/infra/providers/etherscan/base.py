@@ -224,8 +224,10 @@ class EtherscanBaseProvider(ABC):
                             api_response.result = data.get("result")
                             return api_response
                         else:
-                            logger.error(f"Proxy API error: {data.get('result')}")
-                            raise Exception(f"Proxy API error: {data.get('result')}")
+                            error_info = data.get("error", {})
+                            error_msg = error_info.get("message", "Unknown proxy error")
+                            logger.error(f"Proxy API error: {error_msg}")
+                            raise Exception(f"Proxy API error: {error_msg}")
 
                     return api_response
 
@@ -272,7 +274,7 @@ class EtherscanBaseProvider(ABC):
             True if the error is retryable, False otherwise
         """
         retryable_messages = [
-            "Query Timeout occured",
+            "Query Timeout occurred",
             "timeout",
             "rate limit",
             "too many requests",

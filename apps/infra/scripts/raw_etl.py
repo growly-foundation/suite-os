@@ -258,13 +258,15 @@ def determine_fetch_mode(
             if cursor_data is not None:
                 try:
                     # cursor_data is now a tuple (start_block, end_block)
+                    if not isinstance(cursor_data, tuple) or len(cursor_data) != 2:
+                        raise ValueError(f"Invalid cursor data format: {cursor_data}")
                     start_block, end_block = cursor_data
                     last_block_number = int(end_block)
                     logger.info(
                         f"Found cursor - start_block: {start_block}, end_block: {end_block}"
                     )
-                except (ValueError, TypeError):
-                    logger.warning(f"Invalid block number in cursor: {cursor_data}")
+                except (ValueError, TypeError, IndexError) as e:
+                    logger.warning(f"Invalid cursor data: {cursor_data}, error: {e}")
                     last_block_number = None
 
             if last_block_number is None:
@@ -388,6 +390,8 @@ async def process_transactions(
                 )
         except Exception as e:
             logger.error(f"Error determining block range: {e}")
+            # Continue processing even if we can't determine the range
+            logger.info(f"Processing transactions up to block {highest_block_number}")
 
     # Process and insert data using consolidated safety function
     logger.info(f"Processing {len(transactions)} transactions...")
