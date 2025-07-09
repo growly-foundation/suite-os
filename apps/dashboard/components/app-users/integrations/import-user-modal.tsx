@@ -1,10 +1,11 @@
 'use client';
 
 import { ContractImportTab } from '@/components/app-users/integrations/sources/contract-import-tab';
+import { ManualImportTab } from '@/components/app-users/integrations/sources/manual-import-tab';
 import { PrivyImportTab } from '@/components/app-users/integrations/sources/privy-import-tab';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { Code, File } from 'lucide-react';
+import { Code, Upload } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 
@@ -37,6 +38,13 @@ export function ImportUserModal({ open, onOpenChange, onImportComplete }: Import
   // Available integration options
   const integrationOptions: IntegrationOption[] = [
     {
+      id: UserImportSource.Manual,
+      name: 'Upload from CSV or enter manually',
+      description: 'Upload a CSV file or enter user details manually',
+      disabled: false,
+      icon: <Upload className="h-5 w-5" />,
+    },
+    {
       id: UserImportSource.Privy,
       name: 'Privy',
       description: 'Import users from your Privy application',
@@ -59,13 +67,6 @@ export function ImportUserModal({ open, onOpenChange, onImportComplete }: Import
       icon: <Code className="h-5 w-5" />,
     },
     {
-      id: UserImportSource.Csv,
-      name: 'Upload from CSV',
-      description: 'Import users from a CSV file',
-      disabled: false,
-      icon: <File className="h-5 w-5" />,
-    },
-    {
       id: UserImportSource.Guildxyz,
       name: 'Guild.xyz',
       description: 'Import members from Guild.xyz communities',
@@ -84,8 +85,8 @@ export function ImportUserModal({ open, onOpenChange, onImportComplete }: Import
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[900px] border-none p-0 overflow-hidden">
-        <div className="flex h-[600px]">
+      <DialogContent className="sm:max-w-[1200px] border-none p-0 overflow-hidden">
+        <div className="flex h-[800px]">
           {/* Sidebar with integration options */}
           <div className="w-64 bg-muted border-r border-border">
             <DialogHeader className="p-4 border-b border-border">
@@ -125,6 +126,9 @@ export function ImportUserModal({ open, onOpenChange, onImportComplete }: Import
           </div>
           {/* Content area */}
           <div className="flex-1 p-6 mt-6 overflow-y-auto">
+            {activeIntegration === UserImportSource.Manual && (
+              <ManualImportTab onImportComplete={handleImportComplete} />
+            )}
             {activeIntegration === UserImportSource.Privy && (
               <PrivyImportTab onImportComplete={handleImportComplete} />
             )}

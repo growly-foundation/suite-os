@@ -76,7 +76,7 @@ export function UserSelectionList({
           </Label>
         </div>
       </div>
-      <div className="border rounded-md divide-y h-60 overflow-y-auto">
+      <div className="border rounded-md divide-y h-[500px] overflow-y-auto">
         {users.length === 0 ? (
           <div className="p-4 text-center text-muted-foreground">No users found</div>
         ) : (

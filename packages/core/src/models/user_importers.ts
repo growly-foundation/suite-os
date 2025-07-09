@@ -4,7 +4,7 @@ export enum UserImportSource {
   Privy = 'privy',
   Guildxyz = 'guildxyz',
   Contract = 'contract',
-  Csv = 'csv',
+  Manual = 'manual',
 }
 
 export type ImportUserOutput<T = Record<string, any>> = {
@@ -12,6 +12,7 @@ export type ImportUserOutput<T = Record<string, any>> = {
   email?: string;
   name?: string;
   extra?: T;
+  source: UserImportSource;
 };
 
 export type ImportPrivyUserOutput = ImportUserOutput<PrivyUser>;

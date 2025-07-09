@@ -23,7 +23,6 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
   const [configuring, setConfiguring] = useState(false);
   const [configured, setConfigured] = useState(false);
   const [privyUsers, setPrivyUsers] = useState<ImportPrivyUserOutput[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<Record<string, boolean>>({});
   const [importing, setImporting] = useState(false);
 
   // Handle configuration
@@ -122,9 +121,20 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
                 placeholder="Enter your Privy App Secret"
               />
             </div>
-            <Button onClick={handleConfigure} disabled={configuring || !appId || !appSecret}>
-              {configuring ? 'Configuring...' : 'Configure Privy'}
-            </Button>
+            {configuring ? (
+              <Button
+                onClick={() => {
+                  setConfigured(false);
+                  setAppId('');
+                  setAppSecret('');
+                }}>
+                Stop and Reset
+              </Button>
+            ) : (
+              <Button onClick={handleConfigure} disabled={!appId || !appSecret}>
+                Configure Privy
+              </Button>
+            )}
           </div>
         ) : (
           <>
@@ -140,7 +150,6 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
                   onClick={() => {
                     setConfigured(false);
                     setPrivyUsers([]);
-                    setSelectedUsers({});
                   }}>
                   Change Credentials
                 </Button>
@@ -156,11 +165,6 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
                 title="Privy Users"
                 importButtonText={importing ? 'Importing...' : `Import Users`}
                 isImporting={importing}
-                onUserSelect={user => {
-                  setSelectedUsers({
-                    [user.walletAddress!]: !selectedUsers[user.walletAddress!],
-                  });
-                }}
                 onImport={async (selectedUserIds: string[]) => {
                   const usersToImport = privyUsers.filter(user =>
                     selectedUserIds.includes(user.walletAddress!)

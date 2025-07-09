@@ -18,8 +18,13 @@ export class UserController {
     return this.userService.getUserPersona(walletAddress);
   }
 
+  @Post('import-manual')
+  async importUsersManually(@Body('users') users: ImportUserOutput[]) {
+    return this.userImporterService.saveUsers(users);
+  }
+
   @Post('import-privy')
-  async importUserFromPrivy(
+  async importUsersFromPrivy(
     @Body('appId') appId: string,
     @Body('appSecret') appSecret: string
   ): Promise<ImportUserOutput[]> {

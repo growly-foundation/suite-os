@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { ImportPrivyUserOutput } from '@getgrowly/core';
+import { ImportPrivyUserOutput, ImportUserOutput, UserImportSource } from '@getgrowly/core';
 
 import { PrivyImporterService } from './privy-importer.service';
 
@@ -14,6 +14,11 @@ export class UserImporterService {
       walletAddress: user.wallet?.address || user.smartWallet?.address,
       email: user.email?.address,
       extra: user,
+      source: UserImportSource.Privy,
     }));
+  }
+
+  async saveUsers(users: ImportUserOutput[]) {
+    return users;
   }
 }
