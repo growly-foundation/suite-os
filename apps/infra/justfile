@@ -1,0 +1,224 @@
+# FastAPI Server Bootstrap with Redis
+# This justfile helps you bootstrap the entire server with one command
+
+# Default recipe that shows available commands
+default:
+    @just --list
+
+# Bootstrap the entire server with one command
+bootstrap ETHERSCAN_API_KEY:
+    @echo "🚀 Bootstrapping FastAPI server..."
+    just setup-env {{ETHERSCAN_API_KEY}}
+    just install-deps
+    just start-redis
+    just wait-for-redis
+    @echo "✅ Server bootstrap complete!"
+    @echo ""
+    @echo "🌟 Your server is ready! Run the following commands:"
+    @echo "   just dev    # Start development server"
+    @echo "   just prod   # Start production server"
+    @echo "   just dashboard # Start dashboard"
+
+# Install uv if not already installed
+install-uv:
+    @if ! command -v uv >/dev/null 2>&1; then \
+        echo "📦 Installing uv..."; \
+        curl -LsSf https://astral.sh/uv/install.sh | sh; \
+        echo "✅ uv installed successfully"; \
+    else \
+        echo "✅ uv is already installed"; \
+    fi
+
+# Install Python dependencies
+install-deps:
+    @echo "📦 Installing Python dependencies..."
+    just install-uv
+    uv sync
+    @echo "✅ Dependencies installed"
+
+# Setup environment file
+setup-env ETHERSCAN_API_KEY:
+    @echo "⚙️  Setting up environment..."
+    @if [ -z "{{ETHERSCAN_API_KEY}}" ]; then \
+        echo "❌ ETHERSCAN_API_KEY cannot be empty"; \
+        exit 1; \
+    fi
+    @if echo "{{ETHERSCAN_API_KEY}}" | grep -q "[^a-zA-Z0-9]"; then \
+        echo "❌ ETHERSCAN_API_KEY contains invalid characters"; \
+        exit 1; \
+    fi
+    @if [ ! -f .env ]; then \
+        echo "Creating .env file..."; \
+        echo "ETHERSCAN_API_KEY={{ETHERSCAN_API_KEY}}" > .env; \
+        echo "REDIS_URL=redis://localhost:6379/0" >> .env; \
+        echo "AWS_DEFAULT_REGION=ap-southeast-1" >> .env; \
+        echo "ICEBERG_BUCKET=suite" >> .env; \
+        echo "ICEBERG_CATALOG=s3tablescatalog" >> .env; \
+        echo "WEB3_PROVIDER_URL=https://base.llamarpc.com" >> .env; \
+        echo "✅ .env file created"; \
+    else \
+        echo "⚠️  .env file already exists. Updating ETHERSCAN_API_KEY..."; \
+        sed -i.bak "s/^ETHERSCAN_API_KEY=.*/ETHERSCAN_API_KEY={{ETHERSCAN_API_KEY}}/" .env; \
+        rm -f .env.bak; \
+        echo "✅ ETHERSCAN_API_KEY updated"; \
+    fi
+
+# Start Redis server (using Docker for consistency)
+start-redis:
+    @echo "🔴 Starting Redis server..."
+    @if ! command -v docker >/dev/null 2>&1; then \
+        echo "❌ Docker is required but not installed. Please install Docker first."; \
+        echo "   Visit: https://docs.docker.com/get-docker/"; \
+        exit 1; \
+    fi
+    @if ! docker ps --format "table {{"{{"}}.Names{{"}}"}}" | grep -q "^redis-server$$"; then \
+        echo "Starting Redis container..."; \
+        docker run -d \
+            --name redis-server \
+            --restart unless-stopped \
+            -p 6379:6379 \
+            redis:7-alpine \
+            redis-server --appendonly yes; \
+        echo "✅ Redis server started"; \
+    else \
+        echo "✅ Redis server is already running"; \
+    fi
+
+# Wait for Redis to be ready
+wait-for-redis:
+    @echo "⏳ Waiting for Redis to be ready..."
+    @timeout=30; \
+    while [ $timeout -gt 0 ]; do \
+        if docker exec redis-server redis-cli ping >/dev/null 2>&1; then \
+            echo "✅ Redis is ready!"; \
+            break; \
+        fi; \
+        echo "Waiting for Redis... ($timeout seconds remaining)"; \
+        sleep 1; \
+        timeout=$((timeout - 1)); \
+    done; \
+    if [ $timeout -eq 0 ]; then \
+        echo "❌ Redis failed to start within 30 seconds"; \
+        exit 1; \
+    fi
+
+# Stop Redis server
+stop-redis:
+    @echo "🛑 Stopping Redis server..."
+    @if docker ps --format "table {{"{{"}}.Names{{"}}"}}" | grep -q "^redis-server$$"; then \
+        docker stop redis-server; \
+        docker rm redis-server; \
+        echo "✅ Redis server stopped"; \
+    else \
+        echo "ℹ️  Redis server is not running"; \
+    fi
+
+# Start development server
+dev:
+    @echo "🔧 Starting development server..."
+    @if [ ! -f .env ]; then \
+        echo "❌ .env file not found. Run 'just bootstrap <ETHERSCAN_API_KEY>' first"; \
+        exit 1; \
+    fi
+    uv run fastapi dev main.py
+
+# Start production server
+prod:
+    @echo "🚀 Starting production server..."
+    @if [ ! -f .env ]; then \
+        echo "❌ .env file not found. Run 'just bootstrap <ETHERSCAN_API_KEY>' first"; \
+        exit 1; \
+    fi
+    uv run fastapi run main.py
+
+# Start dashboard
+dashboard:
+    @echo "📊 Starting dashboard..."
+    @if [ ! -f .env ]; then \
+        echo "❌ .env file not found. Run 'just bootstrap <ETHERSCAN_API_KEY>' first"; \
+        exit 1; \
+    fi
+    uv run streamlit run dashboard.py
+
+# Check server health
+health:
+    @echo "🔍 Checking server health..."
+    @if curl -s http://localhost:8000/api/v1/health >/dev/null 2>&1; then \
+        echo "✅ Server is healthy"; \
+        curl -s http://localhost:8000/api/v1/health | python -m json.tool; \
+    else \
+        echo "❌ Server is not responding"; \
+        exit 1; \
+    fi
+
+# Check Redis health
+redis-health:
+    @echo "🔍 Checking Redis health..."
+    @if docker exec redis-server redis-cli ping >/dev/null 2>&1; then \
+        echo "✅ Redis is healthy"; \
+        docker exec redis-server redis-cli info server | grep redis_version; \
+    else \
+        echo "❌ Redis is not responding"; \
+        exit 1; \
+    fi
+
+# Show logs from the FastAPI server (if running in background)
+logs:
+    @echo "📜 Server logs are shown in the terminal where you started the server"
+    @echo "   Use Ctrl+C to stop the server"
+
+# Show Redis logs
+redis-logs:
+    @echo "📜 Redis logs:"
+    docker logs redis-server --tail=50 --follow
+
+# Clean up everything (stop services, remove containers)
+clean:
+    @echo "🧹 Cleaning up..."
+    just stop-redis
+    @echo "✅ Cleanup complete"
+
+# Full reset (clean + remove .env)
+reset:
+    @echo "🔄 Full reset..."
+    just clean
+    @if [ -f .env ]; then \
+        echo "Removing .env file..."; \
+        rm .env; \
+    fi
+    @echo "✅ Full reset complete"
+
+# Show current status
+status:
+    @echo "📊 Current Status:"
+    @echo ""
+    @echo "Environment file:"
+    @if [ -f .env ]; then \
+        echo "  ✅ .env exists"; \
+        grep -E "^[A-Z_]+" .env | sed 's/=.*/ = [SET]/' | sed 's/^/  /'; \
+    else \
+        echo "  ❌ .env missing"; \
+    fi
+    @echo ""
+    @echo "Redis:"
+    @if docker ps --format "table {{"{{"}}.Names{{"}}"}}" | grep -q "^redis-server$$"; then \
+        echo "  ✅ Redis running"; \
+    else \
+        echo "  ❌ Redis not running"; \
+    fi
+    @echo ""
+    @echo "Python environment:"
+    @if [ -d .venv ]; then \
+        echo "  ✅ Virtual environment exists"; \
+    else \
+        echo "  ❌ Virtual environment missing"; \
+    fi
+
+# Quick start - like bootstrap but assumes uv is installed
+quick-start ETHERSCAN_API_KEY:
+    @echo "⚡ Quick start..."
+    just setup-env {{ETHERSCAN_API_KEY}}
+    just install-deps
+    just start-redis
+    just wait-for-redis
+    @echo "✅ Quick start complete! Run 'just dev' to start the server" 
