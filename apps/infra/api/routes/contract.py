@@ -26,7 +26,7 @@ from api.models.raw_analytics import (
 from config.logging_config import get_logger
 from db.iceberg import load_table, reorder_records, upsert_data
 from fastapi import APIRouter, Body, Depends, HTTPException, Query
-from providers.etherscan_provider import EtherscanProvider
+from providers.etherscan import EtherscanProvider
 from pydantic import BaseModel, Field, constr
 from pyiceberg.expressions import And, EqualTo, Reference, literal
 from utils.blockchain import is_contract_address, is_proxy_contract, is_valid_address
