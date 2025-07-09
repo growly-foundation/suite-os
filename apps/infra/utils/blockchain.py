@@ -11,15 +11,20 @@ This module provides utility functions for blockchain operations:
 import json
 import os
 import re
-from datetime import datetime, timedelta
+from datetime import datetime
+from typing import Dict, List, Optional, Tuple
 
 from config.logging_config import get_logger
+from models import TimePeriod
 from web3 import Web3
 
 logger = get_logger(__name__)
 
 ETH_NODE_URL = "https://eth.llamarpc.com"
 BASE_NODE_URL = "https://base.llamarpc.com"
+
+# Common blockchain address patterns
+ETHEREUM_ADDRESS_PATTERN = re.compile(r"^0x[a-fA-F0-9]{40}$")
 
 
 # Initialize web3 instances for different chains
@@ -54,21 +59,27 @@ def get_web3_for_chain(chain_id=8453):
     return Web3(Web3.HTTPProvider(rpc_url))
 
 
-def is_valid_address(address, chain_id=8453):
+def is_valid_address(address: str, chain_id: int) -> bool:
     """
-    Check if an address is a valid Ethereum address.
+    Validate blockchain address format.
 
     Args:
         address: The address to validate
+        chain_id: The blockchain ID (1=Ethereum, 8453=Base, etc.)
 
     Returns:
         bool: True if address is valid, False otherwise
     """
-    if not address:
+    if not address or not isinstance(address, str):
         return False
 
-    # Check if address has valid format
-    return get_web3_for_chain(chain_id).is_address(address)
+    # For Ethereum-compatible chains (Ethereum, Base, etc.)
+    if chain_id in [1, 8453, 137, 42161, 10]:  # Common EVM chains
+        return bool(ETHEREUM_ADDRESS_PATTERN.match(address))
+
+    # Add other chain validations here as needed
+    logger.warning(f"No validation implemented for chain_id: {chain_id}")
+    return False
 
 
 def is_contract_address(address, chain_id=8453):
@@ -221,38 +232,57 @@ def normalize_address_with_prefix(address):
     return address
 
 
-def get_time_window_filter(time_window):
+def get_time_filter_from_period(
+    time_period: TimePeriod, end_time: datetime = None
+) -> tuple[datetime, datetime]:
     """
-    Convert a time window string to a datetime range.
+    Convert a TimePeriod enum to a datetime range.
+
+    This is the new recommended way to handle time filtering.
 
     Args:
-        time_window: String like '24h', '48h', '7d', '1w', '1m'
+        time_period: TimePeriod enum value
+        end_time: End time for the range (defaults to now)
 
     Returns:
-        tuple: (start_datetime, end_datetime) or (None, None) if invalid
+        tuple: (start_datetime, end_datetime)
     """
-    if not time_window:
+    return time_period.to_datetime_range(end_time)
+
+
+def extract_block_range(
+    transactions: List[Dict],
+) -> Tuple[Optional[int], Optional[int]]:
+    """
+    Extract the minimum and maximum block numbers from a list of transactions.
+
+    Args:
+        transactions: List of transaction dictionaries
+
+    Returns:
+        Tuple[Optional[int], Optional[int]]: (lowest_block_number, highest_block_number)
+                                            Returns (None, None) if no valid block numbers found
+    """
+    if not transactions:
         return None, None
 
-    # Regular expression to match time window format
-    match = re.match(r"^(\d+)([hdwm])$", time_window)
-    if not match:
+    block_numbers = []
+    for tx in transactions:
+        try:
+            block_num = int(tx.get("block_number", 0))
+            if block_num > 0:  # Exclude invalid block numbers
+                block_numbers.append(block_num)
+        except (ValueError, TypeError):
+            logger.warning(
+                f"Invalid block number in transaction: {tx.get('block_number')}"
+            )
+            continue
+
+    if not block_numbers:
+        logger.warning("No valid block numbers found in transactions")
         return None, None
 
-    value = int(match.group(1))
-    unit = match.group(2)
+    lowest_block_number = min(block_numbers)
+    highest_block_number = max(block_numbers)
 
-    end_time = datetime.now()
-
-    if unit == "h":
-        start_time = end_time - timedelta(hours=value)
-    elif unit == "d":
-        start_time = end_time - timedelta(days=value)
-    elif unit == "w":
-        start_time = end_time - timedelta(weeks=value)
-    elif unit == "m":
-        start_time = end_time - timedelta(days=value * 30)  # Approximation
-    else:
-        return None, None
-
-    return start_time, end_time
+    return lowest_block_number, highest_block_number

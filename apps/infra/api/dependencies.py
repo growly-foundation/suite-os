@@ -6,11 +6,12 @@ This module defines dependencies for FastAPI routes.
 
 from config.logging_config import get_logger
 from fastapi import HTTPException, Request
+from models import TimePeriod
 
 logger = get_logger(__name__)
 
-# Valid time windows for filtering
-VALID_TIME_WINDOWS = ["24h", "48h", "7d", "14d", "30d", "90d", "180d", "365d"]
+# Valid time windows for filtering - now using the unified TimePeriod enum
+VALID_TIME_WINDOWS = TimePeriod.get_analytics_values()
 
 
 def get_catalog(request: Request):
@@ -35,7 +36,7 @@ def get_catalog(request: Request):
 
 def validate_time_window(time_window: str = None):
     """
-    Validate the time window parameter.
+    Validate the time window parameter using the unified TimePeriod enum.
 
     Args:
         time_window: Time window string or None
@@ -52,3 +53,16 @@ def validate_time_window(time_window: str = None):
             detail=f"Invalid time window. Must be one of: {', '.join(VALID_TIME_WINDOWS)}",
         )
     return time_window
+
+
+def get_time_period_from_string(time_window: str = None) -> TimePeriod:
+    """
+    Convert a validated time window string to a TimePeriod enum.
+
+    Args:
+        time_window: Time window string (should be pre-validated)
+
+    Returns:
+        TimePeriod enum value
+    """
+    return TimePeriod.from_string(time_window)

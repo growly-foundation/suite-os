@@ -189,15 +189,11 @@ def get_wallet_contract_interactions(
         time_window: Time window string ('24h', '48h', '7d', etc.) or None for all time
 
     Returns:
-        Polars DataFrame with columns:
-        - contract_address: Contract address
-        - contract_address_normalized: Normalized contract address
-        - interaction_count: Number of interactions
-        - chain_id: Chain ID
-        - contract_name: Contract name (if available)
-        - contract_category: Contract category (if available)
-        - dapp: DApp name (if available)
-        - total_count: Total number of unique contracts interacted with
+        dict with:
+        - 'interactions': Polars DataFrame with contract interaction data
+        - 'first_transaction': ISO datetime string of first transaction
+        - 'last_transaction': ISO datetime string of last transaction
+        - 'total_transaction_count': Total number of transactions
     """
     try:
         # Load transactions table
@@ -223,17 +219,22 @@ def get_wallet_contract_interactions(
         # Check if we have any data
         if len(transactions_pl) == 0:
             logger.warning(f"No transactions found for chain_id {chain_id}")
-            return pl.DataFrame(
-                {
-                    "contract_address": [],
-                    "contract_address_normalized": [],
-                    "interaction_count": [],
-                    "chain_id": [],
-                    "contract_name": [],
-                    "contract_category": [],
-                    "dapp": [],
-                }
-            ).with_columns(pl.lit(0).alias("total_count"))
+            return {
+                "interactions": pl.DataFrame(
+                    {
+                        "contract_address": [],
+                        "contract_address_normalized": [],
+                        "interaction_count": [],
+                        "chain_id": [],
+                        "contract_name": [],
+                        "contract_category": [],
+                        "dapp": [],
+                    }
+                ).with_columns(pl.lit(0).alias("total_count")),
+                "first_transaction": None,
+                "last_transaction": None,
+                "total_transaction_count": 0,
+            }
 
         # Normalize the wallet address
         normalized_wallet = normalize_address(wallet_address)
@@ -274,17 +275,50 @@ def get_wallet_contract_interactions(
         )
 
         if all_interactions is None or total_interactions == 0:
-            return pl.DataFrame(
-                {
-                    "contract_address": [],
-                    "contract_address_normalized": [],
-                    "interaction_count": [],
-                    "chain_id": [],
-                    "contract_name": [],
-                    "contract_category": [],
-                    "dapp": [],
-                }
-            ).with_columns(pl.lit(0).alias("total_count"))
+            return {
+                "interactions": pl.DataFrame(
+                    {
+                        "contract_address": [],
+                        "contract_address_normalized": [],
+                        "interaction_count": [],
+                        "chain_id": [],
+                        "contract_name": [],
+                        "contract_category": [],
+                        "dapp": [],
+                    }
+                ).with_columns(pl.lit(0).alias("total_count")),
+                "first_transaction": None,
+                "last_transaction": None,
+                "total_transaction_count": 0,
+            }
+
+        # Calculate overall first and last transaction timestamps
+        first_transaction = None
+        last_transaction = None
+
+        # Convert block_time to datetime and find min/max
+        all_interactions_with_time = all_interactions.with_columns(
+            pl.col("block_time").cast(pl.Datetime).alias("timestamp")
+        )
+
+        # Get the earliest and latest transaction times
+        time_stats = all_interactions_with_time.select(
+            [
+                pl.col("timestamp").min().alias("first_tx"),
+                pl.col("timestamp").max().alias("last_tx"),
+            ]
+        )
+
+        if len(time_stats) > 0:
+            time_row = time_stats.row(0)
+            if time_row[0] is not None:
+                first_transaction = time_row[0].isoformat()
+            if time_row[1] is not None:
+                last_transaction = time_row[1].isoformat()
+
+        logger.info(
+            f"Overall transaction period: {first_transaction} to {last_transaction}"
+        )
 
         # Group by contract addresses and count interactions
         # Use n_unique instead of count_distinct for direction counting
@@ -324,7 +358,13 @@ def get_wallet_contract_interactions(
         )
 
         logger.info(f"Returning {len(result)} contract interactions")
-        return result
+
+        return {
+            "interactions": result,
+            "first_transaction": first_transaction,
+            "last_transaction": last_transaction,
+            "total_transaction_count": total_interactions,
+        }
 
     except Exception as e:
         logger.error(f"Error analyzing wallet contract interactions: {e}")

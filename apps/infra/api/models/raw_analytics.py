@@ -25,6 +25,9 @@ class WalletInteractionsResponse(BaseModel):
     wallet_address: str
     chain_id: int
     time_window: Optional[str] = None
+    first_transaction: Optional[str] = None
+    last_transaction: Optional[str] = None
+    total_transaction_count: Optional[int] = None
     interactions: List[ContractInteraction]
 
 

@@ -9,8 +9,8 @@ This script demonstrates how to:
 4. Read data from Iceberg tables
 
 Usage:
-    python main.py <wallet_address> [--chain-id CHAIN_ID] [--mode {full,incremental}]
-                  [--no-read] [--catalog CATALOG] [--bucket BUCKET]
+    python main.py <wallet_address> [--chain-id CHAIN_ID] [--mode {full,incremental,time_range}]
+                  [--time-period {1d,3d,7d,14d,30d,90d}] [--no-read] [--catalog CATALOG] [--bucket BUCKET]
                   [--database DATABASE] [--table TABLE] [--region REGION]
 
 Example:
@@ -35,10 +35,20 @@ if __name__ == "__main__":
 
 from config.aws_config import initialize_catalog
 from config.logging_config import get_logger
-from db.iceberg import append_data, load_table, read_table_data, reorder_records
+from db.iceberg import (
+    load_table,
+    read_table_data,
+    reorder_records,
+)
 from dotenv import load_dotenv
-from pipelines.raw.cursor import get_cursor, update_cursor
-from providers.etherscan_provider import EtherscanProvider, FetchMode
+from pipelines.raw.cursor import (
+    get_cursor,
+    update_cursor,
+    calculate_time_based_start_block,
+)
+from pipelines.raw.transactions import load_transactions_with_safety
+from providers.etherscan import EtherscanProvider, FetchMode, TimePeriod
+from utils.blockchain import extract_block_range
 
 # Create a logger for this module
 logger = get_logger(__name__)
@@ -70,6 +80,7 @@ class FetchConfig:
 
     mode: FetchMode
     last_block_number: Optional[int] = None
+    time_period: Optional[TimePeriod] = None
 
 
 def valid_ethereum_address(address: str) -> str:
@@ -109,9 +120,15 @@ def parse_arguments():
     )
     parser.add_argument(
         "--mode",
-        choices=["full", "incremental"],
+        choices=["full", "incremental", "time_range"],
         default="incremental",
-        help="Fetch mode: full refresh or incremental (default: incremental)",
+        help="Fetch mode: full refresh, incremental, or time_range (default: incremental)",
+    )
+    parser.add_argument(
+        "--time-period",
+        choices=["1d", "3d", "7d", "14d", "30d", "90d"],
+        default="7d",
+        help="Time period for time_range mode (default: 7d)",
     )
     parser.add_argument(
         "--no-read", action="store_true", help="Skip reading table data after append"
@@ -200,20 +217,32 @@ def determine_fetch_mode(
     args, resources: ETLResources, wallet_address: str, chain_id: int
 ) -> FetchConfig:
     """
-    Determine the fetch mode and last block number for incremental fetching.
+    Determine the fetch mode and last block number based on arguments and available data.
 
     Args:
         args: Parsed command line arguments
         resources: ETL resources
-        wallet_address: Wallet address to fetch transactions for
+        wallet_address: Wallet address to check
         chain_id: Blockchain chain ID
 
     Returns:
         FetchConfig object with mode and last block number
     """
     # Start with the requested mode
-    mode = FetchMode.FULL_REFRESH if args.mode == "full" else FetchMode.INCREMENTAL
+    if args.mode == "full":
+        mode = FetchMode.FULL_REFRESH
+    elif args.mode == "time_range":
+        mode = FetchMode.TIME_RANGE
+    else:
+        mode = FetchMode.INCREMENTAL
+
     last_block_number = None
+    time_period = None
+
+    # For time_range mode, get the time period
+    if mode == FetchMode.TIME_RANGE:
+        time_period = TimePeriod.from_string(args.time_period)
+        logger.info(f"Using time-range mode ({time_period.value})")
 
     # For incremental mode, try to get the last block number
     if mode == FetchMode.INCREMENTAL and not args.read_only:
@@ -224,17 +253,20 @@ def determine_fetch_mode(
             mode = FetchMode.FULL_REFRESH
         else:
             logger.info(f"Getting last block number for {wallet_address}")
-            last_block_number = get_cursor(
-                resources.cursor_table, chain_id, wallet_address
-            )
+            cursor_data = get_cursor(resources.cursor_table, chain_id, wallet_address)
 
-            if last_block_number is not None:
+            if cursor_data is not None:
                 try:
-                    last_block_number = int(last_block_number)
-                except ValueError:
-                    logger.warning(
-                        f"Invalid block number in cursor: {last_block_number}"
+                    # cursor_data is now a tuple (start_block, end_block)
+                    if not isinstance(cursor_data, tuple) or len(cursor_data) != 2:
+                        raise ValueError(f"Invalid cursor data format: {cursor_data}")
+                    start_block, end_block = cursor_data
+                    last_block_number = int(end_block)
+                    logger.info(
+                        f"Found cursor - start_block: {start_block}, end_block: {end_block}"
                     )
+                except (ValueError, TypeError, IndexError) as e:
+                    logger.warning(f"Invalid cursor data: {cursor_data}, error: {e}")
                     last_block_number = None
 
             if last_block_number is None:
@@ -244,7 +276,9 @@ def determine_fetch_mode(
                 logger.info("Falling back to full refresh mode")
                 mode = FetchMode.FULL_REFRESH
 
-    return FetchConfig(mode=mode, last_block_number=last_block_number)
+    return FetchConfig(
+        mode=mode, last_block_number=last_block_number, time_period=time_period
+    )
 
 
 async def fetch_transactions(
@@ -276,14 +310,17 @@ async def fetch_transactions(
         and fetch_config.last_block_number is not None
     ):
         logger.info(f"Starting from block: {fetch_config.last_block_number}")
+    elif fetch_config.mode == FetchMode.TIME_RANGE and fetch_config.time_period:
+        logger.info(f"Time period: {fetch_config.time_period.value}")
 
     # Fetch transactions
     etherscan_provider = EtherscanProvider(api_key=etherscan_api_key)
-    transactions = await etherscan_provider.get_all_transactions_full(
+    transactions = await etherscan_provider.get_all_transactions(
         address=wallet_address,
         chain_id=chain_id,
         mode=fetch_config.mode,
         last_block_number=fetch_config.last_block_number,
+        time_period=fetch_config.time_period,
     )
 
     if not transactions:
@@ -295,22 +332,11 @@ async def fetch_transactions(
     # Get the highest block number from the transactions
     highest_block_number = None
     if transactions:
-        block_numbers = []
-        for tx in transactions:
-            try:
-                block_num = int(tx.get("block_number", 0))
-                block_numbers.append(block_num)
-            except (ValueError, TypeError):
-                logger.warning(
-                    f"Invalid block number in transaction: {tx.get('block_number')}"
-                )
-                continue
-        if not block_numbers:
-            logger.error("No valid block numbers found in transactions")
-            highest_block_number = None
-        else:
-            highest_block_number = max(block_numbers)
+        lowest_block_number, highest_block_number = extract_block_range(transactions)
+        if highest_block_number is not None:
             logger.info(f"Highest block number in transactions: {highest_block_number}")
+        else:
+            logger.error("No valid block numbers found in transactions")
 
     return transactions, highest_block_number
 
@@ -334,12 +360,13 @@ def display_read_only_data(transactions: List[Dict[str, Any]]) -> None:
     logger.info("Read-only mode: Data not written to Iceberg table")
 
 
-def process_transactions(
+async def process_transactions(
     transactions: List[Dict[str, Any]],
     highest_block_number: Optional[int],
     resources: ETLResources,
     args,
     wallet_address: str,
+    fetch_config: FetchConfig,
 ) -> None:
     """
     Process and write transactions to Iceberg table.
@@ -350,21 +377,62 @@ def process_transactions(
         resources: ETL resources
         args: Parsed command line arguments
         wallet_address: Wallet address
+        fetch_config: Fetch configuration with mode and time period
     """
-    # Process and append data
+    # Get block range for logging
+    lowest_block_number = None
+    if transactions and highest_block_number is not None:
+        try:
+            lowest_block_number, _ = extract_block_range(transactions)
+            if lowest_block_number is not None:
+                logger.info(
+                    f"Processing block range: {lowest_block_number} to {highest_block_number}"
+                )
+        except Exception as e:
+            logger.error(f"Error determining block range: {e}")
+            # Continue processing even if we can't determine the range
+            logger.info(f"Processing transactions up to block {highest_block_number}")
+
+    # Process and insert data using consolidated safety function
     logger.info(f"Processing {len(transactions)} transactions...")
     processed_transactions = reorder_records(transactions, resources.schema)
-    append_data(resources.table, processed_transactions, resources.schema.as_arrow())
+
+    # Use the consolidated function with automatic overlap detection
+    success = load_transactions_with_safety(
+        resources.catalog,
+        args.database,
+        args.chain_id,
+        wallet_address,
+        processed_transactions,
+    )
+
+    if not success:
+        logger.error("Failed to load transaction data")
+        return
 
     # Update cursor with the highest block number
     if highest_block_number is not None:
         logger.info(f"Updating cursor with block number: {highest_block_number}")
-        update_cursor(
+
+        # Calculate start_block based on fetch mode
+        start_block = None
+        if args.mode == "full":
+            start_block = "0"  # From genesis
+        elif args.mode == "time_range":
+            # Calculate time-based start block using the new flexible function
+            time_period = fetch_config.time_period or TimePeriod.DAYS_7
+            start_block = await calculate_time_based_start_block(
+                args.chain_id, time_period, "ETL script"
+            )
+        # For incremental mode, let update_cursor use previous end_block as start_block
+
+        await update_cursor(
             resources.catalog,
             args.database,
             args.chain_id,
             wallet_address,
             highest_block_number,
+            start_block=start_block,
         )
 
     # Read and print table data (if not disabled)
@@ -416,8 +484,13 @@ async def main():
         if args.read_only:
             display_read_only_data(transactions)
         else:
-            process_transactions(
-                transactions, highest_block_number, resources, args, wallet_address
+            await process_transactions(
+                transactions,
+                highest_block_number,
+                resources,
+                args,
+                wallet_address,
+                fetch_config,
             )
 
         logger.info("Operation completed successfully.")
