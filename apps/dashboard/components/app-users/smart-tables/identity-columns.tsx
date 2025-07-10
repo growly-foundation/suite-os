@@ -14,6 +14,7 @@ export function createIdentityColumns<
     id: string;
     name?: string | undefined | null;
     walletAddress: string;
+    truncateWalletAddress?: boolean;
   },
 >({
   item,
@@ -26,7 +27,7 @@ export function createIdentityColumns<
   onUserClick?: (user: T) => void;
   onCheckboxChange: (userId: string, checked: boolean) => void;
   selectedUsers: Record<string, boolean>;
-  onSelectAll?: (checked: boolean) => void;
+  onSelectAll: (checked: boolean) => void;
 }): TableColumn<T>[] {
   return [
     {
@@ -34,13 +35,11 @@ export function createIdentityColumns<
       sortable: false,
       header: (
         <div className="flex items-center space-x-4 h-12 border-r">
-          {onSelectAll && (
-            <Checkbox
-              className="border-gray-450"
-              checked={Object.values(selectedUsers).some(Boolean)}
-              onCheckedChange={onSelectAll}
-            />
-          )}
+          <Checkbox
+            className="border-gray-450"
+            checked={Object.values(selectedUsers).some(Boolean)}
+            onCheckedChange={onSelectAll}
+          />
           <HeadLabelWithIcon
             icon={<UserIcon className="h-3 w-3 text-muted-foreground" />}
             label="User"
@@ -73,7 +72,7 @@ export function createIdentityColumns<
                 <h3 className="font-bold text-xs">{name}</h3>
                 <WalletAddress
                   className={cn('text-xs', onUserClick && 'hover:underline')}
-                  truncate
+                  truncate={!!item.truncateWalletAddress}
                   truncateLength={{ startLength: 12, endLength: 4 }}
                   address={walletAddress}
                   onClick={e => {

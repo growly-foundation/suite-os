@@ -35,7 +35,7 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
-import { Agent, AggregatedWorkflow, ParsedUser, Status } from '@getgrowly/core';
+import { Agent, AggregatedWorkflow, ParsedUser, SessionStatus, Status } from '@getgrowly/core';
 import { truncateAddress } from '@getgrowly/ui';
 
 const AnimatedLoadingSmall = dynamic(
@@ -119,7 +119,14 @@ export function DashboardInner() {
         type: 'user' as const,
         title: `New user "${truncateAddress(user.entities.walletAddress, 8, 6)}" added`,
         timestamp: user.created_at,
-        icon: <AppUserAvatarWithStatus user={user} withStatus={false} />,
+        icon: (
+          <AppUserAvatarWithStatus
+            size={35}
+            walletAddress={user.onchainData.id as any}
+            name={user.name}
+            online={SessionStatus.Offline}
+          />
+        ),
         color: '',
       })),
       ...agents.map((agent: Agent) => ({

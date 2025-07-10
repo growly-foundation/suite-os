@@ -99,12 +99,16 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
         <InfoIcon className="h-4 w-4" />
         <AlertDescription>
           Import users from your Privy application by entering your App ID and App Secret.
+          <br />
+          <span className="font-bold">
+            Suite does not store your credentials and this import is one-time.
+          </span>
         </AlertDescription>
       </Alert>
       <div className="space-y-4">
         {!configured ? (
-          <div className="grid gap-4">
-            <div className="grid gap-2">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="app-id">Privy App ID</Label>
               <Input
                 id="app-id"
@@ -113,7 +117,7 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
                 placeholder="Enter your Privy App ID"
               />
             </div>
-            <div className="grid gap-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="app-secret">Privy App Secret</Label>
               <Input
                 id="app-secret"
@@ -164,7 +168,6 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
             {privyUsers.length > 0 ? (
               <UserSelectionList
                 users={privyUsers}
-                title="Privy Users"
                 importButtonText={importing ? 'Importing...' : `Import Users`}
                 isImporting={importing}
                 onImport={async (selectedUserIds: string[]) => {
@@ -173,15 +176,7 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
                   );
                   await handleImport(usersToImport);
                 }}
-                columns={createPrivyUserColumns({
-                  onCheckboxChange: (userId, checked) => {
-                    setSelectedUsers(prev => ({
-                      ...prev,
-                      [userId]: checked,
-                    }));
-                  },
-                  selectedUsers,
-                })}
+                columns={createPrivyUserColumns()}
               />
             ) : (
               <Alert variant="default">

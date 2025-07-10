@@ -8,6 +8,7 @@ export enum ColumnType {
   DATE = 'DATE',
   BOOLEAN = 'BOOLEAN',
   NULL = 'NULL',
+  COMPONENT = 'COMPONENT',
 }
 
 export type ColumnValueExtractor<T, R> = (item: T) => R;
@@ -57,6 +58,12 @@ export type BooleanColumn<T> = {
   contentRenderer(extractedData: boolean): React.ReactNode;
 };
 
+export type ComponentColumn<T> = {
+  type: ColumnType.COMPONENT;
+  dataExtractor: () => undefined;
+  contentRenderer(extractedData: any): React.ReactNode;
+};
+
 export interface BatchRenderTableColumn<T> {
   type: AdvancedColumnType.BATCH;
   batchRenderer: (item?: T) => TableColumn<T>[];
@@ -72,6 +79,7 @@ export type TableColumn<T> = TableColumnMeta &
     | ArrayColumn<T>
     | ObjectColumn<T>
     | BooleanColumn<T>
+    | ComponentColumn<T>
   );
 
 export type SmartTableColumn<T> = TableColumn<T> | BatchRenderTableColumn<T>;

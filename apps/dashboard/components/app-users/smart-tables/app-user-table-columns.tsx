@@ -50,6 +50,7 @@ export const createUserTableColumns = ({
         createIdentityColumns({
           item: {
             walletAddress: user?.onchainData.id as string,
+            truncateWalletAddress: true,
             ...user,
           },
           onUserClick,

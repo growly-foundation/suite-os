@@ -1,11 +1,11 @@
 'use client';
 
-import { MailIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { MailIcon, Trash } from 'lucide-react';
 
 import { ImportUserOutput } from '@getgrowly/core';
 
-import { AdvancedColumnType, ColumnType, SmartTableColumn } from '../../types';
-import { createIdentityColumns } from '../identity-columns';
+import { ColumnType, SmartTableColumn } from '../../types';
 import { HeadLabelWithIcon } from '../table-head-label';
 
 /**
@@ -15,30 +15,15 @@ import { HeadLabelWithIcon } from '../table-head-label';
  * @returns Array of column definitions for manually entered users
  */
 export function createManualUserColumns({
-  onCheckboxChange,
-  selectedUsers,
+  handleRemoveUser,
 }: {
-  onCheckboxChange?: (userId: string, checked: boolean) => void;
-  selectedUsers?: Record<string, boolean>;
+  handleRemoveUser: (userId: string) => void;
 }): SmartTableColumn<ImportUserOutput>[] {
   return [
     {
-      type: AdvancedColumnType.BATCH,
-      batchRenderer: (user?: ImportUserOutput): any =>
-        createIdentityColumns({
-          item: {
-            id: user?.walletAddress,
-            walletAddress: user?.walletAddress,
-            name: user?.name,
-            ...user,
-          },
-          onCheckboxChange,
-          selectedUsers,
-        } as any),
-    },
-    {
       key: 'email',
       sortable: true,
+      border: false,
       header: (
         <HeadLabelWithIcon
           icon={<MailIcon className="h-3 w-3 text-muted-foreground" />}
@@ -49,6 +34,23 @@ export function createManualUserColumns({
       type: ColumnType.STRING,
       dataExtractor: (user: ImportUserOutput) => user.email || '—',
       contentRenderer: (email: string) => <span className="text-sm">{email}</span>,
+    },
+    {
+      key: 'actions',
+      type: ColumnType.COMPONENT,
+      border: false,
+      header: (
+        <HeadLabelWithIcon
+          icon={<Trash className="h-3 w-3 text-muted-foreground" />}
+          label="Actions"
+        />
+      ),
+      dataExtractor: () => undefined,
+      contentRenderer: (user: ImportUserOutput) => (
+        <Button variant="ghost" size="icon" onClick={() => handleRemoveUser(user.walletAddress!)}>
+          <Trash className="h-4 w-4" />
+        </Button>
+      ),
     },
   ];
 }

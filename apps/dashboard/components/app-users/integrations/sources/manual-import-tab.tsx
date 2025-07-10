@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { UserImportService } from '@/lib/services/user-import.service';
-import { Download, InfoIcon, Plus, Trash } from 'lucide-react';
+import { Download, InfoIcon, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -243,47 +243,28 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
               <Button variant="outline" onClick={handleDownloadTemplate} className="w-full">
                 <Download className="h-4 w-4 mr-1" /> Download CSV Template
               </Button>
-
-              <div className="grid gap-2">
-                <Label htmlFor="csv-file">Upload User CSV</Label>
-                <Input
-                  id="csv-file"
-                  type="file"
-                  accept=".csv"
-                  onChange={handleFileUpload}
-                  className="cursor-pointer"
-                />
-              </div>
+              <Input
+                id="csv-file"
+                type="file"
+                accept=".csv"
+                onChange={handleFileUpload}
+                className="cursor-pointer border"
+              />
             </div>
           </div>
         </div>
-
         <Separator />
-
         {users.length > 0 ? (
           <UserSelectionList
             users={users}
-            title="Manual Import"
             importButtonText={importing ? 'Importing...' : 'Import Users'}
             isImporting={importing}
             onImport={async selectedUserIds => await handleImport(selectedUserIds)}
             columns={createManualUserColumns({
-              onCheckboxChange: (userId, checked) => {
-                setSelectedUsers(prev => ({
-                  ...prev,
-                  [userId]: checked,
-                }));
+              handleRemoveUser: (userId: string) => {
+                handleRemoveUser(userId);
               },
-              selectedUsers,
             })}
-            renderAdditionalInfo={user => (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleRemoveUser(user.walletAddress!)}>
-                <Trash className="h-4 w-4" />
-              </Button>
-            )}
           />
         ) : (
           <Alert variant="default">

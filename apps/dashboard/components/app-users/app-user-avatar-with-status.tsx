@@ -14,7 +14,7 @@ export const AppUserAvatarWithStatus = ({
 }: {
   walletAddress: Address;
   avatar?: string;
-  name?: string;
+  name?: string | undefined | null;
   online?: SessionStatus;
   withStatus?: boolean;
   size?: number;

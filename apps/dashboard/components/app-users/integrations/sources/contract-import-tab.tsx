@@ -40,7 +40,6 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   const [contractUsers, setContractUsers] = useState<ImportUserOutput[]>([]);
   const [importing, setImporting] = useState(false);
   const [filterType, setFilterType] = useState<'all' | 'holders' | 'interactions'>('all');
-  const [selectedUsers, setSelectedUsers] = useState<Record<string, boolean>>({});
 
   // Get users from a contract
   const handleSearch = async () => {
@@ -178,7 +177,6 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
         {contractUsers.length > 0 && (
           <UserSelectionList
             users={contractUsers}
-            title="Contract Users"
             importButtonText={importing ? 'Importing...' : 'Import Users'}
             isImporting={importing}
             onImport={async (selectedUserIds: string[]) => {
@@ -187,15 +185,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
               );
               await handleImport(usersToImport);
             }}
-            columns={createContractUserColumns({
-              onCheckboxChange: (userId, checked) => {
-                setSelectedUsers(prev => ({
-                  ...prev,
-                  [userId]: checked,
-                }));
-              },
-              selectedUsers,
-            })}
+            columns={createContractUserColumns()}
           />
         )}
       </div>
