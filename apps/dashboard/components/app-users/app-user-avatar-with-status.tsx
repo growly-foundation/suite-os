@@ -1,23 +1,28 @@
-import { consumePersona } from '@/core/persona';
+import { Address } from 'viem';
 
-import { ParsedUser, SessionStatus } from '@getgrowly/core';
+import { SessionStatus } from '@getgrowly/core';
 import { RandomAvatar } from '@getgrowly/ui';
 
 export const AppUserAvatarWithStatus = ({
-  user,
+  walletAddress,
+  avatar,
+  name,
   withStatus = true,
+  online = SessionStatus.Offline,
   size = 40,
   ...props
 }: {
-  user: ParsedUser;
+  walletAddress: Address;
+  avatar?: string;
+  name?: string;
+  online?: SessionStatus;
   withStatus?: boolean;
   size?: number;
 } & React.HTMLAttributes<HTMLDivElement>) => {
-  const nameService = consumePersona(user).nameService();
   return (
     <div className="relative" {...props}>
-      <RandomAvatar address={user.id as any} size={size} ensAvatar={nameService?.avatar} />
-      {withStatus && user.chatSession.status === SessionStatus.Online && (
+      <RandomAvatar address={walletAddress} size={size} ensAvatar={avatar} />
+      {withStatus && online === SessionStatus.Online && (
         <span
           className={`absolute bottom-0 right-0 h-2 w-2 rounded-full bg-green-500 ring-2 ring-white`}></span>
       )}

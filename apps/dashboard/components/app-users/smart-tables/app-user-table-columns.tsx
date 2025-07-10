@@ -5,20 +5,18 @@ import { consumePersona } from '@/core/persona';
 import { getBadgeColor } from '@/lib/color.utils';
 import { formatNumber } from '@/lib/string.utils';
 import { cn } from '@/lib/utils';
-import { BadgeIcon, Calendar, CoinsIcon, DollarSign, Layers, UserIcon } from 'lucide-react';
+import { BadgeIcon, Calendar, CoinsIcon, DollarSign, Layers } from 'lucide-react';
 import moment from 'moment';
 
 import { TMarketToken, TTokenTransferActivity } from '@getgrowly/chainsmith/types';
 import { ParsedUser } from '@getgrowly/core';
-import { WalletAddress } from '@getgrowly/ui';
 
 import { AssetIcon } from '../../ui/asset-icon';
 import { Badge } from '../../ui/badge';
-import { Checkbox } from '../../ui/checkbox';
 import { ActivityPreview } from '../../user/activity-preview';
-import { AppUserAvatarWithStatus } from '../app-user-avatar-with-status';
 import { AdvancedColumnType, ColumnType, SmartTableColumn } from '../types';
 import { createChatSessionColumns } from './chat-session-columns';
+import { createIdentityColumns } from './identity-columns';
 import { HeadLabelWithIcon } from './table-head-label';
 
 export const getDistinctTokens = (user: ParsedUser) => {
@@ -47,55 +45,18 @@ export const createUserTableColumns = ({
 }): SmartTableColumn<ParsedUser>[] => {
   return [
     {
-      key: 'identity',
-      sortable: false,
-      header: (
-        <div className="flex items-center space-x-4 h-12 border-r">
-          <Checkbox
-            className="border-gray-450"
-            checked={Object.values(selectedUsers).some(Boolean)}
-            onCheckedChange={onSelectAll}
-          />
-          <HeadLabelWithIcon
-            icon={<UserIcon className="h-3 w-3 text-muted-foreground" />}
-            label="User"
-          />
-        </div>
-      ),
-      type: ColumnType.OBJECT,
-      sticky: true,
-      border: false,
-      className: 'sticky py-0 left-0 bg-white box-shadow shadow-sm z-10',
-      dataExtractor: (user: ParsedUser) => user,
-      contentRenderer: (user: ParsedUser) => {
-        const userPersona = consumePersona(user);
-        const name = userPersona.nameService()?.name || '';
-        return (
-          <div className="flex items-center space-x-4 h-12 border-r">
-            <Checkbox
-              className="border-gray-450"
-              checked={!!selectedUsers[user.id]}
-              onCheckedChange={checked => onCheckboxChange(user.id, !!checked)}
-            />
-            <div className="flex items-center text-sm space-x-3 pr-4">
-              <AppUserAvatarWithStatus user={user} size={25} />
-              <div>
-                <h3 className="font-bold text-xs">{name}</h3>
-                <WalletAddress
-                  className="text-xs hover:underline"
-                  truncate
-                  truncateLength={{ startLength: 12, endLength: 4 }}
-                  address={user.onchainData.id}
-                  onClick={e => {
-                    e.stopPropagation();
-                    onUserClick(user);
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        );
-      },
+      type: AdvancedColumnType.BATCH,
+      batchRenderer: (user?: ParsedUser | undefined): any =>
+        createIdentityColumns({
+          item: {
+            walletAddress: user?.onchainData.id as string,
+            ...user,
+          },
+          onUserClick,
+          onCheckboxChange,
+          selectedUsers,
+          onSelectAll,
+        } as any),
     },
     {
       key: 'talentProtocolCheckMark',

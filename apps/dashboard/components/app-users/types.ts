@@ -95,11 +95,7 @@ export type TableColumnMeta = {
   contentRenderer(extractedData: any): React.ReactNode;
 };
 
-export type SortableColumn<T> =
-  | {
-      sortable?: true;
-      sortingValueGetter?: ColumnValueExtractor<T, any>;
-    }
-  | {
-      sortable?: false;
-    };
+export type SortableColumn<T> = {
+  sortable?: boolean;
+  sortingValueGetter?: ColumnValueExtractor<T, any>;
+};

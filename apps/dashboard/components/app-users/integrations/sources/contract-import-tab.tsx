@@ -1,6 +1,7 @@
 'use client';
 
 import { UserSelectionList } from '@/components/app-users/integrations/user-selection-list';
+import { createContractUserColumns } from '@/components/app-users/smart-tables/import-user-tables/contract-user-columns';
 import { ChainSelector, SUPPORTED_CHAINS } from '@/components/chains/chain-selecter';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -39,6 +40,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   const [contractUsers, setContractUsers] = useState<ImportUserOutput[]>([]);
   const [importing, setImporting] = useState(false);
   const [filterType, setFilterType] = useState<'all' | 'holders' | 'interactions'>('all');
+  const [selectedUsers, setSelectedUsers] = useState<Record<string, boolean>>({});
 
   // Get users from a contract
   const handleSearch = async () => {
@@ -185,6 +187,15 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
               );
               await handleImport(usersToImport);
             }}
+            columns={createContractUserColumns({
+              onCheckboxChange: (userId, checked) => {
+                setSelectedUsers(prev => ({
+                  ...prev,
+                  [userId]: checked,
+                }));
+              },
+              selectedUsers,
+            })}
           />
         )}
       </div>

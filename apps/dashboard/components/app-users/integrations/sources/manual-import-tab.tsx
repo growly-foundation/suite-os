@@ -1,6 +1,7 @@
 'use client';
 
 import { UserSelectionList } from '@/components/app-users/integrations/user-selection-list';
+import { createManualUserColumns } from '@/components/app-users/smart-tables/import-user-tables/manual-user-columns';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,6 +29,7 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<ImportUserOutput[]>([]);
   const [importing, setImporting] = useState(false);
+  const [selectedUsers, setSelectedUsers] = useState<Record<string, boolean>>({});
 
   // Form state for manual entry
   const [walletAddress, setWalletAddress] = useState('');
@@ -261,21 +263,25 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
         {users.length > 0 ? (
           <UserSelectionList
             users={users}
-            title="Users to Import"
-            importButtonText={importing ? 'Importing...' : `Import Users`}
+            title="Manual Import"
+            importButtonText={importing ? 'Importing...' : 'Import Users'}
             isImporting={importing}
-            onImport={handleImport}
+            onImport={async selectedUserIds => await handleImport(selectedUserIds)}
+            columns={createManualUserColumns({
+              onCheckboxChange: (userId, checked) => {
+                setSelectedUsers(prev => ({
+                  ...prev,
+                  [userId]: checked,
+                }));
+              },
+              selectedUsers,
+            })}
             renderAdditionalInfo={user => (
               <Button
                 variant="ghost"
-                size="sm"
-                onClick={e => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleRemoveUser(user.walletAddress!);
-                }}
-                className="h-6 ml-2 px-2 text-red-500 hover:text-red-600 hover:bg-red-50">
-                <Trash className="h-3.5 w-3.5" />
+                size="icon"
+                onClick={() => handleRemoveUser(user.walletAddress!)}>
+                <Trash className="h-4 w-4" />
               </Button>
             )}
           />

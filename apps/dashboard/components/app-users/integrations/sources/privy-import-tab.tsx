@@ -1,6 +1,7 @@
 'use client';
 
 import { UserSelectionList } from '@/components/app-users/integrations/user-selection-list';
+import { createPrivyUserColumns } from '@/components/app-users/smart-tables/import-user-tables/privy-user-columns';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +25,7 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
   const [configured, setConfigured] = useState(false);
   const [privyUsers, setPrivyUsers] = useState<ImportPrivyUserOutput[]>([]);
   const [importing, setImporting] = useState(false);
+  const [selectedUsers, setSelectedUsers] = useState<Record<string, boolean>>({});
 
   // Handle configuration
   const handleConfigure = async () => {
@@ -171,6 +173,15 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
                   );
                   await handleImport(usersToImport);
                 }}
+                columns={createPrivyUserColumns({
+                  onCheckboxChange: (userId, checked) => {
+                    setSelectedUsers(prev => ({
+                      ...prev,
+                      [userId]: checked,
+                    }));
+                  },
+                  selectedUsers,
+                })}
               />
             ) : (
               <Alert variant="default">
