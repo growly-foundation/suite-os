@@ -23,24 +23,30 @@ yarn add @getgrowly/agents
 ### Basic Usage
 
 ```typescript
-import { ToolRegistry, ReactAgent } from '@getgrowly/agents';
 import { ChatOpenAI } from '@langchain/openai';
+
+import { ReactAgent, ToolRegistry } from '@getgrowly/agents';
 
 // Initialize tool registry
 const toolRegistry = new ToolRegistry();
 
 // Set up the language model
-toolRegistry.setModel(new ChatOpenAI({ 
-  modelName: 'gpt-4',
-  temperature: 0 
-}));
+toolRegistry.setModel(
+  new ChatOpenAI({
+    modelName: 'gpt-4',
+    temperature: 0,
+  })
+);
 
 // Create an agent
-const agent = new ReactAgent({
-  agentId: 'my-agent',
-  systemPrompt: 'You are a helpful assistant',
-  verbose: true,
-}, toolRegistry);
+const agent = new ReactAgent(
+  {
+    agentId: 'my-agent',
+    systemPrompt: 'You are a helpful assistant',
+    verbose: true,
+  },
+  toolRegistry
+);
 
 // Execute the agent
 const result = await agent.execute('Hello, world!');
@@ -53,15 +59,21 @@ console.log(result.output);
 import { MultiAgentSystem, ReactAgent } from '@getgrowly/agents';
 
 // Create agents
-const researcher = new ReactAgent({
-  agentId: 'researcher',
-  systemPrompt: 'You are a research assistant',
-}, toolRegistry);
+const researcher = new ReactAgent(
+  {
+    agentId: 'researcher',
+    systemPrompt: 'You are a research assistant',
+  },
+  toolRegistry
+);
 
-const writer = new ReactAgent({
-  agentId: 'writer',
-  systemPrompt: 'You are a technical writer',
-}, toolRegistry);
+const writer = new ReactAgent(
+  {
+    agentId: 'writer',
+    systemPrompt: 'You are a technical writer',
+  },
+  toolRegistry
+);
 
 // Create multi-agent system
 const multiAgent = new MultiAgentSystem(
