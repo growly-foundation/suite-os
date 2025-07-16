@@ -17,6 +17,7 @@ pnpm changeset
 ```
 
 This will prompt you to:
+
 1. Select which packages have changed
 2. Choose what kind of semver change it is for each package (major, minor, patch)
 3. Write a summary of the changes
@@ -28,6 +29,7 @@ This creates a markdown file in the `.changeset` directory that describes your c
 When you're ready to release:
 
 1. Update versions based on changesets:
+
    ```bash
    pnpm changeset version
    ```

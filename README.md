@@ -46,10 +46,10 @@ Built on Base, Suite leverages the power of AI to help users navigate on-chain a
 
 | Resource Name               | Link                                                                                                  |
 | --------------------------- | ----------------------------------------------------------------------------------------------------- |
-| Website                     | https://getsuite.io                                                                                   |
-| Suite Dashboard             | https://app.getsuite.io                                                                               |
-| Suite Playground            | https://playground.getsuite.io                                                                        |
-| Suite Uniswap Demo          | https://uniswap.getsuite.io                                                                           |
+| Website                     | <https://getsuite.io>                                                                                 |
+| Suite Dashboard             | <https://app.getsuite.io>                                                                             |
+| Suite Playground            | <https://playground.getsuite.io>                                                                      |
+| Suite Uniswap Demo          | <https://uniswap.getsuite.io>                                                                         |
 | Original Idea Pitch         | [View the original idea](https://github.com/user-attachments/files/19884167/growly-widget-deck.2.pdf) |
 | Pitch Deck for Base Batches | [View our pitch deck](https://www.figma.com/deck/uF0kJ0gn0ViJgPUUrdq1yn/-Growly-Suite--Pitch-Deck)    |
 

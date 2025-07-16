@@ -26,7 +26,7 @@
     "f:suite": "pnpm --filter @getgrowly/suite",
     "f:ui": "pnpm --filter @getgrowly/ui",
     "f:website": "pnpm --filter @getgrowly/website",
-    "format": "pnpx prettier --config .prettierrc.cjs '**/*.{js,jsx,ts,tsx}' --write",
+    "format": "pnpx prettier --config .prettierrc.cjs '**/*.{js,jsx,ts,tsx,md,mdx,json}' --write",
     "preinstall": "npx only-allow pnpm",
     "install:dashboard": "pnpm run install:shared && pnpm install --filter @getgrowly/dashboard && pnpm run postinstall:dashboard",
     "postinstall:dashboard": "cd apps/dashboard",

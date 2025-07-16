@@ -72,6 +72,7 @@ Example:
 
 ```typescript
 import { Injectable } from '@nestjs/common';
+
 import { UserRepository } from '../database/repositories/user.repository';
 
 @Injectable()

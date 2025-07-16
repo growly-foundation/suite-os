@@ -1,32 +1,57 @@
 {
   "name": "@getgrowly/suite",
   "version": "1.0.5",
-  "type": "module",
   "repository": "https://github.com/growly-foundation/suite.git",
   "license": "MIT",
-  "publishConfig": {
-    "access": "public"
+  "type": "module",
+  "exports": {
+    "./package.json": "./package.json",
+    "./styles.css": "./dist/styles.css",
+    "./tailwind.css": "./dist/tailwind.css",
+    "./theme": "./dist/styles/theme.js",
+    "./provider": "./dist/styles/provider.js",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "module": "./dist/index.js",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./widgets": {
+      "types": "./dist/widgets/index.d.ts",
+      "module": "./dist/widgets/index.js",
+      "import": "./dist/widgets/index.js",
+      "default": "./dist/widgets/index.js"
+    },
+    "./hooks": {
+      "types": "./dist/hooks/index.d.ts",
+      "module": "./dist/hooks/index.js",
+      "import": "./dist/hooks/index.js",
+      "default": "./dist/hooks/index.js"
+    }
   },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "src/**/*"
+  ],
   "scripts": {
     "build": "pnpm clean && pnpm bundle:prod && pnpm tailwind:prod",
-    "dev": "concurrently \"pnpm tailwind:dev\" \"pnpm bundle:dev\"",
     "bundle:dev": "NODE_ENV=development vite build --watch",
     "bundle:prod": "vite build",
-    "tailwind:dev": "tailwind -i ./src/styles/index-with-tailwind.css -o ./dist/styles.css --watch",
-    "tailwind:prod": "tailwindcss -i ./src/styles/index.css -o ./dist/tailwind.css --minify && tailwindcss -i ./src/styles/index-with-tailwind.css -o ./dist/styles.css --minify",
     "clean": "rm -rf dist esm",
+    "dev": "concurrently \"pnpm tailwind:dev\" \"pnpm bundle:dev\"",
     "format": "prettier --write .",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest",
-    "test:ui": "vitest --ui",
     "get-next-version": "node ./scripts/get-next-version.js",
     "publish-alpha": "node ./scripts/publish-alpha.js",
+    "tailwind:dev": "tailwind -i ./src/styles/index-with-tailwind.css -o ./dist/styles.css --watch",
+    "tailwind:prod": "tailwindcss -i ./src/styles/index.css -o ./dist/tailwind.css --minify && tailwindcss -i ./src/styles/index-with-tailwind.css -o ./dist/styles.css --minify",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
+    "test:watch": "vitest",
     "validate-build": "node ./scripts/validate-build.js"
-  },
-  "peerDependencies": {
-    "react": "^18 || ^19",
-    "react-dom": "^18 || ^19"
   },
   "dependencies": {
     "@coinbase/onchainkit": "^0.38.13",
@@ -125,37 +150,12 @@
     "vite-plugin-externalize-deps": "^0.9.0",
     "vitest": "^3.1.2"
   },
-  "files": [
-    "dist/**/*",
-    "src/**/*"
-  ],
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "module": "./dist/index.js",
-  "exports": {
-    "./package.json": "./package.json",
-    "./styles.css": "./dist/styles.css",
-    "./tailwind.css": "./dist/tailwind.css",
-    "./theme": "./dist/styles/theme.js",
-    "./provider": "./dist/styles/provider.js",
-    ".": {
-      "types": "./dist/index.d.ts",
-      "module": "./dist/index.js",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
-    },
-    "./widgets": {
-      "types": "./dist/widgets/index.d.ts",
-      "module": "./dist/widgets/index.js",
-      "import": "./dist/widgets/index.js",
-      "default": "./dist/widgets/index.js"
-    },
-    "./hooks": {
-      "types": "./dist/hooks/index.d.ts",
-      "module": "./dist/hooks/index.js",
-      "import": "./dist/hooks/index.js",
-      "default": "./dist/hooks/index.js"
-    }
+  "peerDependencies": {
+    "react": "^18 || ^19",
+    "react-dom": "^18 || ^19"
   },
-  "packageManager": "pnpm@10.6.3"
+  "packageManager": "pnpm@10.6.3",
+  "publishConfig": {
+    "access": "public"
+  }
 }

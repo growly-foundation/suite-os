@@ -1,0 +1,107 @@
+# Suite Project Overview
+
+## Project Purpose & Scope
+
+**Primary Goal:** Suite is an AI-powered engine designed to streamline DeFi adoption by integrating cutting-edge AI agents into blockchain applications. The project bridges the gap between complex DeFi protocols and everyday users through an intuitive AI chat widget that can be easily embedded into any dApp.
+
+**Core Mission:** Making DeFi more accessible through intuitive AI agents, empowering users to navigate on-chain actions, understand DeFi opportunities, and make informed decisions without requiring deep technical knowledge of blockchain.
+
+**Key Success Metrics:**
+
+- Successful integration of AI agents into dApp websites
+- User adoption and engagement with the chat widget
+- Reduction in user friction when navigating complex DeFi operations
+- Positive user sentiment and problem resolution rates
+
+**Essential Features & Deliverables:**
+
+- Embeddable chat widget for dApp integration
+- Multi-agent AI system with specialized capabilities
+- Resource management system for agent training
+- User persona management and segmentation
+- Conversation monitoring and analytics
+- Admin dashboard for organizations
+- Onboarding flow for new businesses
+- Smart contract indexing and interaction capabilities
+- Payment and authentication systems
+
+**Target Audiences:**
+
+- dApp developers and organizations seeking to integrate AI assistance
+- DeFi users who need guidance navigating complex protocols
+- Organizations requiring user analytics and conversation management
+- Community managers (future Guild.xyz integration)
+
+## Technical Architecture & Constraints
+
+**Core System Architecture:**
+
+**1. Frontend Layer (dApp Builder UI):**
+
+- **Client UI:** Example implementation with `app.uniswap.org`
+- **Event Listener:** Connected to OnchainKit and wagmi for blockchain event handling
+- **ChatWidget:** Primary user interface for AI interactions
+- **Integration Points:** Seamless embedding into existing dApp interfaces
+
+**2. Backend Infrastructure (App Infra - Supabase):**
+
+- **Conversation Database:** Stores conversation logs by agent_id
+- **Agent Memory (pgvector):** Vector embeddings for AI context and learning
+- **Registered Workflow:** Predefined operation sequences by org_id
+- **Registered SupAgent:** Agent configurations including character, system prompts, and model API keys
+- **Resources Database:** Self-uploaded resources managed via Admin Dashboard or Firecrawl ingestion
+
+**3. Central Orchestration (Supervisor Workflow Crafter):**
+
+- **Thread Management:** Handles `$agentId_$userId` sessions
+- **Workflow Orchestration:** Coordinates between UI, agents, and data sources
+- **Context Management:** Leverages agent memory and registered workflows
+- **Task Dispatch:** Routes requests to specialized agents based on requirements
+
+**4. Specialized AI Agents:**
+
+**Web3 Data Agent:**
+
+- **Tools:** agentkit integration
+- **Data Sources:** Zerion API, DefiLlama API
+- **Capabilities:** Real-time DeFi data fetching and protocol information
+
+**Growly Agent (Special):**
+
+- **Smart Contract Integration:** Ponder Smart Contract Indexers
+- **SDK Support:** @uniswap/sdk-core, @uniswap/v4-sdk, @moonwell-fi/moonwell-sdk
+- **Payment Integration:** x402 for exclusive endpoints
+- **Capabilities:** Direct protocol interaction and transaction execution
+
+**Search Agent:**
+
+- **Search API:** Tavily API integration
+- **Content Ingestion:** Firecrawl for app/docs URL processing
+- **Resource Management:** Automatic content addition to Resources database
+- **Capabilities:** Web search and documentation crawling
+
+**5. Payment & Authentication System:**
+
+- **x402 Integration:** Payment processing for exclusive endpoints
+- **Privy Integration:** Session signers for secure authentication
+- **Transaction Signing:** Secure wallet interactions
+
+**6. Admin Dashboard:**
+
+- **Agent Configuration:** Character and system prompt management
+- **Model Management:** API key configuration for OpenAI, Anthropic, Google
+- **Resource Upload:** Manual resource management
+- **Workflow Configuration:** Custom workflow definition
+- **Analytics:** Conversation and performance monitoring
+
+**Technology Stack:**
+
+- **Frontend:** React/Next.js with OnchainKit and wagmi
+- **Backend:** Supabase with PostgreSQL and pgvector
+- **AI Models:** Multi-provider support (OpenAI, Anthropic, Google)
+- **Blockchain:** Base network with multi-protocol SDK support
+- **Search:** Tavily API for web search capabilities
+- **Payments:** x402 for premium feature access
+- **Authentication:** Privy for secure session management
+
+**Current Codebase Structure:**
