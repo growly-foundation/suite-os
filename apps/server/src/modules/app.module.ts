@@ -6,6 +6,7 @@ import { ProxyMiddleware } from '../middleware/x402-redirect.middleware';
 import { BullModule } from './bull/bull.module';
 import { ChatModule } from './chat/chat.module';
 import { DatabaseModule } from './databases/database.module';
+import { EtherscanModule } from './etherscan/etherscan.module';
 import { GrowlyModule } from './growly/growly.module';
 import { MessageModule } from './message/message.module';
 import { OpenAIModule } from './openai/openai.module';
@@ -28,6 +29,7 @@ import { UserModule } from './user/user.module';
     GrowlyModule,
     SuiteCoreModule,
     ResourcesModule,
+    EtherscanModule,
   ],
 })
 export class AppModule implements NestModule {
