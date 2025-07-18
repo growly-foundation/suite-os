@@ -7,6 +7,13 @@ export enum UserImportSource {
   Manual = 'manual',
 }
 
+export interface ContractUser {
+  address: string;
+  transactionCount?: number;
+  firstInteraction?: string;
+  lastInteraction?: string;
+}
+
 export type ImportUserOutput<T = Record<string, any>> = {
   walletAddress?: string;
   email?: string;
@@ -16,3 +23,4 @@ export type ImportUserOutput<T = Record<string, any>> = {
 };
 
 export type ImportPrivyUserOutput = ImportUserOutput<PrivyUser>;
+export type ImportContractUserOutput = ImportUserOutput<ContractUser>;
