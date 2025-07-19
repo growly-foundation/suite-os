@@ -1,7 +1,6 @@
 'use client';
 
 import { UserSelectionList } from '@/components/app-users/integrations/user-selection-list';
-import { createPrivyUserColumns } from '@/components/app-users/smart-tables/import-user-tables/privy-user-columns';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -184,7 +183,6 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
                   );
                   await handleImport(usersToImport);
                 }}
-                columns={createPrivyUserColumns()}
               />
             ) : (
               <Alert variant="default">

@@ -1,13 +1,12 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { ParsedUser } from '@getgrowly/core';
 
 import { ResizableSheet } from '../../ui/resizable-sheet';
 import { UserDetails } from '../app-user-details';
-import { createUserTableColumns } from './app-user-table-columns';
-import { HyperSmartTable } from './hyper-smart-table';
+import { RefactoredUserTable } from './refactored-user-table';
 
 const ITEMS_PER_PAGE = 100;
 
@@ -21,7 +20,6 @@ const ITEMS_PER_PAGE = 100;
 export function UsersTable({ users }: { users: ParsedUser[] }) {
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<ParsedUser | null>(null);
-  const [selectedUsers, setSelectedUsers] = useState<Record<string, boolean>>({});
 
   // User interaction handlers
   const handleUserClick = (user: ParsedUser) => {
@@ -29,46 +27,24 @@ export function UsersTable({ users }: { users: ParsedUser[] }) {
     setOpen(true);
   };
 
-  const handleUserSelect = (userId: string, checked: boolean) => {
-    setSelectedUsers(prev => ({
-      ...prev,
-      [userId]: checked,
-    }));
-  };
-
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedUsers(
-        users.reduce<Record<string, boolean>>((acc, user) => {
-          acc[user.id] = true;
-          return acc;
-        }, {})
-      );
-    } else {
-      setSelectedUsers({});
-    }
-  };
-
   const handleCloseUserDetails = () => {
     setOpen(false);
     setSelectedUser(null);
   };
 
-  // Create dynamic columns
-  const columns = useMemo(
-    () =>
-      createUserTableColumns({
-        onUserClick: handleUserClick,
-        onCheckboxChange: handleUserSelect,
-        selectedUsers,
-        onSelectAll: handleSelectAll,
-      }),
-    [selectedUsers]
-  );
-
   return (
     <>
-      <HyperSmartTable columns={columns} items={users} itemsPerPage={ITEMS_PER_PAGE} />
+      <RefactoredUserTable
+        data={users}
+        emptyMessage="No users found"
+        emptyDescription="There are no users in your database. Users will appear here once they sign up."
+        onUserClick={user => {
+          // Type guard to ensure we only handle ParsedUser
+          if ('personaData' in user) {
+            handleUserClick(user as ParsedUser);
+          }
+        }}
+      />
       <ResizableSheet side="right" open={open} onOpenChange={handleCloseUserDetails}>
         {selectedUser && <UserDetails user={selectedUser} />}
       </ResizableSheet>

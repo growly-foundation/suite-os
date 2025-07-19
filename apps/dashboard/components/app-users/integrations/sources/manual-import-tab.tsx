@@ -1,7 +1,6 @@
 'use client';
 
 import { UserSelectionList } from '@/components/app-users/integrations/user-selection-list';
-import { createManualUserColumns } from '@/components/app-users/smart-tables/import-user-tables/manual-user-columns';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -256,11 +255,6 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
             importButtonText={importing ? 'Importing...' : 'Import Users'}
             isImporting={importing}
             onImport={async selectedUserIds => await handleImport(selectedUserIds)}
-            columns={createManualUserColumns({
-              handleRemoveUser: (userId: string) => {
-                handleRemoveUser(userId);
-              },
-            })}
           />
         ) : (
           <Alert variant="default">

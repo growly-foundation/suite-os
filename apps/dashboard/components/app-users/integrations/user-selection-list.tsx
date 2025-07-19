@@ -6,16 +6,15 @@ import { useState } from 'react';
 
 import { ImportUserOutput } from '@getgrowly/core';
 
-import { HyperSmartTable } from '../smart-tables/hyper-smart-table';
-import { createIdentityColumns } from '../smart-tables/identity-columns';
-import { AdvancedColumnType, SmartTableColumn } from '../types';
+import { TableUserData } from '../smart-tables/column-formatters';
+import { createDynamicColumns } from '../smart-tables/dynamic-columns';
+import { DynamicTable } from '../smart-tables/dynamic-table';
 
 interface UserSelectionListProps<T extends ImportUserOutput = ImportUserOutput> {
   users: T[];
   importButtonText?: string;
   onImport: (selectedUserIds: string[]) => Promise<void>;
   isImporting?: boolean;
-  columns: SmartTableColumn<T>[];
 }
 
 export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>({
@@ -23,7 +22,6 @@ export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>
   importButtonText = 'Import Users',
   onImport,
   isImporting = false,
-  columns,
 }: UserSelectionListProps<T>) {
   const [selectedUsers, setSelectedUsers] = useState<Record<string, boolean>>({});
 
@@ -56,30 +54,20 @@ export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>
   // Count of selected users
   const selectedCount = Object.values(selectedUsers).filter(Boolean).length;
 
+  // Create columns for the dynamic table
+  const columns = createDynamicColumns(users as TableUserData[]);
+
   return (
     <div className="space-y-2">
-      <HyperSmartTable
-        columns={[
-          {
-            type: AdvancedColumnType.BATCH,
-            batchRenderer: (user?: ImportUserOutput): any =>
-              createIdentityColumns({
-                item: {
-                  id: user?.walletAddress,
-                  walletAddress: user?.walletAddress,
-                  name: user?.name,
-                  truncateWalletAddress: false,
-                  ...user,
-                },
-                onCheckboxChange,
-                selectedUsers,
-                onSelectAll: toggleSelectAll,
-              } as any),
-          },
-          ...columns,
-        ]}
-        items={users.map(user => ({ id: user.walletAddress!, ...user }))}
-        itemsPerPage={10}
+      <DynamicTable
+        data={users as TableUserData[]}
+        columns={columns}
+        emptyMessage="No users found"
+        emptyDescription="No users to import."
+        enableColumnResizing={true}
+        enableColumnReordering={true}
+        enableColumnVisibility={true}
+        enableSorting={true}
       />
       <div className="flex justify-between items-center pt-2">
         <span className="text-sm">
