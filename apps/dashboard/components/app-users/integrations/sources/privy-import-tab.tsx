@@ -6,12 +6,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useDashboardState } from '@/hooks/use-dashboard';
 import { UserImportService } from '@/lib/services/user-import.service';
 import { InfoIcon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 
-import { ImportPrivyUserOutput, UserImportSource } from '@getgrowly/core';
+import { ImportPrivyUserOutput } from '@getgrowly/core';
 
 interface PrivyImportTabProps {
   onImportComplete?: () => void;
@@ -25,7 +26,7 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
   const [configured, setConfigured] = useState(false);
   const [privyUsers, setPrivyUsers] = useState<ImportPrivyUserOutput[]>([]);
   const [importing, setImporting] = useState(false);
-  const [selectedUsers, setSelectedUsers] = useState<Record<string, boolean>>({});
+  const { selectedOrganization } = useDashboardState();
 
   // Handle configuration
   const handleConfigure = async () => {
@@ -67,6 +68,10 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
 
   // Import selected users
   const handleImport = async (usersToImport: ImportPrivyUserOutput[]) => {
+    if (!selectedOrganization?.id) {
+      toast.error('No organization selected');
+      return;
+    }
     if (usersToImport.length === 0) {
       toast.warning('Please select at least one user to import');
       return;
@@ -75,7 +80,10 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
     setImporting(true);
     try {
       // Import users in batch
-      const result = await UserImportService.importBatch(UserImportSource.Privy, usersToImport);
+      const result = await UserImportService.commitImportedUsers(
+        usersToImport,
+        selectedOrganization?.id
+      );
       // Show success/failure messages
       if (result.success.length > 0)
         toast.success(`Successfully imported ${result.success.length} Privy users`);

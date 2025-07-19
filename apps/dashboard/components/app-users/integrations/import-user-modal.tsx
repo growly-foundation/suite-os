@@ -86,7 +86,7 @@ export function ImportUserModal({ open, onOpenChange, onImportComplete }: Import
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[1200px] border-none p-0 overflow-hidden">
-        <div className="flex h-[800px]">
+        <div className="flex max-h-[800px] h-full">
           {/* Sidebar with integration options */}
           <div className="w-64 bg-muted border-r border-border">
             <DialogHeader className="p-4 border-b border-border">

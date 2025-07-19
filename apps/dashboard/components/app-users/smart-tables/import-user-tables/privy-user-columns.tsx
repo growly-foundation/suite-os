@@ -26,7 +26,7 @@ export function createPrivyUserColumns(): SmartTableColumn<ImportPrivyUserOutput
       ),
       className: 'w-[250px]',
       type: ColumnType.STRING,
-      dataExtractor: (user: ImportPrivyUserOutput) => user.email || '—',
+      dataExtractor: (user: ImportPrivyUserOutput) => user.email || '',
       contentRenderer: (email: string) => <span className="text-sm">{email}</span>,
     },
   ];

@@ -21,7 +21,7 @@ import { HeadLabelWithIcon } from './table-head-label';
 
 export const getDistinctTokens = (user: ParsedUser) => {
   const mutlichainTokenPortfolio =
-    user.onchainData.portfolio_snapshots.tokenPortfolio?.chainRecordsWithTokens;
+    user.personaData.portfolio_snapshots.tokenPortfolio?.chainRecordsWithTokens;
   const allTokens = Object.values(mutlichainTokenPortfolio || {}).flatMap(
     tokenList => tokenList.tokens
   );
@@ -49,7 +49,7 @@ export const createUserTableColumns = ({
       batchRenderer: (user?: ParsedUser | undefined): any =>
         createIdentityColumns({
           item: {
-            walletAddress: user?.onchainData.id as string,
+            walletAddress: user?.personaData.id as string,
             truncateWalletAddress: true,
             ...user,
           },
@@ -126,7 +126,7 @@ export const createUserTableColumns = ({
       ),
       type: ColumnType.NUMBER,
       dataExtractor: (user: ParsedUser) => {
-        const totalPortfolioValue = user.onchainData?.portfolio_snapshots?.totalValue || 0;
+        const totalPortfolioValue = user.personaData?.portfolio_snapshots?.totalValue || 0;
         return totalPortfolioValue;
       },
       contentRenderer: (extractedData: number) => (

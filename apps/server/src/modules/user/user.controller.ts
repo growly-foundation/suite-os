@@ -20,14 +20,20 @@ export class UserController {
     return this.userService.getUserPersona(walletAddress);
   }
 
-  @Post('import-manual')
-  async importUsersManually(@Body('users') users: ImportUserOutput[]) {
-    return this.userImporterService.saveUsers(users);
+  @Post('commit-imported-users')
+  async commitImportedUsers(
+    @Body('users') users: ImportUserOutput[],
+    @Body('organizationId') organizationId: string
+  ) {
+    return this.userImporterService.commitImportedUsers(users, organizationId);
   }
 
   @Post()
-  async createUserIfNotExist(@Body('walletAddress') walletAddress: Address) {
-    return this.userService.createUserIfNotExist(walletAddress);
+  async createUserIfNotExist(
+    @Body('walletAddress') walletAddress: Address,
+    @Body('organizationId') organizationId: string
+  ) {
+    return this.userService.createUserIfNotExist(walletAddress, organizationId);
   }
 
   @Post('import-privy')

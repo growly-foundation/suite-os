@@ -1,22 +1,62 @@
 'use client';
 
-import { ImportUserOutput } from '@getgrowly/core';
+import {
+  ImportUserOutput,
+  ImportedUserSourceData,
+  ParsedUser,
+  UserImportSource,
+} from '@getgrowly/core';
 
-import { SmartTableColumn } from '../../types';
+import { ColumnType, SmartTableColumn } from '../../types';
 
-// For type safety when working with contract-specific fields
-interface ContractUserOutput extends ImportUserOutput {
-  tokenId?: string;
-  tokenBalance?: string;
-  firstInteraction?: string;
-  lastInteraction?: string;
-}
+export function createContractUserColumns(
+  user: ParsedUser | undefined,
+  checkRequired: boolean
+): SmartTableColumn<ImportUserOutput>[] {
+  if (
+    checkRequired &&
+    (!user ||
+      !(user.personaData.imported_source_data as ImportedUserSourceData[]).some(
+        d => d.source === UserImportSource.Contract
+      ))
+  )
+    return [];
+  return [
+    {
+      key: 'extra',
+      header: 'Contract Data',
+      type: ColumnType.COMPONENT,
+      dataExtractor: () => undefined,
+      contentRenderer: (extractedData: any) => {
+        const extra = extractedData?.extra;
+        if (!extra) return <span className="text-muted-foreground">No data</span>;
 
-/**
- * Creates column definitions for Contract imported users
- *
- * @returns Array of column definitions for contract users
- */
-export function createContractUserColumns(): SmartTableColumn<ContractUserOutput>[] {
-  return [];
+        // Display contract interaction data
+        const interactionCount = extra.interactionCount || 0;
+        const lastInteraction = extra.lastInteraction;
+        const tokenBalance = extra.tokenBalance;
+
+        return (
+          <div className="space-y-1">
+            {interactionCount > 0 && (
+              <div className="text-xs">
+                <span className="text-muted-foreground">Interactions:</span> {interactionCount}
+              </div>
+            )}
+            {lastInteraction && (
+              <div className="text-xs">
+                <span className="text-muted-foreground">Last:</span>{' '}
+                {new Date(lastInteraction).toLocaleDateString()}
+              </div>
+            )}
+            {tokenBalance && (
+              <div className="text-xs">
+                <span className="text-muted-foreground">Balance:</span> {tokenBalance}
+              </div>
+            )}
+          </div>
+        );
+      },
+    },
+  ];
 }

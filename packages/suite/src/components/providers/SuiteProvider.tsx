@@ -57,11 +57,16 @@ export const SuiteProvider: React.FC<{
       console.log('Growly Suite: Initializing...');
       setIsInitialized(false);
       try {
-        if (walletAddress) await createUserFromAddressIfNotExist(walletAddress);
         if (!context.agentId || !context.organizationApiKey) {
           throw new Error('Agent ID and Organization API Key are required');
         }
-        await fetchOrganizationAgentById(context.agentId, context.organizationApiKey);
+        const organization = await fetchOrganizationAgentById(
+          context.agentId,
+          context.organizationApiKey
+        );
+        if (walletAddress && organization) {
+          await createUserFromAddressIfNotExist(walletAddress, organization.id);
+        }
       } catch (error) {
         console.error(`Growly Suite Error: ${error}`);
       }

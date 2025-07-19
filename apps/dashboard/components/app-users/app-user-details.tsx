@@ -39,7 +39,7 @@ export function UserDetails({ user }: UserDetailsProps) {
         <SectionPanel title="Reputation Badges">
           <UserBadges
             badges={
-              user.onchainData.identities.traitScores?.map(traitScore =>
+              user.personaData.identities.traitScores?.map(traitScore =>
                 traitScore.trait.toString()
               ) || []
             }

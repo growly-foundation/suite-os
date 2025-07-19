@@ -7,13 +7,21 @@ import { ParsedUserPersona } from './user_personas';
 
 export type User = Tables<'users'>;
 
+export enum UserSource {
+  NATIVE = 'native', // Users who joined the app directly
+  PRIVY_IMPORT = 'privy_import',
+  CONTRACT_IMPORT = 'contract_import',
+  MANUAL_IMPORT = 'manual_import',
+  GUILD_IMPORT = 'guild_import',
+}
+
 export type ParsedUser = Omit<User, 'entities'> & {
   // TODO: Need to be associated table.
   entities: {
     walletAddress: Address;
   };
 } & {
-  onchainData: UserOnchainData;
+  personaData: ParsedUserPersona;
   offchainData: UserOffchainData;
   chatSession: UserChatSession;
 };
@@ -23,8 +31,6 @@ export enum SessionStatus {
   Online = 'Online',
   Offline = 'Offline',
 }
-
-export type UserOnchainData = ParsedUserPersona;
 
 export type UserOffchainData = {
   company?: string;

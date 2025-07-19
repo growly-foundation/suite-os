@@ -30,7 +30,7 @@ export const AppUserConversationItem = ({
       onClick={() => onSelectUser(user)}>
       <div className={`flex items-center gap-3`}>
         <AppUserAvatarWithStatus
-          walletAddress={user.onchainData.id as Address}
+          walletAddress={user.personaData.id as Address}
           name={user.name}
           online={user.chatSession.status}
         />
@@ -45,7 +45,7 @@ export const AppUserConversationItem = ({
               truncate
               truncateLength={{ startLength: 10, endLength: 4 }}
               className="text-xs"
-              address={user.onchainData.id}
+              address={user.personaData.id}
             />
             {latestMessageDate && (
               <p className="text-xs text-muted-foreground whitespace-nowrap">

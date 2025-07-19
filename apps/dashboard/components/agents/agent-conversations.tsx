@@ -92,7 +92,7 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
               <div className="flex items-center gap-3">
                 <AppUserAvatarWithStatus
                   size={35}
-                  walletAddress={selectedUser.onchainData.id as Address}
+                  walletAddress={selectedUser.personaData.id as Address}
                   name={selectedUser.name}
                   online={selectedUser.chatSession.status}
                 />

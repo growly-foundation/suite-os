@@ -122,7 +122,7 @@ export function DashboardInner() {
         icon: (
           <AppUserAvatarWithStatus
             size={35}
-            walletAddress={user.onchainData.id as any}
+            walletAddress={user.personaData.id as any}
             name={user.name}
             online={SessionStatus.Offline}
           />

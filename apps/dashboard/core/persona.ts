@@ -6,11 +6,11 @@ import { ParsedUser } from '@getgrowly/core';
 export const SUPPORTED_CHAINS: types.TChainName[] = ['mainnet', 'base', 'optimism'];
 
 export const consumePersona = (user: ParsedUser) => {
-  const onchainData = user.onchainData;
+  const personaData = user.personaData;
   const [identities, activities, portfolioSnapshots] = [
-    onchainData.identities,
-    onchainData.activities,
-    onchainData.portfolio_snapshots,
+    personaData.identities,
+    personaData.activities,
+    personaData.portfolio_snapshots,
   ];
 
   return {

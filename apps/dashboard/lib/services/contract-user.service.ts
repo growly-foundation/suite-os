@@ -99,7 +99,7 @@ export class ContractUserService {
       },
 
       // If wallet address available, include it for wallet linking
-      onchainData: {
+      personaData: {
         id: user.address,
         // Add other required fields with placeholder values
         created_at: new Date().toISOString(),

@@ -6,11 +6,11 @@ import { ParsedUser, ParsedUserPersona } from '@getgrowly/core';
 export class UserService {
   constructor() {}
 
-  async createUserIfNotExist(walletAddress: string): Promise<ParsedUser> {
+  async createUserIfNotExist(walletAddress: string, organizationId: string): Promise<ParsedUser> {
     try {
       const response = await axios.post(
         `${API_URL}/user`,
-        { walletAddress },
+        { walletAddress, organizationId },
         {
           headers: {
             'Content-Type': 'application/json',

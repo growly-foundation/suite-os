@@ -10,7 +10,17 @@ import React, { useState } from 'react';
 
 import { ParsedUser } from '@getgrowly/core';
 
-export function UserDirectoryLayout({ users, loading }: { users: ParsedUser[]; loading: boolean }) {
+export function UserDirectoryLayout({
+  users,
+  loading,
+  importEnabled,
+  onImportComplete,
+}: {
+  users: ParsedUser[];
+  loading: boolean;
+  importEnabled: boolean;
+  onImportComplete?: () => void;
+}) {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Filter users
@@ -22,12 +32,6 @@ export function UserDirectoryLayout({ users, loading }: { users: ParsedUser[]; l
       chainNameService?.avatar?.toLowerCase().includes(searchQuery.toLowerCase())
     );
   });
-
-  const handleImportComplete = () => {
-    // Refresh the user list or any other action needed
-    // This is a placeholder - you might want to fetch updated users
-    // Optional: Show a message or trigger a refresh
-  };
 
   return (
     <React.Fragment>
@@ -46,7 +50,7 @@ export function UserDirectoryLayout({ users, loading }: { users: ParsedUser[]; l
                 setSearchQuery={setSearchQuery}
                 placeholder="Search ENS or address"
               />
-              <ImportUserButton onImportComplete={handleImportComplete} />
+              {importEnabled && <ImportUserButton onImportComplete={onImportComplete} />}
             </div>
           </div>
           <UsersTable users={filteredUsers} />
@@ -57,8 +61,14 @@ export function UserDirectoryLayout({ users, loading }: { users: ParsedUser[]; l
 }
 
 export function UsersInner() {
-  const { organizationUsers, organizationUserStatus } = useSelectedOrganizationUsersEffect();
+  const { organizationUsers, organizationUserStatus, refresh } =
+    useSelectedOrganizationUsersEffect();
   return (
-    <UserDirectoryLayout users={organizationUsers} loading={organizationUserStatus === 'loading'} />
+    <UserDirectoryLayout
+      users={organizationUsers}
+      loading={organizationUserStatus === 'loading'}
+      importEnabled={true}
+      onImportComplete={refresh}
+    />
   );
 }

@@ -7,15 +7,14 @@ import {
   ParsedUser,
   ParsedUserPersona,
   SuiteDatabaseCore,
+  UserImportSource,
+  day,
+  isStale,
 } from '@getgrowly/core';
 import { Address } from '@getgrowly/persona';
 
 import { SUITE_CORE } from '../../constants/services';
 import { PERSONA_BUILD_JOB, PERSONA_QUEUE } from '../sync-persona/persona.queue';
-import {
-  ContractProcessingService,
-  UniqueAddressesResponse,
-} from './user-importer/contract-processing.service';
 import { UserImporterService } from './user-importer/user-importer.service';
 
 @Injectable()
@@ -25,8 +24,7 @@ export class UserService {
   constructor(
     @Inject(SUITE_CORE) private readonly suiteCore: SuiteDatabaseCore,
     @InjectQueue(PERSONA_QUEUE) private readonly personaQueue: Queue,
-    private readonly userImporterService: UserImporterService,
-    private readonly contractProcessingService: ContractProcessingService
+    private readonly userImporterService: UserImporterService
   ) {}
 
   async getUsers(): Promise<ParsedUser[]> {
@@ -41,26 +39,38 @@ export class UserService {
     return this.suiteCore.userPersonas.getOneByAddress(address);
   }
 
-  async createUserIfNotExist(walletAddress: Address): Promise<ParsedUser | null> {
-    const { new: isNew, user } =
-      await this.suiteCore.users.createUserFromAddressIfNotExist(walletAddress);
+  async createUserIfNotExist(
+    walletAddress: Address,
+    organizationId: string,
+    source: UserImportSource = UserImportSource.Native
+  ): Promise<ParsedUser> {
+    const {
+      new: isNew,
+      persona,
+      user,
+    } = await this.suiteCore.users.createUserFromAddressIfNotExist(walletAddress, organizationId, {
+      source,
+      sourceData: {},
+    });
     if (!isNew) return user;
 
-    // If the user is new, we will enqueue the build persona job.
-    await this.personaQueue.add(
-      PERSONA_BUILD_JOB,
-      { walletAddress },
-      {
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 5000,
-        },
-        // Only keep failed jobs for debugging
-        removeOnComplete: true,
-        removeOnFail: false,
-      }
-    );
+    // We will enqueue the build persona job if the last sync was more than stale time.
+    if (persona?.last_synced_at && isStale(persona.last_synced_at, day(7))) {
+      await this.personaQueue.add(
+        PERSONA_BUILD_JOB,
+        { walletAddress },
+        {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 5000,
+          },
+          // Only keep failed jobs for debugging
+          removeOnComplete: true,
+          removeOnFail: false,
+        }
+      );
+    }
     return user;
   }
 
@@ -72,13 +82,6 @@ export class UserService {
     chainId: number
   ): Promise<ImportContractUserOutput[]> {
     return this.userImporterService.importContractUsers(contractAddress, chainId);
-  }
-
-  async importUniqueAddresses(
-    contractAddress: string,
-    chainId: number
-  ): Promise<UniqueAddressesResponse> {
-    return this.contractProcessingService.importUniqueAddresses(contractAddress, chainId);
   }
 
   async buildPersona(address: Address): Promise<void> {

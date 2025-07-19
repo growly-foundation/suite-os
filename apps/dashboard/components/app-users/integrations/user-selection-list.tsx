@@ -47,7 +47,7 @@ export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>
   // Handle import action
   const handleImport = async () => {
     const selectedUserIds = Object.entries(selectedUsers)
-      .filter(([_, isSelected]) => isSelected)
+      .filter(([, isSelected]) => isSelected)
       .map(([id]) => id);
 
     await onImport(selectedUserIds);

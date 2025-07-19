@@ -34,7 +34,7 @@ export const MessageListCard = ({ message, selected, className }: MessageListCar
         if (!user) return <User className="h-4 w-4" />;
         return (
           <AppUserAvatarWithStatus
-            walletAddress={user.onchainData.id as Address}
+            walletAddress={user.personaData.id as Address}
             name={user.name}
             online={user.chatSession.status}
           />
