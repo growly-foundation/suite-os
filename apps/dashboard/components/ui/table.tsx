@@ -4,7 +4,15 @@ import * as React from 'react';
 const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
     <div className="relative w-full overflow-auto">
-      <table ref={ref} className={cn('w-full caption-bottom text-sm', className)} {...props} />
+      <table
+        ref={ref}
+        className={cn('w-full caption-bottom text-sm table-fixed', className)}
+        style={{
+          tableLayout: 'fixed',
+          minWidth: 'max-content', // Ensure table can expand to fit content
+        }}
+        {...props}
+      />
     </div>
   )
 );
@@ -73,10 +81,14 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      'h-12 px-4 text-left text-xs align-middle whitespace-nowrap font-medium [&:has([role=checkbox])]:pr-0',
+      'h-12 px-4 text-left text-xs align-middle whitespace-nowrap font-medium [&:has([role=checkbox])]:pr-0 relative overflow-hidden text-ellipsis',
       border ? 'border-r' : '',
       className
     )}
+    style={{
+      minWidth: 'fit-content', // Ensure header can fit its content
+      maxWidth: '100%', // Prevent overflow
+    }}
     {...props}
   />
 ));
@@ -91,10 +103,14 @@ const TableCell = React.forwardRef<
   <td
     ref={ref}
     className={cn(
-      'p-4 py-2 align-middle text-sm whitespace-nowrap [&:has([role=checkbox])]:pr-0',
+      'p-4 py-2 align-middle text-sm whitespace-nowrap [&:has([role=checkbox])]:pr-0 overflow-hidden text-ellipsis',
       border ? 'border-r' : '',
       className
     )}
+    style={{
+      minWidth: 'fit-content', // Ensure cell can fit its content
+      maxWidth: '100%', // Prevent overflow
+    }}
     {...props}
   />
 ));

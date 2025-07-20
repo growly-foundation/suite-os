@@ -64,7 +64,7 @@ export function TableToolbar<TData>({
   };
 
   const handleApplyReorder = () => {
-    // Apply the new column order to the table
+    // Apply the new column order to the table using the correct API
     table.setColumnOrder(columnOrder);
     setIsReorderModalOpen(false);
   };

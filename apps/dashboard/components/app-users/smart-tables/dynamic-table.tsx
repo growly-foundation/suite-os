@@ -86,7 +86,7 @@ export function DynamicTable<TData>({
   const [sorting, setSorting] = useState<SortingState>(initialSorting);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>([]);
-  const [columnResizing, setColumnResizing] = useState({});
+  const [columnSizing, setColumnSizing] = useState({});
 
   // Infinite scroll ref
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -169,7 +169,8 @@ export function DynamicTable<TData>({
       enableSorting: false,
       enableHiding: false,
       enableResizing: false,
-      size: 40,
+      size: 50,
+      minSize: 50,
       meta: { frozen: true },
     };
 
@@ -192,24 +193,38 @@ export function DynamicTable<TData>({
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnOrderChange: setColumnOrder,
-    onColumnSizingChange: setColumnResizing,
+
     columnResizeMode: 'onChange' as ColumnResizeMode,
     state: {
       sorting,
       columnVisibility,
       columnOrder,
-      columnSizing: columnResizing,
+      columnSizing,
     },
     enableSorting,
     enableColumnResizing,
+    // Ensure columns respect their minimum sizes
+    columnResizeDirection: 'ltr',
+    // Prevent columns from being resized below their minimum width
+    onColumnSizingChange: updater => {
+      if (typeof updater === 'function') {
+        setColumnSizing(prev => {
+          const newSizing = updater(prev);
+          // Ensure no column goes below its minimum width
+          const updatedSizing = { ...newSizing };
+          table.getAllColumns().forEach(column => {
+            const minSize = column.columnDef.minSize || 50;
+            if (updatedSizing[column.id] && updatedSizing[column.id] < minSize) {
+              updatedSizing[column.id] = minSize;
+            }
+          });
+          return updatedSizing;
+        });
+      } else {
+        setColumnSizing(updater);
+      }
+    },
   });
-
-  // Handle empty state
-  if (!isLoading && data.length === 0) {
-    return (
-      <EmptyState message={emptyMessage} description={emptyDescription} className={className} />
-    );
-  }
 
   // Sortable header component
   const SortableHeader = ({ column }: { column: any }) => {
@@ -253,6 +268,12 @@ export function DynamicTable<TData>({
             searchPlaceholder={searchPlaceholder}
             additionalActions={additionalActions}
           />
+        </div>
+      )}
+
+      {!isLoading && data.length === 0 && (
+        <div className="flex-1 flex items-center justify-center">
+          <EmptyState message={emptyMessage} description={emptyDescription} className={className} />
         </div>
       )}
 

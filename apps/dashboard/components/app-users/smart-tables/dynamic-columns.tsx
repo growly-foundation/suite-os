@@ -1,5 +1,6 @@
 'use client';
 
+import { consumePersona } from '@/core/persona';
 import { ColumnDef, Row } from '@tanstack/react-table';
 
 import { ImportUserOutput, ParsedUser } from '@getgrowly/core';
@@ -21,7 +22,8 @@ export const columnDefinitions: Record<string, ColumnDef<TableUserData>> = {
     enableSorting: true,
     enableResizing: true,
     meta: { frozen: true },
-    size: 200,
+    size: 240, // Default size for avatar + name + wallet address
+    minSize: 240, // Max of: header "Identity" (60px), body content (240px), footer "Total" (40px)
   },
 
   talentProtocolCheckmark: {
@@ -38,7 +40,8 @@ export const columnDefinitions: Record<string, ColumnDef<TableUserData>> = {
       getFormatter('talentProtocolCheckmark')(row.original),
     enableSorting: true,
     enableResizing: true,
-    size: 80,
+    size: 110,
+    minSize: 110, // Max of: header "Verified" (60px), body checkmark (80px), footer "X verified" (80px)
   },
 
   firstSignedIn: {
@@ -52,6 +55,7 @@ export const columnDefinitions: Record<string, ColumnDef<TableUserData>> = {
     enableSorting: true,
     enableResizing: true,
     size: 150,
+    minSize: 150, // Max of: header "First Signed In" (120px), body "2 days ago" (150px), footer date range (150px)
   },
 
   trait: {
@@ -68,6 +72,7 @@ export const columnDefinitions: Record<string, ColumnDef<TableUserData>> = {
     enableSorting: true,
     enableResizing: true,
     size: 120,
+    minSize: 120, // Max of: header "Trait" (40px), body badge (120px), footer trait summary (120px)
   },
 
   portfolioValue: {
@@ -82,27 +87,17 @@ export const columnDefinitions: Record<string, ColumnDef<TableUserData>> = {
     cell: ({ row }: { row: Row<TableUserData> }) => getFormatter('portfolioValue')(row.original),
     enableSorting: true,
     enableResizing: true,
-    size: 150,
+    size: 160,
+    minSize: 160, // Max of: header "Portfolio Value" (120px), body "$1,234 USD" (150px), footer "$1,234 USD" (150px)
   },
 
   transactions: {
     id: 'transactions',
     accessorFn: (row: TableUserData) => {
       if ('personaData' in row) {
+        const persona = consumePersona(row as any);
         // Calculate actual transaction count from persona data
-        const persona = (row as any).personaData;
-        if (persona?.activities?.totalTransactions) {
-          return persona.activities.totalTransactions;
-        }
-        // Fallback to calculating from token activity
-        if (persona?.activities?.tokenActivity) {
-          const tokenActivity = persona.activities.tokenActivity;
-          return Object.values(tokenActivity || {}).reduce(
-            (sum: number, chain: any) => sum + (chain?.length || 0),
-            0
-          );
-        }
-        return 0;
+        return persona.universalTransactions()?.length || 0;
       }
       return 0;
     },
@@ -110,7 +105,8 @@ export const columnDefinitions: Record<string, ColumnDef<TableUserData>> = {
     cell: ({ row }: { row: Row<TableUserData> }) => getFormatter('transactions')(row.original),
     enableSorting: true,
     enableResizing: true,
-    size: 120,
+    size: 160,
+    minSize: 160, // Max of: header "Transactions" (100px), body count (80px), footer total (120px)
   },
 
   tokens: {
@@ -131,15 +127,17 @@ export const columnDefinitions: Record<string, ColumnDef<TableUserData>> = {
     cell: ({ row }: { row: Row<TableUserData> }) => getFormatter('tokens')(row.original),
     enableSorting: true,
     enableResizing: true,
-    size: 200,
+    size: 270, // Default size for multiple token badges
+    minSize: 270, // Max of: header "Tokens" (50px), body token badges (250px), footer total (100px)
   },
 
   activity: {
     id: 'activity',
     accessorFn: (row: TableUserData) => {
       if ('personaData' in row) {
+        const persona = consumePersona(row as any);
         // Sort by activity date if available
-        return 'personaData' in row ? new Date().getTime() : 0;
+        return persona.getLatestActivity()?.timestamp || 0;
       }
       return 0;
     },
@@ -147,15 +145,16 @@ export const columnDefinitions: Record<string, ColumnDef<TableUserData>> = {
     cell: ({ row }: { row: Row<TableUserData> }) => getFormatter('activity')(row.original),
     enableSorting: true,
     enableResizing: true,
-    size: 200,
+    size: 400,
+    minSize: 400, // Max of: header "Activity" (70px), body activity preview (200px), footer "X active" (100px)
   },
 
   walletCreatedAt: {
     id: 'walletCreatedAt',
     accessorFn: (row: TableUserData) => {
       if ('personaData' in row) {
-        // This would need the actual wallet creation date
-        return new Date().getTime(); // Placeholder
+        const persona = consumePersona(row as any);
+        return persona.walletCreatedAt()?.getTime() || 0;
       }
       return 0;
     },
@@ -163,7 +162,8 @@ export const columnDefinitions: Record<string, ColumnDef<TableUserData>> = {
     cell: ({ row }: { row: Row<TableUserData> }) => getFormatter('walletCreatedAt')(row.original),
     enableSorting: true,
     enableResizing: true,
-    size: 150,
+    size: 200,
+    minSize: 200, // Max of: header "Wallet Created At" (140px), body "DD/MM/YYYY HH:mm" (150px), footer date range (150px)
   },
 
   email: {
@@ -177,6 +177,7 @@ export const columnDefinitions: Record<string, ColumnDef<TableUserData>> = {
     enableSorting: true,
     enableResizing: true,
     size: 200,
+    minSize: 200, // Max of: header "Email" (50px), body email address (200px), footer (not used)
   },
 
   contractData: {
@@ -193,6 +194,7 @@ export const columnDefinitions: Record<string, ColumnDef<TableUserData>> = {
     enableSorting: true,
     enableResizing: true,
     size: 200,
+    minSize: 200, // Max of: header "Contract Data" (120px), body contract info (200px), footer (not used)
   },
 
   source: {
@@ -206,6 +208,7 @@ export const columnDefinitions: Record<string, ColumnDef<TableUserData>> = {
     enableSorting: true,
     enableResizing: true,
     size: 120,
+    minSize: 120, // Max of: header "Source" (60px), body source badge (120px), footer (not used)
   },
 };
 
