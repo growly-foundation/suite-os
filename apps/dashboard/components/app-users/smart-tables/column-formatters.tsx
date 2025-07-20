@@ -316,6 +316,6 @@ export function getFormatter(key: string) {
 }
 
 // Helper function to check if a user has specific data
-export function hasData(user: TableUserData, dataType: string): boolean {
-  return hasProperty(user, dataType);
+export function hasData<T extends TableUserData>(user: T, dataType: keyof T): boolean {
+  return hasProperty(user, dataType as string);
 }

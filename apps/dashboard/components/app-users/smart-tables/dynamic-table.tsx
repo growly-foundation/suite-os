@@ -1,5 +1,7 @@
 'use client';
 
+import { Checkbox } from '@/components/ui/checkbox';
+import { IconContainer } from '@/components/ui/icon-container';
 import { cn } from '@/lib/utils';
 import {
   ColumnDef,
@@ -13,7 +15,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { ArrowUpDown, ChevronDown, ChevronUp } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/table';
 import { EmptyState } from './empty-state';
@@ -40,13 +42,17 @@ export interface DynamicTableProps<TData> {
   getRowId?: (row: TData) => string;
   // Generic data type support
   getRowDisplayValue?: (row: TData, key: string) => any;
-  hasRowProperty?: (row: TData, property: string) => boolean;
   // Footer props
   enableFooter?: boolean;
-  footerData?: Record<string, any>;
   getFooterValue?: (key: string) => any;
   // Initial sorting
   initialSorting?: SortingState;
+  // Toolbar props
+  tableLabel?: string;
+  searchQuery?: string;
+  setSearchQuery?: (value: string) => void;
+  searchPlaceholder?: string;
+  additionalActions?: ReactNode;
 }
 
 export function DynamicTable<TData>({
@@ -68,11 +74,14 @@ export function DynamicTable<TData>({
   onRowSelectionChange,
   getRowId,
   getRowDisplayValue,
-  hasRowProperty,
   enableFooter = false,
-  footerData = {},
   getFooterValue,
   initialSorting = [],
+  tableLabel,
+  searchQuery,
+  setSearchQuery,
+  searchPlaceholder = 'Search...',
+  additionalActions,
 }: DynamicTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>(initialSorting);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -110,8 +119,7 @@ export function DynamicTable<TData>({
     const selectionColumn: ColumnDef<TData> = {
       id: 'select',
       header: () => (
-        <input
-          type="checkbox"
+        <Checkbox
           checked={
             data.length > 0 &&
             data.every(row => {
@@ -123,7 +131,7 @@ export function DynamicTable<TData>({
               return selectedRows[rowId];
             })
           }
-          onChange={e => {
+          onCheckedChange={checked => {
             const newSelection: Record<string, boolean> = {};
             data.forEach(row => {
               const rowId = getRowId
@@ -131,7 +139,7 @@ export function DynamicTable<TData>({
                 : getRowDisplayValue?.(row, 'walletAddress') ||
                   getRowDisplayValue?.(row, 'id') ||
                   '';
-              newSelection[rowId] = e.target.checked;
+              newSelection[rowId] = checked === true;
             });
             onRowSelectionChange?.(newSelection);
           }}
@@ -145,13 +153,12 @@ export function DynamicTable<TData>({
             getRowDisplayValue?.(row.original, 'id') ||
             '';
         return (
-          <input
-            type="checkbox"
+          <Checkbox
             checked={selectedRows[rowId] || false}
-            onChange={e => {
+            onCheckedChange={checked => {
               const newSelection = {
                 ...selectedRows,
-                [rowId]: e.target.checked,
+                [rowId]: checked === true,
               };
               onRowSelectionChange?.(newSelection);
             }}
@@ -161,6 +168,7 @@ export function DynamicTable<TData>({
       },
       enableSorting: false,
       enableHiding: false,
+      enableResizing: false,
       size: 40,
       meta: { frozen: true },
     };
@@ -212,182 +220,266 @@ export function DynamicTable<TData>({
     const sortDirection = column.getIsSorted();
     const sortIcon =
       sortDirection === 'asc' ? (
-        <ChevronUp className="h-4 w-4" />
+        <ChevronUp className="h-3 w-3" />
       ) : sortDirection === 'desc' ? (
-        <ChevronDown className="h-4 w-4" />
+        <ChevronDown className="h-3 w-3" />
       ) : (
-        <ArrowUpDown className="h-4 w-4" />
+        <ArrowUpDown className="h-3 w-3" />
       );
 
     return (
-      <button
-        className="flex items-center gap-1 hover:bg-muted/50 px-2 py-1 rounded transition-colors"
-        onClick={column.getToggleSortingHandler()}>
+      <div className="flex items-center text-xs gap-3 justify-between">
         {flexRender(column.columnDef.header, { column })}
-        {sortIcon}
-      </button>
+        <IconContainer
+          className="flex items-center gap-1 hover:bg-muted/50 px-2 py-1 rounded transition-colors cursor-pointer"
+          onClick={column.getToggleSortingHandler()}>
+          <span className="text-muted-foreground text-xs">{sortIcon}</span>
+        </IconContainer>
+      </div>
     );
   };
 
   return (
-    <div className={cn('w-full', className)}>
-      {/* Table Toolbar */}
-      {enableColumnReordering && <TableToolbar table={table} enableColumnVisibility={true} />}
+    <div className={cn('w-full h-full flex flex-col', className)}>
+      {/* Fixed Table Toolbar */}
+      {enableColumnReordering && (
+        <div className="flex-shrink-0 bg-background border-b">
+          <TableToolbar
+            table={table}
+            enableColumnVisibility={true}
+            tableLabel={tableLabel}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            searchPlaceholder={searchPlaceholder}
+            additionalActions={additionalActions}
+          />
+        </div>
+      )}
 
-      {/* Table with frozen column support */}
-      <div className="rounded-md border overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map(headerGroup => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map(header => {
-                    const isFrozen = (header.column.columnDef.meta as any)?.frozen;
-                    return (
-                      <TableHead
-                        key={header.id}
-                        style={{
-                          width: header.getSize(),
-                          position: isFrozen ? 'sticky' : 'relative',
-                          left: isFrozen ? 0 : 'auto',
-                          zIndex: isFrozen ? 10 : 'auto',
-                          backgroundColor: isFrozen ? 'hsl(var(--background))' : 'transparent',
-                          borderRight: isFrozen
-                            ? '1px solid hsl(var(--border))'
-                            : '1px solid hsl(var(--border))',
-                        }}
-                        className={cn(
-                          'relative',
-                          header.column.getCanResize() && 'cursor-col-resize',
-                          isFrozen && 'shadow-sm'
-                        )}>
-                        {header.isPlaceholder ? null : enableSorting &&
-                          header.column.getCanSort() ? (
-                          <SortableHeader column={header.column} />
-                        ) : (
-                          flexRender(header.column.columnDef.header, header.getContext())
-                        )}
-                        {header.column.getCanResize() && (
-                          <div
-                            onMouseDown={header.getResizeHandler()}
-                            onTouchStart={header.getResizeHandler()}
-                            className={cn(
-                              'absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none',
-                              header.column.getIsResizing() && 'bg-primary'
-                            )}
-                          />
-                        )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map(row => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
-                    className={cn(
-                      onRowClick && 'cursor-pointer hover:bg-muted/50',
-                      'transition-colors'
-                    )}
-                    onClick={e => {
-                      // Prevent double click by checking if click is on checkbox
-                      if ((e.target as HTMLElement).tagName === 'INPUT') {
-                        return;
-                      }
-                      onRowClick?.(row.original);
-                    }}>
-                    {row.getVisibleCells().map((cell, index) => {
-                      const isFrozen = (cell.column.columnDef.meta as any)?.frozen;
-                      return (
-                        <TableCell
-                          key={cell.id}
-                          style={{
-                            width: cell.column.getSize(),
-                            position: isFrozen ? 'sticky' : 'relative',
-                            left: isFrozen ? 0 : 'auto',
-                            zIndex: isFrozen ? 5 : 'auto',
-                            backgroundColor: isFrozen ? 'hsl(var(--background))' : 'transparent',
-                            borderRight: isFrozen
-                              ? '1px solid hsl(var(--border))'
-                              : '1px solid hsl(var(--border))',
-                          }}
-                          className={cn(isFrozen && 'shadow-sm')}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+      {/* Single Table with Fixed Header/Footer and Scrollable Body */}
+      <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 overflow-hidden">
+          <div className="h-full flex flex-col">
+            {/* Single Table Container */}
+            <div className="flex-1 overflow-auto">
+              <div className="overflow-x-auto">
+                <Table>
+                  {/* Fixed Header */}
+                  <TableHeader className="sticky top-0 z-10 bg-background">
+                    {table.getHeaderGroups().map(headerGroup => (
+                      <TableRow key={headerGroup.id}>
+                        {headerGroup.headers.map((header, index) => {
+                          const isFrozen = (header.column.columnDef.meta as any)?.frozen;
+                          const isSortable = enableSorting && header.column.getCanSort();
+
+                          // Calculate left position for frozen columns
+                          let leftPosition = 'auto';
+                          if (isFrozen) {
+                            if (index === 0) {
+                              leftPosition = '0px';
+                            } else {
+                              // Calculate cumulative width of previous frozen columns
+                              let cumulativeWidth = 0;
+                              for (let i = 0; i < index; i++) {
+                                const prevHeader = headerGroup.headers[i];
+                                if ((prevHeader.column.columnDef.meta as any)?.frozen) {
+                                  cumulativeWidth += prevHeader.getSize();
+                                }
+                              }
+                              leftPosition = `${cumulativeWidth}px`;
+                            }
+                          }
+
+                          return (
+                            <TableHead
+                              key={header.id}
+                              style={{
+                                width: header.getSize(),
+                                position: isFrozen ? ('sticky' as const) : ('relative' as const),
+                                left: leftPosition,
+                                zIndex: isFrozen ? 20 : 'auto',
+                                backgroundColor: isFrozen
+                                  ? 'hsl(var(--background))'
+                                  : 'transparent',
+                                borderRight: '1px solid hsl(var(--border))',
+                              }}
+                              className={cn(
+                                'relative',
+                                header.column.getCanResize() && 'cursor-col-resize',
+                                isFrozen && 'shadow-sm'
+                              )}>
+                              {header.isPlaceholder ? null : isSortable ? (
+                                <SortableHeader column={header.column} />
+                              ) : (
+                                flexRender(header.column.columnDef.header, header.getContext())
+                              )}
+                              {header.column.getCanResize() && (
+                                <div
+                                  onMouseDown={header.getResizeHandler()}
+                                  onTouchStart={header.getResizeHandler()}
+                                  className={cn(
+                                    'absolute right-0 top-0 h-full w-2 cursor-col-resize select-none touch-none hover:bg-primary/50 active:bg-primary',
+                                    header.column.getIsResizing() && 'bg-primary'
+                                  )}
+                                  style={{
+                                    zIndex: 30,
+                                  }}
+                                />
+                              )}
+                            </TableHead>
+                          );
+                        })}
+                      </TableRow>
+                    ))}
+                  </TableHeader>
+
+                  {/* Table Body */}
+                  <TableBody>
+                    {table.getRowModel().rows?.length ? (
+                      table.getRowModel().rows.map(row => (
+                        <TableRow
+                          key={row.id}
+                          data-state={row.getIsSelected() && 'selected'}
+                          className={cn(
+                            onRowClick && 'cursor-pointer hover:bg-muted/50',
+                            'transition-colors'
+                          )}
+                          onClick={e => {
+                            // Prevent double click by checking if click is on checkbox
+                            if ((e.target as HTMLElement).tagName === 'INPUT') {
+                              return;
+                            }
+                            onRowClick?.(row.original);
+                          }}>
+                          {row.getVisibleCells().map((cell, index) => {
+                            const isFrozen = (cell.column.columnDef.meta as any)?.frozen;
+
+                            // Calculate left position for frozen columns
+                            let leftPosition = 'auto';
+                            if (isFrozen) {
+                              if (index === 0) {
+                                leftPosition = '0px';
+                              } else {
+                                // Calculate cumulative width of previous frozen columns
+                                let cumulativeWidth = 0;
+                                for (let i = 0; i < index; i++) {
+                                  const prevCell = row.getVisibleCells()[i];
+                                  if ((prevCell.column.columnDef.meta as any)?.frozen) {
+                                    cumulativeWidth += prevCell.column.getSize();
+                                  }
+                                }
+                                leftPosition = `${cumulativeWidth}px`;
+                              }
+                            }
+
+                            return (
+                              <TableCell
+                                key={cell.id}
+                                style={{
+                                  width: cell.column.getSize(),
+                                  position: isFrozen ? ('sticky' as const) : ('relative' as const),
+                                  left: leftPosition,
+                                  zIndex: isFrozen ? 5 : 'auto',
+                                  backgroundColor: isFrozen
+                                    ? 'hsl(var(--background))'
+                                    : 'transparent',
+                                  borderRight: '1px solid hsl(var(--border))',
+                                }}
+                                className={cn(isFrozen && 'shadow-sm')}>
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </TableCell>
+                            );
+                          })}
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={columns.length} className="h-24 text-center">
+                          No results.
                         </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-            {/* Footer with aggregated data - Notion style */}
-            {enableFooter && (
-              <TableHeader>
-                <TableRow className="bg-muted/50 border-t">
-                  {table.getHeaderGroups()[0].headers.map((header, index) => {
-                    const isFrozen = (header.column.columnDef.meta as any)?.frozen;
-                    const footerValue = getFooterValue?.(header.column.id);
+                      </TableRow>
+                    )}
+                  </TableBody>
 
-                    // Format footer values based on column type
-                    const formatFooterValue = (value: any, columnId: string) => {
-                      if (value === undefined || value === null || value === '') {
-                        return '';
-                      }
+                  {/* Fixed Footer */}
+                  {enableFooter && (
+                    <TableHeader className="sticky bottom-0 z-10 bg-background border-t">
+                      <TableRow className="bg-muted/50">
+                        {table.getHeaderGroups()[0].headers.map((header, index) => {
+                          const isFrozen = (header.column.columnDef.meta as any)?.frozen;
+                          const footerValue = getFooterValue?.(header.column.id);
 
-                      switch (columnId) {
-                        case 'identity':
-                          return value; // Already formatted as "X users"
-                        case 'portfolioValue':
-                          return `$${Number(value).toLocaleString()} USD`;
-                        case 'transactions':
-                        case 'tokens':
-                          return Number(value).toLocaleString();
-                        case 'firstSignedIn':
-                        case 'walletCreatedAt':
-                          return value; // Date formatting handled in formatter
-                        default:
-                          return value;
-                      }
-                    };
+                          // Calculate left position for frozen columns
+                          let leftPosition = 'auto';
+                          if (isFrozen) {
+                            if (index === 0) {
+                              leftPosition = '0px';
+                            } else {
+                              // Calculate cumulative width of previous frozen columns
+                              let cumulativeWidth = 0;
+                              for (let i = 0; i < index; i++) {
+                                const prevHeader = table.getHeaderGroups()[0].headers[i];
+                                if ((prevHeader.column.columnDef.meta as any)?.frozen) {
+                                  cumulativeWidth += prevHeader.getSize();
+                                }
+                              }
+                              leftPosition = `${cumulativeWidth}px`;
+                            }
+                          }
 
-                    return (
-                      <TableHead
-                        key={`footer-${header.id}`}
-                        style={{
-                          width: header.getSize(),
-                          position: isFrozen ? 'sticky' : 'relative',
-                          left: isFrozen ? 0 : 'auto',
-                          zIndex: isFrozen ? 10 : 'auto',
-                          backgroundColor: 'hsl(var(--muted))',
-                          borderRight: isFrozen
-                            ? '1px solid hsl(var(--border))'
-                            : '1px solid hsl(var(--border))',
-                        }}
-                        className={cn('font-semibold text-sm', isFrozen && 'shadow-sm')}>
-                        {index === 0 ? 'Total' : formatFooterValue(footerValue, header.column.id)}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              </TableHeader>
-            )}
-          </Table>
+                          // Format footer values based on column type
+                          const formatFooterValue = (value: any, columnId: string) => {
+                            if (value === undefined || value === null || value === '') {
+                              return '';
+                            }
+
+                            switch (columnId) {
+                              case 'identity':
+                                return value; // Already formatted as "X users"
+                              case 'portfolioValue':
+                                return `$${Number(value).toLocaleString()} USD`;
+                              case 'transactions':
+                              case 'tokens':
+                                return Number(value).toLocaleString();
+                              case 'firstSignedIn':
+                              case 'walletCreatedAt':
+                                return value; // Date formatting handled in formatter
+                              default:
+                                return value;
+                            }
+                          };
+
+                          return (
+                            <TableHead
+                              key={`footer-${header.id}`}
+                              style={{
+                                width: header.getSize(),
+                                position: isFrozen ? ('sticky' as const) : ('relative' as const),
+                                left: leftPosition,
+                                zIndex: isFrozen ? 20 : 'auto',
+                                backgroundColor: 'hsl(var(--muted))',
+                                borderRight: '1px solid hsl(var(--border))',
+                              }}
+                              className={cn('font-semibold text-xs', isFrozen && 'shadow-sm')}>
+                              {index === 0
+                                ? 'Total'
+                                : formatFooterValue(footerValue, header.column.id)}
+                            </TableHead>
+                          );
+                        })}
+                      </TableRow>
+                    </TableHeader>
+                  )}
+                </Table>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Infinite Scroll Load More */}
       {enableInfiniteScroll && hasMore && (
-        <div ref={loadMoreRef} className="py-4 text-center">
+        <div ref={loadMoreRef} className="flex-shrink-0 py-4 text-center border-t">
           {isLoading ? (
             <div className="flex items-center justify-center space-x-2">
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>

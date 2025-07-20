@@ -1,7 +1,7 @@
 'use client';
 
 import { consumePersona } from '@/core/persona';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 
 import { ParsedUser } from '@getgrowly/core';
 
@@ -18,7 +18,19 @@ import { DynamicTable } from './dynamic-table';
  *
  * @param users - The list of users to display in the table.
  */
-export function UsersTable({ users }: { users: ParsedUser[] }) {
+export function UsersTable({
+  users,
+  tableLabel,
+  searchQuery,
+  setSearchQuery,
+  additionalActions,
+}: {
+  users: ParsedUser[];
+  tableLabel?: string;
+  searchQuery?: string;
+  setSearchQuery?: (value: string) => void;
+  additionalActions?: ReactNode;
+}) {
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<ParsedUser | null>(null);
   const personas = users.map(user => consumePersona(user as ParsedUser));
@@ -151,6 +163,12 @@ export function UsersTable({ users }: { users: ParsedUser[] }) {
         initialSorting={[{ id: 'firstSignedIn', desc: true }]}
         // Enable row selection to show frozen column
         enableRowSelection={true}
+        // Toolbar props
+        tableLabel={tableLabel}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        searchPlaceholder="Search ENS or address"
+        additionalActions={additionalActions}
       />
       <ResizableSheet side="right" open={open} onOpenChange={handleCloseUserDetails}>
         {selectedUser && <UserDetails user={selectedUser} />}

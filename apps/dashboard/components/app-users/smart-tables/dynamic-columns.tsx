@@ -2,10 +2,12 @@
 
 import { ColumnDef, Row } from '@tanstack/react-table';
 
+import { ImportUserOutput, ParsedUser } from '@getgrowly/core';
+
 import { TableUserData, getFormatter, hasData } from './column-formatters';
 
 // Column definitions for different data types
-export const columnDefinitions = {
+export const columnDefinitions: Record<string, ColumnDef<TableUserData>> = {
   identity: {
     id: 'identity',
     accessorFn: (row: TableUserData) => {
@@ -17,6 +19,8 @@ export const columnDefinitions = {
     header: 'Identity',
     cell: ({ row }: { row: Row<TableUserData> }) => getFormatter('identity')(row.original),
     enableSorting: true,
+    enableResizing: true,
+    meta: { frozen: true },
     size: 200,
   },
 
@@ -33,6 +37,7 @@ export const columnDefinitions = {
     cell: ({ row }: { row: Row<TableUserData> }) =>
       getFormatter('talentProtocolCheckmark')(row.original),
     enableSorting: true,
+    enableResizing: true,
     size: 80,
   },
 
@@ -45,6 +50,7 @@ export const columnDefinitions = {
     header: 'First Signed In',
     cell: ({ row }: { row: Row<TableUserData> }) => getFormatter('firstSignedIn')(row.original),
     enableSorting: true,
+    enableResizing: true,
     size: 150,
   },
 
@@ -60,6 +66,7 @@ export const columnDefinitions = {
     header: 'Trait',
     cell: ({ row }: { row: Row<TableUserData> }) => getFormatter('trait')(row.original),
     enableSorting: true,
+    enableResizing: true,
     size: 120,
   },
 
@@ -74,6 +81,7 @@ export const columnDefinitions = {
     header: 'Portfolio Value',
     cell: ({ row }: { row: Row<TableUserData> }) => getFormatter('portfolioValue')(row.original),
     enableSorting: true,
+    enableResizing: true,
     size: 150,
   },
 
@@ -101,6 +109,7 @@ export const columnDefinitions = {
     header: 'Transactions',
     cell: ({ row }: { row: Row<TableUserData> }) => getFormatter('transactions')(row.original),
     enableSorting: true,
+    enableResizing: true,
     size: 120,
   },
 
@@ -121,6 +130,7 @@ export const columnDefinitions = {
     header: 'Tokens',
     cell: ({ row }: { row: Row<TableUserData> }) => getFormatter('tokens')(row.original),
     enableSorting: true,
+    enableResizing: true,
     size: 200,
   },
 
@@ -136,6 +146,7 @@ export const columnDefinitions = {
     header: 'Activity',
     cell: ({ row }: { row: Row<TableUserData> }) => getFormatter('activity')(row.original),
     enableSorting: true,
+    enableResizing: true,
     size: 200,
   },
 
@@ -151,6 +162,7 @@ export const columnDefinitions = {
     header: 'Wallet Created At',
     cell: ({ row }: { row: Row<TableUserData> }) => getFormatter('walletCreatedAt')(row.original),
     enableSorting: true,
+    enableResizing: true,
     size: 150,
   },
 
@@ -163,6 +175,7 @@ export const columnDefinitions = {
     header: 'Email',
     cell: ({ row }: { row: Row<TableUserData> }) => getFormatter('email')(row.original),
     enableSorting: true,
+    enableResizing: true,
     size: 200,
   },
 
@@ -178,6 +191,7 @@ export const columnDefinitions = {
     header: 'Contract Data',
     cell: ({ row }: { row: Row<TableUserData> }) => getFormatter('contractData')(row.original),
     enableSorting: true,
+    enableResizing: true,
     size: 200,
   },
 
@@ -190,12 +204,15 @@ export const columnDefinitions = {
     header: 'Source',
     cell: ({ row }: { row: Row<TableUserData> }) => getFormatter('source')(row.original),
     enableSorting: true,
+    enableResizing: true,
     size: 120,
   },
 };
 
 // Function to create dynamic columns based on data type
-export function createDynamicColumns(data: TableUserData[]): ColumnDef<TableUserData>[] {
+export function createDynamicColumns<T extends TableUserData>(
+  data: T[]
+): ColumnDef<TableUserData>[] {
   if (data.length === 0) {
     return [columnDefinitions.identity];
   }
@@ -207,7 +224,7 @@ export function createDynamicColumns(data: TableUserData[]): ColumnDef<TableUser
   columns.push(columnDefinitions.identity);
 
   // Add columns based on data type detection
-  if (hasData(sampleUser, 'personaData')) {
+  if (hasData<ParsedUser>(sampleUser as ParsedUser, 'personaData')) {
     // ParsedUser columns
     columns.push(
       columnDefinitions.talentProtocolCheckmark,
@@ -221,15 +238,15 @@ export function createDynamicColumns(data: TableUserData[]): ColumnDef<TableUser
     );
   }
 
-  if (hasData(sampleUser, 'email')) {
+  if (hasData<ImportUserOutput>(sampleUser as ImportUserOutput, 'email')) {
     columns.push(columnDefinitions.email);
   }
 
-  if (hasData(sampleUser, 'extra')) {
+  if (hasData<ImportUserOutput>(sampleUser as ImportUserOutput, 'extra')) {
     columns.push(columnDefinitions.contractData);
   }
 
-  if (hasData(sampleUser, 'source')) {
+  if (hasData<ImportUserOutput>(sampleUser as ImportUserOutput, 'source')) {
     columns.push(columnDefinitions.source);
   }
 

@@ -182,6 +182,7 @@ export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>
         getRowId={row => (row as any).walletAddress || (row as any).id}
         enableFooter={true}
         getFooterValue={getFooterValue}
+        initialSorting={[{ id: 'identity', desc: true }]}
       />
       <div className="flex justify-between items-center pt-2">
         <span className="text-sm">
