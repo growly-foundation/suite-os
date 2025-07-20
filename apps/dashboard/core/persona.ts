@@ -19,6 +19,7 @@ export const consumePersona = (user: ParsedUser) => {
         nameService => !!nameService?.name
       ) || { name: '', avatar: '' },
     dominantTrait: () => identities?.dominantTrait,
+    totalPortfolioValue: () => portfolioSnapshots?.totalValue,
     multichainTransactions: () => activities?.tokenActivity,
     universalTransactions: () =>
       SUPPORTED_CHAINS.map(chainName => activities?.tokenActivity?.[chainName])

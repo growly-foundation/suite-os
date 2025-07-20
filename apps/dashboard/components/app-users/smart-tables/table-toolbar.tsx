@@ -14,7 +14,6 @@ import { Search, Settings2 } from 'lucide-react';
 interface TableToolbarProps<TData> {
   table: Table<TData>;
   enableColumnVisibility?: boolean;
-  enableColumnReordering?: boolean;
   searchPlaceholder?: string;
   onSearch?: (value: string) => void;
 }
@@ -22,7 +21,6 @@ interface TableToolbarProps<TData> {
 export function TableToolbar<TData>({
   table,
   enableColumnVisibility = true,
-  enableColumnReordering = false,
   searchPlaceholder = 'Search...',
   onSearch,
 }: TableToolbarProps<TData>) {

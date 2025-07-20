@@ -7,18 +7,24 @@ import { ImportPrivyUserOutput, ImportUserOutput, ParsedUser } from '@getgrowly/
 import { ResizableSheet } from '../../ui/resizable-sheet';
 import { UserDetails } from '../app-user-details';
 import { TableUserData } from './column-formatters';
-import { createDynamicColumns, detectDataType } from './dynamic-columns';
+import { createDynamicColumns } from './dynamic-columns';
 import { DynamicTable } from './dynamic-table';
 
-const ITEMS_PER_PAGE = 100;
-
-interface RefactoredUserTableProps {
+interface SmartUserTableProps {
   data: TableUserData[];
   isLoading?: boolean;
   emptyMessage?: string;
   emptyDescription?: string;
   onUserClick?: (user: TableUserData) => void;
   className?: string;
+  enableInfiniteScroll?: boolean;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  // Selection props
+  enableRowSelection?: boolean;
+  selectedRows?: Record<string, boolean>;
+  onRowSelectionChange?: (selectedRows: Record<string, boolean>) => void;
+  getRowId?: (row: TableUserData) => string;
 }
 
 /**
@@ -30,21 +36,29 @@ interface RefactoredUserTableProps {
  * - Column visibility management
  * - Empty state handling
  * - Support for ParsedUser, ImportUserOutput, and ImportPrivyUserOutput
+ * - Infinite scrolling support
+ * - Row selection support
  */
-export function RefactoredUserTable({
+export function SmartUserTable({
   data,
   isLoading = false,
   emptyMessage = 'No users found',
   emptyDescription = 'There are no users to display. Try importing some users or adjusting your filters.',
   onUserClick,
   className,
-}: RefactoredUserTableProps) {
+  enableInfiniteScroll = false,
+  onLoadMore,
+  hasMore = false,
+  enableRowSelection = false,
+  selectedRows = {},
+  onRowSelectionChange,
+  getRowId,
+}: SmartUserTableProps) {
   const [selectedUser, setSelectedUser] = useState<TableUserData | null>(null);
   const [open, setOpen] = useState(false);
 
-  // Detect data type and create appropriate columns
+  // Create appropriate columns
   const columns = useMemo(() => {
-    const dataType = detectDataType(data);
     return createDynamicColumns(data);
   }, [data]);
 
@@ -73,11 +87,15 @@ export function RefactoredUserTable({
         className={className}
         enableColumnResizing={true}
         enableColumnReordering={true}
-        enableColumnVisibility={true}
         enableSorting={true}
-        itemsPerPage={ITEMS_PER_PAGE}
+        enableInfiniteScroll={enableInfiniteScroll}
+        onLoadMore={onLoadMore}
+        hasMore={hasMore}
+        enableRowSelection={enableRowSelection}
+        selectedRows={selectedRows}
+        onRowSelectionChange={onRowSelectionChange}
+        getRowId={getRowId}
       />
-
       {/* User Details Sheet */}
       <ResizableSheet side="right" open={open} onOpenChange={handleCloseUserDetails}>
         {selectedUser && 'personaData' in selectedUser && (
@@ -94,9 +112,9 @@ export function ParsedUserTable({
   ...props
 }: {
   users: ParsedUser[];
-} & Omit<RefactoredUserTableProps, 'data'>) {
+} & Omit<SmartUserTableProps, 'data'>) {
   return (
-    <RefactoredUserTable
+    <SmartUserTable
       data={users}
       emptyMessage="No users found"
       emptyDescription="There are no users in your database. Users will appear here once they sign up."
@@ -110,9 +128,9 @@ export function PrivyUserTable({
   ...props
 }: {
   users: ImportPrivyUserOutput[];
-} & Omit<RefactoredUserTableProps, 'data'>) {
+} & Omit<SmartUserTableProps, 'data'>) {
   return (
-    <RefactoredUserTable
+    <SmartUserTable
       data={users}
       emptyMessage="No Privy users found"
       emptyDescription="No Privy users were imported. Try importing users from Privy."
@@ -126,9 +144,9 @@ export function ContractUserTable({
   ...props
 }: {
   users: ImportUserOutput[];
-} & Omit<RefactoredUserTableProps, 'data'>) {
+} & Omit<SmartUserTableProps, 'data'>) {
   return (
-    <RefactoredUserTable
+    <SmartUserTable
       data={users}
       emptyMessage="No contract users found"
       emptyDescription="No contract users were imported. Try importing users from a contract."
@@ -142,9 +160,9 @@ export function MixedUserTable({
   ...props
 }: {
   users: TableUserData[];
-} & Omit<RefactoredUserTableProps, 'data'>) {
+} & Omit<SmartUserTableProps, 'data'>) {
   return (
-    <RefactoredUserTable
+    <SmartUserTable
       data={users}
       emptyMessage="No users found"
       emptyDescription="There are no users to display. Try importing some users or adjusting your filters."

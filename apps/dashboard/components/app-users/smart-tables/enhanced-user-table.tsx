@@ -9,7 +9,7 @@ import { Button } from '../../ui/button';
 import { ResizableSheet } from '../../ui/resizable-sheet';
 import { UserDetails } from '../app-user-details';
 import { TableUserData } from './column-formatters';
-import { RefactoredUserTable } from './refactored-user-table';
+import { SmartUserTable } from './smart-user-table';
 
 interface EnhancedUserTableProps {
   data: TableUserData[];
@@ -21,6 +21,14 @@ interface EnhancedUserTableProps {
   showImportButton?: boolean;
   onImportClick?: () => void;
   importButtonText?: string;
+  enableInfiniteScroll?: boolean;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  // Selection props
+  enableRowSelection?: boolean;
+  selectedRows?: Record<string, boolean>;
+  onRowSelectionChange?: (selectedRows: Record<string, boolean>) => void;
+  getRowId?: (row: TableUserData) => string;
 }
 
 /**
@@ -32,6 +40,8 @@ interface EnhancedUserTableProps {
  * - Import button integration
  * - Empty state handling
  * - Support for multiple data types
+ * - Infinite scrolling support
+ * - Row selection support
  */
 export function EnhancedUserTable({
   data,
@@ -43,6 +53,13 @@ export function EnhancedUserTable({
   showImportButton = true,
   onImportClick,
   importButtonText = 'Import Users',
+  enableInfiniteScroll = false,
+  onLoadMore,
+  hasMore = false,
+  enableRowSelection = false,
+  selectedRows = {},
+  onRowSelectionChange,
+  getRowId,
 }: EnhancedUserTableProps) {
   const [selectedUser, setSelectedUser] = useState<TableUserData | null>(null);
   const [open, setOpen] = useState(false);
@@ -85,13 +102,20 @@ export function EnhancedUserTable({
       </div>
 
       {/* Table */}
-      <RefactoredUserTable
+      <SmartUserTable
         data={data}
         isLoading={isLoading}
         emptyMessage={emptyMessage}
         emptyDescription={emptyDescription}
         onUserClick={handleUserClick}
         className={className}
+        enableInfiniteScroll={enableInfiniteScroll}
+        onLoadMore={onLoadMore}
+        hasMore={hasMore}
+        enableRowSelection={enableRowSelection}
+        selectedRows={selectedRows}
+        onRowSelectionChange={onRowSelectionChange}
+        getRowId={getRowId}
       />
 
       {/* User Details Sheet */}
