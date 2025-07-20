@@ -11,11 +11,12 @@ import {
   VisibilityState,
   flexRender,
   getCoreRowModel,
+  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 import { ArrowUpDown, ChevronDown, ChevronUp } from 'lucide-react';
-import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { ReactNode, useMemo, useState } from 'react';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/table';
 import { EmptyState } from './empty-state';
@@ -32,9 +33,12 @@ export interface DynamicTableProps<TData> {
   enableColumnResizing?: boolean;
   enableColumnReordering?: boolean;
   enableSorting?: boolean;
-  enableInfiniteScroll?: boolean;
-  onLoadMore?: () => void;
-  hasMore?: boolean;
+  // Pagination props
+  enablePagination?: boolean;
+  pageSize?: number;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
   // Selection props
   enableRowSelection?: boolean;
   selectedRows?: Record<string, boolean>;
@@ -66,12 +70,12 @@ export function DynamicTable<TData>({
   enableColumnResizing = true,
   enableColumnReordering = true,
   enableSorting = true,
-  enableInfiniteScroll = false,
-  onLoadMore,
-  hasMore = false,
+  // Pagination props
+  enablePagination = false,
+  pageSize = 10,
+  currentPage = 1,
+  // Selection props
   enableRowSelection = false,
-  selectedRows = {},
-  onRowSelectionChange,
   getRowId,
   getRowDisplayValue,
   enableFooter = false,
@@ -87,30 +91,11 @@ export function DynamicTable<TData>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>([]);
   const [columnSizing, setColumnSizing] = useState({});
-
-  // Infinite scroll ref
-  const loadMoreRef = useRef<HTMLDivElement>(null);
-
-  // Infinite scroll effect
-  useEffect(() => {
-    if (!enableInfiniteScroll || !onLoadMore || !hasMore) return;
-
-    const observer = new IntersectionObserver(
-      entries => {
-        const [entry] = entries;
-        if (entry.isIntersecting && hasMore && !isLoading) {
-          onLoadMore();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (loadMoreRef.current) {
-      observer.observe(loadMoreRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [enableInfiniteScroll, onLoadMore, hasMore, isLoading]);
+  const [rowSelection, setRowSelection] = useState({});
+  const [pagination, setPagination] = useState({
+    pageIndex: (currentPage || 1) - 1,
+    pageSize: pageSize,
+  });
 
   // Create selection column if enabled
   const tableColumns = useMemo(() => {
@@ -118,54 +103,27 @@ export function DynamicTable<TData>({
 
     const selectionColumn: ColumnDef<TData> = {
       id: 'select',
-      header: () => (
+      header: ({ table }) => (
         <Checkbox
           checked={
-            data.length > 0 &&
-            data.every(row => {
-              const rowId = getRowId
-                ? getRowId(row)
-                : getRowDisplayValue?.(row, 'walletAddress') ||
-                  getRowDisplayValue?.(row, 'id') ||
-                  '';
-              return selectedRows[rowId];
-            })
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
           }
-          onCheckedChange={checked => {
-            const newSelection: Record<string, boolean> = {};
-            data.forEach(row => {
-              const rowId = getRowId
-                ? getRowId(row)
-                : getRowDisplayValue?.(row, 'walletAddress') ||
-                  getRowDisplayValue?.(row, 'id') ||
-                  '';
-              newSelection[rowId] = checked === true;
-            });
-            onRowSelectionChange?.(newSelection);
-          }}
+          onClick={e => e.stopPropagation()}
+          onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
           className="h-4 w-4 rounded border-gray-300"
         />
       ),
-      cell: ({ row }) => {
-        const rowId = getRowId
-          ? getRowId(row.original)
-          : getRowDisplayValue?.(row.original, 'walletAddress') ||
-            getRowDisplayValue?.(row.original, 'id') ||
-            '';
-        return (
-          <Checkbox
-            checked={selectedRows[rowId] || false}
-            onCheckedChange={checked => {
-              const newSelection = {
-                ...selectedRows,
-                [rowId]: checked === true,
-              };
-              onRowSelectionChange?.(newSelection);
-            }}
-            className="h-4 w-4 rounded border-gray-300"
-          />
-        );
-      },
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={value => row.toggleSelected(!!value)}
+          onClick={e => e.stopPropagation()}
+          aria-label="Select row"
+          className="h-4 w-4 rounded border-gray-300"
+        />
+      ),
       enableSorting: false,
       enableHiding: false,
       enableResizing: false,
@@ -175,24 +133,19 @@ export function DynamicTable<TData>({
     };
 
     return [selectionColumn, ...columns];
-  }, [
-    columns,
-    enableRowSelection,
-    selectedRows,
-    onRowSelectionChange,
-    getRowId,
-    data,
-    getRowDisplayValue,
-  ]);
+  }, [columns, enableRowSelection]);
 
   const table = useReactTable({
     data,
     columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnOrderChange: setColumnOrder,
+    onRowSelectionChange: setRowSelection,
+    onPaginationChange: setPagination,
 
     columnResizeMode: 'onChange' as ColumnResizeMode,
     state: {
@@ -200,6 +153,8 @@ export function DynamicTable<TData>({
       columnVisibility,
       columnOrder,
       columnSizing,
+      rowSelection,
+      pagination,
     },
     enableSorting,
     enableColumnResizing,
@@ -224,6 +179,19 @@ export function DynamicTable<TData>({
         setColumnSizing(updater);
       }
     },
+    // Enable row selection
+    enableRowSelection: enableRowSelection,
+    getRowId:
+      getRowId ||
+      ((row: TData) => {
+        // Fallback row ID generation
+        if (getRowDisplayValue) {
+          return (
+            getRowDisplayValue(row, 'walletAddress') || getRowDisplayValue(row, 'id') || String(row)
+          );
+        }
+        return String(row);
+      }),
   });
 
   // Sortable header component
@@ -267,6 +235,8 @@ export function DynamicTable<TData>({
             setSearchQuery={setSearchQuery}
             searchPlaceholder={searchPlaceholder}
             additionalActions={additionalActions}
+            // Pagination props
+            enablePagination={enablePagination}
           />
         </div>
       )}
@@ -482,9 +452,7 @@ export function DynamicTable<TData>({
                                 borderRight: '1px solid hsl(var(--border))',
                               }}
                               className={cn('font-semibold text-xs', isFrozen && 'shadow-sm')}>
-                              {index === 0
-                                ? 'Total'
-                                : formatFooterValue(footerValue, header.column.id)}
+                              {index > 0 ? formatFooterValue(footerValue, header.column.id) : ''}
                             </TableHead>
                           );
                         })}
@@ -497,24 +465,6 @@ export function DynamicTable<TData>({
           </div>
         </div>
       </div>
-
-      {/* Infinite Scroll Load More */}
-      {enableInfiniteScroll && hasMore && (
-        <div ref={loadMoreRef} className="flex-shrink-0 py-4 text-center border-t">
-          {isLoading ? (
-            <div className="flex items-center justify-center space-x-2">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-              <span className="text-sm text-muted-foreground">Loading more...</span>
-            </div>
-          ) : (
-            <button
-              onClick={onLoadMore}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Load more
-            </button>
-          )}
-        </div>
-      )}
     </div>
   );
 }

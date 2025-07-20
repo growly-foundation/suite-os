@@ -21,9 +21,12 @@ interface EnhancedUserTableProps {
   showImportButton?: boolean;
   onImportClick?: () => void;
   importButtonText?: string;
-  enableInfiniteScroll?: boolean;
-  onLoadMore?: () => void;
-  hasMore?: boolean;
+  // Pagination props
+  enablePagination?: boolean;
+  pageSize?: number;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
   // Selection props
   enableRowSelection?: boolean;
   selectedRows?: Record<string, boolean>;
@@ -53,9 +56,10 @@ export function EnhancedUserTable({
   showImportButton = true,
   onImportClick,
   importButtonText = 'Import Users',
-  enableInfiniteScroll = false,
-  onLoadMore,
-  hasMore = false,
+  enablePagination = false,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange,
   enableRowSelection = false,
   selectedRows = {},
   onRowSelectionChange,
@@ -109,9 +113,10 @@ export function EnhancedUserTable({
         emptyDescription={emptyDescription}
         onUserClick={handleUserClick}
         className={className}
-        enableInfiniteScroll={enableInfiniteScroll}
-        onLoadMore={onLoadMore}
-        hasMore={hasMore}
+        enablePagination={enablePagination}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
         enableRowSelection={enableRowSelection}
         selectedRows={selectedRows}
         onRowSelectionChange={onRowSelectionChange}

@@ -17,9 +17,12 @@ interface SmartUserTableProps {
   emptyDescription?: string;
   onUserClick?: (user: TableUserData) => void;
   className?: string;
-  enableInfiniteScroll?: boolean;
-  onLoadMore?: () => void;
-  hasMore?: boolean;
+  // Pagination props
+  enablePagination?: boolean;
+  pageSize?: number;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
   // Selection props
   enableRowSelection?: boolean;
   selectedRows?: Record<string, boolean>;
@@ -46,9 +49,12 @@ export function SmartUserTable({
   emptyDescription = 'There are no users to display. Try importing some users or adjusting your filters.',
   onUserClick,
   className,
-  enableInfiniteScroll = false,
-  onLoadMore,
-  hasMore = false,
+  // Pagination props
+  enablePagination = false,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange,
+  // Selection props
   enableRowSelection = false,
   selectedRows = {},
   onRowSelectionChange,
@@ -88,9 +94,12 @@ export function SmartUserTable({
         enableColumnResizing={true}
         enableColumnReordering={true}
         enableSorting={true}
-        enableInfiniteScroll={enableInfiniteScroll}
-        onLoadMore={onLoadMore}
-        hasMore={hasMore}
+        // Pagination props
+        enablePagination={enablePagination}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+        // Selection props
         enableRowSelection={enableRowSelection}
         selectedRows={selectedRows}
         onRowSelectionChange={onRowSelectionChange}

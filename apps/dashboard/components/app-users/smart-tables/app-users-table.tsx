@@ -35,6 +35,9 @@ export function UsersTable({
   const [selectedUser, setSelectedUser] = useState<ParsedUser | null>(null);
   const personas = users.map(user => consumePersona(user as ParsedUser));
 
+  // Row selection state
+  const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
+
   // User interaction handlers
   const handleUserClick = (user: ParsedUser) => {
     setSelectedUser(user);
@@ -46,8 +49,17 @@ export function UsersTable({
     setSelectedUser(null);
   };
 
-  // Create columns for the dynamic table
-  const columns = createDynamicColumns(users as TableUserData[]);
+  // Handle row selection change
+  const handleRowSelectionChange = (newSelection: Record<string, boolean>) => {
+    setSelectedRows(newSelection);
+  };
+
+  // Get row ID for selection
+  const getRowId = (row: TableUserData) => {
+    if ('personaData' in row) return row.id;
+    if ('email' in row) return row.email || String(row);
+    return String(row);
+  };
 
   // Footer data calculation - Notion style aggregation
   const getFooterValue = (key: string) => {
@@ -141,9 +153,12 @@ export function UsersTable({
     }
   };
 
+  // Create columns for the dynamic table
+  const columns = createDynamicColumns(users as TableUserData[]);
+
   return (
     <>
-      <DynamicTable
+      <DynamicTable<TableUserData>
         data={users as TableUserData[]}
         columns={columns}
         emptyMessage="No users found"
@@ -163,6 +178,12 @@ export function UsersTable({
         initialSorting={[{ id: 'firstSignedIn', desc: true }]}
         // Enable row selection to show frozen column
         enableRowSelection={true}
+        selectedRows={selectedRows}
+        onRowSelectionChange={handleRowSelectionChange}
+        getRowId={getRowId}
+        // Enable pagination
+        enablePagination={true}
+        pageSize={20} // Show 20 users per page
         // Toolbar props
         tableLabel={tableLabel}
         searchQuery={searchQuery}
