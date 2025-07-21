@@ -1,7 +1,7 @@
 import { SERVER_API_URL } from '@/constants/config';
 import axios from 'axios';
 
-import { ImportPrivyUserOutput, ImportUserOutput } from '@getgrowly/core';
+import { ImportContractUserOutput, ImportPrivyUserOutput, ImportUserOutput } from '@getgrowly/core';
 
 /**
  * Service for handling user imports from external sources
@@ -27,7 +27,7 @@ export class UserImportService {
   static async importContractUsers(
     contractAddress: string,
     chainId: number
-  ): Promise<ImportPrivyUserOutput[]> {
+  ): Promise<ImportContractUserOutput[]> {
     try {
       const response = await axios.post(`${SERVER_API_URL}/user/import-contract`, {
         contractAddress,
