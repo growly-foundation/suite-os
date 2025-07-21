@@ -16,7 +16,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { ArrowUpDown, ChevronDown, ChevronUp } from 'lucide-react';
-import { ReactNode, useMemo, useState } from 'react';
+import { ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/table';
 import { TableUserData } from './columns/column-formatters';
@@ -77,6 +77,8 @@ export function DynamicTable<TData extends TableUserData>({
   currentPage = 1,
   // Selection props
   enableRowSelection = false,
+  selectedRows,
+  onRowSelectionChange,
   getRowId,
   getRowDisplayValue,
   enableFooter = false,
@@ -92,11 +94,34 @@ export function DynamicTable<TData extends TableUserData>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>([]);
   const [columnSizing, setColumnSizing] = useState({});
-  const [rowSelection, setRowSelection] = useState({});
   const [pagination, setPagination] = useState({
     pageIndex: (currentPage || 1) - 1,
     pageSize: pageSize,
   });
+
+  // Use external row selection state if provided, otherwise use internal state
+  const [internalRowSelection, setInternalRowSelection] = useState({});
+  const rowSelection = selectedRows || internalRowSelection;
+
+  // Handle row selection change with proper type conversion
+  const handleRowSelectionChange = useCallback(
+    (updaterOrValue: any) => {
+      let newSelection: Record<string, boolean>;
+
+      if (typeof updaterOrValue === 'function') {
+        newSelection = updaterOrValue(rowSelection);
+      } else {
+        newSelection = updaterOrValue;
+      }
+
+      if (onRowSelectionChange) {
+        onRowSelectionChange(newSelection);
+      } else {
+        setInternalRowSelection(newSelection);
+      }
+    },
+    [onRowSelectionChange, rowSelection]
+  );
 
   // Create selection column if enabled
   const tableColumns = useMemo(() => {
@@ -104,18 +129,35 @@ export function DynamicTable<TData extends TableUserData>({
 
     const selectionColumn: ColumnDef<TData> = {
       id: 'select',
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && 'indeterminate')
-          }
-          onClick={e => e.stopPropagation()}
-          onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-          className="h-4 w-4 rounded border-gray-300"
-        />
-      ),
+      header: ({ table }) => {
+        // Get all rows (not just current page)
+        const allRows = table.getFilteredRowModel().rows;
+        const selectedRows = Object.keys(rowSelection);
+        const allSelected = allRows.length > 0 && selectedRows.length === allRows.length;
+        const someSelected = selectedRows.length > 0 && selectedRows.length < allRows.length;
+
+        return (
+          <Checkbox
+            checked={allSelected || (someSelected && 'indeterminate')}
+            onClick={e => e.stopPropagation()}
+            onCheckedChange={value => {
+              if (value) {
+                // Select all rows
+                const newSelection: Record<string, boolean> = {};
+                allRows.forEach(row => {
+                  newSelection[row.id] = true;
+                });
+                handleRowSelectionChange(newSelection);
+              } else {
+                // Deselect all rows
+                handleRowSelectionChange({});
+              }
+            }}
+            aria-label="Select all"
+            className="h-4 w-4 rounded border-gray-300"
+          />
+        );
+      },
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
@@ -134,8 +176,8 @@ export function DynamicTable<TData extends TableUserData>({
     };
 
     return [selectionColumn, ...columns];
-  }, [columns, enableRowSelection]);
-  console.log(data, tableColumns);
+  }, [columns, enableRowSelection, rowSelection, handleRowSelectionChange]);
+
   const table = useReactTable({
     data,
     columns: tableColumns,
@@ -145,7 +187,7 @@ export function DynamicTable<TData extends TableUserData>({
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnOrderChange: setColumnOrder,
-    onRowSelectionChange: setRowSelection,
+    onRowSelectionChange: handleRowSelectionChange,
     onPaginationChange: setPagination,
 
     columnResizeMode: 'onChange' as ColumnResizeMode,
@@ -267,9 +309,9 @@ export function DynamicTable<TData extends TableUserData>({
             <Table className="w-full table-fixed">
               {/* Fixed Header */}
               <TableHeader className="sticky top-0 z-10 bg-background">
-                {table.getHeaderGroups().map((headerGroup, index) => (
+                {table.getHeaderGroups().map(headerGroup => (
                   <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header, headerGroupIndex) => {
+                    {headerGroup.headers.map((header, index) => {
                       const isFrozen = (header.column.columnDef.meta as any)?.frozen;
                       const isSortable = enableSorting && header.column.getCanSort();
 
@@ -301,7 +343,7 @@ export function DynamicTable<TData extends TableUserData>({
                             zIndex: isFrozen ? 20 : 'auto',
                             backgroundColor: isFrozen ? 'hsl(var(--background))' : 'transparent',
                             borderRight:
-                              headerGroupIndex === headerGroup.headers.length - 1
+                              index === headerGroup.headers.length - 1
                                 ? 'none'
                                 : '1px solid hsl(var(--border))',
                           }}

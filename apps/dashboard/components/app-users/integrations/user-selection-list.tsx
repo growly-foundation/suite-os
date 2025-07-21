@@ -1,6 +1,7 @@
 'use client';
 
 import { PrimaryButton } from '@/components/buttons/primary-button';
+import { ColumnDef } from '@tanstack/react-table';
 import { ImportIcon, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -42,6 +43,25 @@ export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>
   // Count of selected users
   const selectedCount = Object.values(selectedUsers).filter(Boolean).length;
   const columns = createImportedUserColumns(users);
+
+  // Improved getRowId function to ensure proper row identification
+  const getRowId = (row: ImportUserOutput) => {
+    // Try wallet address first, then email, then fallback to index
+    if (row.walletAddress) {
+      return row.walletAddress;
+    }
+    if (row.email) {
+      return row.email;
+    }
+    // Fallback to a combination of available fields
+    return `${row.source || 'unknown'}-${row.walletAddress || row.email || 'unknown'}`;
+  };
+
+  // Handle row selection change with debugging
+  const handleRowSelectionChange = (newSelection: Record<string, boolean>) => {
+    console.log('Row selection changed:', newSelection);
+    setSelectedUsers(newSelection);
+  };
 
   // Footer data calculation - adapted for imported users
   const getFooterValue = (key: string) => {
@@ -86,7 +106,7 @@ export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>
   return (
     <DynamicTable<ImportUserOutput>
       data={users as ImportUserOutput[]}
-      columns={columns}
+      columns={columns as ColumnDef<ImportUserOutput>[]}
       tableLabel={`${selectedCount} of ${users.length} selected`}
       emptyMessage="No users found"
       emptyDescription="No users to import. Please refresh your credentials."
@@ -95,8 +115,8 @@ export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>
       enableSorting={true}
       enableRowSelection={true}
       selectedRows={selectedUsers}
-      onRowSelectionChange={setSelectedUsers}
-      getRowId={row => (row as any).walletAddress || (row as any).id}
+      onRowSelectionChange={handleRowSelectionChange}
+      getRowId={getRowId}
       enableFooter={true}
       getFooterValue={getFooterValue}
       initialSorting={[{ id: 'identity', desc: true }]}

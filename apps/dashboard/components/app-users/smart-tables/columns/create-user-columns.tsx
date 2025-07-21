@@ -168,14 +168,18 @@ export function createUserColumns(data: ParsedUser[]): ColumnDef<ParsedUser>[] {
   }
 
   const columns: ColumnDef<ParsedUser>[] = [];
-  const sampleUser = data[0];
+
+  // Helper function to check if any row has persona data
+  const hasPersonaDataInAnyRow = (data: ParsedUser[]): boolean => {
+    return data.some(user => hasData(user, 'personaData'));
+  };
 
   // Always include identity column
   columns.push(columnUserDefinitions.identity);
 
-  // Add columns based on data type detection
-  if (hasData<ParsedUser>(sampleUser as ParsedUser, 'personaData')) {
-    // ParsedUser columns
+  // Add columns based on data availability across all rows
+  if (hasPersonaDataInAnyRow(data)) {
+    // ParsedUser columns - check if any user has persona data
     columns.push(
       columnUserDefinitions.talentProtocolCheckmark,
       columnUserDefinitions.firstSignedIn,
