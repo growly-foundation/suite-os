@@ -203,21 +203,28 @@ export function DynamicTable<TData>({
     const sortDirection = column.getIsSorted();
     const sortIcon =
       sortDirection === 'asc' ? (
-        <ChevronUp className="h-3 w-3" />
+        <ChevronUp className="h-3 w-3 transition-transform duration-200" />
       ) : sortDirection === 'desc' ? (
-        <ChevronDown className="h-3 w-3" />
+        <ChevronDown className="h-3 w-3 transition-transform duration-200" />
       ) : (
-        <ArrowUpDown className="h-3 w-3" />
+        <ArrowUpDown className="h-3 w-3 transition-transform duration-200" />
       );
 
     return (
       <div className="flex items-center text-xs gap-3 justify-between">
         {flexRender(column.columnDef.header, { column })}
-        <IconContainer
-          className="flex items-center gap-1 hover:bg-muted/50 px-2 py-1 rounded transition-colors cursor-pointer"
-          onClick={column.getToggleSortingHandler()}>
-          <span className="text-muted-foreground text-xs">{sortIcon}</span>
-        </IconContainer>
+        <div className="hover:scale-105 active:scale-95 transition-transform duration-200">
+          <IconContainer
+            className="flex items-center gap-1 hover:bg-muted/50 px-2 py-1 rounded cursor-pointer group"
+            onClick={column.getToggleSortingHandler()}>
+            <span
+              className={`text-muted-foreground text-xs transition-all duration-200 ${
+                sortDirection ? 'text-primary scale-110' : 'group-hover:scale-105'
+              }`}>
+              {sortIcon}
+            </span>
+          </IconContainer>
+        </div>
       </div>
     );
   };
@@ -327,14 +334,18 @@ export function DynamicTable<TData>({
                   {/* Table Body */}
                   <TableBody>
                     {table.getRowModel().rows?.length ? (
-                      table.getRowModel().rows.map(row => (
+                      table.getRowModel().rows.map((row, index) => (
                         <TableRow
                           key={row.id}
                           data-state={row.getIsSelected() && 'selected'}
                           className={cn(
                             onRowClick && 'cursor-pointer hover:bg-muted/50',
-                            'transition-colors'
+                            'transition-all duration-300 ease-out animate-row-in'
                           )}
+                          style={{
+                            animationDelay: `${index * 50}ms`,
+                            animationFillMode: 'both',
+                          }}
                           onClick={e => {
                             // Prevent double click by checking if click is on checkbox
                             if ((e.target as HTMLElement).tagName === 'INPUT') {
