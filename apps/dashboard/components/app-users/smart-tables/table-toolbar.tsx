@@ -5,7 +5,6 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
@@ -38,6 +37,8 @@ export function TableToolbar<TData>({
 }: TableToolbarProps<TData>) {
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
   const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
+  const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
+  const [dropPosition, setDropPosition] = useState<'before' | 'after' | null>(null);
 
   // Initialize column order once on mount
   useEffect(() => {
@@ -54,10 +55,35 @@ export function TableToolbar<TData>({
     setDraggedColumn(columnId);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', columnId);
+
+    // Create custom drag preview
+    const dragPreview = e.currentTarget.cloneNode(true) as HTMLElement;
+    dragPreview.style.opacity = '0.8';
+    dragPreview.style.transform = 'rotate(5deg)';
+    dragPreview.style.pointerEvents = 'none';
+    document.body.appendChild(dragPreview);
+    e.dataTransfer.setDragImage(dragPreview, 0, 0);
+
+    // Remove preview after drag starts
+    setTimeout(() => {
+      document.body.removeChild(dragPreview);
+    }, 0);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent, columnId: string) => {
     e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+
+    if (draggedColumn && draggedColumn !== columnId) {
+      setDragOverColumn(columnId);
+
+      // Determine drop position based on mouse position
+      const rect = e.currentTarget.getBoundingClientRect();
+      const mouseY = e.clientY;
+      const centerY = rect.top + rect.height / 2;
+
+      setDropPosition(mouseY < centerY ? 'before' : 'after');
+    }
   };
 
   const handleDrop = (e: React.DragEvent, targetColumnId: string) => {
@@ -70,16 +96,24 @@ export function TableToolbar<TData>({
 
     if (draggedIndex !== -1 && targetIndex !== -1) {
       newOrder.splice(draggedIndex, 1);
-      newOrder.splice(targetIndex, 0, draggedColumn);
+
+      // Insert based on drop position
+      const insertIndex = dropPosition === 'before' ? targetIndex : targetIndex + 1;
+      newOrder.splice(insertIndex, 0, draggedColumn);
+
       setColumnOrder(newOrder);
       table.setColumnOrder(newOrder); // ✅ Apply immediately
     }
 
     setDraggedColumn(null);
+    setDragOverColumn(null);
+    setDropPosition(null);
   };
 
   const handleDragEnd = () => {
     setDraggedColumn(null);
+    setDragOverColumn(null);
+    setDropPosition(null);
   };
 
   return (
@@ -158,28 +192,46 @@ export function TableToolbar<TData>({
                   return (
                     <div
                       key={column.id}
-                      className="relative cursor-move"
+                      className={`relative cursor-move transition-all duration-200 ${
+                        draggedColumn === column.id
+                          ? 'opacity-50 scale-95'
+                          : 'opacity-100 scale-100'
+                      }`}
                       draggable
-                      onDragOver={e => handleDragOver(e)}
+                      onDragOver={e => handleDragOver(e, column.id)}
                       onDrop={e => handleDrop(e, column.id)}
                       onDragEnd={handleDragEnd}
                       onDragStart={e => handleDragStart(e, column.id)}>
+                      {/* Drop preview indicator */}
+                      {dragOverColumn === column.id && draggedColumn !== column.id && (
+                        <div
+                          className={`absolute left-0 right-0 h-0.5 bg-primary transition-all duration-200 z-10 ${
+                            dropPosition === 'before' ? 'top-0' : 'bottom-0'
+                          }`}
+                        />
+                      )}
+
                       <DropdownMenuCheckboxItem
-                        className="capitalize flex items-center justify-between"
+                        className={`capitalize flex items-center gap-4 justify-between transition-all duration-200 ${
+                          dragOverColumn === column.id && draggedColumn !== column.id
+                            ? 'bg-primary/5 border-primary/20'
+                            : ''
+                        }`}
                         checked={column.getIsVisible()}
                         onCheckedChange={value => column.toggleVisibility(!!value)}
                         onSelect={e => e.preventDefault()}>
                         {column.id}
                         <GripVertical
-                          className={`h-4 w-4 text-muted-foreground transition-opacity ${
-                            draggedColumn === column.id ? 'opacity-50' : 'opacity-100'
-                          } cursor-move`}
+                          className={`h-4 w-4 text-muted-foreground transition-all duration-200 ${
+                            draggedColumn === column.id
+                              ? 'opacity-50 scale-90'
+                              : 'opacity-100 scale-100'
+                          } cursor-move hover:scale-110`}
                         />
                       </DropdownMenuCheckboxItem>
                     </div>
                   );
                 })}
-                <DropdownMenuSeparator />
               </>
             )}
           </DropdownMenuContent>
