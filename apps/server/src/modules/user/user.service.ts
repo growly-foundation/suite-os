@@ -14,8 +14,17 @@ import {
 import { Address } from '@getgrowly/persona';
 
 import { SUITE_CORE } from '../../constants/services';
+import { EtherscanService } from '../etherscan/etherscan.service';
 import { PERSONA_BUILD_JOB, PERSONA_QUEUE } from '../sync-persona/persona.queue';
 import { UserImporterService } from './user-importer/user-importer.service';
+
+export interface UniqueAddressesResponse {
+  contractAddress: string;
+  chainId: number;
+  uniqueAddresses: string[];
+  totalCount: number;
+  transactionsAnalyzed: number;
+}
 
 @Injectable()
 export class UserService {
