@@ -11,7 +11,7 @@ import { InfoIcon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 
-import { ImportPrivyUserOutput } from '@getgrowly/core';
+import { ImportContractUserOutput } from '@getgrowly/core';
 
 interface ContractImportTabProps {
   onImportComplete?: () => void;
@@ -23,7 +23,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   const [loading, setLoading] = useState(false);
   const [configuring, setConfiguring] = useState(false);
   const [configured, setConfigured] = useState(false);
-  const [contractUsers, setContractUsers] = useState<ImportPrivyUserOutput[]>([]);
+  const [contractUsers, setContractUsers] = useState<ImportContractUserOutput[]>([]);
   const [importing, setImporting] = useState(false);
   const { selectedOrganization } = useDashboardState();
 
@@ -66,7 +66,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   };
 
   // Import selected users
-  const handleImport = async (usersToImport: ImportPrivyUserOutput[]) => {
+  const handleImport = async (usersToImport: ImportContractUserOutput[]) => {
     if (!selectedOrganization?.id) {
       toast.error('No organization selected');
       return;
