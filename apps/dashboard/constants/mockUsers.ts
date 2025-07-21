@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 
-import { ParsedUser, SessionStatus } from '@getgrowly/core';
+import { ParsedUser } from '@getgrowly/core';
 
 // Helper functions for generating mock data
 const generateEthAddress = (): `0x${string}` =>
@@ -151,20 +151,18 @@ export const generateMockUsers = (count: number): ParsedUser[] => {
         walletAddress: address,
       },
       is_anonymous: isAnonymous ? true : null,
-      ensName,
-      address,
-      avatar,
-      company,
+      name: faker.person.fullName(),
+      image_url: avatar,
+      original_joined_at: created_at,
       description,
-      status: online ? SessionStatus.Online : SessionStatus.Offline,
-      lastMessageTime,
-      online,
-      unread,
-      stats,
-      tokens: generateTokens(),
-      recentActivity: generateRecentActivity(),
-      nfts: generateNFTs(),
-      reputation: generateReputation(),
+      personaData: {
+        portfolio_snapshots: {
+          totalValue: Math.random() * 100000,
+          tokenPortfolio: {
+            chainRecordsWithTokens: {},
+          },
+        },
+      },
     } as ParsedUser;
   });
 };

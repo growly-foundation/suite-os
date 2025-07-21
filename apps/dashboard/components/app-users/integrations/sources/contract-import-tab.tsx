@@ -1,7 +1,6 @@
 'use client';
 
 import { UserSelectionList } from '@/components/app-users/integrations/user-selection-list';
-import { createPrivyUserColumns } from '@/components/app-users/smart-tables/import-user-tables/privy-user-columns';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,9 +39,9 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
       // Fetch users
       await handleFetchUsers();
     } catch (error) {
-      console.error('Error configuring Privy:', error);
+      console.error('Error configuring contract:', error);
       toast.error(
-        `Error configuring Privy: ${error instanceof Error ? error.message : String(error)}`
+        `Error configuring contract: ${error instanceof Error ? error.message : String(error)}`
       );
     } finally {
       setConfiguring(false);
@@ -90,7 +89,11 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
       if (result.failed.length > 0)
         toast.error(`Failed to import ${result.failed.length} contract users`);
       // If all successful, trigger completion callback
-      if (result.failed.length === 0 && result.success.length > 0) onImportComplete?.();
+      if (result.failed.length === 0 && result.success.length > 0) {
+        onImportComplete?.();
+        // Redirect to users page after successful import
+        window.location.href = '/dashboard/users';
+      }
     } catch (error) {
       console.error('Error importing contract users:', error);
       toast.error(
@@ -102,38 +105,48 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   };
 
   return (
-    <div className="space-y-4">
-      <Alert variant="default">
-        <InfoIcon className="h-4 w-4" />
-        <AlertDescription>
-          Import users from your Privy application by entering your App ID and App Secret.
-          <br />
-          <span className="font-bold">
-            Suite does not store your credentials and this import is one-time.
-          </span>
-        </AlertDescription>
-      </Alert>
-      <div className="space-y-4">
+    <div className="space-y-6">
+      <div className="px-4">
+        <h2 className="text-lg font-semibold mb-2">Smart Contract Integration</h2>
+        <p className="text-muted-foreground text-sm">
+          Import users who have interacted with your smart contract by entering the contract address
+          and chain ID.
+        </p>
+      </div>
+
+      <div className="px-4">
+        <Alert variant="default">
+          <InfoIcon className="h-4 w-4" />
+          <AlertDescription>
+            Suite will fetch all users who have interacted with your contract on the specified
+            chain.
+          </AlertDescription>
+        </Alert>
+      </div>
+
+      <div className="space-y-6">
         {!configured ? (
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="contract-address">Contract Address</Label>
-              <Input
-                id="contract-address"
-                value={contractAddress}
-                onChange={e => setContractAddress(e.target.value)}
-                placeholder="Enter your contract address"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="chain-id">Chain ID</Label>
-              <Input
-                id="chain-id"
-                type="number"
-                value={chainId}
-                onChange={e => setChainId(Number(e.target.value))}
-                placeholder="Enter your chain ID"
-              />
+          <div className="space-y-4 px-4">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="contract-address">Contract Address</Label>
+                <Input
+                  id="contract-address"
+                  value={contractAddress}
+                  onChange={e => setContractAddress(e.target.value)}
+                  placeholder="0x..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="chain-id">Chain ID</Label>
+                <Input
+                  id="chain-id"
+                  type="number"
+                  value={chainId}
+                  onChange={e => setChainId(Number(e.target.value))}
+                  placeholder="1 (Ethereum), 137 (Polygon), etc."
+                />
+              </div>
             </div>
             {configuring ? (
               <Button
@@ -152,46 +165,33 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold">Contract Connected</h3>
-                <p className="text-sm text-muted-foreground">{contractUsers.length} users found</p>
-              </div>
-              <div className="space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setConfigured(false);
-                    setContractUsers([]);
-                  }}>
-                  Change Credentials
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleFetchUsers} disabled={loading}>
-                  {loading ? 'Refreshing...' : 'Refresh Users'}
-                </Button>
-              </div>
-            </div>
-
-            {contractUsers.length > 0 ? (
-              <UserSelectionList
-                users={contractUsers}
-                importButtonText={importing ? 'Importing...' : `Import Users`}
-                isImporting={importing}
-                onImport={async (selectedUserIds: string[]) => {
-                  const usersToImport = contractUsers.filter(user =>
-                    selectedUserIds.includes(user.walletAddress!)
-                  );
-                  await handleImport(usersToImport);
-                }}
-                columns={createPrivyUserColumns()}
-              />
-            ) : (
-              <Alert variant="default">
-                <InfoIcon className="h-4 w-4" />
-                <AlertDescription>No users found</AlertDescription>
-              </Alert>
-            )}
+            <UserSelectionList
+              users={contractUsers}
+              importButtonText={importing ? 'Importing...' : `Import Users`}
+              isImporting={importing}
+              onImport={async (selectedUserIds: string[]) => {
+                const usersToImport = contractUsers.filter(user =>
+                  selectedUserIds.includes(user.walletAddress!)
+                );
+                await handleImport(usersToImport);
+              }}
+              additionalActions={
+                <div className="space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setConfigured(false);
+                      setContractUsers([]);
+                    }}>
+                    Change Contract
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleFetchUsers} disabled={loading}>
+                    {loading ? 'Refreshing...' : 'Refresh Users'}
+                  </Button>
+                </div>
+              }
+            />
           </>
         )}
       </div>

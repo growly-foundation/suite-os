@@ -9,7 +9,7 @@ import { coinbaseFont } from './fonts';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Growly Suite Dashboard',
+  title: 'Suite Dashboard | Create Growth That Lasts.',
   description: 'Manage your AI agents for Growly Suite and workflows with ease.',
   keywords: 'Growly, DeFi, AI, LLM, MCP, knowledge base, AI agents, MCP server',
   icons: {
@@ -42,22 +42,22 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://app.getsuite.io',
-    title: 'Growly Suite Dashboard',
+    title: 'Suite Dashboard | Create Growth That Lasts.',
     description: 'Manage your AI agents for Growly Suite and workflows with ease.',
-    siteName: 'Growly Suite Dashboard',
+    siteName: 'Suite Dashboard | Create Growth That Lasts.',
     images: [
       {
         url: 'https://getsuite.io/banners/dashboard-banner.png',
         width: 1200,
         height: 630,
-        alt: 'Growly Suite Dashboard',
+        alt: 'Suite Dashboard | Create Growth That Lasts.',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
     title:
-      'Growly Suite Dashboard | Manage your AI agents for Growly Suite and workflows with ease.',
+      'Suite Dashboard | Create Growth That Lasts. | Manage your AI agents for Growly Suite and workflows with ease.',
     description: 'Manage your AI agents for Growly Suite and workflows with ease.',
     images: ['https://getsuite.io/banners/dashboard-banner.png'],
   },

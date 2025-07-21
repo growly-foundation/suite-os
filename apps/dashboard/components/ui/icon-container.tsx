@@ -4,6 +4,7 @@ interface Props {
   children: React.ReactNode;
   type?: 'primary' | 'default';
   className?: string;
+  onClick?: () => void;
 }
 
 export const IconContainer = ({ children, type = 'default', className, ...props }: Props) => {
@@ -14,6 +15,7 @@ export const IconContainer = ({ children, type = 'default', className, ...props 
         type === 'primary' && 'bg-primary border-primary text-white',
         className
       )}
+      onClick={props.onClick}
       {...props}>
       {children}
     </div>

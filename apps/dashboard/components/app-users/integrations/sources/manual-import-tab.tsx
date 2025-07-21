@@ -1,7 +1,6 @@
 'use client';
 
 import { UserSelectionList } from '@/components/app-users/integrations/user-selection-list';
-import { createManualUserColumns } from '@/components/app-users/smart-tables/import-user-tables/manual-user-columns';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -135,18 +134,18 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
   };
 
   // Import selected users
-  const handleImport = async (selectedUserIds: string[]) => {
+  const handleImport = async (usersToImport: ImportUserOutput[]) => {
     if (!selectedOrganization?.id) {
       toast.error('No organization selected');
       return;
     }
-    if (selectedUserIds.length === 0) {
+    if (usersToImport.length === 0) {
       toast.warning('Please select at least one user to import');
       return;
     }
+
     setImporting(true);
     try {
-      const usersToImport = users.filter(user => selectedUserIds.includes(user.walletAddress!));
       // Import users in batch
       const result = await UserImportService.commitImportedUsers(
         usersToImport,
@@ -157,7 +156,11 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
         toast.success(`Successfully imported ${result.success.length} users`);
       if (result.failed.length > 0) toast.error(`Failed to import ${result.failed.length} users`);
       // If all successful, trigger completion callback
-      if (result.failed.length === 0 && result.success.length > 0) onImportComplete?.();
+      if (result.failed.length === 0 && result.success.length > 0) {
+        onImportComplete?.();
+        // Redirect to users page after successful import
+        window.location.href = '/dashboard/users';
+      }
     } catch (error) {
       console.error('Error importing users:', error);
       toast.error(
@@ -175,7 +178,14 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-semibold mb-2">Manual Import</h2>
+        <p className="text-muted-foreground">
+          Import users manually by entering their details below or by uploading a CSV file.
+        </p>
+      </div>
+
       <Alert variant="default">
         <InfoIcon className="h-4 w-4" />
         <AlertDescription>
@@ -183,8 +193,8 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
         </AlertDescription>
       </Alert>
 
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="space-y-4 p-4 border rounded-md">
             <h3 className="text-lg font-semibold">Add User Manually</h3>
 
@@ -255,12 +265,12 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
             users={users}
             importButtonText={importing ? 'Importing...' : 'Import Users'}
             isImporting={importing}
-            onImport={async selectedUserIds => await handleImport(selectedUserIds)}
-            columns={createManualUserColumns({
-              handleRemoveUser: (userId: string) => {
-                handleRemoveUser(userId);
-              },
-            })}
+            onImport={async (selectedUserIds: string[]) => {
+              const usersToImport = users.filter(user =>
+                selectedUserIds.includes(user.walletAddress!)
+              );
+              await handleImport(usersToImport);
+            }}
           />
         ) : (
           <Alert variant="default">
