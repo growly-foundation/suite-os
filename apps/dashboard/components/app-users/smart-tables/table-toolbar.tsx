@@ -2,14 +2,6 @@
 
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
@@ -19,7 +11,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Table } from '@tanstack/react-table';
 import { ChevronDown, ChevronUp, GripVertical, Search, Settings2 } from 'lucide-react';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 
 interface TableToolbarProps<TData> {
   table: Table<TData>;
@@ -30,7 +22,6 @@ interface TableToolbarProps<TData> {
   setSearchQuery?: (value: string) => void;
   tableLabel?: string;
   additionalActions?: ReactNode;
-  // Pagination props
   enablePagination?: boolean;
 }
 
@@ -43,50 +34,69 @@ export function TableToolbar<TData>({
   setSearchQuery,
   tableLabel,
   additionalActions,
-  // Pagination props
   enablePagination = false,
 }: TableToolbarProps<TData>) {
-  const [isReorderModalOpen, setIsReorderModalOpen] = useState(false);
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
+  const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
 
-  const handleMoveColumn = (fromIndex: number, direction: 'up' | 'down') => {
+  // Initialize column order once on mount
+  useEffect(() => {
+    const currentOrder = table
+      .getAllColumns()
+      .filter(col => col.getCanHide() || col.id === 'select')
+      .map(col => col.id);
+
+    setColumnOrder(currentOrder);
+    table.setColumnOrder(currentOrder);
+  }, [table]);
+
+  const handleDragStart = (e: React.DragEvent, columnId: string) => {
+    setDraggedColumn(columnId);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', columnId);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent, targetColumnId: string) => {
+    e.preventDefault();
+    if (!draggedColumn || draggedColumn === targetColumnId) return;
+
     const newOrder = [...columnOrder];
-    const toIndex = direction === 'up' ? fromIndex - 1 : fromIndex + 1;
+    const draggedIndex = newOrder.indexOf(draggedColumn);
+    const targetIndex = newOrder.indexOf(targetColumnId);
 
-    if (toIndex >= 0 && toIndex < newOrder.length) {
-      const [movedColumn] = newOrder.splice(fromIndex, 1);
-      newOrder.splice(toIndex, 0, movedColumn);
+    if (draggedIndex !== -1 && targetIndex !== -1) {
+      newOrder.splice(draggedIndex, 1);
+      newOrder.splice(targetIndex, 0, draggedColumn);
       setColumnOrder(newOrder);
+      table.setColumnOrder(newOrder); // ✅ Apply immediately
     }
+
+    setDraggedColumn(null);
   };
 
-  const handleApplyReorder = () => {
-    // Apply the new column order to the table using the correct API
-    table.setColumnOrder(columnOrder);
-    setIsReorderModalOpen(false);
-  };
-
-  const handleCancelReorder = () => {
-    setIsReorderModalOpen(false);
+  const handleDragEnd = () => {
+    setDraggedColumn(null);
   };
 
   return (
     <div className="flex items-center justify-between py-4 px-4">
       <div className="flex flex-1 items-center space-x-4">
-        {/* Table Label */}
         {tableLabel && (
           <span className="text-sm text-muted-foreground font-medium">{tableLabel}</span>
         )}
 
-        {/* Search Input */}
         {(onSearch || (searchQuery !== undefined && setSearchQuery)) && (
           <div className="relative flex items-center gap-1 border rounded-md px-2">
             <Search className="h-4 w-4 text-muted-foreground" />
             <Input
               placeholder={searchPlaceholder}
               value={searchQuery || ''}
-              onChange={event => {
-                const value = event.target.value;
+              onChange={e => {
+                const value = e.target.value;
                 if (onSearch) {
                   onSearch(value);
                 } else if (setSearchQuery) {
@@ -98,7 +108,6 @@ export function TableToolbar<TData>({
           </div>
         )}
 
-        {/* Pagination Info - Compact display */}
         {enablePagination && table.getPageCount() > 1 && (
           <div className="text-sm text-muted-foreground">
             Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
@@ -107,7 +116,6 @@ export function TableToolbar<TData>({
       </div>
 
       <div className="flex items-center space-x-2">
-        {/* Pagination Controls - Compact */}
         {enablePagination && table.getPageCount() > 1 && (
           <div className="flex items-center space-x-1">
             <Button
@@ -129,7 +137,6 @@ export function TableToolbar<TData>({
           </div>
         )}
 
-        {/* Table Actions Dropdown - Consolidates all table actions */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="h-8">
@@ -141,94 +148,43 @@ export function TableToolbar<TData>({
             align="end"
             className="w-fit"
             onCloseAutoFocus={e => e.preventDefault()}>
-            {/* Column Visibility */}
             {enableColumnVisibility && (
               <>
                 <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">Columns</div>
-                {table
-                  .getAllColumns()
-                  .filter(column => column.getCanHide())
-                  .map(column => {
-                    return (
+                {columnOrder.map(columnId => {
+                  const column = table.getAllColumns().find(c => c.id === columnId);
+                  if (!column || !column.getCanHide()) return null;
+
+                  return (
+                    <div
+                      key={column.id}
+                      className="relative cursor-move"
+                      draggable
+                      onDragOver={e => handleDragOver(e)}
+                      onDrop={e => handleDrop(e, column.id)}
+                      onDragEnd={handleDragEnd}
+                      onDragStart={e => handleDragStart(e, column.id)}>
                       <DropdownMenuCheckboxItem
-                        key={column.id}
-                        className="capitalize"
+                        className="capitalize flex items-center justify-between"
                         checked={column.getIsVisible()}
-                        onCheckedChange={value => {
-                          column.toggleVisibility(!!value);
-                        }}
+                        onCheckedChange={value => column.toggleVisibility(!!value)}
                         onSelect={e => e.preventDefault()}>
                         {column.id}
+                        <GripVertical
+                          className={`h-4 w-4 text-muted-foreground transition-opacity ${
+                            draggedColumn === column.id ? 'opacity-50' : 'opacity-100'
+                          } cursor-move`}
+                        />
                       </DropdownMenuCheckboxItem>
-                    );
-                  })}
+                    </div>
+                  );
+                })}
                 <DropdownMenuSeparator />
               </>
             )}
-
-            {/* Column Reorder */}
-            <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">Actions</div>
-            <Dialog open={isReorderModalOpen} onOpenChange={setIsReorderModalOpen}>
-              <DialogTrigger asChild>
-                <button className="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
-                  <GripVertical className="mr-2 h-4 w-4" />
-                  Reorder Columns
-                </button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Reorder Columns</DialogTitle>
-                  <DialogDescription>
-                    Use the up and down arrows to reorder columns. Click Apply to save changes.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {columnOrder.map((columnId, index) => {
-                    const column = table.getColumn(columnId);
-                    if (!column) return null;
-
-                    return (
-                      <div
-                        key={columnId}
-                        className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border">
-                        <div className="flex items-center space-x-3">
-                          <GripVertical className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm font-medium capitalize">{columnId}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0"
-                            disabled={index === 0}
-                            onClick={() => handleMoveColumn(index, 'up')}>
-                            <ChevronUp className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0"
-                            disabled={index === columnOrder.length - 1}
-                            onClick={() => handleMoveColumn(index, 'down')}>
-                            <ChevronDown className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="flex justify-end space-x-2 pt-4">
-                  <Button variant="outline" onClick={handleCancelReorder}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleApplyReorder}>Apply Changes</Button>
-                </div>
-              </DialogContent>
-            </Dialog>
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Additional Actions (Import Button, etc.) */}
         {additionalActions}
       </div>
     </div>
