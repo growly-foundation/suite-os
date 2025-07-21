@@ -2,20 +2,19 @@
 
 import { useMemo, useState } from 'react';
 
-import { ImportPrivyUserOutput, ImportUserOutput, ParsedUser } from '@getgrowly/core';
+import { ParsedUser } from '@getgrowly/core';
 
 import { ResizableSheet } from '../../ui/resizable-sheet';
 import { UserDetails } from '../app-user-details';
-import { TableUserData } from './column-formatters';
-import { createDynamicColumns } from './dynamic-columns';
+import { createUserColumns } from './columns/create-user-columns';
 import { DynamicTable } from './dynamic-table';
 
 interface SmartUserTableProps {
-  data: TableUserData[];
+  data: ParsedUser[];
   isLoading?: boolean;
   emptyMessage?: string;
   emptyDescription?: string;
-  onUserClick?: (user: TableUserData) => void;
+  onUserClick?: (user: ParsedUser) => void;
   className?: string;
   // Pagination props
   enablePagination?: boolean;
@@ -27,7 +26,7 @@ interface SmartUserTableProps {
   enableRowSelection?: boolean;
   selectedRows?: Record<string, boolean>;
   onRowSelectionChange?: (selectedRows: Record<string, boolean>) => void;
-  getRowId?: (row: TableUserData) => string;
+  getRowId?: (row: ParsedUser) => string;
 }
 
 /**
@@ -60,16 +59,16 @@ export function SmartUserTable({
   onRowSelectionChange,
   getRowId,
 }: SmartUserTableProps) {
-  const [selectedUser, setSelectedUser] = useState<TableUserData | null>(null);
+  const [selectedUser, setSelectedUser] = useState<ParsedUser | null>(null);
   const [open, setOpen] = useState(false);
 
   // Create appropriate columns
   const columns = useMemo(() => {
-    return createDynamicColumns(data);
+    return createUserColumns(data);
   }, [data]);
 
   // Handle user click
-  const handleUserClick = (user: TableUserData) => {
+  const handleUserClick = (user: ParsedUser) => {
     setSelectedUser(user);
     setOpen(true);
     onUserClick?.(user);
@@ -112,70 +111,5 @@ export function SmartUserTable({
         )}
       </ResizableSheet>
     </>
-  );
-}
-
-// Specialized table components for different data types
-export function ParsedUserTable({
-  users,
-  ...props
-}: {
-  users: ParsedUser[];
-} & Omit<SmartUserTableProps, 'data'>) {
-  return (
-    <SmartUserTable
-      data={users}
-      emptyMessage="No users found"
-      emptyDescription="There are no users in your database. Users will appear here once they sign up."
-      {...props}
-    />
-  );
-}
-
-export function PrivyUserTable({
-  users,
-  ...props
-}: {
-  users: ImportPrivyUserOutput[];
-} & Omit<SmartUserTableProps, 'data'>) {
-  return (
-    <SmartUserTable
-      data={users}
-      emptyMessage="No Privy users found"
-      emptyDescription="No Privy users were imported. Try importing users from Privy."
-      {...props}
-    />
-  );
-}
-
-export function ContractUserTable({
-  users,
-  ...props
-}: {
-  users: ImportUserOutput[];
-} & Omit<SmartUserTableProps, 'data'>) {
-  return (
-    <SmartUserTable
-      data={users}
-      emptyMessage="No contract users found"
-      emptyDescription="No contract users were imported. Try importing users from a contract."
-      {...props}
-    />
-  );
-}
-
-export function MixedUserTable({
-  users,
-  ...props
-}: {
-  users: TableUserData[];
-} & Omit<SmartUserTableProps, 'data'>) {
-  return (
-    <SmartUserTable
-      data={users}
-      emptyMessage="No users found"
-      emptyDescription="There are no users to display. Try importing some users or adjusting your filters."
-      {...props}
-    />
   );
 }

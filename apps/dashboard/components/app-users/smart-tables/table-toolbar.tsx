@@ -117,10 +117,10 @@ export function TableToolbar<TData>({
   };
 
   return (
-    <div className="flex items-center justify-between py-4 px-4">
-      <div className="flex flex-1 items-center space-x-4">
+    <div className="flex items-center justify-between py-4 px-4 w-full max-w-full overflow-hidden">
+      <div className="flex flex-1 items-center space-x-4 min-w-0">
         {tableLabel && (
-          <span className="text-sm text-muted-foreground font-medium">{tableLabel}</span>
+          <span className="text-sm text-muted-foreground font-medium truncate">{tableLabel}</span>
         )}
 
         {(onSearch || (searchQuery !== undefined && setSearchQuery)) && (
@@ -143,13 +143,13 @@ export function TableToolbar<TData>({
         )}
 
         {enablePagination && table.getPageCount() > 1 && (
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-muted-foreground whitespace-nowrap">
             Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
           </div>
         )}
       </div>
 
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 flex-shrink-0">
         {enablePagination && table.getPageCount() > 1 && (
           <div className="flex items-center space-x-1">
             <Button

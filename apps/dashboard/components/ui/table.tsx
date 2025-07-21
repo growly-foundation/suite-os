@@ -9,7 +9,7 @@ const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableE
         className={cn('w-full caption-bottom text-sm table-fixed', className)}
         style={{
           tableLayout: 'fixed',
-          minWidth: 'max-content', // Ensure table can expand to fit content
+          width: '100%',
         }}
         {...props}
       />
@@ -86,8 +86,8 @@ const TableHead = React.forwardRef<
       className
     )}
     style={{
-      minWidth: 'fit-content', // Ensure header can fit its content
-      maxWidth: '100%', // Prevent overflow
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
     }}
     {...props}
   />
@@ -108,8 +108,8 @@ const TableCell = React.forwardRef<
       className
     )}
     style={{
-      minWidth: 'fit-content', // Ensure cell can fit its content
-      maxWidth: '100%', // Prevent overflow
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
     }}
     {...props}
   />

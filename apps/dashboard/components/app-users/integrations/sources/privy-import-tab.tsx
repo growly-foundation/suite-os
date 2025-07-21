@@ -89,7 +89,11 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
       if (result.failed.length > 0)
         toast.error(`Failed to import ${result.failed.length} Privy users`);
       // If all successful, trigger completion callback
-      if (result.failed.length === 0 && result.success.length > 0) onImportComplete?.();
+      if (result.failed.length === 0 && result.success.length > 0) {
+        onImportComplete?.();
+        // Redirect to users page after successful import
+        window.location.href = '/dashboard/users';
+      }
     } catch (error) {
       console.error('Error importing Privy users:', error);
       toast.error(
@@ -101,38 +105,45 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <Alert variant="default">
-        <InfoIcon className="h-4 w-4" />
-        <AlertDescription>
+    <div className="space-y-6">
+      <div className="px-4">
+        <h2 className="text-lg font-semibold mb-2">Privy Integration</h2>
+        <p className="text-muted-foreground text-sm">
           Import users from your Privy application by entering your App ID and App Secret.
-          <br />
-          <span className="font-bold">
+        </p>
+      </div>
+
+      <div className="px-4">
+        <Alert variant="default">
+          <InfoIcon className="h-4 w-4" />
+          <AlertDescription>
             Suite does not store your credentials and this import is one-time.
-          </span>
-        </AlertDescription>
-      </Alert>
-      <div className="space-y-4">
+          </AlertDescription>
+        </Alert>
+      </div>
+      <div className="space-y-6">
         {!configured ? (
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="app-id">Privy App ID</Label>
-              <Input
-                id="app-id"
-                value={appId}
-                onChange={e => setAppId(e.target.value)}
-                placeholder="Enter your Privy App ID"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="app-secret">Privy App Secret</Label>
-              <Input
-                id="app-secret"
-                type="password"
-                value={appSecret}
-                onChange={e => setAppSecret(e.target.value)}
-                placeholder="Enter your Privy App Secret"
-              />
+          <div className="space-y-4 px-4">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="app-id">Privy App ID</Label>
+                <Input
+                  id="app-id"
+                  value={appId}
+                  onChange={e => setAppId(e.target.value)}
+                  placeholder="Enter your Privy App ID"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="app-secret">Privy App Secret</Label>
+                <Input
+                  id="app-secret"
+                  type="password"
+                  value={appSecret}
+                  onChange={e => setAppSecret(e.target.value)}
+                  placeholder="Enter your Privy App Secret"
+                />
+              </div>
             </div>
             {configuring ? (
               <Button
@@ -151,45 +162,33 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold">Privy Connected</h3>
-                <p className="text-sm text-muted-foreground">{privyUsers.length} users found</p>
-              </div>
-              <div className="space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setConfigured(false);
-                    setPrivyUsers([]);
-                  }}>
-                  Change Credentials
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleFetchUsers} disabled={loading}>
-                  {loading ? 'Refreshing...' : 'Refresh Users'}
-                </Button>
-              </div>
-            </div>
-
-            {privyUsers.length > 0 ? (
-              <UserSelectionList
-                users={privyUsers}
-                importButtonText={importing ? 'Importing...' : `Import Users`}
-                isImporting={importing}
-                onImport={async (selectedUserIds: string[]) => {
-                  const usersToImport = privyUsers.filter(user =>
-                    selectedUserIds.includes(user.walletAddress!)
-                  );
-                  await handleImport(usersToImport);
-                }}
-              />
-            ) : (
-              <Alert variant="default">
-                <InfoIcon className="h-4 w-4" />
-                <AlertDescription>No users found</AlertDescription>
-              </Alert>
-            )}
+            <UserSelectionList
+              users={privyUsers}
+              importButtonText={importing ? 'Importing...' : `Import Users`}
+              isImporting={importing}
+              onImport={async (selectedUserIds: string[]) => {
+                const usersToImport = privyUsers.filter(user =>
+                  selectedUserIds.includes(user.walletAddress!)
+                );
+                await handleImport(usersToImport);
+              }}
+              additionalActions={
+                <div className="space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setConfigured(false);
+                      setPrivyUsers([]);
+                    }}>
+                    Change Credentials
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleFetchUsers} disabled={loading}>
+                    {loading ? 'Refreshing...' : 'Refresh Users'}
+                  </Button>
+                </div>
+              }
+            />
           </>
         )}
       </div>

@@ -7,8 +7,8 @@ import { ParsedUser } from '@getgrowly/core';
 
 import { ResizableSheet } from '../../ui/resizable-sheet';
 import { UserDetails } from '../app-user-details';
-import { TableUserData } from './column-formatters';
-import { createDynamicColumns } from './dynamic-columns';
+import { TableUserData } from './columns/column-formatters';
+import { createUserColumns } from './columns/create-user-columns';
 import { DynamicTable } from './dynamic-table';
 
 /**
@@ -154,15 +154,15 @@ export function UsersTable({
   };
 
   // Create columns for the dynamic table
-  const columns = createDynamicColumns(users as TableUserData[]);
+  const columns = createUserColumns(users as ParsedUser[]);
 
   return (
     <>
-      <DynamicTable<TableUserData>
-        data={users as TableUserData[]}
+      <DynamicTable<ParsedUser>
+        data={users as ParsedUser[]}
         columns={columns}
         emptyMessage="No users found"
-        emptyDescription="There are no users in your database. Users will appear here once they sign up."
+        emptyDescription="There are no users in your organization. Users will appear here once they sign up."
         onRowClick={user => {
           // Type guard to ensure we only handle ParsedUser
           if ('personaData' in user) {
@@ -183,7 +183,7 @@ export function UsersTable({
         getRowId={getRowId}
         // Enable pagination
         enablePagination={true}
-        pageSize={20} // Show 20 users per page
+        pageSize={30} // Show 30 users per page
         // Toolbar props
         tableLabel={tableLabel}
         searchQuery={searchQuery}

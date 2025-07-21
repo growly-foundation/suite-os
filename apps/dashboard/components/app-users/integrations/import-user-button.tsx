@@ -2,33 +2,15 @@
 
 import { PrimaryButton } from '@/components/buttons/primary-button';
 import { RefreshCw } from 'lucide-react';
-import React, { useState } from 'react';
+import Link from 'next/link';
 
-import { ImportUserModal } from './import-user-modal';
-
-interface ImportUserButtonProps {
-  onImportComplete?: () => void;
-}
-
-export function ImportUserButton({ onImportComplete }: ImportUserButtonProps) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleImportComplete = () => {
-    setIsOpen(false);
-    onImportComplete?.();
-  };
-
+export function ImportUserButton() {
   return (
-    <React.Fragment>
-      <PrimaryButton onClick={() => setIsOpen(true)}>
+    <Link href="/dashboard/users/import">
+      <PrimaryButton>
         <RefreshCw className="mr-1 h-4 w-4" />
         Import Users
       </PrimaryButton>
-      <ImportUserModal
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        onImportComplete={handleImportComplete}
-      />
-    </React.Fragment>
+    </Link>
   );
 }

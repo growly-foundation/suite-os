@@ -12,9 +12,9 @@ import { Address } from 'viem';
 import { ImportPrivyUserOutput, ImportUserOutput, ParsedUser } from '@getgrowly/core';
 import { WalletAddress } from '@getgrowly/ui';
 
-import { AssetIcon } from '../../ui/asset-icon';
-import { ActivityPreview } from '../../user/activity-preview';
-import { AppUserAvatarWithStatus } from '../app-user-avatar-with-status';
+import { AssetIcon } from '../../../ui/asset-icon';
+import { ActivityPreview } from '../../../user/activity-preview';
+import { AppUserAvatarWithStatus } from '../../app-user-avatar-with-status';
 
 // Type for any user data that can be displayed in the table
 export type TableUserData = ParsedUser | ImportUserOutput | ImportPrivyUserOutput;
@@ -303,6 +303,222 @@ export function createColumnFormatters<T = any>(
           {source}
         </Badge>
       );
+    },
+
+    // Wallet Address (for ImportUserOutput and ImportPrivyUserOutput)
+    walletAddress: (user: T) => {
+      const walletAddress = accessor.hasProperty(user, 'walletAddress')
+        ? accessor.getValue(user, 'walletAddress')
+        : undefined;
+      if (!walletAddress) return <span className="text-muted-foreground">—</span>;
+
+      return <WalletAddress address={walletAddress as Address} className="text-xs" />;
+    },
+
+    // Name (for ImportUserOutput and ImportPrivyUserOutput)
+    name: (user: T) => {
+      const name = accessor.hasProperty(user, 'name') ? accessor.getValue(user, 'name') : undefined;
+      if (!name) return <span className="text-muted-foreground">—</span>;
+
+      return <span className="text-sm font-medium">{name}</span>;
+    },
+
+    // Extra data (for ImportUserOutput with extra data like contract interactions)
+    extra: (user: T) => {
+      if (
+        accessor.hasProperty(user, 'extra') &&
+        accessor.getValue(user, 'extra') &&
+        typeof accessor.getValue(user, 'extra') === 'object'
+      ) {
+        const extra = accessor.getValue(user, 'extra') as Record<string, any>;
+        const transactionCount = extra.transactionCount || 0;
+        const firstInteraction = extra.firstInteraction;
+        const lastInteraction = extra.lastInteraction;
+
+        return (
+          <div className="space-y-1">
+            {transactionCount > 0 && (
+              <div className="text-xs">
+                <span className="font-medium">{transactionCount}</span> interactions
+              </div>
+            )}
+            {firstInteraction && (
+              <div className="text-xs text-muted-foreground">
+                First: {moment(firstInteraction).fromNow()}
+              </div>
+            )}
+            {lastInteraction && (
+              <div className="text-xs text-muted-foreground">
+                Last: {moment(lastInteraction).fromNow()}
+              </div>
+            )}
+          </div>
+        );
+      }
+      return <span className="text-muted-foreground">—</span>;
+    },
+
+    // Privy-specific formatters
+    privyCreatedAt: (user: T) => {
+      if (
+        accessor.hasProperty(user, 'extra') &&
+        accessor.getValue(user, 'extra') &&
+        typeof accessor.getValue(user, 'extra') === 'object'
+      ) {
+        const extra = accessor.getValue(user, 'extra') as Record<string, any>;
+        const createdAt = extra.createdAt;
+        if (createdAt) {
+          return (
+            <div className="text-xs">
+              <div className="font-medium">{moment(createdAt).format('MMM DD, YYYY')}</div>
+              <div className="text-muted-foreground">{moment(createdAt).fromNow()}</div>
+            </div>
+          );
+        }
+      }
+      return <span className="text-muted-foreground">—</span>;
+    },
+
+    privyLinkedAccounts: (user: T) => {
+      if (
+        accessor.hasProperty(user, 'extra') &&
+        accessor.getValue(user, 'extra') &&
+        typeof accessor.getValue(user, 'extra') === 'object'
+      ) {
+        const extra = accessor.getValue(user, 'extra') as Record<string, any>;
+        const linkedAccounts = extra.linkedAccounts || [];
+        const emailAccounts = linkedAccounts.filter((acc: any) => acc.type === 'email');
+        const walletAccounts = linkedAccounts.filter((acc: any) => acc.type === 'wallet');
+
+        return (
+          <div className="space-y-1">
+            <div className="text-xs">
+              <span className="font-medium">{linkedAccounts.length}</span> total
+            </div>
+            {emailAccounts.length > 0 && (
+              <div className="text-xs text-muted-foreground">
+                {emailAccounts.length} email{emailAccounts.length > 1 ? 's' : ''}
+              </div>
+            )}
+            {walletAccounts.length > 0 && (
+              <div className="text-xs text-muted-foreground">
+                {walletAccounts.length} wallet{walletAccounts.length > 1 ? 's' : ''}
+              </div>
+            )}
+          </div>
+        );
+      }
+      return <span className="text-muted-foreground">—</span>;
+    },
+
+    privyGuestStatus: (user: T) => {
+      if (
+        accessor.hasProperty(user, 'extra') &&
+        accessor.getValue(user, 'extra') &&
+        typeof accessor.getValue(user, 'extra') === 'object'
+      ) {
+        const extra = accessor.getValue(user, 'extra') as Record<string, any>;
+        const isGuest = extra.isGuest || false;
+
+        return (
+          <Badge variant={isGuest ? 'secondary' : 'default'} className="text-xs">
+            {isGuest ? 'Guest' : 'User'}
+          </Badge>
+        );
+      }
+      return <span className="text-muted-foreground">—</span>;
+    },
+
+    privyLastVerified: (user: T) => {
+      if (
+        accessor.hasProperty(user, 'extra') &&
+        accessor.getValue(user, 'extra') &&
+        typeof accessor.getValue(user, 'extra') === 'object'
+      ) {
+        const extra = accessor.getValue(user, 'extra') as Record<string, any>;
+        const emailVerified = extra.email?.latestVerifiedAt;
+        const walletVerified = extra.wallet?.latestVerifiedAt;
+
+        let latestVerified = null;
+        if (emailVerified && walletVerified) {
+          latestVerified = new Date(
+            Math.max(new Date(emailVerified).getTime(), new Date(walletVerified).getTime())
+          );
+        } else if (emailVerified) {
+          latestVerified = new Date(emailVerified);
+        } else if (walletVerified) {
+          latestVerified = new Date(walletVerified);
+        }
+
+        if (latestVerified) {
+          return (
+            <div className="text-xs">
+              <div className="font-medium">{moment(latestVerified).format('MMM DD, YYYY')}</div>
+              <div className="text-muted-foreground">{moment(latestVerified).fromNow()}</div>
+            </div>
+          );
+        }
+      }
+      return <span className="text-muted-foreground">—</span>;
+    },
+
+    // Contract-specific formatters
+    contractTransactions: (user: T) => {
+      if (
+        accessor.hasProperty(user, 'extra') &&
+        accessor.getValue(user, 'extra') &&
+        typeof accessor.getValue(user, 'extra') === 'object'
+      ) {
+        const extra = accessor.getValue(user, 'extra') as Record<string, any>;
+        const transactionCount = extra.transactionCount || 0;
+
+        return (
+          <div className="text-xs">
+            <span className="font-medium">{transactionCount}</span> transactions
+          </div>
+        );
+      }
+      return <span className="text-muted-foreground">—</span>;
+    },
+
+    contractFirstInteraction: (user: T) => {
+      if (
+        accessor.hasProperty(user, 'extra') &&
+        accessor.getValue(user, 'extra') &&
+        typeof accessor.getValue(user, 'extra') === 'object'
+      ) {
+        const extra = accessor.getValue(user, 'extra') as Record<string, any>;
+        const firstInteraction = extra.firstInteraction;
+        if (firstInteraction) {
+          return (
+            <div className="text-xs">
+              <div className="font-medium">{moment(firstInteraction).format('MMM DD, YYYY')}</div>
+              <div className="text-muted-foreground">{moment(firstInteraction).fromNow()}</div>
+            </div>
+          );
+        }
+      }
+      return <span className="text-muted-foreground">—</span>;
+    },
+
+    contractLastInteraction: (user: T) => {
+      if (
+        accessor.hasProperty(user, 'extra') &&
+        accessor.getValue(user, 'extra') &&
+        typeof accessor.getValue(user, 'extra') === 'object'
+      ) {
+        const extra = accessor.getValue(user, 'extra') as Record<string, any>;
+        const lastInteraction = extra.lastInteraction;
+        if (lastInteraction) {
+          return (
+            <div className="text-xs">
+              <div className="font-medium">{moment(lastInteraction).format('MMM DD, YYYY')}</div>
+              <div className="text-muted-foreground">{moment(lastInteraction).fromNow()}</div>
+            </div>
+          );
+        }
+      }
+      return <span className="text-muted-foreground">—</span>;
     },
   };
 }

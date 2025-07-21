@@ -13,12 +13,10 @@ export function UserDirectoryLayout({
   users,
   loading,
   importEnabled,
-  onImportComplete,
 }: {
   users: ParsedUser[];
   loading: boolean;
   importEnabled: boolean;
-  onImportComplete?: () => void;
 }) {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -43,9 +41,7 @@ export function UserDirectoryLayout({
             tableLabel={`There are ${filteredUsers.length} users`}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
-            additionalActions={
-              importEnabled ? <ImportUserButton onImportComplete={onImportComplete} /> : undefined
-            }
+            additionalActions={importEnabled ? <ImportUserButton /> : undefined}
           />
         </React.Fragment>
       )}
@@ -54,14 +50,12 @@ export function UserDirectoryLayout({
 }
 
 export function UsersInner() {
-  const { organizationUsers, organizationUserStatus, refresh } =
-    useSelectedOrganizationUsersEffect();
+  const { organizationUsers, organizationUserStatus } = useSelectedOrganizationUsersEffect();
   return (
     <UserDirectoryLayout
       users={organizationUsers}
       loading={organizationUserStatus === 'loading'}
       importEnabled={true}
-      onImportComplete={refresh}
     />
   );
 }

@@ -105,10 +105,10 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
       <Alert variant="default">
         <InfoIcon className="h-4 w-4" />
         <AlertDescription>
-          Import users from your Privy application by entering your App ID and App Secret.
+          Import users from your smart contract by entering the contract address and chain ID.
           <br />
           <span className="font-bold">
-            Suite does not store your credentials and this import is one-time.
+            Suite will fetch all users who have interacted with your contract.
           </span>
         </AlertDescription>
       </Alert>

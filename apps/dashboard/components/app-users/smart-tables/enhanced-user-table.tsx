@@ -3,20 +3,20 @@
 import { Download, Users } from 'lucide-react';
 import { useState } from 'react';
 
-import { ImportPrivyUserOutput, ImportUserOutput, ParsedUser } from '@getgrowly/core';
+import { ParsedUser } from '@getgrowly/core';
 
 import { Button } from '../../ui/button';
 import { ResizableSheet } from '../../ui/resizable-sheet';
 import { UserDetails } from '../app-user-details';
-import { TableUserData } from './column-formatters';
+import './columns/column-formatters';
 import { SmartUserTable } from './smart-user-table';
 
 interface EnhancedUserTableProps {
-  data: TableUserData[];
+  data: ParsedUser[];
   isLoading?: boolean;
   emptyMessage?: string;
   emptyDescription?: string;
-  onUserClick?: (user: TableUserData) => void;
+  onUserClick?: (user: ParsedUser) => void;
   className?: string;
   showImportButton?: boolean;
   onImportClick?: () => void;
@@ -31,7 +31,7 @@ interface EnhancedUserTableProps {
   enableRowSelection?: boolean;
   selectedRows?: Record<string, boolean>;
   onRowSelectionChange?: (selectedRows: Record<string, boolean>) => void;
-  getRowId?: (row: TableUserData) => string;
+  getRowId?: (row: ParsedUser) => string;
 }
 
 /**
@@ -65,11 +65,11 @@ export function EnhancedUserTable({
   onRowSelectionChange,
   getRowId,
 }: EnhancedUserTableProps) {
-  const [selectedUser, setSelectedUser] = useState<TableUserData | null>(null);
+  const [selectedUser, setSelectedUser] = useState<ParsedUser | null>(null);
   const [open, setOpen] = useState(false);
 
   // Handle user click
-  const handleUserClick = (user: TableUserData) => {
+  const handleUserClick = (user: ParsedUser) => {
     setSelectedUser(user);
     setOpen(true);
     onUserClick?.(user);
@@ -145,57 +145,6 @@ export function EnhancedParsedUserTable({
       data={users}
       emptyMessage="No users found"
       emptyDescription="There are no users in your database. Users will appear here once they sign up."
-      importButtonText="Import Users"
-      {...props}
-    />
-  );
-}
-
-export function EnhancedPrivyUserTable({
-  users,
-  ...props
-}: {
-  users: ImportPrivyUserOutput[];
-} & Omit<EnhancedUserTableProps, 'data'>) {
-  return (
-    <EnhancedUserTable
-      data={users}
-      emptyMessage="No Privy users found"
-      emptyDescription="No Privy users were imported. Try importing users from Privy."
-      importButtonText="Import from Privy"
-      {...props}
-    />
-  );
-}
-
-export function EnhancedContractUserTable({
-  users,
-  ...props
-}: {
-  users: ImportUserOutput[];
-} & Omit<EnhancedUserTableProps, 'data'>) {
-  return (
-    <EnhancedUserTable
-      data={users}
-      emptyMessage="No contract users found"
-      emptyDescription="No contract users were imported. Try importing users from a contract."
-      importButtonText="Import from Contract"
-      {...props}
-    />
-  );
-}
-
-export function EnhancedMixedUserTable({
-  users,
-  ...props
-}: {
-  users: TableUserData[];
-} & Omit<EnhancedUserTableProps, 'data'>) {
-  return (
-    <EnhancedUserTable
-      data={users}
-      emptyMessage="No users found"
-      emptyDescription="There are no users to display. Try importing some users or adjusting your filters."
       importButtonText="Import Users"
       {...props}
     />
