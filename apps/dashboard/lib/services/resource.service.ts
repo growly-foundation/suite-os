@@ -31,6 +31,32 @@ export class ResourceService {
   }
 
   /**
+   * Extract description from a website URL
+   */
+  static async extractWebsiteDescription(
+    url: string
+  ): Promise<{ description: string; success: boolean; message?: string }> {
+    try {
+      const response = await axios.post(
+        `${API_URL}/resources/link/extract-description`,
+        {
+          url,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error(`Failed to extract description for URL ${url}:`, error);
+      throw error;
+    }
+  }
+
+  /**
    * Fetch contract ABI from address
    */
   static async getContractABI(address: string, network?: string): Promise<any[]> {

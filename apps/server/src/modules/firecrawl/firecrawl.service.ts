@@ -6,7 +6,6 @@ type FirecrawlScrapeOptions = {
     | 'markdown'
     | 'html'
     | 'rawHtml'
-    | 'content'
     | 'links'
     | 'screenshot'
     | 'screenshot@fullPage'
@@ -18,6 +17,13 @@ type FirecrawlScrapeOptions = {
   includeTags?: string[];
   excludeTags?: string[];
   onlyMainContent?: boolean;
+  parsePDF?: boolean;
+  maxAge?: number;
+  jsonOptions?: {
+    schema?: any;
+    systemPrompt?: string;
+    prompt?: string;
+  };
 };
 
 type FirecrawlSearchOptions = {

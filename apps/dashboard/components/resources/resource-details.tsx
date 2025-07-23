@@ -123,25 +123,47 @@ export function ResourceDetails({ resource, onSave, onClose }: ResourceDetailsPr
         )}
 
         {isLinkResource(editedResource) && (
-          <div className="space-y-2">
-            <Label htmlFor="url">URL</Label>
-            <Input
-              id="url"
-              value={editedResource.value.url || ''}
-              onChange={e =>
-                setEditedResource(
-                  prev =>
-                    ({
-                      ...prev,
-                      value: {
-                        ...prev.value,
-                        url: e.target.value,
-                      },
-                    }) as TypedResource<ResourceType>
-                )
-              }
-            />
-          </div>
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="url">URL</Label>
+              <Input
+                id="url"
+                value={editedResource.value.url || ''}
+                onChange={e =>
+                  setEditedResource(
+                    prev =>
+                      ({
+                        ...prev,
+                        value: {
+                          ...prev.value,
+                          url: e.target.value,
+                        },
+                      }) as TypedResource<ResourceType>
+                  )
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                className="text-sm"
+                value={editedResource.value.description || ''}
+                onChange={e =>
+                  setEditedResource(
+                    prev =>
+                      ({
+                        ...prev,
+                        value: {
+                          ...prev.value,
+                          description: e.target.value,
+                        },
+                      }) as TypedResource<ResourceType>
+                  )
+                }
+              />
+            </div>
+          </>
         )}
 
         {isContractResource(editedResource) && (
@@ -271,17 +293,28 @@ export function ResourceDetails({ resource, onSave, onClose }: ResourceDetailsPr
         )}
 
         {isLinkResource(resource) && (
-          <div className="space-x-4">
-            <Label className="text-sm font-medium text-muted-foreground">URL</Label>
-            <a
-              href={resource.value.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center text-sm text-blue-600 hover:underline break-all bg-muted/10 p-3 rounded-md border block">
-              {resource.value.url}
-              <ExternalLink className="ml-1 h-3 w-3 flex-shrink-0" />
-            </a>
-          </div>
+          <>
+            <div className="space-x-4">
+              <Label className="text-sm font-medium text-muted-foreground">URL</Label>
+              <a
+                href={resource.value.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center text-sm text-blue-600 hover:underline break-all bg-muted/10 p-3 rounded-md border block">
+                {resource.value.url}
+                <ExternalLink className="ml-1 h-3 w-3 flex-shrink-0" />
+              </a>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                className="text-sm"
+                value={resource.value.description || ''}
+                readOnly
+              />
+            </div>
+          </>
         )}
 
         {isContractResource(resource) && (
