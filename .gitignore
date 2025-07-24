@@ -27,3 +27,4 @@ dist-ssr
 **/.next
 **/.vercel
 **/.turbo
+.cursor/mcp.json
