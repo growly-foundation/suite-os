@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS users_organizations (
 comment on table public.users_organizations is 'Associates users with their referenced organizations.';
 
 GRANT ALL ON TABLE users_organizations TO postgres;
-GRANT ALL ON TABLE users_organizations TO service_role
+GRANT ALL ON TABLE users_organizations TO service_role;
 
 -- Add column `is_anonymous`
 ALTER TABLE users ADD COLUMN is_anonymous BOOLEAN NOT NULL DEFAULT FALSE;

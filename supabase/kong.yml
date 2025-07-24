@@ -1,0 +1,415 @@
+_format_version: '2.1'
+_transform: true
+
+consumers:
+  - username: anon
+    keyauth_credentials:
+      - key: your-local-supabase-key
+  - username: service_role
+    keyauth_credentials:
+      - key: your-local-supabase-key
+
+services:
+  - name: auth-v1
+    url: http://supabase-auth:9999/verify
+    routes:
+      - name: auth-v1-verify
+        strip_path: true
+        paths:
+          - /auth/v1/verify
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - '*'
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - 'apikey'
+            - 'authorization'
+            - 'content-type'
+            - 'x-client-info'
+            - 'x-requested-with'
+          exposed_headers:
+            - 'content-range'
+            - 'x-request-id'
+          credentials: true
+          max_age: 86400
+
+  - name: auth-v1-logout
+    url: http://supabase-auth:9999/logout
+    routes:
+      - name: auth-v1-logout
+        strip_path: true
+        paths:
+          - /auth/v1/logout
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - '*'
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - 'apikey'
+            - 'authorization'
+            - 'content-type'
+            - 'x-client-info'
+            - 'x-requested-with'
+          exposed_headers:
+            - 'content-range'
+            - 'x-request-id'
+          credentials: true
+          max_age: 86400
+
+  - name: auth-v1-authorize
+    url: http://supabase-auth:9999/authorize
+    routes:
+      - name: auth-v1-authorize
+        strip_path: true
+        paths:
+          - /auth/v1/authorize
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - '*'
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - 'apikey'
+            - 'authorization'
+            - 'content-type'
+            - 'x-client-info'
+            - 'x-requested-with'
+          exposed_headers:
+            - 'content-range'
+            - 'x-request-id'
+          credentials: true
+          max_age: 86400
+
+  - name: auth-v1-callback
+    url: http://supabase-auth:9999/callback
+    routes:
+      - name: auth-v1-callback
+        strip_path: true
+        paths:
+          - /auth/v1/callback
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - '*'
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - 'apikey'
+            - 'authorization'
+            - 'content-type'
+            - 'x-client-info'
+            - 'x-requested-with'
+          exposed_headers:
+            - 'content-range'
+            - 'x-request-id'
+          credentials: true
+          max_age: 86400
+
+  - name: auth-v1-token
+    url: http://supabase-auth:9999/token
+    routes:
+      - name: auth-v1-token
+        strip_path: true
+        paths:
+          - /auth/v1/token
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - '*'
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - 'apikey'
+            - 'authorization'
+            - 'content-type'
+            - 'x-client-info'
+            - 'x-requested-with'
+          exposed_headers:
+            - 'content-range'
+            - 'x-request-id'
+          credentials: true
+          max_age: 86400
+
+  - name: auth-v1-user
+    url: http://supabase-auth:9999/user
+    routes:
+      - name: auth-v1-user
+        strip_path: true
+        paths:
+          - /auth/v1/user
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - '*'
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - 'apikey'
+            - 'authorization'
+            - 'content-type'
+            - 'x-client-info'
+            - 'x-requested-with'
+          exposed_headers:
+            - 'content-range'
+            - 'x-request-id'
+          credentials: true
+          max_age: 86400
+
+  - name: auth-v1-admin-users
+    url: http://supabase-auth:9999/admin/users
+    routes:
+      - name: auth-v1-admin-users
+        strip_path: true
+        paths:
+          - /auth/v1/admin/users
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - '*'
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - 'apikey'
+            - 'authorization'
+            - 'content-type'
+            - 'x-client-info'
+            - 'x-requested-with'
+          exposed_headers:
+            - 'content-range'
+            - 'x-request-id'
+          credentials: true
+          max_age: 86400
+
+  - name: auth-v1-admin-users-audit
+    url: http://supabase-auth:9999/admin/audit
+    routes:
+      - name: auth-v1-admin-users-audit
+        strip_path: true
+        paths:
+          - /auth/v1/admin/audit
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - '*'
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - 'apikey'
+            - 'authorization'
+            - 'content-type'
+            - 'x-client-info'
+            - 'x-requested-with'
+          exposed_headers:
+            - 'content-range'
+            - 'x-request-id'
+          credentials: true
+          max_age: 86400
+
+  - name: auth-v1-admin-generate-link
+    url: http://supabase-auth:9999/admin/generate_link
+    routes:
+      - name: auth-v1-admin-generate-link
+        strip_path: true
+        paths:
+          - /auth/v1/admin/generate_link
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - '*'
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - 'apikey'
+            - 'authorization'
+            - 'content-type'
+            - 'x-client-info'
+            - 'x-requested-with'
+          exposed_headers:
+            - 'content-range'
+            - 'x-request-id'
+          credentials: true
+          max_age: 86400
+
+  - name: rest-v1
+    url: http://supabase-rest:3000
+    routes:
+      - name: rest-v1
+        strip_path: true
+        paths:
+          - /rest/v1
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - '*'
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - 'apikey'
+            - 'authorization'
+            - 'content-type'
+            - 'x-client-info'
+            - 'x-requested-with'
+            - 'prefer'
+          exposed_headers:
+            - 'content-range'
+            - 'x-request-id'
+          credentials: true
+          max_age: 86400
+
+  - name: realtime-v1
+    url: http://supabase-realtime:4000/socket
+    routes:
+      - name: realtime-v1
+        strip_path: true
+        paths:
+          - /realtime/v1
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - '*'
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - 'apikey'
+            - 'authorization'
+            - 'content-type'
+            - 'x-client-info'
+            - 'x-requested-with'
+          exposed_headers:
+            - 'content-range'
+            - 'x-request-id'
+          credentials: true
+          max_age: 86400
+
+  - name: storage-v1
+    url: http://supabase-storage:5000
+    routes:
+      - name: storage-v1
+        strip_path: true
+        paths:
+          - /storage/v1
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - '*'
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - 'apikey'
+            - 'authorization'
+            - 'content-type'
+            - 'x-client-info'
+            - 'x-requested-with'
+          exposed_headers:
+            - 'content-range'
+            - 'x-request-id'
+          credentials: true
+          max_age: 86400
+
+  - name: meta
+    url: http://supabase-meta:8080
+    routes:
+      - name: meta
+        strip_path: true
+        paths:
+          - /pg
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - '*'
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - 'apikey'
+            - 'authorization'
+            - 'content-type'
+            - 'x-client-info'
+            - 'x-requested-with'
+          exposed_headers:
+            - 'content-range'
+            - 'x-request-id'
+          credentials: true
+          max_age: 86400
