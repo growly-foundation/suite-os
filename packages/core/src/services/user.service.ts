@@ -63,7 +63,17 @@ export class UserService {
     const users = await this.userDatabaseService.getManyByIds(
       userOrganizationAssociations.map(association => association.user_id)
     );
-    return await Promise.all(users.map(user => this.getUserWithPersona(user)));
+    const parsedUsers = await Promise.all(
+      users.map(user => {
+        try {
+          return this.getUserWithPersona(user);
+        } catch (error) {
+          console.error(error);
+          return null;
+        }
+      })
+    );
+    return parsedUsers.filter(user => user !== null) as ParsedUser[];
   }
 
   async getUserByWalletAddress(walletAddress: string): Promise<ParsedUser | null> {

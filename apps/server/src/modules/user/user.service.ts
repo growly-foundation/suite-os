@@ -14,7 +14,6 @@ import {
 import { Address } from '@getgrowly/persona';
 
 import { SUITE_CORE } from '../../constants/services';
-import { EtherscanService } from '../etherscan/etherscan.service';
 import { PERSONA_BUILD_JOB, PERSONA_QUEUE } from '../sync-persona/persona.queue';
 import { UserImporterService } from './user-importer/user-importer.service';
 

@@ -165,6 +165,7 @@ This single command will:
 ## Documentation
 
 - [Team Member Setup Guide](docs/team-member-setup.md) - Complete setup guide for new team members
+- [Frontend Development Guide](docs/frontend-development.md) - Frontend development with local Supabase
 - [Backup and Restore Guide](docs/backup-restore.md) - Database backup/restore operations
 - [Remote Database Guide](docs/remote-database-guide.md) - Working with remote databases
 

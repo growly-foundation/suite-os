@@ -222,6 +222,26 @@ setup-team-member:
     @echo "🚀 Setting up local development environment for new team member..."
     ./scripts/setup-team-member.sh
 
+# Frontend Environment Setup
+setup-frontend-env:
+    @echo "🔧 Setting up frontend environment for local development..."
+    ./scripts/setup-frontend-env.sh
+
+# CORS Fix
+fix-cors:
+    @echo "🔧 Fixing CORS headers in Kong configuration..."
+    ./scripts/fix-cors-headers.sh
+
+# Frontend Authentication Fix
+fix-frontend-auth:
+    @echo "🔧 Fixing frontend authentication for local development..."
+    ./scripts/fix-frontend-auth.sh
+
+# Auth Migration Fix
+fix-auth-migration:
+    @echo "🔧 Fixing Supabase Auth migration issue..."
+    ./scripts/fix-auth-migration.sh
+
 # Remote Database Operations
 setup-remote-db:
     @echo "🔧 Setting up remote database configuration..."
@@ -295,6 +315,10 @@ help:
     @echo "  setup-env-local  - Create local environment file"
     @echo "  bootstrap-local  - Bootstrap everything for local development"
     @echo "  setup-team-member - Complete setup for new team members"
+    @echo "  setup-frontend-env - Configure frontend for local development"
+    @echo "  fix-cors           - Fix CORS headers for frontend access"
+    @echo "  fix-frontend-auth  - Fix frontend authentication for local development"
+    @echo "  fix-auth-migration - Fix Supabase Auth migration issues"
     @echo ""
     @echo "📝 Migration Tools:"
     @echo "  convert-migration - Convert SQL files to Supabase migration"
