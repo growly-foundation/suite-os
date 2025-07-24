@@ -64,3 +64,16 @@ comment on table public.agent_resources is 'Associates agents with their referen
 
 GRANT ALL ON TABLE agent_resources TO postgres;
 GRANT ALL ON TABLE agent_resources TO service_role;
+
+-- Step sessions table (moved here to avoid circular dependencies)
+CREATE TABLE IF NOT EXISTS step_sessions (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    step_id uuid REFERENCES steps(id) ON DELETE CASCADE,
+    user_id uuid REFERENCES users(id) ON DELETE CASCADE,
+    agent_id uuid REFERENCES agents(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+comment on table public.step_sessions is 'Step sessions for each step.';
+
+GRANT ALL ON TABLE step_sessions TO postgres;
+GRANT ALL ON TABLE step_sessions TO service_role;
