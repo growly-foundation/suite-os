@@ -42,6 +42,7 @@ export class AgentService {
     agentDescription: string,
     organizationName: string,
     organizationDescription: string,
+    resources: string,
     isBeastMode: boolean
   ): Promise<string> {
     const beastModePrompt = isBeastMode ? beastModeDescription : '';
@@ -51,6 +52,7 @@ export class AgentService {
         agentDescription,
         organizationName,
         organizationDescription,
+        resources,
         beastModePrompt,
       })
     ).toString();
@@ -78,6 +80,20 @@ export class AgentService {
     const organizationName = organization?.name || '';
     const organizationDescription = organization?.description || '';
 
+    const agentResourceIds = await this.suiteCore.db.agent_resources.getAllByFields({
+      agent_id: agentId,
+    });
+    const resources = await this.suiteCore.db.resources.getManyByFields(
+      'id',
+      agentResourceIds.map(ar => ar.resource_id)
+    );
+
+    const resourcesString = resources
+      .map(resource => `${resource.name} - ${resource.type} - ${JSON.stringify(resource.value)}`)
+      .join('\n');
+
+    this.logger.debug(`🔍 [Resources]: ${resourcesString}`);
+
     // Get provider from config
     const provider: ChatProvider =
       (this.configService.get('MODEL_PROVIDER') as ChatProvider) || 'openai';
@@ -88,6 +104,7 @@ export class AgentService {
       agentDescription,
       organizationName,
       organizationDescription,
+      resourcesString,
       true // TODO: Make this dynamic
     );
 
