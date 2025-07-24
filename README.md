@@ -95,3 +95,113 @@ Join our growing community around the world! Check out our website [Website](htt
 ## License
 
 This repository is licensed under the [MIT License](LICENSE.md).
+
+# Suite Project
+
+A comprehensive development environment with Supabase, backup/restore capabilities, and team collaboration tools.
+
+## Quick Start for New Team Members
+
+To set up your local development environment with the latest data from the remote database:
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd cream
+
+# Run the automated setup (recommended)
+just setup-team-member
+```
+
+This single command will:
+
+- ✅ Check prerequisites (Docker, Just)
+- ✅ Set up environment configuration
+- ✅ Configure remote database connection
+- ✅ Start local Supabase services
+- ✅ Backup and restore latest data from remote database
+- ✅ Provide you with a fully working local environment
+
+## Prerequisites
+
+- **Docker Desktop**: [Download here](https://www.docker.com/products/docker-desktop)
+- **Just Command Runner**: `brew install just` (macOS) or [install guide](https://just.systems/man/en/)
+- **Supabase Database Connection String**: From your Supabase dashboard
+
+## Available Commands
+
+### Team Setup
+
+- `just setup-team-member` - Complete setup for new team members
+- `just setup-remote-db` - Configure remote database connection
+
+### Database Operations
+
+- `just backup-remote-db` - Backup from remote database
+- `just restore-remote-backup <file>` - Restore remote backup to local
+- `just backup-db` - Backup local database
+- `just restore-db <file>` - Restore local backup
+- `just list-backups` - List all backup files
+
+### Supabase Services
+
+- `just start-supabase` - Start local Supabase services
+- `just stop-supabase` - Stop local Supabase services
+- `just restart-supabase` - Restart Supabase services
+
+### Development
+
+- `just start-all` - Start all services
+- `just stop-all` - Stop all services
+- `just status` - Show service status
+- `just logs-supabase` - Show Supabase logs
+
+## Local Services
+
+- **Supabase API**: http://localhost:54321
+- **Supabase Studio**: http://localhost:54323
+- **Database**: localhost:54322
+
+## Documentation
+
+- [Team Member Setup Guide](docs/team-member-setup.md) - Complete setup guide for new team members
+- [Backup and Restore Guide](docs/backup-restore.md) - Database backup/restore operations
+- [Remote Database Guide](docs/remote-database-guide.md) - Working with remote databases
+
+## Project Structure
+
+```
+cream/
+├── apps/                    # Application modules
+│   ├── dashboard/          # Dashboard application
+│   ├── infra/             # Infrastructure services
+│   ├── playground/        # Development playground
+│   ├── server/            # Backend server
+│   └── website/           # Marketing website
+├── packages/               # Shared packages
+│   ├── agents/            # AI agents package
+│   ├── core/              # Core utilities
+│   ├── persona/           # Persona management
+│   ├── suite/             # Suite components
+│   └── ui/                # UI components
+├── scripts/               # Development scripts
+├── supabase/              # Supabase configuration
+├── docs/                  # Documentation
+└── backups/               # Database backups
+```
+
+## Contributing
+
+1. Set up your local environment: `just setup-team-member`
+2. Create a feature branch
+3. Make your changes
+4. Test your changes locally
+5. Submit a pull request
+
+## Support
+
+For issues or questions:
+
+1. Check the documentation in `docs/`
+2. Review the troubleshooting guides
+3. Ask the team for help

@@ -27,3 +27,6 @@ dist-ssr
 **/.next
 **/.vercel
 **/.turbo
+backups
+
+.env.bak

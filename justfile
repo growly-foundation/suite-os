@@ -54,6 +54,13 @@ stop-supabase:
     fi
     @echo "✅ Supabase services stopped!"
 
+# Restart Supabase services
+restart-supabase:
+    @echo "🔄 Restarting Supabase services..."
+    just stop-supabase
+    just start-supabase
+    @echo "✅ Supabase services restarted!"
+
 # Start only main services (without Supabase)
 start-main:
     @echo "🔧 Starting main services..."
@@ -189,6 +196,61 @@ reset-db:
     @echo "🔄 Resetting database..."
     ./scripts/reset-db.sh
 
+# Backup and Restore Database
+backup-db:
+    @echo "🗄️  Creating database backup..."
+    ./scripts/backup-db.sh
+
+restore-db backup_file="":
+    @if [ -z "{{backup_file}}" ]; then \
+        echo "❌ No backup file specified!"; \
+        echo "Usage: just restore-db <backup_file.bak>"; \
+        echo ""; \
+        echo "Available backup files:"; \
+        if [ -d "backups" ]; then \
+            ls -la backups/*.bak 2>/dev/null || echo "No backup files found in backups/ directory"; \
+        else \
+            echo "No backups directory found"; \
+        fi; \
+    else \
+        echo "🔄 Restoring database from backup..."; \
+        ./scripts/restore-db.sh "{{backup_file}}"; \
+    fi
+
+# Team Member Setup
+setup-team-member:
+    @echo "🚀 Setting up local development environment for new team member..."
+    ./scripts/setup-team-member.sh
+
+# Remote Database Operations
+setup-remote-db:
+    @echo "🔧 Setting up remote database configuration..."
+    ./scripts/setup-remote-db.sh
+
+backup-remote-db:
+    @echo "🗄️  Creating backup from remote database..."
+    ./scripts/backup-remote-db.sh
+
+restore-remote-backup backup_file="":
+    @if [ -z "{{backup_file}}" ]; then \
+        echo "❌ No backup file specified!"; \
+        echo "Usage: just restore-remote-backup <backup_file.bak>"; \
+        echo ""; \
+        echo "Available remote backup files:"; \
+        if [ -d "backups" ]; then \
+            ls -la backups/remote_backup_*.bak 2>/dev/null || echo "No remote backup files found"; \
+        else \
+            echo "No backups directory found"; \
+        fi; \
+    else \
+        echo "🔄 Restoring from remote database backup..."; \
+        ./scripts/restore-remote-backup.sh "{{backup_file}}"; \
+    fi
+
+list-backups:
+    @echo "🗄️  Listing available backups..."
+    ./scripts/list-backups.sh
+
 # SQL Migration Tools
 convert-migration:
     @echo "🔧 Converting SQL files to Supabase migration..."
@@ -197,36 +259,6 @@ convert-migration:
 create-migration:
     @echo "📝 Creating new migration file..."
     ./scripts/convert-to-migrations.sh convert
-
-# Direct SQL Remote Management (bypasses CLI SSL issues)
-remote-test:
-    @echo "🔍 Testing remote database connection..."
-    ./scripts/direct-sql-remote.sh test
-
-remote-info:
-    @echo "ℹ️  Showing remote connection information..."
-    ./scripts/direct-sql-remote.sh info
-
-remote-init-direct:
-    @echo "🚀 Initializing remote database directly..."
-    ./scripts/direct-sql-remote.sh init
-
-# Local Database Seeding
-seed-local:
-    @echo "🌱 Seeding local database from remote..."
-    ./scripts/seed-local-from-remote.sh seed
-
-seed-test-remote:
-    @echo "🔍 Testing remote connection for seeding..."
-    ./scripts/seed-local-from-remote.sh test-remote
-
-seed-test-local:
-    @echo "🔍 Testing local connection for seeding..."
-    ./scripts/seed-local-from-remote.sh test-local
-
-seed-list-tables:
-    @echo "📋 Listing remote tables for seeding..."
-    ./scripts/seed-local-from-remote.sh list-tables
 
 # Clean up everything
 clean:
@@ -254,18 +286,19 @@ help:
     @echo "  init-supabase    - Initialize Supabase project"
     @echo "  init-db          - Initialize database with tables, functions, and seed data"
     @echo "  reset-db         - Clean all database data and reset to initial state"
+    @echo "  backup-db        - Create a backup of the current database"
+    @echo "  restore-db       - Restore database from a backup file"
+    @echo "  list-backups     - List all available backup files"
+    @echo "  setup-remote-db - Set up remote database configuration"
+    @echo "  backup-remote-db - Create a backup from remote database"
+    @echo "  restore-remote-backup - Restore from remote database backup"
     @echo "  setup-env-local  - Create local environment file"
     @echo "  bootstrap-local  - Bootstrap everything for local development"
+    @echo "  setup-team-member - Complete setup for new team members"
     @echo ""
     @echo "📝 Migration Tools:"
     @echo "  convert-migration - Convert SQL files to Supabase migration"
     @echo "  create-migration - Create new migration file"
-    @echo ""
-    @echo "🌱 Local Database Seeding:"
-    @echo "  seed-local        - Seed local database with remote data"
-    @echo "  seed-test-remote  - Test remote connection for seeding"
-    @echo "  seed-test-local   - Test local connection for seeding"
-    @echo "  seed-list-tables  - List remote tables for seeding"
     @echo ""
     @echo "🧹 Maintenance:"
     @echo "  clean            - Clean up everything"
