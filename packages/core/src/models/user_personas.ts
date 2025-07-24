@@ -10,6 +10,8 @@ import {
   WalletTalentData,
 } from '@getgrowly/persona';
 
+import { ImportedUserSourceData } from './user_importers';
+
 export type UserPersona = Tables<'user_personas'>;
 type OmittedUserPersona = Omit<UserPersona, 'identities' | 'activities' | 'portfolio_snapshots'>;
 export type ParsedUserPersona = OmittedUserPersona & UserPersonaMetadata;
@@ -48,6 +50,7 @@ export type UserPersonaMetadata = {
     tokenPortfolio?: types.TTokenPortfolio;
     nftPortfolio?: types.TNftPortfolio;
   };
+  imported_source_data: ImportedUserSourceData[];
 };
 
 export type UserPersonaStatus = Database['public']['Enums']['sync_status'];

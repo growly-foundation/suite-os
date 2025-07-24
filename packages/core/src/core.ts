@@ -149,6 +149,10 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     supabaseClientService,
     'user_personas'
   );
+  const userOrganizationDatabaseService = new PublicDatabaseService<'users_organizations'>(
+    supabaseClientService,
+    'users_organizations'
+  );
 
   // Edge functions.
   const functionService = new FunctionService(supabaseClientService);
@@ -173,21 +177,20 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     agentDatabaseService,
     workflowService
   );
-  const userService = new UserService(
-    agentDatabaseService,
+  const userPersonaService = new UserPersonaService(
     userDatabaseService,
+    userPersonasDatabaseService
+  );
+  const userService = new UserService(
+    userDatabaseService,
+    userOrganizationDatabaseService,
     userPersonasDatabaseService,
     conversationDatabaseService,
-    messageDatabaseService
+    userPersonaService
   );
   const conversationService = new ConversationService(
     messageDatabaseService,
     conversationDatabaseService
-  );
-
-  const userPersonaService = new UserPersonaService(
-    userDatabaseService,
-    userPersonasDatabaseService
   );
 
   const db = {

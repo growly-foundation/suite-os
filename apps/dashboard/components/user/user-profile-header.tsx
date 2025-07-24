@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { consumePersona } from '@/core/persona';
 import { Award, ExternalLink } from 'lucide-react';
+import { Address } from 'viem';
 
 import { ParsedUser } from '@getgrowly/core';
 import { WalletAddress } from '@getgrowly/ui';
@@ -24,10 +25,14 @@ export function UserProfileHeader({ user }: UserProfileHeaderProps) {
 
   return (
     <div className="flex flex-col items-center justify-center p-6 border-b bg-white">
-      <AppUserAvatarWithStatus user={user} size={80} />
+      <AppUserAvatarWithStatus
+        walletAddress={user.personaData.id as Address}
+        name={user.name}
+        online={user.chatSession.status}
+      />
       <h3 className="font-semibold text-lg">{nameService?.name}</h3>
       <div className="flex items-center gap-2 mt-1">
-        <WalletAddress truncate address={user.onchainData.id} />
+        <WalletAddress truncate address={user.personaData.id} />
         <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
           <ExternalLink className="h-3 w-3" />
         </Button>

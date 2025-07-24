@@ -83,6 +83,7 @@ export class PersonaQueueProcessor {
         identities: existingUserPersona.identities || {},
         activities: existingUserPersona.activities || {},
         portfolio_snapshots: existingUserPersona.portfolio_snapshots || {},
+        imported_source_data: existingUserPersona.imported_source_data || [],
       };
 
       // Identities

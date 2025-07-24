@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { Bot, Loader2, MessageCircle, User } from 'lucide-react';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
+import { Address } from 'viem';
 
 import { ParsedMessage, ParsedUser } from '@getgrowly/core';
 import { RenderMessageContent } from '@getgrowly/suite';
@@ -31,7 +32,13 @@ export const MessageListCard = ({ message, selected, className }: MessageListCar
     switch (sender) {
       case 'user':
         if (!user) return <User className="h-4 w-4" />;
-        return <AppUserAvatarWithStatus user={user} />;
+        return (
+          <AppUserAvatarWithStatus
+            walletAddress={user.personaData.id as Address}
+            name={user.name}
+            online={user.chatSession.status}
+          />
+        );
       case 'assistant':
         return <Bot className="h-4 w-4 text-blue-600" />;
       default:
@@ -44,7 +51,7 @@ export const MessageListCard = ({ message, selected, className }: MessageListCar
       if (loadingUser) return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
       return user
         ? consumePersona(user)?.nameService().name ||
-            truncateAddress(user.entities.walletAddress, 10, 4)
+            truncateAddress(user.entities.walletAddress, 10, 6)
         : 'Unknown User';
     }
     return 'Agent';

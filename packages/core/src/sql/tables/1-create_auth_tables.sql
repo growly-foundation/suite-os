@@ -54,6 +54,18 @@ comment on table public.users is 'Users for the application.';
 GRANT ALL ON TABLE users TO postgres;
 GRANT ALL ON TABLE users TO service_role;
 
+-- Users' organizations table
+CREATE TABLE IF NOT EXISTS users_organizations (
+    user_id uuid REFERENCES users(id) ON DELETE CASCADE,
+    organization_id uuid REFERENCES organizations(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (user_id, organization_id)
+);
+comment on table public.users_organizations is 'Associates users with their referenced organizations.';
+
+GRANT ALL ON TABLE users_organizations TO postgres;
+GRANT ALL ON TABLE users_organizations TO service_role;
+
 -- Add column `is_anonymous`
 ALTER TABLE users ADD COLUMN is_anonymous BOOLEAN NOT NULL DEFAULT FALSE;
 
@@ -79,6 +91,19 @@ CREATE TABLE IF NOT EXISTS user_personas (
     retries INT DEFAULT 0,
     error_message TEXT
 );
+
+-- Add column `original_joined_at`
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS original_joined_at TIMESTAMP WITH TIME ZONE;
+
+-- Add column `imported_source_data`
+ALTER TABLE user_personas
+ADD COLUMN imported_source_data JSONB[] NOT NULL DEFAULT ARRAY[]::JSONB[];
+
+-- Update existing users to have original_joined_at set to created_at
+UPDATE users
+SET original_joined_at = created_at
+WHERE original_joined_at IS NULL;
 
 comment on table public.user_personas is 'Personas calculated for each user.';
 

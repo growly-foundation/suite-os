@@ -1,89 +1,81 @@
 import { BadRequestException, Body, Controller, Get, Logger, Post } from '@nestjs/common';
 
+import { ImportContractUserOutput, ImportUserOutput } from '@getgrowly/core';
 import { Address } from '@getgrowly/persona';
 
-import { UniqueAddressesResponse, UserService } from './user.service';
+import { UserImporterService } from './user-importer/user-importer.service';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
   private readonly logger = new Logger(UserController.name);
 
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly userImporterService: UserImporterService
+  ) {}
 
   @Get('persona')
   async getUserPersona(@Body('walletAddress') walletAddress: Address) {
+    this.logger.log(
+      `[${this.constructor.name}] Getting user persona for wallet address: ${walletAddress}`
+    );
     return this.userService.getUserPersona(walletAddress);
   }
 
-  @Post()
-  async createUserIfNotExist(@Body('walletAddress') walletAddress: Address) {
-    return this.userService.createUserIfNotExist(walletAddress);
+  @Post('commit-imported-users')
+  async commitImportedUsers(
+    @Body('users') users: ImportUserOutput[],
+    @Body('organizationId') organizationId: string
+  ) {
+    this.logger.log(
+      `[${this.constructor.name}] Committing imported users for organization: ${organizationId}`
+    );
+    return this.userImporterService.commitImportedUsers(users, organizationId);
   }
 
-  @Post('import-unique-addresses')
-  async importUniqueAddresses(
-    @Body('contractAddress') contractAddress: string,
-    @Body('chainId') chainId?: number
-  ): Promise<{
-    success: boolean;
-    data?: UniqueAddressesResponse;
-    error?: string;
-  }> {
-    const startTime = Date.now();
+  @Post()
+  async createUserIfNotExist(
+    @Body('walletAddress') walletAddress: Address,
+    @Body('organizationId') organizationId: string
+  ) {
     this.logger.log(
-      `Received import-unique-addresses request for contract: ${contractAddress}, chainId: ${chainId}`
+      `[${this.constructor.name}] Creating user if not exists for wallet address: ${walletAddress} and organization: ${organizationId}`
     );
+    return this.userService.createUserIfNotExist(walletAddress, organizationId);
+  }
 
-    if (!contractAddress) {
-      this.logger.warn(`Import request rejected: Contract address is required`);
-      throw new BadRequestException('Contract address is required');
+  @Post('import-privy')
+  async importUsersFromPrivy(
+    @Body('appId') appId: string,
+    @Body('appSecret') appSecret: string
+  ): Promise<ImportUserOutput[]> {
+    this.logger.log(`[${this.constructor.name}] Importing users from Privy for appId: ${appId}`);
+    if (!appId || !appSecret) {
+      throw new BadRequestException('Missing appId or appSecret');
     }
+    return this.userImporterService.importUsersFromPrivy(appId, appSecret);
+  }
 
-    const parsedChainId = chainId || 1;
-    if (chainId !== undefined && (isNaN(chainId) || chainId < 1)) {
-      this.logger.warn(`Import request rejected: Invalid chainId: ${chainId}`);
+  @Post('import-contract')
+  async importContractUsers(
+    @Body('contractAddress') contractAddress: string,
+    @Body('chainId') chainId: number
+  ): Promise<ImportContractUserOutput[]> {
+    this.logger.log(
+      `[${this.constructor.name}] Importing contract users for contract address: ${contractAddress} and chainId: ${chainId}`
+    );
+    if (!contractAddress || typeof contractAddress !== 'string') {
+      throw new BadRequestException('Missing contractAddress');
+    }
+    if (!chainId || !Number.isInteger(chainId) || chainId <= 0) {
       throw new BadRequestException('Invalid chainId');
     }
 
-    this.logger.log(
-      `Processing import request for contract: ${contractAddress}, chainId: ${parsedChainId}`
-    );
-
-    try {
-      const result = await this.userService.importUniqueAddresses(contractAddress, parsedChainId);
-
-      const processingTime = Date.now() - startTime;
-      this.logger.log(`Import request completed successfully in ${processingTime}ms`);
-      this.logger.log(
-        `Found ${result.totalCount} unique addresses from ${result.transactionsAnalyzed} transactions`
-      );
-
-      return {
-        success: true,
-        data: result,
-      };
-    } catch (error) {
-      const processingTime = Date.now() - startTime;
-
-      // Check if it's a validation error (should be BadRequestException)
-      if (
-        error.message.includes('Invalid contract address format') ||
-        error.message.includes('Invalid Ethereum address')
-      ) {
-        this.logger.warn(`Import request rejected after ${processingTime}ms: ${error.message}`);
-        throw new BadRequestException(error.message);
-      }
-
-      // Otherwise it's a processing error
-      this.logger.error(
-        `Import request failed after ${processingTime}ms for contract ${contractAddress}: ${error.message}`
-      );
-      this.logger.error(`Error details:`, error.stack);
-
-      return {
-        success: false,
-        error: error.message,
-      };
+    // Validate Ethereum address format
+    if (!/^0x[a-fA-F0-9]{40}$/.test(contractAddress)) {
+      throw new BadRequestException('Invalid contract address format');
     }
+    return this.userService.importContractUsers(contractAddress, chainId);
   }
 }

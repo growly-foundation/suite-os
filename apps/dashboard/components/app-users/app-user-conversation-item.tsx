@@ -2,6 +2,7 @@ import { consumePersona } from '@/core/persona';
 import { getBadgeColor } from '@/lib/color.utils';
 import { cn } from '@/lib/utils';
 import moment from 'moment';
+import { Address } from 'viem';
 
 import { ParsedUser } from '@getgrowly/core';
 import { RenderMessageContent } from '@getgrowly/suite';
@@ -28,7 +29,11 @@ export const AppUserConversationItem = ({
       className={`hover:bg-slate-50 border-b gap-3 p-3 py-4 ${selectedUser.id === user.id ? 'bg-slate-50' : ''} cursor-pointer`}
       onClick={() => onSelectUser(user)}>
       <div className={`flex items-center gap-3`}>
-        <AppUserAvatarWithStatus user={user} />
+        <AppUserAvatarWithStatus
+          walletAddress={user.personaData.id as Address}
+          name={user.name}
+          online={user.chatSession.status}
+        />
         <div className="flex-1 min-w-0">
           <div className="flex justify-between items-center">
             <p className="font-medium text-xs truncate">
@@ -40,7 +45,7 @@ export const AppUserConversationItem = ({
               truncate
               truncateLength={{ startLength: 10, endLength: 4 }}
               className="text-xs"
-              address={user.onchainData.id}
+              address={user.personaData.id}
             />
             {latestMessageDate && (
               <p className="text-xs text-muted-foreground whitespace-nowrap">

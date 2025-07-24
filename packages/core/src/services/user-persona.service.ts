@@ -1,3 +1,4 @@
+import { ImportedUserSourceData } from '@/models/user_importers';
 import { ParsedUserPersona, UserPersona, UserPersonaStatus } from '@/models/user_personas';
 import { day, isStale } from '@/utils/cache';
 
@@ -58,7 +59,9 @@ export class UserPersonaService {
    * Get persona by id (walletAddress)
    */
   async getOneByAddress(walletAddress: string): Promise<ParsedUserPersona | null> {
-    return (await this.userPersonaDatabaseService.getById(walletAddress)) as ParsedUserPersona;
+    return (await this.userPersonaDatabaseService.getById(
+      walletAddress
+    )) as any as ParsedUserPersona;
   }
 
   /**
@@ -71,7 +74,7 @@ export class UserPersonaService {
         p.sync_status === 'pending' ||
         p.sync_status === 'failed' ||
         (p.sync_status === 'completed' && isStale(p.updated_at, day(7)))
-    ) as ParsedUserPersona[];
+    ) as any as ParsedUserPersona[];
   }
 
   /**
@@ -79,7 +82,7 @@ export class UserPersonaService {
    */
   async getAllCompleted(): Promise<ParsedUserPersona[]> {
     const personas = await this.userPersonaDatabaseService.getAll();
-    return personas.filter(p => p.sync_status === 'completed') as ParsedUserPersona[];
+    return personas.filter(p => p.sync_status === 'completed') as any as ParsedUserPersona[];
   }
 
   /**
@@ -91,7 +94,7 @@ export class UserPersonaService {
       return (await this.userPersonaDatabaseService.update(walletAddress, {
         sync_status: status,
         updated_at: new Date().toISOString(),
-      })) as ParsedUserPersona;
+      })) as any as ParsedUserPersona;
     } else {
       throw new Error(`Persona not found for wallet: ${walletAddress}`);
     }
@@ -127,7 +130,7 @@ export class UserPersonaService {
    */
   async getAllByStatus(status: UserPersonaStatus): Promise<ParsedUserPersona[]> {
     const personas = await this.userPersonaDatabaseService.getAllByFields({ sync_status: status });
-    return personas as ParsedUserPersona[];
+    return personas as any as ParsedUserPersona[];
   }
 
   /**
@@ -154,5 +157,38 @@ export class UserPersonaService {
    */
   async delete(walletAddress: string): Promise<void> {
     await this.userPersonaDatabaseService.delete(walletAddress);
+  }
+
+  /**
+   * Update the imported source data for a persona. If the source data already exists, update it.
+   * If it doesn't exist, add it.
+   * @param walletAddress - The wallet address of the user
+   * @param importedSourceData - The source data of the user
+   * @returns The updated persona
+   */
+  async updateImportedSourceData(
+    walletAddress: string,
+    importedSourceData: ImportedUserSourceData
+  ): Promise<ParsedUserPersona> {
+    const persona = await this.userPersonaDatabaseService.getById(walletAddress);
+    if (!persona) {
+      throw new Error(`Persona not found for wallet: ${walletAddress}`);
+    }
+    let existingImportedSourceData = persona.imported_source_data as ImportedUserSourceData[];
+    // If the source data doesn't exist, add it.
+    if (
+      existingImportedSourceData.length === 0 ||
+      !existingImportedSourceData.some(data => data.source === importedSourceData.source)
+    ) {
+      existingImportedSourceData.push(importedSourceData);
+    } else {
+      // If the source data exists, update it.
+      existingImportedSourceData = existingImportedSourceData.map(data =>
+        data.source === importedSourceData.source ? importedSourceData : data
+      );
+    }
+    return (await this.userPersonaDatabaseService.update(walletAddress, {
+      imported_source_data: existingImportedSourceData as any,
+    })) as any as ParsedUserPersona;
   }
 }

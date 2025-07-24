@@ -1,8 +1,8 @@
-import { Card, CardContent } from '@/components/ui/card';
+import { ChainSelector } from '@/components/chains/chain-selecter';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Network } from 'lucide-react';
 import { useState } from 'react';
+import { mainnet } from 'viem/chains';
 
 import { ContractValue } from '@getgrowly/core';
 
@@ -14,7 +14,7 @@ interface ContractFormProps {
 export function ContractForm({ onChange, initialData }: ContractFormProps) {
   const [formData, setFormData] = useState<ContractValue>({
     address: '',
-    network: 'mainnet',
+    network: mainnet.id,
     ...initialData,
   });
 
@@ -44,12 +44,10 @@ export function ContractForm({ onChange, initialData }: ContractFormProps) {
       </div>
       <div className="space-y-2">
         <Label>Network</Label>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-2">
-            <Network className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm">Ethereum Mainnet</span>
-          </CardContent>
-        </Card>
+        <ChainSelector
+          value={formData.network}
+          onChange={value => handleChange({ network: value })}
+        />
       </div>
     </div>
   );

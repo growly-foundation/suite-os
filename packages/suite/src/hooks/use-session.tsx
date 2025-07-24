@@ -44,7 +44,10 @@ interface WidgetSession {
   setMessages: (messages: ParsedMessage[]) => void;
   addMessage: (message: ParsedMessage) => void;
   fetchMessages: () => Promise<ParsedMessage[]>;
-  createUserFromAddressIfNotExist: (walletAddress: `0x${string}`) => Promise<Optional<ParsedUser>>;
+  createUserFromAddressIfNotExist: (
+    walletAddress: `0x${string}`,
+    organizationId: string
+  ) => Promise<Optional<ParsedUser>>;
   fetchOrganizationAgentById: (agentId: AgentId, apiKey: string) => Promise<Optional<Agent>>;
 }
 
@@ -107,9 +110,9 @@ export const useSuiteSession = create<WidgetSession>((set, get) => ({
       throw new Error(`Failed to fetch messages: ${error}`);
     }
   },
-  createUserFromAddressIfNotExist: async walletAddress => {
+  createUserFromAddressIfNotExist: async (walletAddress, organizationId) => {
     try {
-      const user = await userService.createUserIfNotExist(walletAddress);
+      const user = await userService.createUserIfNotExist(walletAddress, organizationId);
       set({ user });
       return user;
     } catch (error) {

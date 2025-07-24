@@ -1,29 +1,15 @@
 'use client';
 
-import { formatNumber } from '@/lib/string.utils';
-import {
-  aggregateColumnData,
-  extractTableData,
-  getFlatColumns,
-  renderColumns,
-  renderHeaders,
-  sortItems,
-} from '@/lib/tables.utils';
-import { cn } from '@/lib/utils';
-import { useMemo, useState } from 'react';
+import { consumePersona } from '@/core/persona';
+import { ReactNode, useState } from 'react';
 
 import { ParsedUser } from '@getgrowly/core';
 
-import { PaginatedTable } from '../../ui/paginated-table';
 import { ResizableSheet } from '../../ui/resizable-sheet';
-import { TableCell, TableHead, TableRow } from '../../ui/table';
 import { UserDetails } from '../app-user-details';
-import { ColumnType, ExtractedRowData } from '../types';
-import { createUserTableColumns } from './app-user-table-columns';
-import { SortDirection } from './sort-indicator';
-import { SortableHeader } from './sortable-header';
-
-const ITEMS_PER_PAGE = 100;
+import { TableUserData } from './columns/column-formatters';
+import { createUserColumns } from './columns/create-user-columns';
+import { DynamicTable } from './dynamic-table';
 
 /**
  * Displays a paginated, sortable table of users with selectable rows and a detail panel.
@@ -32,15 +18,25 @@ const ITEMS_PER_PAGE = 100;
  *
  * @param users - The list of users to display in the table.
  */
-export function UsersTable({ users }: { users: ParsedUser[] }) {
+export function UsersTable({
+  users,
+  tableLabel,
+  searchQuery,
+  setSearchQuery,
+  additionalActions,
+}: {
+  users: ParsedUser[];
+  tableLabel?: string;
+  searchQuery?: string;
+  setSearchQuery?: (value: string) => void;
+  additionalActions?: ReactNode;
+}) {
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<ParsedUser | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedUsers, setSelectedUsers] = useState<Record<string, boolean>>({});
-  const [sortConfig, setSortConfig] = useState<{ key: string | null; direction: SortDirection }>({
-    key: null,
-    direction: null,
-  });
+  const personas = users.map(user => consumePersona(user as ParsedUser));
+
+  // Row selection state
+  const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
 
   // User interaction handlers
   const handleUserClick = (user: ParsedUser) => {
@@ -48,154 +44,152 @@ export function UsersTable({ users }: { users: ParsedUser[] }) {
     setOpen(true);
   };
 
-  const handleUserSelect = (userId: string, checked: boolean) => {
-    setSelectedUsers(prev => ({
-      ...prev,
-      [userId]: checked,
-    }));
-  };
-
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedUsers(
-        users.reduce<Record<string, boolean>>((acc, user) => {
-          acc[user.id] = true;
-          return acc;
-        }, {})
-      );
-    } else {
-      setSelectedUsers({});
-    }
-  };
-
   const handleCloseUserDetails = () => {
     setOpen(false);
     setSelectedUser(null);
   };
 
-  // Handle sorting change
-  const handleSort = (key: string, direction: SortDirection) => {
-    setSortConfig({ key, direction });
+  // Handle row selection change
+  const handleRowSelectionChange = (newSelection: Record<string, boolean>) => {
+    setSelectedRows(newSelection);
   };
 
-  // Navigation handlers
-  const goToPage = (page: number) => {
-    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  // Get row ID for selection
+  const getRowId = (row: TableUserData) => {
+    if ('personaData' in row) return row.id;
+    if ('email' in row) return row.email || String(row);
+    return String(row);
   };
 
-  const goToNextPage = () => {
-    goToPage(currentPage + 1);
+  // Footer data calculation - Notion style aggregation
+  const getFooterValue = (key: string) => {
+    switch (key) {
+      case 'identity':
+        return `${users.length} users`;
+      case 'talentProtocolCheckmark':
+        const verifiedCount = users.reduce((sum, user) => {
+          if ('personaData' in user) {
+            // For ParsedUser, we can access personaData directly
+            const persona = user.personaData;
+            return sum + (persona?.identities.talentProtocol?.profile.human_checkmark ? 1 : 0);
+          }
+          return sum;
+        }, 0);
+        return `${verifiedCount} verified`;
+      case 'firstSignedIn':
+        if (users.length === 0) return '';
+        const dates = users
+          .filter(user => user.created_at)
+          .map(user => new Date(user.created_at).getTime());
+        if (dates.length === 0) return '';
+        const earliest = new Date(Math.min(...dates));
+        const latest = new Date(Math.max(...dates));
+        return `${earliest.toLocaleDateString()} - ${latest.toLocaleDateString()}`;
+      case 'trait':
+        const traits = personas.reduce(
+          (acc, persona) => {
+            if (persona.dominantTrait()) {
+              const trait = persona.dominantTrait();
+              if (trait) {
+                acc[trait] = (acc[trait] || 0) + 1;
+              }
+            }
+            return acc;
+          },
+          {} as Record<string, number>
+        );
+        const topTrait = Object.entries(traits).sort(([, a], [, b]) => b - a)[0];
+        return topTrait ? `${topTrait[0]} (${topTrait[1]})` : '';
+      case 'portfolioValue':
+        const totalValue = personas.reduce((sum, persona) => {
+          if (persona.totalPortfolioValue()) {
+            return sum + persona.totalPortfolioValue()!;
+          }
+          return sum;
+        }, 0);
+        return totalValue > 0 ? totalValue : '';
+      case 'transactions':
+        const totalTransactions = personas.reduce((sum, persona) => {
+          if (persona.universalTransactions()) {
+            return sum + persona.universalTransactions().length;
+          }
+          return sum;
+        }, 0);
+        return totalTransactions > 0 ? totalTransactions : '';
+      case 'tokens':
+        const totalTokens = personas.reduce((sum, persona) => {
+          if (persona.universalTokenList()) {
+            const portfolio = persona.universalTokenList();
+            const tokenCount = Object.values(portfolio).reduce(
+              (tokenCount: number, tokenList: any) => tokenCount + tokenList.length,
+              0
+            );
+            return sum + tokenCount;
+          }
+          return sum;
+        }, 0);
+        return totalTokens > 0 ? totalTokens : '';
+      case 'activity':
+        const activeUsers = personas.reduce((sum, persona) => {
+          if (persona.dayActive()) {
+            return sum + 1;
+          }
+          return sum;
+        }, 0);
+        return `${activeUsers} active`;
+      case 'walletCreatedAt':
+        if (users.length === 0) return '';
+        const walletDates = users
+          .filter(user => user.personaData?.identities.walletMetrics?.walletCreationDate)
+          .map(user =>
+            new Date(user.personaData!.identities.walletMetrics!.walletCreationDate).getTime()
+          );
+        if (walletDates.length === 0) return '';
+        const earliestWallet = new Date(Math.min(...walletDates));
+        const latestWallet = new Date(Math.max(...walletDates));
+        return `${earliestWallet.toLocaleDateString()} - ${latestWallet.toLocaleDateString()}`;
+      default:
+        return '';
+    }
   };
 
-  const goToPrevPage = () => {
-    goToPage(currentPage - 1);
-  };
-
-  // Create dynamic columns
-  const columns = useMemo(
-    () =>
-      createUserTableColumns({
-        onUserClick: handleUserClick,
-        onCheckboxChange: handleUserSelect,
-        selectedUsers,
-        onSelectAll: handleSelectAll,
-      }),
-    [selectedUsers]
-  );
-
-  // Apply filtering, then sorting to the data
-  const filteredAndSortedUsers = useMemo(() => {
-    return sortItems(users, sortConfig, columns);
-  }, [users, sortConfig, columns]);
-
-  // Extract data from all users upfront for sorting and filtering
-  const extractedData = useMemo<Record<string, ExtractedRowData<any>>>(() => {
-    const data: Record<string, ExtractedRowData<any>> = {};
-    const tableData = extractTableData(users, columns, column => column.dataExtractor);
-
-    // Store extracted data by user ID for easy access
-    users.forEach((user, index) => {
-      data[user.id] = tableData[index];
-    });
-
-    return data;
-  }, [users, columns]);
-
-  // Calculate pagination values
-  const totalItems = filteredAndSortedUsers.length;
-  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedUsers = filteredAndSortedUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-  const footers = useMemo(() => {
-    const flatColumns = getFlatColumns(columns);
-    const results: { text: string; value: string }[] = aggregateColumnData(
-      paginatedUsers,
-      flatColumns
-    );
-    return flatColumns.map((column, index) => (
-      <TableCell
-        key={column.key}
-        border={false}
-        className={cn('text-muted-foreground text-xs p-0', column.className)}>
-        <div className="h-12 border-r flex items-center">
-          {!column.aggregateDisabled && (
-            <div className="flex items-center space-x-4 w-full justify-between px-4">
-              <span className="font-bold">{results[index].text}</span>
-              <span>
-                {column.type === ColumnType.NUMBER
-                  ? formatNumber(results[index].value)
-                  : results[index].value}
-              </span>
-            </div>
-          )}
-        </div>
-      </TableCell>
-    ));
-  }, [columns, paginatedUsers]);
+  // Create columns for the dynamic table
+  const columns = createUserColumns(users as ParsedUser[]);
 
   return (
     <>
-      <PaginatedTable
-        header={
-          <TableRow>
-            {renderHeaders(columns, column => (
-              <TableHead key={column.key} border={column.border} className={column.className}>
-                <SortableHeader
-                  column={column}
-                  sortKey={sortConfig.key}
-                  sortDirection={sortConfig.direction}
-                  onSort={handleSort}
-                />
-              </TableHead>
-            ))}
-          </TableRow>
-        }
-        content={paginatedUsers.map(user => (
-          <TableRow
-            key={user.id}
-            className={cn('hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors')}>
-            {renderColumns(user, columns, column => {
-              const data = extractedData[user.id][column.key];
-              return (
-                <TableCell key={column.key} border={column.border} className={column.className}>
-                  {data && column.contentRenderer(data)}
-                </TableCell>
-              );
-            })}
-          </TableRow>
-        ))}
-        footer={<TableRow>{footers}</TableRow>}
-        pagination={{
-          startIndex,
-          currentPage,
-          totalItems,
-          itemsPerPage: ITEMS_PER_PAGE,
-          totalPages,
-          goToPage,
-          nextPage: goToNextPage,
-          prevPage: goToPrevPage,
+      <DynamicTable<ParsedUser>
+        data={users as ParsedUser[]}
+        columns={columns}
+        emptyMessage="No users found"
+        emptyDescription="There are no users in your organization. Users will appear here once they sign up."
+        onRowClick={user => {
+          // Type guard to ensure we only handle ParsedUser
+          if ('personaData' in user) {
+            handleUserClick(user as ParsedUser);
+          }
         }}
+        enableColumnResizing={true}
+        enableColumnReordering={true}
+        enableSorting={true}
+        enableFooter={true}
+        getFooterValue={getFooterValue}
+        // Auto-sort by First Signed In (newest first)
+        initialSorting={[{ id: 'firstSignedIn', desc: true }]}
+        // Enable row selection to show frozen column
+        enableRowSelection={true}
+        selectedRows={selectedRows}
+        onRowSelectionChange={handleRowSelectionChange}
+        getRowId={getRowId}
+        // Enable pagination
+        enablePagination={true}
+        pageSize={30} // Show 30 users per page
+        // Toolbar props
+        tableLabel={tableLabel}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        searchPlaceholder="Search ENS or address"
+        additionalActions={additionalActions}
       />
       <ResizableSheet side="right" open={open} onOpenChange={handleCloseUserDetails}>
         {selectedUser && <UserDetails user={selectedUser} />}

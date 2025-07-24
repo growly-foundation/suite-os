@@ -1,17 +1,23 @@
 'use client';
 
 import { AnimatedLoadingSmall } from '@/components/animated-components/animated-loading-small';
+import { ImportUserButton } from '@/components/app-users/integrations/import-user-button';
 import { UsersTable } from '@/components/app-users/smart-tables/app-users-table';
-import { SearchInput } from '@/components/inputs/search-input';
-import { generateMockUsers } from '@/constants/mockUsers';
 import { consumePersona } from '@/core/persona';
 import { useSelectedOrganizationUsersEffect } from '@/hooks/use-organization-effect';
 import React, { useState } from 'react';
 
 import { ParsedUser } from '@getgrowly/core';
 
-export function UserDirectoryLayout({ users, loading }: { users: ParsedUser[]; loading: boolean }) {
-  const [viewDemo, setViewDemo] = useState(false);
+export function UserDirectoryLayout({
+  users,
+  loading,
+  importEnabled,
+}: {
+  users: ParsedUser[];
+  loading: boolean;
+  importEnabled: boolean;
+}) {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Filter users
@@ -24,26 +30,19 @@ export function UserDirectoryLayout({ users, loading }: { users: ParsedUser[]; l
     );
   });
 
-  const _users = viewDemo ? generateMockUsers(100) : filteredUsers;
   return (
     <React.Fragment>
       {loading ? (
         <AnimatedLoadingSmall />
       ) : (
         <React.Fragment>
-          <div className="flex items-center justify-between border-b p-2 px-4">
-            <span className="text-sm text-muted-foreground">There are {_users.length} users</span>
-            <div className="flex items-center gap-2">
-              <SearchInput
-                className="p-2"
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                placeholder="Search ENS or address"
-              />
-              {/* <PrimaryButton onClick={() => setViewDemo(true)}>View demo</PrimaryButton> */}
-            </div>
-          </div>
-          <UsersTable users={_users} />
+          <UsersTable
+            users={filteredUsers}
+            tableLabel={`There are ${filteredUsers.length} users`}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            additionalActions={importEnabled ? <ImportUserButton /> : undefined}
+          />
         </React.Fragment>
       )}
     </React.Fragment>
@@ -53,6 +52,10 @@ export function UserDirectoryLayout({ users, loading }: { users: ParsedUser[]; l
 export function UsersInner() {
   const { organizationUsers, organizationUserStatus } = useSelectedOrganizationUsersEffect();
   return (
-    <UserDirectoryLayout users={organizationUsers} loading={organizationUserStatus === 'loading'} />
+    <UserDirectoryLayout
+      users={organizationUsers}
+      loading={organizationUserStatus === 'loading'}
+      importEnabled={true}
+    />
   );
 }

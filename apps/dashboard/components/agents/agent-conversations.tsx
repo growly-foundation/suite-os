@@ -9,6 +9,7 @@ import { useDashboardState } from '@/hooks/use-dashboard';
 import { Sidebar } from 'lucide-react';
 import moment from 'moment';
 import React, { useCallback, useEffect } from 'react';
+import { Address } from 'viem';
 
 import { AggregatedAgent, ParsedUser } from '@getgrowly/core';
 import { truncateAddress } from '@getgrowly/ui';
@@ -89,7 +90,12 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
           <div className="flex-1 flex flex-col">
             <div className="flex items-center justify-between px-4 py-2 border-b">
               <div className="flex items-center gap-3">
-                <AppUserAvatarWithStatus user={selectedUser} size={35} />
+                <AppUserAvatarWithStatus
+                  size={35}
+                  walletAddress={selectedUser.personaData.id as Address}
+                  name={selectedUser.name}
+                  online={selectedUser.chatSession.status}
+                />
                 <div>
                   <p className="font-medium text-sm">
                     {persona?.nameService().name ||

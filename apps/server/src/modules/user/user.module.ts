@@ -5,6 +5,9 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '../databases/database.module';
 import { EtherscanModule } from '../etherscan/etherscan.module';
 import { PERSONA_QUEUE } from '../sync-persona/persona.queue';
+import { ContractImporterService } from './user-importer/contract-importer.service';
+import { PrivyImporterService } from './user-importer/privy-importer.service';
+import { UserImporterService } from './user-importer/user-importer.service';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 
@@ -19,7 +22,7 @@ import { UserService } from './user.service';
       name: PERSONA_QUEUE,
     }),
   ],
-  providers: [UserService],
+  providers: [UserService, UserImporterService, PrivyImporterService, ContractImporterService],
   controllers: [UserController],
 })
 export class UserModule {}

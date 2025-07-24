@@ -1,7 +1,5 @@
 import { Tables, TablesInsert } from '@/types/database.types';
 
-import { SupportedNetwork } from './chain';
-
 export type Resource = Tables<'resources'>;
 export type ResourceInsert = TablesInsert<'resources'>;
 export type ResourceType = 'text' | 'contract' | 'link' | 'document';
@@ -24,7 +22,7 @@ export type TypedResourceValue<T extends ResourceType> = {
 
 export type ContractValue = {
   address: string;
-  network: SupportedNetwork;
+  network: number;
   abi?: any;
 };
 
