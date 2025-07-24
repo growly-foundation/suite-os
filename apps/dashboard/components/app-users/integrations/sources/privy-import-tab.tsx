@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { UserImportService } from '@/lib/services/user-import.service';
 import { InfoIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -18,6 +19,7 @@ interface PrivyImportTabProps {
 }
 
 export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
+  const router = useRouter();
   const [appId, setAppId] = useState('');
   const [appSecret, setAppSecret] = useState('');
   const [loading, setLoading] = useState(false);
@@ -92,7 +94,7 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
       if (result.failed.length === 0 && result.success.length > 0) {
         onImportComplete?.();
         // Redirect to users page after successful import
-        window.location.href = '/dashboard/users';
+        router.push('/dashboard/users');
       }
     } catch (error) {
       console.error('Error importing Privy users:', error);
@@ -130,9 +132,16 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
                 <Input
                   id="app-id"
                   value={appId}
+                  required
+                  aria-describedby="app-id-error"
                   onChange={e => setAppId(e.target.value)}
                   placeholder="Enter your Privy App ID"
                 />
+                {!appId && (
+                  <span id="app-id-error" className="text-xs text-red-500">
+                    App ID is required
+                  </span>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="app-secret">Privy App Secret</Label>
@@ -140,9 +149,16 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
                   id="app-secret"
                   type="password"
                   value={appSecret}
+                  required
+                  aria-describedby="app-secret-error"
                   onChange={e => setAppSecret(e.target.value)}
                   placeholder="Enter your Privy App Secret"
                 />
+                {!appSecret && (
+                  <span id="app-secret-error" className="text-xs text-red-500">
+                    App Secret is required
+                  </span>
+                )}
               </div>
             </div>
             {configuring ? (
@@ -167,8 +183,8 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
               importButtonText={importing ? 'Importing...' : `Import Users`}
               isImporting={importing}
               onImport={async (selectedUserIds: string[]) => {
-                const usersToImport = privyUsers.filter(user =>
-                  selectedUserIds.includes(user.walletAddress!)
+                const usersToImport = privyUsers.filter(
+                  user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
                 );
                 await handleImport(usersToImport);
               }}

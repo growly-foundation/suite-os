@@ -23,6 +23,22 @@ import { TableUserData } from './columns/column-formatters';
 import { EmptyState } from './empty-state';
 import { TableToolbar } from './table-toolbar';
 
+function calculateFrozenColumnPosition(
+  index: number,
+  columns: Array<{ column: { columnDef: { meta?: any }; getSize: () => number } }>
+): string {
+  if (index === 0) return '0px';
+
+  let cumulativeWidth = 0;
+  for (let i = 0; i < index; i++) {
+    const col = columns[i];
+    if (col.column.columnDef.meta?.frozen) {
+      cumulativeWidth += col.column.getSize();
+    }
+  }
+  return `${cumulativeWidth}px`;
+}
+
 export interface DynamicTableProps<TData extends TableUserData> {
   data: TData[];
   columns: ColumnDef<TData>[];
@@ -316,23 +332,9 @@ export function DynamicTable<TData extends TableUserData>({
                       const isSortable = enableSorting && header.column.getCanSort();
 
                       // Calculate left position for frozen columns
-                      let leftPosition = 'auto';
-                      if (isFrozen) {
-                        if (index === 0) {
-                          leftPosition = '0px';
-                        } else {
-                          // Calculate cumulative width of previous frozen columns
-                          let cumulativeWidth = 0;
-                          for (let i = 0; i < index; i++) {
-                            const prevHeader = headerGroup.headers[i];
-                            if ((prevHeader.column.columnDef.meta as any)?.frozen) {
-                              cumulativeWidth += prevHeader.getSize();
-                            }
-                          }
-                          leftPosition = `${cumulativeWidth}px`;
-                        }
-                      }
-
+                      const leftPosition = isFrozen
+                        ? calculateFrozenColumnPosition(index, headerGroup.headers)
+                        : 'auto';
                       return (
                         <TableHead
                           key={header.id}
@@ -403,22 +405,9 @@ export function DynamicTable<TData extends TableUserData>({
                         const isFrozen = (cell.column.columnDef.meta as any)?.frozen;
 
                         // Calculate left position for frozen columns
-                        let leftPosition = 'auto';
-                        if (isFrozen) {
-                          if (index === 0) {
-                            leftPosition = '0px';
-                          } else {
-                            // Calculate cumulative width of previous frozen columns
-                            let cumulativeWidth = 0;
-                            for (let i = 0; i < index; i++) {
-                              const prevCell = row.getVisibleCells()[i];
-                              if ((prevCell.column.columnDef.meta as any)?.frozen) {
-                                cumulativeWidth += prevCell.column.getSize();
-                              }
-                            }
-                            leftPosition = `${cumulativeWidth}px`;
-                          }
-                        }
+                        const leftPosition = isFrozen
+                          ? calculateFrozenColumnPosition(index, row.getVisibleCells())
+                          : 'auto';
 
                         return (
                           <TableCell
@@ -459,22 +448,9 @@ export function DynamicTable<TData extends TableUserData>({
                       const footerValue = getFooterValue?.(header.column.id);
 
                       // Calculate left position for frozen columns
-                      let leftPosition = 'auto';
-                      if (isFrozen) {
-                        if (index === 0) {
-                          leftPosition = '0px';
-                        } else {
-                          // Calculate cumulative width of previous frozen columns
-                          let cumulativeWidth = 0;
-                          for (let i = 0; i < index; i++) {
-                            const prevHeader = table.getHeaderGroups()[0].headers[i];
-                            if ((prevHeader.column.columnDef.meta as any)?.frozen) {
-                              cumulativeWidth += prevHeader.getSize();
-                            }
-                          }
-                          leftPosition = `${cumulativeWidth}px`;
-                        }
-                      }
+                      const leftPosition = isFrozen
+                        ? calculateFrozenColumnPosition(index, table.getHeaderGroups()[0].headers)
+                        : 'auto';
 
                       // Format footer values based on column type
                       const formatFooterValue = (value: any, columnId: string) => {

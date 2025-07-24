@@ -14,7 +14,6 @@ import {
 import { Address } from '@getgrowly/persona';
 
 import { SUITE_CORE } from '../../constants/services';
-import { EtherscanService } from '../etherscan/etherscan.service';
 import { PERSONA_BUILD_JOB, PERSONA_QUEUE } from '../sync-persona/persona.queue';
 import { UserImporterService } from './user-importer/user-importer.service';
 
@@ -91,9 +90,5 @@ export class UserService {
     chainId: number
   ): Promise<ImportContractUserOutput[]> {
     return this.userImporterService.importContractUsers(contractAddress, chainId);
-  }
-
-  async buildPersona(address: Address): Promise<void> {
-    await this.personaQueue.add(PERSONA_BUILD_JOB, { address });
   }
 }

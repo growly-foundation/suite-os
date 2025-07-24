@@ -68,16 +68,18 @@ export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>
     switch (key) {
       case 'identity':
         return `${users.length} users`;
-      case 'email':
+      case 'email': {
         const emailCount = users.reduce((sum, user) => {
           return sum + (user.email ? 1 : 0);
         }, 0);
         return `${emailCount} with email`;
-      case 'walletAddress':
+      }
+      case 'walletAddress': {
         const walletAddressCount = users.reduce((sum, user) => {
           return sum + (user.walletAddress ? 1 : 0);
         }, 0);
         return `${walletAddressCount} with wallet address`;
+      }
       default:
         return '';
     }

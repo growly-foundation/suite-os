@@ -2,6 +2,7 @@ import { ChainSelector } from '@/components/chains/chain-selecter';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
+import { mainnet } from 'viem/chains';
 
 import { ContractValue } from '@getgrowly/core';
 
@@ -13,7 +14,7 @@ interface ContractFormProps {
 export function ContractForm({ onChange, initialData }: ContractFormProps) {
   const [formData, setFormData] = useState<ContractValue>({
     address: '',
-    network: 'mainnet' as any,
+    network: mainnet.id,
     ...initialData,
   });
 
@@ -44,8 +45,8 @@ export function ContractForm({ onChange, initialData }: ContractFormProps) {
       <div className="space-y-2">
         <Label>Network</Label>
         <ChainSelector
-          value={1} // mainnet chain ID
-          onChange={value => handleChange({ network: 'mainnet' as any })}
+          value={formData.network}
+          onChange={value => handleChange({ network: value })}
         />
       </div>
     </div>

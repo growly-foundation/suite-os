@@ -3,7 +3,7 @@ import { ColumnDef, Row } from '@tanstack/react-table';
 import moment from 'moment';
 
 import {
-  ContractUser,
+  ContractInteractionMetadata,
   ImportContractUserOutput,
   ImportPrivyUserOutput,
   ImportUserOutput,
@@ -160,7 +160,7 @@ export const columnImportedPrivyUserDefinitions: Partial<
 };
 
 export const columnImportedContractUserDefinitions: Partial<
-  Record<keyof ContractUser, ColumnDef<ImportContractUserOutput>>
+  Record<keyof ContractInteractionMetadata, ColumnDef<ImportContractUserOutput>>
 > = {
   contractAddress: {
     id: 'contractAddress',

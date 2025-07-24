@@ -92,9 +92,10 @@ export class UserService {
     if (user) {
       // If existing user is native and original_joined_at is not set, set it to now.
       if (isNative && !user.original_joined_at) {
-        await this.userDatabaseService.update(user.id, {
+        const updatedUser = await this.userDatabaseService.update(user.id, {
           original_joined_at: now,
         });
+        return { user: updatedUser as any as ParsedUser, persona: user.personaData, new: false };
       }
       return { user, persona: user.personaData, new: false };
     }

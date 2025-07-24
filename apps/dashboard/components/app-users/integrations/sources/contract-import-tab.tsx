@@ -8,8 +8,10 @@ import { Label } from '@/components/ui/label';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { UserImportService } from '@/lib/services/user-import.service';
 import { InfoIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import { mainnet } from 'viem/chains';
 
 import { ImportContractUserOutput } from '@getgrowly/core';
 
@@ -18,8 +20,9 @@ interface ContractImportTabProps {
 }
 
 export function ContractImportTab({ onImportComplete }: ContractImportTabProps) {
+  const router = useRouter();
   const [contractAddress, setContractAddress] = useState('');
-  const [chainId, setChainId] = useState(0);
+  const [chainId, setChainId] = useState<number>(mainnet.id);
   const [loading, setLoading] = useState(false);
   const [configuring, setConfiguring] = useState(false);
   const [configured, setConfigured] = useState(false);
@@ -92,7 +95,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
       if (result.failed.length === 0 && result.success.length > 0) {
         onImportComplete?.();
         // Redirect to users page after successful import
-        window.location.href = '/dashboard/users';
+        router.push('/dashboard/users');
       }
     } catch (error) {
       console.error('Error importing contract users:', error);
@@ -170,8 +173,8 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
               importButtonText={importing ? 'Importing...' : `Import Users`}
               isImporting={importing}
               onImport={async (selectedUserIds: string[]) => {
-                const usersToImport = contractUsers.filter(user =>
-                  selectedUserIds.includes(user.walletAddress!)
+                const usersToImport = contractUsers.filter(
+                  user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
                 );
                 await handleImport(usersToImport);
               }}

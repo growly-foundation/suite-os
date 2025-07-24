@@ -25,11 +25,13 @@ export const baseColumnDefinitions: Record<
 > = {
   string: (metadata: FieldMetadata) => ({
     id: metadata.key,
-    accessorFn:
-      metadata.accessor ||
-      ((row: TableUserData) => {
-        return metadata.key in row ? (row as any)[metadata.key] || '' : '';
-      }),
+    accessorFn: (row: TableUserData) => {
+      if (metadata.key in row) {
+        const value = row[metadata.key as keyof TableUserData];
+        return value ?? '';
+      }
+      return '';
+    },
     header: metadata.label,
     cell: ({ row }: { row: Row<TableUserData> }) =>
       getFormatter(metadata.formatter || metadata.key)(row.original),

@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { UserImportService } from '@/lib/services/user-import.service';
 import { Download, InfoIcon, Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -22,7 +23,7 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
   const [users, setUsers] = useState<ImportUserOutput[]>([]);
   const [importing, setImporting] = useState(false);
   const { selectedOrganization } = useDashboardState();
-
+  const router = useRouter();
   // Form state for manual entry
   const [walletAddress, setWalletAddress] = useState('');
   const [email, setEmail] = useState('');
@@ -78,8 +79,8 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
         // Reset the file input
         event.target.value = '';
       } catch (error) {
-        console.error('Error parsing CSV:', error);
-        toast.error(`Error parsing CSV: ${error instanceof Error ? error.message : String(error)}`);
+        toast.error('Failed to parse CSV file. Please ensure it follows the correct format.');
+        console.error('CSV parsing error:', error);
       }
     };
 
@@ -159,7 +160,7 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
       if (result.failed.length === 0 && result.success.length > 0) {
         onImportComplete?.();
         // Redirect to users page after successful import
-        window.location.href = '/dashboard/users';
+        router.push('/dashboard/users');
       }
     } catch (error) {
       console.error('Error importing users:', error);
@@ -266,8 +267,8 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
             importButtonText={importing ? 'Importing...' : 'Import Users'}
             isImporting={importing}
             onImport={async (selectedUserIds: string[]) => {
-              const usersToImport = users.filter(user =>
-                selectedUserIds.includes(user.walletAddress!)
+              const usersToImport = users.filter(
+                user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
               );
               await handleImport(usersToImport);
             }}

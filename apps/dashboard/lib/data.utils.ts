@@ -36,17 +36,16 @@ export function hasImportedUserExtraData<T extends ImportUserOutput>(
   return data.some(user => {
     if (user.source !== source) return false;
     if (!user.extra) return false;
-
     // Check for nested fields like custom.firstVerifiedAt
     if (field.includes('.')) {
-      const [parent, child] = field.split('.');
-      return (
-        user.extra[parent as keyof typeof user.extra]?.[child] !== undefined &&
-        user.extra[parent as keyof typeof user.extra]?.[child] !== null &&
-        user.extra[parent as keyof typeof user.extra]?.[child] !== ''
-      );
+      const parts = field.split('.');
+      let current: any = user.extra;
+      for (const part of parts) {
+        if (!current || typeof current !== 'object') return false;
+        current = current[part];
+      }
+      return current !== undefined && current !== null && current !== '';
     }
-
     return (
       user.extra[field as keyof typeof user.extra] !== undefined &&
       user.extra[field as keyof typeof user.extra] !== null &&
