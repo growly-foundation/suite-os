@@ -26,7 +26,7 @@ interface SmartUserTableProps {
   enableRowSelection?: boolean;
   selectedRows?: Record<string, boolean>;
   onRowSelectionChange?: (selectedRows: Record<string, boolean>) => void;
-  getRowId?: (row: ParsedUser) => string;
+  getRowId?: (row: ParsedUser) => string; // Required when enableRowSelection is true
 }
 
 /**

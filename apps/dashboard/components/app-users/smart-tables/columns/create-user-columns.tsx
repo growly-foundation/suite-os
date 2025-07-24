@@ -28,7 +28,7 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
     id: 'talentProtocolCheckmark',
     accessorFn: (row: ParsedUser) => {
       if ('personaData' in row) {
-        return 'personaData' in row ? 1 : 0;
+        return 1;
       }
       return 0;
     },
@@ -59,7 +59,8 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
     id: 'trait',
     accessorFn: (row: ParsedUser) => {
       if ('personaData' in row) {
-        return 'personaData' in row ? 'trait' : '';
+        // Return actual trait value from personaData
+        return (row as any).personaData?.trait || '';
       }
       return '';
     },
@@ -108,10 +109,10 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
     id: 'tokens',
     accessorFn: (row: ParsedUser) => {
       if ('personaData' in row) {
-        const portfolio = (row as any).personaData.portfolio_snapshots.tokenPortfolio
+        const portfolio = (row as any).personaData?.portfolio_snapshots?.tokenPortfolio
           ?.chainRecordsWithTokens;
         const tokenCount = Object.values(portfolio || {}).reduce(
-          (sum: number, chain: any) => sum + chain.tokens.length,
+          (sum: number, chain: any) => sum + (chain?.tokens?.length || 0),
           0
         );
         return tokenCount;

@@ -17,6 +17,9 @@ export class UserController {
 
   @Get('persona')
   async getUserPersona(@Body('walletAddress') walletAddress: Address) {
+    this.logger.log(
+      `[${this.constructor.name}] Getting user persona for wallet address: ${walletAddress}`
+    );
     return this.userService.getUserPersona(walletAddress);
   }
 
@@ -25,6 +28,9 @@ export class UserController {
     @Body('users') users: ImportUserOutput[],
     @Body('organizationId') organizationId: string
   ) {
+    this.logger.log(
+      `[${this.constructor.name}] Committing imported users for organization: ${organizationId}`
+    );
     return this.userImporterService.commitImportedUsers(users, organizationId);
   }
 
@@ -33,6 +39,9 @@ export class UserController {
     @Body('walletAddress') walletAddress: Address,
     @Body('organizationId') organizationId: string
   ) {
+    this.logger.log(
+      `[${this.constructor.name}] Creating user if not exists for wallet address: ${walletAddress} and organization: ${organizationId}`
+    );
     return this.userService.createUserIfNotExist(walletAddress, organizationId);
   }
 
@@ -41,6 +50,7 @@ export class UserController {
     @Body('appId') appId: string,
     @Body('appSecret') appSecret: string
   ): Promise<ImportUserOutput[]> {
+    this.logger.log(`[${this.constructor.name}] Importing users from Privy for appId: ${appId}`);
     if (!appId || !appSecret) {
       throw new BadRequestException('Missing appId or appSecret');
     }
@@ -52,11 +62,19 @@ export class UserController {
     @Body('contractAddress') contractAddress: string,
     @Body('chainId') chainId: number
   ): Promise<ImportContractUserOutput[]> {
-    if (!contractAddress) {
+    this.logger.log(
+      `[${this.constructor.name}] Importing contract users for contract address: ${contractAddress} and chainId: ${chainId}`
+    );
+    if (!contractAddress || typeof contractAddress !== 'string') {
       throw new BadRequestException('Missing contractAddress');
     }
-    if (!chainId || chainId <= 0) {
+    if (!chainId || !Number.isInteger(chainId) || chainId <= 0) {
       throw new BadRequestException('Invalid chainId');
+    }
+
+    // Validate Ethereum address format
+    if (!/^0x[a-fA-F0-9]{40}$/.test(contractAddress)) {
+      throw new BadRequestException('Invalid contract address format');
     }
     return this.userService.importContractUsers(contractAddress, chainId);
   }

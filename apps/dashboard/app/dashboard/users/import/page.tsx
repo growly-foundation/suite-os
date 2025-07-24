@@ -151,6 +151,11 @@ export default function ImportUsersPage() {
               {activeIntegration === UserImportSource.Manual && <ManualImportTab />}
               {activeIntegration === UserImportSource.Privy && <PrivyImportTab />}
               {activeIntegration === UserImportSource.Contract && <ContractImportTab />}
+              {!integrationOptions.find(opt => opt.id === activeIntegration && !opt.disabled) && (
+                <div className="p-4 text-center text-muted-foreground">
+                  This integration is not yet available. Please select a different source.
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

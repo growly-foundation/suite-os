@@ -91,8 +91,4 @@ export class UserService {
   ): Promise<ImportContractUserOutput[]> {
     return this.userImporterService.importContractUsers(contractAddress, chainId);
   }
-
-  async buildPersona(address: Address): Promise<void> {
-    await this.personaQueue.add(PERSONA_BUILD_JOB, { address });
-  }
 }

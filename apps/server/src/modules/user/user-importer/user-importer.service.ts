@@ -24,20 +24,6 @@ export class UserImporterService {
   ) {}
 
   /**
-   * Imports users from Privy
-   */
-  async importPrivyUsers(): Promise<ImportPrivyUserOutput[]> {
-    this.logger.log('Starting Privy user import');
-    const users = await this.privyImporterService.getUsers('appId', 'appSecret');
-    return users.map(user => ({
-      walletAddress: user.wallet?.address || user.smartWallet?.address,
-      email: user.email?.address,
-      extra: user,
-      source: UserImportSource.Privy,
-    }));
-  }
-
-  /**
    * Imports users from Privy with specific credentials
    */
   async importUsersFromPrivy(appId: string, appSecret: string): Promise<ImportPrivyUserOutput[]> {

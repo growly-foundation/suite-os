@@ -63,17 +63,7 @@ export class UserService {
     const users = await this.userDatabaseService.getManyByIds(
       userOrganizationAssociations.map(association => association.user_id)
     );
-    const parsedUsers = await Promise.all(
-      users.map(user => {
-        try {
-          return this.getUserWithPersona(user);
-        } catch (error) {
-          console.error(error);
-          return null;
-        }
-      })
-    );
-    return parsedUsers.filter(user => user !== null) as ParsedUser[];
+    return await Promise.all(users.map(user => this.getUserWithPersona(user)));
   }
 
   async getUserByWalletAddress(walletAddress: string): Promise<ParsedUser | null> {
@@ -102,9 +92,10 @@ export class UserService {
     if (user) {
       // If existing user is native and original_joined_at is not set, set it to now.
       if (isNative && !user.original_joined_at) {
-        await this.userDatabaseService.update(user.id, {
+        const updatedUser = await this.userDatabaseService.update(user.id, {
           original_joined_at: now,
         });
+        return { user: updatedUser as any as ParsedUser, persona: user.personaData, new: false };
       }
       return { user, persona: user.personaData, new: false };
     }

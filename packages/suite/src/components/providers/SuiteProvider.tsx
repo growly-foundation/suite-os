@@ -13,7 +13,7 @@ const defaultConfig: SuiteConfig = {
   display: 'fullView',
   themeMode: ThemeName.Light,
   theme: {}, // Theme overrides will be handled by ThemeProvider
-  brandName: 'Suite',
+  brandName: 'Cream',
 };
 
 export const SuiteContext = React.createContext<
@@ -60,12 +60,9 @@ export const SuiteProvider: React.FC<{
         if (!context.agentId || !context.organizationApiKey) {
           throw new Error('Agent ID and Organization API Key are required');
         }
-        const organization = await fetchOrganizationAgentById(
-          context.agentId,
-          context.organizationApiKey
-        );
-        if (walletAddress && organization) {
-          await createUserFromAddressIfNotExist(walletAddress, organization.id);
+        const agent = await fetchOrganizationAgentById(context.agentId, context.organizationApiKey);
+        if (walletAddress && agent) {
+          await createUserFromAddressIfNotExist(walletAddress, agent.id);
         }
       } catch (error) {
         console.error(`Growly Suite Error: ${error}`);

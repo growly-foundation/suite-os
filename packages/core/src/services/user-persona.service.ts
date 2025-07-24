@@ -188,7 +188,7 @@ export class UserPersonaService {
       );
     }
     return (await this.userPersonaDatabaseService.update(walletAddress, {
-      imported_source_data: existingImportedSourceData.map(d => JSON.stringify(d)),
+      imported_source_data: existingImportedSourceData as any,
     })) as any as ParsedUserPersona;
   }
 }

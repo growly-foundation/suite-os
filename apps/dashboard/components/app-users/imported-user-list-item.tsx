@@ -18,7 +18,7 @@ export const ImportedUserListItem = ({
   renderAdditionalInfo,
 }: ImportedUserListItemProps) => {
   return (
-    <div key={user.walletAddress!} className="flex items-center space-x-2 p-2 hover:bg-muted">
+    <div className="flex items-center space-x-2 p-2 hover:bg-muted">
       <Checkbox
         id={`user-${user.walletAddress}`}
         className="border-gray-450"

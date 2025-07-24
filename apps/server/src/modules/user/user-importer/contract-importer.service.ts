@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { ImportContractUserOutput, UserImportSource } from '@getgrowly/core';
 
-import { EtherscanService } from '../../etherscan/etherscan.service';
+import { EtherscanService, EtherscanTransaction } from '../../etherscan/etherscan.service';
 
 export interface UniqueAddressesResponse {
   contractAddress: string;
@@ -98,7 +98,7 @@ export class ContractImporterService {
   /**
    * Extracts unique addresses from transaction data
    */
-  private async extractUniqueAddresses(transactions: any[]): Promise<{
+  private async extractUniqueAddresses(transactions: EtherscanTransaction[]): Promise<{
     uniqueAddresses: string[];
     stats: AddressProcessingStats;
   }> {
@@ -160,7 +160,10 @@ export class ContractImporterService {
   /**
    * Gets transaction count for a specific address
    */
-  private getTransactionCountForAddress(address: string, transactions: any[]): number {
+  private getTransactionCountForAddress(
+    address: string,
+    transactions: EtherscanTransaction[]
+  ): number {
     return transactions.filter(
       tx =>
         tx.from?.toLowerCase() === address.toLowerCase() ||
@@ -171,7 +174,10 @@ export class ContractImporterService {
   /**
    * Gets first interaction timestamp for a specific address
    */
-  private getFirstInteractionForAddress(address: string, transactions: any[]): string | undefined {
+  private getFirstInteractionForAddress(
+    address: string,
+    transactions: EtherscanTransaction[]
+  ): string | undefined {
     const addressTransactions = transactions.filter(
       tx =>
         tx.from?.toLowerCase() === address.toLowerCase() ||
@@ -191,7 +197,10 @@ export class ContractImporterService {
   /**
    * Gets last interaction timestamp for a specific address
    */
-  private getLastInteractionForAddress(address: string, transactions: any[]): string | undefined {
+  private getLastInteractionForAddress(
+    address: string,
+    transactions: EtherscanTransaction[]
+  ): string | undefined {
     const addressTransactions = transactions.filter(
       tx =>
         tx.from?.toLowerCase() === address.toLowerCase() ||

@@ -7,7 +7,7 @@ export enum UserImportSource {
   Contract = 'contract_import',
   Manual = 'manual_import',
 }
-export interface ContractUser {
+export interface ContractInteractionMetadata {
   contractAddress: string;
   chainId: number;
   transactionCount?: number;
@@ -25,12 +25,12 @@ export type ImportUserOutput<T = Record<string, any>> = {
 
 export type ImportPrivyUserOutput = ImportUserOutput<PrivyUser>;
 
-export type ImportContractUserOutput = ImportUserOutput<ContractUser>;
+export type ImportContractUserOutput = ImportUserOutput<ContractInteractionMetadata>;
 
 export type ImportedUserSourceData =
   | {
       source: UserImportSource;
-      sourceData: {};
+      sourceData: Record<string, unknown>; // Explicitly empty object
     }
   | ImportedPrivyUserSourceData
   | ImportedContractUserSourceData;
@@ -42,5 +42,5 @@ export type ImportedPrivyUserSourceData = {
 
 export type ImportedContractUserSourceData = {
   source: UserImportSource.Contract;
-  sourceData: ContractUser;
+  sourceData: ContractInteractionMetadata;
 };
