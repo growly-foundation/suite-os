@@ -12,10 +12,6 @@ const SuiteProvider = dynamic(() => import('@getgrowly/suite').then(suite => sui
   ssr: false,
 });
 
-const ChatWidget = dynamic(() => import('@getgrowly/suite').then(suite => suite.ChatWidget), {
-  ssr: false,
-});
-
 export const SuiteProviderWrapper = ({ children }: { children: React.ReactNode }) => {
   const { login, user } = usePrivy();
 
@@ -34,10 +30,7 @@ export const SuiteProviderWrapper = ({ children }: { children: React.ReactNode }
           },
         },
       }}>
-      <Suspense fallback={null}>
-        {children}
-        <ChatWidget />
-      </Suspense>
+      <Suspense fallback={null}>{children}</Suspense>
     </SuiteProvider>
   );
 };
