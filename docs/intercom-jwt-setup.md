@@ -20,7 +20,6 @@ Add the following environment variables to your `.env.local` file:
 ```env
 # Intercom Configuration
 NEXT_PUBLIC_INTERCOM_APP_ID=your-intercom-app-id
-NEXT_PUBLIC_INTERCOM_CLIENT_SECRET=your-intercom-client-secret
 INTERCOM_CLIENT_SECRET=your-intercom-client-secret
 ```
 

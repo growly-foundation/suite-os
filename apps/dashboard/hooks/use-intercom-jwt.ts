@@ -1,7 +1,5 @@
 import { useCallback, useState } from 'react';
 
-import { validateIntercomConfig } from '../utils/intercom-jwt';
-
 interface UseIntercomJWTProps {
   userId: string;
   userEmail: string;
@@ -14,12 +12,6 @@ export function useIntercomJWT({ userId, userEmail, userName }: UseIntercomJWTPr
   const [error, setError] = useState<string | null>(null);
 
   const fetchJWT = useCallback(async () => {
-    // Check if Intercom is properly configured
-    if (!validateIntercomConfig()) {
-      setError('Intercom configuration incomplete');
-      return null;
-    }
-
     setIsLoading(true);
     setError(null);
 

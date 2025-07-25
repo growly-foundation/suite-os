@@ -9,10 +9,10 @@ export async function generateIntercomJWT(
   userEmail: string,
   userName: string
 ): Promise<string> {
-  const secret = process.env.NEXT_PUBLIC_INTERCOM_CLIENT_SECRET;
+  const secret = process.env.INTERCOM_CLIENT_SECRET;
 
   if (!secret) {
-    throw new Error('NEXT_PUBLIC_INTERCOM_CLIENT_SECRET environment variable is not set');
+    throw new Error('INTERCOM_CLIENT_SECRET environment variable is not set');
   }
 
   // Create JWT payload with user information
@@ -44,7 +44,7 @@ export async function generateIntercomJWT(
  */
 export function validateIntercomConfig(): boolean {
   const appId = process.env.NEXT_PUBLIC_INTERCOM_APP_ID;
-  const clientSecret = process.env.NEXT_PUBLIC_INTERCOM_CLIENT_SECRET;
+  const clientSecret = process.env.INTERCOM_CLIENT_SECRET;
 
   if (!appId || !clientSecret) {
     console.warn('Intercom configuration incomplete. Missing required environment variables.');
