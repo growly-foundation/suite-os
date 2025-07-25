@@ -7,11 +7,12 @@ import { Suspense, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { ReactFlowProvider } from 'reactflow';
 
-// import '@getgrowly/suite/styles.css';
+import '@getgrowly/suite/styles.css';
 
 import { AddResourceDrawer } from '../resources/add-resource-drawer';
 import { ThemeProvider } from '../theme-provider';
 import { ComponentProvider } from './component-provider';
+import { SuiteProviderWrapper } from './suite-provider';
 
 const AnimatedLoading = dynamic(
   () =>
@@ -26,20 +27,23 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
   const [queryClient] = useState(() => new QueryClient());
   let baseComponent = (
     <QueryClientProvider client={queryClient}>
-      {/* Disable because we are using Intercom for the dashboard */}
-      {/* <SuiteProviderWrapper> */}
-      <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-        <ReactFlowProvider>
-          <ComponentProvider>
-            <Suspense fallback={<AnimatedLoading />}>
-              {children}
-              <ToastContainer />
-              <AddResourceDrawer />
-            </Suspense>
-          </ComponentProvider>
-        </ReactFlowProvider>
-      </ThemeProvider>
-      {/* </SuiteProviderWrapper> */}
+      <SuiteProviderWrapper>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange>
+          <ReactFlowProvider>
+            <ComponentProvider>
+              <Suspense fallback={<AnimatedLoading />}>
+                {children}
+                <ToastContainer />
+                <AddResourceDrawer />
+              </Suspense>
+            </ComponentProvider>
+          </ReactFlowProvider>
+        </ThemeProvider>
+      </SuiteProviderWrapper>
     </QueryClientProvider>
   );
   // If environment variables for Privy credentials are not set,
