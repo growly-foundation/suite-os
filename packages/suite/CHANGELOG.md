@@ -1,5 +1,14 @@
 # @getgrowly/suite
 
+## 1.0.6
+
+### Patch Changes
+
+- Update core functionalities of packages to match with the latest new features of the core dashboard engine
+- Updated dependencies
+  - @getgrowly/ui@1.0.1
+  - @getgrowly/core@0.1.1
+
 ## 1.0.5
 
 ### Patch Changes

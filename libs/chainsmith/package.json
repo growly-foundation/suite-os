@@ -1,6 +1,6 @@
 {
   "name": "@getgrowly/chainsmith",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Modular chain data system for Growly applications",
   "keywords": [],
   "repository": {
@@ -101,5 +101,8 @@
     "node": ">=23.0.9",
     "pnpm": ">=10.5.2"
   },
-  "engineStrict": true
+  "engineStrict": true,
+  "publishConfig": {
+    "access": "public"
+  }
 }

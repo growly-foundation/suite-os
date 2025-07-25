@@ -8,7 +8,7 @@
     "build:shared": "pnpm run build:all --filter @getgrowly/chainsmith --filter @getgrowly/persona --filter @getgrowly/ui --filter @getgrowly/core --filter @getgrowly/suite",
     "build:website": "pnpm build:shared --filter @getgrowly/website",
     "changeset": "changeset",
-    "changeset:publish": "pnpm build && changeset publish",
+    "changeset:publish": "pnpm build:shared && changeset publish",
     "changeset:version": "changeset version",
     "check": "pnpx prettier --config .prettierrc.cjs '**/*.{js,jsx,ts,tsx}' --check && eslint '**/*.{js,jsx,ts,tsx}'",
     "check:unused": "depcheck --ignore-dirs=node_modules,build,dist,.next",

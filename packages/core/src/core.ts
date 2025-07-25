@@ -68,7 +68,7 @@ export interface SuiteDatabaseCore {
     user_personas: PublicDatabaseService<'user_personas'>;
 
     /** Manages user organizations relationship. */
-    user_organizations: PublicDatabaseService<'users_organizations'>;
+    users_organizations: PublicDatabaseService<'users_organizations'>;
 
     /** Manages workflows. */
     workflows: PublicDatabaseService<'workflows'>;
@@ -211,7 +211,7 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     step_sessions: stepSessionsDatabaseService,
     users: userDatabaseService,
     user_personas: userPersonasDatabaseService,
-    user_organizations: userOrganizationDatabaseService,
+    users_organizations: userOrganizationDatabaseService,
     workflows: workflowDatabaseService,
   };
 

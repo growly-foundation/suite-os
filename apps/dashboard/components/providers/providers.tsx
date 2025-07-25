@@ -7,7 +7,7 @@ import { Suspense, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { ReactFlowProvider } from 'reactflow';
 
-import '@getgrowly/suite/styles.css';
+// import '@getgrowly/suite/styles.css';
 
 import { AddResourceDrawer } from '../resources/add-resource-drawer';
 import { ThemeProvider } from '../theme-provider';

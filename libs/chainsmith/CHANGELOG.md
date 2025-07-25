@@ -1,13 +1,7 @@
-# @getgrowly/ui
+# @getgrowly/chainsmith
 
-## 1.0.1
+## 0.1.1
 
 ### Patch Changes
 
 - Update core functionalities of packages to match with the latest new features of the core dashboard engine
-
-## 1.0.0
-
-### Major Changes
-
-- Release the initial version for Suite experiemtal features
