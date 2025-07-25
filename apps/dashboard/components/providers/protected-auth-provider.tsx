@@ -1,7 +1,9 @@
 'use client';
 
 import { suiteCore } from '@/core/suite';
+import Intercom from '@intercom/messenger-js-sdk';
 import { usePrivy } from '@privy-io/react-auth';
+import moment from 'moment';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -10,6 +12,9 @@ import { toast } from 'react-toastify';
 import { Admin } from '@getgrowly/core';
 
 import { STORAGE_KEY_SELECTED_ORGANIZATION_ID, useDashboardState } from '../../hooks/use-dashboard';
+import { useIntercomJWT } from '../../hooks/use-intercom-jwt';
+
+const INTERCOM_APP_ID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID;
 
 const AnimatedLoading = dynamic(
   () =>
@@ -19,6 +24,7 @@ const AnimatedLoading = dynamic(
   { ssr: false }
 );
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const { setAdmin, setSelectedOrganization, fetchOrganizations, selectedOrganization } =
     useDashboardState();
@@ -116,10 +122,65 @@ export const useAuth = () => {
 const ProtectedAuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { user, authenticated, ready } = usePrivy();
   const { createUserIfNotExists, isLoading } = useAuth();
+  const { admin } = useDashboardState();
+
+  // Initialize Intercom JWT hook when admin is available
+  const {
+    jwt,
+    fetchJWT,
+    error: jwtError,
+  } = useIntercomJWT({
+    userId: admin?.id || '',
+    userEmail: admin?.email || '',
+    userName: admin?.name || '',
+  });
 
   useEffect(() => {
     createUserIfNotExists();
   }, [user, authenticated, ready]);
+
+  // Fetch JWT when admin is available
+  useEffect(() => {
+    if (admin?.id && admin?.email && admin?.name) {
+      console.log('FETCHING JWT');
+      fetchJWT();
+    }
+  }, [admin?.id, admin?.email, admin?.name, fetchJWT]);
+
+  // Initialize Intercom with JWT authentication
+  useEffect(() => {
+    console.log('INTERCOM_APP_ID', INTERCOM_APP_ID);
+    console.log('admin', admin);
+    console.log('jwt', jwt);
+    console.log('jwtError', jwtError);
+    if (INTERCOM_APP_ID) {
+      if (admin && jwt) {
+        console.log('INITIALIZING INTERCOM WITH JWT');
+        // Secure Intercom initialization with JWT
+        Intercom({
+          app_id: INTERCOM_APP_ID,
+          intercom_user_jwt: jwt, // JWT token for secure authentication
+          session_duration: 86400000,
+        });
+      } else if (admin && !jwt && !jwtError) {
+        console.log('INITIALIZING INTERCOM WITHOUT JWT');
+        // Fallback to basic initialization while JWT is loading
+        Intercom({
+          app_id: INTERCOM_APP_ID,
+          user_id: admin.id,
+          name: admin.name,
+          email: admin.email,
+          created_at: moment(admin.created_at).unix(),
+        });
+      } else if (!admin) {
+        console.log('INITIALIZING INTERCOM ANONYMOUSLY');
+        // Anonymous user initialization
+        Intercom({
+          app_id: INTERCOM_APP_ID,
+        });
+      }
+    }
+  }, [admin, jwt, jwtError]);
 
   return <React.Fragment>{isLoading ? <AnimatedLoading /> : children}</React.Fragment>;
 };
