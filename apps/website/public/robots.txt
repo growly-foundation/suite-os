@@ -1,5 +1,25 @@
 User-agent: *
 Allow: /
 
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /private/
+
+# Allow important pages
+Allow: /features/
+Allow: /pricing/
+Allow: /blog/
+Allow: /about/
+Allow: /contact/
+
+# Crawl delay for respectful crawling
+Crawl-delay: 1
+
 # Sitemap
 Sitemap: https://getsuite.io/sitemap.xml
+
+# Additional sitemaps for different content types
+Sitemap: https://getsuite.io/blog-sitemap.xml
+Sitemap: https://getsuite.io/docs-sitemap.xml
