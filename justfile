@@ -251,6 +251,10 @@ backup-remote-db:
     @echo "🗄️  Creating backup from remote database..."
     ./scripts/backup-remote-db.sh
 
+extract-supabase-connection:
+    @echo "🔧 Extracting Supabase connection parameters..."
+    ./scripts/extract-supabase-connection.sh
+
 restore-remote-backup backup_file="":
     @if [ -z "{{backup_file}}" ]; then \
         echo "❌ No backup file specified!"; \
