@@ -180,28 +180,30 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold mb-2">Manual Import</h2>
-        <p className="text-muted-foreground">
+      <div className="px-4">
+        <h2 className="text-lg font-semibold mb-2">Manual Import</h2>
+        <p className="text-muted-foreground text-sm">
           Import users manually by entering their details below or by uploading a CSV file.
         </p>
       </div>
 
-      <Alert variant="default">
-        <InfoIcon className="h-4 w-4" />
-        <AlertDescription>
-          Import users manually by entering their details below or by uploading a CSV file.
-        </AlertDescription>
-      </Alert>
+      <div className="px-4">
+        <Alert variant="default">
+          <InfoIcon className="h-4 w-4" />
+          <AlertDescription>
+            Import users manually by entering their details below or by uploading a CSV file.
+          </AlertDescription>
+        </Alert>
+      </div>
 
-      <div className="space-y-6">
+      <div className="space-y-6 px-4">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="space-y-4 p-4 border rounded-md">
-            <h3 className="text-lg font-semibold">Add User Manually</h3>
+            <h3 className="text-md font-semibold">Add User Manually</h3>
 
             <div className="space-y-3">
               <div className="grid gap-2">
-                <Label htmlFor="wallet-address">
+                <Label htmlFor="wallet-address" className="text-sm">
                   Wallet Address <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -213,7 +215,9 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="email">Email (optional)</Label>
+                <Label htmlFor="email" className="text-sm">
+                  Email (optional)
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -224,7 +228,9 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="name">Name (optional)</Label>
+                <Label htmlFor="name" className="text-sm">
+                  Name (optional)
+                </Label>
                 <Input
                   id="name"
                   value={name}
@@ -240,7 +246,7 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
           </div>
 
           <div className="space-y-4 p-4 border rounded-md">
-            <h3 className="text-lg font-semibold">Upload CSV</h3>
+            <h3 className="text-md font-semibold">Upload CSV</h3>
             <p className="text-sm text-muted-foreground">
               Upload a CSV file with columns for wallet addresses, emails (optional), and names
               (optional).

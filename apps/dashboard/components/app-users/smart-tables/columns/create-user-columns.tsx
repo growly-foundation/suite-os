@@ -1,7 +1,8 @@
 import { consumePersona } from '@/core/persona';
 import { ColumnDef, Row } from '@tanstack/react-table';
+import moment from 'moment';
 
-import { ParsedUser } from '@getgrowly/core';
+import { ImportedUserSourceData, ParsedUser, UserImportSource } from '@getgrowly/core';
 
 import { getFormatter, hasData } from './column-formatters';
 
@@ -160,6 +161,227 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
     size: 200,
     minSize: 200,
   },
+
+  // Privy imported data columns
+  privyCreatedAt: {
+    id: 'privyCreatedAt',
+    accessorFn: (row: ParsedUser) => {
+      const importedSourceData = row.personaData?.imported_source_data as ImportedUserSourceData[];
+      const privyData = importedSourceData?.find(data => data.source === UserImportSource.Privy);
+      return (privyData?.sourceData as any)?.createdAt || '';
+    },
+    header: 'Privy Created At',
+    cell: ({ row }: { row: Row<ParsedUser> }) => {
+      const importedSourceData = row.original.personaData
+        ?.imported_source_data as ImportedUserSourceData[];
+      const privyData = importedSourceData?.find(data => data.source === UserImportSource.Privy);
+      const createdAt = (privyData?.sourceData as any)?.createdAt;
+      return createdAt ? (
+        <span className="text-xs">{moment(createdAt).fromNow()}</span>
+      ) : (
+        <span className="text-xs text-muted-foreground">-</span>
+      );
+    },
+    enableSorting: true,
+    enableResizing: true,
+    size: 150,
+    minSize: 120,
+  },
+
+  privyGithub: {
+    id: 'privyGithub',
+    accessorFn: (row: ParsedUser) => {
+      const importedSourceData = row.personaData?.imported_source_data as ImportedUserSourceData[];
+      const privyData = importedSourceData?.find(data => data.source === UserImportSource.Privy);
+      return (privyData?.sourceData as any)?.github || '';
+    },
+    header: 'Github',
+    cell: ({ row }: { row: Row<ParsedUser> }) => {
+      const importedSourceData = row.original.personaData
+        ?.imported_source_data as ImportedUserSourceData[];
+      const privyData = importedSourceData?.find(data => data.source === UserImportSource.Privy);
+      const github = (privyData?.sourceData as any)?.github;
+      return github ? (
+        <span className="text-xs">{github}</span>
+      ) : (
+        <span className="text-xs text-muted-foreground">-</span>
+      );
+    },
+    enableSorting: true,
+    enableResizing: true,
+    size: 120,
+    minSize: 100,
+  },
+
+  privyTwitter: {
+    id: 'privyTwitter',
+    accessorFn: (row: ParsedUser) => {
+      const importedSourceData = row.personaData?.imported_source_data as ImportedUserSourceData[];
+      const privyData = importedSourceData?.find(data => data.source === UserImportSource.Privy);
+      return (privyData?.sourceData as any)?.twitter || '';
+    },
+    header: 'Twitter',
+    cell: ({ row }: { row: Row<ParsedUser> }) => {
+      const importedSourceData = row.original.personaData
+        ?.imported_source_data as ImportedUserSourceData[];
+      const privyData = importedSourceData?.find(data => data.source === UserImportSource.Privy);
+      const twitter = (privyData?.sourceData as any)?.twitter;
+      return twitter ? (
+        <span className="text-xs">{twitter}</span>
+      ) : (
+        <span className="text-xs text-muted-foreground">-</span>
+      );
+    },
+    enableSorting: true,
+    enableResizing: true,
+    size: 120,
+    minSize: 100,
+  },
+
+  // Contract imported data columns
+  contractAddress: {
+    id: 'contractAddress',
+    accessorFn: (row: ParsedUser) => {
+      const importedSourceData = row.personaData?.imported_source_data as ImportedUserSourceData[];
+      const contractData = importedSourceData?.find(
+        data => data.source === UserImportSource.Contract
+      );
+      return (contractData?.sourceData as any)?.contractAddress || '';
+    },
+    header: 'Contract Address',
+    cell: ({ row }: { row: Row<ParsedUser> }) => {
+      const importedSourceData = row.original.personaData
+        ?.imported_source_data as ImportedUserSourceData[];
+      const contractData = importedSourceData?.find(
+        data => data.source === UserImportSource.Contract
+      );
+      const address = (contractData?.sourceData as any)?.contractAddress;
+      return address ? (
+        <span className="text-xs font-mono">{address}</span>
+      ) : (
+        <span className="text-xs text-muted-foreground">-</span>
+      );
+    },
+    enableSorting: true,
+    enableResizing: true,
+    size: 160,
+    minSize: 140,
+  },
+
+  contractTransactionCount: {
+    id: 'contractTransactionCount',
+    accessorFn: (row: ParsedUser) => {
+      const importedSourceData = row.personaData?.imported_source_data as ImportedUserSourceData[];
+      const contractData = importedSourceData?.find(
+        data => data.source === UserImportSource.Contract
+      );
+      return (contractData?.sourceData as any)?.transactionCount || 0;
+    },
+    header: 'Transaction Count',
+    cell: ({ row }: { row: Row<ParsedUser> }) => {
+      const importedSourceData = row.original.personaData
+        ?.imported_source_data as ImportedUserSourceData[];
+      const contractData = importedSourceData?.find(
+        data => data.source === UserImportSource.Contract
+      );
+      const count = (contractData?.sourceData as any)?.transactionCount;
+      return count ? (
+        <span className="text-xs">{count}</span>
+      ) : (
+        <span className="text-xs text-muted-foreground">-</span>
+      );
+    },
+    enableSorting: true,
+    enableResizing: true,
+    size: 140,
+    minSize: 120,
+  },
+
+  contractLastInteraction: {
+    id: 'contractLastInteraction',
+    accessorFn: (row: ParsedUser) => {
+      const importedSourceData = row.personaData?.imported_source_data as ImportedUserSourceData[];
+      const contractData = importedSourceData?.find(
+        data => data.source === UserImportSource.Contract
+      );
+      return (contractData?.sourceData as any)?.lastInteraction || '';
+    },
+    header: 'Last Interaction',
+    cell: ({ row }: { row: Row<ParsedUser> }) => {
+      const importedSourceData = row.original.personaData
+        ?.imported_source_data as ImportedUserSourceData[];
+      const contractData = importedSourceData?.find(
+        data => data.source === UserImportSource.Contract
+      );
+      const lastInteraction = (contractData?.sourceData as any)?.lastInteraction;
+      return lastInteraction ? (
+        <span className="text-xs">{moment(lastInteraction).fromNow()}</span>
+      ) : (
+        <span className="text-xs text-muted-foreground">-</span>
+      );
+    },
+    enableSorting: true,
+    enableResizing: true,
+    size: 150,
+    minSize: 120,
+  },
+
+  importSources: {
+    id: 'importSources',
+    accessorFn: (row: ParsedUser) => {
+      const importedSourceData = row.personaData?.imported_source_data as ImportedUserSourceData[];
+      if (!importedSourceData || importedSourceData.length === 0) {
+        return 'Native';
+      }
+      return importedSourceData.map(data => data.source).join(', ');
+    },
+    header: 'Import Sources',
+    cell: ({ row }: { row: Row<ParsedUser> }) => {
+      const importedSourceData = row.original.personaData
+        ?.imported_source_data as ImportedUserSourceData[];
+
+      if (!importedSourceData || importedSourceData.length === 0) {
+        return (
+          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Native</span>
+        );
+      }
+
+      const sources = importedSourceData.map(data => data.source);
+      return (
+        <div className="flex flex-wrap gap-1">
+          {sources.map((source, index) => {
+            const sourceLabels: Record<UserImportSource, string> = {
+              [UserImportSource.Native]: 'Native',
+              [UserImportSource.Privy]: 'Privy',
+              [UserImportSource.Contract]: 'Contract',
+              [UserImportSource.Manual]: 'Manual',
+              [UserImportSource.Guildxyz]: 'Guild.xyz',
+            };
+
+            const sourceColors: Record<UserImportSource, string> = {
+              [UserImportSource.Native]: 'bg-green-100 text-green-800',
+              [UserImportSource.Privy]: 'bg-blue-100 text-blue-800',
+              [UserImportSource.Contract]: 'bg-purple-100 text-purple-800',
+              [UserImportSource.Manual]: 'bg-orange-100 text-orange-800',
+              [UserImportSource.Guildxyz]: 'bg-pink-100 text-pink-800',
+            };
+
+            return (
+              <span
+                key={index}
+                className={`text-xs px-2 py-1 rounded-full ${sourceColors[source]}`}>
+                {sourceLabels[source]}
+              </span>
+            );
+          })}
+        </div>
+      );
+    },
+    enableSorting: true,
+    enableResizing: true,
+    size: 200,
+    minSize: 150,
+  },
 };
 
 // Function to create dynamic columns based on data type
@@ -173,6 +395,13 @@ export function createUserColumns(data: ParsedUser[]): ColumnDef<ParsedUser>[] {
   // Helper function to check if any row has persona data
   const hasPersonaDataInAnyRow = (data: ParsedUser[]): boolean => {
     return data.some(user => hasData(user, 'personaData'));
+  };
+
+  const hasImportedSourceDataInAnyRow = (data: ParsedUser[], source: UserImportSource): boolean => {
+    return data.some(user => {
+      const importedSourceData = user.personaData?.imported_source_data as ImportedUserSourceData[];
+      return importedSourceData?.some(sourceData => sourceData.source === source);
+    });
   };
 
   // Always include identity column
@@ -189,8 +418,30 @@ export function createUserColumns(data: ParsedUser[]): ColumnDef<ParsedUser>[] {
       columnUserDefinitions.transactions,
       columnUserDefinitions.tokens,
       columnUserDefinitions.activity,
-      columnUserDefinitions.walletCreatedAt
+      columnUserDefinitions.walletCreatedAt,
+      columnUserDefinitions.importSources
     );
+
+    // Add Privy-specific columns when available
+    if (hasImportedSourceDataInAnyRow(data, UserImportSource.Privy)) {
+      columns.push(
+        columnUserDefinitions.privyCreatedAt,
+        columnUserDefinitions.privyGithub,
+        columnUserDefinitions.privyTwitter
+      );
+    }
+
+    // Add Contract-specific columns when available
+    if (hasImportedSourceDataInAnyRow(data, UserImportSource.Contract)) {
+      columns.push(
+        columnUserDefinitions.contractAddress,
+        columnUserDefinitions.contractTransactionCount,
+        columnUserDefinitions.contractLastInteraction
+      );
+    }
+  } else {
+    // If no persona data, still show import sources column
+    columns.push(columnUserDefinitions.importSources);
   }
   return columns;
 }

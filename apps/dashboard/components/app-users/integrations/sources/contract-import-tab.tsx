@@ -156,6 +156,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
                 onClick={() => {
                   setConfigured(false);
                   setContractAddress('');
+                  setConfiguring(false);
                   setChainId(0);
                 }}>
                 Stop and Reset

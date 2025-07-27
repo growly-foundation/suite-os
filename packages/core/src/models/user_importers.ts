@@ -21,6 +21,7 @@ export type ImportUserOutput<T = Record<string, any>> = {
   name?: string;
   extra?: T;
   source: UserImportSource;
+  imported?: boolean;
 };
 
 export type ImportPrivyUserOutput = ImportUserOutput<PrivyUser>;

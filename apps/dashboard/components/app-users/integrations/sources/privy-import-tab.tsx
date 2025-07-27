@@ -1,16 +1,20 @@
 'use client';
 
+import { AnimatedLoadingSmall } from '@/components/animated-components/animated-loading-small';
 import { UserSelectionList } from '@/components/app-users/integrations/user-selection-list';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Loadable } from '@/components/ui/loadable';
 import { useDashboardState } from '@/hooks/use-dashboard';
+import { useOrganizationUsersQuery } from '@/hooks/use-dashboard-queries';
 import { UserImportService } from '@/lib/services/user-import.service';
 import { InfoIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import { Address } from 'viem';
 
 import { ImportPrivyUserOutput } from '@getgrowly/core';
 
@@ -28,6 +32,9 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
   const [privyUsers, setPrivyUsers] = useState<ImportPrivyUserOutput[]>([]);
   const [importing, setImporting] = useState(false);
   const { selectedOrganization } = useDashboardState();
+  const { data: userData, isLoading: isLoadingUsers } = useOrganizationUsersQuery(
+    selectedOrganization?.id
+  );
 
   // Handle configuration
   const handleConfigure = async () => {
@@ -54,8 +61,14 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
   const handleFetchUsers = async () => {
     setLoading(true);
     try {
+      const userMap = new Map(userData?.map(user => [user.entities?.['walletAddress'], user]));
       const response = await UserImportService.importPrivyUsers(appId, appSecret);
-      setPrivyUsers(response);
+      setPrivyUsers(
+        response.map(user => ({
+          ...user,
+          imported: userMap.has(user.walletAddress as Address),
+        }))
+      );
       setConfigured(true);
     } catch (error) {
       console.error('Error fetching Privy users:', error);
@@ -106,6 +119,12 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
     }
   };
 
+  const handleReset = () => {
+    setAppId('');
+    setAppSecret('');
+    setPrivyUsers([]);
+  };
+
   return (
     <div className="space-y-6">
       <div className="px-4">
@@ -123,91 +142,84 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
           </AlertDescription>
         </Alert>
       </div>
-      <div className="space-y-6">
-        {!configured ? (
-          <div className="space-y-4 px-4">
-            <div className="grid gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="app-id">Privy App ID</Label>
-                <Input
-                  id="app-id"
-                  value={appId}
-                  required
-                  aria-describedby="app-id-error"
-                  onChange={e => setAppId(e.target.value)}
-                  placeholder="Enter your Privy App ID"
-                />
-                {!appId && (
-                  <span id="app-id-error" className="text-xs text-red-500">
-                    App ID is required
-                  </span>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="app-secret">Privy App Secret</Label>
-                <Input
-                  id="app-secret"
-                  type="password"
-                  value={appSecret}
-                  required
-                  aria-describedby="app-secret-error"
-                  onChange={e => setAppSecret(e.target.value)}
-                  placeholder="Enter your Privy App Secret"
-                />
-                {!appSecret && (
-                  <span id="app-secret-error" className="text-xs text-red-500">
-                    App Secret is required
-                  </span>
-                )}
-              </div>
-            </div>
-            {configuring ? (
-              <Button
-                onClick={() => {
-                  setConfigured(false);
-                  setAppId('');
-                  setAppSecret('');
-                }}>
-                Stop and Reset
-              </Button>
-            ) : (
-              <Button onClick={handleConfigure} disabled={!appId || !appSecret}>
-                Configure Privy
-              </Button>
-            )}
-          </div>
-        ) : (
-          <>
-            <UserSelectionList
-              users={privyUsers}
-              importButtonText={importing ? 'Importing...' : `Import Users`}
-              isImporting={importing}
-              onImport={async (selectedUserIds: string[]) => {
-                const usersToImport = privyUsers.filter(
-                  user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
-                );
-                await handleImport(usersToImport);
-              }}
-              additionalActions={
-                <div className="space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setConfigured(false);
-                      setPrivyUsers([]);
-                    }}>
-                    Change Credentials
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={handleFetchUsers} disabled={loading}>
-                    {loading ? 'Refreshing...' : 'Refresh Users'}
-                  </Button>
+      <Loadable loading={isLoadingUsers} fallback={<AnimatedLoadingSmall />}>
+        <div className="space-y-6">
+          {!configured ? (
+            <div className="space-y-4 px-4">
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="app-id">Privy App ID</Label>
+                  <Input
+                    id="app-id"
+                    value={appId}
+                    required
+                    aria-describedby="app-id-error"
+                    onChange={e => setAppId(e.target.value)}
+                    placeholder="Enter your Privy App ID"
+                  />
+                  {!appId && (
+                    <span id="app-id-error" className="text-xs text-red-500">
+                      App ID is required
+                    </span>
+                  )}
                 </div>
-              }
-            />
-          </>
-        )}
-      </div>
+                <div className="space-y-2">
+                  <Label htmlFor="app-secret">Privy App Secret</Label>
+                  <Input
+                    id="app-secret"
+                    type="password"
+                    value={appSecret}
+                    required
+                    aria-describedby="app-secret-error"
+                    onChange={e => setAppSecret(e.target.value)}
+                    placeholder="Enter your Privy App Secret"
+                  />
+                  {!appSecret && (
+                    <span id="app-secret-error" className="text-xs text-red-500">
+                      App Secret is required
+                    </span>
+                  )}
+                </div>
+              </div>
+              {configuring ? (
+                <Button onClick={handleReset}>Stop and Reset</Button>
+              ) : (
+                <Button onClick={handleConfigure} disabled={!appId || !appSecret}>
+                  Configure Privy
+                </Button>
+              )}
+            </div>
+          ) : (
+            <>
+              <UserSelectionList
+                users={privyUsers}
+                importButtonText={importing ? 'Importing...' : `Import Users`}
+                isImporting={importing}
+                onImport={async (selectedUserIds: string[]) => {
+                  const usersToImport = privyUsers.filter(
+                    user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
+                  );
+                  await handleImport(usersToImport);
+                }}
+                additionalActions={
+                  <div className="space-x-2">
+                    <Button variant="outline" size="sm" onClick={handleReset}>
+                      Change Credentials
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleFetchUsers}
+                      disabled={loading}>
+                      {loading ? 'Refreshing...' : 'Refresh Users'}
+                    </Button>
+                  </div>
+                }
+              />
+            </>
+          )}
+        </div>
+      </Loadable>
     </div>
   );
 }

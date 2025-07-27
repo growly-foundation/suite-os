@@ -48,6 +48,13 @@ export const columnImportedUserDefinitions: Record<string, ColumnDef<ImportUserO
     size: 160,
     minSize: 120,
   },
+  imported: {
+    id: 'imported',
+    accessorFn: (row: ImportUserOutput) => row.imported || '',
+    header: 'Imported',
+    enableSorting: true,
+    enableResizing: true,
+  },
   name: {
     id: 'name',
     accessorFn: (row: ImportUserOutput) => row.name || '',
@@ -223,6 +230,8 @@ export function createImportedUserColumns<T extends ImportUserOutput>(data: T[])
   if (hasDataInAnyRow(data, 'name')) {
     columns.push(columnImportedUserDefinitions.name as ColumnDef<T>);
   }
+
+  columns.push(columnImportedUserDefinitions.imported as ColumnDef<T>);
 
   if (hasUsersWithSource(data, UserImportSource.Privy)) {
     // Add Privy-specific columns if any Privy user has the data
