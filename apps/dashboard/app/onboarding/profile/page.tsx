@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { suiteCore } from '@/core/suite';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { uploadToSupabase } from '@/utils/supabase-storage';
-import { Loader2, Upload } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
@@ -104,7 +104,7 @@ export function ProfileForm() {
         </div>
 
         <div>
-          <div className="flex space-x-6 max-sm:flex-col max-sm:space-x-0 items-center space-y-4 md:space-y-0 mb-6">
+          {/* <div className="flex space-x-6 max-sm:flex-col max-sm:space-x-0 items-center space-y-4 md:space-y-0 mb-6">
             <div className="relative w-24 h-24 mb-2">
               {profileImage ? (
                 <div className="w-24 h-24 rounded-full overflow-hidden bg-muted flex items-center justify-center">
@@ -135,7 +135,7 @@ export function ProfileForm() {
                 *JPG, PNG files up to 10MB at least 400px by 400px
               </p>
             </div>
-          </div>
+          </div> */}
 
           <div className="grid gap-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

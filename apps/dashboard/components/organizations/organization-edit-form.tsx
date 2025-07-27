@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { ArrowLeft, Loader2, Upload } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
@@ -162,7 +162,7 @@ export function OrganizationEditForm({
         </p>
       </div>
       <div>
-        <div className="flex space-x-6 items-center mb-6 max-sm:flex-col max-sm:space-x-0">
+        {/* <div className="flex space-x-6 items-center mb-6 max-sm:flex-col max-sm:space-x-0">
           <div className="relative w-24 h-24 mb-2">
             {companyLogo ? (
               <div className="w-24 h-24 rounded-xl overflow-hidden bg-muted flex items-center justify-center">
@@ -193,7 +193,7 @@ export function OrganizationEditForm({
               *JPG, PNG files up to 10MB at least 400px by 400px
             </p>
           </div>
-        </div>
+        </div> */}
         <div className="grid gap-6">
           <div className="space-y-2">
             <Label className="text-sm" htmlFor="companyName">
@@ -272,17 +272,19 @@ export function OrganizationEditForm({
           <Button
             size="lg"
             onClick={handleSubmit}
-            className="w-full mt-2 bg-gradient-to-r from-primary to-brand-accent"
+            className="w-full mt-2 bg-gradient-to-r from-primary to-brand-accent max-w-[300px]"
             disabled={isSubmitting || !companyName || !organizationHandle}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Continue
           </Button>
-          <Link href="/onboarding/profile" className="block text-center">
-            <Button variant="ghost" type="button" className="mt-2 w-full">
-              <ArrowLeft size={16} className="mr-2" />
-              Back to profile
-            </Button>
-          </Link>
+          {!existingOrganization && (
+            <Link href="/onboarding/profile" className="block text-center">
+              <Button variant="ghost" type="button" className="mt-2 w-full">
+                <ArrowLeft size={16} className="mr-2" />
+                Back to profile
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
     </React.Fragment>

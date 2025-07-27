@@ -3,32 +3,18 @@
 import { AppUserAvatarWithStatus } from '@/components/app-users/app-user-avatar-with-status';
 import { MessageListCard } from '@/components/conversations/message-list-card';
 import { GrowthRetentionChart } from '@/components/dashboard/growth-retention-chart';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { IconContainer } from '@/components/ui/icon-container';
 import type { TimeRange } from '@/components/ui/time-range-selector';
 import { TimeRangeSelector } from '@/components/ui/time-range-selector';
-import { suiteCore } from '@/core/suite';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { useDashboardDataQueries } from '@/hooks/use-dashboard-queries';
 import {
   Activity as ActivityIcon,
   Bot,
-  Loader,
   RefreshCw,
   Settings2,
-  Trash2Icon,
   User2Icon,
   WorkflowIcon,
 } from 'lucide-react';
@@ -50,10 +36,8 @@ const AnimatedLoadingSmall = dynamic(
 );
 
 export function DashboardInner() {
-  const { selectedOrganization, setSelectedOrganization } = useDashboardState();
+  const { selectedOrganization } = useDashboardState();
   const router = useRouter();
-  const [loadingDelete, setLoadingDelete] = useState(false);
-  const [openDeleteOrganization, setOpenDeleteOrganization] = useState(false);
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange>({
     label: 'Last 30 days',
@@ -172,26 +156,6 @@ export function DashboardInner() {
     ].sort((a, b) => moment(b.timestamp).unix() - moment(a.timestamp).unix());
   }, [agents, users, workflows, selectedTimeRange]);
 
-  const handleDeleteOrganization = async () => {
-    if (!selectedOrganization) return;
-    setLoadingDelete(true);
-    try {
-      const isConfirmed = window.confirm(
-        `Are you sure you want to delete organization ${selectedOrganization.name}?`
-      );
-      if (isConfirmed) {
-        await suiteCore.db.organizations.delete(selectedOrganization.id);
-        setSelectedOrganization(undefined);
-        toast.success('Organization deleted successfully');
-      }
-    } catch (error) {
-      console.error('Error deleting organization:', error);
-      toast.error('Failed to delete organization');
-    } finally {
-      setLoadingDelete(false);
-    }
-  };
-
   return (
     <React.Fragment>
       {isLoading ? (
@@ -211,42 +175,6 @@ export function DashboardInner() {
               <Button onClick={handleRefresh} variant="outline" className="gap-2">
                 <RefreshCw className="h-4 w-4" />
               </Button>
-              <AlertDialog open={openDeleteOrganization} onOpenChange={setOpenDeleteOrganization}>
-                <AlertDialogTrigger asChild>
-                  <Button disabled={loadingDelete} variant="destructive" size="sm">
-                    {loadingDelete ? (
-                      <Loader className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Trash2Icon className="h-4 w-4" />
-                    )}
-                    {loadingDelete ? 'Deleting...' : 'Delete'}
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete your organization
-                      and remove your data from our servers.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter className="flex items-center justify-between">
-                    <AlertDialogCancel
-                      className="text-xs"
-                      onClick={() => setOpenDeleteOrganization(false)}>
-                      Cancel
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                      className="text-xs"
-                      onClick={async () => {
-                        await handleDeleteOrganization();
-                        setOpenDeleteOrganization(false);
-                      }}>
-                      Continue
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
             </div>
           </div>
 
