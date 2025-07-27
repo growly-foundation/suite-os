@@ -38,7 +38,7 @@ export class ResourceService {
   ): Promise<{ description: string; success: boolean; message?: string }> {
     try {
       const response = await axios.post(
-        `${API_URL}/resources/link/extract-description`,
+        `${SERVER_API_URL}/resources/link/extract-description`,
         {
           url,
         },

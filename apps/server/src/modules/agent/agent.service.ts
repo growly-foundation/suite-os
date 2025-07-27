@@ -6,6 +6,7 @@ import {
   AgentOptions,
   ChatProvider,
   RecommendationService,
+  ResourceContext,
   agentPromptTemplate,
   beastModeDescription,
   createAgent,
@@ -13,6 +14,7 @@ import {
 import { MessageContent, SuiteDatabaseCore } from '@getgrowly/core';
 
 import { SUITE_CORE } from '../../constants/services';
+import { FirecrawlService } from '../firecrawl/firecrawl.service';
 
 const buildThreadId = (agentId: string, userId: string) => `${agentId}-${userId}`;
 
@@ -33,7 +35,8 @@ export class AgentService {
 
   constructor(
     private readonly configService: ConfigService,
-    @Inject(SUITE_CORE) private readonly suiteCore: SuiteDatabaseCore
+    @Inject(SUITE_CORE) private readonly suiteCore: SuiteDatabaseCore,
+    private readonly firecrawlService: FirecrawlService
   ) {}
 
   // Use Langchain PromptTemplate for dynamic prompt construction
@@ -42,17 +45,25 @@ export class AgentService {
     agentDescription: string,
     organizationName: string,
     organizationDescription: string,
-    resources: string,
+    resources: ResourceContext[],
     isBeastMode: boolean
   ): Promise<string> {
     const beastModePrompt = isBeastMode ? beastModeDescription : '';
+
+    // Create resource summary for the prompt
+    const resourceSummary =
+      resources.length > 0
+        ? `You have access to ${resources.length} resources. Use the resource tools to access their content:\n` +
+          resources.map(r => `- ${r.name} (${r.type})`).join('\n')
+        : 'No resources are currently attached to this agent.';
+
     return (
       await agentPromptTemplate.invoke({
         walletAddress,
         agentDescription,
         organizationName,
         organizationDescription,
-        resources,
+        resources: resourceSummary,
         beastModePrompt,
       })
     ).toString();
@@ -80,6 +91,7 @@ export class AgentService {
     const organizationName = organization?.name || '';
     const organizationDescription = organization?.description || '';
 
+    // Get agent resources
     const agentResourceIds = await this.suiteCore.db.agent_resources.getAllByFields({
       agent_id: agentId,
     });
@@ -88,11 +100,15 @@ export class AgentService {
       agentResourceIds.map(ar => ar.resource_id)
     );
 
-    const resourcesString = resources
-      .map(resource => `${resource.name} - ${resource.type} - ${JSON.stringify(resource.value)}`)
-      .join('\n');
+    // Convert to ResourceContext format
+    const resourceContext: ResourceContext[] = resources.map(resource => ({
+      id: resource.id,
+      name: resource.name,
+      type: resource.type as ResourceContext['type'],
+      value: resource.value,
+    }));
 
-    this.logger.debug(`🔍 [Resources]: ${resourcesString}`);
+    this.logger.debug(`🔍 [Resources]: ${resourceContext.length} resources attached`);
 
     // Get provider from config
     const provider: ChatProvider =
@@ -104,11 +120,11 @@ export class AgentService {
       agentDescription,
       organizationName,
       organizationDescription,
-      resourcesString,
+      resourceContext,
       true // TODO: Make this dynamic
     );
 
-    // Create agent options
+    // Create agent options with resource support
     const agentOptions: AgentOptions = {
       provider,
       agentId,
@@ -117,8 +133,11 @@ export class AgentService {
         zerion: true,
         uniswap: true,
         tavily: true,
+        resources: resourceContext.length > 0,
       },
       verbose: this.configService.get('MODEL_VERBOSE') === 'true',
+      resources: resourceContext,
+      firecrawlService: this.firecrawlService,
     };
 
     // Get or create agent with persistence
@@ -184,6 +203,7 @@ export class AgentService {
             'Crypto market research with Tavily',
             'Risk assessment and rebalancing',
             'Yield farming opportunities',
+            'Resource access and content extraction',
           ],
         });
 
@@ -208,9 +228,11 @@ export class AgentService {
   }
 
   /**
-   * Regular chat using the beast mode agent
+   * Advanced chat with additional features
    */
   async advancedChat({ message, userId, agentId }: AgentChatRequest): Promise<AgentChatResponse> {
+    // For now, use the same implementation as regular chat
+    // This can be extended with additional features later
     return this.chat({ message, userId, agentId });
   }
 }

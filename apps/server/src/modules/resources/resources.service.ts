@@ -50,13 +50,13 @@ export class ResourcesService {
           onlyMainContent: true,
         });
 
-        this.logger.debug(`Firecrawl markdown attempt for ${dto.url}:`, {
-          success: scrapeResult.success,
-          hasMarkdown: !!scrapeResult.markdown,
-          hasMetadata: !!scrapeResult.metadata,
-          markdownLength: scrapeResult.markdown ? scrapeResult.markdown.length : 0,
-          title: scrapeResult.metadata?.title,
-        });
+        if (this.configService.get<string>('NODE_ENV') !== 'production') {
+          this.logger.debug(`Firecrawl markdown attempt for ${dto.url}:`, {
+            success: scrapeResult.success,
+            hasMarkdown: !!scrapeResult.markdown,
+            markdownLength: scrapeResult.markdown ? scrapeResult.markdown.length : 0,
+          });
+        }
 
         if (scrapeResult.success) {
           // Extract from the root level of the response
