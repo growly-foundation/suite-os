@@ -191,7 +191,11 @@ export function UsersTable({
         searchPlaceholder="Search ENS or address"
         additionalActions={additionalActions}
       />
-      <ResizableSheet side="right" open={open} onOpenChange={handleCloseUserDetails}>
+      <ResizableSheet
+        side="right"
+        className="w-full"
+        open={open}
+        onOpenChange={handleCloseUserDetails}>
         {selectedUser && <UserDetails user={selectedUser} />}
       </ResizableSheet>
     </>

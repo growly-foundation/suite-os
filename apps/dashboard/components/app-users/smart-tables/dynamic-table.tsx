@@ -19,7 +19,6 @@ import { ArrowUpDown, ChevronDown, ChevronUp } from 'lucide-react';
 import { ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/table';
-import { TableUserData } from './columns/column-formatters';
 import { EmptyState } from './empty-state';
 import { TableToolbar } from './table-toolbar';
 
@@ -39,7 +38,7 @@ function calculateFrozenColumnPosition(
   return `${cumulativeWidth}px`;
 }
 
-export interface DynamicTableProps<TData extends TableUserData> {
+export interface DynamicTableProps<TData = any> {
   data: TData[];
   columns: ColumnDef<TData>[];
   isLoading?: boolean;
@@ -76,7 +75,7 @@ export interface DynamicTableProps<TData extends TableUserData> {
   additionalActions?: ReactNode;
 }
 
-export function DynamicTable<TData extends TableUserData>({
+export function DynamicTable<TData = any>({
   data,
   columns,
   isLoading = false,
@@ -106,13 +105,14 @@ export function DynamicTable<TData extends TableUserData>({
   searchPlaceholder = 'Search...',
   additionalActions,
 }: DynamicTableProps<TData>) {
+  console.log('[DynamicTable] data', data);
   const [sorting, setSorting] = useState<SortingState>(initialSorting);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>([]);
   const [columnSizing, setColumnSizing] = useState({});
   const [pagination, setPagination] = useState({
     pageIndex: (currentPage || 1) - 1,
-    pageSize: pageSize,
+    pageSize: enablePagination ? pageSize : data.length,
   });
 
   // Use external row selection state if provided, otherwise use internal state

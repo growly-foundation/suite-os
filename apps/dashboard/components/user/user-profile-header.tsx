@@ -1,52 +1,74 @@
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { consumePersona } from '@/core/persona';
-import { Award, ExternalLink } from 'lucide-react';
-import { Address } from 'viem';
+import { Copy, ExternalLink, Share2 } from 'lucide-react';
 
 import { ParsedUser } from '@getgrowly/core';
-import { WalletAddress } from '@getgrowly/ui';
-
-import { AppUserAvatarWithStatus } from '../app-users/app-user-avatar-with-status';
-import { Badge } from '../ui/badge';
+import { RandomAvatar } from '@getgrowly/ui';
 
 interface UserProfileHeaderProps {
   user: ParsedUser;
 }
 
-/**
- * User profile header component displaying avatar, name, wallet address,
- * description and dominant trait information
- */
 export function UserProfileHeader({ user }: UserProfileHeaderProps) {
-  const userPersona = consumePersona(user);
-  const nameService = userPersona.nameService();
-  const dominantTrait = userPersona.dominantTrait();
-  const dominantTraitScore = userPersona.dominantTraitScore();
+  const walletAddress = user.entities.walletAddress;
+  const persona = consumePersona(user);
+  const shortAddress = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(walletAddress);
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 border-b bg-white">
-      <AppUserAvatarWithStatus
-        walletAddress={user.personaData.id as Address}
-        name={user.name}
-        online={user.chatSession.status}
-      />
-      <h3 className="font-semibold text-lg">{nameService?.name}</h3>
-      <div className="flex items-center gap-2 mt-1">
-        <WalletAddress truncate address={user.personaData.id} />
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-          <ExternalLink className="h-3 w-3" />
-        </Button>
-      </div>
-      <p className="text-sm text-center text-muted-foreground mt-2">
-        {user.offchainData?.description || 'No description'}
-      </p>
+    <div className="flex items-center justify-between">
+      {/* Left Side - User Info */}
+      <div className="flex items-center gap-4">
+        {/* Profile Picture */}
+        <div className="h-16 w-16">
+          <RandomAvatar
+            address={walletAddress}
+            ensAvatar={persona.nameService().avatar}
+            size={64}
+          />
+        </div>
 
-      {/* Reputation */}
-      <div className="flex items-center gap-2 mt-3">
-        <Badge variant="secondary" className="bg-green-100 text-green-800">
-          <Award className="h-3 w-3 mr-1" />
-          {dominantTrait?.toString() || 'No dominant trait'} • {dominantTraitScore || 'No score'}
-        </Badge>
+        {/* User Details */}
+        <div className="flex flex-col">
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold">{persona.nameService().name || shortAddress}</h1>
+          </div>
+
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>{shortAddress}</span>
+            <Button variant="ghost" size="sm" onClick={copyToClipboard}>
+              <Copy className="h-3 w-3" />
+            </Button>
+            <Button variant="ghost" size="sm">
+              <ExternalLink className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Action Buttons */}
+      <div className="flex items-center gap-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm">
+              <Share2 className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>Share Profile</DropdownMenuItem>
+            <DropdownMenuItem>Copy Link</DropdownMenuItem>
+            <DropdownMenuItem>Export Data</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

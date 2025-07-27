@@ -3,6 +3,11 @@ import moment from 'moment';
 import { types } from '@getgrowly/chainsmith';
 import { ParsedUser } from '@getgrowly/core';
 
+export type TActivityFeed = {
+  chainName: types.TChainName;
+  activity: types.TTokenTransferActivity;
+};
+
 export const SUPPORTED_CHAINS: types.TChainName[] = ['mainnet', 'base', 'optimism'];
 
 export const consumePersona = (user: ParsedUser) => {
@@ -14,6 +19,7 @@ export const consumePersona = (user: ParsedUser) => {
   ];
 
   return {
+    address: () => user.id,
     nameService: () =>
       SUPPORTED_CHAINS.map(chainName => identities?.nameService?.[chainName]).find(
         nameService => !!nameService?.name
@@ -54,6 +60,21 @@ export const consumePersona = (user: ParsedUser) => {
     dominantTraitScore: () =>
       identities?.traitScores?.find(traitScore => traitScore.trait === identities?.dominantTrait)
         ?.score,
+    activityFeed: () => {
+      const multichainActivities: TActivityFeed[] = [];
+      for (const chainName of SUPPORTED_CHAINS) {
+        const chainActivities = activities?.tokenActivity?.[chainName];
+        if (chainActivities) {
+          multichainActivities.push(
+            ...chainActivities.map(activity => ({
+              activity,
+              chainName,
+            }))
+          );
+        }
+      }
+      return multichainActivities;
+    },
     getLatestActivity: () => {
       let lastActivity: types.TTokenTransferActivity | null = null;
       for (const chainName of SUPPORTED_CHAINS) {

@@ -26,6 +26,12 @@ export function getChainIdByName(name: TChainName): number {
   return getChainByName(name).id;
 }
 
+export function getChainNameById(id: number): TChainName {
+  const chain = Object.values(EvmChainList).find(c => c.id === id);
+  if (!chain) throw new Error('No chain found');
+  return chain.name as TChainName;
+}
+
 export function getClientChain(client: TClient): TBaseChain {
   const chain = client.chain;
   if (!chain) throw new Error('No chain initialized.');

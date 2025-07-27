@@ -10,7 +10,7 @@ export interface NftItemData {
 interface NftGridProps {
   items: NftItemData[];
   limit?: number;
-  columns?: 2 | 3 | 4;
+  columns?: 2 | 3 | 4 | 5;
   className?: string;
 }
 
@@ -25,6 +25,7 @@ export function NftGrid({ items, limit = 6, columns = 3, className = '' }: NftGr
       2: 'grid-cols-2',
       3: 'grid-cols-3',
       4: 'grid-cols-4',
+      5: 'grid-cols-5',
     }[columns] || 'grid-cols-3';
 
   return (
