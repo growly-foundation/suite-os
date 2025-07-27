@@ -2,6 +2,7 @@
 
 import { AppUserAvatarWithStatus } from '@/components/app-users/app-user-avatar-with-status';
 import { MessageListCard } from '@/components/conversations/message-list-card';
+import { GrowthRetentionChart } from '@/components/dashboard/growth-retention-chart';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +17,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { IconContainer } from '@/components/ui/icon-container';
+import type { TimeRange } from '@/components/ui/time-range-selector';
+import { TimeRangeSelector } from '@/components/ui/time-range-selector';
 import { suiteCore } from '@/core/suite';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { useDashboardDataQueries } from '@/hooks/use-dashboard-queries';
@@ -46,15 +49,17 @@ const AnimatedLoadingSmall = dynamic(
   { ssr: false }
 );
 
-const MAX_RECENT_ACTIVITY = 6;
-
 export function DashboardInner() {
   const { selectedOrganization, setSelectedOrganization } = useDashboardState();
   const router = useRouter();
-  const [showAllActivity, setShowAllActivity] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [openDeleteOrganization, setOpenDeleteOrganization] = useState(false);
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
+  const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange>({
+    label: 'Last 30 days',
+    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    endDate: new Date(),
+  });
 
   // Use the new React Query hooks for data fetching
   const {
@@ -85,10 +90,20 @@ export function DashboardInner() {
   ) => {
     const activeAgents = agents.filter(agent => agent.status === Status.Active);
     const runningWorkflows = workflows.filter(workflow => workflow.status === Status.Active);
+
+    // Filter users based on selected time range
+    const filteredUsers = users.filter(user => {
+      const createdAt = moment(user.created_at);
+      return createdAt.isBetween(
+        selectedTimeRange.startDate,
+        selectedTimeRange.endDate,
+        'day',
+        '[]'
+      );
+    });
+
     return {
-      newUsers30d: users.filter(user =>
-        moment(user.created_at).isAfter(moment().subtract(30, 'days'))
-      ).length,
+      newUsers30d: filteredUsers.length,
       totalAgents: agents.length,
       activeAgents: activeAgents.length,
       totalWorkflows: workflows.length,
@@ -114,8 +129,19 @@ export function DashboardInner() {
   const recentActivity = React.useMemo(() => {
     if (!agents || !users || !workflows) return [];
 
+    // Filter users based on selected time range
+    const filteredUsers = users.filter(user => {
+      const createdAt = moment(user.created_at);
+      return createdAt.isBetween(
+        selectedTimeRange.startDate,
+        selectedTimeRange.endDate,
+        'day',
+        '[]'
+      );
+    });
+
     return [
-      ...users.map(user => ({
+      ...filteredUsers.map(user => ({
         type: 'user' as const,
         title: `New user "${truncateAddress(user.entities.walletAddress, 8, 6)}" added`,
         timestamp: user.created_at,
@@ -144,7 +170,7 @@ export function DashboardInner() {
         color: 'bg-green-100',
       })),
     ].sort((a, b) => moment(b.timestamp).unix() - moment(a.timestamp).unix());
-  }, [agents, users, workflows]);
+  }, [agents, users, workflows, selectedTimeRange]);
 
   const handleDeleteOrganization = async () => {
     if (!selectedOrganization) return;
@@ -177,8 +203,11 @@ export function DashboardInner() {
               <h1 className="text-3xl font-bold tracking-tight">{selectedOrganization?.name}</h1>
               <p className="text-muted-foreground text-sm">{selectedOrganization?.description}</p>
             </div>
-            <div style={{ width: 100 }}></div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
+              <TimeRangeSelector
+                selectedRange={selectedTimeRange}
+                onRangeChange={setSelectedTimeRange}
+              />
               <Button onClick={handleRefresh} variant="outline" className="gap-2">
                 <RefreshCw className="h-4 w-4" />
               </Button>
@@ -229,14 +258,16 @@ export function DashboardInner() {
                     <IconContainer className={'bg-primary w-6 h-6 border-primary text-white'}>
                       <User2Icon className="h-4 w-4" />
                     </IconContainer>{' '}
-                    New Users (30d)
+                    New Users ({selectedTimeRange.label})
                   </div>
                 </CardTitle>
                 <Bot className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{metrics.newUsers30d}</div>
-                <p className="text-xs text-muted-foreground">New users in the last 30 days</p>
+                <p className="text-xs text-muted-foreground">
+                  New users in the selected time range
+                </p>
               </CardContent>
             </Card>
             <Card>
@@ -295,6 +326,10 @@ export function DashboardInner() {
             </Card>
           </div>
 
+          <div className="grid gap-4 md:grid-cols-1">
+            <GrowthRetentionChart timeRange={selectedTimeRange} />
+          </div>
+
           <div className="grid gap-4 md:grid-cols-3">
             <Card className="col-span-1 h-fit">
               <CardHeader>
@@ -305,37 +340,29 @@ export function DashboardInner() {
                       Latest actions across your organization
                     </CardDescription>
                   </div>
-                  {recentActivity.length > MAX_RECENT_ACTIVITY && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowAllActivity(!showAllActivity)}
-                      className="text-muted-foreground hover:text-primary">
-                      {showAllActivity ? 'Hide' : 'View all'}
-                    </Button>
-                  )}
+                  <div className="text-xs text-muted-foreground">
+                    {recentActivity.length} {recentActivity.length === 1 ? 'item' : 'items'}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {recentActivity
-                    .slice(0, showAllActivity ? recentActivity.length : MAX_RECENT_ACTIVITY)
-                    .map(activity => (
-                      <div key={activity.timestamp} className="flex items-center gap-4">
-                        <div
-                          className={`h-8 w-8 rounded-full flex items-center justify-center ${
-                            activity.color
-                          }`}>
-                          {activity.icon}
-                        </div>
-                        <div className="flex-1 space-y-1">
-                          <p className="text-xs font-normal">{activity.title}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {moment(activity.timestamp).fromNow()}
-                          </p>
-                        </div>
+                <div className="space-y-4 max-h-[300px] overflow-y-auto">
+                  {recentActivity.map(activity => (
+                    <div key={activity.timestamp} className="flex items-center gap-4">
+                      <div
+                        className={`h-8 w-8 rounded-full flex items-center justify-center ${
+                          activity.color
+                        }`}>
+                        {activity.icon}
                       </div>
-                    ))}
+                      <div className="flex-1 space-y-1">
+                        <p className="text-xs font-normal">{activity.title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {moment(activity.timestamp).fromNow()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                   {recentActivity.length === 0 && (
                     <p className="text-sm text-muted-foreground">No recent activity</p>
                   )}
