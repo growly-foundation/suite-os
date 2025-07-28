@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as dotenv from 'dotenv';
@@ -46,6 +47,7 @@ async function bootstrap() {
   // );
 
   app.enableCors();
+  app.useGlobalPipes(new ValidationPipe());
   await app.listen(process.env.PORT ?? 8080);
 }
 
