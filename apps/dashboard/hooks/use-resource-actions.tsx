@@ -107,7 +107,7 @@ export const getResourceWithABI = async (updatedResource: TypedResource<Resource
   const value = updatedResource.value as ContractValue;
   try {
     // Attempt to fetch the contract ABI
-    const abi = await ResourceService.getContractABI(value.address, value.network);
+    const abi = await ResourceService.getContractABI(value.address, value.chainId);
     // Update the resource with the ABI
     updatedResource = {
       ...updatedResource,

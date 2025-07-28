@@ -46,9 +46,9 @@ export function ResourceListItem<T extends ResourceType>({
               </code>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Network:</span>
+              <span className="text-sm font-medium">Chain ID:</span>
               <span className="text-sm text-muted-foreground">
-                {value.value.network || 'Unknown'}
+                {value.value.chainId || 'Unknown'}
               </span>
             </div>
           </div>

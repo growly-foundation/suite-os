@@ -59,10 +59,10 @@ export class ResourceService {
   /**
    * Fetch contract ABI from address
    */
-  static async getContractABI(address: string, network?: string): Promise<any[]> {
+  static async getContractABI(address: string, chainId?: number): Promise<any[]> {
     try {
       const response = await axios.get(
-        `${SERVER_API_URL}/resources/contract/${address}?network=${network}`
+        `${SERVER_API_URL}/resources/contract/${address}?chainId=${chainId}`
       );
       return response.data.abi;
     } catch (error) {

@@ -33,9 +33,9 @@ export class ResourcesController {
   }
 
   @Get('contract/:address')
-  async getContractABI(@Param('address') address: string, @Query('network') network?: string) {
+  async getContractABI(@Param('address') address: string, @Query('chainId') chainId?: number) {
     return {
-      abi: await this.resourcesService.getContractABI(address, network),
+      abi: await this.resourcesService.getContractABI(address, chainId),
     };
   }
 

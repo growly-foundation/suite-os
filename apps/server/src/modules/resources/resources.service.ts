@@ -4,7 +4,6 @@ import OpenAI from 'openai';
 import { SUITE_CORE } from 'src/constants/services';
 import { v4 as uuidv4 } from 'uuid';
 
-import { types, utils } from '@getgrowly/chainsmith';
 import { DocumentValue, SuiteDatabaseCore } from '@getgrowly/core';
 
 import { SupabaseService } from '../databases/supabase.service';
@@ -285,9 +284,8 @@ Respond with just the description text, no JSON or formatting.
     return url.replace(this.storageBaseUrl + '/', '');
   }
 
-  async getContractABI(address: string, network = 'mainnet') {
+  async getContractABI(address: string, chainId = 1) {
     try {
-      const chainId = utils.getChainIdByName(network as types.TChainName);
       return await this.etherscanService.getContractABI(address, chainId);
     } catch (error) {
       throw new Error(`Failed to get contract ABI: ${error.message}`);
