@@ -8,9 +8,9 @@ export function makeGetContractAbiTool() {
   return new DynamicStructuredTool({
     name: 'get_contract_abi',
     description: makeToolDescription({
-      description: `Get smart contract ABI and details from attached contract resources.`,
+      description: `Get detailed information about a smart contract's ABI with comprehensive analysis including complexity metrics, security patterns, and function categorization.`,
       condition:
-        'Use when user asks about smart contract functions, ABI, or when you need to understand contract capabilities.',
+        'Use when user asks about smart contract functions, ABI, security analysis, or when you need to understand contract capabilities.',
       input: {
         resourceId: {
           description: 'Resource ID of the contract resource',
@@ -20,11 +20,16 @@ export function makeGetContractAbiTool() {
           description: 'Optional: Specific function name to get details for',
           required: false,
         },
+        includeMetrics: {
+          description:
+            'Optional: Whether to include complexity and security analysis (default: true)',
+          required: false,
+        },
       },
       output: [
         {
           type: 'text',
-          description: 'Contract ABI and function details.',
+          description: 'Comprehensive contract analysis with ABI details, metrics, and insights.',
         },
       ],
     }),
@@ -35,9 +40,14 @@ export function makeGetContractAbiTool() {
           .string()
           .describe('Optional: Specific function name to get details for')
           .optional(),
+        includeMetrics: z
+          .boolean()
+          .describe('Optional: Whether to include complexity and security analysis')
+          .default(true)
+          .optional(),
       })
       .strip()
-      .describe('Input schema for contract ABI access'),
+      .describe('Input schema for contract ABI analysis'),
     func: buildTool(getContractAbiToolFn),
   });
 }

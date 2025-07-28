@@ -64,8 +64,8 @@ function validateResources(resources: ResourceContext[]): ResourceContext[] {
         }
         break;
       case 'contract':
-        if (!resource.value.address || typeof resource.value.network !== 'number') {
-          console.warn(`Contract resource "${resource.name}" missing address or network`);
+        if (!resource.value.address || typeof resource.value.chainId !== 'number') {
+          console.warn(`Contract resource "${resource.name}" missing address or chainId`);
           return false;
         }
         break;
