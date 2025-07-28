@@ -57,6 +57,8 @@
     "@supabase/supabase-js": "^2.49.4",
     "axios": "^1.9.0",
     "bull": "^4.16.5",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
     "dotenv": "^16.5.0",
     "ethers": "^6.13.5",
     "ioredis": "^5.6.1",

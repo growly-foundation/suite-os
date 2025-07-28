@@ -123,25 +123,47 @@ export function ResourceDetails({ resource, onSave, onClose }: ResourceDetailsPr
         )}
 
         {isLinkResource(editedResource) && (
-          <div className="space-y-2">
-            <Label htmlFor="url">URL</Label>
-            <Input
-              id="url"
-              value={editedResource.value.url || ''}
-              onChange={e =>
-                setEditedResource(
-                  prev =>
-                    ({
-                      ...prev,
-                      value: {
-                        ...prev.value,
-                        url: e.target.value,
-                      },
-                    }) as TypedResource<ResourceType>
-                )
-              }
-            />
-          </div>
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="url">URL</Label>
+              <Input
+                id="url"
+                value={editedResource.value.url || ''}
+                onChange={e =>
+                  setEditedResource(
+                    prev =>
+                      ({
+                        ...prev,
+                        value: {
+                          ...prev.value,
+                          url: e.target.value,
+                        },
+                      }) as TypedResource<ResourceType>
+                  )
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                className="text-sm"
+                value={editedResource.value.description || ''}
+                onChange={e =>
+                  setEditedResource(
+                    prev =>
+                      ({
+                        ...prev,
+                        value: {
+                          ...prev.value,
+                          description: e.target.value,
+                        },
+                      }) as TypedResource<ResourceType>
+                  )
+                }
+              />
+            </div>
+          </>
         )}
 
         {isContractResource(editedResource) && (
@@ -167,11 +189,11 @@ export function ResourceDetails({ resource, onSave, onClose }: ResourceDetailsPr
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="network">Network</Label>
+              <Label htmlFor="chainId">Chain ID</Label>
               <select
-                id="network"
+                id="chainId"
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                value={editedResource.value.network || 'mainnet'}
+                value={editedResource.value.chainId || 1}
                 onChange={e =>
                   setEditedResource(
                     prev =>
@@ -179,13 +201,13 @@ export function ResourceDetails({ resource, onSave, onClose }: ResourceDetailsPr
                         ...prev,
                         value: {
                           ...prev.value,
-                          network: e.target.value,
+                          chainId: Number(e.target.value),
                         },
                       }) as TypedResource<ResourceType>
                   )
                 }>
-                <option value="mainnet">Ethereum Mainnet</option>
-                <option value="base">Base</option>
+                <option value="1">Ethereum Mainnet</option>
+                <option value="8453">Base</option>
               </select>
             </div>
           </div>
@@ -271,17 +293,28 @@ export function ResourceDetails({ resource, onSave, onClose }: ResourceDetailsPr
         )}
 
         {isLinkResource(resource) && (
-          <div className="space-x-4">
-            <Label className="text-sm font-medium text-muted-foreground">URL</Label>
-            <a
-              href={resource.value.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center text-sm text-blue-600 hover:underline break-all bg-muted/10 p-3 rounded-md border block">
-              {resource.value.url}
-              <ExternalLink className="ml-1 h-3 w-3 flex-shrink-0" />
-            </a>
-          </div>
+          <>
+            <div className="space-x-4">
+              <Label className="text-sm font-medium text-muted-foreground">URL</Label>
+              <a
+                href={resource.value.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center text-sm text-blue-600 hover:underline break-all bg-muted/10 p-3 rounded-md border block">
+                {resource.value.url}
+                <ExternalLink className="ml-1 h-3 w-3 flex-shrink-0" />
+              </a>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                className="text-sm"
+                value={resource.value.description || ''}
+                readOnly
+              />
+            </div>
+          </>
         )}
 
         {isContractResource(resource) && (
@@ -292,10 +325,10 @@ export function ResourceDetails({ resource, onSave, onClose }: ResourceDetailsPr
                 {resource.value.address || 'No address'}
               </div>
             </div>
-            {resource.value.network && (
+            {resource.value.chainId && (
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-muted-foreground">Network</Label>
-                <div className="text-sm">{resource.value.network}</div>
+                <Label className="text-sm font-medium text-muted-foreground">Chain ID</Label>
+                <div className="text-sm">{resource.value.chainId}</div>
               </div>
             )}
             {resource.value.abi && (

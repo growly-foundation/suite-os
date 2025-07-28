@@ -14,7 +14,7 @@ interface ContractFormProps {
 export function ContractForm({ onChange, initialData }: ContractFormProps) {
   const [formData, setFormData] = useState<ContractValue>({
     address: '',
-    network: mainnet.id,
+    chainId: mainnet.id,
     ...initialData,
   });
 
@@ -45,8 +45,8 @@ export function ContractForm({ onChange, initialData }: ContractFormProps) {
       <div className="space-y-2">
         <Label>Network</Label>
         <ChainSelector
-          value={formData.network}
-          onChange={value => handleChange({ network: value })}
+          value={formData.chainId}
+          onChange={value => handleChange({ chainId: value })}
         />
       </div>
     </div>

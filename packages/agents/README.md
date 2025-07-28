@@ -9,6 +9,7 @@ A modular agent system with multi-agent support for Growly applications, built o
 - 🧩 **Extensible Architecture** - Add custom tools and agents
 - 🔄 **Event-Driven** - Listen to agent events in real-time
 - 🚀 **Production Ready** - Built with TypeScript and battle-tested patterns
+- 📚 **Resource Integration** - Dynamic access to websites, contracts, documents, and text resources
 
 ## Installation
 
@@ -51,6 +52,45 @@ const agent = new ReactAgent(
 // Execute the agent
 const result = await agent.execute('Hello, world!');
 console.log(result.output);
+```
+
+### Resource-Enabled Agent
+
+```typescript
+import { createAgent } from '@getgrowly/agents';
+
+// Create an agent with attached resources
+const agent = await createAgent({
+  agentId: 'my-agent',
+  systemPrompt: 'You are a helpful assistant with access to resources',
+  resources: [
+    {
+      id: 'resource-1',
+      name: 'Uniswap Documentation',
+      type: 'link',
+      value: { url: 'https://docs.uniswap.org/' },
+    },
+    {
+      id: 'resource-2',
+      name: 'USDC Contract',
+      type: 'contract',
+      value: {
+        address: '0xA0b86a33E6441b8c4C8C8C8C8C8C8C8C8C8C8C8C',
+        network: 1,
+        abi: [
+          /* contract ABI */
+        ],
+      },
+    },
+  ],
+  firecrawlService: firecrawlService, // For website content extraction
+});
+
+// Agent can now use resource tools:
+// - get_resource_details
+// - get_website_content
+// - get_contract_abi
+// - get_document_content
 ```
 
 ### Multi-Agent System
@@ -97,6 +137,8 @@ const result = await multiAgent.execute('Research and write about AI agents');
 ## Documentation
 
 ### Core Concepts
+
+For detailed information about the resource integration feature, see [README_RESOURCES.md](./README_RESOURCES.md).
 
 #### Agents
 

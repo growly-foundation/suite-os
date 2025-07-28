@@ -11,6 +11,10 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
+import {
+  ExtractDescriptionDto,
+  ExtractDescriptionResponseDto,
+} from './dto/extract-description.dto';
 import { ResourcesService } from './resources.service';
 
 @Controller('resources')
@@ -29,9 +33,17 @@ export class ResourcesController {
   }
 
   @Get('contract/:address')
-  async getContractABI(@Param('address') address: string, @Query('network') network?: string) {
+  async getContractABI(@Param('address') address: string, @Query('chainId') chainId?: number) {
     return {
-      abi: await this.resourcesService.getContractABI(address, network),
+      abi: await this.resourcesService.getContractABI(address, chainId),
     };
+  }
+
+  // Extract description for website links
+  @Post('link/extract-description')
+  async extractDescription(
+    @Body() dto: ExtractDescriptionDto
+  ): Promise<ExtractDescriptionResponseDto> {
+    return this.resourcesService.extractWebsiteDescription(dto);
   }
 }

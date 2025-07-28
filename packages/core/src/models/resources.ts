@@ -22,7 +22,7 @@ export type TypedResourceValue<T extends ResourceType> = {
 
 export type ContractValue = {
   address: string;
-  network: number;
+  chainId: number;
   abi?: any;
 };
 

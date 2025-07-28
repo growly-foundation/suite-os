@@ -66,7 +66,7 @@ export function UsersTable({
     switch (key) {
       case 'identity':
         return `${users.length} users`;
-      case 'talentProtocolCheckmark':
+      case 'talentProtocolCheckmark': {
         const verifiedCount = users.reduce((sum, user) => {
           if ('personaData' in user) {
             // For ParsedUser, we can access personaData directly
@@ -76,7 +76,8 @@ export function UsersTable({
           return sum;
         }, 0);
         return `${verifiedCount} verified`;
-      case 'firstSignedIn':
+      }
+      case 'firstSignedIn': {
         if (users.length === 0) return '';
         const dates = users
           .filter(user => user.created_at)
@@ -85,7 +86,8 @@ export function UsersTable({
         const earliest = new Date(Math.min(...dates));
         const latest = new Date(Math.max(...dates));
         return `${earliest.toLocaleDateString()} - ${latest.toLocaleDateString()}`;
-      case 'trait':
+      }
+      case 'trait': {
         const traits = personas.reduce(
           (acc, persona) => {
             if (persona.dominantTrait()) {
@@ -100,7 +102,8 @@ export function UsersTable({
         );
         const topTrait = Object.entries(traits).sort(([, a], [, b]) => b - a)[0];
         return topTrait ? `${topTrait[0]} (${topTrait[1]})` : '';
-      case 'portfolioValue':
+      }
+      case 'portfolioValue': {
         const totalValue = personas.reduce((sum, persona) => {
           if (persona.totalPortfolioValue()) {
             return sum + persona.totalPortfolioValue()!;
@@ -108,7 +111,8 @@ export function UsersTable({
           return sum;
         }, 0);
         return totalValue > 0 ? totalValue : '';
-      case 'transactions':
+      }
+      case 'transactions': {
         const totalTransactions = personas.reduce((sum, persona) => {
           if (persona.universalTransactions()) {
             return sum + persona.universalTransactions().length;
@@ -116,7 +120,8 @@ export function UsersTable({
           return sum;
         }, 0);
         return totalTransactions > 0 ? totalTransactions : '';
-      case 'tokens':
+      }
+      case 'tokens': {
         const totalTokens = personas.reduce((sum, persona) => {
           if (persona.universalTokenList()) {
             const portfolio = persona.universalTokenList();
@@ -129,7 +134,8 @@ export function UsersTable({
           return sum;
         }, 0);
         return totalTokens > 0 ? totalTokens : '';
-      case 'activity':
+      }
+      case 'activity': {
         const activeUsers = personas.reduce((sum, persona) => {
           if (persona.dayActive()) {
             return sum + 1;
@@ -137,7 +143,8 @@ export function UsersTable({
           return sum;
         }, 0);
         return `${activeUsers} active`;
-      case 'walletCreatedAt':
+      }
+      case 'walletCreatedAt': {
         if (users.length === 0) return '';
         const walletDates = users
           .filter(user => user.personaData?.identities.walletMetrics?.walletCreationDate)
@@ -148,6 +155,7 @@ export function UsersTable({
         const earliestWallet = new Date(Math.min(...walletDates));
         const latestWallet = new Date(Math.max(...walletDates));
         return `${earliestWallet.toLocaleDateString()} - ${latestWallet.toLocaleDateString()}`;
+      }
       default:
         return '';
     }
