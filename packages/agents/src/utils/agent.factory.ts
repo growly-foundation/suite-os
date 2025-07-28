@@ -3,7 +3,11 @@ import { createReactAgent } from '@langchain/langgraph/prebuilt';
 
 import { getProtocolTool } from '../tools/defillama';
 import { makeResourceTools, setResourceContext } from '../tools/resources';
-import { setFirecrawlService } from '../tools/resources/features/get-website-content/core';
+import { ResourceContext } from '../tools/resources/features/get-resource-details/core';
+import {
+  FirecrawlService,
+  setFirecrawlService,
+} from '../tools/resources/features/get-website-content/core';
 import { makeTavilyTools } from '../tools/tavily';
 import { makeUniswapTools } from '../tools/uniswap';
 import { makeZerionTools } from '../tools/zerion';
@@ -22,16 +26,6 @@ export interface ToolsRegistry {
 }
 
 /**
- * Interface for resource context
- */
-export interface ResourceContext {
-  id: string;
-  name: string;
-  type: 'text' | 'contract' | 'link' | 'document';
-  value: any;
-}
-
-/**
  * Interface for agent creation options
  */
 export interface AgentOptions {
@@ -41,7 +35,7 @@ export interface AgentOptions {
   tools?: Partial<ToolsRegistry>;
   verbose?: boolean;
   resources?: ResourceContext[];
-  firecrawlService?: any;
+  firecrawlService?: FirecrawlService;
 }
 
 /**
@@ -126,9 +120,6 @@ export async function createAgent(
         // Use agent ID as context ID for better isolation
         const contextId = options.agentId || 'default';
         setResourceContext(validatedResources, contextId);
-
-        // Set global resource context for tools to access
-        (global as any).__resourceContext = validatedResources;
 
         console.log(
           `✅ Loaded ${validatedResources.length} valid resources for agent ${options.agentId}`

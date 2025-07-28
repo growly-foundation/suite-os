@@ -2,7 +2,7 @@ import { ToolOutputValue } from '../../../../utils/tools';
 import { getResourceContext } from '../get-resource-details/core';
 
 // Firecrawl service interface
-interface FirecrawlService {
+export interface FirecrawlService {
   scrapeUrl(url: string, options?: any): Promise<any>;
 }
 
