@@ -16,3 +16,4 @@ export function makeResourceTools() {
 
 // Re-export the context management functions from the resource-details feature
 export { getResourceContext, setResourceContext } from './features/get-resource-details';
+export type { ResourceContext } from './features/get-resource-details';
