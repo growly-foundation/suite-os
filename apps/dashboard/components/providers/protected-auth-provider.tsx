@@ -142,20 +142,14 @@ const ProtectedAuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Fetch JWT when admin is available
   useEffect(() => {
     if (admin?.id && admin?.email && admin?.name) {
-      console.log('FETCHING JWT');
       fetchJWT();
     }
   }, [admin?.id, admin?.email, admin?.name, fetchJWT]);
 
   // Initialize Intercom with JWT authentication
   useEffect(() => {
-    console.log('INTERCOM_APP_ID', INTERCOM_APP_ID);
-    console.log('admin', admin);
-    console.log('jwt', jwt);
-    console.log('jwtError', jwtError);
     if (INTERCOM_APP_ID) {
       if (admin && jwt) {
-        console.log('INITIALIZING INTERCOM WITH JWT');
         // Secure Intercom initialization with JWT
         Intercom({
           app_id: INTERCOM_APP_ID,
@@ -163,7 +157,6 @@ const ProtectedAuthProvider = ({ children }: { children: React.ReactNode }) => {
           session_duration: 86400000,
         });
       } else if (admin && !jwt && !jwtError) {
-        console.log('INITIALIZING INTERCOM WITHOUT JWT');
         // Fallback to basic initialization while JWT is loading
         Intercom({
           app_id: INTERCOM_APP_ID,
@@ -173,7 +166,6 @@ const ProtectedAuthProvider = ({ children }: { children: React.ReactNode }) => {
           created_at: moment(admin.created_at).unix(),
         });
       } else if (!admin) {
-        console.log('INITIALIZING INTERCOM ANONYMOUSLY');
         // Anonymous user initialization
         Intercom({
           app_id: INTERCOM_APP_ID,
