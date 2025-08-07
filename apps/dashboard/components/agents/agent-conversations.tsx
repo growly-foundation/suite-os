@@ -75,7 +75,7 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
   }, [users]);
 
   return (
-    <div className="flex w-full overflow-hidden h-[85.1vh]">
+    <div className="flex w-full overflow-hidden h-[calc(100vh-100px)]">
       {status === 'loading' ? (
         <div className="flex w-full items-center justify-center h-full">
           <AnimatedLoadingSmall />

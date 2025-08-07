@@ -21,5 +21,6 @@ module.exports = {
     '@typescript-eslint/ban-types': 'off',
     'no-constant-condition': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
+    'react-hooks/exhaustive-deps': 'off',
   },
 };
