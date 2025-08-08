@@ -39,6 +39,7 @@ export function TextForm({ onChange, initialData }: TextFormProps) {
           onChange={e => handleChange({ content: e.target.value })}
           className="min-h-[200px] text-sm"
           placeholder="Enter your text content here..."
+          maxLength={500} // Limit to 500 characters so that agent can read it directly from the prompt
         />
       </div>
       <div className="space-y-2">

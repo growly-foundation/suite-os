@@ -321,7 +321,8 @@ export const getWebsiteContentToolFn =
       const scrapeOptions = {
         formats,
         onlyMainContent: true,
-        maxAge: 3600, // 1 hour cache
+        excludeTags: ['script', 'svg', 'img', 'style', 'meta', 'noscript', 'head', 'html'],
+        maxAge: 14400000, // 4 hours cache
       };
 
       const scrapeResult = await firecrawlService.scrapeUrl(linkValue.url, scrapeOptions);

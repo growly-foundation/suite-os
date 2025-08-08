@@ -53,7 +53,7 @@ export function makeGetWebsiteContentTool() {
         maxLength: z
           .number()
           .describe('Optional: Maximum content length in characters')
-          .default(10000)
+          .default(15000)
           .optional(),
       })
       .strip()

@@ -53,8 +53,13 @@ export class AgentService {
     // Create resource summary for the prompt
     const resourceSummary =
       resources.length > 0
-        ? `You have access to ${resources.length} resources. Use the resource tools to access their content:\n` +
-          resources.map(r => `- ${r.name} (${r.type})`).join('\n')
+        ? `You have access to ${resources.length} resources. Use the resource tools with the ID to access their content:\n` +
+          resources
+            .map(
+              r =>
+                `- ${r.id}: ${r.name} (type: ${r.type}). \n  - Description: ${r.value.description || r.value.content || 'No description'}`
+            )
+            .join('\n')
         : 'No resources are currently attached to this agent.';
 
     return (
@@ -123,6 +128,8 @@ export class AgentService {
       resourceContext,
       true // TODO: Make this dynamic
     );
+
+    this.logger.debug(`🔍 [System prompt]: ${systemPrompt}`);
 
     // Create agent options with resource support
     const agentOptions: AgentOptions = {
