@@ -12,11 +12,12 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
-    { label: 'Solutions', href: '#solutions' },
-    { label: 'Features', href: '#features' },
-    { label: 'Install', href: '#install' },
-    { label: 'Use Cases', href: '#use-cases' },
+    // { label: 'Solutions', href: '#solutions' },
     { label: 'About Us', href: 'https://growly.foundation' },
+    { label: 'Help Center', href: 'https://intercom.help/growly-suite/en/' },
+    { label: 'Features', href: '#features' },
+    // { label: 'Install', href: '#install' },
+    // { label: 'Use Cases', href: '#use-cases' },
   ];
 
   return (

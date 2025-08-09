@@ -1,6 +1,6 @@
 import { FloatingAvatars } from '@/components/floating-avatars';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, MessageCircle } from 'lucide-react';
+import { MessageCircle, Video } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { GridBackground } from '@getgrowly/ui';
@@ -88,13 +88,13 @@ export const Hero = () => {
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Button
-              onClick={() => (window.location.href = 'https://app.getsuite.io')}
+              onClick={() => (window.location.href = 'https://x.com/i/status/1937774993770971576')}
               className="flex items-center gap-3 px-3 py-4 bg-primary hover:bg-primary/90 text-white border-0 dark:bg-primary dark:hover:bg-primary/90 dark:shadow-[0_0_15px_rgba(36,101,237,0.5)] relative overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/30 to-primary/0 dark:opacity-30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%]"></div>
               <div className="flex flex-col items-start relative z-10">
-                <span className="text-md font-bold">Get Started for Free</span>
+                <span className="text-md font-bold">View Demo</span>
               </div>
-              <ArrowRight />
+              <Video />
             </Button>
             <Button
               onClick={() => (window.location.href = 'https://cal.com/ngan-suite/30min')}
