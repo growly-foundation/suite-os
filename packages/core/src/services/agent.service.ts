@@ -32,21 +32,18 @@ export class AgentService {
     // Update associations and track visited workflows.
     const visitedWorkflows: Record<string, boolean> = {};
     for (const workflow of agent.workflows) {
+      // Mark as visited before attempting DB ops to avoid accidental deletions on errors
+      visitedWorkflows[workflow.id] = true;
       try {
-        // Avoid duplicates by checking for existing association first
-        const existing = await this.agentWorkflowsDatabaseService.getOneByFields({
-          agent_id: updatedAgent.id,
-          workflow_id: workflow.id,
-        } as any);
-        if (!existing) {
-          await this.agentWorkflowsDatabaseService.create({
+        await this.agentWorkflowsDatabaseService.upsert(
+          {
             agent_id: updatedAgent.id,
             workflow_id: workflow.id,
             status: Status.Active,
-          });
-        }
-        visitedWorkflows[workflow.id] = true;
-      } catch (error) {
+          } as any,
+          ['agent_id', 'workflow_id']
+        );
+      } catch (error: any) {
         console.error('Failed to upsert agent-workflow association:', error);
       }
     }
@@ -54,21 +51,18 @@ export class AgentService {
     // Update resources and track visited resources.
     const visitedResources: Record<string, boolean> = {};
     for (const resource of agent.resources) {
+      // Mark as visited before attempting DB ops to avoid accidental deletions on errors
+      visitedResources[resource.id] = true;
       try {
-        // Avoid duplicates by checking for existing association first
-        const existing = await this.agentResourcesDatabaseService.getOneByFields({
-          agent_id: updatedAgent.id,
-          resource_id: resource.id,
-        } as any);
-        if (!existing) {
-          await this.agentResourcesDatabaseService.create({
+        await this.agentResourcesDatabaseService.upsert(
+          {
             agent_id: updatedAgent.id,
             resource_id: resource.id,
             status: Status.Active,
-          });
-        }
-        visitedResources[resource.id] = true;
-      } catch (error) {
+          } as any,
+          ['agent_id', 'resource_id']
+        );
+      } catch (error: any) {
         console.error('Failed to upsert agent-resource association:', error);
       }
     }
