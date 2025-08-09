@@ -33,14 +33,21 @@ export class AgentService {
     const visitedWorkflows: Record<string, boolean> = {};
     for (const workflow of agent.workflows) {
       try {
-        await this.agentWorkflowsDatabaseService.create({
+        // Avoid duplicates by checking for existing association first
+        const existing = await this.agentWorkflowsDatabaseService.getOneByFields({
           agent_id: updatedAgent.id,
           workflow_id: workflow.id,
-          status: Status.Active,
-        });
+        } as any);
+        if (!existing) {
+          await this.agentWorkflowsDatabaseService.create({
+            agent_id: updatedAgent.id,
+            workflow_id: workflow.id,
+            status: Status.Active,
+          });
+        }
         visitedWorkflows[workflow.id] = true;
       } catch (error) {
-        console.error('Failed to create agent-workflow association:', error);
+        console.error('Failed to upsert agent-workflow association:', error);
       }
     }
 
@@ -48,14 +55,21 @@ export class AgentService {
     const visitedResources: Record<string, boolean> = {};
     for (const resource of agent.resources) {
       try {
-        await this.agentResourcesDatabaseService.create({
+        // Avoid duplicates by checking for existing association first
+        const existing = await this.agentResourcesDatabaseService.getOneByFields({
           agent_id: updatedAgent.id,
           resource_id: resource.id,
-          status: Status.Active,
-        });
+        } as any);
+        if (!existing) {
+          await this.agentResourcesDatabaseService.create({
+            agent_id: updatedAgent.id,
+            resource_id: resource.id,
+            status: Status.Active,
+          });
+        }
         visitedResources[resource.id] = true;
       } catch (error) {
-        console.error('Failed to create agent-resource association:', error);
+        console.error('Failed to upsert agent-resource association:', error);
       }
     }
 
