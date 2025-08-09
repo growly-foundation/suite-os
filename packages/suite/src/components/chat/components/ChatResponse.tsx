@@ -55,6 +55,8 @@ const RightResponseLayout = ({
           color: theme.text.primary,
           borderColor: theme.ui.border.default,
           borderRadius: theme.radius.lg,
+          wordWrap: 'break-word',
+          overflowWrap: 'break-word',
         }}>
         <RenderMessage message={message} />
       </Card>
@@ -91,6 +93,8 @@ const LeftResponseLayout = ({
           color: theme.text.primary,
           border: 'none',
           boxShadow: 'none',
+          wordWrap: 'break-word',
+          overflowWrap: 'break-word',
         }}>
         <RenderMessage message={message} />
       </Card>
@@ -134,6 +138,8 @@ const AgentMessageWithTools = ({
             color: theme.text.primary,
             border: 'none',
             boxShadow: 'none',
+            wordWrap: 'break-word',
+            overflowWrap: 'break-word',
           }}>
           <RenderMessage message={textMessage} />
         </Card>

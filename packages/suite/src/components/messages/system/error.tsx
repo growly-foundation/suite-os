@@ -8,8 +8,10 @@ export const SystemErrorMessage = ({
   content: SystemErrorMessageContent['content'];
 }) => {
   return (
-    <p className="text-sm">
-      <span className="text-red-500 flex items-center space-x-2">
+    <p className="text-sm" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+      <span
+        className="text-red-500 flex items-center space-x-2"
+        style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>
         <AlertCircle className="w-4 h-4 opacity-50 mr-2" />
         {content}
       </span>

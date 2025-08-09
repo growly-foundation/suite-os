@@ -24,13 +24,14 @@ export const ChatInput = ({
 }: ChatInputProps) => {
   const styles = useThemeStyles();
 
-  // If "ENTER" is clicked, send a message.
+  // Handle key events: Enter to send, Shift+Enter for new line
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault(); // ⛔ prevent new line
       sendMessageHandler(inputValue);
       setInputValue('');
     }
+    // Shift+Enter will naturally create a new line (default behavior)
   };
 
   return (
@@ -42,7 +43,11 @@ export const ChatInput = ({
           onKeyDown={handleKeyDown}
           disabled={isAgentThinking}
           required
-          placeholder={isAgentThinking ? 'Agent is thinking...' : 'Send a message...'}
+          placeholder={
+            isAgentThinking
+              ? 'Agent is thinking...'
+              : 'Send a message... (Shift+Enter for new line)'
+          }
           style={{
             border: 'none',
             backgroundColor: styles.chat.input.backgroundColor,
