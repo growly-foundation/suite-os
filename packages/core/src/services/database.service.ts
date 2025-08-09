@@ -140,6 +140,26 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
     return data!;
   }
 
+  async upsert(
+    payload: Omit<Database['public']['Tables'][T]['Insert'], 'created_at'>,
+    conflictTarget?: string | string[]
+  ): Promise<Database['public']['Tables'][T]['Row']> {
+    const onConflict = conflictTarget
+      ? Array.isArray(conflictTarget)
+        ? conflictTarget.join(',')
+        : conflictTarget
+      : undefined;
+
+    const { data, error } = await this.getClient()
+      .from(this.table as string)
+      .upsert(payload as any, onConflict ? { onConflict } : undefined)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data!;
+  }
+
   async update(
     id: string,
     updates: Partial<Database['public']['Tables'][T]['Update']>
