@@ -2,6 +2,8 @@ import { DynamicStructuredTool } from '@langchain/core/tools';
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
 
 import { getProtocolTool } from '../tools/defillama';
+import type { MCPServerConfig, MCPServerName } from '../tools/mcp';
+import { makeMcpTools } from '../tools/mcp';
 import { makeResourceTools, setResourceContext } from '../tools/resources';
 import { ResourceContext } from '../tools/resources/features/get-resource-details/core';
 import {
@@ -25,6 +27,17 @@ export interface ToolsRegistry {
   resources: boolean;
 }
 
+export interface MCPConfig {
+  enabled?: boolean;
+  servers?: Partial<Record<MCPServerName, MCPServerConfig>>;
+  // Optional tuning for adapters
+  throwOnLoadError?: boolean;
+  prefixToolNameWithServerName?: boolean;
+  additionalToolNamePrefix?: string;
+  useStandardContentBlocks?: boolean;
+  defaultToolTimeout?: number;
+}
+
 /**
  * Interface for agent creation options
  */
@@ -36,6 +49,7 @@ export interface AgentOptions {
   verbose?: boolean;
   resources?: ResourceContext[];
   firecrawlService?: FirecrawlService;
+  mcp?: MCPConfig;
 }
 
 /**
@@ -143,6 +157,21 @@ export async function createAgent(
 
     const tools = initializeTools(toolsConfig);
 
+    // Load MCP tools if configured
+    let mcpClose: (() => Promise<void>) | undefined;
+    if (options.mcp?.enabled && options.mcp?.servers && Object.keys(options.mcp.servers).length) {
+      const { tools: mcpTools, close } = await makeMcpTools({
+        mcpServers: options.mcp.servers,
+        throwOnLoadError: options.mcp.throwOnLoadError,
+        prefixToolNameWithServerName: options.mcp.prefixToolNameWithServerName,
+        additionalToolNamePrefix: options.mcp.additionalToolNamePrefix,
+        useStandardContentBlocks: options.mcp.useStandardContentBlocks ?? true,
+        defaultToolTimeout: options.mcp.defaultToolTimeout,
+      });
+      mcpClose = close;
+      tools.push(...mcpTools);
+    }
+
     console.log(
       `🛠️ Initialized ${tools.length} tools for agent ${options.agentId}:`,
       tools.map(t => t.name).join(', ')
@@ -151,12 +180,29 @@ export async function createAgent(
     const checkpointer = await getCheckpointer();
 
     // Initialize Agent with optional checkpointer
-    return createReactAgent({
+    const agent = createReactAgent({
       llm,
       tools,
       prompt: systemPrompt,
       checkpointer: checkpointer as any,
     });
+
+    // Best-effort cleanup when process exits if MCP was used
+    if (mcpClose) {
+      const cleanup = async () => {
+        try {
+          await mcpClose?.();
+        } catch (_err) {
+          // ignore cleanup errors
+        }
+      };
+      // Avoid attaching multiple listeners if createAgent is called many times in a long-lived process
+      process.once('exit', cleanup);
+      process.once('SIGINT', cleanup as any);
+      process.once('SIGTERM', cleanup as any);
+    }
+
+    return agent;
   } catch (error) {
     console.error(`Error initializing agent ${options.agentId}:`, error);
     throw error;

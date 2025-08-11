@@ -129,8 +129,6 @@ export class AgentService {
       true // TODO: Make this dynamic
     );
 
-    this.logger.debug(`🔍 [System prompt]: ${systemPrompt}`);
-
     // Create agent options with resource support
     const agentOptions: AgentOptions = {
       provider,
@@ -145,6 +143,29 @@ export class AgentService {
       verbose: this.configService.get('MODEL_VERBOSE') === 'true',
       resources: resourceContext,
       firecrawlService: this.firecrawlService,
+      // Add CoinGecko MCP server tools
+      mcp: {
+        enabled: true,
+        servers: {
+          coingecko: {
+            transport: 'stdio',
+            command: 'npx',
+            args: ['mcp-remote', 'https://mcp.api.coingecko.com/sse'],
+            enabledTools: [
+              'get_simple_price',
+              'get_search_trending',
+              'get_search',
+              'get_list_nfts',
+              'get_id_nfts',
+              'get_global',
+            ],
+            defaultToolTimeout: 30_000,
+          },
+        },
+        // keep names unprefixed since single server; can be toggled if needed
+        prefixToolNameWithServerName: false,
+        useStandardContentBlocks: true,
+      },
     };
 
     // Get or create agent with persistence

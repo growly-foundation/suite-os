@@ -1,5 +1,6 @@
 // Export all tools
 export * from './tools/defillama';
+export * from './tools/mcp';
 export * from './tools/resources';
 export * from './tools/tavily';
 export * from './tools/uniswap';
