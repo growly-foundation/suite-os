@@ -4,14 +4,12 @@ import { PanelLayout } from '@/components/panel/components/PanelLayout';
 import { useChatActions } from '@/hooks/use-chat-actions';
 import { useSuiteSession } from '@/hooks/use-session';
 import { useSuite } from '@/hooks/use-suite';
-import { Address, Avatar, Badge, Identity, Name } from '@coinbase/onchainkit/identity';
-import React from 'react';
 
 import { ConversationRole, ParsedUser } from '@getgrowly/core';
 
 import { ChatInput, ChatInputProps } from './ChatInput';
 import { ChatMessageView, ChatMessageViewProps } from './ChatMessageView';
-import { ConnectWallet } from './ConnectWallet';
+import { StreamingResponse } from './StreamingResponse';
 
 export function ChatPanel() {
   const { integration } = useSuite();
@@ -25,7 +23,8 @@ export function ChatPanel() {
     inputValue,
     setInputValue,
   } = useSuiteSession();
-  const { sendUserMessage, isSending } = useChatActions();
+  const { sendUserMessage, isSending, streamingText, currentStatus } = useChatActions();
+
   return (
     <ChatPanelContainer
       user={user}
@@ -45,6 +44,12 @@ export function ChatPanel() {
         inputValue,
         setInputValue,
         isAgentThinking,
+        currentStatus, // Pass streaming status to input
+      }}
+      streaming={{
+        streamingText,
+        currentStatus,
+        isStreaming: isSending && isAgentThinking,
       }}
     />
   );
@@ -55,6 +60,7 @@ export function ChatPanelContainer({
   user,
   view,
   input,
+  streaming,
 }: {
   integration?: {
     onchainKit?: {
@@ -64,28 +70,30 @@ export function ChatPanelContainer({
   user: ParsedUser | undefined | null;
   view: ChatMessageViewProps;
   input: ChatInputProps;
+  streaming?: {
+    streamingText: string;
+    currentStatus: string;
+    isStreaming: boolean;
+  };
 }) {
   return (
-    <React.Fragment>
-      {user?.entities.walletAddress ? (
-        <>
-          {integration?.onchainKit?.enabled && (
-            <Identity address={user.entities.walletAddress} hasCopyAddressOnClick={false}>
-              <Avatar />
-              <Name>
-                <Badge tooltip={false} />
-              </Name>
-              <Address />
-            </Identity>
+    <PanelLayout>
+      <div className="flex-1 flex flex-col h-full">
+        <div className="flex-1 overflow-hidden">
+          <ChatMessageView {...view} />
+          {/* Show streaming response when agent is responding */}
+          {streaming?.isStreaming && (
+            <div className="px-4 pb-2">
+              <StreamingResponse
+                streamingText={streaming.streamingText}
+                currentStatus={streaming.currentStatus}
+                showAvatar={true}
+              />
+            </div>
           )}
-          <PanelLayout>
-            <ChatMessageView {...view} />
-          </PanelLayout>
-          <ChatInput {...input} />
-        </>
-      ) : (
-        <ConnectWallet />
-      )}
-    </React.Fragment>
+        </div>
+        <ChatInput {...input} />
+      </div>
+    </PanelLayout>
   );
 }

@@ -8,11 +8,12 @@ import { Loader2, LucideSend } from 'lucide-react';
 import { TextMessageContent } from '@getgrowly/core';
 
 export interface ChatInputProps {
-  sendMessageHandler: (input: TextMessageContent['content']) => Promise<void>;
+  sendMessageHandler: (input: TextMessageContent['content']) => void; // Changed from Promise<void> to void
   isSending: boolean;
   inputValue: string;
   setInputValue: (value: string) => void;
   isAgentThinking: boolean;
+  currentStatus?: string; // New: Current streaming status
 }
 
 export const ChatInput = ({
@@ -21,6 +22,7 @@ export const ChatInput = ({
   inputValue,
   setInputValue,
   isAgentThinking,
+  currentStatus,
 }: ChatInputProps) => {
   const styles = useThemeStyles();
 
@@ -34,6 +36,17 @@ export const ChatInput = ({
     // Shift+Enter will naturally create a new line (default behavior)
   };
 
+  // Get dynamic placeholder text based on current state
+  const getPlaceholderText = () => {
+    if (currentStatus) {
+      return currentStatus;
+    }
+    if (isAgentThinking) {
+      return 'Agent is thinking...';
+    }
+    return 'Send a message... (Shift+Enter for new line)';
+  };
+
   return (
     <div className={cn('p-4 border-t', border.lineDefault)} style={styles.chat.input}>
       <div className={cn('flex space-x-2', text.body)}>
@@ -43,11 +56,7 @@ export const ChatInput = ({
           onKeyDown={handleKeyDown}
           disabled={isAgentThinking}
           required
-          placeholder={
-            isAgentThinking
-              ? 'Agent is thinking...'
-              : 'Send a message... (Shift+Enter for new line)'
-          }
+          placeholder={getPlaceholderText()}
           style={{
             border: 'none',
             backgroundColor: styles.chat.input.backgroundColor,

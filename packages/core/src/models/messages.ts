@@ -102,3 +102,84 @@ export interface UniswapSwapMessageContent {
     link?: string;
   };
 }
+
+/**
+ * Streaming message types for real-time communication
+ */
+export type StreamingMessageType =
+  | 'stream:status'
+  | 'stream:text'
+  | 'stream:tool'
+  | 'stream:complete'
+  | 'stream:error';
+
+/**
+ * Base streaming message interface
+ */
+export interface StreamingMessage {
+  type: StreamingMessageType;
+  timestamp: number;
+}
+
+/**
+ * Status update message (e.g., "Agent is thinking", "Calling Zerion API")
+ */
+export interface StreamingStatusMessage extends StreamingMessage {
+  type: 'stream:status';
+  content: {
+    status: 'thinking' | 'tool_calling' | 'processing' | 'generating';
+    message: string;
+    toolName?: string;
+  };
+}
+
+/**
+ * Text chunk message for progressive rendering
+ */
+export interface StreamingTextMessage extends StreamingMessage {
+  type: 'stream:text';
+  content: {
+    chunk: string;
+    isComplete: boolean;
+  };
+}
+
+/**
+ * Tool/widget output message
+ */
+export interface StreamingToolMessage extends StreamingMessage {
+  type: 'stream:tool';
+  content: MessageContent;
+}
+
+/**
+ * Completion message
+ */
+export interface StreamingCompleteMessage extends StreamingMessage {
+  type: 'stream:complete';
+  content: {
+    totalTokens?: number;
+    processingTime: number;
+  };
+}
+
+/**
+ * Error message
+ */
+export interface StreamingErrorMessage extends StreamingMessage {
+  type: 'stream:error';
+  content: {
+    error: string;
+    code?: string;
+  };
+}
+
+/**
+ * Union type for all streaming messages
+ */
+export type StreamingResponse =
+  | StreamingStatusMessage
+  | StreamingTextMessage
+  | StreamingToolMessage
+  | StreamingCompleteMessage
+  | StreamingErrorMessage;

@@ -11,7 +11,16 @@ import {
   beastModeDescription,
   createAgent,
 } from '@getgrowly/agents';
-import { MessageContent, SuiteDatabaseCore } from '@getgrowly/core';
+import {
+  MessageContent,
+  StreamingCompleteMessage,
+  StreamingErrorMessage,
+  StreamingResponse,
+  StreamingStatusMessage,
+  StreamingTextMessage,
+  StreamingToolMessage,
+  SuiteDatabaseCore,
+} from '@getgrowly/core';
 
 import { SUITE_CORE } from '../../constants/services';
 import { FirecrawlService } from '../firecrawl/firecrawl.service';
@@ -232,6 +241,263 @@ export class AgentService {
     }
 
     return response;
+  }
+
+  /**
+   * Streaming chat that emits responses in real-time for better UX
+   */
+  async *chatStream({
+    message,
+    userId,
+    agentId,
+  }: AgentChatRequest): AsyncGenerator<StreamingResponse> {
+    const startTime = Date.now();
+
+    try {
+      this.logger.log(`Processing streaming chat request for agent ${agentId} and user ${userId}`);
+
+      // Emit initial status
+      yield {
+        type: 'stream:status',
+        timestamp: Date.now(),
+        content: {
+          status: 'thinking',
+          message: 'Agent is initializing...',
+        },
+      } as StreamingStatusMessage;
+
+      // Get user and agent details (same as regular chat)
+      const user = await this.suiteCore.db.users.getById(userId);
+      const walletAddress = user?.entities?.['walletAddress'] || '';
+
+      const agentDetails = await this.suiteCore.db.agents.getById(agentId);
+      const organization = await this.suiteCore.db.organizations.getById(
+        agentDetails?.organization_id || ''
+      );
+
+      if (!agentDetails || user?.entities?.['walletAddress'] === null) {
+        yield {
+          type: 'stream:error',
+          timestamp: Date.now(),
+          content: {
+            error: 'Agent or wallet address not found',
+            code: 'AGENT_NOT_FOUND',
+          },
+        } as StreamingErrorMessage;
+        return;
+      }
+
+      const agentDescription = agentDetails.description || '';
+      const organizationName = organization?.name || '';
+      const organizationDescription = organization?.description || '';
+
+      // Emit status for resource loading
+      yield {
+        type: 'stream:status',
+        timestamp: Date.now(),
+        content: {
+          status: 'processing',
+          message: 'Loading agent resources...',
+        },
+      } as StreamingStatusMessage;
+
+      // Get agent resources
+      const agentResourceIds = await this.suiteCore.db.agent_resources.getAllByFields({
+        agent_id: agentId,
+      });
+      const resources = await this.suiteCore.db.resources.getManyByFields(
+        'id',
+        agentResourceIds.map(ar => ar.resource_id)
+      );
+
+      // Convert to ResourceContext format
+      const resourceContext: ResourceContext[] = resources.map(resource => ({
+        id: resource.id,
+        name: resource.name,
+        type: resource.type as ResourceContext['type'],
+        value: resource.value,
+      }));
+
+      this.logger.debug(`🔍 [Resources]: ${resourceContext.length} resources attached`);
+
+      // Get provider from config
+      const provider: ChatProvider =
+        (this.configService.get('MODEL_PROVIDER') as ChatProvider) || 'openai';
+
+      // Get system prompt
+      const systemPrompt = await this.getSystemPrompt(
+        walletAddress,
+        agentDescription,
+        organizationName,
+        organizationDescription,
+        resourceContext,
+        true // TODO: Make this dynamic
+      );
+
+      this.logger.debug(`🔍 [System prompt]: ${systemPrompt}`);
+
+      // Emit status for agent initialization
+      yield {
+        type: 'stream:status',
+        timestamp: Date.now(),
+        content: {
+          status: 'generating',
+          message: 'Agent is thinking...',
+        },
+      } as StreamingStatusMessage;
+
+      // Create agent options with resource support
+      const agentOptions: AgentOptions = {
+        provider,
+        agentId,
+        systemPrompt,
+        tools: {
+          zerion: true,
+          uniswap: true,
+          tavily: true,
+          resources: resourceContext.length > 0,
+        },
+        verbose: this.configService.get('MODEL_VERBOSE') === 'true',
+        resources: resourceContext,
+        firecrawlService: this.firecrawlService,
+      };
+
+      // Get or create agent with persistence
+      const agent = await createAgent(agentOptions);
+
+      // Stream the response with thread persistence - now we emit chunks as they come
+      const stream = await agent.stream(
+        { messages: [{ content: message, role: 'user' }] },
+        { configurable: { thread_id: buildThreadId(agentId, userId) } }
+      );
+
+      let agentResponse = '';
+      const currentToolName = '';
+
+      for await (const chunk of stream) {
+        this.logger.debug(`🥩 [Streaming chunk]: ${JSON.stringify(chunk)}`);
+
+        if ('tools' in chunk) {
+          const rawContent = chunk.tools.messages[0].content;
+          let messageContents: MessageContent[] = [];
+
+          try {
+            const parsedContent = JSON.parse(rawContent);
+            if (Array.isArray(parsedContent)) {
+              messageContents = parsedContent;
+            } else {
+              this.logger.debug(`⚠️ [Non-array tool content]: ${JSON.stringify(parsedContent)}`);
+              continue;
+            }
+          } catch (error) {
+            this.logger.error(`Failed to parse tool content: ${error.message}`);
+            continue;
+          }
+
+          const nonTextContents = messageContents.filter(content => content.type !== 'text');
+
+          // Emit each tool message immediately
+          for (const toolContent of nonTextContents) {
+            yield {
+              type: 'stream:tool',
+              timestamp: Date.now(),
+              content: toolContent,
+            } as StreamingToolMessage;
+          }
+        }
+
+        if ('agent' in chunk) {
+          const messages: AIMessageChunk[] = chunk.agent.messages;
+          const chunkContent = messages[0].content as string;
+
+          // Emit text chunk immediately
+          if (chunkContent) {
+            agentResponse += chunkContent;
+            yield {
+              type: 'stream:text',
+              timestamp: Date.now(),
+              content: {
+                chunk: chunkContent,
+                isComplete: false,
+              },
+            } as StreamingTextMessage;
+          }
+
+          const usage = messages[0].usage_metadata;
+          this.logger.debug(`💳 [Usage metadata]: ${JSON.stringify(usage)}`);
+          this.logger.debug(`🤖 [Agent streaming chunk]: ${chunkContent}`);
+        }
+      }
+
+      // Emit final text completion
+      if (agentResponse.trim()) {
+        yield {
+          type: 'stream:text',
+          timestamp: Date.now(),
+          content: {
+            chunk: '',
+            isComplete: true,
+          },
+        } as StreamingTextMessage;
+
+        // Generate recommendations
+        this.logger.debug('✨ [Generating recommendations]: Using RecommendationService directly');
+        try {
+          const recommendationService = new RecommendationService(provider, false);
+          const recommendations = await recommendationService.generateRecommendations({
+            userMessage: message,
+            agentResponse,
+            agentCapabilities: [
+              'Portfolio analysis with Zerion',
+              'DeFi protocol information via DefiLlama',
+              'Token swaps through Uniswap',
+              'Crypto market research with Tavily',
+              'Risk assessment and rebalancing',
+              'Yield farming opportunities',
+              'Resource access and content extraction',
+            ],
+          });
+
+          if (
+            recommendations.recommendations &&
+            Object.keys(recommendations.recommendations).length > 0
+          ) {
+            yield {
+              type: 'stream:tool',
+              timestamp: Date.now(),
+              content: {
+                type: 'text:recommendation',
+                content: recommendations.recommendations,
+              },
+            } as StreamingToolMessage;
+            this.logger.debug(
+              `✨ [Generated recommendations]: ${JSON.stringify(recommendations.recommendations)}`
+            );
+          }
+        } catch (error) {
+          this.logger.error(`Failed to generate recommendations: ${error.message}`);
+        }
+      }
+
+      // Emit completion
+      yield {
+        type: 'stream:complete',
+        timestamp: Date.now(),
+        content: {
+          processingTime: Date.now() - startTime,
+        },
+      } as StreamingCompleteMessage;
+    } catch (error) {
+      this.logger.error(`Error in streaming chat: ${error.message}`, error.stack);
+      yield {
+        type: 'stream:error',
+        timestamp: Date.now(),
+        content: {
+          error: error.message,
+          code: 'STREAMING_ERROR',
+        },
+      } as StreamingErrorMessage;
+    }
   }
 
   /**

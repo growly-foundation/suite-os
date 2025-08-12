@@ -11,19 +11,7 @@ import { useEffect, useState } from 'react';
 import { Admin, ConversationRole, ParsedMessage, ParsedUser } from '@getgrowly/core';
 import { AdminAvatar, RandomAvatar, SuiteUser } from '@getgrowly/ui';
 
-const ChatResponseAvatar = ({
-  showAvatar,
-  children,
-}: {
-  showAvatar?: boolean;
-  children: React.ReactNode;
-}) => {
-  return (
-    <div className="flex-shrink-0 pt-2">
-      {showAvatar ? children : <div style={{ width: 30, height: 30 }} />}
-    </div>
-  );
-};
+import { ChatResponseAvatar } from './ChatResponseAvatar';
 
 const RightResponseLayout = ({
   message,
