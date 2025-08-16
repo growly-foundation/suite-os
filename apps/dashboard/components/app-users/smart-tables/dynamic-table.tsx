@@ -105,7 +105,6 @@ export function DynamicTable<TData = any>({
   searchPlaceholder = 'Search...',
   additionalActions,
 }: DynamicTableProps<TData>) {
-  console.log('[DynamicTable] data', data);
   const [sorting, setSorting] = useState<SortingState>(initialSorting);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>([]);

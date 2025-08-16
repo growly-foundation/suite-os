@@ -11,7 +11,7 @@ import { InfoIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { mainnet } from 'viem/chains';
+import { base } from 'viem/chains';
 
 import { ImportContractUserOutput } from '@getgrowly/core';
 
@@ -22,7 +22,7 @@ interface ContractImportTabProps {
 export function ContractImportTab({ onImportComplete }: ContractImportTabProps) {
   const router = useRouter();
   const [contractAddress, setContractAddress] = useState('');
-  const [chainId, setChainId] = useState<number>(mainnet.id);
+  const [chainId, setChainId] = useState<number>(base.id);
   const [loading, setLoading] = useState(false);
   const [configuring, setConfiguring] = useState(false);
   const [configured, setConfigured] = useState(false);
@@ -142,13 +142,14 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
               </div>
               <div className="space-y-2">
                 <Label htmlFor="chain-id">Chain ID</Label>
-                <Input
-                  id="chain-id"
-                  type="number"
+                <select
+                  id="chainId"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   value={chainId}
-                  onChange={e => setChainId(Number(e.target.value))}
-                  placeholder="1 (Ethereum), 137 (Polygon), etc."
-                />
+                  onChange={e => setChainId(Number(e.target.value))}>
+                  <option value="1">1 - Ethereum Mainnet</option>
+                  <option value="8453">8453 - Base</option>
+                </select>
               </div>
             </div>
             {configuring ? (
