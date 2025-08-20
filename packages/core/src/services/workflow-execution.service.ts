@@ -1,7 +1,6 @@
 import { AggregatedWorkflow, Status } from '@/models';
 import { StepId, WorkflowId } from '@/models/ids';
-import { Action, Condition, ConditionType, ParsedStep } from '@/models/steps';
-import { UIEventCondition } from '@/models/steps';
+import { Condition, ConditionType, ParsedStep, UIEventCondition } from '@/models/steps';
 
 type DependencyMap = {
   uiEvent: Map<UIEventCondition, ParsedStep[]>;
@@ -55,12 +54,6 @@ export class WorkflowExecutionService {
   private markStepCompleted(stepId: StepId): Promise<void> {
     this.completedSteps.add(stepId);
     const steps = this.dependencyMap.stepCompleted.get(stepId) || [];
-    return this.evaluateAndExecuteSteps(steps);
-  }
-
-  private markWorkflowCompleted(workflowId: WorkflowId): Promise<void> {
-    this.completedWorkflows.add(workflowId);
-    const steps = this.dependencyMap.workflowCompleted.get(workflowId) || [];
     return this.evaluateAndExecuteSteps(steps);
   }
 
