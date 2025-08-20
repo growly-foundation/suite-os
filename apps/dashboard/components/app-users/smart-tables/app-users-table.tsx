@@ -24,19 +24,20 @@ export function UsersTable({
   searchQuery,
   setSearchQuery,
   additionalActions,
+  selectedRows,
+  setSelectedRows,
 }: {
   users: ParsedUser[];
   tableLabel?: string;
   searchQuery?: string;
   setSearchQuery?: (value: string) => void;
   additionalActions?: ReactNode;
+  selectedRows?: Record<string, boolean>;
+  setSelectedRows?: (rows: Record<string, boolean>) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<ParsedUser | null>(null);
   const personas = users.map(user => consumePersona(user as ParsedUser));
-
-  // Row selection state
-  const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
 
   // User interaction handlers
   const handleUserClick = (user: ParsedUser) => {
@@ -51,7 +52,7 @@ export function UsersTable({
 
   // Handle row selection change
   const handleRowSelectionChange = (newSelection: Record<string, boolean>) => {
-    setSelectedRows(newSelection);
+    setSelectedRows?.(newSelection);
   };
 
   // Get row ID for selection

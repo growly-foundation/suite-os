@@ -3,10 +3,11 @@
 import { AgentsList } from '@/components/agents/agent-list';
 import { PrimaryButton } from '@/components/buttons/primary-button';
 import { useDashboardState } from '@/hooks/use-dashboard';
+import { useDashboardDataQueries } from '@/hooks/use-dashboard-queries';
 import { PlusCircle } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import { PaddingLayout } from '../layout';
 
@@ -19,12 +20,12 @@ const AnimatedLoadingSmall = dynamic(
 );
 
 export default function AgentsPage() {
-  const { agentStatus, fetchOrganizationAgents, organizationAgents, selectedOrganization } =
-    useDashboardState();
+  const { selectedOrganization } = useDashboardState();
 
-  useEffect(() => {
-    fetchOrganizationAgents();
-  }, [fetchOrganizationAgents, selectedOrganization]);
+  const {
+    isLoading,
+    data: { agents, resources },
+  } = useDashboardDataQueries(selectedOrganization?.id);
 
   return (
     <React.Fragment>
@@ -41,10 +42,10 @@ export default function AgentsPage() {
       </div>
       <PaddingLayout>
         <div className="flex flex-col gap-6 p-6 md:gap-8 md:p-8">
-          {agentStatus === 'loading' ? (
+          {isLoading ? (
             <AnimatedLoadingSmall />
           ) : (
-            <AgentsList agents={organizationAgents} />
+            <AgentsList agents={agents} resourceCount={resources.length} />
           )}
         </div>
       </PaddingLayout>

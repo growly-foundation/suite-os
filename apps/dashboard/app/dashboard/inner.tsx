@@ -2,6 +2,7 @@
 
 import { AppUserAvatarWithStatus } from '@/components/app-users/app-user-avatar-with-status';
 import { MessageListCard } from '@/components/conversations/message-list-card';
+import { DashboardEmptyState } from '@/components/dashboard/dashboard-empty-state';
 import { GrowthRetentionChart } from '@/components/dashboard/growth-retention-chart';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -48,9 +49,18 @@ export function DashboardInner() {
   // Use the new React Query hooks for data fetching
   const {
     isLoading,
-    data: { agents, users, workflows, messages: recentMessages },
+    data: { agents, users, workflows, messages: recentMessages, resources },
     refetchAll,
+    createAgent,
   } = useDashboardDataQueries(selectedOrganization?.id);
+
+  // Check if organization has zero data
+  const hasNoData =
+    !isLoading &&
+    agents.length === 0 &&
+    users.length === 0 &&
+    workflows.length === 0 &&
+    resources.length === 0;
 
   // Handle manual refresh
   const handleRefresh = async () => {
@@ -65,6 +75,18 @@ export function DashboardInner() {
       toast.error('Failed to refresh data');
       console.error('Refresh error:', error);
     }
+  };
+
+  const handleCreateAgent = async () => {
+    router.push('/dashboard/agents');
+  };
+
+  const handleAddResource = async () => {
+    router.push('/dashboard/resources');
+  };
+
+  const handleImportUsers = async () => {
+    router.push('/dashboard/users');
   };
 
   const calculateMetrics = (
@@ -160,6 +182,12 @@ export function DashboardInner() {
     <React.Fragment>
       {isLoading ? (
         <AnimatedLoadingSmall />
+      ) : hasNoData ? (
+        <DashboardEmptyState
+          onCreateAgent={handleCreateAgent}
+          onAddResource={handleAddResource}
+          onImportUsers={handleImportUsers}
+        />
       ) : (
         <div className="flex flex-col gap-6 p-6 md:gap-8 md:p-8">
           <div className="flex items-center justify-between gap-2">

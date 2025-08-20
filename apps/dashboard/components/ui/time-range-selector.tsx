@@ -1,10 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
 import { CalendarIcon, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 
@@ -54,30 +52,11 @@ export function TimeRangeSelector({
   className,
 }: TimeRangeSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [customStartDate, setCustomStartDate] = useState<Date | undefined>(undefined);
-  const [customEndDate, setCustomEndDate] = useState<Date | undefined>(undefined);
 
   const handlePresetSelect = (range: TimeRange) => {
     onRangeChange(range);
     setIsOpen(false);
   };
-
-  const handleCustomRangeSelect = () => {
-    if (customStartDate && customEndDate) {
-      onRangeChange({
-        label: `${format(customStartDate, 'MMM dd')} - ${format(customEndDate, 'MMM dd, yyyy')}`,
-        startDate: customStartDate,
-        endDate: customEndDate,
-      });
-      setIsOpen(false);
-    }
-  };
-
-  const isCustomRange = !PRESET_RANGES.some(
-    range =>
-      range.startDate.getTime() === selectedRange.startDate.getTime() &&
-      range.endDate.getTime() === selectedRange.endDate.getTime()
-  );
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
@@ -118,40 +97,6 @@ export function TimeRangeSelector({
                     {range.label}
                   </Button>
                 ))}
-              </div>
-            </div>
-
-            {/* Custom Range */}
-            <div className="w-fit space-y-2">
-              <h4 className="text-sm font-medium">Custom Range</h4>
-              <div className="space-y-2">
-                <div>
-                  <label className="text-xs text-muted-foreground">Start Date</label>
-                  <Calendar
-                    mode="single"
-                    selected={customStartDate}
-                    onSelect={setCustomStartDate}
-                    className="rounded-md border"
-                    disabled={date => date > new Date()}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-muted-foreground">End Date</label>
-                  <Calendar
-                    mode="single"
-                    selected={customEndDate}
-                    onSelect={setCustomEndDate}
-                    className="rounded-md border"
-                    disabled={date => date > new Date()}
-                  />
-                </div>
-                <Button
-                  size="sm"
-                  className="w-full"
-                  disabled={!customStartDate || !customEndDate}
-                  onClick={handleCustomRangeSelect}>
-                  Apply Custom Range
-                </Button>
               </div>
             </div>
           </div>

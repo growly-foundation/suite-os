@@ -8,7 +8,7 @@ export const PrimaryButton = ({
 }: ButtonProps & RefAttributes<HTMLButtonElement>) => {
   return (
     <Button
-      variant="outline"
+      variant={props.variant || 'outline'}
       className="bg-primary text-primary-foreground hover:bg-primary/80 border-primary"
       size={size}
       {...props}>

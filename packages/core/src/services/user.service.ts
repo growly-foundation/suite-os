@@ -21,6 +21,11 @@ export class UserService {
     private userPersonaService: UserPersonaService
   ) {}
 
+  async deleteUsers(userIds: string[]): Promise<void> {
+    await this.userDatabaseService.deleteManyByIds(userIds);
+    await this.userPersonaDatabaseService.deleteManyByIds(userIds);
+  }
+
   async getUsersByAgentId(agent_id: string): Promise<ParsedUser[]> {
     const conversations = await this.conversationDatabaseService.getAllByFields(
       {

@@ -2,6 +2,7 @@
 
 import { NavMain } from '@/components/navigations/nav-main';
 import { NavUser } from '@/components/navigations/nav-user';
+import { OnboardingTasks } from '@/components/onboarding/onboarding-tasks';
 import { OrganizationSwitcher } from '@/components/organizations/organization-switcher';
 import { IconContainer } from '@/components/ui/icon-container';
 import {
@@ -11,9 +12,12 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar';
+import { useDashboardState } from '@/hooks/use-dashboard';
+import { useDashboardDataQueries } from '@/hooks/use-dashboard-queries';
 import { cn } from '@/lib/utils';
 import {
   BotIcon,
+  CheckCircle,
   FileStackIcon,
   HomeIcon,
   SettingsIcon,
@@ -78,31 +82,80 @@ export const navigations = [
 ];
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
+  const { selectedOrganization } = useDashboardState();
+  const [isOnboardingOpen, setIsOnboardingOpen] = React.useState(false);
+
+  // Get data to check onboarding progress
+  const {
+    data: { agents, resources, users },
+  } = useDashboardDataQueries(selectedOrganization?.id);
+
+  const hasAgents = agents.length > 0;
+  const hasResources = resources.length > 0;
+  const hasUsers = users.length > 0;
+  const completedTasks = (hasAgents ? 1 : 0) + (hasResources ? 1 : 0) + (hasUsers ? 1 : 0);
+  const totalTasks = 3;
+  const isOnboardingComplete = completedTasks === totalTasks;
+
+  // Add onboarding to the navigation items
+  const navigationItems = [
+    ...navigations,
+    {
+      title: 'Getting Started',
+      url: '#',
+      icon: (selected: boolean) => (
+        <div className="relative">
+          <NavigationIcon
+            icon={
+              <CheckCircle className={cn('h-3 w-3', isOnboardingComplete && 'text-green-500')} />
+            }
+            selected={selected}
+          />
+          {!isOnboardingComplete && (
+            <div className="absolute -top-1 -right-1 h-2 w-2 bg-blue-500 rounded-full"></div>
+          )}
+        </div>
+      ),
+      onClick: () => setIsOnboardingOpen(true),
+    },
+  ];
+
   return (
-    <Sidebar
-      variant="inset"
-      collapsible="none"
-      className="h-screen border-r bg-gray-50 pt-2"
-      {...props}>
-      <SidebarHeader>
-        <OrganizationSwitcher />
-      </SidebarHeader>
-      <SidebarContent>
-        <NavMain
-          items={navigations.map((item, index) => {
-            const isActive = index === 0 ? pathname === item.url : pathname.includes(`${item.url}`);
-            return {
-              ...item,
-              icon: item.icon(isActive),
-              isActive,
-            };
-          })}
-        />
-      </SidebarContent>
-      <SidebarFooter>
-        <NavUser />
-      </SidebarFooter>
-      <SidebarRail />
-    </Sidebar>
+    <>
+      <Sidebar
+        variant="inset"
+        collapsible="none"
+        className="h-screen border-r bg-gray-50 pt-2"
+        {...props}>
+        <SidebarHeader>
+          <OrganizationSwitcher />
+        </SidebarHeader>
+        <SidebarContent>
+          <NavMain
+            items={navigationItems.map((item, index) => {
+              const isActive =
+                index === 0 ? pathname === item.url : pathname.includes(`${item.url}`);
+              return {
+                ...item,
+                icon: item.icon(isActive),
+                isActive,
+              };
+            })}
+          />
+        </SidebarContent>
+        <SidebarFooter>
+          <NavUser />
+        </SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
+
+      <OnboardingTasks
+        open={isOnboardingOpen}
+        onOpenChange={setIsOnboardingOpen}
+        hasAgents={hasAgents}
+        hasResources={hasResources}
+        hasUsers={hasUsers}
+      />
+    </>
   );
 }

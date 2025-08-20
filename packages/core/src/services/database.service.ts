@@ -199,6 +199,14 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
     if (error) throw error;
   }
 
+  async deleteManyByIds(ids: string[]): Promise<void> {
+    const { error } = await this.getClient()
+      .from(this.table as string)
+      .delete()
+      .in('id', ids);
+    if (error) throw error;
+  }
+
   withLimit(q: any, limit?: number) {
     if (!limit) return q;
     return q.limit(limit);

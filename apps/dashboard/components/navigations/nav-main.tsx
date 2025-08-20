@@ -19,6 +19,7 @@ export function NavMain({
     url: string;
     icon: React.JSX.Element;
     isActive?: boolean;
+    onClick?: () => void;
     items?: {
       title: string;
       url: string;
@@ -26,6 +27,15 @@ export function NavMain({
   }[];
 }) {
   const router = useRouter();
+
+  const handleItemClick = (item: (typeof items)[0]) => {
+    if (item.onClick) {
+      item.onClick();
+    } else if (item.url && item.url !== '#') {
+      router.push(item.url);
+    }
+  };
+
   return (
     <SidebarGroup>
       <SidebarGroupContent>
@@ -36,9 +46,7 @@ export function NavMain({
                 asChild
                 isActive={item.isActive}
                 className={cn('growly-nav-item cursor-pointer', item.isActive && 'active')}
-                onClick={() => {
-                  router.push(item.url);
-                }}>
+                onClick={() => handleItemClick(item)}>
                 <div>
                   {item.icon}
                   <span>{item.title}</span>

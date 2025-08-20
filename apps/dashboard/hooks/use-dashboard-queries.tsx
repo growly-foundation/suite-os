@@ -64,6 +64,25 @@ export function useOrganizationWorkflowsQuery(organizationId?: string, enabled =
 }
 
 /**
+ * Custom hook to fetch organization resources with React Query
+ */
+export function useOrganizationResourcesQuery(organizationId?: string, enabled = true) {
+  return useQuery({
+    queryKey: ['organizationResources', organizationId],
+    queryFn: async () => {
+      if (!organizationId) return [];
+      // Based on the implementation in useDashboardState
+      return await suiteCore.db.resources.getAllByFields({
+        organization_id: organizationId,
+      });
+    },
+    enabled: !!organizationId && enabled,
+    gcTime: DASHBOARD_WORKFLOWS_CACHE_TIME, // Reuse cache time for resources
+    staleTime: DASHBOARD_WORKFLOWS_CACHE_TIME / 2,
+  });
+}
+
+/**
  * Custom hook to fetch recent messages for users with React Query
  */
 export function useRecentMessagesQuery(userIds: string[], limit = 5, enabled = true) {
@@ -173,7 +192,7 @@ export function useDeleteAgentMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ agentId, organizationId: _ }: AgentDeleteData) => {
+    mutationFn: async ({ agentId }: AgentDeleteData) => {
       // Use suiteCore.db.agents.delete or the appropriate method based on what's available
       return await suiteCore.db.agents.delete(agentId);
     },
@@ -273,7 +292,7 @@ export function useDeleteWorkflowMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ workflowId, organizationId }: WorkflowDeleteData) => {
+    mutationFn: async ({ workflowId }: WorkflowDeleteData) => {
       // Use suiteCore.db.workflows.delete or the appropriate method based on what's available
       return await suiteCore.db.workflows.delete(workflowId);
     },
@@ -331,14 +350,6 @@ export function useWorkflowCacheInvalidation(organizationId?: string) {
 }
 
 /**
- * Types for step mutations
- */
-interface StepCreateData {
-  stepData: any[];
-  workflowId: string;
-}
-
-/**
  * Mutation hook for creating workflow steps
  */
 export function useCreateStepsMutation(workflowId?: string) {
@@ -362,10 +373,14 @@ export function useCreateStepsMutation(workflowId?: string) {
 /**
  * Combined hook for dashboard data queries with refetch functionality
  */
+/**
+ * Combined hook for dashboard data queries with refetch functionality
+ */
 export function useDashboardDataQueries(organizationId?: string, workflowId?: string) {
   const agents = useOrganizationAgentsQuery(organizationId);
   const users = useOrganizationUsersQuery(organizationId);
   const workflows = useOrganizationWorkflowsQuery(organizationId);
+  const resources = useOrganizationResourcesQuery(organizationId);
 
   // Only fetch messages if we have users
   const userIds = users.data?.map(user => user.id) || [];
@@ -390,6 +405,7 @@ export function useDashboardDataQueries(organizationId?: string, workflowId?: st
       agents.refetch(),
       users.refetch(),
       workflows.refetch(),
+      resources.refetch(),
       users.isSuccess ? messages.refetch() : Promise.resolve(),
     ]);
     return results;
@@ -398,17 +414,24 @@ export function useDashboardDataQueries(organizationId?: string, workflowId?: st
   const refetchAgents = () => agents.refetch();
   const refetchUsers = () => users.refetch();
   const refetchWorkflows = () => workflows.refetch();
+  const refetchResources = () => resources.refetch();
   const refetchMessages = () => messages.refetch();
 
   const isLoading =
-    agents.isLoading || users.isLoading || workflows.isLoading || messages.isLoading;
-  const isError = agents.isError || users.isError || workflows.isError || messages.isError;
+    agents.isLoading ||
+    users.isLoading ||
+    workflows.isLoading ||
+    resources.isLoading ||
+    messages.isLoading;
+  const isError =
+    agents.isError || users.isError || workflows.isError || resources.isError || messages.isError;
 
   return {
     // Query results
     agents,
     users,
     workflows,
+    resources,
     messages,
     isLoading,
     isError,
@@ -416,6 +439,7 @@ export function useDashboardDataQueries(organizationId?: string, workflowId?: st
       agents: agents.data || [],
       users: users.data || [],
       workflows: workflows.data || [],
+      resources: resources.data || [],
       messages: messages.data || [],
     },
     // Mutation hooks for agents
@@ -433,6 +457,7 @@ export function useDashboardDataQueries(organizationId?: string, workflowId?: st
     refetchAgents,
     refetchUsers,
     refetchWorkflows,
+    refetchResources,
     refetchMessages,
   };
 }

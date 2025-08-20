@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useDashboardState } from '@/hooks/use-dashboard';
+import { cn } from '@/lib/utils';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -59,34 +60,34 @@ export function OrganizationEditForm({
   const [organizationHandle, setOrganizationHandle] = useState(existingOrganization?.handle || '');
   const [referralSource, setReferralSource] = useState(existingOrganization?.referral_source || '');
   const [role, setRole] = useState('');
-  const [companyLogo, setCompanyLogo] = useState<string | null>(null);
-  const [logoFile, setLogoFile] = useState<File | undefined>(undefined);
+  // const [companyLogo, setCompanyLogo] = useState<string | null>(null);
+  // const [logoFile, setLogoFile] = useState<File | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files?.[0]) {
-      const file = event.target.files[0];
+  // const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (event.target.files?.[0]) {
+  //     const file = event.target.files[0];
 
-      // Validate file size (10MB limit as mentioned in UI)
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error('File size must be less than 10MB');
-        return;
-      }
+  //     // Validate file size (10MB limit as mentioned in UI)
+  //     if (file.size > 10 * 1024 * 1024) {
+  //       toast.error('File size must be less than 10MB');
+  //       return;
+  //     }
 
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        toast.error('Please select an image file');
-        return;
-      }
+  //     // Validate file type
+  //     if (!file.type.startsWith('image/')) {
+  //       toast.error('Please select an image file');
+  //       return;
+  //     }
 
-      setLogoFile(file);
-      const reader = new FileReader();
-      reader.onload = e => {
-        setCompanyLogo(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  //     setLogoFile(file);
+  //     const reader = new FileReader();
+  //     reader.onload = e => {
+  //       setCompanyLogo(e.target?.result as string);
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,7 +105,7 @@ export function OrganizationEditForm({
             companyName,
             companyDescription,
             organizationHandle,
-            logoFile,
+            undefined,
             referralSource
           );
           setSelectedOrganization(organization);
@@ -117,7 +118,7 @@ export function OrganizationEditForm({
           companyDescription,
           role,
           organizationHandle,
-          logoFile,
+          undefined,
           referralSource
         );
         setSelectedOrganization(organization);
@@ -272,7 +273,10 @@ export function OrganizationEditForm({
           <Button
             size="lg"
             onClick={handleSubmit}
-            className="w-full mt-2 bg-gradient-to-r from-primary to-brand-accent max-w-[300px]"
+            className={cn(
+              'w-full mt-2 bg-gradient-to-r from-primary to-brand-accent',
+              existingOrganization && 'max-w-[300px]'
+            )}
             disabled={isSubmitting || !companyName || !organizationHandle}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Continue
