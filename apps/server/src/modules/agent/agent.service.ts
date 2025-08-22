@@ -129,7 +129,7 @@ export class AgentService {
       true // TODO: Make this dynamic
     );
 
-    this.logger.debug(`🔍 [System prompt]: ${systemPrompt}`);
+    // this.logger.debug(`🔍 [System prompt]: ${systemPrompt}`);
 
     // Create agent options with resource support
     const agentOptions: AgentOptions = {
