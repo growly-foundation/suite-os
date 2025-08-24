@@ -2,6 +2,7 @@
 
 import { AgentConversations } from '@/components/agents/agent-conversations';
 import { AgentDetails } from '@/components/agents/agent-details';
+import { AgentPlayground } from '@/components/agents/agent-playground';
 import { AgentResources } from '@/components/agents/agent-resources';
 import { AgentUsers } from '@/components/agents/agent-users';
 import { AgentWorkflows } from '@/components/agents/agent-workflows';
@@ -11,7 +12,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { suiteCore } from '@/core/suite';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { useQueryClient } from '@tanstack/react-query';
-import { Book, Code, Loader, MessageCircle, Settings2, Users, Workflow } from 'lucide-react';
+import {
+  Book,
+  Code,
+  Loader,
+  MessageCircle,
+  Settings2,
+  TestTube,
+  Users,
+  Workflow,
+} from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -149,6 +159,10 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
                 <Workflow className="mr-2 h-4 w-4" />
                 Workflows
               </TabsTrigger>
+              <TabsTrigger value="playground">
+                <TestTube className="mr-2 h-4 w-4" />
+                Playground
+              </TabsTrigger>
             </TabsList>
           )}
           <PrimaryButton className="rounded-full" onClick={() => setIsIntegrationGuideOpen(true)}>
@@ -170,6 +184,9 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
         </TabsContent>
         <TabsContent value="resources">
           <AgentResources agent={agent} onUpdate={handleAgentUpdate} />
+        </TabsContent>
+        <TabsContent value="playground">
+          <AgentPlayground agent={agent} />
         </TabsContent>
       </Tabs>
       <IntegrationGuideDialog
