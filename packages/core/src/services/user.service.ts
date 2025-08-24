@@ -6,6 +6,7 @@ import {
   User,
   UserImportSource,
 } from '@/models';
+import { normalizeWalletAddress } from '@/utils/wallet';
 
 import { Address } from '@getgrowly/persona';
 
@@ -72,9 +73,11 @@ export class UserService {
   }
 
   async getUserByWalletAddress(walletAddress: string): Promise<ParsedUser | null> {
+    const normalizedWalletAddress = normalizeWalletAddress(walletAddress);
     const users = await this.userDatabaseService.getAll();
     const parsedUser = users.find(user => {
-      return (user.entities as { walletAddress: string }).walletAddress === walletAddress;
+      const userWalletAddress = (user.entities as { walletAddress: string }).walletAddress;
+      return normalizeWalletAddress(userWalletAddress) === normalizedWalletAddress;
     });
     if (!parsedUser) return null;
     return this.getUserWithPersona(parsedUser);
@@ -91,7 +94,8 @@ export class UserService {
     organizationId: string,
     importedSourceData: ImportedUserSourceData = { source: UserImportSource.Native, sourceData: {} }
   ): Promise<{ user: ParsedUser; persona: ParsedUserPersona | null; new: boolean }> {
-    const user = await this.getUserByWalletAddress(walletAddress);
+    const normalizedWalletAddress = normalizeWalletAddress(walletAddress);
+    const user = await this.getUserByWalletAddress(normalizedWalletAddress);
     const isNative = importedSourceData.source === UserImportSource.Native;
     const now = new Date().toISOString();
     if (user) {
@@ -107,7 +111,7 @@ export class UserService {
     // If user is not found, create a new user and add it to the organization.
     const newUser = await this.userDatabaseService.create({
       entities: {
-        walletAddress,
+        walletAddress: normalizedWalletAddress,
       },
       original_joined_at: isNative ? now : null,
     });
@@ -135,7 +139,8 @@ export class UserService {
 
   async getUserWithPersona(user: User): Promise<ParsedUser> {
     const walletAddress = (user.entities as { walletAddress: string }).walletAddress as Address;
-    const userPersona = await this.createUserPersonaIfNotExist(walletAddress);
+    const normalizedWalletAddress = normalizeWalletAddress(walletAddress);
+    const userPersona = await this.createUserPersonaIfNotExist(normalizedWalletAddress);
     return this.mapUserWithPersona(user, userPersona);
   }
 
@@ -159,10 +164,11 @@ export class UserService {
   }
 
   async createUserPersonaIfNotExist(walletAddress: string): Promise<ParsedUserPersona> {
-    const userPersona = await this.userPersonaDatabaseService.getById(walletAddress);
+    const normalizedWalletAddress = normalizeWalletAddress(walletAddress);
+    const userPersona = await this.userPersonaDatabaseService.getById(normalizedWalletAddress);
     if (userPersona) return userPersona as any as ParsedUserPersona;
     const newUserPersona = await this.userPersonaDatabaseService.create({
-      id: walletAddress,
+      id: normalizedWalletAddress,
       identities: {},
       activities: {},
       portfolio_snapshots: {},
