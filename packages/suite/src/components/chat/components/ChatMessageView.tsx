@@ -126,7 +126,7 @@ export const ChatMessageView = ({
       {messages.length > 0 && viewAs === ConversationRole.User && (
         <React.Fragment>
           <div
-            className={cn('text-gray-500 text-xs text-center', text.base)}
+            className={cn('gas-text-gray-500 gas-text-xs gas-text-center', text.base)}
             style={{ padding: '20px 0px 30px 0px' }}>
             You are chatting with {agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
           </div>
@@ -138,13 +138,17 @@ export const ChatMessageView = ({
             <React.Fragment>
               <div style={{ height: '20px', width: '100%' }} />
               {messages.length > visibleMessageCount && (
-                <div className="flex justify-center my-4">
+                <div className="gas-flex gas-justify-center gas-my-4">
                   <Button
                     onClick={loadPreviousMessages}
                     variant="outline"
                     size="sm"
-                    className="flex items-center gap-1">
-                    <ChevronUp className="h-4 w-4" />
+                    className={cn(
+                      'gas-flex gas-items-center gas-gap-1',
+                      'gas-border gas-border-primary gas-bg-transparent gas-shadow-sm',
+                      'gas-text-primary hover:gas-bg-primary/10 hover:gas-border-primary hover:gas-text-primary'
+                    )}>
+                    <ChevronUp className="gas-h-4 gas-w-4" />
                     Load previous messages
                   </Button>
                 </div>
@@ -165,11 +169,11 @@ export const ChatMessageView = ({
               <div ref={messagesEndRef} />
             </React.Fragment>
           ) : (
-            <div className={cn('p-[50px] text-gray-500', text.body)}>
+            <div className={cn('gas-p-[50px] gas-text-gray-500', text.body)}>
               <div style={{ marginBottom: '10px' }}>
-                <Pencil className="h-6 w-6 mr-2" />
+                <Pencil className="gas-h-6 gas-w-6 gas-mr-2" />
               </div>
-              <div className={cn('mt-2', text.body)}>
+              <div className={cn('gas-mt-2', text.body)}>
                 This conversation just started. Send a message to get started.
               </div>
             </div>
@@ -177,17 +181,23 @@ export const ChatMessageView = ({
         </React.Fragment>
       ) : (
         <div
-          className={cn('flex justify-center items-center text-gray-500 gap-4', text.body)}
+          className={cn(
+            'gas-flex gas-justify-center gas-items-center gas-text-gray-500 gas-gap-4',
+            text.body
+          )}
           style={{ marginTop: 50 }}>
-          <Loader2 className="h-5 w-5 animate-spin" /> Loading conversation...
+          <Loader2 className="gas-h-5 gas-w-5 gas-animate-spin" /> Loading conversation...
         </div>
       )}
       {isAgentThinking && (
         <div
           id="thinking-status"
-          className={cn('flex justify-center items-center text-gray-500 gap-4', text.body)}
+          className={cn(
+            'gas-flex gas-justify-center gas-items-center gas-text-gray-500 gas-gap-4',
+            text.body
+          )}
           style={{ marginTop: 50, marginBottom: 50 }}>
-          <Loader2 className="h-5 w-5 animate-spin" /> Thinking...
+          <Loader2 className="gas-h-5 gas-w-5 gas-animate-spin" /> Thinking...
         </div>
       )}
     </React.Fragment>

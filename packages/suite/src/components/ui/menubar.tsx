@@ -32,7 +32,7 @@ const Menubar = React.forwardRef<
   <MenubarPrimitive.Root
     ref={ref}
     className={cn(
-      'flex h-9 items-center space-x-1 rounded-md border bg-background p-1 shadow-sm',
+      'gas-flex gas-h-9 gas-items-center gas-space-x-1 gas-rounded-md gas-border gas-bg-background gas-p-1 gas-shadow-sm',
       className
     )}
     {...props}
@@ -47,7 +47,7 @@ const MenubarTrigger = React.forwardRef<
   <MenubarPrimitive.Trigger
     ref={ref}
     className={cn(
-      'flex cursor-default select-none items-center rounded-sm px-3 py-1 text-sm font-medium outline-none focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground',
+      'gas-flex gas-cursor-default gas-select-none gas-items-center gas-rounded-sm gas-px-3 gas-py-1 gas-text-sm gas-font-medium gas-outline-none focus:gas-bg-accent focus:gas-text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground',
       className
     )}
     {...props}
@@ -64,13 +64,13 @@ const MenubarSubTrigger = React.forwardRef<
   <MenubarPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      'flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground',
-      inset && 'pl-8',
+      'gas-flex gas-cursor-default gas-select-none gas-items-center gas-rounded-sm gas-px-2 gas-py-1.5 gas-text-sm gas-outline-none focus:gas-bg-accent focus:gas-text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground',
+      inset && 'gas-pl-8',
       className
     )}
     {...props}>
     {children}
-    <ChevronRight className="ml-auto h-4 w-4" />
+    <ChevronRight className="gas-ml-auto gas-h-4 gas-w-4" />
   </MenubarPrimitive.SubTrigger>
 ));
 MenubarSubTrigger.displayName = MenubarPrimitive.SubTrigger.displayName;
@@ -82,7 +82,7 @@ const MenubarSubContent = React.forwardRef<
   <MenubarPrimitive.SubContent
     ref={ref}
     className={cn(
-      'z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-menubar-content-transform-origin]',
+      'gas-z-50 gas-min-w-[8rem] overflow-hidden gas-rounded-md gas-border gas-bg-popover gas-p-1 gas-text-popover-foreground gas-shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 gas-origin-[--radix-menubar-content-transform-origin]',
       className
     )}
     {...props}
@@ -101,7 +101,7 @@ const MenubarContent = React.forwardRef<
       alignOffset={alignOffset}
       sideOffset={sideOffset}
       className={cn(
-        'z-50 min-w-[12rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-menubar-content-transform-origin]',
+        'gas-z-50 gas-min-w-[12rem] overflow-hidden gas-rounded-md gas-border gas-bg-popover gas-p-1 gas-text-popover-foreground gas-shadow-md data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 gas-origin-[--radix-menubar-content-transform-origin]',
         className
       )}
       {...props}
@@ -119,8 +119,8 @@ const MenubarItem = React.forwardRef<
   <MenubarPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-      inset && 'pl-8',
+      'gas-relative gas-flex gas-cursor-default gas-select-none gas-items-center gas-rounded-sm gas-px-2 gas-py-1.5 gas-text-sm gas-outline-none focus:gas-bg-accent focus:gas-text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      inset && 'gas-pl-8',
       className
     )}
     {...props}
@@ -135,14 +135,14 @@ const MenubarCheckboxItem = React.forwardRef<
   <MenubarPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      'relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'gas-relative gas-flex gas-cursor-default gas-select-none gas-items-center gas-rounded-sm gas-py-1.5 gas-pl-8 gas-pr-2 gas-text-sm gas-outline-none focus:gas-bg-accent focus:gas-text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className
     )}
     checked={checked}
     {...props}>
-    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+    <span className="gas-absolute gas-left-2 gas-flex gas-h-3.5 gas-w-3.5 gas-items-center gas-justify-center">
       <MenubarPrimitive.ItemIndicator>
-        <Check className="h-4 w-4" />
+        <Check className="gas-h-4 gas-w-4" />
       </MenubarPrimitive.ItemIndicator>
     </span>
     {children}
@@ -157,13 +157,13 @@ const MenubarRadioItem = React.forwardRef<
   <MenubarPrimitive.RadioItem
     ref={ref}
     className={cn(
-      'relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'gas-relative gas-flex gas-cursor-default gas-select-none gas-items-center gas-rounded-sm gas-py-1.5 gas-pl-8 gas-pr-2 gas-text-sm gas-outline-none focus:gas-bg-accent focus:gas-text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className
     )}
     {...props}>
-    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+    <span className="gas-absolute gas-left-2 gas-flex gas-h-3.5 gas-w-3.5 gas-items-center gas-justify-center">
       <MenubarPrimitive.ItemIndicator>
-        <Circle className="h-4 w-4 fill-current" />
+        <Circle className="gas-h-4 gas-w-4 gas-fill-current" />
       </MenubarPrimitive.ItemIndicator>
     </span>
     {children}
@@ -179,7 +179,11 @@ const MenubarLabel = React.forwardRef<
 >(({ className, inset, ...props }, ref) => (
   <MenubarPrimitive.Label
     ref={ref}
-    className={cn('px-2 py-1.5 text-sm font-semibold', inset && 'pl-8', className)}
+    className={cn(
+      'gas-px-2 gas-py-1.5 gas-text-sm gas-font-semibold',
+      inset && 'gas-pl-8',
+      className
+    )}
     {...props}
   />
 ));
@@ -191,7 +195,7 @@ const MenubarSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <MenubarPrimitive.Separator
     ref={ref}
-    className={cn('-mx-1 my-1 h-px bg-muted', className)}
+    className={cn('-mx-1 gas-my-1 gas-h-px gas-bg-muted', className)}
     {...props}
   />
 ));
@@ -200,7 +204,10 @@ MenubarSeparator.displayName = MenubarPrimitive.Separator.displayName;
 const MenubarShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) => {
   return (
     <span
-      className={cn('ml-auto text-xs tracking-widest text-muted-foreground', className)}
+      className={cn(
+        'gas-ml-auto gas-text-xs gas-tracking-widest gas-text-muted-foreground',
+        className
+      )}
       {...props}
     />
   );

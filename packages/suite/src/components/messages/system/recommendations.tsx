@@ -26,7 +26,7 @@ const SmartRecommendationChips = ({ recommendations }: SmartRecommendationChipsP
   const recommendationEntries = Object.entries(recommendations).slice(0, 5);
 
   return (
-    <div className="flex flex-wrap gap-2 mt-3">
+    <div className="gas-flex gas-flex-wrap gas-gap-2 gas-mt-3">
       {recommendationEntries.map(([keyword, fullMessage], index) => (
         <Button
           key={index}
@@ -34,10 +34,9 @@ const SmartRecommendationChips = ({ recommendations }: SmartRecommendationChipsP
           size="sm"
           onClick={() => handleRecommendationClick(fullMessage)}
           className={cn(
-            'text-xs h-8 px-3 rounded-full transition-all duration-200',
-            'border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300',
-            'dark:border-blue-700 dark:text-blue-300 dark:hover:bg-blue-900/20 dark:hover:border-blue-600',
-            'hover:scale-105 active:scale-95'
+            'gas-text-xs gas-h-8 gas-px-3 rounded-full gas-transition-all gas-duration-200',
+            'gas-border-primary gas-text-primary hover:gas-bg-primary/10 hover:gas-border-primary hover:gas-text-primary',
+            'hover:gas-scale-105 active:gas-scale-95'
           )}>
           {keyword}
         </Button>

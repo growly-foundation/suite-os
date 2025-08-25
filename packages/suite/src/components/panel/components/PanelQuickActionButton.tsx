@@ -22,17 +22,19 @@ export function QuickActionButton({
   return (
     <motion.button
       onClick={onClick}
-      className="w-full flex items-center p-3 rounded-xl transition-colors duration-200"
+      className="gas-w-full gas-flex gas-items-center gas-p-3 gas-rounded-xl gas-transition-colors gas-duration-200"
       style={{
         ...styles.quickAction.container,
         backgroundColor: styles.quickAction.container.backgroundColor,
       }}
       whileHover={{ x: 4, backgroundColor: styles.quickAction.container.hoverBackgroundColor }}
       transition={{ type: 'spring', stiffness: 400, damping: 17 }}>
-      <div className={cn('rounded-full p-2 mr-3', color)}>
+      <div className={cn('gas-rounded-full gas-p-2 gas-mr-3', color)}>
         <div className={iconColor}>{icon}</div>
       </div>
-      <div className="flex-1 text-left font-medium text-lg" style={styles.text.primary}>
+      <div
+        className="gas-flex-1 gas-text-left gas-font-medium gas-text-lg"
+        style={styles.text.primary}>
         {title}
       </div>
       <ChevronRight size={16} style={styles.text.muted} />

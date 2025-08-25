@@ -15,7 +15,7 @@ export function FloatingButton(
   const { agent } = useSuiteSession();
   const [isHovered, setIsHovered] = useState(false);
   return (
-    <div className="fixed bottom-6 right-6 z-[9990]">
+    <div className="gas-fixed gas-bottom-6 gas-right-6 gas-z-[9990]">
       <TooltipProvider>
         <Tooltip open={isHovered} delayDuration={1}>
           <motion.div
@@ -32,7 +32,7 @@ export function FloatingButton(
                 position: 'relative',
               }}
               className={cn(
-                'border border-primary/10 rounded-full aspect-square shadow-3xl text-white',
+                'gas-border gas-border-primary gas-rounded-full gas-aspect-square gas-shadow-3xl gas-text-white',
                 pressable.coinbaseBranding
               )}>
               <LazyAnimatedBuster />

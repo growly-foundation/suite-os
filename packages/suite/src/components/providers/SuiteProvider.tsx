@@ -13,7 +13,7 @@ const defaultConfig: SuiteConfig = {
   display: 'fullView',
   themeMode: ThemeName.Light,
   theme: {}, // Theme overrides will be handled by ThemeProvider
-  brandName: 'Cream',
+  brandName: 'Suite',
 };
 
 export const SuiteContext = React.createContext<

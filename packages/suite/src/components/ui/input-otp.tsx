@@ -13,7 +13,7 @@ const InputOTP = React.forwardRef<
       'flex items-center gap-2 has-[:disabled]:opacity-50',
       containerClassName
     )}
-    className={cn('disabled:cursor-not-allowed', className)}
+    className={cn('disabled:gas-cursor-not-allowed', className)}
     {...props}
   />
 ));
@@ -23,7 +23,7 @@ const InputOTPGroup = React.forwardRef<
   React.ElementRef<'div'>,
   React.ComponentPropsWithoutRef<'div'>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn('flex items-center', className)} {...props} />
+  <div ref={ref} className={cn('gas-flex gas-items-center', className)} {...props} />
 ));
 InputOTPGroup.displayName = 'InputOTPGroup';
 
@@ -38,15 +38,15 @@ const InputOTPSlot = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        'relative flex h-9 w-9 items-center justify-center border-y border-r border-input text-sm shadow-sm transition-all first:rounded-l-md first:border-l last:rounded-r-md',
-        isActive && 'z-10 ring-1 ring-ring',
+        'gas-relative gas-flex gas-h-9 gas-w-9 gas-items-center gas-justify-center gas-border-y gas-border-r gas-border-input gas-text-sm gas-shadow-sm gas-transition-all first:gas-rounded-l-md first:gas-border-l last:gas-rounded-r-md',
+        isActive && 'gas-z-10 gas-ring-1 gas-ring-ring',
         className
       )}
       {...props}>
       {char}
       {hasFakeCaret && (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="h-4 w-px animate-caret-blink bg-foreground duration-1000" />
+        <div className="gas-pointer-events-none gas-absolute gas-inset-0 gas-flex gas-items-center gas-justify-center">
+          <div className="gas-h-4 gas-w-px gas-animate-caret-blink gas-bg-foreground gas-duration-1000" />
         </div>
       )}
     </div>

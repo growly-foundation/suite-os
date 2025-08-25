@@ -21,16 +21,16 @@ export const ConnectWallet = () => {
   }
 
   return (
-    <div className="h-full flex items-center justify-center">
-      <div className="flex flex-col items-center justify-center gap-2">
-        <div className="text-center" style={{ marginBottom: 10, color: theme.text.muted }}>
+    <div className="gas-h-full gas-flex gas-items-center gas-justify-center">
+      <div className="gas-flex gas-flex-col gas-items-center gas-justify-center gas-gap-2">
+        <div className="gas-text-center" style={{ marginBottom: 10, color: theme.text.muted }}>
           No wallet found. <br />
           Please connect your wallet to continue.
         </div>
         {connectButton ? (
           connectButton
         ) : (
-          <div className="text-center" style={{ color: theme.text.muted }}>
+          <div className="gas-text-center" style={{ color: theme.text.muted }}>
             No wallet connect method found.
           </div>
         )}

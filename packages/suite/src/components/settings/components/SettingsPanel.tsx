@@ -9,7 +9,7 @@ export const SettingsPanel = () => {
   const { setScreen } = useSuiteSession();
   return (
     <PanelLayout>
-      <div className="flex flex-col items-center justify-center h-full p-[50px] space-y-4">
+      <div className="gas-flex gas-flex-col gas-items-center gas-justify-center gas-h-full gas-p-[50px] gas-space-y-4">
         <ConnectWallet />
         <Button
           onClick={() => {

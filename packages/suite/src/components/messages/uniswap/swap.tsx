@@ -15,7 +15,7 @@ const UniswapSwapMessage = ({
     <div style={{ backgroundColor: theme.background.default, color: theme.text.primary }}>
       <Button
         onClick={() => window.open(link, '_blank')}
-        className="mt-2 flex items-center gap-2 font-bold">
+        className="mt-2 flex items-center gap-2 font-bold hover:gas-bg-primary-hover">
         <ArrowRight /> Swap {parseFloat(amount.toString()).toFixed(3)} {fromToken.symbol} to{' '}
         {toToken.symbol} on Uniswap
       </Button>

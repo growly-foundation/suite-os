@@ -8,20 +8,24 @@ import { AnimatedBuster, BRAND_NAME_CAPITALIZED } from '@getgrowly/ui';
 export const PanelHeader = () => {
   const { togglePanel, agent, isAgentThinking } = useSuiteSession();
   return (
-    <div className="flex justify-between items-center">
-      <div className="flex items-center space-x-3">
+    <div className="gas-flex gas-justify-between gas-items-center">
+      <div className="gas-flex gas-items-center gas-space-x-3">
         <AnimatedBuster width={40} height={40} state={isAgentThinking ? 'writing' : 'idle'} />
         <div>
-          <h2 className={cn('font-semibold', text.headline)}>
+          <h2 className={cn('gas-font-semibold', text.headline)}>
             {agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
           </h2>
-          <p className={cn('text-sm opacity-90 transition-opacity duration-300', text.base)}>
+          <p
+            className={cn(
+              'gas-text-sm gas-opacity-90 gas-transition-opacity gas-duration-300',
+              text.base
+            )}>
             {isAgentThinking ? 'Thinking...' : 'Typically replies in a few minutes'}
           </p>
         </div>
       </div>
       <Button variant="ghost" size="icon" onClick={togglePanel} style={{ cursor: 'pointer' }}>
-        <X className="h-5 w-5" />
+        <X className="gas-h-5 gas-w-5" />
       </Button>
     </div>
   );

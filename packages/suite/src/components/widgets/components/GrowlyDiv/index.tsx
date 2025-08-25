@@ -29,7 +29,7 @@ export const GrowlyDiv = ({
     }
   };
   return (
-    <div onClick={handleClick} className={cn('relative', props.className)} {...props}>
+    <div onClick={handleClick} className={cn('gas-relative', props.className)} {...props}>
       <Tooltip>
         <TooltipTrigger>{children}</TooltipTrigger>
         <TooltipContent>Chat with {agent?.name}</TooltipContent>
