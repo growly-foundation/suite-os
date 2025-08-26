@@ -8,7 +8,7 @@ import {
   SuiteDatabaseCore,
   UserPersonaService,
   UserPersonaStatus,
-  minute,
+  hour,
   second,
 } from '@getgrowly/core';
 
@@ -58,9 +58,9 @@ export class SyncPersonaService {
 
   /**
    * Process pending and failed personas
-   * Runs every 5 minutes
+   * Runs every 1 hour
    */
-  @Interval(minute(5))
+  @Interval(hour(1))
   async processPendingPersonas() {
     this.logger.debug('Processing pending/failed personas...');
     try {
