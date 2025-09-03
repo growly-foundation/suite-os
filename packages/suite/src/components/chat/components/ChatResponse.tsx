@@ -19,7 +19,7 @@ const ChatResponseAvatar = ({
   children: React.ReactNode;
 }) => {
   return (
-    <div className="flex-shrink-0 pt-2">
+    <div className="gas-flex-shrink-0 gas-pt-2">
       {showAvatar ? children : <div style={{ width: 30, height: 30 }} />}
     </div>
   );
@@ -43,13 +43,13 @@ const RightResponseLayout = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="flex space-x-2"
+      className="gas-flex gas-space-x-2"
       style={{
         marginBottom: 10,
         justifyContent: 'flex-end',
       }}>
       <Card
-        className={cn('py-2 px-4 mb-2 max-w-[80%]', text.body)}
+        className={cn('gas-py-2 gas-px-4 gas-mb-2 gas-max-w-[80%]', text.body)}
         style={{
           backgroundColor: theme.background.default,
           color: theme.text.primary,
@@ -83,11 +83,11 @@ const LeftResponseLayout = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="flex space-x-2"
+      className="gas-flex gas-space-x-2"
       style={{ marginBottom: showAvatar ? 10 : 2 }}>
       {!noAvatar && <ChatResponseAvatar showAvatar={showAvatar}>{avatar}</ChatResponseAvatar>}
       <Card
-        className={cn('py-2 px-4 mb-2', text.body)}
+        className={cn('gas-py-2 gas-px-4 gas-mb-2', text.body)}
         style={{
           backgroundColor: theme.background.paper,
           color: theme.text.primary,
@@ -122,17 +122,17 @@ const AgentMessageWithTools = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="flex space-x-2"
+      className="gas-flex gas-space-x-2"
       style={{ marginBottom: showAvatar ? 10 : 2 }}>
       {!noAvatar && (
         <ChatResponseAvatar showAvatar={showAvatar}>
           <SuiteUser width={30} height={30} style={{ minWidth: 30, minHeight: 30 }} />
         </ChatResponseAvatar>
       )}
-      <div className="flex-1">
+      <div className="gas-flex-1">
         {/* Agent message in grey card */}
         <Card
-          className={cn('py-2 px-4 mb-2', text.body)}
+          className={cn('gas-py-2 gas-px-4 gas-mb-2', text.body)}
           style={{
             backgroundColor: theme.background.paper,
             color: theme.text.primary,
@@ -146,7 +146,7 @@ const AgentMessageWithTools = ({
 
         {/* All tool outputs outside the card */}
         {toolMessages.length > 0 && (
-          <div className="ml-0 space-y-2">
+          <div className="gas-ml-0 gas-space-y-2">
             {toolMessages.map(toolMessage => (
               <div key={toolMessage.id}>
                 <RenderMessageContent message={toolMessage} />
@@ -245,7 +245,7 @@ const AdminResponse = ({
       noAvatar={noAvatar}
       avatar={
         loading ? (
-          <Loader className="w-5 h-5 animate-spin" />
+          <Loader className="gas-w-5 gas-h-5 gas-animate-spin" />
         ) : (
           <AdminAvatar size={35} email={admin?.email || ''} />
         )
@@ -272,7 +272,7 @@ const ChatResponse = ({
   switch (message.sender) {
     case ConversationRole.User:
       return (
-        <div ref={ref} className="w-full">
+        <div ref={ref} className="gas-w-full">
           <UserResponse
             key={message.id}
             address={user?.entities.walletAddress}
@@ -284,7 +284,7 @@ const ChatResponse = ({
       );
     case ConversationRole.Agent:
       return (
-        <div ref={ref} className="w-full">
+        <div ref={ref} className="gas-w-full">
           <AgentResponse
             key={message.id}
             message={message}
@@ -296,7 +296,7 @@ const ChatResponse = ({
       );
     case ConversationRole.Admin:
       return (
-        <div ref={ref} className="w-full">
+        <div ref={ref} className="gas-w-full">
           <AdminResponse key={message.id} message={message} showAvatar={showAvatar} />
         </div>
       );

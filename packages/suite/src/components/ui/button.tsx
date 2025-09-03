@@ -4,23 +4,25 @@ import { type VariantProps, cva } from 'class-variance-authority';
 import * as React from 'react';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+  'gas-inline-flex gas-items-center gas-justify-center gas-gap-2 gas-whitespace-nowrap gas-rounded-md gas-text-sm gas-font-medium gas-transition-colors focus-visible:gas-outline-none focus-visible:gas-ring-1 focus-visible:gas-ring-ring disabled:gas-pointer-events-none disabled:gas-opacity-50 [&_svg]:gas-pointer-events-none [&_svg]:gas-size-4 [&_svg]:gas-shrink-0',
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground shadow hover:bg-primary/90',
-        destructive: 'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
+        default: 'gas-bg-primary gas-text-primary-foreground gas-shadow hover:gas-bg-primary/90',
+        destructive:
+          'gas-bg-destructive gas-text-destructive-foreground gas-shadow-sm hover:gas-bg-destructive/90',
         outline:
-          'border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground',
-        secondary: 'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'text-primary underline-offset-4 hover:underline',
+          'gas-border gas-border-input gas-shadow-sm hover:gas-bg-accent hover:gas-text-accent-foreground',
+        secondary:
+          'gas-bg-secondary gas-text-secondary-foreground gas-shadow-sm hover:gas-bg-secondary/80',
+        ghost: 'hover:gas-bg-accent hover:gas-text-accent-foreground',
+        link: 'gas-text-primary gas-underline-offset-4 hover:gas-underline',
       },
       size: {
-        default: 'h-9 px-4 py-2',
-        sm: 'h-8 rounded-md px-3 text-xs',
-        lg: 'h-10 rounded-md px-8',
-        icon: 'h-9 w-9',
+        default: 'gas-h-9 gas-px-4 gas-py-2',
+        sm: 'gas-h-8 gas-rounded-md gas-px-3 gas-text-xs',
+        lg: 'gas-h-10 gas-rounded-md gas-px-8',
+        icon: 'gas-h-9 gas-w-9',
       },
     },
     defaultVariants: {

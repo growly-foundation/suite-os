@@ -6,7 +6,10 @@ export const PanelLayout = ({ children }: { children: React.ReactNode }) => {
   const { config } = useSuite();
   return (
     <ScrollArea
-      className={cn('flex-1', config?.display === 'fullView' ? 'max-h-[80vh]' : 'max-h-[70vh]')}
+      className={cn(
+        'gas-flex-1',
+        config?.display === 'fullView' ? 'gas-max-h-[80vh]' : 'gas-max-h-[70vh]'
+      )}
       style={{ padding: '0px 50px' }}
       id="chat-messages-container">
       {children}

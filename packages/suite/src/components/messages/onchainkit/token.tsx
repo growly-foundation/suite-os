@@ -7,7 +7,7 @@ export const OnchainKitTokenChipMessage = ({ token }: OnchainKitTokenMessageCont
   const { theme } = useTheme();
   return (
     <div style={{ backgroundColor: theme.background.default }}>
-      <TokenChip className="shadow-none" isPressable={false} token={token} />
+      <TokenChip className="gas-shadow-none" isPressable={false} token={token} />
     </div>
   );
 };

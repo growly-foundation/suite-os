@@ -23,7 +23,7 @@ export const RenderMessage = ({ message }: { message: ParsedMessage }) => {
   return (
     <React.Fragment>
       <RenderMessageContent message={message} />
-      <span className="text-xs opacity-50">{time}</span>
+      <span className="gas-text-xs gas-opacity-50">{time}</span>
     </React.Fragment>
   );
 };

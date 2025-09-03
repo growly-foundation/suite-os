@@ -32,7 +32,7 @@ export const GrowlyButton = ({
   };
   return (
     <Button onClick={handleClick} disabled={loading} {...props}>
-      {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+      {loading ? <Loader2 className="gas-mr-2 gas-h-4 gas-w-4 gas-animate-spin" /> : null}
       {loading ? null : children}
     </Button>
   );

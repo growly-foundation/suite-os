@@ -7,31 +7,31 @@ export function cn(...inputs: ClassValue[]) {
 
 export const text = {
   base: 'gas-font-family',
-  body: 'gas-font-family font-normal text-base',
-  caption: 'gas-font-family font-semibold text-xs',
-  headline: 'gas-font-family font-semibold',
-  label1: 'gas-font-family font-semibold text-sm',
-  label2: 'gas-font-family text-sm',
-  legal: 'gas-font-family text-xs',
-  title1: 'gas-font-family font-semibold text-2xl',
-  title2: 'gas-font-family font-semibold text-xl',
-  title3: 'gas-font-family font-semibold text-lg',
+  body: 'gas-font-family gas-font-normal gas-text-base',
+  caption: 'gas-font-family gas-font-semibold gas-text-xs',
+  headline: 'gas-font-family gas-font-semibold',
+  label1: 'gas-font-family gas-font-semibold gas-text-sm',
+  label2: 'gas-font-family gas-text-sm',
+  legal: 'gas-font-family gas-text-xs',
+  title1: 'gas-font-family gas-font-semibold gas-text-2xl',
+  title2: 'gas-font-family gas-font-semibold gas-text-xl',
+  title3: 'gas-font-family gas-font-semibold gas-text-lg',
 } as const;
 
 export const pressable = {
   default:
-    'cursor-pointer gas-bg-default active:bg-[var(--gas-bg-default-active)] hover:bg-[var(--gas-bg-default-hover)]',
+    'cursor-pointer gas-bg-default active:gas-bg-[var(--gas-bg-default-active)] hover:gas-bg-[var(--gas-bg-default-hover)]',
   alternate:
-    'cursor-pointer gas-bg-alternate active:bg-[var(--gas-bg-alternate-active)] hover:bg-[var(--gas-bg-alternate-hover)]',
+    'cursor-pointer gas-bg-alternate active:gas-bg-[var(--gas-bg-alternate-active)] hover:gas-bg-[var(--gas-bg-alternate-hover)]',
   inverse:
-    'cursor-pointer gas-bg-inverse active:bg-[var(--gas-bg-inverse-active)] hover:bg-[var(--gas-bg-inverse-hover)]',
+    'cursor-pointer gas-bg-inverse active:gas-bg-[var(--gas-bg-inverse-active)] hover:gas-bg-[var(--gas-bg-inverse-hover)]',
   primary:
-    'cursor-pointer gas-bg-primary active:bg-[var(--gas-bg-primary-active)] hover:bg-[var(--gas-bg-primary-hover)]',
+    'cursor-pointer gas-bg-primary active:gas-bg-[var(--gas-bg-primary-active)] hover:gas-bg-[var(--gas-bg-primary-hover)]',
   secondary:
-    'cursor-pointer gas-bg-secondary active:bg-[var(--gas-bg-secondary-active)] hover:bg-[var(--gas-bg-secondary-hover)]',
-  coinbaseBranding: 'cursor-pointer bg-[#0052FF] hover:bg-[#0045D8]',
+    'cursor-pointer gas-bg-secondary active:gas-bg-[var(--gas-bg-secondary-active)] hover:gas-bg-[var(--gas-bg-secondary-hover)]',
+  coinbaseBranding: 'cursor-pointer gas-bg-[#0052FF] hover:gas-bg-[#0045D8]',
   shadow: 'gas-shadow-default',
-  disabled: 'opacity-[0.38] pointer-events-none',
+  disabled: 'gas-opacity-[0.38] gas-pointer-events-none',
 } as const;
 
 export const background = {

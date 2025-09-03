@@ -18,7 +18,7 @@ const OnchainKitSwapMessage = ({
   const { theme } = useTheme();
   return (
     <div style={{ backgroundColor: theme.background.default, color: theme.text.primary }}>
-      <Swap className="w-full" headerLeftContent={''} title={''}>
+      <Swap className="gas-w-full" headerLeftContent={''} title={''}>
         <div data-growly-workflow=""></div>
         <SwapAmountInput
           label="Sell"

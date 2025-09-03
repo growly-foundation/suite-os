@@ -16,7 +16,7 @@ const BreadcrumbList = React.forwardRef<HTMLOListElement, React.ComponentPropsWi
     <ol
       ref={ref}
       className={cn(
-        'flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground sm:gap-2.5',
+        'gas-flex gas-flex-wrap gas-items-center gas-gap-1.5 gas-break-words gas-text-sm gas-text-muted-foreground sm:gas-gap-2.5',
         className
       )}
       {...props}
@@ -27,7 +27,11 @@ BreadcrumbList.displayName = 'BreadcrumbList';
 
 const BreadcrumbItem = React.forwardRef<HTMLLIElement, React.ComponentPropsWithoutRef<'li'>>(
   ({ className, ...props }, ref) => (
-    <li ref={ref} className={cn('inline-flex items-center gap-1.5', className)} {...props} />
+    <li
+      ref={ref}
+      className={cn('gas-inline-flex gas-items-center gas-gap-1.5', className)}
+      {...props}
+    />
   )
 );
 BreadcrumbItem.displayName = 'BreadcrumbItem';
@@ -43,7 +47,7 @@ const BreadcrumbLink = React.forwardRef<
   return (
     <Comp
       ref={ref}
-      className={cn('transition-colors hover:text-foreground', className)}
+      className={cn('gas-transition-colors hover:gas-text-foreground', className)}
       {...props}
     />
   );
@@ -57,7 +61,7 @@ const BreadcrumbPage = React.forwardRef<HTMLSpanElement, React.ComponentPropsWit
       role="link"
       aria-disabled="true"
       aria-current="page"
-      className={cn('font-normal text-foreground', className)}
+      className={cn('gas-font-normal gas-text-foreground', className)}
       {...props}
     />
   )
@@ -79,10 +83,10 @@ const BreadcrumbEllipsis = ({ className, ...props }: React.ComponentProps<'span'
   <span
     role="presentation"
     aria-hidden="true"
-    className={cn('flex h-9 w-9 items-center justify-center', className)}
+    className={cn('gas-flex gas-h-9 gas-w-9 gas-items-center gas-justify-center', className)}
     {...props}>
-    <MoreHorizontal className="h-4 w-4" />
-    <span className="sr-only">More</span>
+    <MoreHorizontal className="gas-h-4 gas-w-4" />
+    <span className="gas-sr-only">More</span>
   </span>
 );
 BreadcrumbEllipsis.displayName = 'BreadcrumbElipssis';

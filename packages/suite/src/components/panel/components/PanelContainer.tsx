@@ -27,13 +27,13 @@ export function PanelContainer() {
           exit={{ y: '100%', opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           className={cn(
-            'fixed rounded-tl-2xl bottom-0 right-0 w-full max-w-[500px] sm:w-[500px] shadow-3xl z-[9999] flex flex-col overflow-hidden',
+            'gas-fixed gas-rounded-tl-2xl gas-bottom-0 gas-right-0 gas-w-full gas-max-w-[500px] sm:gas-w-[500px] gas-shadow-3xl gas-z-[9999] gas-flex gas-flex-col overflow-hidden',
             border.default,
-            config?.display === 'fullView' ? 'h-[90vh]' : 'h-[90vh] md:h-[80vh]'
+            config?.display === 'fullView' ? 'gas-h-[90vh]' : 'gas-h-[90vh] md:gas-h-[80vh]'
           )}
           style={styles.panel.container}>
           {/* Header */}
-          <div className={'p-4 border-b'} style={styles.panel.header}>
+          <div className={'gas-p-4 gas-border-b'} style={styles.panel.header}>
             <PanelHeader />
           </div>
           {screen === Screen.Home ? (

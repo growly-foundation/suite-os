@@ -118,10 +118,10 @@ export const Markdown: React.FC<{ content: TextMessageContent['content'] }> = ({
   `;
 
   return (
-    <div className="text-sm" style={{ margin: 0 }}>
+    <div className="gas-text-sm" style={{ margin: 0 }}>
       <style dangerouslySetInnerHTML={{ __html: styleTag }} />
       <div
-        className="prose prose-sm dark:prose-invert max-w-none break-words themed-markdown"
+        className="gas-prose gas-prose-sm dark:gas-prose-invert gas-max-w-none gas-break-words themed-markdown"
         style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </div>

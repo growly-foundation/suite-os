@@ -64,14 +64,14 @@ export function ThemeProvider({
     if (typeof document === 'undefined') return;
 
     const style = document.createElement('style');
-    style.setAttribute('id', 'cream-theme-variables');
+    style.setAttribute('id', 'suite-theme-variables');
 
     // Flatten theme object into CSS variables
     const cssVars = getCssVariablesFromTheme(theme);
     style.textContent = `:root { ${cssVars} }`;
 
     // Remove any existing theme styles
-    document.getElementById('cream-theme-variables')?.remove();
+    document.getElementById('suite-theme-variables')?.remove();
     document.head.appendChild(style);
   }, [theme]);
 
