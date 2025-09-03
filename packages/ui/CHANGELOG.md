@@ -1,5 +1,17 @@
 # @getgrowly/ui
 
+## 1.0.3
+
+### Patch Changes
+
+- Resolve the conflict in the TailwindCSS, Shadcn UI and Suite design system
+
+## 1.0.2
+
+### Patch Changes
+
+- Resolve the conflict in the TailwindCSS, Shadcn UI and Suite design system
+
 ## 1.0.1
 
 ### Patch Changes
