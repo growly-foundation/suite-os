@@ -54,7 +54,7 @@
     "validate-build": "node ./scripts/validate-build.js"
   },
   "dependencies": {
-    "@coinbase/onchainkit": "^0.38.13",
+    "@coinbase/onchainkit": "^0.38.19",
     "@getgrowly/core": "workspace:*",
     "@getgrowly/ui": "workspace:*",
     "@hookform/resolvers": "^5.0.1",

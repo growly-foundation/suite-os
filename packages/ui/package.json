@@ -53,7 +53,7 @@
     "validate-build": "node ./scripts/validate-build.js"
   },
   "dependencies": {
-    "@coinbase/onchainkit": "^0.38.13",
+    "@coinbase/onchainkit": "^0.38.19",
     "@dicebear/collection": "^9.2.2",
     "@dicebear/core": "^9.2.2",
     "@hookform/resolvers": "^5.0.1",
@@ -91,7 +91,6 @@
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.9.2",
-    "identity": "link:@coinbase/onchainkit/identity",
     "input-otp": "^1.4.2",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.503.0",
