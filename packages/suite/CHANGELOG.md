@@ -1,5 +1,13 @@
 # @getgrowly/suite
 
+## 1.0.9
+
+### Patch Changes
+
+- remove unused link
+- Updated dependencies
+  - @getgrowly/ui@1.0.4
+
 ## 1.0.8
 
 ### Patch Changes

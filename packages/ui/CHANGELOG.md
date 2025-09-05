@@ -1,5 +1,11 @@
 # @getgrowly/ui
 
+## 1.0.4
+
+### Patch Changes
+
+- remove unused link
+
 ## 1.0.3
 
 ### Patch Changes
