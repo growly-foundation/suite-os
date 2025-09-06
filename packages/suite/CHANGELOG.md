@@ -1,5 +1,11 @@
 # @getgrowly/suite
 
+## 1.0.10
+
+### Patch Changes
+
+- fix: unify font-family
+
 ## 1.0.9
 
 ### Patch Changes
