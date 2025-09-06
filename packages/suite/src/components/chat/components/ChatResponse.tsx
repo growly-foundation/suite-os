@@ -272,7 +272,7 @@ const ChatResponse = ({
   switch (message.sender) {
     case ConversationRole.User:
       return (
-        <div ref={ref} className="gas-w-full">
+        <div ref={ref} className="gas-w-full gas-font-family">
           <UserResponse
             key={message.id}
             address={user?.entities.walletAddress}
@@ -284,7 +284,7 @@ const ChatResponse = ({
       );
     case ConversationRole.Agent:
       return (
-        <div ref={ref} className="gas-w-full">
+        <div ref={ref} className="gas-w-full gas-font-family">
           <AgentResponse
             key={message.id}
             message={message}
@@ -296,7 +296,7 @@ const ChatResponse = ({
       );
     case ConversationRole.Admin:
       return (
-        <div ref={ref} className="gas-w-full">
+        <div ref={ref} className="gas-w-full gas-font-family">
           <AdminResponse key={message.id} message={message} showAvatar={showAvatar} />
         </div>
       );

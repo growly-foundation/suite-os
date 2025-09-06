@@ -1,6 +1,8 @@
 import { useChatActions } from '@/hooks/use-chat-actions';
 import { useSuiteSession } from '@/hooks/use-session';
 import { useSuite } from '@/hooks/use-suite';
+import { cn } from '@/lib/utils';
+import { text } from '@/styles/theme';
 import { Screen } from '@/types/screen';
 import { Bell, FileQuestion, LifeBuoy, MessageCircle } from 'lucide-react';
 
@@ -13,7 +15,7 @@ export function HomePanel() {
   const { config } = useSuite();
   const brandName = config?.brandName || 'Growly';
   return (
-    <div className="gas-flex gas-flex-col gas-h-full overflow-y-auto">
+    <div className={cn('gas-flex gas-flex-col gas-h-full overflow-y-auto', text.base)}>
       {/* Welcome Banner */}
       <PanelBanner title={`Welcome to ${brandName}! 👋`} description="How can we help you today?" />
 
