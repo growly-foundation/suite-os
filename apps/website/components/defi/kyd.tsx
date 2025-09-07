@@ -2,8 +2,7 @@ import { BookOpen, ExternalLink, Plus } from 'lucide-react';
 
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/button';
-import { CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
-import { Card } from '../ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
 
 export default function KnowYourDapp() {
   return (
@@ -11,7 +10,7 @@ export default function KnowYourDapp() {
       <Card className="overflow-hidden border-gray-200 w-[320px] shadow-sm hover:shadow-md transition-shadow duration-300 bg-white">
         <CardHeader className="pb-0 bg-white">
           <CardTitle className="text-xl font-semibold text-gray-800">
-            Manager your resources
+            Manage your resources
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 space-y-4 bg-white">
