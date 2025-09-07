@@ -39,7 +39,9 @@ export function FloatingButton(
             </TooltipTrigger>
           </motion.div>
           <TooltipContent className={cn(text.base, background.default)}>
-            <p>Needs help? Chat with {agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}</p>
+            <p className={text.base}>
+              Needs help? Chat with {agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
+            </p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

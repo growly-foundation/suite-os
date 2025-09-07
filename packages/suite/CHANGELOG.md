@@ -1,5 +1,11 @@
 # @getgrowly/suite
 
+## 1.0.11
+
+### Patch Changes
+
+- fix(suite): hard font-family on text-elements
+
 ## 1.0.10
 
 ### Patch Changes

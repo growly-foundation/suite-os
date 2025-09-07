@@ -38,6 +38,7 @@ export const Markdown: React.FC<{ content: TextMessageContent['content'] }> = ({
 
     .themed-markdown * {
       color: ${theme.text.primary};
+      font-family: var(--gas-font-family);
     }
     
     .themed-markdown p {
@@ -118,10 +119,10 @@ export const Markdown: React.FC<{ content: TextMessageContent['content'] }> = ({
   `;
 
   return (
-    <div className="gas-text-sm" style={{ margin: 0 }}>
+    <div className="gas-font-family gas-text-sm" style={{ margin: 0 }}>
       <style dangerouslySetInnerHTML={{ __html: styleTag }} />
       <div
-        className="gas-prose gas-prose-sm dark:gas-prose-invert gas-max-w-none gas-break-words themed-markdown"
+        className="gas-font-family gas-prose gas-prose-sm dark:gas-prose-invert gas-max-w-none gas-break-words themed-markdown"
         style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </div>

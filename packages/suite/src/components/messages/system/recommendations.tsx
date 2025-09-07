@@ -35,11 +35,14 @@ const SmartRecommendationChips = ({ recommendations }: SmartRecommendationChipsP
           size="sm"
           onClick={() => handleRecommendationClick(fullMessage)}
           className={cn(
-            'gas-text-xs gas-h-8 gas-px-3 rounded-full gas-transition-all gas-duration-200',
+            'gas-font-family gas-text-xs gas-h-8 gas-px-3 gas-transition-all gas-duration-200',
             'gas-border-primary gas-text-primary hover:gas-bg-primary/10 hover:gas-border-primary hover:gas-text-primary',
             'hover:gas-scale-105 active:gas-scale-95',
             text.base
-          )}>
+          )}
+          style={{
+            borderRadius: '9999px', // rounded-full
+          }}>
           {keyword}
         </Button>
       ))}

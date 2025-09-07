@@ -1,6 +1,6 @@
 {
   "name": "@getgrowly/suite",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "repository": "https://github.com/growly-foundation/suite.git",
   "license": "MIT",
   "type": "module",

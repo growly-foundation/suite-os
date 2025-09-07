@@ -1,5 +1,6 @@
 import { useThemeStyles } from '@/hooks/use-theme-styles';
 import { cn } from '@/lib/utils';
+import { text } from '@/styles/theme';
 import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 
@@ -33,7 +34,7 @@ export function QuickActionButton({
         <div className={iconColor}>{icon}</div>
       </div>
       <div
-        className="gas-flex-1 gas-text-left gas-font-medium gas-text-lg"
+        className={cn('gas-flex-1 gas-text-left gas-font-medium gas-text-lg', text.base)}
         style={styles.text.primary}>
         {title}
       </div>

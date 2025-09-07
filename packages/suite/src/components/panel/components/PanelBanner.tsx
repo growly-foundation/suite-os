@@ -37,11 +37,13 @@ export const PanelBanner = ({ title, description }: { title: string; description
       <div
         className="gas-absolute gas-bottom-0 gas-left-0 gas-right-0 gas-top-0 gas-w-full gas-p-6 gas-flex gas-flex-col gas-justify-center gas-items-center"
         style={{ color: theme.text.inverse }}>
-        <h3 className="gas-text-3xl gas-font-bold gas-mb-1" style={{ color: theme.text.inverse }}>
+        <h3
+          className="gas-font-family gas-text-3xl gas-font-bold gas-mb-1"
+          style={{ color: theme.text.inverse }}>
           {title}
         </h3>
         <p
-          className="gas-text-lg"
+          className="gas-font-family gas-text-lg"
           style={{
             color: theme.text.inverse,
           }}>

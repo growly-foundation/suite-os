@@ -144,7 +144,7 @@ export const ChatMessageView = ({
                     variant="outline"
                     size="sm"
                     className={cn(
-                      'gas-flex gas-items-center gas-gap-1',
+                      'gas-font-family gas-flex gas-items-center gas-gap-1',
                       'gas-border gas-border-primary gas-bg-transparent gas-shadow-sm',
                       'gas-text-primary hover:gas-bg-primary/10 hover:gas-border-primary hover:gas-text-primary'
                     )}>

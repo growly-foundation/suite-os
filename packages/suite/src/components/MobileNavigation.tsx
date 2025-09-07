@@ -50,7 +50,7 @@ export function MobileNavigation() {
               }}
               onClick={() => setScreen(item.screen)}>
               <IconComponent className="gas-h-5 gas-w-5" />
-              <span className="gas-mt-1 gas-text-xs">{item.label}</span>
+              <span className="gas-font-family gas-mt-1 gas-text-xs">{item.label}</span>
             </div>
           );
         })}

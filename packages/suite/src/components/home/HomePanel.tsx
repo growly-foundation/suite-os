@@ -1,8 +1,6 @@
 import { useChatActions } from '@/hooks/use-chat-actions';
 import { useSuiteSession } from '@/hooks/use-session';
 import { useSuite } from '@/hooks/use-suite';
-import { cn } from '@/lib/utils';
-import { text } from '@/styles/theme';
 import { Screen } from '@/types/screen';
 import { Bell, FileQuestion, LifeBuoy, MessageCircle } from 'lucide-react';
 
@@ -15,13 +13,15 @@ export function HomePanel() {
   const { config } = useSuite();
   const brandName = config?.brandName || 'Growly';
   return (
-    <div className={cn('gas-flex gas-flex-col gas-h-full overflow-y-auto', text.base)}>
+    <div className="gas-flex gas-flex-col gas-h-full overflow-y-auto">
       {/* Welcome Banner */}
       <PanelBanner title={`Welcome to ${brandName}! 👋`} description="How can we help you today?" />
 
       {/* Quick Actions */}
       <div className="gas-p-4">
-        <h4 className="gas-text-sm gas-font-medium gas-text-gray-500 gas-mb-3">COMMON QUESTIONS</h4>
+        <h4 className="gas-font-family gas-text-sm gas-font-medium gas-text-gray-500 gas-mb-3">
+          COMMON QUESTIONS
+        </h4>
         <div className="gas-space-y-2">
           <QuickActionButton
             icon={<Bell size={22} />}
