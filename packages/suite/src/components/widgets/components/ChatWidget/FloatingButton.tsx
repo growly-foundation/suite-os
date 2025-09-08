@@ -2,6 +2,7 @@
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useSuiteSession } from '@/hooks/use-session';
+import { useSuite } from '@/hooks/use-suite';
 import { cn } from '@/lib/utils';
 import { background, pressable, text } from '@/styles/theme';
 import { motion } from 'framer-motion';
@@ -13,9 +14,18 @@ export function FloatingButton(
   props: React.ButtonHTMLAttributes<HTMLButtonElement> & { iconLoading?: boolean }
 ) {
   const { agent } = useSuiteSession();
+  const { config } = useSuite();
   const [isHovered, setIsHovered] = useState(false);
+
+  // Determine position classes based on configuration
+  const position = config?.floatingButtonPosition || 'right';
+  const positionClasses =
+    position === 'left'
+      ? 'gas-fixed gas-bottom-6 gas-left-6 gas-z-[9990]'
+      : 'gas-fixed gas-bottom-6 gas-right-6 gas-z-[9990]';
+
   return (
-    <div className="gas-fixed gas-bottom-6 gas-right-6 gas-z-[9990]">
+    <div className={positionClasses}>
       <TooltipProvider>
         <Tooltip open={isHovered} delayDuration={1}>
           <motion.div

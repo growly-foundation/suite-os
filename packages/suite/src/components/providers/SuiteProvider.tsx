@@ -14,6 +14,7 @@ const defaultConfig: SuiteConfig = {
   themeMode: ThemeName.Light,
   theme: {}, // Theme overrides will be handled by ThemeProvider
   brandName: 'Suite',
+  floatingButtonPosition: 'right',
 };
 
 export const SuiteContext = React.createContext<

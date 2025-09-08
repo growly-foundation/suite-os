@@ -298,6 +298,124 @@ function MyComponent() {
 }
 ```
 
+## Floating Button Position
+
+The Suite package allows you to customize the position of the floating chat button (ChatWidget) and its associated chat panel to appear on either the left or right side of the screen. Both the floating button and the chat panel will position together for a consistent user experience.
+
+### Configuration
+
+You can configure the floating button position in several ways:
+
+#### 1. Direct Configuration
+
+```tsx
+import { SuiteProvider } from '@getgrowly/suite';
+
+<SuiteProvider
+  organizationApiKey="your-api-key"
+  config={{
+    floatingButtonPosition: 'left', // or 'right'
+    // other config options...
+  }}>
+  {children}
+</SuiteProvider>;
+```
+
+#### 2. Using Utility Functions
+
+The Suite package provides utility functions for easier configuration:
+
+```tsx
+import { SuiteProvider, FloatingButtonConfig } from '@getgrowly/suite';
+
+// Configure for left position
+<SuiteProvider
+  organizationApiKey="your-api-key"
+  config={FloatingButtonConfig.left()}>
+  {children}
+</SuiteProvider>
+
+// Configure for right position (default)
+<SuiteProvider
+  organizationApiKey="your-api-key"
+  config={FloatingButtonConfig.right()}>
+  {children}
+</SuiteProvider>
+
+// Combine with other configuration
+<SuiteProvider
+  organizationApiKey="your-api-key"
+  config={FloatingButtonConfig.left({
+    theme: customTheme,
+    display: 'panel'
+  })}>
+  {children}
+</SuiteProvider>
+```
+
+#### 3. Using createSuiteConfig Helper
+
+```tsx
+import { SuiteProvider, createSuiteConfig } from '@getgrowly/suite';
+
+<SuiteProvider
+  organizationApiKey="your-api-key"
+  config={createSuiteConfig('left', {
+    theme: customTheme,
+    display: 'panel',
+  })}>
+  {children}
+</SuiteProvider>;
+```
+
+### Available Positions
+
+- `'left'`: Positions the floating button on the bottom-left and chat panel on the left side of the screen
+- `'right'`: Positions the floating button on the bottom-right and chat panel on the right side of the screen (default)
+
+### Visual Behavior
+
+When you set the position to:
+
+- **`'left'`**: The floating button appears in the bottom-left corner, and when clicked, the chat panel slides up from the bottom-left with rounded top-right corners
+- **`'right'`**: The floating button appears in the bottom-right corner, and when clicked, the chat panel slides up from the bottom-right with rounded top-left corners (default behavior)
+
+### Dynamic Position Changes
+
+You can also change the position dynamically using the Suite context:
+
+```tsx
+import { useSuite } from '@getgrowly/suite';
+
+function MyComponent() {
+  const {
+    config,
+    appState: { setConfig },
+  } = useSuite();
+
+  const switchToLeft = () => {
+    setConfig({
+      ...config,
+      floatingButtonPosition: 'left',
+    });
+  };
+
+  const switchToRight = () => {
+    setConfig({
+      ...config,
+      floatingButtonPosition: 'right',
+    });
+  };
+
+  return (
+    <div>
+      <button onClick={switchToLeft}>Position Left</button>
+      <button onClick={switchToRight}>Position Right</button>
+    </div>
+  );
+}
+```
+
 ## Hooks
 
 - `useSuite`: Access the configurations provided on `SuiteProvider` initialization.

@@ -4,6 +4,11 @@ import { OnchainKitProviderReact } from '@coinbase/onchainkit';
 import { AgentId } from '@getgrowly/core';
 
 /**
+ * Position of the floating button
+ */
+export type FloatingButtonPosition = 'left' | 'right';
+
+/**
  * Configuration for the Growly Suite.
  */
 export interface SuiteConfig {
@@ -26,6 +31,11 @@ export interface SuiteConfig {
    * Display mode for the widget.
    */
   display?: 'fullView' | 'panel';
+
+  /**
+   * Position of the floating button (ChatWidget)
+   */
+  floatingButtonPosition?: FloatingButtonPosition;
 }
 
 export interface SuiteGlobalContext {

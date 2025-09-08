@@ -14,5 +14,7 @@ export * from './hooks/use-suite';
 export * from './styles/themes';
 // Types
 export * from './types/theme';
+// Utilities
+export { createSuiteConfig, FloatingButtonConfig } from './lib/utils';
 
 export { ChatPanelContainer } from './components/chat/components/ChatPanel';

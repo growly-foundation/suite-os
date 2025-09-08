@@ -1,11 +1,14 @@
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { Button } from '@/components/ui/button';
+import { useSuiteSession } from '@/hooks/use-session';
 import { useSuite } from '@/hooks/use-suite';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { WalletIcon } from 'lucide-react';
 
 export const ConnectWallet = () => {
   const { session } = useSuite();
+  const { user } = useSuiteSession();
+
   const { theme } = useTheme();
 
   let connectButton = undefined;
@@ -23,12 +26,15 @@ export const ConnectWallet = () => {
   return (
     <div className="gas-h-full gas-flex gas-items-center gas-justify-center">
       <div className="gas-flex gas-flex-col gas-items-center gas-justify-center gas-gap-2">
-        <div
-          className="gas-font-family gas-text-center"
-          style={{ marginBottom: 10, color: theme.text.muted }}>
-          No wallet found. <br />
-          Please connect your wallet to continue.
-        </div>
+        {!user?.entities.walletAddress && (
+          <div
+            className="gas-font-family gas-text-center"
+            style={{ marginBottom: 10, color: theme.text.muted }}>
+            No wallet found. <br />
+            Please connect your wallet to continue.
+          </div>
+        )}
+
         {connectButton ? (
           connectButton
         ) : (

@@ -18,6 +18,13 @@ export function PanelContainer() {
   const { panelOpen, screen } = useSuiteSession();
   const styles = useThemeStyles();
 
+  // Determine panel position based on floating button position
+  const position = config?.floatingButtonPosition || 'right';
+  const positionClasses =
+    position === 'left'
+      ? 'gas-bottom-0 gas-left-0 gas-rounded-tr-2xl'
+      : 'gas-bottom-0 gas-right-0 gas-rounded-tl-2xl';
+
   return (
     <AnimatePresence>
       {panelOpen && (
@@ -27,7 +34,8 @@ export function PanelContainer() {
           exit={{ y: '100%', opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           className={cn(
-            'gas-fixed gas-rounded-tl-2xl gas-bottom-0 gas-right-0 gas-w-full gas-max-w-[500px] sm:gas-w-[500px] gas-shadow-3xl gas-z-[9999] gas-flex gas-flex-col overflow-hidden',
+            'gas-fixed gas-w-full gas-max-w-[500px] sm:gas-w-[500px] gas-shadow-3xl gas-z-[9999] gas-flex gas-flex-col overflow-hidden',
+            positionClasses,
             border.default,
             config?.display === 'fullView' ? 'gas-h-[90vh]' : 'gas-h-[90vh] md:gas-h-[80vh]'
           )}
