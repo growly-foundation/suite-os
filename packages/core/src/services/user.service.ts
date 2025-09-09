@@ -165,15 +165,18 @@ export class UserService {
 
   async createUserPersonaIfNotExist(walletAddress: string): Promise<ParsedUserPersona> {
     const normalizedWalletAddress = normalizeWalletAddress(walletAddress);
-    const userPersona = await this.userPersonaDatabaseService.getById(normalizedWalletAddress);
-    if (userPersona) return userPersona as any as ParsedUserPersona;
-    const newUserPersona = await this.userPersonaDatabaseService.create({
-      id: normalizedWalletAddress,
-      identities: {},
-      activities: {},
-      portfolio_snapshots: {},
-      imported_source_data: [],
-    });
-    return newUserPersona as any as ParsedUserPersona;
+    try {
+      const userPersona = await this.userPersonaDatabaseService.getById(normalizedWalletAddress);
+      return userPersona as any as ParsedUserPersona;
+    } catch (error) {
+      const newUserPersona = await this.userPersonaDatabaseService.create({
+        id: normalizedWalletAddress,
+        identities: {},
+        activities: {},
+        portfolio_snapshots: {},
+        imported_source_data: [],
+      });
+      return newUserPersona as any as ParsedUserPersona;
+    }
   }
 }
