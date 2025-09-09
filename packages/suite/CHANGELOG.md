@@ -1,5 +1,11 @@
 # @getgrowly/suite
 
+## 1.0.13
+
+### Patch Changes
+
+- @getgrowly/core@0.1.2
+
 ## 1.0.12
 
 ### Patch Changes
