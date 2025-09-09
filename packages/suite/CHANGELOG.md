@@ -1,5 +1,11 @@
 # @getgrowly/suite
 
+## 1.0.12
+
+### Patch Changes
+
+- feat: support widget position
+
 ## 1.0.11
 
 ### Patch Changes
