@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import { ConversationRole, ParsedMessage } from '@getgrowly/core';
 
 import { ChatWidgetContainer } from '../ChatWidget';
-import { ETHToken, USDCToken } from './tokens';
 
 const conversation = {
   id: 'conversation-1',
@@ -120,14 +119,10 @@ const mockMessages: ParsedMessage[] = [
   },
   {
     id: 'message-11',
-    type: 'onchainkit:swap',
+    type: 'text',
     conversation_id: conversation.id,
     embedding: null,
-    content: {
-      swappableTokens: [ETHToken, USDCToken],
-      fromToken: ETHToken,
-      toToken: USDCToken,
-    },
+    content: 'I can help you with token swaps, but the OnchainKit integration has been removed.',
     sender: ConversationRole.Agent,
     sender_id: conversation.agent_id,
     created_at: new Date().toISOString(),
@@ -155,12 +150,11 @@ const mockMessages: ParsedMessage[] = [
   },
   {
     id: 'message-14',
-    type: 'onchainkit:token',
+    type: 'text',
     conversation_id: conversation.id,
     embedding: null,
-    content: {
-      token: ETHToken,
-    },
+    content:
+      'Ethereum (ETH) is a decentralized platform that enables smart contracts and decentralized applications (dApps).',
     sender: ConversationRole.Agent,
     sender_id: conversation.agent_id,
     created_at: new Date().toISOString(),

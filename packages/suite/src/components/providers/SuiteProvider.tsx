@@ -1,5 +1,4 @@
 import { ThemeName } from '@/types/theme';
-import { OnchainKitProvider } from '@coinbase/onchainkit';
 import React, { useEffect, useState } from 'react';
 
 import { useSuiteSession } from '../../hooks/use-session';
@@ -84,16 +83,6 @@ export const SuiteProvider: React.FC<{
       baseComponent = <WalletConnectProvider>{baseComponent}</WalletConnectProvider>;
     }
 
-    if (context.integration?.onchainKit?.enabled) {
-      console.log('Growly Suite: Enabling onchainKit');
-      /// No need to enable the onchainKit feature if application already uses onchainKit.
-      /// Requires `import '@coinbase/onchainkit/styles.css';`.
-      baseComponent = (
-        <OnchainKitProvider {...context.integration.onchainKit} address={walletAddress}>
-          {baseComponent}
-        </OnchainKitProvider>
-      );
-    }
     setBaseComponent(baseComponent);
   }, [isInitialized, context, walletAddress, children]);
 

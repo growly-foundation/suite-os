@@ -1,12 +1,10 @@
 'use client';
 
-import { useSuite } from '@/hooks/use-suite';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 
 import { ParsedMessage } from '@getgrowly/core';
 
-import { buildOnchainKitSwapMessage, buildOnchainKitTokenChipMessage } from './onchainkit';
 import { buildSystemErrorMessage } from './system';
 import { buildMarkdownMessage } from './system/markdown';
 import { buildRecommendationChips } from './system/recommendations';
@@ -45,23 +43,7 @@ export const RenderMessageContent = ({ message }: { message: ParsedMessage }) =>
     return buildUniswapSwapMessage(message.content);
   }
   if (message.type.startsWith('onchainkit:')) {
-    return RenderOnchainKitMessageContent({ message });
-  }
-};
-
-export const RenderOnchainKitMessageContent = ({ message }: { message: ParsedMessage }) => {
-  const { integration } = useSuite();
-  const onchainKitEnabled = integration?.onchainKit?.enabled;
-  if (!onchainKitEnabled) {
-    return buildSystemErrorMessage(
-      '⚠️ OnchainKit feature must be enabled to display this message.'
-    );
-  }
-  if (message.type === 'onchainkit:swap') {
-    return buildOnchainKitSwapMessage(message.content);
-  }
-  if (message.type === 'onchainkit:token') {
-    return buildOnchainKitTokenChipMessage(message.content);
+    return buildSystemErrorMessage('⚠️ OnchainKit messages are no longer supported.');
   }
   return null;
 };

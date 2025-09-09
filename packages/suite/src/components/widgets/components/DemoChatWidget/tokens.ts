@@ -1,4 +1,11 @@
-import { Token } from '@coinbase/onchainkit/token';
+interface Token {
+  address: string;
+  chainId: number;
+  decimals: number;
+  name: string;
+  symbol: string;
+  image: string;
+}
 
 export const ETHToken: Token = {
   address: '',

@@ -1,4 +1,3 @@
-import '@coinbase/onchainkit/styles.css';
 import '@rainbow-me/rainbowkit/styles.css';
 
 import { GrowlyButton } from './components/GrowlyButton';

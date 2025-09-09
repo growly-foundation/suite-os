@@ -36,7 +36,7 @@ export const useWagmiConfig = () => {
         },
       ],
       {
-        appName: 'onchainkit',
+        appName: 'Growly Suite',
         projectId,
       }
     );

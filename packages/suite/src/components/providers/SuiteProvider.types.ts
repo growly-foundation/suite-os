@@ -1,5 +1,4 @@
 import { ThemeConfig, ThemeName } from '@/types/theme';
-import { OnchainKitProviderReact } from '@coinbase/onchainkit';
 
 import { AgentId } from '@getgrowly/core';
 
@@ -68,11 +67,4 @@ export interface SuiteGlobalContext {
     };
   }>;
   config?: SuiteConfig;
-  integration?: SuiteIntegration;
-}
-export interface SuiteIntegration {
-  /**
-   * Configuration for the OnchainKit feature.
-   */
-  onchainKit?: Omit<OnchainKitProviderReact, 'children' | 'address'> & { enabled: boolean };
 }
