@@ -51,7 +51,6 @@ export function DashboardInner() {
     isLoading,
     data: { agents, users, workflows, messages: recentMessages, resources },
     refetchAll,
-    createAgent,
   } = useDashboardDataQueries(selectedOrganization?.id);
 
   // Check if organization has zero data

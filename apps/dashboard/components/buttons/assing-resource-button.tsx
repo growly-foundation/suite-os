@@ -34,7 +34,7 @@ type Props = {
 const AssignResourceButton = ({ agent, onUpdate }: Props) => {
   const { organizationResources } = useDashboardState();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedResources, setSelectedResources] = useState<Resource[]>(agent.resources);
+  const [selectedResources, setSelectedResources] = useState<Resource[]>(agent.resources || []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
