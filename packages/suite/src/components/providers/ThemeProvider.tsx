@@ -68,7 +68,7 @@ export function ThemeProvider({
 
     // Flatten theme object into CSS variables
     const cssVars = getCssVariablesFromTheme(theme);
-    style.textContent = `:root { ${cssVars} }`;
+    style.textContent = `.gas-theme { ${cssVars} }`;
 
     // Remove any existing theme styles
     document.getElementById('suite-theme-variables')?.remove();
@@ -104,7 +104,7 @@ export function useTheme() {
  * Helper function to convert a theme object into CSS variables
  */
 function getCssVariablesFromTheme(theme: ThemeTokens): string {
-  const flattenObject = (obj: any, prefix = '--theme-'): Record<string, string> => {
+  const flattenObject = (obj: any, prefix = '--gas-'): Record<string, string> => {
     return Object.keys(obj).reduce((acc: Record<string, string>, key: string) => {
       const value = obj[key];
       const newKey = `${prefix}${key}`;

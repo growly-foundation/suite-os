@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useSuiteSession } from '../../hooks/use-session';
 import { TooltipProvider } from '../ui/tooltip';
 import { SuiteConfig, SuiteGlobalContext } from './SuiteProvider.types';
-import { ThemeProvider } from './ThemeProvider';
+import { ThemeProvider, useTheme } from './ThemeProvider';
 import { WalletConnectProvider } from './WalletConnectProvider';
 import { WorkflowExecutionObserver } from './WorkflowExecutionObserver';
 
@@ -35,6 +35,30 @@ export const SuiteContext = React.createContext<
     setWalletAddress: (_address: `0x${string}` | undefined) => {},
   },
 });
+
+// Create a wrapper component to access theme context
+const SuiteProviderContent: React.FC<{
+  children: React.ReactNode;
+  config: SuiteConfig;
+}> = ({ children, config }) => {
+  const { isDark, themeName } = useTheme();
+
+  const getThemeClasses = () => {
+    const baseClass = 'gas-theme';
+    if (themeName === ThemeName.System) {
+      return `${baseClass} ${isDark ? 'dark' : 'light'}`;
+    }
+    return `${baseClass} ${themeName}`;
+  };
+
+  return (
+    <div className={getThemeClasses()}>
+      <WorkflowExecutionObserver>
+        <TooltipProvider>{children}</TooltipProvider>
+      </WorkflowExecutionObserver>
+    </div>
+  );
+};
 
 export const SuiteProvider: React.FC<{
   children: React.ReactNode;
@@ -100,9 +124,7 @@ export const SuiteProvider: React.FC<{
       <ThemeProvider
         defaultTheme={config.themeMode || ThemeName.Light}
         themeOverrides={config.theme}>
-        <WorkflowExecutionObserver>
-          <TooltipProvider>{baseComponent}</TooltipProvider>
-        </WorkflowExecutionObserver>
+        <SuiteProviderContent config={config}>{baseComponent}</SuiteProviderContent>
       </ThemeProvider>
     </SuiteContext.Provider>
   );

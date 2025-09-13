@@ -1,8 +1,151 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz@0,9..40;1,9..40&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,700;1,9..40,700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900&display=swap');
 @import url('./index.css');
 @import url('./tailwind-base.css');
+
+/* Static CSS variables for non-Tailwind environments */
+:root {
+  /* Light theme variables with static color values */
+  --gas-font-family: 'DM Sans', sans-serif;
+  --gas-border-radius: 0.5rem;
+  --gas-border-radius-inner: 0.25rem;
+  --gas-border-default: #9ca3af;
+  --gas-text-inverse: #f9fafb;
+  --gas-text-foreground: #030712;
+  --gas-text-foreground-muted: #4b5563;
+  --gas-text-error: #dc2626;
+  --gas-text-primary: #0052ff;
+  --gas-text-success: #65a30d;
+  --gas-text-warning: #ea580c;
+  --gas-text-disabled: #9ca3af;
+
+  --gas-bg-default: #f9fafb;
+  --gas-bg-default-hover: #e5e7eb;
+  --gas-bg-default-active: #d1d5db;
+  --gas-bg-alternate: #e5e7eb;
+  --gas-bg-alternate-hover: #d1d5db;
+  --gas-bg-alternate-active: #9ca3af;
+  --gas-bg-inverse: #f3f4f6;
+  --gas-bg-inverse-hover: #e5e7eb;
+  --gas-bg-inverse-active: #d1d5db;
+  --gas-bg-primary: #0052ff;
+  --gas-bg-primary-hover: #014ceb;
+  --gas-bg-primary-active: #0148dc;
+  --gas-bg-primary-washed: #b2cbff;
+  --gas-bg-primary-disabled: #9dbcfe;
+  --gas-bg-secondary: #e2e8f0;
+  --gas-bg-secondary-hover: #cbd5e1;
+  --gas-bg-secondary-active: #94a3b8;
+  --gas-bg-error: #dc2626;
+  --gas-bg-warning: #ea580c;
+  --gas-bg-success: #bef264;
+  --gas-bg-default-reverse: #030712;
+
+  --gas-icon-color-primary: #0052ff;
+  --gas-icon-color-foreground: #030712;
+  --gas-icon-color-foreground-muted: #4b5563;
+  --gas-icon-color-inverse: #f9fafb;
+  --gas-icon-color-error: #dc2626;
+  --gas-icon-color-success: #65a30d;
+  --gas-icon-color-warning: #ea580c;
+
+  --gas-line-primary: #0052ff;
+  --gas-line-default: #d1d5db;
+  --gas-line-heavy: #6b7280;
+  --gas-line-inverse: #374151;
+
+  /* Shadcn UI variables */
+  --gas-background: 0 0% 100%;
+  --gas-foreground: 222.2 84% 4.9%;
+  --gas-card: 0 0% 100%;
+  --gas-card-foreground: 222.2 84% 4.9%;
+  --gas-popover: 0 0% 100%;
+  --gas-popover-foreground: 222.2 84% 4.9%;
+  --gas-primary: 223 100% 50%;
+  --gas-primary-foreground: 210 40% 98%;
+  --gas-secondary: 210 40% 96.1%;
+  --gas-secondary-foreground: 222.2 47.4% 11.2%;
+  --gas-muted: 210 40% 96.1%;
+  --gas-muted-foreground: 220, 8.9%, 46.1%;
+  --gas-accent: 210 40% 96.1%;
+  --gas-accent-foreground: 222.2 47.4% 11.2%;
+  --gas-destructive: 0 84.2% 60.2%;
+  --gas-destructive-foreground: 210 40% 98%;
+  --gas-border: 214.3 31.8% 91.4%;
+  --gas-input: 214.3 31.8% 91.4%;
+  --gas-ring: 221.2 83.2% 53.3%;
+  --gas-radius: 0.5rem;
+}
+
+/* Dark theme variables */
+.dark {
+  --gas-font-family: 'DM Sans', sans-serif;
+  --gas-border-radius: 0.5rem;
+  --gas-border-radius-inner: 0.25rem;
+  --gas-border-default: #9ca3af;
+  --gas-text-inverse: #f9fafb;
+  --gas-text-foreground: #f9fafb;
+  --gas-text-foreground-muted: #9ca3af;
+  --gas-text-error: #f87171;
+  --gas-text-primary: #578bfa;
+  --gas-text-success: #a3e635;
+  --gas-text-warning: #fb923c;
+  --gas-text-disabled: #4b5563;
+
+  --gas-bg-default: #030712;
+  --gas-bg-default-hover: #1f2937;
+  --gas-bg-default-active: #374151;
+  --gas-bg-alternate: #1f2937;
+  --gas-bg-alternate-hover: #374151;
+  --gas-bg-alternate-active: #4b5563;
+  --gas-bg-inverse: #111827;
+  --gas-bg-inverse-hover: #1f2937;
+  --gas-bg-inverse-active: #374151;
+  --gas-bg-primary: #578bfa;
+  --gas-bg-primary-hover: #477ef5;
+  --gas-bg-primary-active: #5386f5;
+  --gas-bg-primary-washed: #051537;
+  --gas-bg-primary-disabled: #1b3365;
+  --gas-bg-secondary: #1e293b;
+  --gas-bg-secondary-hover: #334155;
+  --gas-bg-secondary-active: #475569;
+  --gas-bg-error: #f87171;
+  --gas-bg-warning: #fb923c;
+  --gas-bg-success: #365314;
+  --gas-bg-default-reverse: #f9fafb;
+
+  --gas-icon-color-primary: #578bfa;
+  --gas-icon-color-foreground: #f9fafb;
+  --gas-icon-color-foreground-muted: #9ca3af;
+  --gas-icon-color-inverse: #030712;
+  --gas-icon-color-error: #f87171;
+  --gas-icon-color-success: #a3e635;
+  --gas-icon-color-warning: #fb923c;
+
+  --gas-line-primary: #578bfa;
+  --gas-line-default: #374151;
+  --gas-line-heavy: #6b7280;
+  --gas-line-inverse: #d1d5db;
+
+  /* Shadcn UI dark variables */
+  --gas-background: 220.9, 39.3%, 11%;
+  --gas-foreground: 210 40% 98%;
+  --gas-card: 220.9, 39.3%, 11%;
+  --gas-card-foreground: 210 40% 98%;
+  --gas-popover: 220.9, 39.3%, 11%;
+  --gas-popover-foreground: 210 40% 98%;
+  --gas-primary: 223 100% 50%;
+  --gas-primary-foreground: 210 40% 98%;
+  --gas-secondary: 216.9, 19.1%, 26.7%;
+  --gas-secondary-foreground: 210 40% 98%;
+  --gas-muted: 220, 13%, 91%;
+  --gas-muted-foreground: 215 20.2% 65.1%;
+  --gas-accent: 220, 13%, 91%;
+  --gas-accent-foreground: 210 40% 98%;
+  --gas-destructive: 0 62.8% 30.6%;
+  --gas-destructive-foreground: 210 40% 98%;
+  --gas-border: 216.9, 19.1%, 26.7%;
+  --gas-input: 216.9, 19.1%, 26.7%;
+  --gas-ring: 224.3 76.3% 48%;
+  --gas-radius: 0.5rem;
+}
