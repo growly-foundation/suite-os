@@ -48,9 +48,9 @@ export function FloatingButton(
               <LazyAnimatedBuster />
             </TooltipTrigger>
           </motion.div>
-          <TooltipContent className={cn(text.base, background.default)}>
+          <TooltipContent className={cn(text.base, background.primary)}>
             <p className={text.base}>
-              Needs help? Chat with {agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
+              Need help? Chat with {agent?.name ?? `${BRAND_NAME_CAPITALIZED} Copilot`}
             </p>
           </TooltipContent>
         </Tooltip>

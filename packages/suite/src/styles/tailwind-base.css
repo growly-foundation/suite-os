@@ -1,8 +1,9 @@
 @tailwind base;
+@tailwind utilities;
+@tailwind components;
 
 @layer base {
 
-  :root,
   .light,
   .default-light {
     --gas-font-family: 'DM Sans', sans-serif;
@@ -167,27 +168,33 @@
     --gas-radius: 0.5rem;
   }
 
-  button:not([disabled]),
-  [role="button"]:not([disabled]) {
+  .gas-theme button:not([disabled]),
+  .gas-theme [role="button"]:not([disabled]) {
     cursor: pointer;
+  }
+
+  .gas-theme * {
+    @apply gas-border-border;
+  }
+
+  .gas-theme body {
+    @apply gas-bg-background gas-text-foreground;
   }
 }
 
 @layer components {
   .animate-enterRight {
-    @apply animate-in slide-in-from-right-8 fade-in duration-500;
+    @apply gas-animate-pulse gas-duration-500;
   }
 
   .animate-enterUp {
-    @apply animate-in slide-in-from-bottom-8 fade-in duration-500;
+    @apply gas-animate-pulse gas-duration-500;
   }
 
   .animate-enterDown {
-    @apply animate-in slide-in-from-top-8 fade-in duration-500;
+    @apply gas-animate-pulse gas-duration-500;
   }
 }
-
-@tailwind utilities;
 
 @layer utilities {
 
@@ -201,17 +208,5 @@
     /* Firefox */
     -ms-overflow-style: none;
     /* IE and Edge */
-  }
-}
-
-@tailwind components;
-
-@layer base {
-  * {
-    @apply gas-border-border;
-  }
-
-  body {
-    @apply gas-bg-background gas-text-foreground;
   }
 }
