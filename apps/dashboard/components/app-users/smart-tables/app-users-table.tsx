@@ -1,7 +1,7 @@
 'use client';
 
 import { consumePersona } from '@/core/persona';
-import { ReactNode, useState } from 'react';
+import { ReactNode, Suspense, useCallback, useState } from 'react';
 
 import { ParsedUser } from '@getgrowly/core';
 
@@ -36,14 +36,17 @@ export function UsersTable({
   setSelectedRows?: (rows: Record<string, boolean>) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<ParsedUser | null>(null);
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const personas = users.map(user => consumePersona(user as ParsedUser));
 
   // User interaction handlers
-  const handleUserClick = (user: ParsedUser) => {
-    setSelectedUser(user);
-    setOpen(true);
-  };
+  const handleUserClick = useCallback((user: ParsedUser) => {
+    // Defer state updates to next frame
+    requestAnimationFrame(() => {
+      setSelectedUser(user.id);
+      setOpen(true);
+    });
+  }, []);
 
   const handleCloseUserDetails = () => {
     setOpen(false);
@@ -190,9 +193,6 @@ export function UsersTable({
         selectedRows={selectedRows}
         onRowSelectionChange={handleRowSelectionChange}
         getRowId={getRowId}
-        // Enable pagination
-        enablePagination={true}
-        pageSize={30} // Show 30 users per page
         // Toolbar props
         tableLabel={tableLabel}
         searchQuery={searchQuery}
@@ -205,7 +205,14 @@ export function UsersTable({
         className="w-full"
         open={open}
         onOpenChange={handleCloseUserDetails}>
-        {selectedUser && <UserDetails user={selectedUser} />}
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center h-full">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            </div>
+          }>
+          {selectedUser && <UserDetails userId={selectedUser} />}
+        </Suspense>
       </ResizableSheet>
     </>
   );

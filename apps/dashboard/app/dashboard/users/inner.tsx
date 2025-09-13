@@ -67,7 +67,6 @@ export function UserDirectoryLayout({
         <React.Fragment>
           <UsersTable
             users={filteredUsers}
-            tableLabel={`There are ${filteredUsers.length} users`}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             setSelectedRows={setSelectedRows}

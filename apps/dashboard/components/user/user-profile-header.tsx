@@ -6,7 +6,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { consumePersona } from '@/core/persona';
-import { Copy, ExternalLink, Share2 } from 'lucide-react';
+import { Copy, Share2 } from 'lucide-react';
 
 import { ParsedUser } from '@getgrowly/core';
 import { RandomAvatar } from '@getgrowly/ui';
@@ -47,9 +47,6 @@ export function UserProfileHeader({ user }: UserProfileHeaderProps) {
             <span>{shortAddress}</span>
             <Button variant="ghost" size="sm" onClick={copyToClipboard}>
               <Copy className="h-3 w-3" />
-            </Button>
-            <Button variant="ghost" size="sm">
-              <ExternalLink className="h-3 w-3" />
             </Button>
           </div>
         </div>

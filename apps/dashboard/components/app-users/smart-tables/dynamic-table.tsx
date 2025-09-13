@@ -11,7 +11,6 @@ import {
   VisibilityState,
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
@@ -49,12 +48,9 @@ export interface DynamicTableProps<TData = any> {
   enableColumnResizing?: boolean;
   enableColumnReordering?: boolean;
   enableSorting?: boolean;
-  // Pagination props
-  enablePagination?: boolean;
-  pageSize?: number;
-  currentPage?: number;
-  totalPages?: number;
-  onPageChange?: (page: number) => void;
+  // Infinite loading props
+  onLoadMore?: () => void;
+  hasMore?: boolean;
   // Selection props
   enableRowSelection?: boolean;
   selectedRows?: Record<string, boolean>;
@@ -75,6 +71,11 @@ export interface DynamicTableProps<TData = any> {
   additionalActions?: ReactNode;
 }
 
+// CSS variables for layout calculations
+const TOOLBAR_HEIGHT = '4rem';
+const FOOTER_HEIGHT = '3rem';
+const HEADER_HEIGHT = '3rem';
+
 export function DynamicTable<TData = any>({
   data,
   columns,
@@ -86,10 +87,9 @@ export function DynamicTable<TData = any>({
   enableColumnResizing = true,
   enableColumnReordering = true,
   enableSorting = true,
-  // Pagination props
-  enablePagination = false,
-  pageSize = 10,
-  currentPage = 1,
+  // Infinite loading props
+  onLoadMore,
+  hasMore = false,
   // Selection props
   enableRowSelection = false,
   selectedRows,
@@ -109,10 +109,21 @@ export function DynamicTable<TData = any>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>([]);
   const [columnSizing, setColumnSizing] = useState({});
-  const [pagination, setPagination] = useState({
-    pageIndex: (currentPage || 1) - 1,
-    pageSize: enablePagination ? pageSize : data.length,
-  });
+  // Handle infinite scrolling
+  const handleScroll = useCallback(
+    (event: React.UIEvent<HTMLDivElement>) => {
+      if (!onLoadMore || !hasMore) return;
+
+      const target = event.target as HTMLDivElement;
+      const { scrollTop, scrollHeight, clientHeight } = target;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+
+      if (isNearBottom && !isLoading) {
+        onLoadMore();
+      }
+    },
+    [onLoadMore, hasMore, isLoading]
+  );
 
   // Use external row selection state if provided, otherwise use internal state
   const [internalRowSelection, setInternalRowSelection] = useState({});
@@ -198,12 +209,10 @@ export function DynamicTable<TData = any>({
     columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnOrderChange: setColumnOrder,
     onRowSelectionChange: handleRowSelectionChange,
-    onPaginationChange: setPagination,
 
     columnResizeMode: 'onChange' as ColumnResizeMode,
     state: {
@@ -212,7 +221,6 @@ export function DynamicTable<TData = any>({
       columnOrder,
       columnSizing,
       rowSelection,
-      pagination,
     },
     enableSorting,
     enableColumnResizing,
@@ -288,224 +296,219 @@ export function DynamicTable<TData = any>({
   };
 
   return (
-    <div className={cn('w-full h-full flex flex-col overflow-hidden', className)}>
-      {/* Fixed Table Toolbar - Outside scrollable area */}
-      {enableColumnReordering && (
-        <div className="flex-shrink-0 bg-background border-b sticky top-0 z-20">
-          <TableToolbar
-            table={table}
-            enableColumnVisibility={true}
-            tableLabel={tableLabel}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            searchPlaceholder={searchPlaceholder}
-            additionalActions={additionalActions}
-            // Pagination props
-            enablePagination={enablePagination}
-          />
+    <div className={cn('w-full h-full flex flex-col', className)}>
+      {/* Empty State */}
+      {!isLoading && data.length === 0 && (
+        <div className="flex-1 flex items-center justify-center">
+          <EmptyState message={emptyMessage} description={emptyDescription} className={className} />
         </div>
       )}
 
-      {/* Scrollable Table Container */}
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-        {!isLoading && data.length === 0 && (
-          <div className="flex-1 mt-2 flex items-center justify-center">
-            <EmptyState
-              message={emptyMessage}
-              description={emptyDescription}
-              className={className}
-            />
-          </div>
-        )}
+      {/* Table Container */}
+      {!isLoading && data.length > 0 && (
+        <div className="flex-1 flex flex-col max-h-[calc(100vh-4rem)]">
+          {/* Fixed Table Toolbar */}
+          {enableColumnReordering && (
+            <div
+              className="flex-shrink-0 bg-background border-b z-20"
+              style={{ height: TOOLBAR_HEIGHT }}>
+              <TableToolbar
+                table={table}
+                enableColumnVisibility={true}
+                tableLabel={tableLabel}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                searchPlaceholder={searchPlaceholder}
+                additionalActions={additionalActions}
+              />
+            </div>
+          )}
 
-        {/* Table with Fixed Header/Footer and Scrollable Body */}
-        {!isLoading && data.length > 0 && (
-          <div className="flex-1 overflow-auto">
-            <div className="w-full max-w-full overflow-hidden">
-              <Table className="w-full table-fixed">
-                {/* Fixed Header */}
-                <TableHeader className="sticky top-0 z-10 bg-background">
-                  {table.getHeaderGroups().map(headerGroup => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header, index) => {
-                        const isFrozen = (header.column.columnDef.meta as any)?.frozen;
-                        const isSortable = enableSorting && header.column.getCanSort();
+          {/* Table with sticky header */}
+          <div className="flex-1 overflow-auto relative" onScroll={handleScroll}>
+            <Table className="w-full table-fixed">
+              <TableHeader
+                className="sticky top-0 bg-background shadow-sm"
+                style={{ height: HEADER_HEIGHT }}>
+                {table.getHeaderGroups().map(headerGroup => (
+                  <TableRow key={headerGroup.id} className="border-b">
+                    {headerGroup.headers.map((header, index) => {
+                      const isFrozen = (header.column.columnDef.meta as any)?.frozen;
+                      const isSortable = enableSorting && header.column.getCanSort();
+                      const leftPosition = isFrozen
+                        ? calculateFrozenColumnPosition(index, headerGroup.headers)
+                        : 'auto';
 
-                        // Calculate left position for frozen columns
-                        const leftPosition = isFrozen
-                          ? calculateFrozenColumnPosition(index, headerGroup.headers)
-                          : 'auto';
-                        return (
-                          <TableHead
-                            key={header.id}
-                            style={{
-                              width: header.getSize(),
-                              position: isFrozen ? ('sticky' as const) : ('relative' as const),
-                              left: leftPosition,
-                              zIndex: isFrozen ? 20 : 'auto',
-                              backgroundColor: isFrozen ? 'hsl(var(--background))' : 'transparent',
-                              borderRight:
-                                index === headerGroup.headers.length - 1
-                                  ? 'none'
-                                  : '1px solid hsl(var(--border))',
-                            }}
-                            className={cn(
-                              'relative overflow-hidden',
-                              header.column.getCanResize() && 'cursor-col-resize',
-                              isFrozen && 'shadow-sm'
-                            )}>
-                            {header.isPlaceholder ? null : isSortable ? (
-                              <SortableHeader column={header.column} />
-                            ) : (
-                              flexRender(header.column.columnDef.header, header.getContext())
-                            )}
-                            {header.column.getCanResize() && (
-                              <div
-                                onMouseDown={header.getResizeHandler()}
-                                onTouchStart={header.getResizeHandler()}
-                                className={cn(
-                                  'absolute right-0 top-0 h-full w-2 cursor-col-resize select-none touch-none hover:bg-primary/50 active:bg-primary',
-                                  header.column.getIsResizing() && 'bg-primary'
-                                )}
-                                style={{
-                                  zIndex: 30,
-                                }}
-                              />
-                            )}
-                          </TableHead>
-                        );
-                      })}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-
-                {/* Table Body */}
-                <TableBody>
-                  {table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row, index) => (
-                      <TableRow
-                        key={row.id}
-                        data-state={row.getIsSelected() && 'selected'}
-                        className={cn(
-                          onRowClick && 'cursor-pointer hover:bg-muted/50',
-                          'transition-all duration-300 ease-out animate-row-in'
-                        )}
-                        style={{
-                          animationDelay: `${index * 50}ms`,
-                          animationFillMode: 'both',
-                        }}
-                        onClick={e => {
-                          // Prevent double click by checking if click is on checkbox
-                          if ((e.target as HTMLElement).tagName === 'INPUT') {
-                            return;
-                          }
+                      return (
+                        <TableHead
+                          key={header.id}
+                          style={{
+                            width: header.getSize(),
+                            position: isFrozen ? ('sticky' as const) : ('relative' as const),
+                            left: leftPosition,
+                            zIndex: isFrozen ? 20 : 'auto',
+                            backgroundColor: isFrozen ? 'hsl(var(--background))' : 'transparent',
+                            boxShadow: isFrozen ? '1px 0 0 0 hsl(var(--border))' : 'none',
+                          }}
+                          className={cn(
+                            'relative overflow-hidden py-3',
+                            header.column.getCanResize() && 'cursor-col-resize',
+                            isFrozen && 'shadow-sm'
+                          )}>
+                          {header.isPlaceholder ? null : isSortable ? (
+                            <SortableHeader column={header.column} />
+                          ) : (
+                            flexRender(header.column.columnDef.header, header.getContext())
+                          )}
+                          {header.column.getCanResize() && (
+                            <div
+                              onMouseDown={header.getResizeHandler()}
+                              onTouchStart={header.getResizeHandler()}
+                              className={cn(
+                                'absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-primary/50 active:bg-primary',
+                                header.column.getIsResizing() && 'bg-primary'
+                              )}
+                              style={{ zIndex: 30 }}
+                            />
+                          )}
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row, index) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && 'selected'}
+                      className={cn(
+                        onRowClick && 'cursor-pointer hover:bg-muted/50',
+                        'transition-all duration-200 ease-out animate-row-in border-b',
+                        row.getIsSelected() && 'bg-muted/30'
+                      )}
+                      style={{
+                        animationDelay: `${index * 30}ms`,
+                        animationFillMode: 'both',
+                      }}
+                      onClick={e => {
+                        if ((e.target as HTMLElement).tagName === 'INPUT') return;
+                        // Prevent multiple rapid clicks
+                        if (e.detail > 1) return;
+                        // Use requestAnimationFrame to debounce the click
+                        requestAnimationFrame(() => {
                           onRowClick?.(row.original);
-                        }}>
-                        {row.getVisibleCells().map((cell, index) => {
-                          const isFrozen = (cell.column.columnDef.meta as any)?.frozen;
-
-                          // Calculate left position for frozen columns
-                          const leftPosition = isFrozen
-                            ? calculateFrozenColumnPosition(index, row.getVisibleCells())
-                            : 'auto';
-
-                          return (
-                            <TableCell
-                              key={cell.id}
-                              style={{
-                                width: cell.column.getSize(),
-                                position: isFrozen ? ('sticky' as const) : ('relative' as const),
-                                left: leftPosition,
-                                zIndex: isFrozen ? 5 : 'auto',
-                                backgroundColor: isFrozen
-                                  ? 'hsl(var(--background))'
-                                  : 'transparent',
-                                borderRight:
-                                  index === row.getVisibleCells().length - 1
-                                    ? 'none'
-                                    : '1px solid hsl(var(--border))',
-                              }}
-                              className={cn('overflow-hidden', isFrozen && 'shadow-sm')}>
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </TableCell>
-                          );
-                        })}
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={columns.length} className="h-24 text-center">
-                        No results.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-
-                {/* Fixed Footer */}
-                {enableFooter && (
-                  <TableHeader className="sticky bottom-0 z-10 bg-background border-t">
-                    <TableRow className="bg-muted/50">
-                      {table.getHeaderGroups()[0].headers.map((header, index) => {
-                        const isFrozen = (header.column.columnDef.meta as any)?.frozen;
-                        const footerValue = getFooterValue?.(header.column.id);
-
-                        // Calculate left position for frozen columns
+                        });
+                      }}>
+                      {row.getVisibleCells().map((cell, index) => {
+                        const isFrozen = (cell.column.columnDef.meta as any)?.frozen;
                         const leftPosition = isFrozen
-                          ? calculateFrozenColumnPosition(index, table.getHeaderGroups()[0].headers)
+                          ? calculateFrozenColumnPosition(index, row.getVisibleCells())
                           : 'auto';
 
-                        // Format footer values based on column type
-                        const formatFooterValue = (value: any, columnId: string) => {
-                          if (value === undefined || value === null || value === '') {
-                            return '';
-                          }
-
-                          switch (columnId) {
-                            case 'identity':
-                              return value; // Already formatted as "X users"
-                            case 'portfolioValue':
-                              return `$${Number(value).toLocaleString()} USD`;
-                            case 'transactions':
-                            case 'tokens':
-                              return Number(value).toLocaleString();
-                            case 'firstSignedIn':
-                            case 'walletCreatedAt':
-                              return value; // Date formatting handled in formatter
-                            default:
-                              return value;
-                          }
-                        };
-
                         return (
-                          <TableHead
-                            key={`footer-${header.id}`}
+                          <TableCell
+                            key={cell.id}
                             style={{
-                              width: header.getSize(),
+                              width: cell.column.getSize(),
                               position: isFrozen ? ('sticky' as const) : ('relative' as const),
                               left: leftPosition,
-                              zIndex: isFrozen ? 20 : 'auto',
-                              backgroundColor: 'hsl(var(--muted))',
-                              borderRight:
-                                index === table.getHeaderGroups()[0].headers.length - 1
-                                  ? 'none'
-                                  : '1px solid hsl(var(--border))',
+                              zIndex: isFrozen ? 5 : 'auto',
+                              backgroundColor: isFrozen ? 'hsl(var(--background))' : 'transparent',
+                              boxShadow: isFrozen ? '1px 0 0 0 hsl(var(--border))' : 'none',
                             }}
-                            className={cn(
-                              'font-semibold text-xs overflow-hidden',
-                              isFrozen && 'shadow-sm'
-                            )}>
-                            {index > 0 ? formatFooterValue(footerValue, header.column.id) : ''}
-                          </TableHead>
+                            className={cn('overflow-hidden py-3', isFrozen && 'shadow-sm')}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </TableCell>
                         );
                       })}
                     </TableRow>
-                  </TableHeader>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                      No results.
+                    </TableCell>
+                  </TableRow>
                 )}
+              </TableBody>
+            </Table>
+
+            {/* Loading indicator at bottom */}
+            {hasMore && (
+              <div className="py-4 flex justify-center">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+              </div>
+            )}
+          </div>
+
+          {/* Fixed Footer */}
+          {enableFooter && (
+            <div
+              className="w-full flex-none border-t bg-muted/50"
+              style={{ height: FOOTER_HEIGHT }}>
+              <Table className="w-full table-fixed">
+                <TableHeader>
+                  <TableRow>
+                    {table.getHeaderGroups()[0].headers.map((header, index) => {
+                      const isFrozen = (header.column.columnDef.meta as any)?.frozen;
+                      const footerValue = getFooterValue?.(header.column.id);
+                      const leftPosition = isFrozen
+                        ? calculateFrozenColumnPosition(index, table.getHeaderGroups()[0].headers)
+                        : 'auto';
+
+                      const formatFooterValue = (value: any, columnId: string) => {
+                        if (value === undefined || value === null || value === '') return '';
+                        switch (columnId) {
+                          case 'identity':
+                            return value;
+                          case 'portfolioValue':
+                            return `$${Number(value).toLocaleString()} USD`;
+                          case 'transactions':
+                          case 'tokens':
+                            return Number(value).toLocaleString();
+                          case 'firstSignedIn':
+                          case 'walletCreatedAt':
+                            return value;
+                          default:
+                            return value;
+                        }
+                      };
+
+                      return (
+                        <TableHead
+                          key={`footer-${header.id}`}
+                          style={{
+                            width: header.getSize(),
+                            position: isFrozen ? ('sticky' as const) : ('relative' as const),
+                            left: leftPosition,
+                            zIndex: isFrozen ? 20 : 'auto',
+                            backgroundColor: 'hsl(var(--muted))',
+                            boxShadow: isFrozen ? '1px 0 0 0 hsl(var(--border))' : 'none',
+                          }}
+                          className={cn(
+                            'font-semibold text-xs overflow-hidden py-3',
+                            isFrozen && 'shadow-sm'
+                          )}>
+                          {index > 0 ? formatFooterValue(footerValue, header.column.id) : ''}
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
+                </TableHeader>
               </Table>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
+
+      {/* Loading overlay */}
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
+      )}
     </div>
   );
 }
