@@ -1,5 +1,11 @@
 # @getgrowly/suite
 
+## 1.0.14
+
+### Patch Changes
+
+- fix: isolate CSS with gas-theme
+
 ## 1.0.13
 
 ### Patch Changes
