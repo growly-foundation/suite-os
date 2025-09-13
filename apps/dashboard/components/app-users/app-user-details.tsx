@@ -1,9 +1,10 @@
 import { consumePersona } from '@/core/persona';
-import { Activity, BarChart3, ImageIcon, Sparkles, TrendingUp, Trophy, Wallet } from 'lucide-react';
+import { useDashboardState } from '@/hooks/use-dashboard';
+import { useQuery } from '@tanstack/react-query';
+import { TrendingUp, Trophy, Wallet } from 'lucide-react';
 import { useMemo } from 'react';
 
 import { TMarketNft, TMarketToken } from '@getgrowly/chainsmith/types';
-import { ParsedUser } from '@getgrowly/core';
 
 import { Separator } from '../ui/separator';
 import { UserProfileHeader } from '../user/user-profile-header';
@@ -14,13 +15,20 @@ import { PortfolioNftTable } from './portfolio-nft-table';
 import { PortfolioTokenTable } from './portfolio-token-table';
 
 interface UserDetailsProps {
-  user: ParsedUser;
+  userId: string;
 }
 
-export function UserDetails({ user }: UserDetailsProps) {
-  const userPersona = consumePersona(user);
+export function UserDetails({ userId }: UserDetailsProps) {
+  const { fetchUserById } = useDashboardState();
+  const { data: user, isLoading } = useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => fetchUserById(userId),
+    enabled: !!userId,
+  });
+  const userPersona = useMemo(() => (user ? consumePersona(user) : null), [user]);
 
   const totalTokenValue = useMemo(() => {
+    if (!userPersona) return 0;
     return userPersona
       .universalTokenList()
       .reduce(
@@ -30,14 +38,42 @@ export function UserDetails({ user }: UserDetailsProps) {
   }, [userPersona]);
 
   const totalNftValue = useMemo(() => {
+    if (!userPersona) return 0;
     return userPersona
       .universalNftList()
       .reduce((sum: number, nft: TMarketNft) => sum + (nft.usdValue || 0), 0);
   }, [userPersona]);
+
+  if (isLoading) {
+    // Default skeleton configuration
+    return generateSkeleton({
+      showStats: true,
+      showBadges: true,
+      showTokens: true,
+      showNfts: true,
+      showActivity: true,
+      statCardsCount: 3,
+      badgesCount: 6, // Default to 6 badges while loading
+      tokenRowsCount: 3,
+      nftRowsCount: 3,
+      activityRowsCount: 4,
+    });
+  }
+  if (!user) return <div>User not found</div>;
   return (
     <div className="min-h-screen w-full">
       <div className="relative container mx-auto px-6 py-4">
         <UserProfileHeader user={user} />
+        <div className="mt-4">
+          <UserBadges
+            showAll
+            badges={
+              user.personaData.identities.traitScores
+                ?.sort((a, b) => b.score - a.score)
+                .map(traitScore => traitScore.trait.toString()) || []
+            }
+          />
+        </div>
       </div>
       {/* Main Content */}
       <div className="container mx-auto px-6 py-8">
@@ -45,14 +81,9 @@ export function UserDetails({ user }: UserDetailsProps) {
           <div className="space-y-4">
             {/* Activity Stats with Better Design */}
             <div className="overflow-hidden">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
-                  <BarChart3 className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-md font-bold text-gray-900">Activity Stats</h2>
-                  <p className="text-sm text-gray-600">Your on-chain activity metrics</p>
-                </div>
+              <div>
+                <h2 className="text-md font-bold text-gray-900">Activity Stats</h2>
+                <p className="text-sm text-gray-600">Your on-chain activity metrics</p>
               </div>
               <div className="py-6">
                 {/* Portfolio Overview Cards */}
@@ -79,7 +110,7 @@ export function UserDetails({ user }: UserDetailsProps) {
                       </div>
                       <div className="text-right">
                         <div className="text-lg font-bold text-gray-900">
-                          {userPersona.universalTokenList().length}
+                          {userPersona?.universalTokenList().length || 0}
                         </div>
                         <div className="text-sm text-purple-600 font-medium">Active</div>
                       </div>
@@ -112,51 +143,21 @@ export function UserDetails({ user }: UserDetailsProps) {
 
             <Separator className="my-4 border-gray-100" />
 
-            {/* Reputation Badges with Enhanced Display */}
-            <div className="overflow-hidden">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg">
-                  <Sparkles className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-md font-bold text-gray-900">Reputation Badges</h2>
-                  <p className="text-sm text-gray-600">Your earned achievements</p>
-                </div>
-              </div>
-              <div className="py-6">
-                <UserBadges
-                  showAll
-                  badges={
-                    user.personaData.identities.traitScores
-                      ?.sort((a, b) => b.score - a.score)
-                      .map(traitScore => traitScore.trait.toString()) || []
-                  }
-                />
-              </div>
-            </div>
-
-            <Separator className="my-4 border-gray-100" />
-
             {/* Token Holdings Table */}
             <div className="overflow-hidden">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
-                    <Wallet className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-md font-bold text-gray-900">Token Holdings</h2>
-                    <p className="text-sm text-gray-600">Your current portfolio assets</p>
-                  </div>
+                <div>
+                  <h2 className="text-md font-bold text-gray-900">Token Holdings</h2>
+                  <p className="text-sm text-gray-600">Your current portfolio assets</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-                    {userPersona.universalTokenList().length} tokens
+                    {userPersona?.universalTokenList().length || 0} tokens
                   </div>
                 </div>
               </div>
               <div className="py-6 max-h-[600px] overflow-y-auto">
-                <PortfolioTokenTable userPersona={userPersona} />
+                {userPersona && <PortfolioTokenTable userPersona={userPersona} />}
               </div>
             </div>
 
@@ -165,21 +166,16 @@ export function UserDetails({ user }: UserDetailsProps) {
             {/* NFT Holdings Table */}
             <div className="overflow-hidden">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg">
-                    <ImageIcon className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-md font-bold text-gray-900">NFT Holdings</h2>
-                    <p className="text-sm text-gray-600">Your digital collectibles</p>
-                  </div>
+                <div>
+                  <h2 className="text-md font-bold text-gray-900">NFT Holdings</h2>
+                  <p className="text-sm text-gray-600">Your digital collectibles</p>
                 </div>
                 <div className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm font-medium">
-                  {userPersona.universalNftList().length} items
+                  {userPersona?.universalNftList().length || 0} items
                 </div>
               </div>
               <div className="py-6 max-h-[600px] overflow-y-auto">
-                <PortfolioNftTable userPersona={userPersona} />
+                {userPersona && <PortfolioNftTable userPersona={userPersona} />}
               </div>
             </div>
           </div>
@@ -189,14 +185,9 @@ export function UserDetails({ user }: UserDetailsProps) {
             {/* Activity Feed with Enhanced Design */}
             <div className="overflow-hidden">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-lg">
-                    <Activity className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-md font-bold text-gray-900">Recent Activity</h2>
-                    <p className="text-sm text-gray-600">Your latest transactions</p>
-                  </div>
+                <div>
+                  <h2 className="text-md font-bold text-gray-900">Recent Activity</h2>
+                  <p className="text-sm text-gray-600">Your latest transactions</p>
                 </div>
               </div>
               <div className="py-6">
@@ -209,3 +200,137 @@ export function UserDetails({ user }: UserDetailsProps) {
     </div>
   );
 }
+
+interface SkeletonOptions {
+  showStats?: boolean;
+  showBadges?: boolean;
+  showTokens?: boolean;
+  showNfts?: boolean;
+  showActivity?: boolean;
+  statCardsCount?: number;
+  badgesCount?: number;
+  tokenRowsCount?: number;
+  nftRowsCount?: number;
+  activityRowsCount?: number;
+}
+
+const generateSkeleton = ({
+  statCardsCount = 3,
+  badgesCount = 6,
+  tokenRowsCount = 3,
+  nftRowsCount = 3,
+  activityRowsCount = 4,
+}: SkeletonOptions) => {
+  return (
+    <div className="min-h-screen w-full animate-pulse">
+      {/* Header Skeleton */}
+      <div className="relative container mx-auto px-6 py-4">
+        <div className="h-24 bg-muted rounded-lg" />
+      </div>
+
+      {/* Main Content Skeleton */}
+      <div className="container mx-auto px-6 py-8">
+        <div className="flex flex-col gap-8">
+          {/* Activity Stats Skeleton */}
+          <div className="space-y-4">
+            <div className="overflow-hidden">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-muted rounded-lg w-10 h-10" />
+                <div className="space-y-2">
+                  <div className="h-4 w-32 bg-muted rounded" />
+                  <div className="h-3 w-48 bg-muted rounded" />
+                </div>
+              </div>
+
+              {/* Stats Cards Skeleton */}
+              <div className="py-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {Array.from({ length: statCardsCount }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="p-3 bg-muted rounded-xl w-12 h-12" />
+                        <div className="space-y-2">
+                          <div className="h-6 w-24 bg-muted rounded" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-4 w-20 bg-muted rounded" />
+                        <div className="h-3 w-32 bg-muted rounded" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Badges Skeleton */}
+          <div className="overflow-hidden">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-muted rounded-lg w-10 h-10" />
+              <div className="space-y-2">
+                <div className="h-4 w-32 bg-muted rounded" />
+                <div className="h-3 w-48 bg-muted rounded" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {Array.from({ length: badgesCount }).map((_, i) => (
+                <div key={i} className="h-16 bg-muted rounded-lg" />
+              ))}
+            </div>
+          </div>
+
+          {/* Token Holdings Skeleton */}
+          <div className="overflow-hidden">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-muted rounded-lg w-10 h-10" />
+              <div className="space-y-2">
+                <div className="h-4 w-32 bg-muted rounded" />
+                <div className="h-3 w-48 bg-muted rounded" />
+              </div>
+            </div>
+            <div className="space-y-4">
+              {Array.from({ length: tokenRowsCount }).map((_, i) => (
+                <div key={i} className="h-16 bg-muted rounded-lg" />
+              ))}
+            </div>
+          </div>
+
+          {/* NFT Holdings Skeleton */}
+          <div className="overflow-hidden">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-muted rounded-lg w-10 h-10" />
+              <div className="space-y-2">
+                <div className="h-4 w-32 bg-muted rounded" />
+                <div className="h-3 w-48 bg-muted rounded" />
+              </div>
+            </div>
+            <div className="space-y-4">
+              {Array.from({ length: nftRowsCount }).map((_, i) => (
+                <div key={i} className="h-16 bg-muted rounded-lg" />
+              ))}
+            </div>
+          </div>
+
+          {/* Activity Feed Skeleton */}
+          <div className="overflow-hidden">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-muted rounded-lg w-10 h-10" />
+              <div className="space-y-2">
+                <div className="h-4 w-32 bg-muted rounded" />
+                <div className="h-3 w-48 bg-muted rounded" />
+              </div>
+            </div>
+            <div className="space-y-4">
+              {Array.from({ length: activityRowsCount || 4 }).map((_, i) => (
+                <div key={i} className="h-20 bg-muted rounded-lg" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

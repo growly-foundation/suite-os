@@ -7,9 +7,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { consumePersona } from '@/core/persona';
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { ColumnDef } from '@tanstack/react-table';
-import { Copy, ExternalLink, MoreHorizontal, TrendingUp } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { Copy, ExternalLink, MoreHorizontal } from 'lucide-react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { TContractToken } from '@getgrowly/chainsmith/types';
 import { getChainNameById } from '@getgrowly/chainsmith/utils';
@@ -33,15 +34,15 @@ interface TokenData {
 }
 
 export function PortfolioTokenTable({ userPersona }: PortfolioTokenTableProps) {
-  const tokens = userPersona.universalTokenList();
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 20;
   const [searchQuery, setSearchQuery] = useState('');
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-  };
+  const tokens = useMemo(() => userPersona.universalTokenList(), [userPersona]);
+  const { copyToClipboard } = useCopyToClipboard();
 
   // Transform tokens to the format expected by table
-  const tokenData: TokenData[] = useMemo(() => {
+  const allTokenData: TokenData[] = useMemo(() => {
     return tokens.map(token => ({
       symbol: token.symbol || '',
       name: token.name || '',
@@ -53,6 +54,21 @@ export function PortfolioTokenTable({ userPersona }: PortfolioTokenTableProps) {
       token: token as TContractToken,
     }));
   }, [tokens]);
+
+  // Apply pagination
+  const tokenData = useMemo(() => {
+    return allTokenData.slice(0, page * PAGE_SIZE);
+  }, [allTokenData, page]);
+
+  // Check if there are more items to load
+  const hasMore = useMemo(() => {
+    return page * PAGE_SIZE < allTokenData.length;
+  }, [allTokenData.length, page]);
+
+  // Handle loading more items
+  const handleLoadMore = useCallback(() => {
+    setPage(prev => prev + 1);
+  }, []);
 
   // Calculate total value
   const totalValue = useMemo(() => {
@@ -170,10 +186,6 @@ export function PortfolioTokenTable({ userPersona }: PortfolioTokenTableProps) {
                 <ExternalLink className="h-4 w-4 mr-2" />
                 View on Explorer
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <TrendingUp className="h-4 w-4 mr-2" />
-                View Chart
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -194,8 +206,6 @@ export function PortfolioTokenTable({ userPersona }: PortfolioTokenTableProps) {
           enableSorting={true}
           enableColumnResizing={true}
           enableColumnReordering={true}
-          enablePagination={true}
-          pageSize={100}
           emptyMessage="No tokens found"
           emptyDescription="No tokens match your search criteria."
           className="h-[400px]"
@@ -203,6 +213,8 @@ export function PortfolioTokenTable({ userPersona }: PortfolioTokenTableProps) {
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           searchPlaceholder="Search tokens..."
+          onLoadMore={handleLoadMore}
+          hasMore={hasMore}
         />
       </div>
     </div>

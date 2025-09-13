@@ -87,6 +87,7 @@ export type DashboardAppState = {
   organizationUserStatus: StateStatus;
   organizationUsers: ParsedUser[];
   fetchUsersByOrganizationId: (organizationId: string) => Promise<ParsedUser[]>;
+  fetchUserById: (userId: string) => Promise<ParsedUser | null>;
   selectedOrganizationUser: ParsedUser | null;
   setSelectedOrganizationUser: (user: ParsedUser | null) => void;
 
@@ -159,6 +160,10 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
     const users = await suiteCore.users.getUsersByOrganizationId(organizationId);
     set({ organizationUsers: users, organizationUserStatus: 'idle' });
     return users;
+  },
+  fetchUserById: async (userId: string) => {
+    const user = await suiteCore.users.getUserById(userId);
+    return user;
   },
   selectedOrganizationUser: null,
   setSelectedOrganizationUser: (user: ParsedUser | null) => set({ selectedOrganizationUser: user }),
@@ -297,15 +302,20 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
   organizationResources: [],
   setOrganizationResources: (resources: Resource[]) => set({ organizationResources: resources }),
   fetchCurrentOrganizationResources: async () => {
-    const selectedOrganization = get().selectedOrganization;
-    if (!selectedOrganization) throw new Error('No organization selected');
+    try {
+      const selectedOrganization = get().selectedOrganization;
+      if (!selectedOrganization) throw new Error('No organization selected');
 
-    set({ organizationResourceStatus: 'loading' });
-    const resources = await suiteCore.db.resources.getAllByFields({
-      organization_id: selectedOrganization.id,
-    });
-    set({ organizationResources: resources, organizationResourceStatus: 'idle' });
-    return resources;
+      set({ organizationResourceStatus: 'loading' });
+      const resources = await suiteCore.db.resources.getAllByFields({
+        organization_id: selectedOrganization.id,
+      });
+      set({ organizationResources: resources, organizationResourceStatus: 'idle' });
+      return resources;
+    } catch (error) {
+      set({ organizationResourceStatus: 'idle' });
+      return [];
+    }
   },
 
   // Workflows

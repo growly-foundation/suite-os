@@ -1,7 +1,7 @@
 'use client';
 
 import { consumePersona } from '@/core/persona';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { ParsedUser } from '@getgrowly/core';
 
@@ -36,14 +36,17 @@ export function UsersTable({
   setSelectedRows?: (rows: Record<string, boolean>) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<ParsedUser | null>(null);
-  const personas = users.map(user => consumePersona(user as ParsedUser));
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const personas = useMemo(() => users.map(user => consumePersona(user as ParsedUser)), [users]);
 
   // User interaction handlers
-  const handleUserClick = (user: ParsedUser) => {
-    setSelectedUser(user);
-    setOpen(true);
-  };
+  const handleUserClick = useCallback((user: ParsedUser) => {
+    // Defer state updates to next frame
+    requestAnimationFrame(() => {
+      setSelectedUser(user.id);
+      setOpen(true);
+    });
+  }, []);
 
   const handleCloseUserDetails = () => {
     setOpen(false);
@@ -67,17 +70,6 @@ export function UsersTable({
     switch (key) {
       case 'identity':
         return `${users.length} users`;
-      case 'talentProtocolCheckmark': {
-        const verifiedCount = users.reduce((sum, user) => {
-          if ('personaData' in user) {
-            // For ParsedUser, we can access personaData directly
-            const persona = user.personaData;
-            return sum + (persona?.identities.talentProtocol?.profile.human_checkmark ? 1 : 0);
-          }
-          return sum;
-        }, 0);
-        return `${verifiedCount} verified`;
-      }
       case 'firstSignedIn': {
         if (users.length === 0) return '';
         const dates = users
@@ -163,7 +155,7 @@ export function UsersTable({
   };
 
   // Create columns for the dynamic table
-  const columns = createUserColumns(users as ParsedUser[]);
+  const columns = useMemo(() => createUserColumns(users as ParsedUser[]), [users]);
 
   return (
     <>
@@ -190,9 +182,6 @@ export function UsersTable({
         selectedRows={selectedRows}
         onRowSelectionChange={handleRowSelectionChange}
         getRowId={getRowId}
-        // Enable pagination
-        enablePagination={true}
-        pageSize={30} // Show 30 users per page
         // Toolbar props
         tableLabel={tableLabel}
         searchQuery={searchQuery}
@@ -205,7 +194,7 @@ export function UsersTable({
         className="w-full"
         open={open}
         onOpenChange={handleCloseUserDetails}>
-        {selectedUser && <UserDetails user={selectedUser} />}
+        {selectedUser && <UserDetails userId={selectedUser} />}
       </ResizableSheet>
     </>
   );

@@ -9,12 +9,13 @@ import { cn } from '@/lib/utils';
 import moment from 'moment';
 import { Address } from 'viem';
 
+import { TContractToken } from '@getgrowly/chainsmith/types';
 import { ImportPrivyUserOutput, ImportUserOutput, ParsedUser } from '@getgrowly/core';
 import { WalletAddress } from '@getgrowly/ui';
 
-import { AssetIcon } from '../../../ui/asset-icon';
 import { ActivityPreview } from '../../../user/activity-preview';
 import { AppUserAvatarWithStatus } from '../../app-user-avatar-with-status';
+import { TokenStack } from '../../token-stack';
 
 // Type for any user data that can be displayed in the table
 export type TableUserData = ParsedUser | ImportUserOutput | ImportPrivyUserOutput;
@@ -63,6 +64,7 @@ export function createColumnFormatters<T = any>(
       let walletAddress = '';
       let name: string | undefined = undefined;
       let avatar: string | undefined = undefined;
+      let hasCheckmark = false;
 
       // Handle ParsedUser type
       if (accessor.isType(user, 'parsed')) {
@@ -79,6 +81,7 @@ export function createColumnFormatters<T = any>(
         } else if (parsedUser.personaData?.identities?.talentProtocol?.profile?.image_url) {
           avatar = parsedUser.personaData.identities.talentProtocol.profile.image_url;
         }
+        hasCheckmark = persona.getHumanCheckmark();
       } else {
         // Handle other user types (ImportUserOutput, ImportPrivyUserOutput)
         walletAddress = accessor.hasProperty(user, 'walletAddress')
@@ -96,43 +99,31 @@ export function createColumnFormatters<T = any>(
         <div className="flex items-center space-x-3">
           <div className="flex items-center text-sm space-x-3">
             <AppUserAvatarWithStatus
-              size={30}
+              size={20}
               walletAddress={walletAddress as Address}
               avatar={avatar}
               name={name}
               withStatus={false}
             />
             <div>
-              {name && <h3 className="font-bold text-xs">{name}</h3>}
-              <WalletAddress
-                className="text-xs hover:underline"
-                truncate
-                truncateLength={{ startLength: 12, endLength: 4 }}
-                address={walletAddress as Address}
-              />
+              <div className="flex items-center gap-2">
+                {name ? (
+                  <h3 className="font-bold text-xs">{name}</h3>
+                ) : (
+                  <WalletAddress
+                    className="text-xs hover:underline"
+                    truncate
+                    truncateLength={{ startLength: 12, endLength: 4 }}
+                    address={walletAddress as Address}
+                  />
+                )}
+                {hasCheckmark && <TalentProtocolCheckmark width={12} height={12} />}
+              </div>
             </div>
           </div>
         </div>
       );
     },
-
-    // Talent Protocol checkmark
-    talentProtocolCheckmark: (user: T) => {
-      if (accessor.isType(user, 'parsed')) {
-        const persona = consumePersona(user as ParsedUser);
-        const hasCheckmark = persona.getHumanCheckmark();
-
-        return (
-          <div className="flex items-center justify-center">
-            <span className="text-xs">
-              {hasCheckmark && <TalentProtocolCheckmark width={20} height={20} />}
-            </span>
-          </div>
-        );
-      }
-      return null;
-    },
-
     // First signed in date
     firstSignedIn: (user: T) => {
       const date = accessor.hasProperty(user, 'created_at')
@@ -161,7 +152,7 @@ export function createColumnFormatters<T = any>(
       if (accessor.isType(user, 'parsed')) {
         const userPersona = consumePersona(user as ParsedUser);
         const totalPortfolioValue = userPersona.totalPortfolioValue() || 0;
-        return <span className="text-xs">{formatNumber(totalPortfolioValue)} USD</span>;
+        return <span className="text-xs">${formatNumber(totalPortfolioValue)}</span>;
       }
       return null;
     },
@@ -171,7 +162,7 @@ export function createColumnFormatters<T = any>(
       if (accessor.isType(user, 'parsed')) {
         const userPersona = consumePersona(user as ParsedUser);
         const txCount = userPersona.universalTransactions().length;
-        return <span className="text-xs">{txCount}</span>;
+        return <span className="text-xs">{formatNumber(txCount)}</span>;
       }
       return null;
     },
@@ -187,29 +178,8 @@ export function createColumnFormatters<T = any>(
         const distinctTokens = allTokens.filter(
           (token, index, self) => index === self.findIndex(t => t.symbol === token.symbol)
         );
-
-        const style =
-          'flex items-center gap-1 text-xs bg-slate-100 px-1.5 py-0.5 rounded-sm flex-shrink-0 min-w-0';
-
         return (
-          <div className="flex items-center gap-1 min-w-0 max-w-full overflow-hidden">
-            {distinctTokens.slice(0, 3).map((token, i) => (
-              <div key={i} className={style}>
-                <AssetIcon
-                  logoURI={token.logoURI}
-                  symbol={token.symbol}
-                  size="sm"
-                  className="flex-shrink-0"
-                />
-                <span className="truncate text-xs font-medium">{token.symbol}</span>
-              </div>
-            ))}
-            {distinctTokens.length > 3 && (
-              <div className={style}>
-                <span className="truncate text-xs font-medium">+{distinctTokens.length - 3}</span>
-              </div>
-            )}
-          </div>
+          <TokenStack tokens={distinctTokens as TContractToken[]} maxTokens={5} tokenSize={15} />
         );
       }
       return null;
@@ -241,9 +211,7 @@ export function createColumnFormatters<T = any>(
       if (accessor.isType(user, 'parsed')) {
         const persona = consumePersona(user as ParsedUser);
         const date = persona.walletCreatedAt();
-        return date ? (
-          <span className="text-xs">{moment(date).format('DD/MM/YYYY HH:mm')}</span>
-        ) : null;
+        return date ? <span className="text-xs">{moment(date).fromNow()}</span> : null;
       }
       return null;
     },

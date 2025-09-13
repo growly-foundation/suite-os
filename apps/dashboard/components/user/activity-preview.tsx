@@ -34,13 +34,14 @@ export function ActivityPreview({ activity, userId, variant = 'expanded' }: Acti
   return (
     <div className="flex items-start gap-3">
       <div
-        className={`h-6 w-6 rounded-full flex items-center justify-center text-xs ${
+        className={`rounded-full flex items-center justify-center text-xs ${
           isOutgoing ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'
-        }`}>
+        }`}
+        style={{ width: 20, height: 20 }}>
         <ActivityIcon type={activityType} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm">
+        <p className="text-xs">
           {isOutgoing
             ? `Sent ${formattedValue} ${activity.symbol} to ${truncateAddress(activity.to)}`
             : `Received ${formattedValue} ${activity.symbol} from ${truncateAddress(activity.from)}`}

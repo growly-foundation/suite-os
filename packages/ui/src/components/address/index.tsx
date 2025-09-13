@@ -21,7 +21,7 @@ export const WalletAddress = ({
       onClick={() => navigator.clipboard.writeText(address)}
       className="hover:text-primary cursor-pointer"
       {...props}>
-      <span className={cn('font-mono text-muted-foreground ', className)}>
+      <span className={cn('text-muted-foreground ', className)}>
         {truncate
           ? truncateAddress(address, truncateLength?.startLength, truncateLength?.endLength)
           : address}
