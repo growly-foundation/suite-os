@@ -1,5 +1,12 @@
 # @getgrowly/website
 
+## 0.1.17
+
+### Patch Changes
+
+- Updated dependencies
+  - @getgrowly/suite@1.0.15
+
 ## 0.1.16
 
 ### Patch Changes

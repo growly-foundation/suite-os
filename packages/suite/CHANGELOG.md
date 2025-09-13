@@ -1,5 +1,11 @@
 # @getgrowly/suite
 
+## 1.0.15
+
+### Patch Changes
+
+- fix: include preflight with Tailwind scope
+
 ## 1.0.14
 
 ### Patch Changes
