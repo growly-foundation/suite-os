@@ -1,14 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 import tailwindcssAnimate from 'tailwindcss-animate';
+import { isolateInsideOfContainer, scopedPreflightStyles } from 'tailwindcss-scoped-preflight';
 
 export default {
   prefix: 'gas-',
   content: ['./src/**/*.{ts,tsx}'],
   darkMode: ['class'],
   safelist: ['dark'],
-  corePlugins: {
-    preflight: false,
-  },
   theme: {
     fontFamily: {
       display: 'DM Sans, sans-serif',
@@ -99,5 +97,11 @@ export default {
       },
     },
   },
-  plugins: [tailwindcssAnimate, require('tailwindcss-animate'), require('@tailwindcss/typography')],
+  plugins: [
+    tailwindcssAnimate,
+    require('@tailwindcss/typography'),
+    scopedPreflightStyles({
+      isolationStrategy: isolateInsideOfContainer('.gas-style-container'),
+    }),
+  ],
 };

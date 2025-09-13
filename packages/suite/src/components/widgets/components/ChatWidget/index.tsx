@@ -38,7 +38,11 @@ function ChatWidgetContainer({
 }
 
 function ChatWidget(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  return <ChatWidgetContainer buttonProps={props} />;
+  return (
+    <div className="gas-style-container">
+      <ChatWidgetContainer buttonProps={props} />
+    </div>
+  );
 }
 
 export { ChatWidget, ChatWidgetContainer };

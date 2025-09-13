@@ -4,8 +4,8 @@
 
 @layer base {
 
-  .light,
-  .default-light {
+  .gas-theme .light,
+  .gas-theme .default-light {
     --gas-font-family: 'DM Sans', sans-serif;
     --gas-border-radius: 0.5rem;
     --gas-border-radius-inner: 0.25rem;
@@ -86,8 +86,8 @@
     --gas-radius: 0.5rem;
   }
 
-  .dark,
-  .default-dark {
+  .gas-theme .dark,
+  .gas-theme .default-dark {
     --gas-font-family: 'DM Sans', sans-serif;
     --gas-border-radius: 0.5rem;
     --gas-border-radius-inner: 0.25rem;

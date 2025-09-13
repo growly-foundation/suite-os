@@ -41,7 +41,7 @@ export function PanelContainer() {
           )}
           style={styles.panel.container}>
           {/* Header */}
-          <div className={'gas-p-4 gas-border-b'} style={styles.panel.header}>
+          <div className={cn('gas-p-4 gas-border-b', positionClasses)} style={styles.panel.header}>
             <PanelHeader />
           </div>
           {screen === Screen.Home ? (
