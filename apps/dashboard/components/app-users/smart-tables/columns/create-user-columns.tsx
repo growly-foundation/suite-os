@@ -1,4 +1,5 @@
 import { consumePersona } from '@/core/persona';
+import { formatNumber } from '@/lib/string.utils';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import moment from 'moment';
 
@@ -21,27 +22,9 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
     enableSorting: true,
     enableResizing: true,
     meta: { frozen: true },
-    size: 240,
-    minSize: 240,
+    size: 200,
+    minSize: 200,
   },
-
-  talentProtocolCheckmark: {
-    id: 'talentProtocolCheckmark',
-    accessorFn: (row: ParsedUser) => {
-      if ('personaData' in row) {
-        return 1;
-      }
-      return 0;
-    },
-    header: 'Verified',
-    cell: ({ row }: { row: Row<ParsedUser> }) =>
-      getFormatter('talentProtocolCheckmark')(row.original),
-    enableSorting: true,
-    enableResizing: true,
-    size: 110,
-    minSize: 110,
-  },
-
   firstSignedIn: {
     id: 'firstSignedIn',
     accessorFn: (row: ParsedUser) => {
@@ -124,8 +107,8 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
     cell: ({ row }: { row: Row<ParsedUser> }) => getFormatter('tokens')(row.original),
     enableSorting: true,
     enableResizing: true,
-    size: 270,
-    minSize: 270,
+    size: 150,
+    minSize: 150,
   },
 
   activity: {
@@ -257,7 +240,7 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
       );
       const address = (contractData?.sourceData as any)?.contractAddress;
       return address ? (
-        <span className="text-xs font-mono">{address}</span>
+        <span className="text-xs">{address}</span>
       ) : (
         <span className="text-xs text-muted-foreground">-</span>
       );
@@ -286,7 +269,7 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
       );
       const count = (contractData?.sourceData as any)?.transactionCount;
       return count ? (
-        <span className="text-xs">{count}</span>
+        <span className="text-xs">{formatNumber(count)}</span>
       ) : (
         <span className="text-xs text-muted-foreground">-</span>
       );
@@ -342,13 +325,17 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
 
       if (!importedSourceData || importedSourceData.length === 0) {
         return (
-          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Native</span>
+          <div className="flex flex-wrap gap-1 items-center">
+            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+              Native
+            </span>
+          </div>
         );
       }
 
       const sources = importedSourceData.map(data => data.source);
       return (
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap gap-1 items-center">
           {sources.map((source, index) => {
             const sourceLabels: Record<UserImportSource, string> = {
               [UserImportSource.Native]: 'Native',
@@ -411,7 +398,6 @@ export function createUserColumns(data: ParsedUser[]): ColumnDef<ParsedUser>[] {
   if (hasPersonaDataInAnyRow(data)) {
     // ParsedUser columns - check if any user has persona data
     columns.push(
-      columnUserDefinitions.talentProtocolCheckmark,
       columnUserDefinitions.firstSignedIn,
       columnUserDefinitions.trait,
       columnUserDefinitions.portfolioValue,

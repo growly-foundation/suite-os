@@ -102,7 +102,7 @@ export const MessageListCard = ({ message, selected, className }: MessageListCar
         side="right"
         open={isOpen && selected}
         onOpenChange={isOpen => (isOpen ? open() : close())}>
-        {user && <UserDetails user={user} />}
+        {user && <UserDetails userId={user.id} />}
       </ResizableSheet>
     </React.Fragment>
   );

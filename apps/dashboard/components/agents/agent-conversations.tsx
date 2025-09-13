@@ -118,7 +118,7 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
           </div>
           {/* User Details Drawer */}
           <ResizableSheet side="right" open={open} onOpenChange={setOpen}>
-            {selectedUser && <UserDetails user={selectedUser} />}
+            {selectedUser && <UserDetails userId={selectedUser.id} />}
           </ResizableSheet>
         </React.Fragment>
       ) : (

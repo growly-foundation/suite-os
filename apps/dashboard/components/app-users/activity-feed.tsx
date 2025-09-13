@@ -5,12 +5,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { consumePersona } from '@/core/persona';
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
+import { usePeekExplorer } from '@/hooks/use-peek-explorer';
 import { ColumnDef } from '@tanstack/react-table';
-import { ArrowDownLeft, ArrowUpRight, Clock, ExternalLink, TrendingUp } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  Check,
+  Clock,
+  Copy,
+  ExternalLink,
+  TrendingUp,
+} from 'lucide-react';
+import { useCallback, useMemo, useState } from 'react';
 
+import { TChainName } from '@getgrowly/chainsmith/types';
 import { ParsedUser } from '@getgrowly/core';
 
 import { DynamicTable } from './smart-tables/dynamic-table';
@@ -26,9 +36,14 @@ type ActivityFeedItem = {
 };
 
 export function ActivityFeed({ user }: ActivityFeedProps) {
-  const persona = consumePersona(user);
-  const activityFeed = persona.activityFeed();
-  const userAddress = persona.address();
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 20;
+
+  const persona = useMemo(() => consumePersona(user), [user]);
+  const activityFeed = useMemo(() => persona.activityFeed(), [persona]);
+  const userAddress = useMemo(() => persona.address(), [persona]);
+  const { copyToClipboard, copied } = useCopyToClipboard();
+  const { handlePeekTransactionMultichain } = usePeekExplorer();
 
   const formatAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -56,7 +71,7 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
   };
 
   // Transform data for the table
-  const tableData = useMemo(() => {
+  const allTableData = useMemo(() => {
     return activityFeed.map(({ activity, chainName }) => ({
       chainName,
       activity,
@@ -122,7 +137,7 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
         size: 140,
         cell: ({ row }) => {
           const { activity } = row.original;
-          return <div className="font-mono text-sm">{formatAddress(activity.from)}</div>;
+          return <div className="text-sm">{formatAddress(activity.from)}</div>;
         },
       },
       {
@@ -131,7 +146,7 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
         size: 140,
         cell: ({ row }) => {
           const { activity } = row.original;
-          return <div className="font-mono text-sm">{formatAddress(activity.to)}</div>;
+          return <div className="text-sm">{formatAddress(activity.to)}</div>;
         },
       },
       {
@@ -161,7 +176,8 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
         id: 'actions',
         header: '',
         size: 80,
-        cell: () => {
+        cell: ({ row }) => {
+          const { activity, chainName } = row.original;
           return (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -170,9 +186,19 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>View Transaction</DropdownMenuItem>
-                <DropdownMenuItem>Copy Hash</DropdownMenuItem>
-                <DropdownMenuItem>View on Explorer</DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    handlePeekTransactionMultichain(
+                      activity.hash,
+                      chainName.toLowerCase() as TChainName
+                    );
+                  }}>
+                  View Transaction
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => copyToClipboard(activity.hash)}>
+                  {copied ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+                  Copy Hash
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           );
@@ -182,54 +208,37 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
     []
   );
 
-  // Filter data based on selected tab
-  const [activeTab, setActiveTab] = useState('all');
-
   const filteredData = useMemo(() => {
-    switch (activeTab) {
-      case 'received':
-        return tableData.filter(({ activity }) => activity.to === userAddress);
-      case 'sent':
-        return tableData.filter(({ activity }) => activity.from === userAddress);
-      default:
-        return tableData;
-    }
-  }, [tableData, activeTab, userAddress]);
+    return allTableData.slice(0, page * PAGE_SIZE);
+  }, [allTableData, userAddress, page]);
+
+  const hasMore = useMemo(() => {
+    return page * PAGE_SIZE < allTableData.length;
+  }, [allTableData, page]);
+
+  const handleLoadMore = useCallback(() => {
+    setPage(prev => prev + 1);
+  }, []);
 
   return (
     <div className="space-y-4">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-1 rounded-lg">
-          <TabsTrigger value="all" className="text-xs">
-            All
-          </TabsTrigger>
-          <TabsTrigger value="received" className="text-xs">
-            Received
-          </TabsTrigger>
-          <TabsTrigger value="sent" className="text-xs">
-            Sent
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value={activeTab} className="mt-4">
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
-            <DynamicTable
-              data={filteredData}
-              columns={columns}
-              enableSorting={true}
-              enableColumnResizing={true}
-              enableColumnReordering={true}
-              enablePagination={true}
-              pageSize={100}
-              emptyMessage="No transactions found"
-              emptyDescription="No transactions match your current filter."
-              className="h-[400px]"
-              tableLabel="Transaction History"
-              searchPlaceholder="Search transactions..."
-            />
-          </div>
-        </TabsContent>
-      </Tabs>
+      <div className="border border-gray-200 rounded-lg overflow-hidden">
+        <DynamicTable
+          data={filteredData}
+          columns={columns}
+          enableSorting={true}
+          enableColumnResizing={true}
+          enableColumnReordering={true}
+          enableFooter={true}
+          emptyMessage="No transactions found"
+          emptyDescription="No transactions match your current filter."
+          className="h-[400px]"
+          tableLabel="Transaction History"
+          searchPlaceholder="Search transactions..."
+          onLoadMore={handleLoadMore}
+          hasMore={hasMore}
+        />
+      </div>
     </div>
   );
 }

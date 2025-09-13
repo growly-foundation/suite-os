@@ -1,4 +1,4 @@
-import { dylan } from '@dicebear/collection';
+import { glass } from '@dicebear/collection';
 import { createAvatar } from '@dicebear/core';
 import { useMemo } from 'react';
 
@@ -13,11 +13,24 @@ type Props = {
 export const RandomAvatar = ({ address, ensName, ensAvatar, size = 20 }: Props) => {
   const randomAvatar = useMemo(
     () =>
-      createAvatar(dylan, {
-        size,
+      createAvatar(glass, {
         seed: address,
-        backgroundColor: ['#0052ff'],
-        mood: ['happy', 'hopeful', 'superHappy'],
+        rotate: 10,
+        scale: 200,
+        backgroundColor: [
+          '4747eb',
+          '4762eb',
+          '477eeb',
+          '4799eb',
+          '47b4eb',
+          '47d0eb',
+          '7e47eb',
+          '6247eb',
+          'b447eb',
+          '9947eb',
+          '47eb99',
+          '47eb7e',
+        ],
       }).toDataUri(),
     [address]
   );
@@ -30,13 +43,15 @@ export const RandomAvatar = ({ address, ensName, ensAvatar, size = 20 }: Props) 
         <img
           src={ensAvatar}
           alt={ensName || address}
-          className="h-full w-full rounded-full object-cover"
+          className="h-full w-full overflow-hidden object-cover"
+          style={{ borderRadius: '10px' }}
         />
       ) : (
         <img
           src={randomAvatar}
           alt={ensName || address}
-          className="h-full w-full rounded-full object-cover"
+          className="h-full w-full overflow-hidden object-cover"
+          style={{ borderRadius: '10px' }}
         />
       )}
     </div>

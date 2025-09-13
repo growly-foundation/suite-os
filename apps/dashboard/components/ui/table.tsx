@@ -82,7 +82,6 @@ const TableHead = React.forwardRef<
     ref={ref}
     className={cn(
       'h-12 px-4 text-left text-xs align-middle whitespace-nowrap font-medium [&:has([role=checkbox])]:pr-0 relative overflow-hidden text-ellipsis',
-      border ? 'border-r' : '',
       className
     )}
     style={{
@@ -104,7 +103,6 @@ const TableCell = React.forwardRef<
     ref={ref}
     className={cn(
       'p-4 py-2 align-middle text-sm whitespace-nowrap [&:has([role=checkbox])]:pr-0 overflow-hidden text-ellipsis',
-      border ? 'border-r' : '',
       className
     )}
     style={{

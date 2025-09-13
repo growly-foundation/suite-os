@@ -1,7 +1,7 @@
 'use client';
 
 import { consumePersona } from '@/core/persona';
-import { ReactNode, Suspense, useCallback, useState } from 'react';
+import { ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { ParsedUser } from '@getgrowly/core';
 
@@ -37,7 +37,7 @@ export function UsersTable({
 }) {
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
-  const personas = users.map(user => consumePersona(user as ParsedUser));
+  const personas = useMemo(() => users.map(user => consumePersona(user as ParsedUser)), [users]);
 
   // User interaction handlers
   const handleUserClick = useCallback((user: ParsedUser) => {
@@ -70,17 +70,6 @@ export function UsersTable({
     switch (key) {
       case 'identity':
         return `${users.length} users`;
-      case 'talentProtocolCheckmark': {
-        const verifiedCount = users.reduce((sum, user) => {
-          if ('personaData' in user) {
-            // For ParsedUser, we can access personaData directly
-            const persona = user.personaData;
-            return sum + (persona?.identities.talentProtocol?.profile.human_checkmark ? 1 : 0);
-          }
-          return sum;
-        }, 0);
-        return `${verifiedCount} verified`;
-      }
       case 'firstSignedIn': {
         if (users.length === 0) return '';
         const dates = users
@@ -166,7 +155,7 @@ export function UsersTable({
   };
 
   // Create columns for the dynamic table
-  const columns = createUserColumns(users as ParsedUser[]);
+  const columns = useMemo(() => createUserColumns(users as ParsedUser[]), [users]);
 
   return (
     <>
@@ -205,14 +194,7 @@ export function UsersTable({
         className="w-full"
         open={open}
         onOpenChange={handleCloseUserDetails}>
-        <Suspense
-          fallback={
-            <div className="flex items-center justify-center h-full">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-            </div>
-          }>
-          {selectedUser && <UserDetails userId={selectedUser} />}
-        </Suspense>
+        {selectedUser && <UserDetails userId={selectedUser} />}
       </ResizableSheet>
     </>
   );

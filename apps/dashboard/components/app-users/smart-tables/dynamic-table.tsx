@@ -341,7 +341,7 @@ export function DynamicTable<TData = any>({
 
                       return (
                         <TableHead
-                          key={header.id}
+                          key={`${header.id}-${index}`}
                           style={{
                             width: header.getSize(),
                             position: isFrozen ? ('sticky' as const) : ('relative' as const),
@@ -381,7 +381,7 @@ export function DynamicTable<TData = any>({
                 {table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row, index) => (
                     <TableRow
-                      key={row.id}
+                      key={`${row.id}-${index}`}
                       data-state={row.getIsSelected() && 'selected'}
                       className={cn(
                         onRowClick && 'cursor-pointer hover:bg-muted/50',
@@ -478,7 +478,7 @@ export function DynamicTable<TData = any>({
 
                       return (
                         <TableHead
-                          key={`footer-${header.id}`}
+                          key={`footer-${header.id}-${index}`}
                           style={{
                             width: header.getSize(),
                             position: isFrozen ? ('sticky' as const) : ('relative' as const),

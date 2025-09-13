@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { Providers } from '@/components/providers/providers';
 import { cn } from '@/lib/utils';
 import { GeistMono } from 'geist/font/mono';
@@ -5,7 +6,6 @@ import { GeistSans } from 'geist/font/sans';
 import type { Metadata } from 'next';
 import type React from 'react';
 
-import { coinbaseFont } from './fonts';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -78,7 +78,6 @@ export default function RootLayout({
       <body
         className={cn(
           'min-h-screen bg-background antialiased',
-          coinbaseFont.variable,
           GeistSans.variable,
           GeistMono.variable
         )}>

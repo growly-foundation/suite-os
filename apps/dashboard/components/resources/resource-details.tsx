@@ -104,7 +104,7 @@ export function ResourceDetails({ resource, onSave, onClose }: ResourceDetailsPr
                     }) as TypedResource<ResourceType>
                 )
               }
-              className="min-h-[300px] font-mono text-sm"
+              className="min-h-[300px] text-sm"
               placeholder={
                 editedResource.value.format === 'markdown'
                   ? '# Markdown supported\n\nYou can write **bold**, *italic*, and `code` here.'
@@ -321,7 +321,7 @@ export function ResourceDetails({ resource, onSave, onClose }: ResourceDetailsPr
           <div className="space-y-4">
             <div className="space-y-2">
               <Label className="text-sm font-medium text-muted-foreground">Contract Address</Label>
-              <div className="rounded-md bg-muted p-2 font-mono text-sm border">
+              <div className="rounded-md bg-muted p-2 text-sm border">
                 {resource.value.address || 'No address'}
               </div>
             </div>

@@ -22,7 +22,6 @@ import {
   HomeIcon,
   SettingsIcon,
   UserIcon,
-  WorkflowIcon,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import * as React from 'react';
@@ -58,13 +57,13 @@ export const navigations = [
       <NavigationIcon icon={<UserIcon className="h-3 w-3" />} selected={selected} />
     ),
   },
-  {
-    title: 'Workflows',
-    url: '/dashboard/workflows',
-    icon: (selected: boolean) => (
-      <NavigationIcon icon={<WorkflowIcon className="h-3 w-3" />} selected={selected} />
-    ),
-  },
+  // {
+  //   title: 'Workflows',
+  //   url: '/dashboard/workflows',
+  //   icon: (selected: boolean) => (
+  //     <NavigationIcon icon={<WorkflowIcon className="h-3 w-3" />} selected={selected} />
+  //   ),
+  // },
   {
     title: 'Resources',
     url: '/dashboard/resources',

@@ -1,7 +1,7 @@
 import { consumePersona } from '@/core/persona';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { useQuery } from '@tanstack/react-query';
-import { Activity, ImageIcon, TrendingUp, Trophy, Wallet } from 'lucide-react';
+import { TrendingUp, Trophy, Wallet } from 'lucide-react';
 import { useMemo } from 'react';
 
 import { TMarketNft, TMarketToken } from '@getgrowly/chainsmith/types';
@@ -64,6 +64,16 @@ export function UserDetails({ userId }: UserDetailsProps) {
     <div className="min-h-screen w-full">
       <div className="relative container mx-auto px-6 py-4">
         <UserProfileHeader user={user} />
+        <div className="mt-4">
+          <UserBadges
+            showAll
+            badges={
+              user.personaData.identities.traitScores
+                ?.sort((a, b) => b.score - a.score)
+                .map(traitScore => traitScore.trait.toString()) || []
+            }
+          />
+        </div>
       </div>
       {/* Main Content */}
       <div className="container mx-auto px-6 py-8">
@@ -133,37 +143,12 @@ export function UserDetails({ userId }: UserDetailsProps) {
 
             <Separator className="my-4 border-gray-100" />
 
-            {/* Reputation Badges with Enhanced Display */}
-            <div className="overflow-hidden">
-              <div>
-                <h2 className="text-md font-bold text-gray-900">Reputation Badges</h2>
-                <p className="text-sm text-gray-600">Your earned achievements</p>
-              </div>
-              <div className="py-6">
-                <UserBadges
-                  showAll
-                  badges={
-                    user.personaData.identities.traitScores
-                      ?.sort((a, b) => b.score - a.score)
-                      .map(traitScore => traitScore.trait.toString()) || []
-                  }
-                />
-              </div>
-            </div>
-
-            <Separator className="my-4 border-gray-100" />
-
             {/* Token Holdings Table */}
             <div className="overflow-hidden">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
-                    <Wallet className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-md font-bold text-gray-900">Token Holdings</h2>
-                    <p className="text-sm text-gray-600">Your current portfolio assets</p>
-                  </div>
+                <div>
+                  <h2 className="text-md font-bold text-gray-900">Token Holdings</h2>
+                  <p className="text-sm text-gray-600">Your current portfolio assets</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
@@ -181,14 +166,9 @@ export function UserDetails({ userId }: UserDetailsProps) {
             {/* NFT Holdings Table */}
             <div className="overflow-hidden">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg">
-                    <ImageIcon className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-md font-bold text-gray-900">NFT Holdings</h2>
-                    <p className="text-sm text-gray-600">Your digital collectibles</p>
-                  </div>
+                <div>
+                  <h2 className="text-md font-bold text-gray-900">NFT Holdings</h2>
+                  <p className="text-sm text-gray-600">Your digital collectibles</p>
                 </div>
                 <div className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm font-medium">
                   {userPersona?.universalNftList().length || 0} items
@@ -205,14 +185,9 @@ export function UserDetails({ userId }: UserDetailsProps) {
             {/* Activity Feed with Enhanced Design */}
             <div className="overflow-hidden">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-lg">
-                    <Activity className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-md font-bold text-gray-900">Recent Activity</h2>
-                    <p className="text-sm text-gray-600">Your latest transactions</p>
-                  </div>
+                <div>
+                  <h2 className="text-md font-bold text-gray-900">Recent Activity</h2>
+                  <p className="text-sm text-gray-600">Your latest transactions</p>
                 </div>
               </div>
               <div className="py-6">

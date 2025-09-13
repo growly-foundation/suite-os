@@ -6,7 +6,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { consumePersona } from '@/core/persona';
-import { Copy, Share2 } from 'lucide-react';
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
+import { usePeekExplorer } from '@/hooks/use-peek-explorer';
+import { Check, Copy, Share2 } from 'lucide-react';
 
 import { ParsedUser } from '@getgrowly/core';
 import { RandomAvatar } from '@getgrowly/ui';
@@ -19,10 +21,8 @@ export function UserProfileHeader({ user }: UserProfileHeaderProps) {
   const walletAddress = user.entities.walletAddress;
   const persona = consumePersona(user);
   const shortAddress = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(walletAddress);
-  };
+  const { copyToClipboard, copied } = useCopyToClipboard();
+  const { handlePeekAddressMultichain } = usePeekExplorer();
 
   return (
     <div className="flex items-center justify-between">
@@ -45,8 +45,8 @@ export function UserProfileHeader({ user }: UserProfileHeaderProps) {
 
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>{shortAddress}</span>
-            <Button variant="ghost" size="sm" onClick={copyToClipboard}>
-              <Copy className="h-3 w-3" />
+            <Button variant="ghost" size="sm" onClick={() => copyToClipboard(walletAddress)}>
+              {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
             </Button>
           </div>
         </div>
@@ -61,9 +61,12 @@ export function UserProfileHeader({ user }: UserProfileHeaderProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Share Profile</DropdownMenuItem>
-            <DropdownMenuItem>Copy Link</DropdownMenuItem>
-            <DropdownMenuItem>Export Data</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handlePeekAddressMultichain(walletAddress, 'mainnet')}>
+              View on Etherscan
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handlePeekAddressMultichain(walletAddress, 'base')}>
+              View on Basescan
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
