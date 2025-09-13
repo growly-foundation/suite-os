@@ -77,3 +77,21 @@ comment on table public.step_sessions is 'Step sessions for each step.';
 
 GRANT ALL ON TABLE step_sessions TO postgres;
 GRANT ALL ON TABLE step_sessions TO service_role;
+
+-- Create indexes for faster queries
+CREATE INDEX IF NOT EXISTS agent_workflows_agent_id_idx ON agent_workflows(agent_id);
+CREATE INDEX IF NOT EXISTS agent_workflows_workflow_id_idx ON agent_workflows(workflow_id);
+CREATE INDEX IF NOT EXISTS agent_resources_agent_id_idx ON agent_resources(agent_id);
+CREATE INDEX IF NOT EXISTS agent_resources_resource_id_idx ON agent_resources(resource_id);
+
+CREATE INDEX IF NOT EXISTS step_sessions_step_id_idx ON step_sessions(step_id);
+CREATE INDEX IF NOT EXISTS step_sessions_user_id_idx ON step_sessions(user_id);
+CREATE INDEX IF NOT EXISTS step_sessions_agent_id_idx ON step_sessions(agent_id);
+
+CREATE INDEX IF NOT EXISTS resources_organization_id_idx ON resources(organization_id);
+CREATE INDEX IF NOT EXISTS agents_organization_id_idx ON agents(organization_id);
+
+-- Create composite indexes for faster queries
+CREATE INDEX IF NOT EXISTS agent_workflows_agent_id_workflow_id_idx ON agent_workflows(agent_id, workflow_id);
+CREATE INDEX IF NOT EXISTS agent_resources_agent_id_resource_id_idx ON agent_resources(agent_id, resource_id);
+CREATE INDEX IF NOT EXISTS step_sessions_step_id_user_id_agent_id_idx ON step_sessions(step_id, user_id, agent_id);

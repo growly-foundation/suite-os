@@ -22,6 +22,7 @@ comment on table public.conversation is 'Conversations for the application.';
 GRANT ALL ON TABLE conversation TO postgres;
 GRANT ALL ON TABLE conversation TO service_role;
 
+
 -- Create a table for storing conversation messages with embeddings
 CREATE TABLE IF NOT EXISTS messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -46,4 +47,8 @@ CREATE INDEX IF NOT EXISTS messages_conversation_idx ON messages(conversation_id
 CREATE INDEX IF NOT EXISTS messages_created_at_idx ON messages(created_at);
 -- Index for role-based filtering
 CREATE INDEX IF NOT EXISTS messages_role_idx ON messages(sender);
-
+-- Create indexes for faster queries
+CREATE INDEX IF NOT EXISTS conversation_user_id_idx ON conversation(user_id);
+CREATE INDEX IF NOT EXISTS conversation_agent_id_idx ON conversation(agent_id);
+-- Index for sender_id lookup
+CREATE INDEX IF NOT EXISTS messages_sender_id_idx ON messages(sender_id);
