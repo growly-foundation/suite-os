@@ -64,7 +64,7 @@ export class UserImporterService {
   }
 
   /**
-   * Imports NFT holders that have held a specific NFT
+   * Imports NFT holders for a specific contract
    */
   async importNftHolders(
     contractAddress: string,
@@ -75,7 +75,7 @@ export class UserImporterService {
   }
 
   /**
-   * Saves users to the database with proper source tracking
+   * Saves users to the database with proper source tracking and progress updates
    */
   async commitImportedUsers(
     users: ImportUserOutput[],
