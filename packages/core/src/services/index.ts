@@ -2,6 +2,7 @@ export * from './agent.service';
 export * from './conversation.service';
 export * from './database.service';
 export * from './function.service';
+export * from './organization-limits.service';
 export * from './organization.service';
 export * from './redis.service';
 export * from './step.service';

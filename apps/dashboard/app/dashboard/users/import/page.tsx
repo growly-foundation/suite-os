@@ -1,5 +1,6 @@
 'use client';
 
+import { ImportProgressDialog } from '@/components/app-users/integrations/import-progress-dialog';
 import { ContractImportTab } from '@/components/app-users/integrations/sources/contract-import-tab';
 import { ManualImportTab } from '@/components/app-users/integrations/sources/manual-import-tab';
 import { NftHoldersImportTab } from '@/components/app-users/integrations/sources/nft-holders-import-tab';
@@ -96,6 +97,7 @@ export default function ImportUsersPage() {
             </CardDescription>
           </div>
           <div className="flex gap-2">
+            <ImportProgressDialog />
             <Link href="/dashboard/users">
               <Button variant="outline" size="sm">
                 <ArrowLeft className="h-4 w-4 mr-2" />

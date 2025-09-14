@@ -1,16 +1,26 @@
 'use client';
 
+import { ImportConfirmationDialog } from '@/components/app-users/integrations/import-confirmation-dialog';
+import { ImportProgress } from '@/components/app-users/integrations/import-progress';
+import { UserLimitWarning } from '@/components/app-users/integrations/user-limit-warning';
 import { UserSelectionList } from '@/components/app-users/integrations/user-selection-list';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { UserImportService } from '@/lib/services/user-import.service';
+import { ImportLimitCheckResult, UserImportService } from '@/lib/services/user-import.service';
 import { Download, InfoIcon, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { ImportUserOutput, UserImportSource } from '@getgrowly/core';
@@ -20,53 +30,94 @@ interface ManualImportTabProps {
 }
 
 export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
-  const [users, setUsers] = useState<ImportUserOutput[]>([]);
-  const [importing, setImporting] = useState(false);
-  const { selectedOrganization } = useDashboardState();
   const router = useRouter();
-  // Form state for manual entry
+  const [users, setUsers] = useState<ImportUserOutput[]>([]);
   const [walletAddress, setWalletAddress] = useState('');
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [importing, setImporting] = useState(false);
+  const [limits, setLimits] = useState<ImportLimitCheckResult | null>(null);
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const [importJobId, setImportJobId] = useState<string | null>(null);
+  const [showImportProgress, setShowImportProgress] = useState(false);
+  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
+  const [pendingImportUsers, setPendingImportUsers] = useState<ImportUserOutput[]>([]);
+  const { selectedOrganization } = useDashboardState();
+
+  // Check organization limits when users are selected
+  const checkOrganizationLimits = useCallback(async () => {
+    if (!selectedOrganization?.id) return;
+
+    const usersToImport = selectedUserIds.length;
+    if (usersToImport === 0) {
+      setLimits(null);
+      return;
+    }
+
+    try {
+      const limitsResult = await UserImportService.checkOrganizationLimits(
+        selectedOrganization.id,
+        usersToImport
+      );
+      setLimits(limitsResult);
+    } catch (error) {
+      console.error('Error checking organization limits:', error);
+      toast.error('Failed to check organization limits');
+    }
+  }, [selectedOrganization?.id, selectedUserIds.length]);
+
+  // Check limits when selected users change
+  useEffect(() => {
+    checkOrganizationLimits();
+  }, [checkOrganizationLimits]);
+
+  // Handle user selection change
+  const handleUserSelectionChange = (userIds: string[]) => {
+    setSelectedUserIds(userIds);
+  };
 
   // Handle CSV file upload
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Check if it's a CSV file
-    if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
-      toast.error('Please upload a CSV file');
-      return;
-    }
-
     const reader = new FileReader();
     reader.onload = e => {
       try {
-        const content = e.target?.result as string;
-        const lines = content.split('\n');
+        const text = e.target?.result as string;
+        const lines = text.split('\n').filter(line => line.trim());
 
-        // Skip header row and parse each line
-        const newUsers: ImportUserOutput[] = [];
-        for (let i = 1; i < lines.length; i++) {
-          const line = lines[i].trim();
-          if (!line) continue;
-
-          const [walletAddress, email, name] = line.split(',').map(item => item.trim());
-
-          if (walletAddress) {
-            newUsers.push({
-              walletAddress,
-              email: email || undefined,
-              name: name || undefined,
-              source: UserImportSource.Manual,
-            });
-          }
+        if (lines.length === 0) {
+          toast.error('CSV file is empty');
+          return;
         }
 
-        if (newUsers.length === 0) {
-          toast.warning('No valid users found in the CSV file');
-          return;
+        // Parse CSV (assuming first line might be headers)
+        const headers = lines[0]
+          .toLowerCase()
+          .split(',')
+          .map(h => h.trim());
+        const dataStartIndex =
+          headers.includes('wallet') || headers.includes('address') || headers.includes('email')
+            ? 1
+            : 0;
+
+        const newUsers: ImportUserOutput[] = [];
+
+        for (let i = dataStartIndex; i < lines.length; i++) {
+          const values = lines[i].split(',').map(v => v.trim());
+          if (values.length === 0 || !values[0]) continue;
+
+          const user: ImportUserOutput = {
+            walletAddress: values[0],
+            email: values[1] || undefined,
+            name: values[2] || undefined,
+            source: UserImportSource.Manual,
+          };
+
+          if (user.walletAddress) {
+            newUsers.push(user);
+          }
         }
 
         // Add new users to the list, avoiding duplicates
@@ -119,19 +170,16 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
 
   // Download CSV template
   const handleDownloadTemplate = () => {
-    const header = 'walletAddress,email,name\n';
-    const exampleRow = '0x123abc...,user@example.com,Example User';
-    const content = header + exampleRow;
-
-    const blob = new Blob([content], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
+    const csvContent = 'wallet_address,email,name\n0x1234567890abcdef,user@example.com,John Doe';
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'user_import_template.csv';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    window.URL.revokeObjectURL(url);
   };
 
   // Import selected users
@@ -141,27 +189,58 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
       return;
     }
     if (usersToImport.length === 0) {
-      toast.warning('Please select at least one user to import');
+      toast.error('Please select at least one user to import');
       return;
     }
 
+    // Check limits before attempting import
+    if (!limits) {
+      toast.error('Unable to check organization limits. Please try again.');
+      return;
+    }
+
+    if (!limits.canImport) {
+      toast.error(
+        `Organization has reached the maximum limit of ${limits.maxUsers} users. Cannot import any additional users.`
+      );
+      return;
+    }
+
+    if (limits.exceedsLimit) {
+      if (limits.maxAllowedImports === 0) {
+        toast.error(
+          `Cannot import any users. Organization is at capacity (${limits.currentUserCount}/${limits.maxUsers}).`
+        );
+        return;
+      }
+
+      // Show confirmation dialog for partial import
+      setPendingImportUsers(usersToImport);
+      setShowConfirmationDialog(true);
+      return;
+    }
+
+    // Proceed with import
+    await executeImport(usersToImport);
+  };
+
+  // Execute the actual import
+  const executeImport = async (usersToImport: ImportUserOutput[]) => {
     setImporting(true);
     try {
-      // Import users in batch
-      const result = await UserImportService.commitImportedUsers(
+      // Start async import
+      const result = await UserImportService.commitImportedUsersAsync(
         usersToImport,
-        selectedOrganization?.id
+        selectedOrganization!.id
       );
-      // Show success/failure messages
-      if (result.success.length > 0)
-        toast.success(`Successfully imported ${result.success.length} users`);
-      if (result.failed.length > 0) toast.error(`Failed to import ${result.failed.length} users`);
-      // If all successful, trigger completion callback
-      if (result.failed.length === 0 && result.success.length > 0) {
-        onImportComplete?.();
-        // Redirect to users page after successful import
-        router.push('/dashboard/users');
-      }
+
+      // Set job ID and show progress dialog
+      setImportJobId(result.jobId);
+      setShowImportProgress(true);
+
+      toast.success(
+        `Import started for ${usersToImport.length} users! Check the progress dialog for updates.`
+      );
     } catch (error) {
       console.error('Error importing users:', error);
       toast.error(
@@ -172,6 +251,31 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
     }
   };
 
+  // Handle confirmation dialog
+  const handleConfirmImport = () => {
+    if (pendingImportUsers.length > 0 && limits) {
+      // Limit the users to import
+      const limitedUsers = pendingImportUsers.slice(0, limits.maxAllowedImports);
+      toast.info(`Import limited to ${limits.maxAllowedImports} users due to organization limits.`);
+      executeImport(limitedUsers);
+    }
+    setPendingImportUsers([]);
+  };
+
+  // Handle import completion
+  const handleImportComplete = (result: any) => {
+    if (result.status === 'completed') {
+      // Don't show toast here - ImportProgressDialog handles it
+      onImportComplete?.();
+      // Redirect to users page after successful import
+      router.push('/dashboard/users');
+    } else if (result.status === 'failed') {
+      // Don't show toast here - ImportProgressDialog handles it
+      // Just trigger the completion callback
+      onImportComplete?.();
+    }
+  };
+
   // Remove a user from the list
   const handleRemoveUser = (walletAddress: string) => {
     setUsers(prevUsers => prevUsers.filter(u => u.walletAddress !== walletAddress));
@@ -179,31 +283,38 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="px-4">
-        <h2 className="text-lg font-semibold mb-2">Manual Import</h2>
-        <p className="text-muted-foreground text-sm">
-          Import users manually by entering their details below or by uploading a CSV file.
-        </p>
-      </div>
+    <>
+      <div className="space-y-6">
+        <div className="px-4">
+          <h2 className="text-lg font-semibold mb-2">Manual Import</h2>
+          <p className="text-muted-foreground text-sm">
+            Add users manually or upload a CSV file with wallet addresses, emails, and names.
+          </p>
+        </div>
 
-      <div className="px-4">
-        <Alert variant="default">
-          <InfoIcon className="h-4 w-4" />
-          <AlertDescription>
-            Import users manually by entering their details below or by uploading a CSV file.
-          </AlertDescription>
-        </Alert>
-      </div>
+        <div className="px-4">
+          <Alert variant="default">
+            <InfoIcon className="h-4 w-4" />
+            <AlertDescription>
+              You can add users one by one or upload a CSV file. The CSV should have columns for
+              wallet address (required), email (optional), and name (optional).
+            </AlertDescription>
+          </Alert>
+        </div>
 
-      <div className="space-y-6 px-4">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* Organization limit warning - shows only when users are selected */}
+        {limits && selectedUserIds.length > 0 && (
+          <div className="px-4">
+            <UserLimitWarning limits={limits} usersToImport={selectedUserIds.length} />
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
           <div className="space-y-4 p-4 border rounded-md">
             <h3 className="text-md font-semibold">Add User Manually</h3>
-
-            <div className="space-y-3">
-              <div className="grid gap-2">
-                <Label htmlFor="wallet-address" className="text-sm">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="wallet-address">
                   Wallet Address <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -213,11 +324,8 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
                   placeholder="0x..."
                 />
               </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="email" className="text-sm">
-                  Email (optional)
-                </Label>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email (Optional)</Label>
                 <Input
                   id="email"
                   type="email"
@@ -226,21 +334,18 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
                   placeholder="user@example.com"
                 />
               </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="name" className="text-sm">
-                  Name (optional)
-                </Label>
+              <div className="space-y-2">
+                <Label htmlFor="name">Name (Optional)</Label>
                 <Input
                   id="name"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  placeholder="User Name"
+                  placeholder="John Doe"
                 />
               </div>
-
               <Button onClick={handleAddUser} disabled={!walletAddress} className="w-full">
-                <Plus className="h-4 w-4 mr-1" /> Add User
+                <Plus className="h-4 w-4 mr-1" />
+                Add User
               </Button>
             </div>
           </div>
@@ -270,14 +375,16 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
         {users.length > 0 ? (
           <UserSelectionList
             users={users}
-            importButtonText={importing ? 'Importing...' : 'Import Users'}
+            importButtonText={importing ? 'Starting Import...' : 'Import Selected Users'}
             isImporting={importing}
+            limits={limits}
             onImport={async (selectedUserIds: string[]) => {
               const usersToImport = users.filter(
                 user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
               );
               await handleImport(usersToImport);
             }}
+            onSelectionChange={handleUserSelectionChange}
           />
         ) : (
           <Alert variant="default">
@@ -288,6 +395,39 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
           </Alert>
         )}
       </div>
-    </div>
+
+      {/* Import Confirmation Dialog */}
+      {limits && (
+        <ImportConfirmationDialog
+          isOpen={showConfirmationDialog}
+          onClose={() => {
+            setShowConfirmationDialog(false);
+            setPendingImportUsers([]);
+          }}
+          onConfirm={handleConfirmImport}
+          selectedCount={pendingImportUsers.length}
+          limits={limits}
+          importType="users"
+        />
+      )}
+
+      {/* Import Progress Dialog */}
+      <Dialog open={showImportProgress} onOpenChange={setShowImportProgress}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Import Progress</DialogTitle>
+            <DialogDescription>Importing users into your organization.</DialogDescription>
+          </DialogHeader>
+          {importJobId && (
+            <ImportProgress
+              jobId={importJobId}
+              onComplete={handleImportComplete}
+              onClose={() => setShowImportProgress(false)}
+              showClose={false}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

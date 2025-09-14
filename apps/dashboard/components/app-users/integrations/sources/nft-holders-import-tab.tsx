@@ -1,16 +1,33 @@
 'use client';
 
+import { ImportConfirmationDialog } from '@/components/app-users/integrations/import-confirmation-dialog';
+import { ImportProgress } from '@/components/app-users/integrations/import-progress';
+import { UserLimitWarning } from '@/components/app-users/integrations/user-limit-warning';
 import { UserSelectionList } from '@/components/app-users/integrations/user-selection-list';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { UserImportService } from '@/lib/services/user-import.service';
+import { ImportLimitCheckResult, UserImportService } from '@/lib/services/user-import.service';
 import { detectAddressType } from '@/utils/contract';
 import { InfoIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { base } from 'viem/chains';
 
@@ -29,6 +46,12 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
   const [configured, setConfigured] = useState(false);
   const [nftHoldersUsers, setNftHoldersUsers] = useState<ImportNftHoldersOutput[]>([]);
   const [importing, setImporting] = useState(false);
+  const [limits, setLimits] = useState<ImportLimitCheckResult | null>(null);
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const [importJobId, setImportJobId] = useState<string | null>(null);
+  const [showImportProgress, setShowImportProgress] = useState(false);
+  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
+  const [pendingImportUsers, setPendingImportUsers] = useState<ImportNftHoldersOutput[]>([]);
   const { selectedOrganization } = useDashboardState();
   const [contractType, setContractType] = useState<string | null>('');
   const [addressError, setAddressError] = useState<string | null>(null);
@@ -71,6 +94,33 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
     validateContractAddress();
   }, [contractAddress, chainId]);
 
+  // Check organization limits when users are fetched or selected users change
+  const checkOrganizationLimits = useCallback(async () => {
+    if (!selectedOrganization?.id) return;
+
+    const usersToImport = selectedUserIds.length;
+    if (usersToImport === 0) {
+      setLimits(null);
+      return;
+    }
+
+    try {
+      const limitsResult = await UserImportService.checkOrganizationLimits(
+        selectedOrganization.id,
+        usersToImport
+      );
+      setLimits(limitsResult);
+    } catch (error) {
+      console.error('Error checking organization limits:', error);
+      toast.error('Failed to check organization limits');
+    }
+  }, [selectedOrganization?.id, selectedUserIds.length]);
+
+  // Check limits when selected users change
+  useEffect(() => {
+    checkOrganizationLimits();
+  }, [checkOrganizationLimits]);
+
   // Handle configuration
   const handleConfigure = async () => {
     if (!contractAddress || !chainId || !contractType) {
@@ -110,6 +160,11 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
     }
   };
 
+  // Handle user selection change
+  const handleUserSelectionChange = (userIds: string[]) => {
+    setSelectedUserIds(userIds);
+  };
+
   // Import selected users
   const handleImport = async (usersToImport: ImportNftHoldersOutput[]) => {
     if (!selectedOrganization?.id) {
@@ -117,28 +172,58 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
       return;
     }
     if (usersToImport.length === 0) {
-      toast.warning('Please select at least one user to import');
+      toast.error('Please select at least one user to import');
       return;
     }
 
+    // Check limits before attempting import
+    if (!limits) {
+      toast.error('Unable to check organization limits. Please try again.');
+      return;
+    }
+
+    if (!limits.canImport) {
+      toast.error(
+        `Organization has reached the maximum limit of ${limits.maxUsers} users. Cannot import any additional users.`
+      );
+      return;
+    }
+
+    if (limits.exceedsLimit) {
+      if (limits.maxAllowedImports === 0) {
+        toast.error(
+          `Cannot import any users. Organization is at capacity (${limits.currentUserCount}/${limits.maxUsers}).`
+        );
+        return;
+      }
+
+      // Show confirmation dialog for partial import
+      setPendingImportUsers(usersToImport);
+      setShowConfirmationDialog(true);
+      return;
+    }
+
+    // Proceed with import
+    await executeImport(usersToImport);
+  };
+
+  // Execute the actual import
+  const executeImport = async (usersToImport: ImportNftHoldersOutput[]) => {
     setImporting(true);
     try {
-      // Import users in batch
-      const result = await UserImportService.commitImportedUsers(
+      // Start async import
+      const result = await UserImportService.commitImportedUsersAsync(
         usersToImport,
-        selectedOrganization?.id
+        selectedOrganization!.id
       );
-      // Show success/failure messages
-      if (result.success.length > 0)
-        toast.success(`Successfully imported ${result.success.length} NFT holders users`);
-      if (result.failed.length > 0)
-        toast.error(`Failed to import ${result.failed.length} NFT holders users`);
-      // If all successful, trigger completion callback
-      if (result.failed.length === 0 && result.success.length > 0) {
-        onImportComplete?.();
-        // Redirect to users page after successful import
-        router.push('/dashboard/users');
-      }
+
+      // Set job ID and show progress dialog
+      setImportJobId(result.jobId);
+      setShowImportProgress(true);
+
+      toast.success(
+        `Import started for ${usersToImport.length} users! Check the progress dialog for updates.`
+      );
     } catch (error) {
       console.error('Error importing NFT holders users:', error);
       toast.error(
@@ -149,121 +234,201 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
     }
   };
 
+  // Handle confirmation dialog
+  const handleConfirmImport = () => {
+    if (pendingImportUsers.length > 0 && limits) {
+      // Limit the users to import
+      const limitedUsers = pendingImportUsers.slice(0, limits.maxAllowedImports);
+      toast.info(`Import limited to ${limits.maxAllowedImports} users due to organization limits.`);
+      executeImport(limitedUsers);
+    }
+    setPendingImportUsers([]);
+  };
+
+  // Handle import completion
+  const handleImportComplete = (result: any) => {
+    if (result.status === 'completed') {
+      // Don't show toast here - ImportProgressDialog handles it
+      onImportComplete?.();
+      // Redirect to users page after successful import
+      router.push('/dashboard/users');
+    } else if (result.status === 'failed') {
+      // Don't show toast here - ImportProgressDialog handles it
+      // Just trigger the completion callback
+      onImportComplete?.();
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="px-4">
-        <h2 className="text-lg font-semibold mb-2">NFT Holders Integration</h2>
-        <p className="text-muted-foreground text-sm">
-          Import users who have held your NFTs by entering the contract address and chain ID.
-        </p>
-      </div>
-
-      <div className="px-4">
-        <Alert variant="default">
-          <InfoIcon className="h-4 w-4" />
-          <AlertDescription>
-            Suite will fetch all users who have held your NFTs on the specified chain.
-            <br />
-            <p className="text-muted-foreground text-sm mt-2 italic">
-              At the current stage, maximum 1000 users can be imported. If you need more, contact us
-              at{' '}
-              <a href="mailto:team@getsuite.io" className="text-blue-500">
-                team@getsuite.io
-              </a>
-              .
-            </p>
-          </AlertDescription>
-        </Alert>
-      </div>
-
+    <>
       <div className="space-y-6">
-        {!configured ? (
-          <div className="space-y-4 px-4">
-            <div className="grid gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="contract-address">
-                  Contract Address <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="contract-address"
-                  value={contractAddress}
-                  onChange={e => setContractAddress(e.target.value)}
-                  placeholder="0x..."
-                />
-                {addressError ? (
-                  <p className="text-red-500 text-sm">{addressError}</p>
-                ) : (
-                  contractType !== null && (
-                    <p className="text-muted-foreground text-sm">
-                      Detected Contract Type: {contractType}
-                    </p>
-                  )
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="chain-id">
-                  Chain ID <span className="text-red-500">*</span>
-                </Label>
-                <select
-                  id="chainId"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  value={chainId}
-                  onChange={e => setChainId(Number(e.target.value))}>
-                  <option value="1">1 - Ethereum Mainnet</option>
-                  <option value="8453">8453 - Base</option>
-                </select>
-              </div>
-            </div>
-            {configuring ? (
-              <Button
-                onClick={() => {
-                  setConfigured(false);
-                  setContractAddress('');
-                  setConfiguring(false);
-                  setChainId(0);
-                }}>
-                Stop and Reset
-              </Button>
-            ) : (
-              <Button
-                onClick={handleConfigure}
-                disabled={!contractAddress || !chainId || !!addressError || loading}>
-                Configure NFT Contract
-              </Button>
-            )}
+        <div className="px-4">
+          <h2 className="text-lg font-semibold mb-2">NFT Holders Integration</h2>
+          <p className="text-muted-foreground text-sm">
+            Import users who have held your NFTs by entering the contract address and chain ID.
+          </p>
+        </div>
+
+        <div className="px-4">
+          <Alert variant="default">
+            <InfoIcon className="h-4 w-4" />
+            <AlertDescription>
+              Suite will fetch all users who have held your NFTs on the specified chain.
+              <br />
+              <p className="text-muted-foreground text-sm mt-2 italic">
+                At the current stage, one organization can only have maximum 500 users. If you need
+                more, contact us at{' '}
+                <a href="mailto:team@getsuite.io" className="text-blue-500">
+                  team@getsuite.io
+                </a>
+                .
+              </p>
+            </AlertDescription>
+          </Alert>
+        </div>
+
+        {/* Organization limit warning - shows only when users are selected */}
+        {limits && selectedUserIds.length > 0 && (
+          <div className="px-4">
+            <UserLimitWarning limits={limits} usersToImport={selectedUserIds.length} />
           </div>
-        ) : (
-          <>
-            <UserSelectionList
-              users={nftHoldersUsers}
-              importButtonText={importing ? 'Importing...' : `Import Users`}
-              isImporting={importing}
-              onImport={async (selectedUserIds: string[]) => {
-                const usersToImport = nftHoldersUsers.filter(
-                  user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
-                );
-                await handleImport(usersToImport);
-              }}
-              additionalActions={
-                <div className="space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setConfigured(false);
-                      setNftHoldersUsers([]);
-                    }}>
-                    Change NFT Contract
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={handleFetchUsers} disabled={loading}>
-                    {loading ? 'Refreshing...' : 'Refresh NFT Holders'}
-                  </Button>
-                </div>
-              }
-            />
-          </>
         )}
+
+        <div className="space-y-6">
+          {!configured ? (
+            <div className="space-y-4 px-4">
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="contract-address">
+                    Contract Address <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="contract-address"
+                    value={contractAddress}
+                    onChange={e => setContractAddress(e.target.value)}
+                    placeholder="0x..."
+                  />
+                  {addressError ? (
+                    <p className="text-red-500 text-sm">{addressError}</p>
+                  ) : (
+                    contractType !== null && (
+                      <p className="text-muted-foreground text-sm">
+                        Detected Contract Type: {contractType}
+                      </p>
+                    )
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="chain-id">
+                    Chain ID <span className="text-red-500">*</span>
+                  </Label>
+                  <Select
+                    value={chainId.toString()}
+                    onValueChange={(value: string) => setChainId(Number(value))}>
+                    <SelectTrigger id="chainId">
+                      <SelectValue placeholder="Select a chain" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 - Ethereum Mainnet</SelectItem>
+                      <SelectItem value="8453">8453 - Base</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              {configuring ? (
+                <Button
+                  onClick={() => {
+                    setConfigured(false);
+                    setContractAddress('');
+                    setConfiguring(false);
+                    setChainId(base.id);
+                  }}>
+                  Stop and Reset
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleConfigure}
+                  disabled={!contractAddress || !chainId || !!addressError || loading}>
+                  Configure NFT Contract
+                </Button>
+              )}
+            </div>
+          ) : (
+            <>
+              <UserSelectionList
+                users={nftHoldersUsers}
+                importButtonText={importing ? 'Starting Import...' : `Import Selected Users`}
+                isImporting={importing}
+                limits={limits}
+                onImport={async (selectedUserIds: string[]) => {
+                  const usersToImport = nftHoldersUsers.filter(
+                    user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
+                  );
+                  await handleImport(usersToImport);
+                }}
+                onSelectionChange={handleUserSelectionChange}
+                additionalActions={
+                  <div className="space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setConfigured(false);
+                        setNftHoldersUsers([]);
+                        setSelectedUserIds([]);
+                        setLimits(null);
+                      }}>
+                      Change NFT Contract
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleFetchUsers}
+                      disabled={loading}>
+                      {loading ? 'Refreshing...' : 'Refresh NFT Holders'}
+                    </Button>
+                  </div>
+                }
+              />
+            </>
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* Import Confirmation Dialog */}
+      {limits && (
+        <ImportConfirmationDialog
+          isOpen={showConfirmationDialog}
+          onClose={() => {
+            setShowConfirmationDialog(false);
+            setPendingImportUsers([]);
+          }}
+          onConfirm={handleConfirmImport}
+          selectedCount={pendingImportUsers.length}
+          limits={limits}
+          importType="NFT holders"
+        />
+      )}
+
+      {/* Import Progress Dialog */}
+      <Dialog open={showImportProgress} onOpenChange={setShowImportProgress}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Import Progress</DialogTitle>
+            <DialogDescription>
+              Importing NFT holders users into your organization.
+            </DialogDescription>
+          </DialogHeader>
+          {importJobId && (
+            <ImportProgress
+              jobId={importJobId}
+              onComplete={handleImportComplete}
+              onClose={() => setShowImportProgress(false)}
+              showClose={false}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

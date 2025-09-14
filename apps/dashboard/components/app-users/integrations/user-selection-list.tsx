@@ -1,6 +1,7 @@
 'use client';
 
 import { PrimaryButton } from '@/components/buttons/primary-button';
+import { ImportLimitCheckResult } from '@/lib/services/user-import.service';
 import { ColumnDef } from '@tanstack/react-table';
 import { ImportIcon, Loader2 } from 'lucide-react';
 import { useState } from 'react';
@@ -14,20 +15,24 @@ interface UserSelectionListProps<T extends ImportUserOutput = ImportUserOutput> 
   users: T[];
   importButtonText?: string;
   onImport: (selectedUserIds: string[]) => Promise<void>;
+  onSelectionChange?: (selectedUserIds: string[]) => void;
   additionalActions?: React.ReactNode;
   isImporting?: boolean;
   searchQuery?: string;
   setSearchQuery?: (value: string) => void;
+  limits?: ImportLimitCheckResult | null;
 }
 
 export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>({
   users,
   importButtonText = 'Import Users',
   onImport,
+  onSelectionChange,
   additionalActions,
   isImporting = false,
   searchQuery,
   setSearchQuery,
+  limits,
 }: UserSelectionListProps<T>) {
   const [selectedUsers, setSelectedUsers] = useState<Record<string, boolean>>({});
 
@@ -43,6 +48,39 @@ export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>
   // Count of selected users
   const selectedCount = Object.values(selectedUsers).filter(Boolean).length;
   const columns = createImportedUserColumns(users);
+
+  // Check if import should be disabled
+  const isImportDisabled = () => {
+    if (isImporting || selectedCount === 0) return true;
+
+    // If limits are available, check if import is possible
+    if (limits) {
+      if (!limits.canImport) return true;
+      if (limits.exceedsLimit && limits.maxAllowedImports === 0) return true;
+    }
+
+    return false;
+  };
+
+  // Get import button text based on limits
+  const getImportButtonText = () => {
+    if (isImporting) return 'Importing...';
+    if (selectedCount === 0) return 'Select users to import';
+
+    if (limits) {
+      if (!limits.canImport) {
+        return `Cannot import - limit reached (${limits.currentUserCount}/${limits.maxUsers})`;
+      }
+      if (limits.exceedsLimit) {
+        if (limits.maxAllowedImports === 0) {
+          return `Cannot import - no slots available`;
+        }
+        return `Import ${Math.min(selectedCount, limits.maxAllowedImports)} users (limited)`;
+      }
+    }
+
+    return importButtonText || `Import ${selectedCount} Users`;
+  };
 
   // Improved getRowId function to ensure proper row identification
   const getRowId = (row: ImportUserOutput) => {
@@ -61,6 +99,14 @@ export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>
   const handleRowSelectionChange = (newSelection: Record<string, boolean>) => {
     console.log('Row selection changed:', newSelection);
     setSelectedUsers(newSelection);
+
+    // Notify parent component of selection change
+    if (onSelectionChange) {
+      const selectedUserIds = Object.entries(newSelection)
+        .filter(([, isSelected]) => isSelected)
+        .map(([id]) => id);
+      onSelectionChange(selectedUserIds);
+    }
   };
 
   // Footer data calculation - adapted for imported users
@@ -87,13 +133,17 @@ export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>
 
   // Create import button for toolbar
   const importButton = (
-    <PrimaryButton onClick={handleImport} disabled={isImporting || selectedCount === 0} size="sm">
+    <PrimaryButton
+      onClick={handleImport}
+      disabled={isImportDisabled()}
+      size="sm"
+      title={isImportDisabled() ? getImportButtonText() : undefined}>
       {isImporting ? (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <ImportIcon className="mr-1 h-4 w-4" />
       )}
-      {isImporting ? 'Importing...' : importButtonText || `Import ${selectedCount} Users`}
+      {getImportButtonText()}
     </PrimaryButton>
   );
 
@@ -122,8 +172,6 @@ export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>
       enableFooter={true}
       getFooterValue={getFooterValue}
       initialSorting={[{ id: 'identity', desc: true }]}
-      // Enable pagination
-      enablePagination={true}
       pageSize={20} // Show 20 users per page
       // Toolbar props
       searchQuery={searchQuery}
