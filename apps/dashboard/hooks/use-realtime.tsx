@@ -68,7 +68,6 @@ export function useRealtime(options: UseRealtimeOptions): UseRealtimeReturn {
     conversationId,
     autoConnect = true,
     onMessage,
-    onPresence,
     onTyping,
     onRead,
     onUserJoined,
@@ -79,15 +78,23 @@ export function useRealtime(options: UseRealtimeOptions): UseRealtimeReturn {
   const socketRef = useRef<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [messages, setMessages] = useState<RealtimeMessage[]>([]);
-  const [presence, setPresence] = useState<PresenceStatus[]>([]);
+  const [presence] = useState<PresenceStatus[]>([]);
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const isConnectingRef = useRef(false);
+  const hasConnectedRef = useRef(false);
 
   // Initialize socket
   useEffect(() => {
-    if (autoConnect && serverUrl && userId && !isConnectingRef.current) {
+    if (
+      autoConnect &&
+      serverUrl &&
+      userId &&
+      !isConnectingRef.current &&
+      !hasConnectedRef.current
+    ) {
       isConnectingRef.current = true;
+      hasConnectedRef.current = true;
 
       // Disconnect existing socket if any
       if (socketRef.current) {
@@ -218,6 +225,7 @@ export function useRealtime(options: UseRealtimeOptions): UseRealtimeReturn {
         socketRef.current = null;
         setIsConnected(false);
         isConnectingRef.current = false;
+        hasConnectedRef.current = false;
       }
     };
   }, [autoConnect, serverUrl, userId]);

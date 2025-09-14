@@ -33,7 +33,7 @@ export type UserWithLatestMessage = {
 };
 
 export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
-  const { setSelectedAgentUser } = useDashboardState();
+  const { setSelectedAgentUser, fetchCurrentConversationMessages } = useDashboardState();
   const [usersWithLatestMessage, setUsersWithLatestMessage] = React.useState<
     UserWithLatestMessage[]
   >([]);
@@ -56,10 +56,6 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
     typingUsers,
     realtimeMessages,
   } = useChatActions();
-
-  console.log('isConnected', isConnected);
-  console.log('typingUsers', typingUsers);
-  console.log('realtimeMessages', realtimeMessages);
 
   const fetchLatestMessages = useCallback(
     async (page: number) => {
@@ -133,13 +129,21 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
             return {
               ...userWithMessage,
               latestMessageDate: latestMessage.timestamp,
-              latestMessageSender: latestMessage.senderId as ConversationRoleKey,
+              latestMessageSender: 'user' as ConversationRoleKey,
+              latestMessageContent: latestMessage.content,
+            };
+          } else if (agent.id === latestMessage.senderId) {
+            return {
+              ...userWithMessage,
+              latestMessageDate: latestMessage.timestamp,
+              latestMessageSender: 'assistant' as ConversationRoleKey,
               latestMessageContent: latestMessage.content,
             };
           }
           return userWithMessage;
         })
       );
+      fetchCurrentConversationMessages(false);
     }
   }, [realtimeMessages]);
 
@@ -217,7 +221,6 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
             <ConversationArea
               selectedUser={selectedUser}
               onSendMessage={handleSendMessage}
-              onSendAgentResponse={handleSendAgentResponse}
               onMarkAsRead={markAsRead}
               isConnected={isConnected}
               typingUsers={typingUsers}

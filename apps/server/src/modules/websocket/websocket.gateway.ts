@@ -89,6 +89,17 @@ export class ConversationGateway implements OnGatewayConnection, OnGatewayDiscon
       client.userId = userId;
     }
 
+    // Check if user is already in this conversation
+    if (client.conversationId === conversationId) {
+      this.logger.log(`User ${userId} already in conversation ${conversationId}, skipping join`);
+      return;
+    }
+
+    // Leave previous conversation if any
+    if (client.conversationId) {
+      await this.handleLeaveConversation(client, { conversationId: client.conversationId });
+    }
+
     // Join the conversation room
     await client.join(conversationId);
     client.conversationId = conversationId;

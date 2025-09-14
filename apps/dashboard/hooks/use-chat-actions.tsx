@@ -53,20 +53,9 @@ export const useChatActions = () => {
     addConversationMessage,
   } = useDashboardState();
 
-  // Real-time messaging setup
-  const {
-    isConnected,
-    joinConversation,
-    leaveConversation,
-    sendMessage: sendRealtimeMessage,
-    markAsRead: markAsReadRealtime,
-    messages: realtimeMessages,
-    typingUsers,
-  } = useRealtime({
-    serverUrl: SERVER_API_URL,
-    userId: admin?.id || 'admin',
-    autoConnect: true,
-    onMessage: message => {
+  // Memoized message handler to prevent re-connections
+  const handleRealtimeMessage = useCallback(
+    (message: any) => {
       // Add real-time message to conversation
       const messageContent = {
         type: 'text' as const,
@@ -84,19 +73,45 @@ export const useChatActions = () => {
         type: messageContent.type,
       });
     },
+    [addConversationMessage]
+  );
+
+  // Real-time messaging setup
+  const {
+    isConnected,
+    joinConversation,
+    leaveConversation,
+    sendMessage: sendRealtimeMessage,
+    markAsRead: markAsReadRealtime,
+    messages: realtimeMessages,
+    typingUsers,
+  } = useRealtime({
+    serverUrl: SERVER_API_URL,
+    userId: admin?.id || 'admin',
+    autoConnect: true,
+    onMessage: handleRealtimeMessage,
   });
 
   // Join conversation when user is selected
   useEffect(() => {
     if (selectedAgent?.id && selectedUser?.id && isConnected) {
       const conversationId = `${selectedAgent.id}-${selectedUser.id}`;
+      console.log('🔄 Joining conversation:', conversationId);
       joinConversation(conversationId, admin?.id || 'admin');
 
       return () => {
+        console.log('🔄 Leaving conversation:', conversationId);
         leaveConversation(conversationId);
       };
     }
-  }, [selectedAgent?.id, selectedUser?.id, admin?.id]);
+  }, [
+    selectedAgent?.id,
+    selectedUser?.id,
+    admin?.id,
+    isConnected,
+    joinConversation,
+    leaveConversation,
+  ]);
 
   const sendRemoteMessage = async (
     type: MessageContent['type'],

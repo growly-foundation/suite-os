@@ -21,7 +21,7 @@ export interface UnreadCount {
 
 export class RedisService {
   private redis: Redis;
-  private presenceTTL = 30; // 30 seconds
+  private presenceTTL = 60 * 20; // 20 minutes
   private lastSeenTTL = 86400; // 24 hours
 
   constructor(redisUrl: string, redisToken: string) {

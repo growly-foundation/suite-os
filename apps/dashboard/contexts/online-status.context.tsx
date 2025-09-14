@@ -1,11 +1,11 @@
 'use client';
 
-import { useRealtime } from '@/hooks/use-realtime';
 import { OnlineStatusContextType } from '@/types/online-status.types';
 import React, { createContext, useEffect, useState } from 'react';
 
 import { RedisService } from '@getgrowly/core';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const OnlineStatusContext = createContext<OnlineStatusContextType | undefined>(undefined);
 
 interface OnlineStatusProviderProps {
@@ -16,39 +16,20 @@ export const OnlineStatusProvider: React.FC<OnlineStatusProviderProps> = ({ chil
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   const [redisService, setRedisService] = useState<RedisService | null>(null);
 
-  // Initialize Redis service
-  useEffect(() => {
-    const redisUrl = process.env.NEXT_PUBLIC_UPSTASH_REDIS_REST_URL;
-    const redisToken = process.env.NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN;
-
-    if (redisUrl && redisToken) {
-      setRedisService(new RedisService(redisUrl, redisToken));
-    }
-  }, []);
-
-  const { isConnected } = useRealtime({
-    serverUrl: process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:8080',
-    userId: 'admin',
-    autoConnect: true,
-    onUserJoined: data => {
-      setOnlineUsers(prev => new Set([...prev, data.userId]));
-    },
-    onUserLeft: data => {
-      setOnlineUsers(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(data.userId);
-        return newSet;
-      });
-    },
-  });
-
   // Check existing presence keys from Redis
   const checkExistingPresence = async () => {
     if (!redisService) return;
 
     try {
+      const redisUrl = process.env.NEXT_PUBLIC_UPSTASH_REDIS_REST_URL;
+      const redisToken = process.env.NEXT_PUBLIC_UPSTASH_REDIS_REST_TOKEN;
+
+      if (redisUrl && redisToken) {
+        setRedisService(new RedisService(redisUrl, redisToken));
+      }
       // Get all presence keys from Redis
       const presenceKeys = await redisService.getAllPresenceKeys();
+      console.log('📊 Loaded existing presence keys from Redis:', presenceKeys);
       const onlineUserIds = new Set<string>();
 
       for (const key of presenceKeys) {
@@ -68,10 +49,10 @@ export const OnlineStatusProvider: React.FC<OnlineStatusProviderProps> = ({ chil
 
   // Load existing presence when Redis service is available
   useEffect(() => {
-    if (redisService && isConnected) {
+    setInterval(() => {
       checkExistingPresence();
-    }
-  }, [redisService, isConnected]);
+    }, 5000);
+  }, []);
 
   const isUserOnline = async (userId: string): Promise<boolean> => {
     // First check local state

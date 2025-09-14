@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { PresenceStatus, RealtimeMessage } from '@getgrowly/core';
 
@@ -48,6 +48,8 @@ export interface UseRealtimeReturn {
   clearError: () => void;
 }
 
+const service = new RealtimeService();
+
 export function useRealtime(options: UseRealtimeOptions): UseRealtimeReturn {
   const {
     serverUrl,
@@ -63,23 +65,15 @@ export function useRealtime(options: UseRealtimeOptions): UseRealtimeReturn {
     onError,
   } = options;
 
-  const serviceRef = useRef<RealtimeService | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [messages, setMessages] = useState<RealtimeMessage[]>([]);
   const [presence, setPresence] = useState<PresenceStatus[]>([]);
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize service
-  useEffect(() => {
-    if (!serviceRef.current) {
-      serviceRef.current = new RealtimeService();
-    }
-  }, []);
-
   // Auto-connect effect
   useEffect(() => {
-    if (autoConnect && serviceRef.current && serverUrl && userId) {
+    if (autoConnect && service && serverUrl && userId) {
       const config: RealtimeConfig = {
         serverUrl,
         userId,
@@ -125,12 +119,12 @@ export function useRealtime(options: UseRealtimeOptions): UseRealtimeReturn {
         },
       };
 
-      serviceRef.current.connect(config, handlers);
+      service.connect(config, handlers);
     }
 
     return () => {
-      if (serviceRef.current) {
-        serviceRef.current.disconnect();
+      if (service) {
+        service.disconnect();
         setIsConnected(false);
       }
     };
@@ -139,8 +133,8 @@ export function useRealtime(options: UseRealtimeOptions): UseRealtimeReturn {
   // Monitor connection state
   useEffect(() => {
     const checkConnection = () => {
-      if (serviceRef.current) {
-        const connected = serviceRef.current.isSocketConnected();
+      if (service) {
+        const connected = service.isSocketConnected();
         setIsConnected(connected);
       }
     };
@@ -151,8 +145,8 @@ export function useRealtime(options: UseRealtimeOptions): UseRealtimeReturn {
 
   const connect = useCallback(
     (config: RealtimeConfig) => {
-      if (serviceRef.current) {
-        serviceRef.current.connect(config, {
+      if (service) {
+        service.connect(config, {
           onMessage: message => {
             setMessages(prev => [...prev, message]);
             onMessage?.(message);
@@ -196,49 +190,35 @@ export function useRealtime(options: UseRealtimeOptions): UseRealtimeReturn {
   );
 
   const disconnect = useCallback(() => {
-    if (serviceRef.current) {
-      serviceRef.current.disconnect();
-      setIsConnected(false);
-    }
+    service.disconnect();
+    setIsConnected(false);
   }, []);
 
   const joinConversation = useCallback((conversationId: string, userId: string) => {
-    if (serviceRef.current) {
-      serviceRef.current.joinConversation(conversationId, userId);
-    }
+    service.joinConversation(conversationId, userId);
   }, []);
 
   const leaveConversation = useCallback((conversationId: string) => {
-    if (serviceRef.current) {
-      serviceRef.current.leaveConversation(conversationId);
-    }
+    service.leaveConversation(conversationId);
   }, []);
 
   const sendMessage = useCallback(
     (conversationId: string, content: string, messageId: string, senderId: string) => {
-      if (serviceRef.current) {
-        serviceRef.current.sendMessage(conversationId, content, messageId, senderId);
-      }
+      service.sendMessage(conversationId, content, messageId, senderId);
     },
     []
   );
 
   const markAsRead = useCallback((conversationId: string, userId: string) => {
-    if (serviceRef.current) {
-      serviceRef.current.markAsRead(conversationId, userId);
-    }
+    service.markAsRead(conversationId, userId);
   }, []);
 
   const startTyping = useCallback((conversationId: string, userId: string) => {
-    if (serviceRef.current) {
-      serviceRef.current.startTyping(conversationId, userId);
-    }
+    service.startTyping(conversationId, userId);
   }, []);
 
   const stopTyping = useCallback((conversationId: string, userId: string) => {
-    if (serviceRef.current) {
-      serviceRef.current.stopTyping(conversationId, userId);
-    }
+    service.stopTyping(conversationId, userId);
   }, []);
 
   const clearError = useCallback(() => {

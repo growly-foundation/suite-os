@@ -1,6 +1,5 @@
 'use client';
 
-import { OnlineStatusIndicator } from '@/components/ui/online-status-indicator';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { useEffect, useState } from 'react';
 
@@ -10,7 +9,6 @@ import { ChatPanelContainer } from '@getgrowly/suite';
 interface ConversationAreaProps {
   selectedUser: ParsedUser;
   onSendMessage: (content: string) => void;
-  onSendAgentResponse?: (content: string) => void;
   onMarkAsRead: () => void;
   isConnected: boolean;
   typingUsers: Set<string>;
@@ -19,7 +17,6 @@ interface ConversationAreaProps {
 export function ConversationArea({
   selectedUser,
   onSendMessage,
-  onSendAgentResponse,
   onMarkAsRead,
   isConnected,
   typingUsers,
@@ -67,27 +64,6 @@ export function ConversationArea({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Connection status and test buttons */}
-      <div className="p-2 border-b bg-gray-50 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div
-              className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-            <span className="text-sm text-gray-600">
-              {isConnected ? 'Connected' : 'Disconnected'}
-            </span>
-          </div>
-          <OnlineStatusIndicator userId={selectedUser.id} />
-        </div>
-        {onSendAgentResponse && (
-          <button
-            onClick={() => onSendAgentResponse('This is a test agent response')}
-            className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">
-            Send Test Agent Response
-          </button>
-        )}
-      </div>
-
       <ChatPanelContainer
         user={selectedUser}
         view={{
