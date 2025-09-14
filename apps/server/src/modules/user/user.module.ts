@@ -2,6 +2,7 @@ import { BullModule, BullModule as NestBullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
+import { AlchemyModule } from '../alchemy/alchemy.module';
 import { DatabaseModule } from '../databases/database.module';
 import { EtherscanModule } from '../etherscan/etherscan.module';
 import { PERSONA_QUEUE } from '../sync-persona/persona.queue';
@@ -18,6 +19,7 @@ import { UserService } from './user.service';
     DatabaseModule,
     EtherscanModule,
     BullModule,
+    AlchemyModule,
     NestBullModule.registerQueue({
       name: PERSONA_QUEUE,
     }),

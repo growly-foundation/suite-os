@@ -5,9 +5,11 @@ import moment from 'moment';
 import {
   ContractInteractionMetadata,
   ImportContractUserOutput,
+  ImportNftHoldersOutput,
   ImportPrivyUserOutput,
   ImportUserOutput,
   ImportedPrivyUserSourceData,
+  NftHoldersMetadata,
   UserImportSource,
 } from '@getgrowly/core';
 
@@ -212,6 +214,39 @@ export const columnImportedContractUserDefinitions: Partial<
   },
 };
 
+export const columnImportedNftHoldersUserDefinitions: Partial<
+  Record<keyof NftHoldersMetadata, ColumnDef<ImportNftHoldersOutput>>
+> = {
+  contractAddress: {
+    id: 'contractAddress',
+    accessorFn: (row: ImportNftHoldersOutput) => row.extra?.contractAddress || '',
+    header: 'Contract Address',
+    enableSorting: true,
+    enableResizing: true,
+  },
+  chainId: {
+    id: 'chainId',
+    accessorFn: (row: ImportNftHoldersOutput) => row.extra?.chainId || '',
+    header: 'Chain ID',
+    enableSorting: true,
+    enableResizing: true,
+  },
+  totalTokensOwned: {
+    id: 'totalTokensOwned',
+    accessorFn: (row: ImportNftHoldersOutput) => row.extra?.totalTokensOwned || '',
+    header: 'Total Tokens Owned',
+    enableSorting: true,
+    enableResizing: true,
+  },
+  uniqueTokensOwned: {
+    id: 'uniqueTokensOwned',
+    accessorFn: (row: ImportNftHoldersOutput) => row.extra?.uniqueTokensOwned || '',
+    header: 'Unique Tokens Owned',
+    enableSorting: true,
+    enableResizing: true,
+  },
+};
+
 export function createImportedUserColumns<T extends ImportUserOutput>(data: T[]): ColumnDef<T>[] {
   if (data.length === 0) {
     return [columnImportedUserDefinitions.identity as ColumnDef<T>];
@@ -268,6 +303,23 @@ export function createImportedUserColumns<T extends ImportUserOutput>(data: T[])
       { field: 'lastInteraction', column: columnImportedContractUserDefinitions.lastInteraction },
     ]) {
       if (hasImportedUserExtraData(data, UserImportSource.Contract, field)) {
+        columns.push(column as ColumnDef<T>);
+      }
+    }
+  }
+
+  if (hasUsersWithSource(data, UserImportSource.NftHolders)) {
+    for (const { field, column } of [
+      {
+        field: 'totalTokensOwned',
+        column: columnImportedNftHoldersUserDefinitions.totalTokensOwned,
+      },
+      {
+        field: 'uniqueTokensOwned',
+        column: columnImportedNftHoldersUserDefinitions.uniqueTokensOwned,
+      },
+    ]) {
+      if (hasImportedUserExtraData(data, UserImportSource.NftHolders, field)) {
         columns.push(column as ColumnDef<T>);
       }
     }

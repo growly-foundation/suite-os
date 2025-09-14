@@ -78,4 +78,15 @@ export class UserController {
     }
     return this.userService.importContractUsers(contractAddress, chainId);
   }
+
+  @Post('import-nft-holders')
+  async importNftHolders(
+    @Body('contractAddress') contractAddress: string,
+    @Body('chainId') chainId: number
+  ): Promise<ImportContractUserOutput[]> {
+    this.logger.log(
+      `[${this.constructor.name}] Importing NFT holders for contract address: ${contractAddress} and chainId: ${chainId}`
+    );
+    return this.userService.importNftHolders(contractAddress, chainId);
+  }
 }

@@ -2,11 +2,12 @@
 
 import { ContractImportTab } from '@/components/app-users/integrations/sources/contract-import-tab';
 import { ManualImportTab } from '@/components/app-users/integrations/sources/manual-import-tab';
+import { NftHoldersImportTab } from '@/components/app-users/integrations/sources/nft-holders-import-tab';
 import { PrivyImportTab } from '@/components/app-users/integrations/sources/privy-import-tab';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, Code, Upload } from 'lucide-react';
+import { ArrowLeft, Code, ImageIcon, Upload } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -31,13 +32,6 @@ export default function ImportUsersPage() {
   // Available integration options
   const integrationOptions: IntegrationOption[] = [
     {
-      id: UserImportSource.Manual,
-      name: 'Upload from CSV or enter manually',
-      description: 'Upload a CSV file or enter user details manually',
-      disabled: false,
-      icon: <Upload className="h-5 w-5" />,
-    },
-    {
       id: UserImportSource.Privy,
       name: 'Privy',
       description: 'Import users from your Privy application',
@@ -58,6 +52,20 @@ export default function ImportUsersPage() {
       description: 'Import users who interacted with your contracts',
       disabled: false,
       icon: <Code className="h-5 w-5" />,
+    },
+    {
+      id: UserImportSource.NftHolders,
+      name: 'NFT Holders',
+      description: 'Import users who hold your NFTs',
+      disabled: false,
+      icon: <ImageIcon className="h-5 w-5" />,
+    },
+    {
+      id: UserImportSource.Manual,
+      name: 'Upload from CSV or enter manually',
+      description: 'Upload a CSV file or enter user details manually',
+      disabled: false,
+      icon: <Upload className="h-5 w-5" />,
     },
     {
       id: UserImportSource.Guildxyz,
@@ -151,6 +159,7 @@ export default function ImportUsersPage() {
               {activeIntegration === UserImportSource.Manual && <ManualImportTab />}
               {activeIntegration === UserImportSource.Privy && <PrivyImportTab />}
               {activeIntegration === UserImportSource.Contract && <ContractImportTab />}
+              {activeIntegration === UserImportSource.NftHolders && <NftHoldersImportTab />}
               {!integrationOptions.find(opt => opt.id === activeIntegration && !opt.disabled) && (
                 <div className="p-4 text-center text-muted-foreground">
                   This integration is not yet available. Please select a different source.

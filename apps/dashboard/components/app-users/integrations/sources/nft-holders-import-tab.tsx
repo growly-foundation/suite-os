@@ -14,20 +14,20 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { base } from 'viem/chains';
 
-import { ImportContractUserOutput } from '@getgrowly/core';
+import { ImportNftHoldersOutput } from '@getgrowly/core';
 
-interface ContractImportTabProps {
+interface NftHoldersImportTabProps {
   onImportComplete?: () => void;
 }
 
-export function ContractImportTab({ onImportComplete }: ContractImportTabProps) {
+export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabProps) {
   const router = useRouter();
   const [contractAddress, setContractAddress] = useState('');
   const [chainId, setChainId] = useState<number>(base.id);
   const [loading, setLoading] = useState(false);
   const [configuring, setConfiguring] = useState(false);
   const [configured, setConfigured] = useState(false);
-  const [contractUsers, setContractUsers] = useState<ImportContractUserOutput[]>([]);
+  const [nftHoldersUsers, setNftHoldersUsers] = useState<ImportNftHoldersOutput[]>([]);
   const [importing, setImporting] = useState(false);
   const { selectedOrganization } = useDashboardState();
   const [contractType, setContractType] = useState<string | null>('');
@@ -50,9 +50,16 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
             'Invalid contract address: Address not found or is an EOA (Externally Owned Account)'
           );
           setContractType(null);
-        } else {
+        }
+
+        if (type === 'ERC721' || type === 'ERC1155') {
           setContractType(type);
           setAddressError(null);
+        } else {
+          setAddressError(
+            'Invalid contract address: Address not found or is not an ERC721 or ERC1155 contract'
+          );
+          setContractType(null);
         }
       } else {
         setContractType(null);
@@ -89,13 +96,14 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   const handleFetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await UserImportService.importContractUsers(contractAddress, chainId);
-      setContractUsers(response);
+      const response = await UserImportService.importNftHolders(contractAddress, chainId);
+      console.log(response);
+      setNftHoldersUsers(response);
       setConfigured(true);
     } catch (error) {
-      console.error('Error fetching contract users:', error);
+      console.error('Error fetching NFT holders users:', error);
       toast.error(
-        `Error fetching contract users: ${error instanceof Error ? error.message : String(error)}`
+        `Error fetching NFT holders users: ${error instanceof Error ? error.message : String(error)}`
       );
     } finally {
       setLoading(false);
@@ -103,7 +111,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   };
 
   // Import selected users
-  const handleImport = async (usersToImport: ImportContractUserOutput[]) => {
+  const handleImport = async (usersToImport: ImportNftHoldersOutput[]) => {
     if (!selectedOrganization?.id) {
       toast.error('No organization selected');
       return;
@@ -122,9 +130,9 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
       );
       // Show success/failure messages
       if (result.success.length > 0)
-        toast.success(`Successfully imported ${result.success.length} contract users`);
+        toast.success(`Successfully imported ${result.success.length} NFT holders users`);
       if (result.failed.length > 0)
-        toast.error(`Failed to import ${result.failed.length} contract users`);
+        toast.error(`Failed to import ${result.failed.length} NFT holders users`);
       // If all successful, trigger completion callback
       if (result.failed.length === 0 && result.success.length > 0) {
         onImportComplete?.();
@@ -132,9 +140,9 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
         router.push('/dashboard/users');
       }
     } catch (error) {
-      console.error('Error importing contract users:', error);
+      console.error('Error importing NFT holders users:', error);
       toast.error(
-        `Error importing contract users: ${error instanceof Error ? error.message : String(error)}`
+        `Error importing NFT holders users: ${error instanceof Error ? error.message : String(error)}`
       );
     } finally {
       setImporting(false);
@@ -144,10 +152,9 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   return (
     <div className="space-y-6">
       <div className="px-4">
-        <h2 className="text-lg font-semibold mb-2">Smart Contract Integration</h2>
+        <h2 className="text-lg font-semibold mb-2">NFT Holders Integration</h2>
         <p className="text-muted-foreground text-sm">
-          Import users who have interacted with your smart contract by entering the contract address
-          and chain ID.
+          Import users who have held your NFTs by entering the contract address and chain ID.
         </p>
       </div>
 
@@ -155,12 +162,11 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
         <Alert variant="default">
           <InfoIcon className="h-4 w-4" />
           <AlertDescription>
-            Suite will fetch all users who have interacted with your contract on the specified
-            chain.
+            Suite will fetch all users who have held your NFTs on the specified chain.
             <br />
             <p className="text-muted-foreground text-sm mt-2 italic">
-              At the current stage, only recent 10,000 transactions will be analyzed, and maximum
-              1000 users can be imported. If you need more, contact us at{' '}
+              At the current stage, maximum 1000 users can be imported. If you need more, contact us
+              at{' '}
               <a href="mailto:team@getsuite.io" className="text-blue-500">
                 team@getsuite.io
               </a>
@@ -222,18 +228,18 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
               <Button
                 onClick={handleConfigure}
                 disabled={!contractAddress || !chainId || !!addressError || loading}>
-                Configure Contract
+                Configure NFT Contract
               </Button>
             )}
           </div>
         ) : (
           <>
             <UserSelectionList
-              users={contractUsers}
+              users={nftHoldersUsers}
               importButtonText={importing ? 'Importing...' : `Import Users`}
               isImporting={importing}
               onImport={async (selectedUserIds: string[]) => {
-                const usersToImport = contractUsers.filter(
+                const usersToImport = nftHoldersUsers.filter(
                   user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
                 );
                 await handleImport(usersToImport);
@@ -245,12 +251,12 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
                     size="sm"
                     onClick={() => {
                       setConfigured(false);
-                      setContractUsers([]);
+                      setNftHoldersUsers([]);
                     }}>
-                    Change Contract
+                    Change NFT Contract
                   </Button>
                   <Button variant="outline" size="sm" onClick={handleFetchUsers} disabled={loading}>
-                    {loading ? 'Refreshing...' : 'Refresh Users'}
+                    {loading ? 'Refreshing...' : 'Refresh NFT Holders'}
                   </Button>
                 </div>
               }

@@ -91,4 +91,11 @@ export class UserService {
   ): Promise<ImportContractUserOutput[]> {
     return this.userImporterService.importContractUsers(contractAddress, chainId);
   }
+
+  async importNftHolders(
+    contractAddress: string,
+    chainId: number
+  ): Promise<ImportContractUserOutput[]> {
+    return this.userImporterService.importNftHolders(contractAddress, chainId);
+  }
 }

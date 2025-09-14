@@ -3,6 +3,7 @@ import { SUITE_CORE } from 'src/constants/services';
 
 import {
   ImportContractUserOutput,
+  ImportNftHoldersOutput,
   ImportPrivyUserOutput,
   ImportUserOutput,
   ParsedUser,
@@ -46,6 +47,17 @@ export class UserImporterService {
   ): Promise<ImportContractUserOutput[]> {
     this.logger.log(`Starting contract user import for ${contractAddress} on chain ${chainId}`);
     return this.contractProcessingService.importContractUsers(contractAddress, chainId);
+  }
+
+  /**
+   * Imports NFT holders that have held a specific NFT
+   */
+  async importNftHolders(
+    contractAddress: string,
+    chainId: number
+  ): Promise<ImportNftHoldersOutput[]> {
+    this.logger.log(`Starting NFT holder import for ${contractAddress} on chain ${chainId}`);
+    return this.contractProcessingService.importNftHolders(contractAddress, chainId);
   }
 
   /**

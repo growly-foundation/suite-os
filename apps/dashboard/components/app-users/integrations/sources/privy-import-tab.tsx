@@ -148,7 +148,9 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
             <div className="space-y-4 px-4">
               <div className="grid gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="app-id">Privy App ID</Label>
+                  <Label htmlFor="app-id">
+                    Privy App ID <span className="text-red-500">*</span>
+                  </Label>
                   <Input
                     id="app-id"
                     value={appId}
@@ -164,7 +166,9 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="app-secret">Privy App Secret</Label>
+                  <Label htmlFor="app-secret">
+                    Privy App Secret <span className="text-red-500">*</span>
+                  </Label>
                   <Input
                     id="app-secret"
                     type="password"

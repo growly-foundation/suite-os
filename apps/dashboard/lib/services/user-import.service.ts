@@ -1,7 +1,12 @@
 import { SERVER_API_URL } from '@/constants/config';
 import axios from 'axios';
 
-import { ImportContractUserOutput, ImportPrivyUserOutput, ImportUserOutput } from '@getgrowly/core';
+import {
+  ImportContractUserOutput,
+  ImportNftHoldersOutput,
+  ImportPrivyUserOutput,
+  ImportUserOutput,
+} from '@getgrowly/core';
 
 /**
  * Service for handling user imports from external sources
@@ -37,6 +42,23 @@ export class UserImportService {
       return response.data;
     } catch (error) {
       console.error('Failed to import contract users:', error);
+      throw error;
+    }
+  }
+
+  static async importNftHolders(
+    contractAddress: string,
+    chainId: number
+  ): Promise<ImportNftHoldersOutput[]> {
+    try {
+      const response = await axios.post(`${SERVER_API_URL}/user/import-nft-holders`, {
+        contractAddress,
+        chainId,
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Failed to import NFT holders:', error);
       throw error;
     }
   }
