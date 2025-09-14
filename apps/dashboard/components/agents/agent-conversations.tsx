@@ -7,11 +7,15 @@ import { suiteCore } from '@/core/suite';
 import { useAgentUsersEffect } from '@/hooks/use-agent-effect';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { Sidebar } from 'lucide-react';
-import moment from 'moment';
 import React, { useCallback, useEffect } from 'react';
 import { Address } from 'viem';
 
-import { AggregatedAgent, ParsedUser } from '@getgrowly/core';
+import {
+  AggregatedAgent,
+  ConversationRoleKey,
+  LatestConversation,
+  ParsedUser,
+} from '@getgrowly/core';
 import { truncateAddress } from '@getgrowly/ui';
 
 import { AnimatedLoadingSmall } from '../animated-components/animated-loading-small';
@@ -23,6 +27,7 @@ import { ResizableSheet } from '../ui/resizable-sheet';
 export type UserWithLatestMessage = {
   user: ParsedUser;
   latestMessageDate: string | null;
+  latestMessageSender: ConversationRoleKey | null;
   latestMessageContent: string | null;
 };
 
@@ -31,48 +36,86 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
   const [usersWithLatestMessage, setUsersWithLatestMessage] = React.useState<
     UserWithLatestMessage[]
   >([]);
+  const [currentPage, setCurrentPage] = React.useState(0);
+  const [isLoadingMore, setIsLoadingMore] = React.useState(false);
+  const [hasMore, setHasMore] = React.useState(true);
+  const [totalConversations, setTotalConversations] = React.useState(0);
+  const PAGE_SIZE = 10;
+
   const { selectedUser, users, status } = useAgentUsersEffect(agent.id);
   const [open, setOpen] = React.useState(false);
   const persona = selectedUser ? consumePersona(selectedUser) : null;
 
-  const sortedUsersByLatestMessage = useCallback(async () => {
-    const userWithLatestMessage = await Promise.all(
-      users.map(async user => {
-        try {
-          const lastConversation = await suiteCore.conversations.getLatestConversationMessage(
-            user.id,
-            agent.id
-          );
-          if (!lastConversation?.message)
-            return { user, latestMessageDate: null, latestMessageContent: null };
-          return {
-            user,
-            latestMessageDate: lastConversation.message.created_at || null,
-            latestMessageContent: lastConversation.message.content || null,
-          };
-        } catch (error) {
-          console.error(`Failed to fetch latest message for user ${user.id}:`, error);
-          return { user, latestMessageDate: null, latestMessageContent: null };
-        }
-      })
-    );
-    return userWithLatestMessage.sort((a, b) => {
-      const latestMessageA = a.latestMessageDate;
-      const latestMessageB = b.latestMessageDate;
-      if (!latestMessageA && !latestMessageB) return 0;
-      if (!latestMessageA) return 1; // A goes after B
-      if (!latestMessageB) return -1; // A goes before B
-      return moment(latestMessageB).diff(moment(latestMessageA));
-    });
-  }, [users]);
+  const fetchLatestMessages = useCallback(
+    async (page: number) => {
+      try {
+        setIsLoadingMore(true);
 
+        // Get total count on first load
+        if (page === 0) {
+          const total = await suiteCore.conversations.getConversationsWithMessagesCount(agent.id);
+          setTotalConversations(total);
+        }
+
+        const conversations = await suiteCore.conversations.getPaginatedLatestConversations(
+          agent.id,
+          PAGE_SIZE,
+          page * PAGE_SIZE
+        );
+
+        // Map conversations to users
+        const newUsersWithMessages = await Promise.all(
+          conversations.map(async (conversation: LatestConversation & { userId: string }) => {
+            const user = users.find(u => u.id === conversation.userId);
+            if (!user) return null;
+
+            return {
+              user,
+              latestMessageDate: conversation.message.created_at || null,
+              latestMessageSender: conversation.message.sender,
+              latestMessageContent: conversation.message.content || null,
+            };
+          })
+        );
+
+        // Filter out null values and update state
+        const validUsers = newUsersWithMessages.filter(
+          (item: UserWithLatestMessage | null): item is UserWithLatestMessage => item !== null
+        );
+
+        if (page === 0) {
+          setUsersWithLatestMessage(validUsers as UserWithLatestMessage[]);
+        } else {
+          setUsersWithLatestMessage(prev => [...prev, ...(validUsers as UserWithLatestMessage[])]);
+        }
+
+        // Update hasMore based on total count and current loaded items
+        const loadedCount = (page + 1) * PAGE_SIZE;
+        setHasMore(loadedCount < totalConversations);
+        setIsLoadingMore(false);
+      } catch (error) {
+        console.error('Error fetching latest messages:', error);
+        setIsLoadingMore(false);
+        setHasMore(false);
+      }
+    },
+    [agent.id, users, PAGE_SIZE, totalConversations]
+  );
+
+  // Load initial data
   useEffect(() => {
-    const fetchUsersWithLatestMessage = async () => {
-      const usersWithLatestMessage = await sortedUsersByLatestMessage();
-      setUsersWithLatestMessage(usersWithLatestMessage);
-    };
-    fetchUsersWithLatestMessage();
-  }, [users]);
+    setCurrentPage(0);
+    fetchLatestMessages(0);
+  }, [users, fetchLatestMessages]);
+
+  // Handle loading more data
+  const handleLoadMore = useCallback(() => {
+    if (!isLoadingMore && hasMore) {
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      fetchLatestMessages(nextPage);
+    }
+  }, [currentPage, isLoadingMore, hasMore, fetchLatestMessages]);
 
   return (
     <div className="flex w-full overflow-hidden h-[calc(100vh-100px)]">
@@ -86,6 +129,9 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
             users={usersWithLatestMessage}
             selectedUser={selectedUser}
             onSelectUser={setSelectedAgentUser}
+            onLoadMore={handleLoadMore}
+            isLoadingMore={isLoadingMore}
+            hasMore={hasMore}
           />
           <div className="flex-1 flex flex-col">
             <div className="flex items-center justify-between px-4 py-2 border-b">
@@ -117,7 +163,7 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
             <ConversationArea selectedUser={selectedUser} />
           </div>
           {/* User Details Drawer */}
-          <ResizableSheet side="right" open={open} onOpenChange={setOpen}>
+          <ResizableSheet className="w-full" side="right" open={open} onOpenChange={setOpen}>
             {selectedUser && <UserDetails userId={selectedUser.id} />}
           </ResizableSheet>
         </React.Fragment>

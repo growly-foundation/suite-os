@@ -98,6 +98,7 @@ export function DynamicTable<TData = any>({
   onLoadMore,
   hasMore = false,
   loadingMore = false,
+  totalItems = 0,
   // Selection props
   enableRowSelection = false,
   selectedRows,
@@ -459,11 +460,15 @@ export function DynamicTable<TData = any>({
                 <span className="text-sm text-muted-foreground">Loading more items...</span>
               </div>
             )}
-            {hasMore && !loadingMore && data.length > 0 && (
-              <div className="py-4 text-center text-sm text-muted-foreground">
-                Scroll to load more ({data.length} items loaded)
-              </div>
-            )}
+            {hasMore &&
+              totalItems > 0 &&
+              totalItems > data.length &&
+              !loadingMore &&
+              data.length > 0 && (
+                <div className="py-4 text-center text-sm text-muted-foreground">
+                  Scroll to load more ({data.length} items loaded)
+                </div>
+              )}
           </div>
 
           {/* Fixed Footer */}

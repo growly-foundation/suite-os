@@ -1,4 +1,3 @@
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -16,6 +15,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { TMarketNft } from '@getgrowly/chainsmith/types';
 import { getChainNameById } from '@getgrowly/chainsmith/utils';
 
+import { ChainIcon } from '../ui/chain-icon';
 import { DynamicTable } from './smart-tables/dynamic-table';
 
 interface PortfolioNftTableProps {
@@ -148,12 +148,7 @@ export function PortfolioNftTable({ userPersona }: PortfolioNftTableProps) {
       accessorKey: 'chainId',
       header: 'Chain',
       cell: ({ row }) => {
-        const chainName = getChainNameById(row.original.chainId);
-        return (
-          <Badge variant="outline" className="text-xs">
-            {chainName}
-          </Badge>
-        );
+        return <ChainIcon chainIds={[row.original.chainId]} />;
       },
       size: 100,
       minSize: 100,
@@ -205,7 +200,7 @@ export function PortfolioNftTable({ userPersona }: PortfolioNftTableProps) {
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           searchPlaceholder="Search NFTs..."
-          enableFooter={true}
+          enableFooter={false}
           getFooterValue={key => {
             switch (key) {
               case 'name':

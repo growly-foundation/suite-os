@@ -1,11 +1,12 @@
 import { Tables } from '@/types/database.types';
-import { Token } from '@coinbase/onchainkit/token';
 
 export type Message = Tables<'messages'>;
 export type ParsedMessage = Omit<Message, 'content'> & MessageContent;
 export type ParsedMessageInsert = Omit<Message, 'id' | 'created_at'> & MessageContent;
 
 export type Conversation = Tables<'conversation'>;
+
+export type ConversationRoleKey = 'user' | 'assistant' | 'system' | 'admin';
 
 /**
  * Role of the participant in the conversation.
@@ -24,7 +25,6 @@ export type MessageContent =
   | TextMessageContent
   | TextRecommendationMessageContent
   | SystemErrorMessageContent
-  | OnchainKitMessageContent
   | UniswapSwapMessageContent;
 
 /**
@@ -49,33 +49,6 @@ export interface TextRecommendationMessageContent {
 export interface SystemErrorMessageContent {
   type: 'system:error';
   content: string;
-}
-
-/**
- * OnchainKit message content.
- */
-export type OnchainKitMessageContent = OnchainKitSwapMessageContent | OnchainKitTokenMessageContent;
-
-/**
- * OnchainKit swap message content.
- */
-export interface OnchainKitSwapMessageContent {
-  type: 'onchainkit:swap';
-  content: {
-    fromToken: Token;
-    toToken: Token;
-    swappableTokens: Token[];
-  };
-}
-
-/**
- * OnchainKit token message content.
- */
-export interface OnchainKitTokenMessageContent {
-  type: 'onchainkit:token';
-  content: {
-    token: Token;
-  };
 }
 
 export interface UniswapSwapTokenInfo {

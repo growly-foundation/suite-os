@@ -68,11 +68,7 @@ export function UserDetails({ userId }: UserDetailsProps) {
         <div className="mt-4">
           <UserBadges
             showAll
-            badges={
-              user.personaData.identities.traitScores
-                ?.sort((a, b) => b.score - a.score)
-                .map(traitScore => traitScore.trait.toString()) || []
-            }
+            badges={[user.personaData.identities.dominantTrait?.toString() || '']}
           />
         </div>
       </div>

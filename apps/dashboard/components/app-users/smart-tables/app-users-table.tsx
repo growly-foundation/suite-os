@@ -162,6 +162,7 @@ export function UsersTable({
       <DynamicTable<ParsedUser>
         data={users as ParsedUser[]}
         columns={columns}
+        pageSize={10}
         emptyMessage="No users found"
         emptyDescription="There are no users in your organization. Users will appear here once they sign up."
         onRowClick={user => {
