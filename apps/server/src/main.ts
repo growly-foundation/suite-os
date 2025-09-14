@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 import * as dotenv from 'dotenv';
 import { Resource } from 'x402-express';
 
@@ -47,6 +48,10 @@ async function bootstrap() {
   // );
 
   app.enableCors();
+
+  // Configure Socket.IO adapter
+  app.useWebSocketAdapter(new IoAdapter(app));
+
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(process.env.PORT ?? 8080);
 }

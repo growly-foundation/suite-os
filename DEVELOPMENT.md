@@ -150,7 +150,7 @@ just clean
 | Supabase API    | http://localhost:54321 | Main API gateway        |
 | Supabase Studio | http://localhost:54323 | Database management UI  |
 | Database        | localhost:54322        | PostgreSQL database     |
-| Main Server     | http://localhost:8080  | Your application server |
+| Main Server     | http://localhost:8888  | Your application server |
 
 ## Environment Variables
 

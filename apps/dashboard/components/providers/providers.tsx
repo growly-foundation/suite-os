@@ -1,5 +1,6 @@
 'use client';
 
+import { OnlineStatusProvider } from '@/contexts/online-status.context';
 import { PrivyProvider } from '@privy-io/react-auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
@@ -27,23 +28,25 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
   const [queryClient] = useState(() => new QueryClient());
   let baseComponent = (
     <QueryClientProvider client={queryClient}>
-      <SuiteProviderWrapper>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange>
-          <ReactFlowProvider>
-            <ComponentProvider>
-              <Suspense fallback={<AnimatedLoading />}>
-                {children}
-                <ToastContainer />
-                <AddResourceDrawer />
-              </Suspense>
-            </ComponentProvider>
-          </ReactFlowProvider>
-        </ThemeProvider>
-      </SuiteProviderWrapper>
+      <OnlineStatusProvider>
+        <SuiteProviderWrapper>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange>
+            <ReactFlowProvider>
+              <ComponentProvider>
+                <Suspense fallback={<AnimatedLoading />}>
+                  {children}
+                  <ToastContainer />
+                  <AddResourceDrawer />
+                </Suspense>
+              </ComponentProvider>
+            </ReactFlowProvider>
+          </ThemeProvider>
+        </SuiteProviderWrapper>
+      </OnlineStatusProvider>
     </QueryClientProvider>
   );
   // If environment variables for Privy credentials are not set,

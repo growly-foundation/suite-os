@@ -36,7 +36,6 @@ export const MessageListCard = ({ message, selected, className }: MessageListCar
           <AppUserAvatarWithStatus
             walletAddress={user.personaData.id as Address}
             name={user.name}
-            online={user.chatSession.status}
             size={30}
           />
         );

@@ -37,7 +37,6 @@ export const AppUserConversationItem = ({
         size={35}
         walletAddress={user.personaData.id as Address}
         name={user.name}
-        online={user.chatSession.status}
       />
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between">

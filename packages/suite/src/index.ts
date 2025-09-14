@@ -8,6 +8,7 @@ export * from './components/widgets';
 
 // Hooks.
 export * from './hooks/use-chat-actions';
+export * from './hooks/use-realtime';
 export * from './hooks/use-session';
 export * from './hooks/use-suite';
 // Themes
@@ -15,6 +16,6 @@ export * from './styles/themes';
 // Types
 export * from './types/theme';
 // Utilities
-export { createSuiteConfig, FloatingButtonConfig } from './lib/utils';
+export { FloatingButtonConfig, createSuiteConfig } from './lib/utils';
 
 export { ChatPanelContainer } from './components/chat/components/ChatPanel';

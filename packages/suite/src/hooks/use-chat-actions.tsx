@@ -3,6 +3,7 @@ import { suiteCoreService } from '@/services/core.service';
 import { Screen } from '@/types/screen';
 import React from 'react';
 import { toast } from 'sonner';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   ConversationRole,
@@ -12,6 +13,7 @@ import {
   TextMessageContent,
 } from '@getgrowly/core';
 
+import { useRealtime } from './use-realtime';
 import { useSuiteSession } from './use-session';
 import { useSuite } from './use-suite';
 
@@ -28,6 +30,14 @@ export const useChatActions = () => {
   } = useSuiteSession();
   const { agentId } = useSuite();
   const [isSending, setIsSending] = React.useState(false);
+
+  // Real-time messaging setup
+  const { sendMessage: sendRealtimeMessage, isConnected } = useRealtime({
+    serverUrl: process.env.NEXT_PUBLIC_SUITE_API_URL || 'http://localhost:8888',
+    userId: user?.id || '',
+    conversationId: user?.id && agentId ? `${agentId}-${user.id}` : undefined,
+    autoConnect: true,
+  });
 
   /**
    * Send a message to the remote database
@@ -98,6 +108,15 @@ export const useChatActions = () => {
 
       setIsSending(true);
       setInputValue('');
+
+      // Generate message ID for real-time tracking
+      const messageId = uuidv4();
+      const conversationId = `${agentId}-${user.id}`;
+
+      // Send real-time message if connected
+      if (isConnected) {
+        sendRealtimeMessage(conversationId, input, messageId, user.id);
+      }
 
       sendTextMessage(input, ConversationRole.User);
       await generateAgentMessage(input);

@@ -4,3 +4,4 @@ export * from './models';
 export * from './services';
 export * from './core';
 export * from './utils';
+export * from './types/realtime';

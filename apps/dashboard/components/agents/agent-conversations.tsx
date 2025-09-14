@@ -5,6 +5,7 @@ import { ConversationArea } from '@/components/conversations/conversation-area';
 import { consumePersona } from '@/core/persona';
 import { suiteCore } from '@/core/suite';
 import { useAgentUsersEffect } from '@/hooks/use-agent-effect';
+import { useChatActions } from '@/hooks/use-chat-actions';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { Sidebar } from 'lucide-react';
 import React, { useCallback, useEffect } from 'react';
@@ -45,6 +46,20 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
   const { selectedUser, users, status } = useAgentUsersEffect(agent.id);
   const [open, setOpen] = React.useState(false);
   const persona = selectedUser ? consumePersona(selectedUser) : null;
+
+  // Chat actions with real-time messaging
+  const {
+    sendAdminMessage,
+    sendAgentResponse,
+    markAsRead,
+    isConnected,
+    typingUsers,
+    realtimeMessages,
+  } = useChatActions();
+
+  console.log('isConnected', isConnected);
+  console.log('typingUsers', typingUsers);
+  console.log('realtimeMessages', realtimeMessages);
 
   const fetchLatestMessages = useCallback(
     async (page: number) => {
@@ -108,6 +123,26 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
     fetchLatestMessages(0);
   }, [users, fetchLatestMessages]);
 
+  // Update latest messages when real-time messages arrive
+  useEffect(() => {
+    if (realtimeMessages.length > 0) {
+      const latestMessage = realtimeMessages[realtimeMessages.length - 1];
+      setUsersWithLatestMessage(prev =>
+        prev.map(userWithMessage => {
+          if (userWithMessage.user.id === latestMessage.senderId) {
+            return {
+              ...userWithMessage,
+              latestMessageDate: latestMessage.timestamp,
+              latestMessageSender: latestMessage.senderId as ConversationRoleKey,
+              latestMessageContent: latestMessage.content,
+            };
+          }
+          return userWithMessage;
+        })
+      );
+    }
+  }, [realtimeMessages]);
+
   // Handle loading more data
   const handleLoadMore = useCallback(() => {
     if (!isLoadingMore && hasMore) {
@@ -116,6 +151,25 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
       fetchLatestMessages(nextPage);
     }
   }, [currentPage, isLoadingMore, hasMore, fetchLatestMessages]);
+
+  // Send message from admin
+  const handleSendMessage = useCallback(
+    (content: string) => {
+      sendAdminMessage(content, () => {
+        // Message sent callback
+        console.log('Admin message sent');
+      });
+    },
+    [sendAdminMessage]
+  );
+
+  // Send agent response (for testing)
+  const handleSendAgentResponse = useCallback(
+    (content: string) => {
+      sendAgentResponse(content);
+    },
+    [sendAgentResponse]
+  );
 
   return (
     <div className="flex w-full overflow-hidden h-[calc(100vh-100px)]">
@@ -140,7 +194,7 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
                   size={35}
                   walletAddress={selectedUser.personaData.id as Address}
                   name={selectedUser.name}
-                  online={selectedUser.chatSession.status}
+                  userId={selectedUser.id}
                 />
                 <div>
                   <p className="font-medium text-sm">
@@ -160,7 +214,14 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
                 )}
               />
             </div>
-            <ConversationArea selectedUser={selectedUser} />
+            <ConversationArea
+              selectedUser={selectedUser}
+              onSendMessage={handleSendMessage}
+              onSendAgentResponse={handleSendAgentResponse}
+              onMarkAsRead={markAsRead}
+              isConnected={isConnected}
+              typingUsers={typingUsers}
+            />
           </div>
           {/* User Details Drawer */}
           <ResizableSheet className="w-full" side="right" open={open} onOpenChange={setOpen}>

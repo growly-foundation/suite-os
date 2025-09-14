@@ -14,6 +14,7 @@ import { ResourcesModule } from './resources/resources.module';
 import { SuiteCoreModule } from './suite-core/suite-core.module';
 import { SyncPersonaModule } from './sync-persona/persona.module';
 import { UserModule } from './user/user.module';
+import { WebSocketModule } from './websocket/websocket.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { UserModule } from './user/user.module';
     SuiteCoreModule,
     ResourcesModule,
     EtherscanModule,
+    WebSocketModule,
   ],
 })
 export class AppModule implements NestModule {
