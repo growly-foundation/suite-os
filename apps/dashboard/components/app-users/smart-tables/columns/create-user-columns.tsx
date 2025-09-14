@@ -1,5 +1,5 @@
 import { consumePersona } from '@/core/persona';
-import { formatNumber } from '@/lib/string.utils';
+import { formatAssetValue } from '@/lib/number.utils';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import moment from 'moment';
 
@@ -50,7 +50,7 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
     },
     header: 'Trait',
     cell: ({ row }: { row: Row<ParsedUser> }) => getFormatter('trait')(row.original),
-    enableSorting: true,
+    enableSorting: false,
     enableResizing: true,
     size: 120,
     minSize: 120,
@@ -122,7 +122,7 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
     },
     header: 'Activity',
     cell: ({ row }: { row: Row<ParsedUser> }) => getFormatter('activity')(row.original),
-    enableSorting: true,
+    enableSorting: false,
     enableResizing: true,
     size: 400,
     minSize: 400,
@@ -269,7 +269,7 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
       );
       const count = (contractData?.sourceData as any)?.transactionCount;
       return count ? (
-        <span className="text-xs">{formatNumber(count)}</span>
+        <span className="text-xs">{formatAssetValue(count)}</span>
       ) : (
         <span className="text-xs text-muted-foreground">-</span>
       );
@@ -364,7 +364,7 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
         </div>
       );
     },
-    enableSorting: true,
+    enableSorting: false,
     enableResizing: true,
     size: 200,
     minSize: 150,

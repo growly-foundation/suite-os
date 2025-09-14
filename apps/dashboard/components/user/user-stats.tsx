@@ -1,4 +1,5 @@
 import { consumePersona } from '@/core/persona';
+import { formatAssetValue } from '@/lib/number.utils';
 
 import { ParsedUser } from '@getgrowly/core';
 
@@ -13,8 +14,8 @@ interface StatItemProps {
 function StatItem({ label, value }: StatItemProps) {
   return (
     <div className="bg-white shadow-sm rounded-lg p-2 flex flex-col items-center justify-start">
-      <p className="text-muted-foreground text-md">{label}</p>
-      <p className="font-medium text-lg">{value}</p>
+      <p className="text-muted-foreground text-sm">{label}</p>
+      <p className="font-medium text-md">{formatAssetValue(value as number)}</p>
     </div>
   );
 }

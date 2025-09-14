@@ -48,9 +48,14 @@ export interface DynamicTableProps<TData = any> {
   enableColumnResizing?: boolean;
   enableColumnReordering?: boolean;
   enableSorting?: boolean;
-  // Infinite loading props
-  onLoadMore?: () => void;
+  // Pagination and infinite loading props
+  pageSize?: number;
+  currentPage?: number;
+  totalItems?: number;
+  onLoadMore?: (pageInfo: { page: number; pageSize: number }) => void;
   hasMore?: boolean;
+  loadingMore?: boolean;
+  onError?: (error: Error) => void;
   // Selection props
   enableRowSelection?: boolean;
   selectedRows?: Record<string, boolean>;
@@ -87,9 +92,12 @@ export function DynamicTable<TData = any>({
   enableColumnResizing = true,
   enableColumnReordering = true,
   enableSorting = true,
-  // Infinite loading props
+  // Pagination and infinite loading props
+  pageSize = 20,
+  currentPage = 0,
   onLoadMore,
   hasMore = false,
+  loadingMore = false,
   // Selection props
   enableRowSelection = false,
   selectedRows,
@@ -109,21 +117,6 @@ export function DynamicTable<TData = any>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>([]);
   const [columnSizing, setColumnSizing] = useState({});
-  // Handle infinite scrolling
-  const handleScroll = useCallback(
-    (event: React.UIEvent<HTMLDivElement>) => {
-      if (!onLoadMore || !hasMore) return;
-
-      const target = event.target as HTMLDivElement;
-      const { scrollTop, scrollHeight, clientHeight } = target;
-      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
-
-      if (isNearBottom && !isLoading) {
-        onLoadMore();
-      }
-    },
-    [onLoadMore, hasMore, isLoading]
-  );
 
   // Use external row selection state if provided, otherwise use internal state
   const [internalRowSelection, setInternalRowSelection] = useState({});
@@ -299,14 +292,27 @@ export function DynamicTable<TData = any>({
     <div className={cn('w-full h-full flex flex-col', className)}>
       {/* Empty State */}
       {!isLoading && data.length === 0 && (
-        <div className="flex-1 flex items-center justify-center">
-          <EmptyState message={emptyMessage} description={emptyDescription} className={className} />
+        <div className="flex-1 flex items-center justify-center p-4">
+          <EmptyState
+            message={emptyMessage}
+            description={emptyDescription}
+            className={className}
+            status={searchQuery ? 'no-results' : 'empty'}
+            action={
+              searchQuery
+                ? {
+                    label: 'Clear search',
+                    onClick: () => setSearchQuery?.(''),
+                  }
+                : undefined
+            }
+          />
         </div>
       )}
 
       {/* Table Container */}
       {!isLoading && data.length > 0 && (
-        <div className="flex-1 flex flex-col max-h-[calc(100vh-4rem)]">
+        <div className="flex-1 flex flex-col h-full">
           {/* Fixed Table Toolbar */}
           {enableColumnReordering && (
             <div
@@ -325,7 +331,18 @@ export function DynamicTable<TData = any>({
           )}
 
           {/* Table with sticky header */}
-          <div className="flex-1 overflow-auto relative" onScroll={handleScroll}>
+          <div
+            className="flex-1 overflow-auto relative h-full"
+            onScroll={event => {
+              const target = event.currentTarget;
+              const { scrollTop, scrollHeight, clientHeight } = target;
+              const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+
+              if (isNearBottom && !isLoading && hasMore && onLoadMore) {
+                const nextPage = currentPage + 1;
+                onLoadMore({ page: nextPage, pageSize });
+              }
+            }}>
             <Table className="w-full table-fixed">
               <TableHeader
                 className="sticky top-0 bg-background shadow-sm"
@@ -435,10 +452,16 @@ export function DynamicTable<TData = any>({
               </TableBody>
             </Table>
 
-            {/* Loading indicator at bottom */}
-            {hasMore && (
-              <div className="py-4 flex justify-center">
+            {/* Loading indicators */}
+            {loadingMore && (
+              <div className="py-4 flex flex-col items-center justify-center gap-2">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+                <span className="text-sm text-muted-foreground">Loading more items...</span>
+              </div>
+            )}
+            {hasMore && !loadingMore && data.length > 0 && (
+              <div className="py-4 text-center text-sm text-muted-foreground">
+                Scroll to load more ({data.length} items loaded)
               </div>
             )}
           </div>

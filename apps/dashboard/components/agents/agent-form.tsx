@@ -14,7 +14,9 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { availableModels } from '@/constants/agents';
 import { useDashboardState } from '@/hooks/use-dashboard';
+import { cn } from '@/lib/utils';
 import { Loader, SaveIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import type React from 'react';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -28,9 +30,9 @@ import {
   Workflow,
 } from '@getgrowly/core';
 
+import { EmptyState } from '../app-users/smart-tables/empty-state';
 import { PrimaryButton } from '../buttons/primary-button';
 import { ResourceListItem } from '../resources/resource-list-item';
-import { WorkflowSmallCard } from '../workflows/workflow-small-card';
 import { AgentModelCard } from './agent-model-card';
 
 interface AgentFormProps {
@@ -40,13 +42,10 @@ interface AgentFormProps {
 }
 
 export function AgentForm({ formData, setFormData, onSave }: AgentFormProps) {
-  const {
-    organizationWorkflows,
-    organizationResources,
-    fetchOrganizationWorkflows,
-    fetchCurrentOrganizationResources,
-  } = useDashboardState();
+  const { organizationResources, fetchOrganizationWorkflows, fetchCurrentOrganizationResources } =
+    useDashboardState();
   const [isSaving, setIsSaving] = useState(false);
+  const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -194,9 +193,22 @@ export function AgentForm({ formData, setFormData, onSave }: AgentFormProps) {
         <div>
           <Label className="text-base">Resources</Label>
           <p className="text-sm text-muted-foreground mb-2">Resources that this agent can access</p>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-2">
+          <div
+            className={cn(
+              organizationResources.length > 0
+                ? 'grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-2'
+                : 'flex flex-col items-center justify-center w-full'
+            )}>
             {organizationResources.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No resources available</p>
+              <EmptyState
+                message="No resources available"
+                description="There are no resources available. Please add some resources to the agent."
+                status="empty"
+                action={{
+                  label: 'Add resource',
+                  onClick: () => router.push('/dashboard/resources'),
+                }}
+              />
             ) : (
               organizationResources.map(resource => (
                 <ResourceListItem
@@ -214,15 +226,27 @@ export function AgentForm({ formData, setFormData, onSave }: AgentFormProps) {
             )}
           </div>
         </div>
-        <div>
+        {/* <div>
           <Label className="text-base">Workflows</Label>
           <p className="text-sm text-muted-foreground mb-2">
             Workflows that the agent executes when triggered
           </p>
-
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-2">
+          <div
+            className={cn(
+              organizationWorkflows.length === 0
+                ? 'grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-2'
+                : 'flex flex-col items-center justify-center w-full'
+            )}>
             {organizationWorkflows.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No workflows available</p>
+              <EmptyState
+                message="No workflows available"
+                description="There are no workflows available. Please add some workflows to the agent."
+                status="empty"
+                action={{
+                  label: 'Add workflow',
+                  onClick: () => router.push('/dashboard/resources'),
+                }}
+              />
             ) : (
               organizationWorkflows.map(workflow => (
                 <WorkflowSmallCard
@@ -234,7 +258,7 @@ export function AgentForm({ formData, setFormData, onSave }: AgentFormProps) {
               ))
             )}
           </div>
-        </div>
+        </div> */}
       </div>
       <br />
       <div className="flex justify-end space-x-2">

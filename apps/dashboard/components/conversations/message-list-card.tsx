@@ -37,6 +37,7 @@ export const MessageListCard = ({ message, selected, className }: MessageListCar
             walletAddress={user.personaData.id as Address}
             name={user.name}
             online={user.chatSession.status}
+            size={30}
           />
         );
       case 'assistant':

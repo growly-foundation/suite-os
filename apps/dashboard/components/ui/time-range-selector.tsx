@@ -7,6 +7,7 @@ import { CalendarIcon, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 
 export type TimeRange = {
+  id: '7d' | '30d' | '90d' | '180d' | '365d';
   label: string;
   startDate: Date;
   endDate: Date;
@@ -20,26 +21,31 @@ interface TimeRangeSelectorProps {
 
 const PRESET_RANGES: TimeRange[] = [
   {
+    id: '7d',
     label: 'Last 7 days',
     startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
     endDate: new Date(),
   },
   {
+    id: '30d',
     label: 'Last 30 days',
     startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     endDate: new Date(),
   },
   {
+    id: '90d',
     label: 'Last 3 months',
     startDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000),
     endDate: new Date(),
   },
   {
+    id: '180d',
     label: 'Last 6 months',
     startDate: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000),
     endDate: new Date(),
   },
   {
+    id: '365d',
     label: 'Last year',
     startDate: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
     endDate: new Date(),

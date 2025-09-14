@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { TalentProtocolCheckmark } from '@/components/user/talent-protocol-checkmark';
 import { consumePersona } from '@/core/persona';
 import { getBadgeColor } from '@/lib/color.utils';
-import { formatNumber } from '@/lib/string.utils';
+import { formatAssetValue } from '@/lib/number.utils';
 import { cn } from '@/lib/utils';
 import moment from 'moment';
 import { Address } from 'viem';
@@ -152,7 +152,7 @@ export function createColumnFormatters<T = any>(
       if (accessor.isType(user, 'parsed')) {
         const userPersona = consumePersona(user as ParsedUser);
         const totalPortfolioValue = userPersona.totalPortfolioValue() || 0;
-        return <span className="text-xs">${formatNumber(totalPortfolioValue)}</span>;
+        return <span className="text-xs">${formatAssetValue(totalPortfolioValue)}</span>;
       }
       return null;
     },
@@ -162,7 +162,7 @@ export function createColumnFormatters<T = any>(
       if (accessor.isType(user, 'parsed')) {
         const userPersona = consumePersona(user as ParsedUser);
         const txCount = userPersona.universalTransactions().length;
-        return <span className="text-xs">{formatNumber(txCount)}</span>;
+        return <span className="text-xs">{formatAssetValue(txCount)}</span>;
       }
       return null;
     },
@@ -252,7 +252,9 @@ export function createColumnFormatters<T = any>(
                 Last: {moment(lastInteraction).fromNow()}
               </div>
             )}
-            {tokenBalance && <div className="text-xs">Balance: {formatNumber(tokenBalance)}</div>}
+            {tokenBalance && (
+              <div className="text-xs">Balance: {formatAssetValue(tokenBalance)}</div>
+            )}
           </div>
         );
       }

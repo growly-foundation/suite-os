@@ -7,9 +7,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { consumePersona } from '@/core/persona';
+import { usePeekExplorer } from '@/hooks/use-peek-explorer';
+import { formatAssetValue } from '@/lib/number.utils';
 import { ColumnDef } from '@tanstack/react-table';
-import { Copy, ExternalLink, Eye, ImageIcon, MoreHorizontal } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { Copy, ExternalLink, ImageIcon, MoreHorizontal } from 'lucide-react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { TMarketNft } from '@getgrowly/chainsmith/types';
 import { getChainNameById } from '@getgrowly/chainsmith/utils';
@@ -33,6 +35,9 @@ interface NftData {
 export function PortfolioNftTable({ userPersona }: PortfolioNftTableProps) {
   const nfts = userPersona.universalNftList();
   const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 20;
+  const { handlePeekTokenMultichain } = usePeekExplorer();
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -50,16 +55,39 @@ export function PortfolioNftTable({ userPersona }: PortfolioNftTableProps) {
     }));
   }, [nfts]);
 
-  // Filter NFTs based on search query
+  // Filter and paginate NFTs
   const filteredNfts = useMemo(() => {
-    if (!searchQuery) return nftData;
+    let filtered = nftData;
 
-    return nftData.filter(
-      nft =>
-        nft.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        getChainNameById(nft.chainId)?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [nftData, searchQuery]);
+    // Apply search filter
+    if (searchQuery) {
+      filtered = nftData.filter(
+        nft =>
+          nft.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          getChainNameById(nft.chainId)?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Apply pagination
+    return filtered.slice(0, page * PAGE_SIZE);
+  }, [nftData, searchQuery, page, PAGE_SIZE]);
+
+  // Check if there are more items to load
+  const hasMore = useMemo(() => {
+    const filtered = searchQuery
+      ? nftData.filter(
+          nft =>
+            nft.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            getChainNameById(nft.chainId)?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : nftData;
+    return page * PAGE_SIZE < filtered.length;
+  }, [nftData, searchQuery, page, PAGE_SIZE]);
+
+  // Handle loading more items
+  const handleLoadMore = useCallback(({ page }: { page: number; pageSize: number }) => {
+    setPage(page);
+  }, []);
 
   // Calculate total value
   const totalValue = useMemo(() => {
@@ -77,13 +105,9 @@ export function PortfolioNftTable({ userPersona }: PortfolioNftTableProps) {
           <div className="flex items-center space-x-3">
             {/* NFT Image */}
             {nft.imageUrl ? (
-              <img
-                src={nft.imageUrl}
-                alt={nft.name}
-                className="w-12 h-12 rounded-lg object-cover"
-              />
+              <img src={nft.imageUrl} alt={nft.name} className="w-8 h-8 rounded-lg object-cover" />
             ) : (
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-white">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-white">
                 <ImageIcon className="h-6 w-6" />
               </div>
             )}
@@ -147,15 +171,11 @@ export function PortfolioNftTable({ userPersona }: PortfolioNftTableProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <Eye className="h-4 w-4 mr-2" />
-                View Details
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => copyToClipboard(nft.nft.address || '')}>
                 <Copy className="h-4 w-4 mr-2" />
                 Copy Contract
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handlePeekTokenMultichain(nft.nft.address || '')}>
                 <ExternalLink className="h-4 w-4 mr-2" />
                 View on Explorer
               </DropdownMenuItem>
@@ -172,22 +192,33 @@ export function PortfolioNftTable({ userPersona }: PortfolioNftTableProps) {
   return (
     <div className="space-y-4">
       {/* DynamicTable */}
-      <div className="border border-gray-200 rounded-lg overflow-hidden">
+      <div className="border border-gray-200 rounded-lg overflow-hidden h-[400px]">
         <DynamicTable
           data={filteredNfts}
           columns={columns}
           enableSorting={true}
           enableColumnResizing={true}
           enableColumnReordering={true}
-          enablePagination={true}
-          pageSize={100}
           emptyMessage="No NFTs found"
           emptyDescription="No NFTs match your search criteria."
           className="h-[400px]"
-          tableLabel="NFT Holdings"
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           searchPlaceholder="Search NFTs..."
+          enableFooter={true}
+          getFooterValue={key => {
+            switch (key) {
+              case 'name':
+                return 'Total';
+              case 'usdValue':
+                return formatAssetValue(totalValue);
+              default:
+                return '';
+            }
+          }}
+          onLoadMore={handleLoadMore}
+          hasMore={hasMore}
+          pageSize={PAGE_SIZE}
         />
       </div>
     </div>

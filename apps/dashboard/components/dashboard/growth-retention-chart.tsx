@@ -45,43 +45,63 @@ export function GrowthRetentionChart({ className, timeRange }: GrowthRetentionCh
       });
     }
 
-    // Group users by month
-    const monthlyData: Record<string, { newUsers: number; retainedUsers: number }> = {};
+    // Determine if we should show daily or monthly data
+    const showDaily = timeRange?.id === '7d' || timeRange?.id === '30d';
+    const dateFormat = showDaily ? 'YYYY-MM-DD' : 'YYYY-MM';
+    const displayFormat = showDaily ? 'MMM DD' : 'MMM YYYY';
+
+    // Group users by date/month
+    const groupedData: Record<string, { newUsers: number; retainedUsers: number }> = {};
 
     filteredUsers.forEach(user => {
       const createdAt = moment(user.created_at);
-      const monthKey = createdAt.format('YYYY-MM');
+      const dateKey = createdAt.format(dateFormat);
 
-      if (!monthlyData[monthKey]) {
-        monthlyData[monthKey] = { newUsers: 0, retainedUsers: 0 };
+      if (!groupedData[dateKey]) {
+        groupedData[dateKey] = { newUsers: 0, retainedUsers: 0 };
       }
 
-      monthlyData[monthKey].newUsers++;
+      groupedData[dateKey].newUsers++;
     });
 
-    // Calculate retention (users who are still active after 30 days)
-    const thirtyDaysAgo = moment().subtract(30, 'days');
+    // Calculate retention
+    const retentionPeriod = showDaily ? 7 : 30; // 7 days retention for daily view, 30 days for monthly
+    const retentionDate = moment().subtract(retentionPeriod, 'days');
+
     filteredUsers.forEach(user => {
       const createdAt = moment(user.created_at);
-      const monthKey = createdAt.format('YYYY-MM');
+      const dateKey = createdAt.format(dateFormat);
 
-      // Simple retention calculation: users created more than 30 days ago
-      if (createdAt.isBefore(thirtyDaysAgo)) {
-        if (monthlyData[monthKey]) {
-          monthlyData[monthKey].retainedUsers++;
+      if (createdAt.isBefore(retentionDate)) {
+        if (groupedData[dateKey]) {
+          groupedData[dateKey].retainedUsers++;
         }
       }
     });
 
+    // If showing daily data, ensure all days in range have entries
+    if (showDaily && timeRange) {
+      let currentDate = moment(timeRange.startDate);
+      const endDate = moment(timeRange.endDate);
+
+      while (currentDate.isSameOrBefore(endDate, 'day')) {
+        const dateKey = currentDate.format(dateFormat);
+        if (!groupedData[dateKey]) {
+          groupedData[dateKey] = { newUsers: 0, retainedUsers: 0 };
+        }
+        currentDate = currentDate.add(1, 'day');
+      }
+    }
+
     // Convert to array and sort by date
-    return Object.entries(monthlyData)
-      .map(([month, data]) => ({
-        month: moment(month).format('MMM YYYY'),
+    return Object.entries(groupedData)
+      .map(([date, data]) => ({
+        date: moment(date).format(displayFormat),
         newUsers: data.newUsers,
         retentionRate: data.newUsers > 0 ? (data.retainedUsers / data.newUsers) * 100 : 0,
       }))
       .sort(
-        (a, b) => moment(a.month, 'MMM YYYY').valueOf() - moment(b.month, 'MMM YYYY').valueOf()
+        (a, b) => moment(a.date, displayFormat).valueOf() - moment(b.date, displayFormat).valueOf()
       );
   }, [users, timeRange]);
 
@@ -158,15 +178,23 @@ export function GrowthRetentionChart({ className, timeRange }: GrowthRetentionCh
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
-                    dataKey="month"
-                    tickFormatter={value => moment(value, 'MMM YYYY').format('MMM')}
+                    dataKey="date"
+                    tickFormatter={value => {
+                      const isDaily = timeRange?.id === '7d' || timeRange?.id === '30d';
+                      return isDaily
+                        ? moment(value, 'MMM DD').format('DD')
+                        : moment(value, 'MMM YYYY').format('MMM');
+                    }}
                   />
                   <YAxis />
                   <Tooltip
                     formatter={(value, name) => {
                       return [name === 'New Users' ? value : `${value}%`, name];
                     }}
-                    labelFormatter={label => `Month: ${label}`}
+                    labelFormatter={label => {
+                      const isDaily = timeRange?.id === '7d' || timeRange?.id === '30d';
+                      return isDaily ? `Date: ${label}` : `Month: ${label}`;
+                    }}
                   />
                   <Legend />
                   <Line

@@ -1,4 +1,4 @@
-import { formatNumber } from '@/lib/string.utils';
+import { formatAssetValue } from '@/lib/number.utils';
 
 import { AssetIcon } from '../ui/asset-icon';
 
@@ -48,7 +48,7 @@ export function TokenDisplay({
         </div>
       </div>
       {showValue && (
-        <div className="flex items-center gap-1 text-xs">${formatNumber(token.usdValue)}</div>
+        <div className="flex items-center gap-1 text-xs">${formatAssetValue(token.usdValue)}</div>
       )}
     </div>
   );

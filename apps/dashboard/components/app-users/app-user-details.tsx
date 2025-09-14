@@ -1,5 +1,6 @@
 import { consumePersona } from '@/core/persona';
 import { useDashboardState } from '@/hooks/use-dashboard';
+import { formatAssetValue } from '@/lib/number.utils';
 import { useQuery } from '@tanstack/react-query';
 import { TrendingUp, Trophy, Wallet } from 'lucide-react';
 import { useMemo } from 'react';
@@ -90,49 +91,49 @@ export function UserDetails({ userId }: UserDetailsProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="p-3 bg-blue-100 rounded-xl">
+                      <div className="p-2 bg-blue-100 rounded-md">
                         <TrendingUp className="h-5 w-5 text-blue-600" />
                       </div>
                       <div className="text-right">
-                        <div className="text-lg font-bold text-gray-900">
-                          ${(totalTokenValue + totalNftValue).toLocaleString()}
+                        <div className="text-sm font-bold text-gray-900">
+                          ${formatAssetValue(totalTokenValue + totalNftValue || 0)}
                         </div>
                       </div>
                     </div>
-                    <h3 className="text-md font-semibold text-gray-900 mb-1">Total Value</h3>
-                    <p className="text-sm text-gray-600">Portfolio performance</p>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-1">Total Value</h3>
+                    <p className="text-xs text-gray-600">Portfolio performance</p>
                   </div>
 
                   <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="p-3 bg-purple-100 rounded-xl">
+                      <div className="p-2 bg-purple-100 rounded-md">
                         <Wallet className="h-5 w-5 text-purple-600" />
                       </div>
                       <div className="text-right">
-                        <div className="text-lg font-bold text-gray-900">
-                          {userPersona?.universalTokenList().length || 0}
+                        <div className="text-sm font-bold text-gray-900">
+                          {formatAssetValue(userPersona?.universalTokenList().length || 0)}
                         </div>
                         <div className="text-sm text-purple-600 font-medium">Active</div>
                       </div>
                     </div>
-                    <h3 className="text-md font-semibold text-gray-900 mb-1">Tokens</h3>
-                    <p className="text-sm text-gray-600">Different assets held</p>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-1">Tokens</h3>
+                    <p className="text-xs text-gray-600">Different assets held</p>
                   </div>
 
                   <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="p-3 bg-green-100 rounded-xl">
+                      <div className="p-2 bg-green-100 rounded-md">
                         <Trophy className="h-5 w-5 text-green-600" />
                       </div>
                       <div className="text-right">
-                        <div className="text-lg font-bold text-gray-900">
-                          {user.personaData.identities.traitScores?.length || 0}
+                        <div className="text-sm font-bold text-gray-900">
+                          {user.personaData.identities.traitScores?.length.toLocaleString() || 0}
                         </div>
                         <div className="text-sm text-green-600 font-medium">Earned</div>
                       </div>
                     </div>
-                    <h3 className="text-md font-semibold text-gray-900 mb-1">Badges</h3>
-                    <p className="text-sm text-gray-600">Reputation earned</p>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-1">Badges</h3>
+                    <p className="text-xs text-gray-600">Reputation earned</p>
                   </div>
                 </div>
                 <div className="mt-4">
@@ -152,7 +153,7 @@ export function UserDetails({ userId }: UserDetailsProps) {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-                    {userPersona?.universalTokenList().length || 0} tokens
+                    {userPersona?.universalTokenList().length.toLocaleString() || 0} tokens
                   </div>
                 </div>
               </div>
@@ -171,7 +172,7 @@ export function UserDetails({ userId }: UserDetailsProps) {
                   <p className="text-sm text-gray-600">Your digital collectibles</p>
                 </div>
                 <div className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm font-medium">
-                  {userPersona?.universalNftList().length || 0} items
+                  {userPersona?.universalNftList().length.toLocaleString() || 0} items
                 </div>
               </div>
               <div className="py-6 max-h-[600px] overflow-y-auto">
@@ -250,7 +251,7 @@ const generateSkeleton = ({
                       key={i}
                       className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                       <div className="flex items-center justify-between mb-4">
-                        <div className="p-3 bg-muted rounded-xl w-12 h-12" />
+                        <div className="p-2 bg-muted rounded-md w-12 h-12" />
                         <div className="space-y-2">
                           <div className="h-6 w-24 bg-muted rounded" />
                         </div>

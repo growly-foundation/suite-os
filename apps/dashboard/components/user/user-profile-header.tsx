@@ -61,11 +61,8 @@ export function UserProfileHeader({ user }: UserProfileHeaderProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handlePeekAddressMultichain(walletAddress, 'mainnet')}>
-              View on Etherscan
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handlePeekAddressMultichain(walletAddress, 'base')}>
-              View on Basescan
+            <DropdownMenuItem onClick={() => handlePeekAddressMultichain(walletAddress)}>
+              View on Explorer
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

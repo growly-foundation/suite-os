@@ -7,6 +7,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { usePeekExplorer } from '@/hooks/use-peek-explorer';
+import { formatAssetValue } from '@/lib/number.utils';
 import { Copy, ExternalLink } from 'lucide-react';
 
 import { TContractToken } from '@getgrowly/chainsmith/types';
@@ -21,7 +22,7 @@ interface TokenStackProps {
 
 export function TokenStack({ tokens, tokenSize = 8, maxTokens = 3 }: TokenStackProps) {
   const { copyToClipboard } = useCopyToClipboard();
-  const { handlePeekAddressMultichain } = usePeekExplorer();
+  const { handlePeekTokenMultichain } = usePeekExplorer();
   return (
     <div className="flex items-center gap-1">
       {/* Token Stack */}
@@ -75,7 +76,7 @@ export function TokenStack({ tokens, tokenSize = 8, maxTokens = 3 }: TokenStackP
                   <div>
                     <div className="text-sm text-gray-600">Balance</div>
                     <div className="font-medium text-gray-900">
-                      {token.balance?.toFixed(4)} {token.symbol}
+                      {formatAssetValue(token.balance ?? 0)} {token.symbol}
                     </div>
                   </div>
                   <div>
@@ -101,7 +102,7 @@ export function TokenStack({ tokens, tokenSize = 8, maxTokens = 3 }: TokenStackP
                     className="w-full text-xs"
                     onClick={e => {
                       e.stopPropagation();
-                      return token.address && handlePeekAddressMultichain(token.address, 'mainnet');
+                      return token.address && handlePeekTokenMultichain(token.address);
                     }}>
                     <ExternalLink className="h-4 w-4 mr-2" />
                     View on Explorer

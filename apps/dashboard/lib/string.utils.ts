@@ -5,9 +5,3 @@ export const formatDate = (dateString: string) => {
     day: 'numeric',
   });
 };
-
-export const formatNumber = (num: number | string) =>
-  Number(num).toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });

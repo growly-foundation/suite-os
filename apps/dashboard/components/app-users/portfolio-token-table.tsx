@@ -8,6 +8,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { consumePersona } from '@/core/persona';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
+import { usePeekExplorer } from '@/hooks/use-peek-explorer';
+import { formatAssetValue } from '@/lib/number.utils';
 import { ColumnDef } from '@tanstack/react-table';
 import { Copy, ExternalLink, MoreHorizontal } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
@@ -37,9 +39,10 @@ export function PortfolioTokenTable({ userPersona }: PortfolioTokenTableProps) {
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 20;
   const [searchQuery, setSearchQuery] = useState('');
-
+  const [isLoading, setIsLoading] = useState(false);
   const tokens = useMemo(() => userPersona.universalTokenList(), [userPersona]);
   const { copyToClipboard } = useCopyToClipboard();
+  const { handlePeekTokenMultichain } = usePeekExplorer();
 
   // Transform tokens to the format expected by table
   const allTokenData: TokenData[] = useMemo(() => {
@@ -55,19 +58,37 @@ export function PortfolioTokenTable({ userPersona }: PortfolioTokenTableProps) {
     }));
   }, [tokens]);
 
+  // Filter and paginate tokens
+  const filteredTokenData = useMemo(() => {
+    if (!searchQuery) return allTokenData;
+    return allTokenData.filter(
+      token =>
+        token.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        getChainNameById(token.chainId)?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [allTokenData, searchQuery]);
+
   // Apply pagination
   const tokenData = useMemo(() => {
-    return allTokenData.slice(0, page * PAGE_SIZE);
-  }, [allTokenData, page]);
+    return filteredTokenData.slice(0, page * PAGE_SIZE);
+  }, [filteredTokenData, page]);
 
   // Check if there are more items to load
   const hasMore = useMemo(() => {
-    return page * PAGE_SIZE < allTokenData.length;
-  }, [allTokenData.length, page]);
+    return page * PAGE_SIZE < filteredTokenData.length;
+  }, [filteredTokenData.length, page]);
 
   // Handle loading more items
-  const handleLoadMore = useCallback(() => {
-    setPage(prev => prev + 1);
+  const handleLoadMore = useCallback(async ({ page }: { page: number; pageSize: number }) => {
+    try {
+      setIsLoading(true);
+      // Simulate loading delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setPage(page);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   // Calculate total value
@@ -86,33 +107,40 @@ export function PortfolioTokenTable({ userPersona }: PortfolioTokenTableProps) {
           <div className="flex items-center space-x-3">
             {/* Token Icon */}
             {token.logoURI ? (
-              <img src={token.logoURI} alt={token.symbol} className="w-8 h-8 rounded-lg" />
+              <img src={token.logoURI} alt={token.symbol} className="w-4 h-4 rounded-lg" />
             ) : (
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+              <div className="w-4 h-4 rounded-lg bg-gradient-to-br from-blue-500 flex items-center justify-center text-white font-bold text-sm">
                 {token.symbol.charAt(0) || 'T'}
               </div>
             )}
 
             {/* Token Info */}
-            <div className="flex flex-col">
-              <div className="font-semibold text-gray-900">{token.symbol}</div>
-              <div className="text-sm text-gray-600 truncate max-w-[150px]">{token.name}</div>
-            </div>
+            <div className="font-semibold text-xs text-gray-900">{token.symbol}</div>
           </div>
         );
       },
-      size: 200,
-      minSize: 200,
+      size: 100,
+      minSize: 100,
       meta: {
         frozen: true,
       },
+    },
+    {
+      accessorKey: 'name',
+      header: 'Name',
+      cell: ({ row }) => {
+        const token = row.original;
+        return <div className="text-xs text-gray-600 truncate max-w-[150px]">{token.name}</div>;
+      },
+      size: 150,
+      minSize: 150,
     },
     {
       accessorKey: 'marketPrice',
       header: 'Price',
       cell: ({ row }) => {
         const price = row.original.marketPrice;
-        return <div className="font-medium text-gray-900">${price.toFixed(6)}</div>;
+        return <div className="font-medium text-xs text-gray-900">${formatAssetValue(price)}</div>;
       },
       size: 120,
       minSize: 120,
@@ -123,9 +151,8 @@ export function PortfolioTokenTable({ userPersona }: PortfolioTokenTableProps) {
       cell: ({ row }) => {
         const token = row.original;
         return (
-          <div className="font-medium text-gray-900">
-            <div>{token.balance.toFixed(4)}</div>
-            <div className="text-sm text-gray-600">{token.symbol}</div>
+          <div className="font-medium text-xs text-gray-900">
+            <div>{formatAssetValue(token.balance)}</div>
           </div>
         );
       },
@@ -143,7 +170,7 @@ export function PortfolioTokenTable({ userPersona }: PortfolioTokenTableProps) {
 
         return (
           <div className="text-gray-900">
-            <div className="font-semibold">${value.toFixed(2)}</div>
+            <div className="font-semibold">${formatAssetValue(value)}</div>
             <div className="text-xs text-gray-500">{percentage.toFixed(1)}% of portfolio</div>
           </div>
         );
@@ -182,7 +209,7 @@ export function PortfolioTokenTable({ userPersona }: PortfolioTokenTableProps) {
                 <Copy className="h-4 w-4 mr-2" />
                 Copy Address
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handlePeekTokenMultichain(token.address || '')}>
                 <ExternalLink className="h-4 w-4 mr-2" />
                 View on Explorer
               </DropdownMenuItem>
@@ -199,7 +226,7 @@ export function PortfolioTokenTable({ userPersona }: PortfolioTokenTableProps) {
   return (
     <div className="space-y-4">
       {/* DynamicTable */}
-      <div className="border border-gray-200 rounded-lg overflow-hidden">
+      <div className="border border-gray-200 rounded-lg overflow-hidden h-[400px]">
         <DynamicTable
           data={tokenData}
           columns={columns}
@@ -209,12 +236,27 @@ export function PortfolioTokenTable({ userPersona }: PortfolioTokenTableProps) {
           emptyMessage="No tokens found"
           emptyDescription="No tokens match your search criteria."
           className="h-[400px]"
-          tableLabel="Token Holdings"
+          pageSize={PAGE_SIZE}
+          getFooterValue={key => {
+            switch (key) {
+              case 'symbol':
+                return 'Total';
+              case 'marketPrice':
+                return '';
+              case 'balance':
+                return '';
+              case 'value':
+                return totalValue;
+              default:
+                return '';
+            }
+          }}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           searchPlaceholder="Search tokens..."
           onLoadMore={handleLoadMore}
           hasMore={hasMore}
+          loadingMore={isLoading}
         />
       </div>
     </div>

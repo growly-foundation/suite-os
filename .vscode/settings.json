@@ -25,5 +25,6 @@
   "search.exclude": {
     "**/.next": true,
     "**/dist": true
-  }
+  },
+  "cSpell.words": ["Multichain"]
 }

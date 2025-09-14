@@ -37,21 +37,19 @@ export const RandomAvatar = ({ address, ensName, ensAvatar, size = 20 }: Props) 
 
   return (
     <div
-      className="items-center flex justify-center flex-col text-black"
-      style={{ width: size, height: size }}>
+      className="items-center flex justify-center flex-col shadow-lg border-2 p-0.5 border-rounded-full"
+      style={{ width: size, height: size, borderRadius: '100%', borderColor: 'white' }}>
       {ensAvatar ? (
         <img
           src={ensAvatar}
           alt={ensName || address}
-          className="h-full w-full overflow-hidden object-cover"
-          style={{ borderRadius: '10px' }}
+          className="h-full w-full overflow-hidden object-cover rounded-full"
         />
       ) : (
         <img
           src={randomAvatar}
           alt={ensName || address}
-          className="h-full w-full overflow-hidden object-cover"
-          style={{ borderRadius: '10px' }}
+          className="h-full w-full overflow-hidden object-cover rounded-full"
         />
       )}
     </div>

@@ -216,13 +216,13 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
     return page * PAGE_SIZE < allTableData.length;
   }, [allTableData, page]);
 
-  const handleLoadMore = useCallback(() => {
-    setPage(prev => prev + 1);
+  const handleLoadMore = useCallback(({ page }: { page: number; pageSize: number }) => {
+    setPage(page);
   }, []);
 
   return (
     <div className="space-y-4">
-      <div className="border border-gray-200 rounded-lg overflow-hidden">
+      <div className="border border-gray-200 rounded-lg overflow-hidden h-[400px]">
         <DynamicTable
           data={filteredData}
           columns={columns}
@@ -230,6 +230,23 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
           enableColumnResizing={true}
           enableColumnReordering={true}
           enableFooter={true}
+          getFooterValue={key => {
+            const total = allTableData.length;
+            switch (key) {
+              case 'activity':
+                return 'Total';
+              case 'activity.value':
+                // Calculate total value across all transactions
+                return allTableData
+                  .reduce((sum, item) => {
+                    const value = formatValue(item.activity.value, item.activity.tokenDecimal);
+                    return sum + parseFloat(value);
+                  }, 0)
+                  .toFixed(4);
+              default:
+                return '';
+            }
+          }}
           emptyMessage="No transactions found"
           emptyDescription="No transactions match your current filter."
           className="h-[400px]"

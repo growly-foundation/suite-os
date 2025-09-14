@@ -41,6 +41,7 @@ export function DashboardInner() {
   const router = useRouter();
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange>({
+    id: '30d',
     label: 'Last 30 days',
     startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     endDate: new Date(),
@@ -152,7 +153,7 @@ export function DashboardInner() {
         timestamp: user.created_at,
         icon: (
           <AppUserAvatarWithStatus
-            size={35}
+            size={25}
             walletAddress={user.personaData.id as any}
             name={user.name}
             online={SessionStatus.Offline}

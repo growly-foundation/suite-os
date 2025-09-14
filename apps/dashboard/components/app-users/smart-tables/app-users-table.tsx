@@ -176,7 +176,7 @@ export function UsersTable({
         enableFooter={true}
         getFooterValue={getFooterValue}
         // Auto-sort by First Signed In (newest first)
-        initialSorting={[{ id: 'firstSignedIn', desc: true }]}
+        initialSorting={[{ id: 'portfolioValue', desc: true }]}
         // Enable row selection to show frozen column
         enableRowSelection={true}
         selectedRows={selectedRows}
