@@ -3,14 +3,15 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import * as dotenv from 'dotenv';
-import { json, urlencoded } from 'express';
 
 import { AppModule } from './modules/app.module';
 
 dotenv.config();
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    rawBody: true,
+  });
   app.set('trust proxy', 1);
 
   app.enableCors();
@@ -19,8 +20,8 @@ async function bootstrap() {
   app.useWebSocketAdapter(new IoAdapter(app));
 
   app.useGlobalPipes(new ValidationPipe());
-  app.use(json({ limit: process.env.REQUEST_BODY_LIMIT || '10mb' }));
-  app.use(urlencoded({ extended: true, limit: process.env.REQUEST_BODY_LIMIT || '10mb' }));
+  app.useBodyParser('json', { limit: process.env.REQUEST_BODY_LIMIT || '10mb' });
+
   await app.listen(process.env.PORT ?? 8080);
 }
 
