@@ -17,14 +17,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { ImportLimitCheckResult, UserImportService } from '@/lib/services/user-import.service';
+import { UserImportService } from '@/lib/services/user-import.service';
 import { debounce } from '@/lib/utils';
 import { Download, InfoIcon, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 
-import { ImportUserOutput, UserImportSource } from '@getgrowly/core';
+import { ImportLimitCheckResult, ImportUserOutput, UserImportSource } from '@getgrowly/core';
 
 interface ManualImportTabProps {
   onImportComplete?: () => void;

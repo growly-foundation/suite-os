@@ -19,14 +19,14 @@ import { Label } from '@/components/ui/label';
 import { Loadable } from '@/components/ui/loadable';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { useOrganizationUsersQuery } from '@/hooks/use-dashboard-queries';
-import { ImportLimitCheckResult, UserImportService } from '@/lib/services/user-import.service';
+import { UserImportService } from '@/lib/services/user-import.service';
 import { InfoIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Address } from 'viem';
 
-import { ImportPrivyUserOutput } from '@getgrowly/core';
+import { ImportLimitCheckResult, ImportPrivyUserOutput } from '@getgrowly/core';
 
 interface PrivyImportTabProps {
   onImportComplete?: () => void;

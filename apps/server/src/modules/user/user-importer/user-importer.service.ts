@@ -94,9 +94,10 @@ export class UserImporterService {
       );
     }
 
+    // UI already supports partial-import confirmation. Server should slice and proceed to avoid race failures.
     if (limits.exceedsLimit) {
-      throw new Error(
-        `Cannot import ${users.length} users. Only ${limits.maxAllowedImports} slots available (${limits.currentUserCount}/${limits.maxUsers}).`
+      this.logger.warn(
+        `Requested ${users.length}, proceeding with ${limits.maxAllowedImports} due to limits (${limits.currentUserCount}/${limits.maxUsers}).`
       );
     }
 

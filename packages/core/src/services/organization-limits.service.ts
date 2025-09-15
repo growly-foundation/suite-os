@@ -13,10 +13,16 @@ export class OrganizationLimitsService {
     usersToImport: number,
     maxUsers: number = ORGANIZATION_LIMITS.FREE_PLAN.MAX_USERS
   ): ImportLimitCheckResult {
-    const availableSlots = Math.max(0, maxUsers - currentUserCount);
+    // Treat <= 0 as unlimited
+    const isUnlimited = maxUsers <= 0;
+    const safeUsersToImport = Math.max(0, usersToImport);
+    const availableSlots = isUnlimited
+      ? Number.POSITIVE_INFINITY
+      : Math.max(0, maxUsers - currentUserCount);
+
     const canImport = availableSlots > 0;
-    const maxAllowedImports = Math.min(usersToImport, availableSlots);
-    const exceedsLimit = usersToImport > availableSlots;
+    const maxAllowedImports = Math.min(safeUsersToImport, availableSlots);
+    const exceedsLimit = !isUnlimited && safeUsersToImport > availableSlots;
 
     return {
       canImport,
@@ -34,8 +40,11 @@ export class OrganizationLimitsService {
     currentUserCount: number,
     maxUsers: number = ORGANIZATION_LIMITS.FREE_PLAN.MAX_USERS
   ): OrganizationUserLimits {
-    const availableSlots = Math.max(0, maxUsers - currentUserCount);
-    const canImport = availableSlots > 0;
+    const isUnlimited = maxUsers <= 0;
+    const availableSlots = isUnlimited
+      ? Number.POSITIVE_INFINITY
+      : Math.max(0, maxUsers - currentUserCount);
+    const canImport = isUnlimited || availableSlots > 0;
 
     return {
       currentUserCount,

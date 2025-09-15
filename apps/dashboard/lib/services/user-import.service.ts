@@ -3,18 +3,11 @@ import axios from 'axios';
 
 import {
   ImportContractUserOutput,
+  ImportLimitCheckResult,
   ImportNftHoldersOutput,
   ImportPrivyUserOutput,
   ImportUserOutput,
 } from '@getgrowly/core';
-
-export interface ImportLimitCheckResult {
-  canImport: boolean;
-  maxAllowedImports: number;
-  currentUserCount: number;
-  maxUsers: number;
-  exceedsLimit: boolean;
-}
 
 export interface ImportJobStatus {
   jobId: string;

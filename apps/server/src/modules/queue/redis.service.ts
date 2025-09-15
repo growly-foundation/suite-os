@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Redis } from '@upstash/redis';
 
@@ -23,9 +23,20 @@ export interface ImportJobStatus {
 }
 
 @Injectable()
-export class RedisService {
+export class RedisService implements OnModuleInit {
   private readonly logger = new Logger(RedisService.name);
   private redis: Redis;
+
+  async onModuleInit(): Promise<void> {
+    if (this.redis) {
+      try {
+        await this.validateConnection();
+      } catch (e) {
+        // Downgrade to warnings to avoid startup crash; caller logic should handle no-redis mode.
+        this.logger.error('Redis validation failed on startup', e as any);
+      }
+    }
+  }
 
   constructor(private configService: ConfigService) {
     const redisUrl = this.configService.get<string>('UPSTASH_REDIS_REST_URL');
@@ -40,8 +51,6 @@ export class RedisService {
         url: redisUrl,
         token: redisToken,
       });
-      // Validate connection
-      this.validateConnection();
     }
   }
 

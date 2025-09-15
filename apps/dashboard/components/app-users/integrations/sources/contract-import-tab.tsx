@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import { ImportLimitCheckResult, UserImportService } from '@/lib/services/user-import.service';
+import { UserImportService } from '@/lib/services/user-import.service';
 import { debounce } from '@/lib/utils';
 import { detectAddressType } from '@/utils/contract';
 import { InfoIcon } from 'lucide-react';
@@ -33,7 +33,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { base } from 'viem/chains';
 
-import { ImportContractUserOutput } from '@getgrowly/core';
+import { ImportContractUserOutput, ImportLimitCheckResult } from '@getgrowly/core';
 
 interface ContractImportTabProps {
   onImportComplete?: () => void;

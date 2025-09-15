@@ -1,12 +1,11 @@
 'use client';
 
 import { PrimaryButton } from '@/components/buttons/primary-button';
-import { ImportLimitCheckResult } from '@/lib/services/user-import.service';
 import { ColumnDef } from '@tanstack/react-table';
 import { ImportIcon, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
-import { ImportUserOutput } from '@getgrowly/core';
+import { ImportLimitCheckResult, ImportUserOutput } from '@getgrowly/core';
 
 import { createImportedUserColumns } from '../smart-tables/columns/create-imported-users-columns';
 import { DynamicTable } from '../smart-tables/dynamic-table';

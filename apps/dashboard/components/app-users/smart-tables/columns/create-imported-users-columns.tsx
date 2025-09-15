@@ -199,14 +199,16 @@ export const columnImportedContractUserDefinitions: Partial<
   },
   chainId: {
     ...sharedBlockchainColumns.chainId,
-    accessorFn: (row: ImportContractUserOutput) => row.extra?.chainId || '',
+    accessorFn: (row: ImportContractUserOutput) => row.extra?.chainId ?? null,
+    sortUndefined: 'last',
   },
   transactionCount: {
     id: 'transactionCount',
-    accessorFn: (row: ImportContractUserOutput) => row.extra?.transactionCount || '',
+    accessorFn: (row: ImportContractUserOutput) => row.extra?.transactionCount ?? 0,
     header: 'Transaction Count',
     enableSorting: true,
     enableResizing: true,
+    sortUndefined: 'last',
   },
   firstInteraction: {
     id: 'firstInteraction',
@@ -239,18 +241,19 @@ export const columnImportedNftHoldersUserDefinitions: Partial<
   },
   chainId: {
     ...sharedBlockchainColumns.chainId,
-    accessorFn: (row: ImportNftHoldersOutput) => row.extra?.chainId || '',
+    accessorFn: (row: ImportNftHoldersOutput) => row.extra?.chainId ?? null,
+    sortUndefined: 'last',
   },
   totalTokensOwned: {
     id: 'totalTokensOwned',
-    accessorFn: (row: ImportNftHoldersOutput) => row.extra?.totalTokensOwned || '',
+    accessorFn: (row: ImportNftHoldersOutput) => row.extra?.totalTokensOwned ?? 0,
     header: 'Total Tokens Owned',
     enableSorting: true,
     enableResizing: true,
   },
   uniqueTokensOwned: {
     id: 'uniqueTokensOwned',
-    accessorFn: (row: ImportNftHoldersOutput) => row.extra?.uniqueTokensOwned || '',
+    accessorFn: (row: ImportNftHoldersOutput) => row.extra?.uniqueTokensOwned ?? 0,
     header: 'Unique Tokens Owned',
     enableSorting: true,
     enableResizing: true,

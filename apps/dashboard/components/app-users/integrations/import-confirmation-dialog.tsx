@@ -9,8 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { ImportLimitCheckResult } from '@/lib/services/user-import.service';
 import { AlertTriangle, Users } from 'lucide-react';
+
+import { ImportLimitCheckResult } from '@getgrowly/core';
 
 interface ImportConfirmationDialogProps {
   isOpen: boolean;
