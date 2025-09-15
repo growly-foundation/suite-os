@@ -1,3 +1,4 @@
+import { CopyTooltip } from '@/components/ui/copy-tooltip';
 import { hasDataInAnyRow, hasImportedUserExtraData, hasUsersWithSource } from '@/lib/data.utils';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import moment from 'moment';
@@ -23,7 +24,13 @@ export const columnImportedUserDefinitions: Record<string, ColumnDef<ImportUserO
       return identity.toLowerCase();
     },
     header: 'Identity',
-    cell: ({ row }: { row: Row<ImportUserOutput> }) => getFormatter('identity')(row.original),
+    cell: ({ row }: { row: Row<ImportUserOutput> }) => (
+      <div className="flex items-center gap-2">
+        <CopyTooltip textToCopy={row.original.walletAddress || ''} showIcon={true}>
+          {getFormatter('identity')(row.original)}
+        </CopyTooltip>
+      </div>
+    ),
     enableSorting: true,
     enableResizing: true,
     meta: { frozen: true },
