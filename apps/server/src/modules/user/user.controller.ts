@@ -93,6 +93,7 @@ export class UserController {
     // Start async processing (don't await)
     this.userImporterService.commitImportedUsers(users, organizationId, jobId).catch(error => {
       this.logger.error(`Async import job ${jobId} failed:`, error);
+      // TODO: Add monitoring/alerting here (e.g., Sentry, CloudWatch, etc.)
       this.redisService.completeJob(jobId, { success: 0, failed: users.length }, error.message);
     });
 
@@ -152,6 +153,18 @@ export class UserController {
     this.logger.log(
       `[${this.constructor.name}] Importing NFT holders for contract address: ${contractAddress} and chainId: ${chainId}`
     );
+
+    if (!contractAddress || typeof contractAddress !== 'string') {
+      throw new BadRequestException('Missing contractAddress');
+    }
+    if (!chainId || !Number.isInteger(chainId) || chainId <= 0) {
+      throw new BadRequestException('Invalid chainId');
+    }
+
+    // Validate Ethereum address format
+    if (!/^0x[a-fA-F0-9]{40}$/.test(contractAddress)) {
+      throw new BadRequestException('Invalid contract address format');
+    }
     return this.userService.importNftHolders(contractAddress, chainId);
   }
 }

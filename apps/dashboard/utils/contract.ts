@@ -47,9 +47,16 @@ const ERC721_INTERFACE_ID = '0x80ac58cd';
 const ERC1155_INTERFACE_ID = '0xd9b67a26';
 
 export async function detectAddressType(address: `0x${string}`, chainId: number): Promise<string> {
+  // Validate address format
+  if (!address || !address.match(/^0x[0-9a-fA-F]{40}$/)) {
+    throw new Error('Invalid Ethereum address format');
+  }
+
   const chain = SUPPORTED_CHAINS.find(chain => chain.id === chainId);
   if (!chain) {
-    throw new Error(`Chain ${chainId} is not supported`);
+    throw new Error(
+      `Chain ${chainId} is not supported. Supported chains: ${SUPPORTED_CHAINS.map(c => `${c.name} (${c.id})`).join(', ')}`
+    );
   }
   const client = createPublicClient({
     chain,

@@ -27,6 +27,21 @@ export const getNumberFromStr = (str: string, max: number): number => {
 export const truncateString = (str: string, maxLength: number): string =>
   `${str.slice(0, maxLength)}${str.length > maxLength ? '...' : ''}`;
 
+/**
+ * Debounce utility function that delays execution until after wait milliseconds
+ * have elapsed since the last time it was invoked.
+ */
+export const debounce = <T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): ((...args: Parameters<T>) => void) => {
+  let timeout: NodeJS.Timeout;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+};
+
 export const countBytes = (str: string): number => {
   const encoder = new TextEncoder();
   const bytes = encoder.encode(str);

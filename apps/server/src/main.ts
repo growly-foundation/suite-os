@@ -19,8 +19,8 @@ async function bootstrap() {
   app.useWebSocketAdapter(new IoAdapter(app));
 
   app.useGlobalPipes(new ValidationPipe());
-  app.use(json({ limit: '50mb' }));
-  app.use(urlencoded({ extended: true, limit: '50mb' }));
+  app.use(json({ limit: process.env.REQUEST_BODY_LIMIT || '10mb' }));
+  app.use(urlencoded({ extended: true, limit: process.env.REQUEST_BODY_LIMIT || '10mb' }));
   await app.listen(process.env.PORT ?? 8080);
 }
 

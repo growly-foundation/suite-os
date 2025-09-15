@@ -10,11 +10,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip';
 export function ChainIcon({
   chainIds,
   className,
-  showTooltip = true,
+  showTooltip = false,
+  iconPixel = 18,
 }: {
   chainIds: TChainId[];
   className?: string;
   showTooltip?: boolean;
+  iconPixel?: number;
 }) {
   return (
     <div className="flex items-center gap-2">
@@ -26,11 +28,11 @@ export function ChainIcon({
                 'flex items-center justify-center rounded-[5px] bg-[var(--color-bob-tag-neutral)] w-6 h-6',
                 className
               )}>
-              {mapChainIdToIcon(chainId)}
+              {mapChainIdToIcon(chainId, iconPixel)}
             </div>
           </TooltipTrigger>
           {showTooltip && (
-            <TooltipContent className="text-white">{getChainNameById(chainId)}</TooltipContent>
+            <TooltipContent className="text-foreground">{getChainNameById(chainId)}</TooltipContent>
           )}
         </Tooltip>
       ))}
@@ -85,13 +87,29 @@ export function MultiChainIcon({
   );
 }
 
-const mapChainIdToIcon = (chainId: TChainId): React.ReactNode => {
+const mapChainIdToIcon = (chainId: TChainId, iconPixel = 18): React.ReactNode => {
   switch (chainId) {
     case mainnet.id:
-      return <Image src="/logos/chains/ethereum-logo.svg" alt="Mainnet" width={18} height={18} />;
+      return (
+        <Image
+          src="/logos/chains/ethereum-logo.svg"
+          alt="Mainnet"
+          width={iconPixel}
+          height={iconPixel}
+        />
+      );
     case base.id:
-      return <Image src="/logos/chains/base-logo.svg" alt="Base" width={18} height={18} />;
+      return (
+        <Image src="/logos/chains/base-logo.svg" alt="Base" width={iconPixel} height={iconPixel} />
+      );
     case optimism.id:
-      return <Image src="/logos/chains/optimism-logo.png" alt="Optimism" width={18} height={18} />;
+      return (
+        <Image
+          src="/logos/chains/optimism-logo.png"
+          alt="Optimism"
+          width={iconPixel}
+          height={iconPixel}
+        />
+      );
   }
 };

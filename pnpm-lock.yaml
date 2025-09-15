@@ -1382,7 +1382,7 @@ importers:
         version: 1.0.19
       esbuild-plugin-babel:
         specifier: ^0.2.3
-        version: 0.2.3(@babel/core@7.28.4)
+        version: 0.2.3(@babel/core@7.27.1)
       glob:
         specifier: ^11.0.2
         version: 11.0.2
@@ -1641,7 +1641,7 @@ importers:
         version: 1.0.19
       esbuild-plugin-babel:
         specifier: ^0.2.3
-        version: 0.2.3(@babel/core@7.27.1)
+        version: 0.2.3(@babel/core@7.28.4)
       glob:
         specifier: ^11.0.2
         version: 11.0.2

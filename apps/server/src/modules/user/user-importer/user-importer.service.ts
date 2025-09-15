@@ -166,15 +166,6 @@ export class UserImporterService {
       `Creating user ${importedUser.walletAddress} with source ${importedUser.source}`
     );
 
-    const userData = {
-      wallet_address: importedUser.walletAddress,
-      email: importedUser.email,
-      name: importedUser.name,
-      organization_id: organizationId,
-      source: importedUser.source,
-      source_data: importedUser.extra || {},
-    };
-
     return this.suiteCore.users.createUserFromAddressIfNotExist(
       importedUser.walletAddress!,
       organizationId,

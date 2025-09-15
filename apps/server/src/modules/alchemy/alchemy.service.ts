@@ -32,10 +32,18 @@ export class AlchemyService {
   constructor(private configService: ConfigService) {
     this.apiKey = this.configService.get<string>('ALCHEMY_API_KEY') || '';
     if (!this.apiKey) {
-      throw new Error('ALCHEMY_API_KEY is required');
+      this.logger.warn(
+        'ALCHEMY_API_KEY is not configured. NFT holder imports will not be available.'
+      );
+    } else {
+      this.logger.log('Alchemy service initialized');
     }
+  }
 
-    this.logger.log('Alchemy service initialized');
+  private validateApiKey(): void {
+    if (!this.apiKey) {
+      throw new Error('ALCHEMY_API_KEY is required for NFT holder imports');
+    }
   }
 
   private getNetworkFromChainId(chainId: number): Network {
@@ -72,6 +80,7 @@ export class AlchemyService {
   async getOwnersForContract(
     params: GetOwnersForContractParams
   ): Promise<GetOwnersForContractResponse> {
+    this.validateApiKey();
     try {
       this.logger.debug(
         `Getting owners for contract: ${params.contractAddress} on chain ${params.chainId}`

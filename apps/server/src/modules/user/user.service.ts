@@ -4,6 +4,7 @@ import { Queue } from 'bull';
 
 import {
   ImportContractUserOutput,
+  ImportNftHoldersOutput,
   ParsedUser,
   ParsedUserPersona,
   SuiteDatabaseCore,
@@ -95,7 +96,7 @@ export class UserService {
   async importNftHolders(
     contractAddress: string,
     chainId: number
-  ): Promise<ImportContractUserOutput[]> {
+  ): Promise<ImportNftHoldersOutput[]> {
     return this.userImporterService.importNftHolders(contractAddress, chainId);
   }
 }

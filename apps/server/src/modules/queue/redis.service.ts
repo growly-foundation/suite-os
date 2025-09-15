@@ -40,7 +40,26 @@ export class RedisService {
         url: redisUrl,
         token: redisToken,
       });
-      this.logger.log('Redis service initialized');
+      // Validate connection
+      this.validateConnection();
+    }
+  }
+
+  private async validateConnection(retries = 3): Promise<void> {
+    for (let i = 0; i < retries; i++) {
+      try {
+        await this.redis.ping();
+        this.logger.log('Redis service initialized and connected');
+        return;
+      } catch (error) {
+        this.logger.warn(`Redis connection attempt ${i + 1} failed:`, error);
+        if (i === retries - 1) {
+          this.logger.error('Failed to connect to Redis after retries');
+          throw error;
+        }
+        // Wait before retry with exponential backoff
+        await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+      }
     }
   }
 
@@ -50,6 +69,13 @@ export class RedisService {
 
   private getOrgJobsKey(organizationId: string): string {
     return `org_jobs:${organizationId}`;
+  }
+
+  private getJobTTL(total: number): number {
+    // Base TTL of 1 hour, plus 1 minute per 100 users
+    const baseTTL = 3600;
+    const additionalTTL = Math.ceil(total / 100) * 60;
+    return Math.min(baseTTL + additionalTTL, 86400); // Cap at 24 hours
   }
 
   async createImportJob(
@@ -73,10 +99,13 @@ export class RedisService {
 
     try {
       if (this.redis) {
-        await this.redis.setex(this.getJobKey(jobId), 3600, JSON.stringify(job)); // 1 hour TTL
+        const ttl = this.getJobTTL(total);
+        await this.redis.setex(this.getJobKey(jobId), ttl, JSON.stringify(job));
         await this.redis.sadd(this.getOrgJobsKey(organizationId), jobId);
+        this.logger.debug(
+          `Created import job ${jobId} for organization ${organizationId} with TTL ${ttl}`
+        );
       }
-      this.logger.debug(`Created import job ${jobId} for organization ${organizationId}`);
     } catch (error) {
       this.logger.error(`Failed to create import job ${jobId}:`, error);
     }
@@ -116,7 +145,9 @@ export class RedisService {
               job.status = status;
             }
 
-            await this.redis.setex(this.getJobKey(jobId), 3600, JSON.stringify(job));
+            /// Refresh TTL for active jobs
+            const ttl = this.getJobTTL(job.progress.total);
+            await this.redis.setex(this.getJobKey(jobId), ttl, JSON.stringify(job));
             this.logger.debug(`Updated job ${jobId} progress: ${job.progress.percentage}%`);
           } catch (parseError) {
             this.logger.error(`Failed to parse job data for ${jobId}:`, parseError);
@@ -183,6 +214,8 @@ export class RedisService {
     }
   }
 
+  private corruptedJobsCount = 0;
+
   async getJobStatus(jobId: string): Promise<ImportJobStatus | null> {
     try {
       if (this.redis) {
@@ -197,6 +230,8 @@ export class RedisService {
               parsedData = JSON.parse(jobData);
             } catch (parseError) {
               this.logger.warn(`Invalid JSON data for job ${jobId}, removing corrupted entry`);
+              this.corruptedJobsCount++;
+              this.logger.warn(`Total corrupted jobs encountered: ${this.corruptedJobsCount}`);
               // Remove corrupted entry
               await this.redis.del(this.getJobKey(jobId));
               return null;
@@ -206,6 +241,7 @@ export class RedisService {
             parsedData = jobData;
           } else {
             this.logger.warn(`Unexpected data type for job ${jobId}: ${typeof jobData}`);
+            this.corruptedJobsCount++;
             return null;
           }
 
@@ -219,6 +255,8 @@ export class RedisService {
             this.logger.warn(
               `Invalid job data structure for job ${jobId}, removing corrupted entry`
             );
+            this.corruptedJobsCount++;
+            this.logger.warn(`Total corrupted jobs encountered: ${this.corruptedJobsCount}`);
             await this.redis.del(this.getJobKey(jobId));
             return null;
           }
@@ -233,6 +271,7 @@ export class RedisService {
       try {
         if (this.redis) {
           await this.redis.del(this.getJobKey(jobId));
+          this.corruptedJobsCount++;
           this.logger.log(`Removed corrupted job data for ${jobId}`);
         }
       } catch (cleanupError) {
@@ -240,6 +279,10 @@ export class RedisService {
       }
       return null;
     }
+  }
+
+  getCorruptedJobsMetrics() {
+    return { corruptedJobsCount: this.corruptedJobsCount };
   }
 
   async getOrganizationJobs(organizationId: string): Promise<ImportJobStatus[]> {

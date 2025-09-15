@@ -2,8 +2,9 @@
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { ImportLimitCheckResult } from '@/lib/services/user-import.service';
 import { AlertTriangle, Info, Users } from 'lucide-react';
+
+import { ImportLimitCheckResult } from '@getgrowly/core';
 
 interface UserLimitWarningProps {
   limits: ImportLimitCheckResult;

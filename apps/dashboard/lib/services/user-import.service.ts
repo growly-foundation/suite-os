@@ -154,10 +154,16 @@ export class UserImportService {
     organizationId: string
   ): Promise<{ jobId: string; status: string }> {
     try {
-      const response = await axios.post(`${SERVER_API_URL}/user/commit-imported-users-async`, {
-        users,
-        organizationId,
-      });
+      const response = await axios.post(
+        `${SERVER_API_URL}/user/commit-imported-users-async`,
+        {
+          users,
+          organizationId,
+        },
+        {
+          timeout: 30000, // 30 second timeout for async job creation
+        }
+      );
 
       return response.data;
     } catch (error) {

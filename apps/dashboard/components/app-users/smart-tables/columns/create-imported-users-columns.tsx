@@ -16,6 +16,21 @@ import {
 
 import { getFormatter } from './column-formatters';
 
+const sharedBlockchainColumns = {
+  contractAddress: {
+    id: 'contractAddress',
+    header: 'Contract Address',
+    enableSorting: true,
+    enableResizing: true,
+  },
+  chainId: {
+    id: 'chainId',
+    header: 'Chain ID',
+    enableSorting: true,
+    enableResizing: true,
+  },
+};
+
 export const columnImportedUserDefinitions: Record<string, ColumnDef<ImportUserOutput>> = {
   identity: {
     id: 'identity',
@@ -179,18 +194,12 @@ export const columnImportedContractUserDefinitions: Partial<
   Record<keyof ContractInteractionMetadata, ColumnDef<ImportContractUserOutput>>
 > = {
   contractAddress: {
-    id: 'contractAddress',
+    ...sharedBlockchainColumns.contractAddress,
     accessorFn: (row: ImportContractUserOutput) => row.extra?.contractAddress || '',
-    header: 'Contract Address',
-    enableSorting: true,
-    enableResizing: true,
   },
   chainId: {
-    id: 'chainId',
+    ...sharedBlockchainColumns.chainId,
     accessorFn: (row: ImportContractUserOutput) => row.extra?.chainId || '',
-    header: 'Chain ID',
-    enableSorting: true,
-    enableResizing: true,
   },
   transactionCount: {
     id: 'transactionCount',
@@ -225,18 +234,12 @@ export const columnImportedNftHoldersUserDefinitions: Partial<
   Record<keyof NftHoldersMetadata, ColumnDef<ImportNftHoldersOutput>>
 > = {
   contractAddress: {
-    id: 'contractAddress',
+    ...sharedBlockchainColumns.contractAddress,
     accessorFn: (row: ImportNftHoldersOutput) => row.extra?.contractAddress || '',
-    header: 'Contract Address',
-    enableSorting: true,
-    enableResizing: true,
   },
   chainId: {
-    id: 'chainId',
+    ...sharedBlockchainColumns.chainId,
     accessorFn: (row: ImportNftHoldersOutput) => row.extra?.chainId || '',
-    header: 'Chain ID',
-    enableSorting: true,
-    enableResizing: true,
   },
   totalTokensOwned: {
     id: 'totalTokensOwned',

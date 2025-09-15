@@ -29,6 +29,7 @@ export function ImportProgress({
   useEffect(() => {
     let intervalRef: NodeJS.Timeout | null = null;
     let isComponentMounted = true;
+    let shouldContinuePolling = true;
 
     const pollJobStatus = async () => {
       try {
@@ -43,6 +44,7 @@ export function ImportProgress({
 
           // If job is completed or failed, stop polling
           if (status.status === 'completed' || status.status === 'failed') {
+            shouldContinuePolling = false;
             // Clear the interval immediately to stop further polling
             if (intervalRef) {
               clearInterval(intervalRef);
@@ -70,6 +72,11 @@ export function ImportProgress({
         if (isComponentMounted) {
           setError('Failed to get import status');
           setLoading(false);
+          shouldContinuePolling = false;
+          if (intervalRef) {
+            clearInterval(intervalRef);
+            intervalRef = null;
+          }
         }
       }
     };
@@ -79,25 +86,19 @@ export function ImportProgress({
 
     // Poll every 2 seconds if job is still running
     intervalRef = setInterval(() => {
-      // Only poll if job is still running and completion hasn't been called
-      if (jobStatus?.status === 'pending' || jobStatus?.status === 'processing') {
-        if (!hasCompletionBeenCalled) {
-          pollJobStatus();
-        }
-      } else if (intervalRef) {
-        // Clear interval if job is no longer running
-        clearInterval(intervalRef);
-        intervalRef = null;
+      if (shouldContinuePolling && !hasCompletionBeenCalled) {
+        pollJobStatus();
       }
     }, 2000);
 
     return () => {
       isComponentMounted = false;
+      shouldContinuePolling = false;
       if (intervalRef) {
         clearInterval(intervalRef);
       }
     };
-  }, [jobId, jobStatus?.status, onComplete, hasCompletionBeenCalled, initialJobStatus]);
+  }, [jobId, onComplete, hasCompletionBeenCalled, initialJobStatus]);
 
   if (loading && !jobStatus) {
     return (

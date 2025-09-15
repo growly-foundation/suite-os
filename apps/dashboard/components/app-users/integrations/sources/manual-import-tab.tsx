@@ -18,6 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { ImportLimitCheckResult, UserImportService } from '@/lib/services/user-import.service';
+import { debounce } from '@/lib/utils';
 import { Download, InfoIcon, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -50,8 +51,8 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
 
   const { selectedOrganization } = useDashboardState();
 
-  // Check organization limits when users are selected
-  const checkOrganizationLimits = useCallback(async () => {
+  // Check organization limits when users are fetched or selected users change
+  const checkOrganizationLimitsInternal = async () => {
     if (!selectedOrganization?.id) return;
 
     const usersToImport = selectedUserIds.length;
@@ -70,7 +71,12 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
       console.error('Error checking organization limits:', error);
       toast.error('Failed to check organization limits');
     }
-  }, [selectedOrganization?.id, selectedUserIds.length]);
+  };
+
+  const checkOrganizationLimits = useCallback(debounce(checkOrganizationLimitsInternal, 500), [
+    selectedOrganization?.id,
+    selectedUserIds.length,
+  ]);
 
   // Check limits when selected users change
   useEffect(() => {
@@ -270,6 +276,12 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
 
   // Handle import completion
   const handleImportComplete = (result: any) => {
+    if (!result || typeof result.status !== 'string') {
+      console.error('Invalid import result:', result);
+      toast.error('Import completed with unknown status');
+      return;
+    }
+
     if (result.status === 'completed') {
       // Don't show toast here - ImportProgressDialog handles it
       onImportComplete?.();
@@ -279,6 +291,8 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
       // Don't show toast here - ImportProgressDialog handles it
       // Just trigger the completion callback
       onImportComplete?.();
+    } else {
+      console.warn('Unexpected import status:', result.status);
     }
   };
 
@@ -305,12 +319,6 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
       setLoadingMore(false);
     }
   }, []);
-
-  // Remove a user from the list
-  const handleRemoveUser = (walletAddress: string) => {
-    setAllUsers(prevUsers => prevUsers.filter(u => u.walletAddress !== walletAddress));
-    toast.success('User removed successfully');
-  };
 
   return (
     <>

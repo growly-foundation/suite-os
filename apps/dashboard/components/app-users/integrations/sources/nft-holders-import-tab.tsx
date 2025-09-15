@@ -6,6 +6,7 @@ import { UserLimitWarning } from '@/components/app-users/integrations/user-limit
 import { UserSelectionList } from '@/components/app-users/integrations/user-selection-list';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { ChainIcon } from '@/components/ui/chain-icon';
 import {
   Dialog,
   DialogContent,
@@ -22,8 +23,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { SUPPORT_EMAIL } from '@/constants/text';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { ImportLimitCheckResult, UserImportService } from '@/lib/services/user-import.service';
+import { debounce } from '@/lib/utils';
 import { detectAddressType } from '@/utils/contract';
 import { InfoIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -59,29 +62,29 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
   const PAGE_SIZE = 50; // Show 50 users per page for imports
 
   const { selectedOrganization } = useDashboardState();
-  const [contractType, setContractType] = useState<string | null>('');
+  const [contractType, setContractType] = useState<string | null>(null);
   const [addressError, setAddressError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const validateContractAddress = async () => {
+  const debouncedValidateContractAddress = useCallback(
+    debounce(async (address: string, chain: number) => {
       setLoading(true);
-      if (contractAddress) {
-        if (!contractAddress.startsWith('0x')) {
+
+      if (address) {
+        if (!address.startsWith('0x')) {
           setAddressError('Address must start with 0x');
           setContractType(null);
+          setLoading(false);
           return;
         } else {
           setAddressError(null);
         }
-        const type = await detectAddressType(contractAddress as `0x${string}`, chainId);
+        const type = await detectAddressType(address as `0x${string}`, chain);
         if (type === 'Wallet (EOA)') {
           setAddressError(
             'Invalid contract address: Address not found or is an EOA (Externally Owned Account)'
           );
           setContractType(null);
-        }
-
-        if (type === 'ERC721' || type === 'ERC1155') {
+        } else if (type === 'ERC721' || type === 'ERC1155') {
           setContractType(type);
           setAddressError(null);
         } else {
@@ -95,10 +98,13 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
         setAddressError(null);
       }
       setLoading(false);
-    };
+    }, 500),
+    []
+  );
 
-    validateContractAddress();
-  }, [contractAddress, chainId]);
+  useEffect(() => {
+    debouncedValidateContractAddress(contractAddress, chainId);
+  }, [contractAddress, chainId, debouncedValidateContractAddress]);
 
   // Check organization limits when users are fetched or selected users change
   const checkOrganizationLimits = useCallback(async () => {
@@ -308,8 +314,8 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
               <p className="text-muted-foreground text-sm mt-2 italic">
                 At the current stage, one organization can only have maximum 500 users. If you need
                 more, contact us at{' '}
-                <a href="mailto:team@getsuite.io" className="text-blue-500">
-                  team@getsuite.io
+                <a href={`mailto:${SUPPORT_EMAIL}`} className="text-blue-500">
+                  {SUPPORT_EMAIL}
                 </a>
                 .
               </p>
@@ -359,8 +365,18 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
                       <SelectValue placeholder="Select a chain" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">1 - Ethereum Mainnet</SelectItem>
-                      <SelectItem value="8453">8453 - Base</SelectItem>
+                      <SelectItem value="1">
+                        <div className="flex items-center gap-2">
+                          <ChainIcon chainIds={[1]} />
+                          Ethereum Mainnet
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="8453">
+                        <div className="flex items-center gap-2">
+                          <ChainIcon chainIds={[8453]} />
+                          Base
+                        </div>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

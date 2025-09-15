@@ -2,7 +2,6 @@
 
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { Check, Copy } from 'lucide-react';
-import * as React from 'react';
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip';
 
@@ -33,9 +32,17 @@ export function CopyTooltip({
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div
+          <button
+            type="button"
+            aria-label="Copy to clipboard"
             className={`cursor-pointer inline-flex items-center gap-1 ${className}`}
-            onClick={handleCopy}>
+            onClick={handleCopy}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleCopy(e as any);
+              }
+            }}>
             {children}
             {showIcon && (
               <span className="ml-1">
@@ -46,7 +53,7 @@ export function CopyTooltip({
                 )}
               </span>
             )}
-          </div>
+          </button>
         </TooltipTrigger>
         <TooltipContent side={side}>
           <p className="text-xs text-muted-foreground">

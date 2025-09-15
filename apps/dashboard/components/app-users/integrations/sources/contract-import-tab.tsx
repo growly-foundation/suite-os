@@ -6,6 +6,7 @@ import { UserLimitWarning } from '@/components/app-users/integrations/user-limit
 import { UserSelectionList } from '@/components/app-users/integrations/user-selection-list';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { ChainIcon } from '@/components/ui/chain-icon';
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,7 @@ import {
 } from '@/components/ui/select';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { ImportLimitCheckResult, UserImportService } from '@/lib/services/user-import.service';
+import { debounce } from '@/lib/utils';
 import { detectAddressType } from '@/utils/contract';
 import { InfoIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -59,21 +61,23 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   const PAGE_SIZE = 50; // Show 50 users per page for imports
 
   const { selectedOrganization } = useDashboardState();
-  const [contractType, setContractType] = useState<string | null>('');
+  const [contractType, setContractType] = useState<string | null>(null);
   const [addressError, setAddressError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const validateContractAddress = async () => {
+  const debouncedValidateContractAddress = useCallback(
+    debounce(async (address: string, chain: number) => {
       setLoading(true);
-      if (contractAddress) {
-        if (!contractAddress.startsWith('0x')) {
+
+      if (address) {
+        if (!address.startsWith('0x')) {
           setAddressError('Address must start with 0x');
           setContractType(null);
+          setLoading(false);
           return;
         } else {
           setAddressError(null);
         }
-        const type = await detectAddressType(contractAddress as `0x${string}`, chainId);
+        const type = await detectAddressType(address as `0x${string}`, chain);
         if (type === 'Wallet (EOA)') {
           setAddressError(
             'Invalid contract address: Address not found or is an EOA (Externally Owned Account)'
@@ -87,13 +91,16 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
         setAddressError(null);
       }
       setLoading(false);
-    };
+    }, 500),
+    []
+  );
 
-    validateContractAddress();
-  }, [contractAddress, chainId]);
+  useEffect(() => {
+    debouncedValidateContractAddress(contractAddress, chainId);
+  }, [contractAddress, chainId, debouncedValidateContractAddress]);
 
   // Check organization limits when users are fetched or selected users change
-  const checkOrganizationLimits = useCallback(async () => {
+  const checkOrganizationLimitsInternal = async () => {
     if (!selectedOrganization?.id) return;
 
     const usersToImport = selectedUserIds.length;
@@ -112,7 +119,12 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
       console.error('Error checking organization limits:', error);
       toast.error('Failed to check organization limits');
     }
-  }, [selectedOrganization?.id, selectedUserIds.length]);
+  };
+
+  const checkOrganizationLimits = useCallback(debounce(checkOrganizationLimitsInternal, 500), [
+    selectedOrganization?.id,
+    selectedUserIds.length,
+  ]);
 
   // Check limits when selected users change
   useEffect(() => {
@@ -245,10 +257,17 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   // Handle import completion
   const handleImportComplete = (result: any) => {
     if (result.status === 'completed') {
-      // Don't show toast here - ImportProgressDialog handles it
       onImportComplete?.();
-      // Redirect to users page after successful import
-      router.push('/dashboard/users');
+      // Show summary if there were failures
+      if (result.failedCount > 0) {
+        toast.warning(
+          `Import completed with ${result.failedCount} failures. Check the users page for details.`
+        );
+      }
+      // Small delay to allow user to see the completion message
+      setTimeout(() => {
+        router.push('/dashboard/users');
+      }, 1500);
     } else if (result.status === 'failed') {
       // Don't show toast here - ImportProgressDialog handles it
       // Just trigger the completion callback
@@ -257,7 +276,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   };
 
   // Pagination logic - show users progressively as user scrolls
-  // This enables smooth infinite loading for large user lists (e.g., 1000+ contract users)
+  // This enables smooth infinite loading for large user lists (e.g., 1000 contract users)
   const displayedUsers = useMemo(() => {
     const endIndex = (currentPage + 1) * PAGE_SIZE;
     return allContractUsers.slice(0, endIndex);
@@ -352,8 +371,18 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
                       <SelectValue placeholder="Select a chain" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">1 - Ethereum Mainnet</SelectItem>
-                      <SelectItem value="8453">8453 - Base</SelectItem>
+                      <SelectItem value="1">
+                        <div className="flex items-center gap-2">
+                          <ChainIcon chainIds={[1]} />
+                          Ethereum Mainnet
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="8453">
+                        <div className="flex items-center gap-2">
+                          <ChainIcon chainIds={[8453]} />
+                          Base
+                        </div>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

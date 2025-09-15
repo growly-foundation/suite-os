@@ -88,34 +88,44 @@ export class ContractImporterService {
     this.validateInput(contractAddress, chainId);
 
     try {
-      // Get NFT holders with token balances
-      const nftHoldersResponse = await this.alchemyService.getOwnersForContract({
-        contractAddress,
-        chainId,
-        withTokenBalances: true,
-      });
-
-      // Convert holders to ImportContractUserOutput format
-      const nftHolders = nftHoldersResponse.owners.map(owner => ({
-        walletAddress: owner.ownerAddress,
-        extra: {
+      const allNftHolders: ImportNftHoldersOutput[] = [];
+      let pageKey: string | undefined;
+      do {
+        // Get NFT holders with token balances
+        const nftHoldersResponse = await this.alchemyService.getOwnersForContract({
           contractAddress,
           chainId,
-          tokenBalances: owner.tokenBalances || [],
-          totalTokensOwned:
-            owner.tokenBalances?.reduce((sum, token) => sum + token.balance, 0) || 0,
-          uniqueTokensOwned: owner.tokenBalances?.length || 0,
-        },
-        source: UserImportSource.NftHolders,
-      }));
+          withTokenBalances: true,
+          pageKey,
+        });
+
+        // Convert holders to ImportContractUserOutput format
+        const nftHolders = nftHoldersResponse.owners.map(owner => ({
+          walletAddress: owner.ownerAddress,
+          extra: {
+            contractAddress,
+            chainId,
+            tokenBalances: owner.tokenBalances || [],
+            totalTokensOwned:
+              owner.tokenBalances?.reduce((sum, token) => sum + token.balance, 0) || 0,
+            uniqueTokensOwned: owner.tokenBalances?.length || 0,
+          },
+          source: UserImportSource.NftHolders,
+        }));
+        allNftHolders.push(...nftHolders);
+        pageKey = nftHoldersResponse.pageKey;
+
+        this.logger.debug(
+          `Fetched ${nftHolders.length} holders, total so far: ${allNftHolders.length}`
+        );
+      } while (pageKey);
 
       this.logger.log(`NFT holder import complete for ${contractAddress} on chain ${chainId}:`);
-      this.logger.log(`- Total holders found: ${nftHolders.length}`);
+      this.logger.log(`- Total holders found: ${allNftHolders.length}`);
       this.logger.log(
-        `- Total unique tokens: ${nftHolders.reduce((sum, holder) => sum + (holder.extra.uniqueTokensOwned || 0), 0)}`
+        `- Total unique tokens: ${allNftHolders.reduce((sum, holder) => sum + (holder.extra?.uniqueTokensOwned || 0), 0)}`
       );
-
-      return nftHolders;
+      return allNftHolders;
     } catch (error) {
       this.logger.error(
         `Failed to import NFT holders for contract ${contractAddress} on chain ${chainId}:`,

@@ -11,11 +11,11 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
     return this.supabase.schema('public');
   }
 
-  private CHUNK_SIZE = 70;
+  private readonly CHUNK_SIZE = 70;
 
   // Helper method to split arrays into chunks
-  private chunkArray<T>(array: T[], chunkSize: number): T[][] {
-    const chunks: T[][] = [];
+  private chunkArray<U>(array: U[], chunkSize: number): U[][] {
+    const chunks: U[][] = [];
     for (let i = 0; i < array.length; i += chunkSize) {
       chunks.push(array.slice(i, i + chunkSize));
     }
@@ -116,15 +116,21 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
       if (error) throw error;
       return data;
     });
-
     // Wait for all batches to complete and combine results
     const batchResults = await Promise.all(batchPromises);
     const combinedResults = batchResults.flat();
 
-    // Apply limit if specified (after combining all results)
-    const finalResults = limit ? combinedResults.slice(0, limit) : combinedResults;
+    // Re-sort globally, then apply limit
+    const sortedResults = orderBy
+      ? (combinedResults as any[]).sort((a, b) => {
+          const va = (a as any)[orderBy.field as string];
+          const vb = (b as any)[orderBy.field as string];
+          if (va === vb) return 0;
+          return (va > vb ? 1 : -1) * (orderBy.ascending ? 1 : -1);
+        })
+      : combinedResults;
 
-    return finalResults;
+    return limit ? sortedResults.slice(0, limit) : sortedResults;
   }
 
   async getManyByFields(
@@ -165,10 +171,17 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
     const batchResults = await Promise.all(batchPromises);
     const combinedResults = batchResults.flat();
 
-    // Apply limit if specified (after combining all results)
-    const finalResults = limit ? combinedResults.slice(0, limit) : combinedResults;
+    // Re-sort globally, then apply limit
+    const sortedResults = orderBy
+      ? (combinedResults as any[]).sort((a, b) => {
+          const va = (a as any)[orderBy.field as string];
+          const vb = (b as any)[orderBy.field as string];
+          if (va === vb) return 0;
+          return (va > vb ? 1 : -1) * (orderBy.ascending ? 1 : -1);
+        })
+      : combinedResults;
 
-    return finalResults;
+    return limit ? sortedResults.slice(0, limit) : sortedResults;
   }
 
   async getOneByFields(
