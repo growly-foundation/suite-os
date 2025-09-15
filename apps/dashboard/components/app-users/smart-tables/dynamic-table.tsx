@@ -15,7 +15,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { ArrowUpDown, ChevronDown, ChevronUp } from 'lucide-react';
-import { ReactNode, useCallback, useMemo, useState } from 'react';
+import React, { ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/table';
 import { EmptyState } from './empty-state';
@@ -292,244 +292,248 @@ export function DynamicTable<TData = any>({
   return (
     <div className={cn('w-full h-full flex flex-col', className)}>
       {/* Table Container */}
-      {!isLoading && data.length > 0 && (
-        <div className="flex-1 flex flex-col h-full">
-          {/* Fixed Table Toolbar */}
-          {enableColumnReordering && (
-            <div
-              className="flex-shrink-0 bg-background border-b z-20"
-              style={{ height: TOOLBAR_HEIGHT }}>
-              <TableToolbar
-                table={table}
-                enableColumnVisibility={true}
-                tableLabel={tableLabel}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                searchPlaceholder={searchPlaceholder}
-                additionalActions={additionalActions}
-              />
-            </div>
-          )}
-
-          {/* Empty State */}
-          {!isLoading && data.length === 0 && (
-            <div className="flex-1 flex items-center justify-center p-4">
-              <EmptyState
-                message={emptyMessage}
-                description={emptyDescription}
-                className={className}
-                status={searchQuery ? 'no-results' : 'empty'}
-                action={
-                  searchQuery
-                    ? {
-                        label: 'Clear search',
-                        onClick: () => setSearchQuery?.(''),
-                      }
-                    : undefined
-                }
-              />
-            </div>
-          )}
-
-          {/* Table with sticky header */}
+      <div className="flex-1 flex flex-col h-full">
+        {/* Fixed Table Toolbar */}
+        {enableColumnReordering && (
           <div
-            className="flex-1 overflow-auto relative h-full"
-            onScroll={event => {
-              const target = event.currentTarget;
-              const { scrollTop, scrollHeight, clientHeight } = target;
-              const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+            className="flex-shrink-0 bg-background border-b z-20"
+            style={{ height: TOOLBAR_HEIGHT }}>
+            <TableToolbar
+              table={table}
+              enableColumnVisibility={true}
+              tableLabel={tableLabel}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              searchPlaceholder={searchPlaceholder}
+              additionalActions={additionalActions}
+            />
+          </div>
+        )}
 
-              if (isNearBottom && !isLoading && hasMore && onLoadMore) {
-                const nextPage = currentPage + 1;
-                onLoadMore({ page: nextPage, pageSize });
+        {/* Empty State */}
+        {!isLoading && data.length === 0 && (
+          <div className="flex-1 flex items-center justify-center p-4">
+            <EmptyState
+              message={emptyMessage}
+              description={emptyDescription}
+              className={className}
+              status={searchQuery ? 'no-results' : 'empty'}
+              action={
+                searchQuery
+                  ? {
+                      label: 'Clear search',
+                      onClick: () => setSearchQuery?.(''),
+                    }
+                  : undefined
               }
-            }}>
-            <Table className="w-full table-fixed">
-              <TableHeader
-                className="sticky top-0 bg-background shadow-sm"
-                style={{ height: HEADER_HEIGHT }}>
-                {table.getHeaderGroups().map(headerGroup => (
-                  <TableRow key={headerGroup.id} className="border-b">
-                    {headerGroup.headers.map((header, index) => {
-                      const isFrozen = (header.column.columnDef.meta as any)?.frozen;
-                      const isSortable = enableSorting && header.column.getCanSort();
-                      const leftPosition = isFrozen
-                        ? calculateFrozenColumnPosition(index, headerGroup.headers)
-                        : 'auto';
+            />
+          </div>
+        )}
 
-                      return (
-                        <TableHead
-                          key={`${header.id}-${index}`}
-                          style={{
-                            width: header.getSize(),
-                            position: isFrozen ? ('sticky' as const) : ('relative' as const),
-                            left: leftPosition,
-                            zIndex: isFrozen ? 20 : 'auto',
-                            backgroundColor: isFrozen ? 'hsl(var(--background))' : 'transparent',
-                            boxShadow: isFrozen ? '1px 0 0 0 hsl(var(--border))' : 'none',
-                          }}
-                          className={cn(
-                            'relative overflow-hidden py-3',
-                            header.column.getCanResize() && 'cursor-col-resize',
-                            isFrozen && 'shadow-sm'
-                          )}>
-                          {header.isPlaceholder ? null : isSortable ? (
-                            <SortableHeader column={header.column} />
-                          ) : (
-                            flexRender(header.column.columnDef.header, header.getContext())
-                          )}
-                          {header.column.getCanResize() && (
-                            <div
-                              onMouseDown={header.getResizeHandler()}
-                              onTouchStart={header.getResizeHandler()}
-                              className={cn(
-                                'absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-primary/50 active:bg-primary',
-                                header.column.getIsResizing() && 'bg-primary'
-                              )}
-                              style={{ zIndex: 30 }}
-                            />
-                          )}
-                        </TableHead>
-                      );
-                    })}
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map((row, index) => (
-                    <TableRow
-                      key={`${row.id}-${index}`}
-                      data-state={row.getIsSelected() && 'selected'}
-                      className={cn(
-                        onRowClick && 'cursor-pointer hover:bg-muted/50',
-                        'transition-all duration-200 ease-out animate-row-in border-b',
-                        row.getIsSelected() && 'bg-muted/30'
-                      )}
-                      style={{
-                        animationDelay: `${index * 30}ms`,
-                        animationFillMode: 'both',
-                      }}
-                      onClick={e => {
-                        if ((e.target as HTMLElement).tagName === 'INPUT') return;
-                        // Prevent multiple rapid clicks
-                        if (e.detail > 1) return;
-                        // Use requestAnimationFrame to debounce the click
-                        requestAnimationFrame(() => {
-                          onRowClick?.(row.original);
-                        });
-                      }}>
-                      {row.getVisibleCells().map((cell, index) => {
-                        const isFrozen = (cell.column.columnDef.meta as any)?.frozen;
+        {!isLoading && data.length > 0 && (
+          <React.Fragment>
+            {/* Table with sticky header */}
+            <div
+              className="flex-1 overflow-auto relative h-full"
+              onScroll={event => {
+                const target = event.currentTarget;
+                const { scrollTop, scrollHeight, clientHeight } = target;
+                const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+
+                if (isNearBottom && !isLoading && hasMore && onLoadMore) {
+                  const nextPage = currentPage + 1;
+                  onLoadMore({ page: nextPage, pageSize });
+                }
+              }}>
+              <Table className="w-full table-fixed">
+                <TableHeader
+                  className="sticky top-0 bg-background shadow-sm"
+                  style={{ height: HEADER_HEIGHT }}>
+                  {table.getHeaderGroups().map(headerGroup => (
+                    <TableRow key={headerGroup.id} className="border-b">
+                      {headerGroup.headers.map((header, index) => {
+                        const isFrozen = (header.column.columnDef.meta as any)?.frozen;
+                        const isSortable = enableSorting && header.column.getCanSort();
                         const leftPosition = isFrozen
-                          ? calculateFrozenColumnPosition(index, row.getVisibleCells())
+                          ? calculateFrozenColumnPosition(index, headerGroup.headers)
                           : 'auto';
 
                         return (
-                          <TableCell
-                            key={cell.id}
+                          <TableHead
+                            key={`${header.id}-${index}`}
                             style={{
-                              width: cell.column.getSize(),
+                              width: header.getSize(),
                               position: isFrozen ? ('sticky' as const) : ('relative' as const),
                               left: leftPosition,
-                              zIndex: isFrozen ? 5 : 'auto',
+                              zIndex: isFrozen ? 20 : 'auto',
                               backgroundColor: isFrozen ? 'hsl(var(--background))' : 'transparent',
                               boxShadow: isFrozen ? '1px 0 0 0 hsl(var(--border))' : 'none',
                             }}
-                            className={cn('overflow-hidden py-3', isFrozen && 'shadow-sm')}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </TableCell>
+                            className={cn(
+                              'relative overflow-hidden py-3',
+                              header.column.getCanResize() && 'cursor-col-resize',
+                              isFrozen && 'shadow-sm'
+                            )}>
+                            {header.isPlaceholder ? null : isSortable ? (
+                              <SortableHeader column={header.column} />
+                            ) : (
+                              flexRender(header.column.columnDef.header, header.getContext())
+                            )}
+                            {header.column.getCanResize() && (
+                              <div
+                                onMouseDown={header.getResizeHandler()}
+                                onTouchStart={header.getResizeHandler()}
+                                className={cn(
+                                  'absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-primary/50 active:bg-primary',
+                                  header.column.getIsResizing() && 'bg-primary'
+                                )}
+                                style={{ zIndex: 30 }}
+                              />
+                            )}
+                          </TableHead>
                         );
                       })}
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={columns.length} className="h-24 text-center">
-                      No results.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                  ))}
+                </TableHeader>
+                <TableBody>
+                  {table.getRowModel().rows?.length ? (
+                    table.getRowModel().rows.map((row, index) => (
+                      <TableRow
+                        key={`${row.id}-${index}`}
+                        data-state={row.getIsSelected() && 'selected'}
+                        className={cn(
+                          onRowClick && 'cursor-pointer hover:bg-muted/50',
+                          'transition-all duration-200 ease-out animate-row-in border-b',
+                          row.getIsSelected() && 'bg-muted/30'
+                        )}
+                        style={{
+                          animationDelay: `${index * 30}ms`,
+                          animationFillMode: 'both',
+                        }}
+                        onClick={e => {
+                          if ((e.target as HTMLElement).tagName === 'INPUT') return;
+                          // Prevent multiple rapid clicks
+                          if (e.detail > 1) return;
+                          // Use requestAnimationFrame to debounce the click
+                          requestAnimationFrame(() => {
+                            onRowClick?.(row.original);
+                          });
+                        }}>
+                        {row.getVisibleCells().map((cell, index) => {
+                          const isFrozen = (cell.column.columnDef.meta as any)?.frozen;
+                          const leftPosition = isFrozen
+                            ? calculateFrozenColumnPosition(index, row.getVisibleCells())
+                            : 'auto';
 
-            {/* Loading indicators */}
-            {loadingMore && (
-              <div className="py-4 flex flex-col items-center justify-center gap-2">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
-                <span className="text-sm text-muted-foreground">Loading more items...</span>
-              </div>
-            )}
-            {hasMore &&
-              totalItems > 0 &&
-              totalItems > data.length &&
-              !loadingMore &&
-              data.length > 0 && (
-                <div className="py-4 text-center text-sm text-muted-foreground">
-                  Scroll to load more ({data.length} items loaded)
+                          return (
+                            <TableCell
+                              key={cell.id}
+                              style={{
+                                width: cell.column.getSize(),
+                                position: isFrozen ? ('sticky' as const) : ('relative' as const),
+                                left: leftPosition,
+                                zIndex: isFrozen ? 5 : 'auto',
+                                backgroundColor: isFrozen
+                                  ? 'hsl(var(--background))'
+                                  : 'transparent',
+                                boxShadow: isFrozen ? '1px 0 0 0 hsl(var(--border))' : 'none',
+                              }}
+                              className={cn('overflow-hidden py-3', isFrozen && 'shadow-sm')}>
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </TableCell>
+                          );
+                        })}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={columns.length} className="h-24 text-center">
+                        No results.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+
+              {/* Loading indicators */}
+              {loadingMore && (
+                <div className="py-4 flex flex-col items-center justify-center gap-2">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+                  <span className="text-sm text-muted-foreground">Loading more items...</span>
                 </div>
               )}
-          </div>
-
-          {/* Fixed Footer */}
-          {enableFooter && (
-            <div
-              className="w-full flex-none border-t bg-muted/50"
-              style={{ height: FOOTER_HEIGHT }}>
-              <Table className="w-full table-fixed">
-                <TableHeader>
-                  <TableRow>
-                    {table.getHeaderGroups()[0].headers.map((header, index) => {
-                      const isFrozen = (header.column.columnDef.meta as any)?.frozen;
-                      const footerValue = getFooterValue?.(header.column.id);
-                      const leftPosition = isFrozen
-                        ? calculateFrozenColumnPosition(index, table.getHeaderGroups()[0].headers)
-                        : 'auto';
-
-                      const formatFooterValue = (value: any, columnId: string) => {
-                        if (value === undefined || value === null || value === '') return '';
-                        switch (columnId) {
-                          case 'identity':
-                            return value;
-                          case 'portfolioValue':
-                            return `$${Number(value).toLocaleString()} USD`;
-                          case 'transactions':
-                          case 'tokens':
-                            return Number(value).toLocaleString();
-                          case 'firstSignedIn':
-                          case 'walletCreatedAt':
-                            return value;
-                          default:
-                            return value;
-                        }
-                      };
-
-                      return (
-                        <TableHead
-                          key={`footer-${header.id}-${index}`}
-                          style={{
-                            width: header.getSize(),
-                            position: isFrozen ? ('sticky' as const) : ('relative' as const),
-                            left: leftPosition,
-                            zIndex: isFrozen ? 20 : 'auto',
-                            backgroundColor: 'hsl(var(--muted))',
-                            boxShadow: isFrozen ? '1px 0 0 0 hsl(var(--border))' : 'none',
-                          }}
-                          className={cn(
-                            'font-semibold text-xs overflow-hidden py-3',
-                            isFrozen && 'shadow-sm'
-                          )}>
-                          {index > 0 ? formatFooterValue(footerValue, header.column.id) : ''}
-                        </TableHead>
-                      );
-                    })}
-                  </TableRow>
-                </TableHeader>
-              </Table>
+              {hasMore &&
+                totalItems > 0 &&
+                totalItems > data.length &&
+                !loadingMore &&
+                data.length > 0 && (
+                  <div className="py-4 text-center text-sm text-muted-foreground">
+                    Scroll to load more ({data.length} items loaded)
+                  </div>
+                )}
             </div>
-          )}
-        </div>
-      )}
+
+            {/* Fixed Footer */}
+            {enableFooter && (
+              <div
+                className="w-full flex-none border-t bg-muted/50"
+                style={{ height: FOOTER_HEIGHT }}>
+                <Table className="w-full table-fixed">
+                  <TableHeader>
+                    <TableRow>
+                      {table.getHeaderGroups()[0].headers.map((header, index) => {
+                        const isFrozen = (header.column.columnDef.meta as any)?.frozen;
+                        const footerValue = getFooterValue?.(header.column.id);
+                        const leftPosition = isFrozen
+                          ? calculateFrozenColumnPosition(index, table.getHeaderGroups()[0].headers)
+                          : 'auto';
+
+                        const formatFooterValue = (value: any, columnId: string) => {
+                          if (value === undefined || value === null || value === '') return '';
+                          switch (columnId) {
+                            case 'identity':
+                              return value;
+                            case 'portfolioValue':
+                              return `$${Number(value).toLocaleString()} USD`;
+                            case 'transactions':
+                            case 'tokens':
+                              return Number(value).toLocaleString();
+                            case 'firstSignedIn':
+                            case 'walletCreatedAt':
+                              return value;
+                            default:
+                              return value;
+                          }
+                        };
+
+                        return (
+                          <TableHead
+                            key={`footer-${header.id}-${index}`}
+                            style={{
+                              width: header.getSize(),
+                              position: isFrozen ? ('sticky' as const) : ('relative' as const),
+                              left: leftPosition,
+                              zIndex: isFrozen ? 20 : 'auto',
+                              backgroundColor: 'hsl(var(--muted))',
+                              boxShadow: isFrozen ? '1px 0 0 0 hsl(var(--border))' : 'none',
+                            }}
+                            className={cn(
+                              'font-semibold text-xs overflow-hidden py-3',
+                              isFrozen && 'shadow-sm'
+                            )}>
+                            {index > 0 ? formatFooterValue(footerValue, header.column.id) : ''}
+                          </TableHead>
+                        );
+                      })}
+                    </TableRow>
+                  </TableHeader>
+                </Table>
+              </div>
+            )}
+          </React.Fragment>
+        )}
+      </div>
 
       {/* Loading overlay */}
       {isLoading && (
