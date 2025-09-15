@@ -145,7 +145,7 @@ export function ImportProgressDialog({ organizationId }: ImportProgressDialogPro
           <Activity className="h-4 w-4 mr-2" />
           Import Progress
           {hasActiveJobs && (
-            <div className="absolute -top-1 -right-1 h-3 w-3 bg-blue-500 rounded-full animate-pulse" />
+            <div className="absolute -top-1 -right-1 h-2 w-2 bg-blue-500 rounded-full animate-pulse" />
           )}
         </Button>
       </DialogTrigger>
