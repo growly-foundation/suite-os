@@ -3,7 +3,6 @@
 import { PanelLayout } from '@/components/panel/components/PanelLayout';
 import { useChatActions } from '@/hooks/use-chat-actions';
 import { useSuiteSession } from '@/hooks/use-session';
-import React from 'react';
 
 import { ConversationRole, ParsedUser } from '@getgrowly/core';
 
@@ -56,17 +55,21 @@ export function ChatPanelContainer({
   input: ChatInputProps;
 }) {
   return (
-    <React.Fragment>
+    <div className="flex flex-col h-full min-h-0">
       {user?.entities.walletAddress ? (
         <>
-          <PanelLayout>
-            <ChatMessageView {...view} />
-          </PanelLayout>
-          <ChatInput {...input} />
+          <div className="flex-1 min-h-0">
+            <PanelLayout>
+              <ChatMessageView {...view} />
+            </PanelLayout>
+          </div>
+          <div className="flex-shrink-0">
+            <ChatInput {...input} />
+          </div>
         </>
       ) : (
         <ConnectWallet />
       )}
-    </React.Fragment>
+    </div>
   );
 }

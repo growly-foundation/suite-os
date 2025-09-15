@@ -3,10 +3,13 @@
 import { UsersConversationSidebar } from '@/components/app-users/app-user-conversation-sidebar';
 import { ConversationArea } from '@/components/conversations/conversation-area';
 import { consumePersona } from '@/core/persona';
-import { suiteCore } from '@/core/suite';
 import { useAgentUsersEffect } from '@/hooks/use-agent-effect';
 import { useChatActions } from '@/hooks/use-chat-actions';
 import { useDashboardState } from '@/hooks/use-dashboard';
+import {
+  useConversationsCountQuery,
+  useConversationsWithMessagesQuery,
+} from '@/hooks/use-dashboard-queries';
 import { Sidebar } from 'lucide-react';
 import React, { useCallback, useEffect } from 'react';
 import { Address } from 'viem';
@@ -37,46 +40,31 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
   const [usersWithLatestMessage, setUsersWithLatestMessage] = React.useState<
     UserWithLatestMessage[]
   >([]);
-  const [currentPage, setCurrentPage] = React.useState(0);
-  const [isLoadingMore, setIsLoadingMore] = React.useState(false);
-  const [hasMore, setHasMore] = React.useState(true);
-  const [totalConversations, setTotalConversations] = React.useState(0);
   const PAGE_SIZE = 10;
 
   const { selectedUser, users, status } = useAgentUsersEffect(agent.id);
   const [open, setOpen] = React.useState(false);
   const persona = selectedUser ? consumePersona(selectedUser) : null;
 
-  // Chat actions with real-time messaging
+  // React Query hooks for conversations
   const {
-    sendAdminMessage,
-    sendAgentResponse,
-    markAsRead,
-    isConnected,
-    typingUsers,
-    realtimeMessages,
-  } = useChatActions();
+    data: conversationsWithMessages = [],
+    isLoading: isLoadingConversations,
+    refetch: refetchConversations,
+  } = useConversationsWithMessagesQuery(agent.id, PAGE_SIZE);
 
-  const fetchLatestMessages = useCallback(
-    async (page: number) => {
-      try {
-        setIsLoadingMore(true);
+  const { data: totalConversations = 0 } = useConversationsCountQuery(agent.id);
 
-        // Get total count on first load
-        if (page === 0) {
-          const total = await suiteCore.conversations.getConversationsWithMessagesCount(agent.id);
-          setTotalConversations(total);
-        }
+  // Chat actions with real-time messaging
+  const { sendAdminMessage, markAsRead, isConnected, typingUsers, realtimeMessages } =
+    useChatActions();
 
-        const conversations = await suiteCore.conversations.getPaginatedLatestConversations(
-          agent.id,
-          PAGE_SIZE,
-          page * PAGE_SIZE
-        );
-
-        // Map conversations to users
-        const newUsersWithMessages = await Promise.all(
-          conversations.map(async (conversation: LatestConversation & { userId: string }) => {
+  // Process conversations data when it loads
+  useEffect(() => {
+    if (conversationsWithMessages.length > 0 && users.length > 0) {
+      const newUsersWithMessages = conversationsWithMessages
+        .map(
+          (conversation: LatestConversation & { userId: string }): UserWithLatestMessage | null => {
             const user = users.find(u => u.id === conversation.userId);
             if (!user) return null;
 
@@ -86,38 +74,13 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
               latestMessageSender: conversation.message.sender,
               latestMessageContent: conversation.message.content || null,
             };
-          })
-        );
+          }
+        )
+        .filter((item): item is UserWithLatestMessage => item !== null);
 
-        // Filter out null values and update state
-        const validUsers = newUsersWithMessages.filter(
-          (item: UserWithLatestMessage | null): item is UserWithLatestMessage => item !== null
-        );
-
-        if (page === 0) {
-          setUsersWithLatestMessage(validUsers as UserWithLatestMessage[]);
-        } else {
-          setUsersWithLatestMessage(prev => [...prev, ...(validUsers as UserWithLatestMessage[])]);
-        }
-
-        // Update hasMore based on total count and current loaded items
-        const loadedCount = (page + 1) * PAGE_SIZE;
-        setHasMore(loadedCount < totalConversations);
-        setIsLoadingMore(false);
-      } catch (error) {
-        console.error('Error fetching latest messages:', error);
-        setIsLoadingMore(false);
-        setHasMore(false);
-      }
-    },
-    [agent.id, users, PAGE_SIZE, totalConversations]
-  );
-
-  // Load initial data
-  useEffect(() => {
-    setCurrentPage(0);
-    fetchLatestMessages(0);
-  }, [users, fetchLatestMessages]);
+      setUsersWithLatestMessage(newUsersWithMessages);
+    }
+  }, [conversationsWithMessages, users]);
 
   // Update latest messages when real-time messages arrive
   useEffect(() => {
@@ -145,16 +108,12 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
       );
       fetchCurrentConversationMessages(false);
     }
-  }, [realtimeMessages]);
+  }, [realtimeMessages, agent.id, fetchCurrentConversationMessages]);
 
-  // Handle loading more data
+  // Handle loading more data - for now, just refetch all conversations
   const handleLoadMore = useCallback(() => {
-    if (!isLoadingMore && hasMore) {
-      const nextPage = currentPage + 1;
-      setCurrentPage(nextPage);
-      fetchLatestMessages(nextPage);
-    }
-  }, [currentPage, isLoadingMore, hasMore, fetchLatestMessages]);
+    refetchConversations();
+  }, [refetchConversations]);
 
   // Send message from admin
   const handleSendMessage = useCallback(
@@ -167,16 +126,8 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
     [sendAdminMessage]
   );
 
-  // Send agent response (for testing)
-  const handleSendAgentResponse = useCallback(
-    (content: string) => {
-      sendAgentResponse(content);
-    },
-    [sendAgentResponse]
-  );
-
   return (
-    <div className="flex w-full overflow-hidden h-[calc(100vh-100px)]">
+    <div className="flex w-full overflow-hidden h-screen">
       {status === 'loading' ? (
         <div className="flex w-full items-center justify-center h-full">
           <AnimatedLoadingSmall />
@@ -188,11 +139,11 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
             selectedUser={selectedUser}
             onSelectUser={setSelectedAgentUser}
             onLoadMore={handleLoadMore}
-            isLoadingMore={isLoadingMore}
-            hasMore={hasMore}
+            isLoadingMore={isLoadingConversations}
+            hasMore={usersWithLatestMessage.length < totalConversations}
           />
-          <div className="flex-1 flex flex-col">
-            <div className="flex items-center justify-between px-4 py-2 border-b">
+          <div className="flex-1 flex flex-col min-h-0">
+            <div className="flex items-center justify-between px-4 py-2 border-b flex-shrink-0">
               <div className="flex items-center gap-3">
                 <AppUserAvatarWithStatus
                   size={35}
@@ -218,13 +169,15 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
                 )}
               />
             </div>
-            <ConversationArea
-              selectedUser={selectedUser}
-              onSendMessage={handleSendMessage}
-              onMarkAsRead={markAsRead}
-              isConnected={isConnected}
-              typingUsers={typingUsers}
-            />
+            <div className="flex-1 min-h-0">
+              <ConversationArea
+                selectedUser={selectedUser}
+                onSendMessage={handleSendMessage}
+                onMarkAsRead={markAsRead}
+                isConnected={isConnected}
+                typingUsers={typingUsers}
+              />
+            </div>
           </div>
           {/* User Details Drawer */}
           <ResizableSheet className="w-full" side="right" open={open} onOpenChange={setOpen}>

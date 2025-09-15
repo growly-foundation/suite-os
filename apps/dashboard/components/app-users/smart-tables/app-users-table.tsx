@@ -26,6 +26,10 @@ export function UsersTable({
   additionalActions,
   selectedRows,
   setSelectedRows,
+  hasMoreUsers,
+  isLoadingMore,
+  onLoadMore,
+  totalUsers,
 }: {
   users: ParsedUser[];
   tableLabel?: string;
@@ -34,6 +38,10 @@ export function UsersTable({
   additionalActions?: ReactNode;
   selectedRows?: Record<string, boolean>;
   setSelectedRows?: (rows: Record<string, boolean>) => void;
+  hasMoreUsers?: boolean;
+  isLoadingMore?: boolean;
+  onLoadMore?: () => void;
+  totalUsers?: number;
 }) {
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
@@ -69,7 +77,7 @@ export function UsersTable({
   const getFooterValue = (key: string) => {
     switch (key) {
       case 'identity':
-        return `${users.length} users`;
+        return `${users.length}${totalUsers ? ` of ${totalUsers}` : ''} users`;
       case 'firstSignedIn': {
         if (users.length === 0) return '';
         const dates = users
@@ -162,7 +170,7 @@ export function UsersTable({
       <DynamicTable<ParsedUser>
         data={users as ParsedUser[]}
         columns={columns}
-        pageSize={10}
+        pageSize={users.length} // Show all loaded users
         emptyMessage="No users found"
         emptyDescription="There are no users in your organization. Users will appear here once they sign up."
         onRowClick={user => {
@@ -177,7 +185,7 @@ export function UsersTable({
         enableFooter={true}
         getFooterValue={getFooterValue}
         // Auto-sort by First Signed In (newest first)
-        initialSorting={[{ id: 'portfolioValue', desc: true }]}
+        initialSorting={[{ id: 'firstSignedIn', desc: true }]}
         // Enable row selection to show frozen column
         enableRowSelection={true}
         selectedRows={selectedRows}
@@ -189,6 +197,10 @@ export function UsersTable({
         setSearchQuery={setSearchQuery}
         searchPlaceholder="Search ENS or address"
         additionalActions={additionalActions}
+        // Infinite loading props
+        hasMore={hasMoreUsers}
+        loadingMore={isLoadingMore}
+        onLoadMore={onLoadMore ? () => onLoadMore() : undefined}
       />
       <ResizableSheet
         side="right"

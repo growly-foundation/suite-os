@@ -7,7 +7,7 @@ import {
   DASHBOARD_WORKFLOWS_CACHE_TIME,
 } from '@/constants/cache';
 import { suiteCore } from '@/core/suite';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { MessageContent, ParsedMessage } from '@getgrowly/core';
 
@@ -107,6 +107,146 @@ export function useRecentMessagesQuery(userIds: string[], limit = 5, enabled = t
     enabled: userIds.length > 0 && enabled,
     gcTime: DASHBOARD_MESSAGES_CACHE_TIME,
     staleTime: DASHBOARD_MESSAGES_CACHE_TIME / 2,
+  });
+}
+
+/**
+ * Custom hook to fetch conversation messages between agent and user with React Query
+ */
+export function useConversationMessagesQuery(agentId?: string, userId?: string, enabled = true) {
+  return useQuery({
+    queryKey: ['conversationMessages', agentId, userId],
+    queryFn: async () => {
+      if (!agentId || !userId) return [];
+
+      const messages = await suiteCore.conversations.getMessagesOfAgentAndUser(
+        agentId,
+        userId,
+        true
+      );
+
+      return messages.map(message => {
+        const messageContent = JSON.parse(message.content) as MessageContent;
+        return {
+          ...message,
+          ...messageContent,
+        } as ParsedMessage;
+      });
+    },
+    enabled: !!agentId && !!userId && enabled,
+    gcTime: DASHBOARD_MESSAGES_CACHE_TIME,
+    staleTime: DASHBOARD_MESSAGES_CACHE_TIME / 2,
+  });
+}
+
+/**
+ * Custom hook to fetch latest conversations with messages for sidebar with React Query
+ */
+export function useConversationsWithMessagesQuery(agentId?: string, pageSize = 10, enabled = true) {
+  return useQuery({
+    queryKey: ['conversationsWithMessages', agentId, pageSize],
+    queryFn: async () => {
+      if (!agentId) return [];
+
+      const conversations = await suiteCore.conversations.getPaginatedLatestConversations(
+        agentId,
+        pageSize,
+        0
+      );
+
+      return conversations;
+    },
+    enabled: !!agentId && enabled,
+    gcTime: DASHBOARD_MESSAGES_CACHE_TIME,
+    staleTime: DASHBOARD_MESSAGES_CACHE_TIME / 2,
+  });
+}
+
+/**
+ * Custom hook to get total conversations count with React Query
+ */
+export function useConversationsCountQuery(agentId?: string, enabled = true) {
+  return useQuery({
+    queryKey: ['conversationsCount', agentId],
+    queryFn: async () => {
+      if (!agentId) return 0;
+      return await suiteCore.conversations.getConversationsWithMessagesCount(agentId);
+    },
+    enabled: !!agentId && enabled,
+    gcTime: DASHBOARD_MESSAGES_CACHE_TIME,
+    staleTime: DASHBOARD_MESSAGES_CACHE_TIME / 2,
+  });
+}
+
+/**
+ * Custom hook for infinite loading of organization users with React Query
+ */
+export function useInfiniteOrganizationUsersQuery(
+  organizationId?: string,
+  pageSize = 20,
+  enabled = true
+) {
+  return useInfiniteQuery({
+    queryKey: ['infiniteOrganizationUsers', organizationId, pageSize],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!organizationId) return { users: [], hasMore: false, nextPage: null };
+
+      const offset = pageParam * pageSize;
+
+      // Use server-side pagination
+      const [users, total] = await Promise.all([
+        suiteCore.users.getUsersByOrganizationId(organizationId, pageSize, offset),
+        suiteCore.users.getUsersByOrganizationIdCount(organizationId),
+      ]);
+
+      const hasMore = offset + pageSize < total;
+
+      return {
+        users,
+        hasMore,
+        nextPage: hasMore ? pageParam + 1 : null,
+        total,
+      };
+    },
+    getNextPageParam: lastPage => lastPage.nextPage,
+    enabled: !!organizationId && enabled,
+    gcTime: DASHBOARD_USERS_CACHE_TIME,
+    staleTime: DASHBOARD_USERS_CACHE_TIME / 2,
+    initialPageParam: 0,
+  });
+}
+
+/**
+ * Custom hook for infinite loading of agent users with React Query
+ */
+export function useInfiniteAgentUsersQuery(agentId?: string, pageSize = 20, enabled = true) {
+  return useInfiniteQuery({
+    queryKey: ['infiniteAgentUsers', agentId, pageSize],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!agentId) return { users: [], hasMore: false, nextPage: null };
+
+      const offset = pageParam * pageSize;
+
+      // Use server-side pagination
+      const [users, total] = await Promise.all([
+        suiteCore.users.getUsersByAgentId(agentId, pageSize, offset),
+        suiteCore.users.getUsersByAgentIdCount(agentId),
+      ]);
+
+      const hasMore = offset + pageSize < total;
+
+      return {
+        users,
+        hasMore,
+        nextPage: hasMore ? pageParam + 1 : null,
+        total,
+      };
+    },
+    getNextPageParam: lastPage => lastPage.nextPage,
+    enabled: !!agentId && enabled,
+    gcTime: DASHBOARD_USERS_CACHE_TIME,
+    staleTime: DASHBOARD_USERS_CACHE_TIME / 2,
+    initialPageParam: 0,
   });
 }
 

@@ -18,10 +18,18 @@ export function UserDirectoryLayout({
   users,
   loading,
   importEnabled,
+  hasMoreUsers,
+  isLoadingMore,
+  onLoadMore,
+  totalUsers,
 }: {
   users: ParsedUser[];
   loading: boolean;
   importEnabled: boolean;
+  hasMoreUsers?: boolean;
+  isLoadingMore?: boolean;
+  onLoadMore?: () => void;
+  totalUsers?: number;
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
@@ -71,6 +79,10 @@ export function UserDirectoryLayout({
             setSearchQuery={setSearchQuery}
             setSelectedRows={setSelectedRows}
             selectedRows={selectedRows}
+            hasMoreUsers={hasMoreUsers}
+            isLoadingMore={isLoadingMore}
+            onLoadMore={onLoadMore}
+            totalUsers={totalUsers}
             additionalActions={
               importEnabled ? (
                 <div className="flex items-center gap-2">
@@ -110,12 +122,24 @@ export function UserDirectoryLayout({
 }
 
 export function UsersInner() {
-  const { organizationUsers, organizationUserStatus } = useSelectedOrganizationUsersEffect();
+  const {
+    organizationUsers,
+    organizationUserStatus,
+    loadMoreUsers,
+    hasMoreUsers,
+    isLoadingMore,
+    totalUsers,
+  } = useSelectedOrganizationUsersEffect(20);
+
   return (
     <UserDirectoryLayout
       users={organizationUsers}
       loading={organizationUserStatus === 'loading'}
       importEnabled={true}
+      hasMoreUsers={hasMoreUsers}
+      isLoadingMore={isLoadingMore}
+      onLoadMore={loadMoreUsers}
+      totalUsers={totalUsers}
     />
   );
 }

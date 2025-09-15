@@ -291,26 +291,6 @@ export function DynamicTable<TData = any>({
 
   return (
     <div className={cn('w-full h-full flex flex-col', className)}>
-      {/* Empty State */}
-      {!isLoading && data.length === 0 && (
-        <div className="flex-1 flex items-center justify-center p-4">
-          <EmptyState
-            message={emptyMessage}
-            description={emptyDescription}
-            className={className}
-            status={searchQuery ? 'no-results' : 'empty'}
-            action={
-              searchQuery
-                ? {
-                    label: 'Clear search',
-                    onClick: () => setSearchQuery?.(''),
-                  }
-                : undefined
-            }
-          />
-        </div>
-      )}
-
       {/* Table Container */}
       {!isLoading && data.length > 0 && (
         <div className="flex-1 flex flex-col h-full">
@@ -327,6 +307,26 @@ export function DynamicTable<TData = any>({
                 setSearchQuery={setSearchQuery}
                 searchPlaceholder={searchPlaceholder}
                 additionalActions={additionalActions}
+              />
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!isLoading && data.length === 0 && (
+            <div className="flex-1 flex items-center justify-center p-4">
+              <EmptyState
+                message={emptyMessage}
+                description={emptyDescription}
+                className={className}
+                status={searchQuery ? 'no-results' : 'empty'}
+                action={
+                  searchQuery
+                    ? {
+                        label: 'Clear search',
+                        onClick: () => setSearchQuery?.(''),
+                      }
+                    : undefined
+                }
               />
             </div>
           )}

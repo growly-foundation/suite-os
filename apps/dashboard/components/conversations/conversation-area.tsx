@@ -1,6 +1,7 @@
 'use client';
 
 import { useDashboardState } from '@/hooks/use-dashboard';
+import { useConversationMessagesQuery } from '@/hooks/use-dashboard-queries';
 import { useEffect, useState } from 'react';
 
 import { ConversationRole, ParsedUser } from '@getgrowly/core';
@@ -23,12 +24,18 @@ export function ConversationArea({
 }: ConversationAreaProps) {
   const [isScrollingToBottom, setIsScrollingToBottom] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const { selectedAgent, conversationStatus } = useDashboardState();
+
+  // Use React Query for conversation messages
   const {
-    fetchCurrentConversationMessages,
-    currentConversationMessages,
-    selectedAgent,
-    conversationStatus,
-  } = useDashboardState();
+    data: currentConversationMessages = [],
+    isLoading: isLoadingMessages,
+    refetch: refetchMessages,
+  } = useConversationMessagesQuery(
+    selectedAgent?.id,
+    selectedUser.id,
+    !!selectedAgent?.id && !!selectedUser.id
+  );
 
   // Mark messages as read when component mounts or user changes
   useEffect(() => {
@@ -53,24 +60,30 @@ export function ConversationArea({
     }
   }, [typingUsers]);
 
+  // Auto-scroll to bottom when messages load or user changes
   useEffect(() => {
-    const fetchMessages = async () => {
-      // TODO: Real-time update the conversation with the user. (Consider replacing with XMTP)
-      await fetchCurrentConversationMessages();
+    if (currentConversationMessages.length > 0) {
       setIsScrollingToBottom(true);
-    };
-    fetchMessages();
-  }, [fetchCurrentConversationMessages, selectedAgent, selectedUser]);
+    }
+  }, [currentConversationMessages, selectedUser]);
+
+  // Handle real-time message updates
+  useEffect(() => {
+    // Refetch messages when agent or user changes
+    if (selectedAgent?.id && selectedUser.id) {
+      refetchMessages();
+    }
+  }, [selectedAgent, selectedUser, refetchMessages]);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0">
       <ChatPanelContainer
         user={selectedUser}
         view={{
           messages: currentConversationMessages,
           agent: selectedAgent,
           user: selectedUser,
-          isLoadingMessages: conversationStatus === 'loading',
+          isLoadingMessages: isLoadingMessages || conversationStatus === 'loading',
           isAgentThinking: conversationStatus === 'agent-thinking',
           isScrollingToBottom: isScrollingToBottom,
           viewAs: ConversationRole.Admin,
