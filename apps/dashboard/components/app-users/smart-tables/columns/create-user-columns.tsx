@@ -341,14 +341,16 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
               [UserImportSource.Native]: 'Native',
               [UserImportSource.Privy]: 'Privy',
               [UserImportSource.Contract]: 'Contract',
+              [UserImportSource.NftHolders]: 'NFT Holders',
               [UserImportSource.Manual]: 'Manual',
               [UserImportSource.Guildxyz]: 'Guild.xyz',
             };
 
             const sourceColors: Record<UserImportSource, string> = {
               [UserImportSource.Native]: 'bg-green-100 text-green-800',
-              [UserImportSource.Privy]: 'bg-blue-100 text-blue-800',
+              [UserImportSource.Privy]: 'bg-gray-100 text-gray-800',
               [UserImportSource.Contract]: 'bg-purple-100 text-purple-800',
+              [UserImportSource.NftHolders]: 'bg-blue-100 text-blue-800',
               [UserImportSource.Manual]: 'bg-orange-100 text-orange-800',
               [UserImportSource.Guildxyz]: 'bg-pink-100 text-pink-800',
             };

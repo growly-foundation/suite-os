@@ -1,7 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { ImportContractUserOutput, UserImportSource } from '@getgrowly/core';
+import {
+  ImportContractUserOutput,
+  ImportNftHoldersOutput,
+  UserImportSource,
+} from '@getgrowly/core';
 
+import { AlchemyService } from '../../alchemy/alchemy.service';
 import { EtherscanService, EtherscanTransaction } from '../../etherscan/etherscan.service';
 
 export interface UniqueAddressesResponse {
@@ -23,7 +28,10 @@ interface AddressProcessingStats {
 export class ContractImporterService {
   private readonly logger = new Logger(ContractImporterService.name);
 
-  constructor(private readonly etherscanService: EtherscanService) {}
+  constructor(
+    private readonly etherscanService: EtherscanService,
+    private readonly alchemyService: AlchemyService
+  ) {}
 
   /**
    * Imports contract users that have interacted with a specific contract
@@ -43,8 +51,13 @@ export class ContractImporterService {
     // Extract unique addresses from transactions
     const { uniqueAddresses, stats } = await this.extractUniqueAddresses(transactions);
 
+    // Exclude contract address from the list of unique addresses
+    const filteredAddresses = uniqueAddresses.filter(
+      address => address.toLowerCase() !== contractAddress.toLowerCase()
+    );
+
     // Convert addresses to ImportContractUserOutput format
-    const contractUsers = uniqueAddresses.map(address => ({
+    const contractUsers = filteredAddresses.map(address => ({
       walletAddress: address,
       extra: {
         contractAddress,
@@ -60,6 +73,66 @@ export class ContractImporterService {
     this.logProcessingResults(contractAddress, chainId, contractUsers.length, stats);
 
     return contractUsers;
+  }
+
+  /**
+   * Imports NFT holders for a specific contract with token balances
+   */
+  async importNftHolders(
+    contractAddress: string,
+    chainId: number
+  ): Promise<ImportNftHoldersOutput[]> {
+    this.logger.log(`Starting NFT holder import for ${contractAddress} on chain ${chainId}`);
+
+    // Validate input parameters
+    this.validateInput(contractAddress, chainId);
+
+    try {
+      const allNftHolders: ImportNftHoldersOutput[] = [];
+      let pageKey: string | undefined;
+      do {
+        // Get NFT holders with token balances
+        const nftHoldersResponse = await this.alchemyService.getOwnersForContract({
+          contractAddress,
+          chainId,
+          withTokenBalances: true,
+          pageKey,
+        });
+
+        // Convert holders to ImportContractUserOutput format
+        const nftHolders = nftHoldersResponse.owners.map(owner => ({
+          walletAddress: owner.ownerAddress,
+          extra: {
+            contractAddress,
+            chainId,
+            tokenBalances: owner.tokenBalances || [],
+            totalTokensOwned:
+              owner.tokenBalances?.reduce((sum, token) => sum + token.balance, 0) || 0,
+            uniqueTokensOwned: owner.tokenBalances?.length || 0,
+          },
+          source: UserImportSource.NftHolders,
+        }));
+        allNftHolders.push(...nftHolders);
+        pageKey = nftHoldersResponse.pageKey;
+
+        this.logger.debug(
+          `Fetched ${nftHolders.length} holders, total so far: ${allNftHolders.length}`
+        );
+      } while (pageKey);
+
+      this.logger.log(`NFT holder import complete for ${contractAddress} on chain ${chainId}:`);
+      this.logger.log(`- Total holders found: ${allNftHolders.length}`);
+      this.logger.log(
+        `- Total unique tokens: ${allNftHolders.reduce((sum, holder) => sum + (holder.extra?.uniqueTokensOwned || 0), 0)}`
+      );
+      return allNftHolders;
+    } catch (error) {
+      this.logger.error(
+        `Failed to import NFT holders for contract ${contractAddress} on chain ${chainId}:`,
+        error
+      );
+      throw new Error(`Failed to import NFT holders: ${error.message}`);
+    }
   }
 
   /**

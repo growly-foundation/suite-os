@@ -1,9 +1,19 @@
 'use client';
 
 import { AnimatedLoadingSmall } from '@/components/animated-components/animated-loading-small';
+import { ImportConfirmationDialog } from '@/components/app-users/integrations/import-confirmation-dialog';
+import { ImportProgress } from '@/components/app-users/integrations/import-progress';
+import { UserLimitWarning } from '@/components/app-users/integrations/user-limit-warning';
 import { UserSelectionList } from '@/components/app-users/integrations/user-selection-list';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loadable } from '@/components/ui/loadable';
@@ -12,11 +22,11 @@ import { useOrganizationUsersQuery } from '@/hooks/use-dashboard-queries';
 import { UserImportService } from '@/lib/services/user-import.service';
 import { InfoIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Address } from 'viem';
 
-import { ImportPrivyUserOutput } from '@getgrowly/core';
+import { ImportLimitCheckResult, ImportPrivyUserOutput } from '@getgrowly/core';
 
 interface PrivyImportTabProps {
   onImportComplete?: () => void;
@@ -29,12 +39,56 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
   const [loading, setLoading] = useState(false);
   const [configuring, setConfiguring] = useState(false);
   const [configured, setConfigured] = useState(false);
-  const [privyUsers, setPrivyUsers] = useState<ImportPrivyUserOutput[]>([]);
+  const [allPrivyUsers, setAllPrivyUsers] = useState<ImportPrivyUserOutput[]>([]);
   const [importing, setImporting] = useState(false);
+  const [limits, setLimits] = useState<ImportLimitCheckResult | null>(null);
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const [importJobId, setImportJobId] = useState<string | null>(null);
+  const [showImportProgress, setShowImportProgress] = useState(false);
+  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
+  const [pendingImportUsers, setPendingImportUsers] = useState<ImportPrivyUserOutput[]>([]);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const PAGE_SIZE = 50; // Show 50 users per page for imports
+
   const { selectedOrganization } = useDashboardState();
   const { data: userData, isLoading: isLoadingUsers } = useOrganizationUsersQuery(
     selectedOrganization?.id
   );
+
+  // Check organization limits when users are selected
+  const checkOrganizationLimits = useCallback(async () => {
+    if (!selectedOrganization?.id) return;
+
+    const usersToImport = selectedUserIds.length;
+    if (usersToImport === 0) {
+      setLimits(null);
+      return;
+    }
+
+    try {
+      const limitsResult = await UserImportService.checkOrganizationLimits(
+        selectedOrganization.id,
+        usersToImport
+      );
+      setLimits(limitsResult);
+    } catch (error) {
+      console.error('Error checking organization limits:', error);
+      toast.error('Failed to check organization limits');
+    }
+  }, [selectedOrganization?.id, selectedUserIds.length]);
+
+  // Check limits when selected users change
+  useEffect(() => {
+    checkOrganizationLimits();
+  }, [checkOrganizationLimits]);
+
+  // Handle user selection change
+  const handleUserSelectionChange = (userIds: string[]) => {
+    setSelectedUserIds(userIds);
+  };
 
   // Handle configuration
   const handleConfigure = async () => {
@@ -63,7 +117,7 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
     try {
       const userMap = new Map(userData?.map(user => [user.entities?.['walletAddress'], user]));
       const response = await UserImportService.importPrivyUsers(appId, appSecret);
-      setPrivyUsers(
+      setAllPrivyUsers(
         response.map(user => ({
           ...user,
           imported: userMap.has(user.walletAddress as Address),
@@ -87,28 +141,58 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
       return;
     }
     if (usersToImport.length === 0) {
-      toast.warning('Please select at least one user to import');
+      toast.error('Please select at least one user to import');
       return;
     }
 
+    // Check limits before attempting import
+    if (!limits) {
+      toast.error('Unable to check organization limits. Please try again.');
+      return;
+    }
+
+    if (!limits.canImport) {
+      toast.error(
+        `Organization has reached the maximum limit of ${limits.maxUsers} users. Cannot import any additional users.`
+      );
+      return;
+    }
+
+    if (limits.exceedsLimit) {
+      if (limits.maxAllowedImports === 0) {
+        toast.error(
+          `Cannot import any users. Organization is at capacity (${limits.currentUserCount}/${limits.maxUsers}).`
+        );
+        return;
+      }
+
+      // Show confirmation dialog for partial import
+      setPendingImportUsers(usersToImport);
+      setShowConfirmationDialog(true);
+      return;
+    }
+
+    // Proceed with import
+    await executeImport(usersToImport);
+  };
+
+  // Execute the actual import
+  const executeImport = async (usersToImport: ImportPrivyUserOutput[]) => {
     setImporting(true);
     try {
-      // Import users in batch
-      const result = await UserImportService.commitImportedUsers(
+      // Start async import
+      const result = await UserImportService.commitImportedUsersAsync(
         usersToImport,
-        selectedOrganization?.id
+        selectedOrganization!.id
       );
-      // Show success/failure messages
-      if (result.success.length > 0)
-        toast.success(`Successfully imported ${result.success.length} Privy users`);
-      if (result.failed.length > 0)
-        toast.error(`Failed to import ${result.failed.length} Privy users`);
-      // If all successful, trigger completion callback
-      if (result.failed.length === 0 && result.success.length > 0) {
-        onImportComplete?.();
-        // Redirect to users page after successful import
-        router.push('/dashboard/users');
-      }
+
+      // Set job ID and show progress dialog
+      setImportJobId(result.jobId);
+      setShowImportProgress(true);
+
+      toast.success(
+        `Import started for ${usersToImport.length} users! Check the progress dialog for updates.`
+      );
     } catch (error) {
       console.error('Error importing Privy users:', error);
       toast.error(
@@ -119,107 +203,230 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
     }
   };
 
+  // Handle confirmation dialog
+  const handleConfirmImport = () => {
+    if (pendingImportUsers.length > 0 && limits) {
+      // Limit the users to import
+      const limitedUsers = pendingImportUsers.slice(0, limits.maxAllowedImports);
+      toast.info(`Import limited to ${limits.maxAllowedImports} users due to organization limits.`);
+      executeImport(limitedUsers);
+    }
+    setPendingImportUsers([]);
+  };
+
+  // Handle import completion
+  const handleImportComplete = (result: any) => {
+    if (result.status === 'completed') {
+      // Don't show toast here - ImportProgressDialog handles it
+      onImportComplete?.();
+      // Redirect to users page after successful import
+      router.push('/dashboard/users');
+    } else if (result.status === 'failed') {
+      // Don't show toast here - ImportProgressDialog handles it
+      // Just trigger the completion callback
+      onImportComplete?.();
+    }
+  };
+
+  // Pagination logic - show users progressively as user scrolls
+  // This enables smooth infinite loading for large user lists (e.g., 1000+ users)
+  const displayedUsers = useMemo(() => {
+    const endIndex = (currentPage + 1) * PAGE_SIZE;
+    return allPrivyUsers.slice(0, endIndex);
+  }, [allPrivyUsers, currentPage]);
+
+  // Check if there are more users to load
+  const hasMore = useMemo(() => {
+    return displayedUsers.length < allPrivyUsers.length;
+  }, [displayedUsers.length, allPrivyUsers.length]);
+
+  // Handle loading more users when user scrolls near bottom
+  const handleLoadMore = useCallback(async ({ page }: { page: number; pageSize: number }) => {
+    try {
+      setLoadingMore(true);
+      // Small delay for smooth UX and to prevent rapid fire requests
+      await new Promise(resolve => setTimeout(resolve, 300));
+      setCurrentPage(page - 1); // Convert to 0-based indexing
+    } finally {
+      setLoadingMore(false);
+    }
+  }, []);
+
   const handleReset = () => {
     setAppId('');
     setAppSecret('');
-    setPrivyUsers([]);
+    setConfigured(false);
+    setAllPrivyUsers([]);
+    setSelectedUserIds([]);
+    setLimits(null);
+    setCurrentPage(0);
   };
 
   return (
-    <div className="space-y-6">
-      <div className="px-4">
-        <h2 className="text-lg font-semibold mb-2">Privy Integration</h2>
-        <p className="text-muted-foreground text-sm">
-          Import users from your Privy application by entering your App ID and App Secret.
-        </p>
+    <>
+      <div className="space-y-6">
+        <div className="px-4">
+          <h2 className="text-lg font-semibold mb-2">Privy Integration</h2>
+          <p className="text-muted-foreground text-sm">
+            Import users from your Privy application by entering your App ID and App Secret.
+          </p>
+        </div>
+
+        <div className="px-4">
+          <Alert variant="default">
+            <InfoIcon className="h-4 w-4" />
+            <AlertDescription>
+              Suite does not store your credentials and this import is one-time.
+            </AlertDescription>
+          </Alert>
+        </div>
+
+        {/* Organization limit warning - shows only when users are selected */}
+        {limits && selectedUserIds.length > 0 && (
+          <div className="px-4">
+            <UserLimitWarning limits={limits} usersToImport={selectedUserIds.length} />
+          </div>
+        )}
+
+        <Loadable loading={isLoadingUsers} fallback={<AnimatedLoadingSmall />}>
+          <div className="space-y-6">
+            {!configured ? (
+              <div className="space-y-4 px-4">
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="app-id">
+                      Privy App ID <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="app-id"
+                      value={appId}
+                      required
+                      aria-describedby="app-id-error"
+                      onChange={e => setAppId(e.target.value)}
+                      placeholder="Enter your Privy App ID"
+                    />
+                    {!appId && (
+                      <span id="app-id-error" className="text-xs text-red-500">
+                        App ID is required
+                      </span>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="app-secret">
+                      Privy App Secret <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="app-secret"
+                      type="password"
+                      value={appSecret}
+                      required
+                      aria-describedby="app-secret-error"
+                      onChange={e => setAppSecret(e.target.value)}
+                      placeholder="Enter your Privy App Secret"
+                    />
+                    {!appSecret && (
+                      <span id="app-secret-error" className="text-xs text-red-500">
+                        App Secret is required
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {configuring ? (
+                  <Button
+                    onClick={() => {
+                      setConfigured(false);
+                      setAppId('');
+                      setAppSecret('');
+                      setConfiguring(false);
+                    }}>
+                    Stop and Reset
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleConfigure}
+                    disabled={!appId || !appSecret || loading || configuring}>
+                    Configure Privy
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <>
+                <div className="h-[600px] overflow-hidden">
+                  <UserSelectionList
+                    users={displayedUsers}
+                    importButtonText={importing ? 'Starting Import...' : `Import Selected Users`}
+                    isImporting={importing}
+                    limits={limits}
+                    // Pagination props
+                    pageSize={PAGE_SIZE}
+                    currentPage={currentPage + 1} // Convert to 1-based for DynamicTable
+                    totalItems={allPrivyUsers.length}
+                    onLoadMore={handleLoadMore}
+                    hasMore={hasMore}
+                    loadingMore={loadingMore}
+                    // Container height for proper scrolling
+                    height="h-[600px]"
+                    onImport={async (selectedUserIds: string[]) => {
+                      const usersToImport = allPrivyUsers.filter(
+                        user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
+                      );
+                      await handleImport(usersToImport);
+                    }}
+                    onSelectionChange={handleUserSelectionChange}
+                    additionalActions={
+                      <div className="space-x-2">
+                        <Button variant="outline" size="sm" onClick={handleReset}>
+                          Reset Configuration
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleFetchUsers}
+                          disabled={loading}>
+                          {loading ? 'Refreshing...' : 'Refresh Privy Users'}
+                        </Button>
+                      </div>
+                    }
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        </Loadable>
       </div>
 
-      <div className="px-4">
-        <Alert variant="default">
-          <InfoIcon className="h-4 w-4" />
-          <AlertDescription>
-            Suite does not store your credentials and this import is one-time.
-          </AlertDescription>
-        </Alert>
-      </div>
-      <Loadable loading={isLoadingUsers} fallback={<AnimatedLoadingSmall />}>
-        <div className="space-y-6">
-          {!configured ? (
-            <div className="space-y-4 px-4">
-              <div className="grid gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="app-id">Privy App ID</Label>
-                  <Input
-                    id="app-id"
-                    value={appId}
-                    required
-                    aria-describedby="app-id-error"
-                    onChange={e => setAppId(e.target.value)}
-                    placeholder="Enter your Privy App ID"
-                  />
-                  {!appId && (
-                    <span id="app-id-error" className="text-xs text-red-500">
-                      App ID is required
-                    </span>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="app-secret">Privy App Secret</Label>
-                  <Input
-                    id="app-secret"
-                    type="password"
-                    value={appSecret}
-                    required
-                    aria-describedby="app-secret-error"
-                    onChange={e => setAppSecret(e.target.value)}
-                    placeholder="Enter your Privy App Secret"
-                  />
-                  {!appSecret && (
-                    <span id="app-secret-error" className="text-xs text-red-500">
-                      App Secret is required
-                    </span>
-                  )}
-                </div>
-              </div>
-              {configuring ? (
-                <Button onClick={handleReset}>Stop and Reset</Button>
-              ) : (
-                <Button onClick={handleConfigure} disabled={!appId || !appSecret}>
-                  Configure Privy
-                </Button>
-              )}
-            </div>
-          ) : (
-            <>
-              <UserSelectionList
-                users={privyUsers}
-                importButtonText={importing ? 'Importing...' : `Import Users`}
-                isImporting={importing}
-                onImport={async (selectedUserIds: string[]) => {
-                  const usersToImport = privyUsers.filter(
-                    user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
-                  );
-                  await handleImport(usersToImport);
-                }}
-                additionalActions={
-                  <div className="space-x-2">
-                    <Button variant="outline" size="sm" onClick={handleReset}>
-                      Change Credentials
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleFetchUsers}
-                      disabled={loading}>
-                      {loading ? 'Refreshing...' : 'Refresh Users'}
-                    </Button>
-                  </div>
-                }
-              />
-            </>
+      {/* Import Confirmation Dialog */}
+      {limits && (
+        <ImportConfirmationDialog
+          isOpen={showConfirmationDialog}
+          onClose={() => {
+            setShowConfirmationDialog(false);
+            setPendingImportUsers([]);
+          }}
+          onConfirm={handleConfirmImport}
+          selectedCount={pendingImportUsers.length}
+          limits={limits}
+          importType="Privy users"
+        />
+      )}
+
+      {/* Import Progress Dialog */}
+      <Dialog open={showImportProgress} onOpenChange={setShowImportProgress}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Import Progress</DialogTitle>
+            <DialogDescription>Importing Privy users into your organization.</DialogDescription>
+          </DialogHeader>
+          {importJobId && (
+            <ImportProgress
+              jobId={importJobId}
+              onComplete={handleImportComplete}
+              onClose={() => setShowImportProgress(false)}
+              showClose={false}
+            />
           )}
-        </div>
-      </Loadable>
-    </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

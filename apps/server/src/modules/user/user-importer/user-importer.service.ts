@@ -1,15 +1,19 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { SUITE_CORE } from 'src/constants/services';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   ImportContractUserOutput,
+  ImportNftHoldersOutput,
   ImportPrivyUserOutput,
   ImportUserOutput,
+  OrganizationLimitsService,
   ParsedUser,
   SuiteDatabaseCore,
   UserImportSource,
 } from '@getgrowly/core';
 
+import { RedisService } from '../../queue/redis.service';
 import { ContractImporterService } from './contract-importer.service';
 import { PrivyImporterService } from './privy-importer.service';
 
@@ -20,14 +24,25 @@ export class UserImporterService {
   constructor(
     private readonly privyImporterService: PrivyImporterService,
     private readonly contractProcessingService: ContractImporterService,
+    private readonly redisService: RedisService,
     @Inject(SUITE_CORE) private readonly suiteCore: SuiteDatabaseCore
   ) {}
+
+  /**
+   * Check organization user limits before importing
+   */
+  async checkOrganizationLimits(organizationId: string, usersToImport: number) {
+    // Get current user count for the organization using the users service
+    const users = await this.suiteCore.users.getUsersByOrganizationId(organizationId);
+    const currentUserCount = users.length;
+    return OrganizationLimitsService.checkImportLimits(currentUserCount, usersToImport);
+  }
 
   /**
    * Imports users from Privy with specific credentials
    */
   async importUsersFromPrivy(appId: string, appSecret: string): Promise<ImportPrivyUserOutput[]> {
-    this.logger.log('Starting Privy user import with credentials');
+    this.logger.log(`Starting Privy import for app: ${appId}`);
     const users = await this.privyImporterService.getUsers(appId, appSecret);
     return users.map(user => ({
       walletAddress: user.wallet?.address || user.smartWallet?.address,
@@ -38,7 +53,7 @@ export class UserImporterService {
   }
 
   /**
-   * Imports contract users that have interacted with a specific contract
+   * Imports users from a contract address
    */
   async importContractUsers(
     contractAddress: string,
@@ -49,20 +64,61 @@ export class UserImporterService {
   }
 
   /**
-   * Saves users to the database with proper source tracking
+   * Imports NFT holders for a specific contract
+   */
+  async importNftHolders(
+    contractAddress: string,
+    chainId: number
+  ): Promise<ImportNftHoldersOutput[]> {
+    this.logger.log(`Starting NFT holder import for ${contractAddress} on chain ${chainId}`);
+    return this.contractProcessingService.importNftHolders(contractAddress, chainId);
+  }
+
+  /**
+   * Saves users to the database with proper source tracking and progress updates
    */
   async commitImportedUsers(
     users: ImportUserOutput[],
-    organizationId: string
+    organizationId: string,
+    jobId?: string
   ): Promise<{
     success: ParsedUser[];
     failed: { user: ImportUserOutput; error: string }[];
   }> {
-    this.logger.log(`Saving ${users.length} users to database`);
+    // Check organization limits
+    const limits = await this.checkOrganizationLimits(organizationId, users.length);
+
+    if (!limits.canImport) {
+      throw new Error(
+        `Organization has reached the maximum user limit of ${limits.maxUsers} users.`
+      );
+    }
+
+    // UI already supports partial-import confirmation. Server should slice and proceed to avoid race failures.
+    if (limits.exceedsLimit) {
+      this.logger.warn(
+        `Requested ${users.length}, proceeding with ${limits.maxAllowedImports} due to limits (${limits.currentUserCount}/${limits.maxUsers}).`
+      );
+    }
+
+    // Use the allowed number of users (may be less than requested)
+    const usersToProcess = users.slice(0, limits.maxAllowedImports);
+    const actualJobId = jobId || uuidv4();
+
+    this.logger.log(
+      `Saving ${usersToProcess.length} users to database (limited from ${users.length})`
+    );
+
+    // Create or update job status
+    if (jobId) {
+      await this.redisService.updateJobProgress(actualJobId, 0, 'processing');
+    }
 
     const success: ParsedUser[] = [];
     const failed: { user: ImportUserOutput; error: string }[] = [];
-    for (const user of users) {
+
+    for (let i = 0; i < usersToProcess.length; i++) {
+      const user = usersToProcess[i];
       try {
         if (!user.walletAddress) {
           failed.push({ user, error: 'Missing wallet address' });
@@ -76,10 +132,24 @@ export class UserImporterService {
         } else {
           failed.push({ user, error: 'Failed to create user' });
         }
+
+        // Update progress
+        if (jobId) {
+          await this.redisService.updateJobProgress(actualJobId, i + 1);
+        }
       } catch (error) {
         this.logger.error(`Failed to save user ${user.walletAddress}: ${error.message}`);
         failed.push({ user, error: error.message });
       }
+    }
+
+    // Complete job
+    if (jobId) {
+      await this.redisService.completeJob(actualJobId, {
+        success: success.length,
+        failed: failed.length,
+        errors: failed.map(f => f.error),
+      });
     }
 
     this.logger.log(`User import completed: ${success.length} successful, ${failed.length} failed`);
@@ -96,17 +166,14 @@ export class UserImporterService {
     this.logger.log(
       `Creating user ${importedUser.walletAddress} with source ${importedUser.source}`
     );
-    if (!importedUser.walletAddress) {
-      throw new Error('Missing wallet address');
-    }
-    const { user } = await this.suiteCore.users.createUserFromAddressIfNotExist(
-      importedUser.walletAddress,
+
+    return this.suiteCore.users.createUserFromAddressIfNotExist(
+      importedUser.walletAddress!,
       organizationId,
       {
         source: importedUser.source,
         sourceData: importedUser.extra || {},
       }
     );
-    return user;
   }
 }

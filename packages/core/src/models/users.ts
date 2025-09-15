@@ -11,6 +11,7 @@ export enum UserSource {
   NATIVE = 'native', // Users who joined the app directly
   PRIVY_IMPORT = 'privy_import',
   CONTRACT_IMPORT = 'contract_import',
+  NFT_HOLDERS_IMPORT = 'nft_holders_import',
   MANUAL_IMPORT = 'manual_import',
   GUILD_IMPORT = 'guild_import',
 }

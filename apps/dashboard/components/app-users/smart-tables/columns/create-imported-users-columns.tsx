@@ -1,3 +1,4 @@
+import { CopyTooltip } from '@/components/ui/copy-tooltip';
 import { hasDataInAnyRow, hasImportedUserExtraData, hasUsersWithSource } from '@/lib/data.utils';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import moment from 'moment';
@@ -5,13 +6,30 @@ import moment from 'moment';
 import {
   ContractInteractionMetadata,
   ImportContractUserOutput,
+  ImportNftHoldersOutput,
   ImportPrivyUserOutput,
   ImportUserOutput,
   ImportedPrivyUserSourceData,
+  NftHoldersMetadata,
   UserImportSource,
 } from '@getgrowly/core';
 
 import { getFormatter } from './column-formatters';
+
+const sharedBlockchainColumns = {
+  contractAddress: {
+    id: 'contractAddress',
+    header: 'Contract Address',
+    enableSorting: true,
+    enableResizing: true,
+  },
+  chainId: {
+    id: 'chainId',
+    header: 'Chain ID',
+    enableSorting: true,
+    enableResizing: true,
+  },
+};
 
 export const columnImportedUserDefinitions: Record<string, ColumnDef<ImportUserOutput>> = {
   identity: {
@@ -21,7 +39,13 @@ export const columnImportedUserDefinitions: Record<string, ColumnDef<ImportUserO
       return identity.toLowerCase();
     },
     header: 'Identity',
-    cell: ({ row }: { row: Row<ImportUserOutput> }) => getFormatter('identity')(row.original),
+    cell: ({ row }: { row: Row<ImportUserOutput> }) => (
+      <div className="flex items-center gap-2">
+        <CopyTooltip textToCopy={row.original.walletAddress || ''} showIcon={true}>
+          {getFormatter('identity')(row.original)}
+        </CopyTooltip>
+      </div>
+    ),
     enableSorting: true,
     enableResizing: true,
     meta: { frozen: true },
@@ -170,25 +194,21 @@ export const columnImportedContractUserDefinitions: Partial<
   Record<keyof ContractInteractionMetadata, ColumnDef<ImportContractUserOutput>>
 > = {
   contractAddress: {
-    id: 'contractAddress',
+    ...sharedBlockchainColumns.contractAddress,
     accessorFn: (row: ImportContractUserOutput) => row.extra?.contractAddress || '',
-    header: 'Contract Address',
-    enableSorting: true,
-    enableResizing: true,
   },
   chainId: {
-    id: 'chainId',
-    accessorFn: (row: ImportContractUserOutput) => row.extra?.chainId || '',
-    header: 'Chain ID',
-    enableSorting: true,
-    enableResizing: true,
+    ...sharedBlockchainColumns.chainId,
+    accessorFn: (row: ImportContractUserOutput) => row.extra?.chainId ?? null,
+    sortUndefined: 'last',
   },
   transactionCount: {
     id: 'transactionCount',
-    accessorFn: (row: ImportContractUserOutput) => row.extra?.transactionCount || '',
+    accessorFn: (row: ImportContractUserOutput) => row.extra?.transactionCount ?? 0,
     header: 'Transaction Count',
     enableSorting: true,
     enableResizing: true,
+    sortUndefined: 'last',
   },
   firstInteraction: {
     id: 'firstInteraction',
@@ -207,6 +227,34 @@ export const columnImportedContractUserDefinitions: Partial<
     cell: ({ row }: { row: Row<ImportContractUserOutput> }) => (
       <span className="text-xs">{moment(row.original.extra?.lastInteraction).fromNow()}</span>
     ),
+    enableSorting: true,
+    enableResizing: true,
+  },
+};
+
+export const columnImportedNftHoldersUserDefinitions: Partial<
+  Record<keyof NftHoldersMetadata, ColumnDef<ImportNftHoldersOutput>>
+> = {
+  contractAddress: {
+    ...sharedBlockchainColumns.contractAddress,
+    accessorFn: (row: ImportNftHoldersOutput) => row.extra?.contractAddress || '',
+  },
+  chainId: {
+    ...sharedBlockchainColumns.chainId,
+    accessorFn: (row: ImportNftHoldersOutput) => row.extra?.chainId ?? null,
+    sortUndefined: 'last',
+  },
+  totalTokensOwned: {
+    id: 'totalTokensOwned',
+    accessorFn: (row: ImportNftHoldersOutput) => row.extra?.totalTokensOwned ?? 0,
+    header: 'Total Tokens Owned',
+    enableSorting: true,
+    enableResizing: true,
+  },
+  uniqueTokensOwned: {
+    id: 'uniqueTokensOwned',
+    accessorFn: (row: ImportNftHoldersOutput) => row.extra?.uniqueTokensOwned ?? 0,
+    header: 'Unique Tokens Owned',
     enableSorting: true,
     enableResizing: true,
   },
@@ -268,6 +316,23 @@ export function createImportedUserColumns<T extends ImportUserOutput>(data: T[])
       { field: 'lastInteraction', column: columnImportedContractUserDefinitions.lastInteraction },
     ]) {
       if (hasImportedUserExtraData(data, UserImportSource.Contract, field)) {
+        columns.push(column as ColumnDef<T>);
+      }
+    }
+  }
+
+  if (hasUsersWithSource(data, UserImportSource.NftHolders)) {
+    for (const { field, column } of [
+      {
+        field: 'totalTokensOwned',
+        column: columnImportedNftHoldersUserDefinitions.totalTokensOwned,
+      },
+      {
+        field: 'uniqueTokensOwned',
+        column: columnImportedNftHoldersUserDefinitions.uniqueTokensOwned,
+      },
+    ]) {
+      if (hasImportedUserExtraData(data, UserImportSource.NftHolders, field)) {
         columns.push(column as ColumnDef<T>);
       }
     }

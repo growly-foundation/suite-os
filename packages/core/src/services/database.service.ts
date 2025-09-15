@@ -11,6 +11,17 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
     return this.supabase.schema('public');
   }
 
+  private readonly CHUNK_SIZE = 70;
+
+  // Helper method to split arrays into chunks
+  private chunkArray<U>(array: U[], chunkSize: number): U[][] {
+    const chunks: U[][] = [];
+    for (let i = 0; i < array.length; i += chunkSize) {
+      chunks.push(array.slice(i, i + chunkSize));
+    }
+    return chunks;
+  }
+
   async getAll(
     limit?: number,
     orderBy?: {
@@ -81,13 +92,45 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
       ascending: boolean;
     }
   ): Promise<Database['public']['Tables'][T]['Row'][]> {
-    const queryBuilder = this.getClient()
-      .from(this.table as string)
-      .select('*')
-      .in('id', ids);
-    const { data, error } = await this.withLimit(this.withOrderBy(queryBuilder, orderBy), limit);
-    if (error) throw error;
-    return data;
+    // If we have a small number of IDs, use the original approach
+    if (ids.length <= this.CHUNK_SIZE) {
+      const queryBuilder = this.getClient()
+        .from(this.table as string)
+        .select('*')
+        .in('id', ids);
+      const { data, error } = await this.withLimit(this.withOrderBy(queryBuilder, orderBy), limit);
+      if (error) throw error;
+      return data;
+    }
+
+    // For large arrays, batch the requests to avoid URL length issues
+    const chunks = this.chunkArray(ids, this.CHUNK_SIZE);
+
+    // Make parallel requests for all chunks
+    const batchPromises = chunks.map(async chunk => {
+      const queryBuilder = this.getClient()
+        .from(this.table as string)
+        .select('*')
+        .in('id', chunk);
+      const { data, error } = await this.withOrderBy(queryBuilder, orderBy);
+      if (error) throw error;
+      return data;
+    });
+    // Wait for all batches to complete and combine results
+    const batchResults = await Promise.all(batchPromises);
+    const combinedResults = batchResults.flat();
+
+    // Re-sort globally, then apply limit
+    const sortedResults = orderBy
+      ? (combinedResults as any[]).sort((a, b) => {
+          const va = (a as any)[orderBy.field as string];
+          const vb = (b as any)[orderBy.field as string];
+          if (va === vb) return 0;
+          return (va > vb ? 1 : -1) * (orderBy.ascending ? 1 : -1);
+        })
+      : combinedResults;
+
+    return limit ? sortedResults.slice(0, limit) : sortedResults;
   }
 
   async getManyByFields(
@@ -99,13 +142,46 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
       ascending: boolean;
     }
   ): Promise<Database['public']['Tables'][T]['Row'][]> {
-    const queryBuilder = this.getClient()
-      .from(this.table as string)
-      .select('*')
-      .in(field as string, values);
-    const { data, error } = await this.withLimit(this.withOrderBy(queryBuilder, orderBy), limit);
-    if (error) throw error;
-    return data;
+    // If we have a small number of values, use the original approach
+    if (values.length <= this.CHUNK_SIZE) {
+      const queryBuilder = this.getClient()
+        .from(this.table as string)
+        .select('*')
+        .in(field as string, values);
+      const { data, error } = await this.withLimit(this.withOrderBy(queryBuilder, orderBy), limit);
+      if (error) throw error;
+      return data;
+    }
+
+    // For large arrays, batch the requests to avoid URL length issues
+    const chunks = this.chunkArray(values, this.CHUNK_SIZE);
+
+    // Make parallel requests for all chunks
+    const batchPromises = chunks.map(async chunk => {
+      const queryBuilder = this.getClient()
+        .from(this.table as string)
+        .select('*')
+        .in(field as string, chunk);
+      const { data, error } = await this.withOrderBy(queryBuilder, orderBy);
+      if (error) throw error;
+      return data;
+    });
+
+    // Wait for all batches to complete and combine results
+    const batchResults = await Promise.all(batchPromises);
+    const combinedResults = batchResults.flat();
+
+    // Re-sort globally, then apply limit
+    const sortedResults = orderBy
+      ? (combinedResults as any[]).sort((a, b) => {
+          const va = (a as any)[orderBy.field as string];
+          const vb = (b as any)[orderBy.field as string];
+          if (va === vb) return 0;
+          return (va > vb ? 1 : -1) * (orderBy.ascending ? 1 : -1);
+        })
+      : combinedResults;
+
+    return limit ? sortedResults.slice(0, limit) : sortedResults;
   }
 
   async getOneByFields(
@@ -200,11 +276,28 @@ export class PublicDatabaseService<T extends keyof Database['public']['Tables']>
   }
 
   async deleteManyByIds(ids: string[]): Promise<void> {
-    const { error } = await this.getClient()
-      .from(this.table as string)
-      .delete()
-      .in('id', ids);
-    if (error) throw error;
+    // Apply the same batching logic for deletions if needed
+    if (ids.length <= this.CHUNK_SIZE) {
+      const { error } = await this.getClient()
+        .from(this.table as string)
+        .delete()
+        .in('id', ids);
+      if (error) throw error;
+      return;
+    }
+
+    // For large arrays, batch the delete requests
+    const chunks = this.chunkArray(ids, this.CHUNK_SIZE);
+
+    const batchPromises = chunks.map(async chunk => {
+      const { error } = await this.getClient()
+        .from(this.table as string)
+        .delete()
+        .in('id', chunk);
+      if (error) throw error;
+    });
+
+    await Promise.all(batchPromises);
   }
 
   withLimit(q: any, limit?: number) {

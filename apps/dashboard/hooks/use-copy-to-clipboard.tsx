@@ -13,7 +13,6 @@ export function useCopyToClipboard() {
       setCopied(true);
       toast.success('Copied to clipboard');
       setTimeout(() => setCopied(false), 1500);
-      console.log('Copied to clipboard:', text);
     } catch (err) {
       console.error('Failed to copy:', err);
     }

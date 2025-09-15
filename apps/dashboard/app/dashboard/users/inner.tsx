@@ -22,6 +22,7 @@ export function UserDirectoryLayout({
   isLoadingMore,
   onLoadMore,
   totalUsers,
+  refresh,
 }: {
   users: ParsedUser[];
   loading: boolean;
@@ -30,6 +31,7 @@ export function UserDirectoryLayout({
   isLoadingMore?: boolean;
   onLoadMore?: () => void;
   totalUsers?: number;
+  refresh: () => void;
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRows, setSelectedRows] = useState<Record<string, boolean>>({});
@@ -55,6 +57,8 @@ export function UserDirectoryLayout({
       setSelectedRows({});
       setShowDeleteConfirm(false);
       toast.success(`${selectedUserCount} users deleted successfully`);
+      // Refresh the data after successful deletion
+      refresh();
     } catch (error) {
       toast.error('Failed to delete users');
       console.error(error);
@@ -129,6 +133,7 @@ export function UsersInner() {
     hasMoreUsers,
     isLoadingMore,
     totalUsers,
+    refresh,
   } = useSelectedOrganizationUsersEffect(20);
 
   return (
@@ -140,6 +145,7 @@ export function UsersInner() {
       isLoadingMore={isLoadingMore}
       onLoadMore={loadMoreUsers}
       totalUsers={totalUsers}
+      refresh={refresh}
     />
   );
 }

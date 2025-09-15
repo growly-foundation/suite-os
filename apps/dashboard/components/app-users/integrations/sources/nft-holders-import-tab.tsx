@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { SUPPORT_EMAIL } from '@/constants/text';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { UserImportService } from '@/lib/services/user-import.service';
 import { debounce } from '@/lib/utils';
@@ -33,27 +34,27 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { base } from 'viem/chains';
 
-import { ImportContractUserOutput, ImportLimitCheckResult } from '@getgrowly/core';
+import { ImportLimitCheckResult, ImportNftHoldersOutput } from '@getgrowly/core';
 
-interface ContractImportTabProps {
+interface NftHoldersImportTabProps {
   onImportComplete?: () => void;
 }
 
-export function ContractImportTab({ onImportComplete }: ContractImportTabProps) {
+export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabProps) {
   const router = useRouter();
   const [contractAddress, setContractAddress] = useState('');
   const [chainId, setChainId] = useState<number>(base.id);
   const [loading, setLoading] = useState(false);
   const [configuring, setConfiguring] = useState(false);
   const [configured, setConfigured] = useState(false);
-  const [allContractUsers, setAllContractUsers] = useState<ImportContractUserOutput[]>([]);
+  const [allNftHoldersUsers, setAllNftHoldersUsers] = useState<ImportNftHoldersOutput[]>([]);
   const [importing, setImporting] = useState(false);
   const [limits, setLimits] = useState<ImportLimitCheckResult | null>(null);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [importJobId, setImportJobId] = useState<string | null>(null);
   const [showImportProgress, setShowImportProgress] = useState(false);
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
-  const [pendingImportUsers, setPendingImportUsers] = useState<ImportContractUserOutput[]>([]);
+  const [pendingImportUsers, setPendingImportUsers] = useState<ImportNftHoldersOutput[]>([]);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(0);
@@ -83,8 +84,14 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
             'Invalid contract address: Address not found or is an EOA (Externally Owned Account)'
           );
           setContractType(null);
-        } else {
+        } else if (type === 'ERC721' || type === 'ERC1155') {
           setContractType(type);
+          setAddressError(null);
+        } else {
+          setAddressError(
+            'Invalid contract address: Address not found or is not an ERC721 or ERC1155 contract'
+          );
+          setContractType(null);
         }
       } else {
         setContractType(null);
@@ -100,7 +107,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   }, [contractAddress, chainId, debouncedValidateContractAddress]);
 
   // Check organization limits when users are fetched or selected users change
-  const checkOrganizationLimitsInternal = async () => {
+  const checkOrganizationLimits = useCallback(async () => {
     if (!selectedOrganization?.id) return;
 
     const usersToImport = selectedUserIds.length;
@@ -119,12 +126,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
       console.error('Error checking organization limits:', error);
       toast.error('Failed to check organization limits');
     }
-  };
-
-  const checkOrganizationLimits = useCallback(debounce(checkOrganizationLimitsInternal, 500), [
-    selectedOrganization?.id,
-    selectedUserIds.length,
-  ]);
+  }, [selectedOrganization?.id, selectedUserIds.length]);
 
   // Check limits when selected users change
   useEffect(() => {
@@ -156,13 +158,14 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   const handleFetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await UserImportService.importContractUsers(contractAddress, chainId);
-      setAllContractUsers(response);
+      const response = await UserImportService.importNftHolders(contractAddress, chainId);
+      console.log(response);
+      setAllNftHoldersUsers(response);
       setConfigured(true);
     } catch (error) {
-      console.error('Error fetching contract users:', error);
+      console.error('Error fetching NFT holders users:', error);
       toast.error(
-        `Error fetching contract users: ${error instanceof Error ? error.message : String(error)}`
+        `Error fetching NFT holders users: ${error instanceof Error ? error.message : String(error)}`
       );
     } finally {
       setLoading(false);
@@ -175,7 +178,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   };
 
   // Import selected users
-  const handleImport = async (usersToImport: ImportContractUserOutput[]) => {
+  const handleImport = async (usersToImport: ImportNftHoldersOutput[]) => {
     if (!selectedOrganization?.id) {
       toast.error('No organization selected');
       return;
@@ -217,7 +220,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   };
 
   // Execute the actual import
-  const executeImport = async (usersToImport: ImportContractUserOutput[]) => {
+  const executeImport = async (usersToImport: ImportNftHoldersOutput[]) => {
     setImporting(true);
     try {
       // Start async import
@@ -234,9 +237,9 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
         `Import started for ${usersToImport.length} users! Check the progress dialog for updates.`
       );
     } catch (error) {
-      console.error('Error importing contract users:', error);
+      console.error('Error importing NFT holders users:', error);
       toast.error(
-        `Error importing contract users: ${error instanceof Error ? error.message : String(error)}`
+        `Error importing NFT holders users: ${error instanceof Error ? error.message : String(error)}`
       );
     } finally {
       setImporting(false);
@@ -257,17 +260,10 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   // Handle import completion
   const handleImportComplete = (result: any) => {
     if (result.status === 'completed') {
+      // Don't show toast here - ImportProgressDialog handles it
       onImportComplete?.();
-      // Show summary if there were failures
-      if (result.failedCount > 0) {
-        toast.warning(
-          `Import completed with ${result.failedCount} failures. Check the users page for details.`
-        );
-      }
-      // Small delay to allow user to see the completion message
-      setTimeout(() => {
-        router.push('/dashboard/users');
-      }, 1500);
+      // Redirect to users page after successful import
+      router.push('/dashboard/users');
     } else if (result.status === 'failed') {
       // Don't show toast here - ImportProgressDialog handles it
       // Just trigger the completion callback
@@ -276,16 +272,16 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   };
 
   // Pagination logic - show users progressively as user scrolls
-  // This enables smooth infinite loading for large user lists (e.g., 1000 contract users)
+  // This enables smooth infinite loading for large user lists (e.g., 1000+ NFT holders)
   const displayedUsers = useMemo(() => {
     const endIndex = (currentPage + 1) * PAGE_SIZE;
-    return allContractUsers.slice(0, endIndex);
-  }, [allContractUsers, currentPage]);
+    return allNftHoldersUsers.slice(0, endIndex);
+  }, [allNftHoldersUsers, currentPage]);
 
   // Check if there are more users to load
   const hasMore = useMemo(() => {
-    return displayedUsers.length < allContractUsers.length;
-  }, [displayedUsers.length, allContractUsers.length]);
+    return displayedUsers.length < allNftHoldersUsers.length;
+  }, [displayedUsers.length, allNftHoldersUsers.length]);
 
   // Handle loading more users when user scrolls near bottom
   const handleLoadMore = useCallback(async ({ page }: { page: number; pageSize: number }) => {
@@ -303,10 +299,9 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
     <>
       <div className="space-y-6">
         <div className="px-4">
-          <h2 className="text-lg font-semibold mb-2">Smart Contract Integration</h2>
+          <h2 className="text-lg font-semibold mb-2">NFT Holders Integration</h2>
           <p className="text-muted-foreground text-sm">
-            Import users who have interacted with your smart contract by entering the contract
-            address and chain ID.
+            Import users who have held your NFTs by entering the contract address and chain ID.
           </p>
         </div>
 
@@ -314,14 +309,13 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
           <Alert variant="default">
             <InfoIcon className="h-4 w-4" />
             <AlertDescription>
-              Suite will fetch all users who have interacted with your contract on the specified
-              chain.
+              Suite will fetch all users who have held your NFTs on the specified chain.
               <br />
               <p className="text-muted-foreground text-sm mt-2 italic">
-                At the current stage, only recent 10,000 transactions will be analyzed, and one
-                organization can only have maximum 500 users. If you need more, contact us at{' '}
-                <a href="mailto:team@getsuite.io" className="text-blue-500">
-                  team@getsuite.io
+                At the current stage, one organization can only have maximum 500 users. If you need
+                more, contact us at{' '}
+                <a href={`mailto:${SUPPORT_EMAIL}`} className="text-blue-500">
+                  {SUPPORT_EMAIL}
                 </a>
                 .
               </p>
@@ -401,7 +395,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
                 <Button
                   onClick={handleConfigure}
                   disabled={!contractAddress || !chainId || !!addressError || loading}>
-                  Configure Contract
+                  Configure NFT Contract
                 </Button>
               )}
             </div>
@@ -416,14 +410,14 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
                   // Pagination props
                   pageSize={PAGE_SIZE}
                   currentPage={currentPage + 1} // Convert to 1-based for DynamicTable
-                  totalItems={allContractUsers.length}
+                  totalItems={allNftHoldersUsers.length}
                   onLoadMore={handleLoadMore}
                   hasMore={hasMore}
                   loadingMore={loadingMore}
                   // Container height for proper scrolling
                   height="h-[600px]"
                   onImport={async (selectedUserIds: string[]) => {
-                    const usersToImport = allContractUsers.filter(
+                    const usersToImport = allNftHoldersUsers.filter(
                       user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
                     );
                     await handleImport(usersToImport);
@@ -436,19 +430,19 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
                         size="sm"
                         onClick={() => {
                           setConfigured(false);
-                          setAllContractUsers([]);
+                          setAllNftHoldersUsers([]);
                           setSelectedUserIds([]);
                           setLimits(null);
                           setCurrentPage(0);
                         }}>
-                        Change Contract
+                        Change NFT Contract
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={handleFetchUsers}
                         disabled={loading}>
-                        {loading ? 'Refreshing...' : 'Refresh Contract Users'}
+                        {loading ? 'Refreshing...' : 'Refresh NFT Holders'}
                       </Button>
                     </div>
                   }
@@ -470,7 +464,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
           onConfirm={handleConfirmImport}
           selectedCount={pendingImportUsers.length}
           limits={limits}
-          importType="contract users"
+          importType="NFT holders"
         />
       )}
 
@@ -479,7 +473,9 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Import Progress</DialogTitle>
-            <DialogDescription>Importing contract users into your organization.</DialogDescription>
+            <DialogDescription>
+              Importing NFT holders users into your organization.
+            </DialogDescription>
           </DialogHeader>
           {importJobId && (
             <ImportProgress
