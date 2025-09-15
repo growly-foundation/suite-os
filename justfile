@@ -17,7 +17,7 @@ start-all:
     @echo "✅ All services started!"
     @echo ""
     @echo "📊 Service URLs:"
-    @echo "  Main Server: http://localhost:8080"
+    @echo "  Main Server: http://localhost:8888"
     @echo "  Supabase API: http://localhost:54321"
     @echo "  Supabase Studio: http://localhost:54323"
     @echo "  Supabase Dashboard: http://localhost:54323"
@@ -68,7 +68,7 @@ start-main:
     @echo "✅ Main services started!"
     @echo ""
     @echo "📊 Service URLs:"
-    @echo "  Main Server: http://localhost:8080"
+    @echo "  Main Server: http://localhost:8888"
 
 # Stop only main services
 stop-main:

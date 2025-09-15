@@ -98,6 +98,7 @@ export function DynamicTable<TData = any>({
   onLoadMore,
   hasMore = false,
   loadingMore = false,
+  totalItems = 0,
   // Selection props
   enableRowSelection = false,
   selectedRows,
@@ -290,26 +291,6 @@ export function DynamicTable<TData = any>({
 
   return (
     <div className={cn('w-full h-full flex flex-col', className)}>
-      {/* Empty State */}
-      {!isLoading && data.length === 0 && (
-        <div className="flex-1 flex items-center justify-center p-4">
-          <EmptyState
-            message={emptyMessage}
-            description={emptyDescription}
-            className={className}
-            status={searchQuery ? 'no-results' : 'empty'}
-            action={
-              searchQuery
-                ? {
-                    label: 'Clear search',
-                    onClick: () => setSearchQuery?.(''),
-                  }
-                : undefined
-            }
-          />
-        </div>
-      )}
-
       {/* Table Container */}
       {!isLoading && data.length > 0 && (
         <div className="flex-1 flex flex-col h-full">
@@ -326,6 +307,26 @@ export function DynamicTable<TData = any>({
                 setSearchQuery={setSearchQuery}
                 searchPlaceholder={searchPlaceholder}
                 additionalActions={additionalActions}
+              />
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!isLoading && data.length === 0 && (
+            <div className="flex-1 flex items-center justify-center p-4">
+              <EmptyState
+                message={emptyMessage}
+                description={emptyDescription}
+                className={className}
+                status={searchQuery ? 'no-results' : 'empty'}
+                action={
+                  searchQuery
+                    ? {
+                        label: 'Clear search',
+                        onClick: () => setSearchQuery?.(''),
+                      }
+                    : undefined
+                }
               />
             </div>
           )}
@@ -459,11 +460,15 @@ export function DynamicTable<TData = any>({
                 <span className="text-sm text-muted-foreground">Loading more items...</span>
               </div>
             )}
-            {hasMore && !loadingMore && data.length > 0 && (
-              <div className="py-4 text-center text-sm text-muted-foreground">
-                Scroll to load more ({data.length} items loaded)
-              </div>
-            )}
+            {hasMore &&
+              totalItems > 0 &&
+              totalItems > data.length &&
+              !loadingMore &&
+              data.length > 0 && (
+                <div className="py-4 text-center text-sm text-muted-foreground">
+                  Scroll to load more ({data.length} items loaded)
+                </div>
+              )}
           </div>
 
           {/* Fixed Footer */}

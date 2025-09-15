@@ -20,9 +20,11 @@ import {
 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
-import { TChainName } from '@getgrowly/chainsmith/types';
+import { TChainId } from '@getgrowly/chainsmith/types';
+import { getChainIdByName } from '@getgrowly/chainsmith/utils';
 import { ParsedUser } from '@getgrowly/core';
 
+import { ChainIcon } from '../ui/chain-icon';
 import { DynamicTable } from './smart-tables/dynamic-table';
 
 interface ActivityFeedProps {
@@ -30,13 +32,13 @@ interface ActivityFeedProps {
 }
 
 type ActivityFeedItem = {
-  chainName: string;
+  chainId: TChainId;
   activity: any;
   userAddress: string;
 };
 
 export function ActivityFeed({ user }: ActivityFeedProps) {
-  const [page, setPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0); // Start from 0 to match DynamicTable's expectation
   const PAGE_SIZE = 20;
 
   const persona = useMemo(() => consumePersona(user), [user]);
@@ -73,7 +75,7 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
   // Transform data for the table
   const allTableData = useMemo(() => {
     return activityFeed.map(({ activity, chainName }) => ({
-      chainName,
+      chainId: getChainIdByName(chainName),
       activity,
       userAddress,
     }));
@@ -154,8 +156,7 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
         header: 'Chain',
         size: 100,
         cell: ({ row }) => {
-          const { chainName } = row.original;
-          return <div className="capitalize text-sm font-medium">{chainName}</div>;
+          return <ChainIcon chainIds={[row.original.chainId]} />;
         },
       },
       {
@@ -177,7 +178,7 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
         header: '',
         size: 80,
         cell: ({ row }) => {
-          const { activity, chainName } = row.original;
+          const { activity } = row.original;
           return (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -188,10 +189,7 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   onClick={() => {
-                    handlePeekTransactionMultichain(
-                      activity.hash,
-                      chainName.toLowerCase() as TChainName
-                    );
+                    handlePeekTransactionMultichain(activity.hash);
                   }}>
                   View Transaction
                 </DropdownMenuItem>
@@ -209,15 +207,17 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
   );
 
   const filteredData = useMemo(() => {
-    return allTableData.slice(0, page * PAGE_SIZE);
-  }, [allTableData, userAddress, page]);
+    const startIndex = 0;
+    const endIndex = (currentPage + 1) * PAGE_SIZE;
+    return allTableData.slice(startIndex, endIndex);
+  }, [allTableData, currentPage, PAGE_SIZE]);
 
   const hasMore = useMemo(() => {
-    return page * PAGE_SIZE < allTableData.length;
-  }, [allTableData, page]);
+    return (currentPage + 1) * PAGE_SIZE < allTableData.length;
+  }, [allTableData, currentPage, PAGE_SIZE]);
 
   const handleLoadMore = useCallback(({ page }: { page: number; pageSize: number }) => {
-    setPage(page);
+    setCurrentPage(page);
   }, []);
 
   return (
@@ -229,9 +229,10 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
           enableSorting={true}
           enableColumnResizing={true}
           enableColumnReordering={true}
-          enableFooter={true}
+          enableFooter={false}
+          currentPage={currentPage}
+          pageSize={PAGE_SIZE}
           getFooterValue={key => {
-            const total = allTableData.length;
             switch (key) {
               case 'activity':
                 return 'Total';

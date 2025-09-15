@@ -3,6 +3,7 @@ import { suiteCoreService } from '@/services/core.service';
 import { Screen } from '@/types/screen';
 import React from 'react';
 import { toast } from 'sonner';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   ConversationRole,
@@ -12,6 +13,7 @@ import {
   TextMessageContent,
 } from '@getgrowly/core';
 
+import { useRealtime } from './use-realtime';
 import { useSuiteSession } from './use-session';
 import { useSuite } from './use-suite';
 
@@ -29,6 +31,14 @@ export const useChatActions = () => {
   const { agentId } = useSuite();
   const [isSending, setIsSending] = React.useState(false);
 
+  // Real-time messaging setup
+  const { sendMessage: sendRealtimeMessage, isConnected } = useRealtime({
+    serverUrl: process.env.NEXT_PUBLIC_SUITE_API_URL || 'http://localhost:8888',
+    userId: user?.id || '',
+    conversationId: user?.id && agentId ? `${agentId}-${user.id}` : undefined,
+    autoConnect: true,
+  });
+
   /**
    * Send a message to the remote database
    * @param type The type of the message
@@ -39,12 +49,13 @@ export const useChatActions = () => {
     type: MessageContent['type'],
     message: MessageContent['content'],
     sender: ConversationRole,
-    senderId?: string
+    senderId: string
   ) => {
-    const serializedContent = JSON.stringify({
+    const rawContent = {
       type,
       content: message,
-    });
+    };
+    const serializedContent = JSON.stringify(rawContent);
     const newMessage: Message = await suiteCoreService.call(
       'conversations',
       'addMessageToConversation',
@@ -60,6 +71,13 @@ export const useChatActions = () => {
       ]
     );
 
+    // Send real-time message if connected
+    if (isConnected) {
+      const messageId = uuidv4();
+      const conversationId = `${agentId}-${user?.id}`;
+      sendRealtimeMessage(conversationId, JSON.stringify(rawContent), messageId, senderId);
+    }
+
     const deserializedMessage = {
       ...newMessage,
       ...JSON.parse(newMessage.content),
@@ -67,15 +85,20 @@ export const useChatActions = () => {
     addMessage(deserializedMessage);
   };
 
-  const sendTextMessage = (message: TextMessageContent['content'], sender: ConversationRole) => {
-    sendRemoteMessage('text', message, sender);
+  const sendTextMessage = (
+    message: TextMessageContent['content'],
+    sender: ConversationRole,
+    senderId: string
+  ) => {
+    sendRemoteMessage('text', message, sender, senderId);
   };
 
   const sendErrorMessage = (
     message: SystemErrorMessageContent['content'],
-    sender: ConversationRole
+    sender: ConversationRole,
+    senderId: string
   ) => {
-    sendRemoteMessage('system:error', message, sender);
+    sendRemoteMessage('system:error', message, sender, senderId);
   };
 
   const navigateChatScreen = () => {
@@ -99,7 +122,7 @@ export const useChatActions = () => {
       setIsSending(true);
       setInputValue('');
 
-      sendTextMessage(input, ConversationRole.User);
+      sendTextMessage(input, ConversationRole.User, user?.id || '');
       await generateAgentMessage(input);
 
       setIsSending(false);
@@ -114,13 +137,13 @@ export const useChatActions = () => {
   const textAgentMessage = async (input: AgentChatResponse, isError?: boolean) => {
     navigateChatScreen();
     if (isError) {
-      await sendErrorMessage(input.agent, ConversationRole.Agent);
+      await sendErrorMessage(input.agent, ConversationRole.Agent, agentId);
     } else {
-      await sendTextMessage(input.agent, ConversationRole.Agent);
+      await sendTextMessage(input.agent, ConversationRole.Agent, agentId);
     }
     for (const tool of input.tools) {
       setTimeout(() => {
-        sendRemoteMessage(tool.type, tool.content, ConversationRole.Agent);
+        sendRemoteMessage(tool.type, tool.content, ConversationRole.Agent, agentId);
       }, 500);
     }
   };

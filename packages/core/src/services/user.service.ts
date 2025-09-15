@@ -27,7 +27,11 @@ export class UserService {
     await this.userPersonaDatabaseService.deleteManyByIds(userIds);
   }
 
-  async getUsersByAgentId(agent_id: string): Promise<ParsedUser[]> {
+  async getUsersByAgentId(
+    agent_id: string,
+    limit?: number,
+    offset?: number
+  ): Promise<ParsedUser[]> {
     const conversations = await this.conversationDatabaseService.getAllByFields(
       {
         agent_id,
@@ -38,15 +42,45 @@ export class UserService {
         ascending: false,
       }
     );
+
+    // Get unique user IDs from conversations
+    const uniqueUserIds = [
+      ...new Set(conversations.map(c => c.user_id).filter((id): id is string => Boolean(id))),
+    ];
+
+    // Apply pagination to unique user IDs
+    const paginatedUserIds = offset
+      ? uniqueUserIds.slice(offset, offset + (limit || uniqueUserIds.length))
+      : limit
+        ? uniqueUserIds.slice(0, limit)
+        : uniqueUserIds;
+
     const users: ParsedUser[] = [];
-    for (const conversation of conversations) {
-      if (!conversation.user_id) continue;
-      const user = await this.getUserById(conversation.user_id);
+    for (const userId of paginatedUserIds) {
+      const user = await this.getUserById(userId);
       if (!user) continue;
       const parsedUser = await this.getUserWithPersona(user);
       users.push(parsedUser);
     }
     return users;
+  }
+
+  async getUsersByOrganizationIdCount(organization_id: string): Promise<number> {
+    const userOrganizationAssociations = await this.userOrganizationDatabaseService.getAllByFields({
+      organization_id,
+    });
+    return userOrganizationAssociations.length;
+  }
+
+  async getUsersByAgentIdCount(agent_id: string): Promise<number> {
+    const conversations = await this.conversationDatabaseService.getAllByFields({
+      agent_id,
+    });
+    // Count unique users from conversations
+    const uniqueUserIds = [
+      ...new Set(conversations.map(c => c.user_id).filter((id): id is string => Boolean(id))),
+    ];
+    return uniqueUserIds.length;
   }
 
   async getUserById(user_id: string): Promise<ParsedUser | null> {
@@ -55,19 +89,39 @@ export class UserService {
     return this.getUserWithPersona(user);
   }
 
-  async getUsersByOrganizationId(organization_id: string): Promise<ParsedUser[]> {
+  async getUsersByOrganizationId(
+    organization_id: string,
+    limit?: number,
+    offset?: number
+  ): Promise<ParsedUser[]> {
+    // First, get all user-organization associations with pagination
     const userOrganizationAssociations = await this.userOrganizationDatabaseService.getAllByFields(
       {
         organization_id,
       },
-      undefined,
+      limit ? limit + (offset || 0) : undefined, // Get enough records to handle offset
       {
         field: 'created_at',
         ascending: false,
       }
     );
+
+    // Apply client-side offset if needed (since database service doesn't support offset directly)
+    const paginatedAssociations = offset
+      ? userOrganizationAssociations.slice(
+          offset,
+          offset + (limit || userOrganizationAssociations.length)
+        )
+      : limit
+        ? userOrganizationAssociations.slice(0, limit)
+        : userOrganizationAssociations;
+
+    if (paginatedAssociations.length === 0) {
+      return [];
+    }
+
     const users = await this.userDatabaseService.getManyByIds(
-      userOrganizationAssociations.map(association => association.user_id)
+      paginatedAssociations.map(association => association.user_id)
     );
     return await Promise.all(users.map(user => this.getUserWithPersona(user)));
   }

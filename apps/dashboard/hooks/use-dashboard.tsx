@@ -124,7 +124,7 @@ export type DashboardAppState = {
   setConversationStatus: (status: ConversationStatus) => void;
   currentConversationMessages: ParsedMessage[];
   addConversationMessage: (message: ParsedMessage) => void;
-  fetchCurrentConversationMessages: () => Promise<ParsedMessage[]>;
+  fetchCurrentConversationMessages: (showLoading?: boolean) => Promise<ParsedMessage[]>;
 
   resetDashboardState: () => void;
 };
@@ -376,9 +376,11 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
     set(state => ({
       currentConversationMessages: [...state.currentConversationMessages, message],
     })),
-  fetchCurrentConversationMessages: async () => {
+  fetchCurrentConversationMessages: async (showLoading = true) => {
     try {
-      set({ conversationStatus: 'loading' });
+      if (showLoading) {
+        set({ conversationStatus: 'loading' });
+      }
       const agent = get().selectedAgent;
       const user = get().selectedAgentUser;
       if (!agent?.id || !user?.id) {
@@ -396,10 +398,16 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
           ...messageContent,
         };
       });
-      set({ currentConversationMessages: parsedMessages, conversationStatus: 'idle' });
+      if (showLoading) {
+        set({ currentConversationMessages: parsedMessages, conversationStatus: 'idle' });
+      } else {
+        set({ currentConversationMessages: parsedMessages });
+      }
       return parsedMessages;
     } catch (error) {
-      set({ conversationStatus: 'idle' });
+      if (showLoading) {
+        set({ conversationStatus: 'idle' });
+      }
       throw new Error(`Failed to fetch messages: ${error}`);
     }
   },

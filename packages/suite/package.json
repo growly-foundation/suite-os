@@ -106,6 +106,7 @@
     "react-lottie": "^1.2.10",
     "react-resizable-panels": "^2.1.9",
     "recharts": "^2.15.3",
+    "socket.io-client": "^4.8.1",
     "sonner": "^2.0.3",
     "tailwind-merge": "^2.6.0",
     "uuid": "^11.1.0",
