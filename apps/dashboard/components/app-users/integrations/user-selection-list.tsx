@@ -21,6 +21,15 @@ interface UserSelectionListProps<T extends ImportUserOutput = ImportUserOutput> 
   searchQuery?: string;
   setSearchQuery?: (value: string) => void;
   limits?: ImportLimitCheckResult | null;
+  // Pagination props for large user lists
+  pageSize?: number;
+  currentPage?: number;
+  totalItems?: number;
+  onLoadMore?: (pageInfo: { page: number; pageSize: number }) => Promise<void>;
+  hasMore?: boolean;
+  loadingMore?: boolean;
+  // Container height for proper scrolling
+  height?: string;
 }
 
 export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>({
@@ -33,6 +42,15 @@ export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>
   searchQuery,
   setSearchQuery,
   limits,
+  // Pagination props
+  pageSize = 20,
+  currentPage = 0,
+  totalItems,
+  onLoadMore,
+  hasMore = false,
+  loadingMore = false,
+  // Container height
+  height = 'h-full',
 }: UserSelectionListProps<T>) {
   const [selectedUsers, setSelectedUsers] = useState<Record<string, boolean>>({});
 
@@ -111,9 +129,14 @@ export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>
 
   // Footer data calculation - adapted for imported users
   const getFooterValue = (key: string) => {
+    const displayedCount = users.length;
+    const totalCount = totalItems || users.length;
+
     switch (key) {
       case 'identity':
-        return `${users.length} users`;
+        return totalCount > displayedCount
+          ? `${displayedCount} of ${totalCount} users shown`
+          : `${totalCount} users`;
       case 'email': {
         const emailCount = users.reduce((sum, user) => {
           return sum + (user.email ? 1 : 0);
@@ -159,7 +182,7 @@ export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>
     <DynamicTable<ImportUserOutput>
       data={users as ImportUserOutput[]}
       columns={columns as ColumnDef<ImportUserOutput>[]}
-      tableLabel={`${selectedCount} of ${users.length} selected`}
+      tableLabel={`${selectedCount} of ${totalItems || users.length} selected`}
       emptyMessage="No users found"
       emptyDescription="No users to import. Please refresh your credentials."
       enableColumnResizing={true}
@@ -172,13 +195,19 @@ export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>
       enableFooter={true}
       getFooterValue={getFooterValue}
       initialSorting={[{ id: 'identity', desc: true }]}
-      pageSize={20} // Show 20 users per page
+      // Pagination props
+      pageSize={pageSize}
+      currentPage={currentPage}
+      totalItems={totalItems || users.length}
+      onLoadMore={onLoadMore}
+      hasMore={hasMore}
+      loadingMore={loadingMore}
       // Toolbar props
       searchQuery={searchQuery}
       setSearchQuery={setSearchQuery}
       searchPlaceholder="Search ENS or address"
       additionalActions={toolbarActions}
-      className="h-full"
+      className={height}
     />
   );
 }

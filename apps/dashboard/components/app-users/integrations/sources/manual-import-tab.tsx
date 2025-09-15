@@ -20,7 +20,7 @@ import { useDashboardState } from '@/hooks/use-dashboard';
 import { ImportLimitCheckResult, UserImportService } from '@/lib/services/user-import.service';
 import { Download, InfoIcon, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { ImportUserOutput, UserImportSource } from '@getgrowly/core';
@@ -31,7 +31,7 @@ interface ManualImportTabProps {
 
 export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
   const router = useRouter();
-  const [users, setUsers] = useState<ImportUserOutput[]>([]);
+  const [allUsers, setAllUsers] = useState<ImportUserOutput[]>([]);
   const [walletAddress, setWalletAddress] = useState('');
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -42,6 +42,12 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
   const [showImportProgress, setShowImportProgress] = useState(false);
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
   const [pendingImportUsers, setPendingImportUsers] = useState<ImportUserOutput[]>([]);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const PAGE_SIZE = 50; // Show 50 users per page for imports
+
   const { selectedOrganization } = useDashboardState();
 
   // Check organization limits when users are selected
@@ -121,10 +127,10 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
         }
 
         // Add new users to the list, avoiding duplicates
-        const existingWallets = new Set(users.map(u => u.walletAddress));
+        const existingWallets = new Set(allUsers.map(u => u.walletAddress));
         const uniqueNewUsers = newUsers.filter(u => !existingWallets.has(u.walletAddress));
 
-        setUsers(prevUsers => [...prevUsers, ...uniqueNewUsers]);
+        setAllUsers(prevUsers => [...prevUsers, ...uniqueNewUsers]);
         toast.success(`${uniqueNewUsers.length} users successfully added from CSV`);
 
         // Reset the file input
@@ -146,7 +152,7 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
     }
 
     // Check if the wallet address is already in the list
-    if (users.some(u => u.walletAddress === walletAddress)) {
+    if (allUsers.some(u => u.walletAddress === walletAddress)) {
       toast.warning('A user with this wallet address already exists');
       return;
     }
@@ -158,7 +164,7 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
       source: UserImportSource.Manual,
     };
 
-    setUsers(prevUsers => [...prevUsers, newUser]);
+    setAllUsers(prevUsers => [...prevUsers, newUser]);
 
     // Reset form
     setWalletAddress('');
@@ -276,9 +282,33 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
     }
   };
 
+  // Pagination logic - show users progressively as user scrolls
+  // This enables smooth infinite loading for large user lists (e.g., 1000+ manually added users)
+  const displayedUsers = useMemo(() => {
+    const endIndex = (currentPage + 1) * PAGE_SIZE;
+    return allUsers.slice(0, endIndex);
+  }, [allUsers, currentPage]);
+
+  // Check if there are more users to load
+  const hasMore = useMemo(() => {
+    return displayedUsers.length < allUsers.length;
+  }, [displayedUsers.length, allUsers.length]);
+
+  // Handle loading more users when user scrolls near bottom
+  const handleLoadMore = useCallback(async ({ page }: { page: number; pageSize: number }) => {
+    try {
+      setLoadingMore(true);
+      // Small delay for smooth UX and to prevent rapid fire requests
+      await new Promise(resolve => setTimeout(resolve, 300));
+      setCurrentPage(page - 1); // Convert to 0-based indexing
+    } finally {
+      setLoadingMore(false);
+    }
+  }, []);
+
   // Remove a user from the list
   const handleRemoveUser = (walletAddress: string) => {
-    setUsers(prevUsers => prevUsers.filter(u => u.walletAddress !== walletAddress));
+    setAllUsers(prevUsers => prevUsers.filter(u => u.walletAddress !== walletAddress));
     toast.success('User removed successfully');
   };
 
@@ -372,20 +402,31 @@ export function ManualImportTab({ onImportComplete }: ManualImportTabProps) {
           </div>
         </div>
         <Separator />
-        {users.length > 0 ? (
-          <UserSelectionList
-            users={users}
-            importButtonText={importing ? 'Starting Import...' : 'Import Selected Users'}
-            isImporting={importing}
-            limits={limits}
-            onImport={async (selectedUserIds: string[]) => {
-              const usersToImport = users.filter(
-                user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
-              );
-              await handleImport(usersToImport);
-            }}
-            onSelectionChange={handleUserSelectionChange}
-          />
+        {allUsers.length > 0 ? (
+          <div className="h-[600px] overflow-hidden">
+            <UserSelectionList
+              users={displayedUsers}
+              importButtonText={importing ? 'Starting Import...' : 'Import Selected Users'}
+              isImporting={importing}
+              limits={limits}
+              // Pagination props
+              pageSize={PAGE_SIZE}
+              currentPage={currentPage + 1} // Convert to 1-based for DynamicTable
+              totalItems={allUsers.length}
+              onLoadMore={handleLoadMore}
+              hasMore={hasMore}
+              loadingMore={loadingMore}
+              // Container height for proper scrolling
+              height="h-[600px]"
+              onImport={async (selectedUserIds: string[]) => {
+                const usersToImport = allUsers.filter(
+                  user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
+                );
+                await handleImport(usersToImport);
+              }}
+              onSelectionChange={handleUserSelectionChange}
+            />
+          </div>
         ) : (
           <Alert variant="default">
             <InfoIcon className="h-4 w-4" />

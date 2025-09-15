@@ -22,7 +22,7 @@ import { useOrganizationUsersQuery } from '@/hooks/use-dashboard-queries';
 import { ImportLimitCheckResult, UserImportService } from '@/lib/services/user-import.service';
 import { InfoIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Address } from 'viem';
 
@@ -39,7 +39,7 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
   const [loading, setLoading] = useState(false);
   const [configuring, setConfiguring] = useState(false);
   const [configured, setConfigured] = useState(false);
-  const [privyUsers, setPrivyUsers] = useState<ImportPrivyUserOutput[]>([]);
+  const [allPrivyUsers, setAllPrivyUsers] = useState<ImportPrivyUserOutput[]>([]);
   const [importing, setImporting] = useState(false);
   const [limits, setLimits] = useState<ImportLimitCheckResult | null>(null);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
@@ -47,6 +47,12 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
   const [showImportProgress, setShowImportProgress] = useState(false);
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
   const [pendingImportUsers, setPendingImportUsers] = useState<ImportPrivyUserOutput[]>([]);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const PAGE_SIZE = 50; // Show 50 users per page for imports
+
   const { selectedOrganization } = useDashboardState();
   const { data: userData, isLoading: isLoadingUsers } = useOrganizationUsersQuery(
     selectedOrganization?.id
@@ -111,7 +117,7 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
     try {
       const userMap = new Map(userData?.map(user => [user.entities?.['walletAddress'], user]));
       const response = await UserImportService.importPrivyUsers(appId, appSecret);
-      setPrivyUsers(
+      setAllPrivyUsers(
         response.map(user => ({
           ...user,
           imported: userMap.has(user.walletAddress as Address),
@@ -222,13 +228,38 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
     }
   };
 
+  // Pagination logic - show users progressively as user scrolls
+  // This enables smooth infinite loading for large user lists (e.g., 1000+ users)
+  const displayedUsers = useMemo(() => {
+    const endIndex = (currentPage + 1) * PAGE_SIZE;
+    return allPrivyUsers.slice(0, endIndex);
+  }, [allPrivyUsers, currentPage]);
+
+  // Check if there are more users to load
+  const hasMore = useMemo(() => {
+    return displayedUsers.length < allPrivyUsers.length;
+  }, [displayedUsers.length, allPrivyUsers.length]);
+
+  // Handle loading more users when user scrolls near bottom
+  const handleLoadMore = useCallback(async ({ page }: { page: number; pageSize: number }) => {
+    try {
+      setLoadingMore(true);
+      // Small delay for smooth UX and to prevent rapid fire requests
+      await new Promise(resolve => setTimeout(resolve, 300));
+      setCurrentPage(page - 1); // Convert to 0-based indexing
+    } finally {
+      setLoadingMore(false);
+    }
+  }, []);
+
   const handleReset = () => {
     setAppId('');
     setAppSecret('');
     setConfigured(false);
-    setPrivyUsers([]);
+    setAllPrivyUsers([]);
     setSelectedUserIds([]);
     setLimits(null);
+    setCurrentPage(0);
   };
 
   return (
@@ -320,33 +351,44 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
               </div>
             ) : (
               <>
-                <UserSelectionList
-                  users={privyUsers}
-                  importButtonText={importing ? 'Starting Import...' : `Import Selected Users`}
-                  isImporting={importing}
-                  limits={limits}
-                  onImport={async (selectedUserIds: string[]) => {
-                    const usersToImport = privyUsers.filter(
-                      user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
-                    );
-                    await handleImport(usersToImport);
-                  }}
-                  onSelectionChange={handleUserSelectionChange}
-                  additionalActions={
-                    <div className="space-x-2">
-                      <Button variant="outline" size="sm" onClick={handleReset}>
-                        Reset Configuration
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleFetchUsers}
-                        disabled={loading}>
-                        {loading ? 'Refreshing...' : 'Refresh Privy Users'}
-                      </Button>
-                    </div>
-                  }
-                />
+                <div className="h-[600px] overflow-hidden">
+                  <UserSelectionList
+                    users={displayedUsers}
+                    importButtonText={importing ? 'Starting Import...' : `Import Selected Users`}
+                    isImporting={importing}
+                    limits={limits}
+                    // Pagination props
+                    pageSize={PAGE_SIZE}
+                    currentPage={currentPage + 1} // Convert to 1-based for DynamicTable
+                    totalItems={allPrivyUsers.length}
+                    onLoadMore={handleLoadMore}
+                    hasMore={hasMore}
+                    loadingMore={loadingMore}
+                    // Container height for proper scrolling
+                    height="h-[600px]"
+                    onImport={async (selectedUserIds: string[]) => {
+                      const usersToImport = allPrivyUsers.filter(
+                        user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
+                      );
+                      await handleImport(usersToImport);
+                    }}
+                    onSelectionChange={handleUserSelectionChange}
+                    additionalActions={
+                      <div className="space-x-2">
+                        <Button variant="outline" size="sm" onClick={handleReset}>
+                          Reset Configuration
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleFetchUsers}
+                          disabled={loading}>
+                          {loading ? 'Refreshing...' : 'Refresh Privy Users'}
+                        </Button>
+                      </div>
+                    }
+                  />
+                </div>
               </>
             )}
           </div>

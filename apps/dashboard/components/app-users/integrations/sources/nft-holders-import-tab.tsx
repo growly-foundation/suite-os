@@ -27,7 +27,7 @@ import { ImportLimitCheckResult, UserImportService } from '@/lib/services/user-i
 import { detectAddressType } from '@/utils/contract';
 import { InfoIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { base } from 'viem/chains';
 
@@ -44,7 +44,7 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
   const [loading, setLoading] = useState(false);
   const [configuring, setConfiguring] = useState(false);
   const [configured, setConfigured] = useState(false);
-  const [nftHoldersUsers, setNftHoldersUsers] = useState<ImportNftHoldersOutput[]>([]);
+  const [allNftHoldersUsers, setAllNftHoldersUsers] = useState<ImportNftHoldersOutput[]>([]);
   const [importing, setImporting] = useState(false);
   const [limits, setLimits] = useState<ImportLimitCheckResult | null>(null);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
@@ -52,6 +52,12 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
   const [showImportProgress, setShowImportProgress] = useState(false);
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
   const [pendingImportUsers, setPendingImportUsers] = useState<ImportNftHoldersOutput[]>([]);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const PAGE_SIZE = 50; // Show 50 users per page for imports
+
   const { selectedOrganization } = useDashboardState();
   const [contractType, setContractType] = useState<string | null>('');
   const [addressError, setAddressError] = useState<string | null>(null);
@@ -148,7 +154,7 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
     try {
       const response = await UserImportService.importNftHolders(contractAddress, chainId);
       console.log(response);
-      setNftHoldersUsers(response);
+      setAllNftHoldersUsers(response);
       setConfigured(true);
     } catch (error) {
       console.error('Error fetching NFT holders users:', error);
@@ -259,6 +265,30 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
     }
   };
 
+  // Pagination logic - show users progressively as user scrolls
+  // This enables smooth infinite loading for large user lists (e.g., 1000+ NFT holders)
+  const displayedUsers = useMemo(() => {
+    const endIndex = (currentPage + 1) * PAGE_SIZE;
+    return allNftHoldersUsers.slice(0, endIndex);
+  }, [allNftHoldersUsers, currentPage]);
+
+  // Check if there are more users to load
+  const hasMore = useMemo(() => {
+    return displayedUsers.length < allNftHoldersUsers.length;
+  }, [displayedUsers.length, allNftHoldersUsers.length]);
+
+  // Handle loading more users when user scrolls near bottom
+  const handleLoadMore = useCallback(async ({ page }: { page: number; pageSize: number }) => {
+    try {
+      setLoadingMore(true);
+      // Small delay for smooth UX and to prevent rapid fire requests
+      await new Promise(resolve => setTimeout(resolve, 300));
+      setCurrentPage(page - 1); // Convert to 0-based indexing
+    } finally {
+      setLoadingMore(false);
+    }
+  }, []);
+
   return (
     <>
       <div className="space-y-6">
@@ -355,41 +385,53 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
             </div>
           ) : (
             <>
-              <UserSelectionList
-                users={nftHoldersUsers}
-                importButtonText={importing ? 'Starting Import...' : `Import Selected Users`}
-                isImporting={importing}
-                limits={limits}
-                onImport={async (selectedUserIds: string[]) => {
-                  const usersToImport = nftHoldersUsers.filter(
-                    user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
-                  );
-                  await handleImport(usersToImport);
-                }}
-                onSelectionChange={handleUserSelectionChange}
-                additionalActions={
-                  <div className="space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setConfigured(false);
-                        setNftHoldersUsers([]);
-                        setSelectedUserIds([]);
-                        setLimits(null);
-                      }}>
-                      Change NFT Contract
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleFetchUsers}
-                      disabled={loading}>
-                      {loading ? 'Refreshing...' : 'Refresh NFT Holders'}
-                    </Button>
-                  </div>
-                }
-              />
+              <div className="h-[600px] overflow-hidden">
+                <UserSelectionList
+                  users={displayedUsers}
+                  importButtonText={importing ? 'Starting Import...' : `Import Selected Users`}
+                  isImporting={importing}
+                  limits={limits}
+                  // Pagination props
+                  pageSize={PAGE_SIZE}
+                  currentPage={currentPage + 1} // Convert to 1-based for DynamicTable
+                  totalItems={allNftHoldersUsers.length}
+                  onLoadMore={handleLoadMore}
+                  hasMore={hasMore}
+                  loadingMore={loadingMore}
+                  // Container height for proper scrolling
+                  height="h-[600px]"
+                  onImport={async (selectedUserIds: string[]) => {
+                    const usersToImport = allNftHoldersUsers.filter(
+                      user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
+                    );
+                    await handleImport(usersToImport);
+                  }}
+                  onSelectionChange={handleUserSelectionChange}
+                  additionalActions={
+                    <div className="space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setConfigured(false);
+                          setAllNftHoldersUsers([]);
+                          setSelectedUserIds([]);
+                          setLimits(null);
+                          setCurrentPage(0);
+                        }}>
+                        Change NFT Contract
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleFetchUsers}
+                        disabled={loading}>
+                        {loading ? 'Refreshing...' : 'Refresh NFT Holders'}
+                      </Button>
+                    </div>
+                  }
+                />
+              </div>
             </>
           )}
         </div>
