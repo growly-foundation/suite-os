@@ -3,7 +3,7 @@ import { normalize } from 'viem/ens';
 
 import { RESOLVER_ADDRESSES_BY_CHAIN_ID } from '../../config/constants';
 import type { GetAvatarReturnType, GetAvatarsParams } from '../../types';
-import { getPublicClientByChain, isBase, isEthereum } from '../../utils/client';
+import { isBase, isEthereum, publicClientByChain } from '../../utils/client';
 import { isBasename } from './isBasename';
 
 /**
@@ -45,7 +45,7 @@ export const getAvatars = async ({
 
   // Process Base avatars
   if (chainIsBase && basenameIndices.length > 0) {
-    const client = getPublicClientByChain(chain);
+    const client = publicClientByChain[chain.id];
 
     try {
       // Create batch of calls for Base avatars with individual error handling
@@ -75,7 +75,7 @@ export const getAvatars = async ({
   }
 
   // Process mainnet avatars
-  const fallbackClient = getPublicClientByChain(mainnet);
+  const fallbackClient = publicClientByChain[mainnet.id];
 
   try {
     // Create batch of ENS avatar resolution calls with individual error handling

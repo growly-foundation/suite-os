@@ -9,20 +9,17 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Development optimizations
-  experimental: {
-    // Enable faster refresh
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
+  // Turbopack configuration (moved from experimental)
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
       },
     },
-    // Optimize bundle analysis
-    bundlePagesExternals: true,
   },
+  // Bundle pages router dependencies (moved from experimental)
+  bundlePagesRouterDependencies: true,
   // Webpack optimizations for development
   webpack: (config, { dev, isServer }) => {
     config.externals.push('pino-pretty', 'lokijs', 'encoding');

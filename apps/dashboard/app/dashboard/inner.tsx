@@ -1,9 +1,9 @@
 'use client';
 
-import { AppUserAvatarWithStatus } from '@/components/app-users/app-user-avatar-with-status';
 import { MessageListCard } from '@/components/conversations/message-list-card';
 import { DashboardEmptyState } from '@/components/dashboard/dashboard-empty-state';
 import { GrowthRetentionChart } from '@/components/dashboard/growth-retention-chart';
+import { Identity, IdentityAvatar } from '@/components/identity';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { IconContainer } from '@/components/ui/icon-container';
@@ -25,8 +25,18 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
-import { Agent, AggregatedWorkflow, ParsedUser, SessionStatus, Status } from '@getgrowly/core';
+import { Agent, AggregatedWorkflow, ParsedUser, Status } from '@getgrowly/core';
 import { truncateAddress } from '@getgrowly/ui';
+
+// Extended activity type to include user data for Identity component
+interface ActivityItem {
+  type: 'user' | 'agent' | 'workflow';
+  title: string;
+  timestamp: string;
+  icon: React.ReactNode;
+  color: string;
+  user?: ParsedUser; // Optional user data for user activities
+}
 
 const AnimatedLoadingSmall = dynamic(
   () =>
@@ -132,7 +142,7 @@ export function DashboardInner() {
         };
 
   // Create recent activity array from the fetched data
-  const recentActivity = React.useMemo(() => {
+  const recentActivity = React.useMemo((): ActivityItem[] => {
     if (!agents || !users || !workflows) return [];
 
     // Filter users based on selected time range
@@ -150,13 +160,14 @@ export function DashboardInner() {
       ...filteredUsers.map(user => ({
         type: 'user' as const,
         title: `New user "${truncateAddress(user.entities.walletAddress, 8, 6)}" added`,
+        user: user, // Pass the user data for Identity component
         timestamp: user.created_at,
         icon: (
-          <AppUserAvatarWithStatus
+          <IdentityAvatar
+            address={user.entities.walletAddress}
+            userId={user.id}
             size={25}
-            walletAddress={user.personaData.id as any}
-            name={user.name}
-            online={SessionStatus.Offline}
+            withStatus={true}
           />
         ),
         color: '',
@@ -312,7 +323,23 @@ export function DashboardInner() {
                         {activity.icon}
                       </div>
                       <div className="flex-1 space-y-1">
-                        <p className="text-xs font-normal">{activity.title}</p>
+                        {activity.type === 'user' && activity.user ? (
+                          <div className="flex items-center gap-2 align-middle">
+                            <span className="text-xs font-normal">New user</span>
+                            <span className="text-xs font-normal">
+                              <Identity
+                                address={activity.user.entities.walletAddress}
+                                showAddress={false}
+                                showAvatar={false}
+                                nameClassName="text-xs font-medium"
+                                truncateLength={{ startLength: 6, endLength: 4 }}
+                              />
+                            </span>
+                            <span className="text-xs font-normal">added</span>
+                          </div>
+                        ) : (
+                          <p className="text-xs font-normal">{activity.title}</p>
+                        )}
                         <p className="text-xs text-muted-foreground">
                           {moment(activity.timestamp).fromNow()}
                         </p>

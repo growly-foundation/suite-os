@@ -1,9 +1,12 @@
 import { ALCHEMY_CHAIN_ENDPOINT } from '@/config/rpc';
-import { createPublicClient, http } from 'viem';
+import { PublicClient, createPublicClient, http } from 'viem';
 import { type Chain, base, baseSepolia, mainnet, sepolia } from 'viem/chains';
 
 const BATCH_SIZE = 1024 * 12; // 12kb
 const WAIT = 1000;
+
+const BASE_RPC_URL = 'https://base.llamarpc.com';
+const ETH_RPC_URL = 'https://eth.llamarpc.com';
 
 function getChainPublicClient(chain: Chain) {
   const apiKey = process.env.ALCHEMY_API_KEY;
@@ -28,7 +31,7 @@ function getChainPublicClient(chain: Chain) {
   if (chain === base) {
     return createPublicClient({
       chain: chain,
-      transport: http('https://base.llamarpc.com'),
+      transport: http(BASE_RPC_URL),
       batch: {
         multicall: {
           batchSize: BATCH_SIZE,
@@ -40,7 +43,7 @@ function getChainPublicClient(chain: Chain) {
 
   return createPublicClient({
     chain: chain,
-    transport: http('https://eth.llamarpc.com'),
+    transport: http(ETH_RPC_URL),
     batch: {
       multicall: {
         batchSize: BATCH_SIZE,
@@ -51,16 +54,9 @@ function getChainPublicClient(chain: Chain) {
 }
 
 // Initialize public clients for mainnet and base
-export const ethereumPublicClient = getChainPublicClient(mainnet);
-export const basePublicClient = getChainPublicClient(base);
-
-export const getPublicClientByChain = (chain: Chain) => {
-  if (chain === base) {
-    return basePublicClient;
-  }
-
-  // Fallback to mainnet
-  return ethereumPublicClient;
+export const publicClientByChain: Record<any, PublicClient> = {
+  [mainnet.id]: getChainPublicClient(mainnet),
+  [base.id]: getChainPublicClient(base),
 };
 
 /**

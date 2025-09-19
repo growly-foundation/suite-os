@@ -3,7 +3,7 @@ import { mainnet } from 'viem/chains';
 import { normalize } from 'viem/ens';
 
 import { GetSocialsReturnType } from '../../types/identity';
-import { getPublicClientByChain } from '../../utils/client';
+import { publicClientByChain } from '../../utils/client';
 
 export type GetSocials = {
   ensName: string;
@@ -11,7 +11,7 @@ export type GetSocials = {
 };
 
 export const getSocials = async ({ ensName }: GetSocials): Promise<GetSocialsReturnType> => {
-  const client = getPublicClientByChain(mainnet);
+  const client = publicClientByChain[mainnet.id];
   const normalizedName = normalize(ensName);
 
   const fetchTextRecord = async (key: string) => {

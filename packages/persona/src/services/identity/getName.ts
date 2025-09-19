@@ -2,7 +2,7 @@ import { base, mainnet } from 'viem/chains';
 
 import { RESOLVER_ADDRESSES_BY_CHAIN_ID } from '../../config/constants';
 import type { Basename, GetNameParams, GetNameReturnType } from '../../types';
-import { getPublicClientByChain, isBase, isEthereum } from '../../utils/client';
+import { isBase, isEthereum, publicClientByChain } from '../../utils/client';
 import L2ResolverAbi from './abis/L2ResolverAbi';
 import { convertReverseNodeToBytes } from './convertReverseNodeToBytes';
 import { getAddress } from './getAddress';
@@ -30,7 +30,7 @@ export const getName = async ({
     return null;
   }
 
-  const client = getPublicClientByChain(chain);
+  const client = publicClientByChain[chain.id];
 
   if (chainIsBase) {
     const addressReverseNode = convertReverseNodeToBytes(address, base.id);
@@ -63,7 +63,7 @@ export const getName = async ({
 
   // Default fallback to mainnet
   // ENS resolution is not well-supported on Base, so want to ensure that we fall back to mainnet
-  const fallbackClient = getPublicClientByChain(mainnet);
+  const fallbackClient = publicClientByChain[mainnet.id];
 
   try {
     // ENS username

@@ -3,6 +3,10 @@ export const usePeekExplorer = () => {
     window.open(`https://blockscan.com/address/${address}#portfolios`);
   };
 
+  const handlePeekNFTMultichain = (address: string) => {
+    window.open(`https://opensea.io/${address}`);
+  };
+
   const handlePeekTransactionMultichain = (transactionHash: string) => {
     window.open(`https://blockscan.com/tx/${transactionHash}`);
   };
@@ -15,5 +19,6 @@ export const usePeekExplorer = () => {
     handlePeekAddressMultichain,
     handlePeekTransactionMultichain,
     handlePeekTokenMultichain,
+    handlePeekNFTMultichain,
   };
 };

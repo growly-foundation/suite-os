@@ -3,7 +3,7 @@ import { normalize } from 'viem/ens';
 
 import { RESOLVER_ADDRESSES_BY_CHAIN_ID } from '../../config/constants';
 import type { GetAvatarParams, GetAvatarReturnType } from '../../types';
-import { getPublicClientByChain, isBase, isEthereum } from '../../utils/client';
+import { isBase, isEthereum, publicClientByChain } from '../../utils/client';
 
 /**
  * An asynchronous function to fetch the Ethereum Name Service (ENS)
@@ -24,7 +24,7 @@ export const getAvatar = async ({
     );
   }
 
-  let client = getPublicClientByChain(chain);
+  let client = publicClientByChain[chain.id];
   let baseEnsAvatar = null;
 
   // 1. Try basename
@@ -44,7 +44,7 @@ export const getAvatar = async ({
   }
 
   // 2. Defaults to mainnet
-  client = getPublicClientByChain(mainnet);
+  client = publicClientByChain[mainnet.id];
   const mainnetEnsAvatar = await client.getEnsAvatar({
     name: normalize(ensName),
   });
