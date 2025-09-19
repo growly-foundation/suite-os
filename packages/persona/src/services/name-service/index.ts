@@ -1,10 +1,10 @@
 import { createPublicClient, http } from 'viem';
-import { mainnet } from 'viem/chains';
+import { base, mainnet } from 'viem/chains';
 import { normalize } from 'viem/ens';
 
 import { TAddress } from '@getgrowly/chainsmith/types';
 
-import { getBasename, getBasenameAvatar } from './basename';
+import { getAvatar, getName } from '../identity';
 
 export class NameService {
   constructor() {}
@@ -35,10 +35,10 @@ export class NameService {
   }
 
   async getBaseNameService(walletAddress: TAddress): Promise<{ name: string; avatar: string }> {
-    const basename = await getBasename(walletAddress);
+    const basename = await getName({ address: walletAddress, chain: base });
 
     if (basename) {
-      const basenameAvatar = await getBasenameAvatar(basename);
+      const basenameAvatar = await getAvatar({ ensName: basename, chain: base });
 
       return {
         name: normalize(basename),

@@ -1,4 +1,4 @@
-export const L2_RESOLVER_ABI = [
+export default [
   {
     inputs: [
       { internalType: 'contract ENS', name: 'ens_', type: 'address' },
@@ -690,4 +690,4 @@ export const L2_RESOLVER_ABI = [
     stateMutability: 'view',
     type: 'function',
   },
-];
+] as const;
