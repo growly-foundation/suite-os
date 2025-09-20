@@ -30,43 +30,44 @@ export const AppUserConversationItem = ({
         isSelected ? 'bg-muted' : 'hover:bg-muted/50'
       }`}
       onClick={() => onSelectUser(user)}>
-      <Identity
-        address={user.entities.walletAddress}
-        name={persona.nameService().name}
-        hasCheckmark={persona.getHumanCheckmark()}
-        avatarSize={35}
-        showAddress={!persona.nameService().name}
-        truncateLength={{ startLength: 10, endLength: 4 }}
-        nameClassName="font-medium text-sm"
-        addressClassName="font-medium text-sm"
-        spacing="normal"
-      />
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between">
-          <div className="flex-1" />
+          <Identity
+            address={user.entities.walletAddress}
+            name={persona.nameService().name}
+            hasCheckmark={persona.getHumanCheckmark()}
+            avatarSize={25}
+            showAddress={!persona.nameService().name}
+            truncateLength={{ startLength: 10, endLength: 4 }}
+            nameClassName="font-medium text-sm"
+            addressClassName="font-medium text-sm"
+            spacing="normal"
+          />
           {latestMessageDate && (
             <span className="text-xs text-muted-foreground">
               {moment(latestMessageDate).fromNow()}
             </span>
           )}
         </div>
-        {intentMessageParsed && (
-          <p className="text-xs text-muted-foreground truncate">
-            <span className="font-medium">{latestMessageSender}: </span>
-            {renderPreviewMessageContent(intentMessageParsed)}
-          </p>
-        )}
-        <div className="flex items-center gap-2 mt-2">
-          {persona.dominantTrait() && (
-            <Badge
-              className={cn(
-                getBadgeColor(persona.dominantTrait() || ''),
-                'rounded-full',
-                'text-xs'
-              )}>
-              {persona.dominantTrait()}
-            </Badge>
+        <div className="mt-3">
+          {intentMessageParsed && (
+            <p className="text-xs text-muted-foreground truncate">
+              <span className="font-medium">{latestMessageSender}: </span>
+              {renderPreviewMessageContent(intentMessageParsed)}
+            </p>
           )}
+          <div className="flex items-center gap-2 mt-2">
+            {persona.dominantTrait() && (
+              <Badge
+                className={cn(
+                  getBadgeColor(persona.dominantTrait() || ''),
+                  'rounded-full',
+                  'text-xs'
+                )}>
+                {persona.dominantTrait()}
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
     </div>

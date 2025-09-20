@@ -140,25 +140,46 @@ export function useConversationMessagesQuery(agentId?: string, userId?: string, 
 }
 
 /**
- * Custom hook to fetch latest conversations with messages for sidebar with React Query
+ * Custom hook for infinite loading of conversations with messages for sidebar
  */
-export function useConversationsWithMessagesQuery(agentId?: string, pageSize = 10, enabled = true) {
-  return useQuery({
-    queryKey: ['conversationsWithMessages', agentId, pageSize],
-    queryFn: async () => {
-      if (!agentId) return [];
+export function useInfiniteConversationsWithMessagesQuery(
+  agentId?: string,
+  pageSize = 10,
+  enabled = true
+) {
+  return useInfiniteQuery({
+    queryKey: ['infiniteConversationsWithMessages', agentId, pageSize],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!agentId) return { conversations: [], hasMore: false, nextPage: null };
 
-      const conversations = await suiteCore.conversations.getPaginatedLatestConversations(
-        agentId,
-        pageSize,
-        0
-      );
+      const offset = pageParam * pageSize;
 
-      return conversations;
+      try {
+        // Use server-side pagination
+        const [conversations, total] = await Promise.all([
+          suiteCore.conversations.getPaginatedLatestConversations(agentId, pageSize, offset),
+          suiteCore.conversations.getConversationsWithMessagesCount(agentId),
+        ]);
+
+        const hasMore = offset + pageSize < total;
+
+        return {
+          conversations,
+          hasMore,
+          nextPage: hasMore ? pageParam + 1 : null,
+          total,
+        };
+      } catch (error) {
+        console.error('Error fetching conversations:', error);
+        return { conversations: [], hasMore: false, nextPage: null, total: 0 };
+      }
     },
+    getNextPageParam: lastPage => lastPage.nextPage,
     enabled: !!agentId && enabled,
     gcTime: DASHBOARD_MESSAGES_CACHE_TIME,
     staleTime: DASHBOARD_MESSAGES_CACHE_TIME / 2,
+    initialPageParam: 0,
+    retry: 1, // Limit retries to prevent infinite loops
   });
 }
 

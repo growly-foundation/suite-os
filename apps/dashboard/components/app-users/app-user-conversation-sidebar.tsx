@@ -45,16 +45,19 @@ export function UsersConversationSidebar({
             />
           );
         })}
-        {hasMore && (
+        {hasMore && !isLoadingMore && (
           <div className="py-4 flex justify-center">
-            <button className="text-sm text-muted-foreground" onClick={onLoadMore}>
-              Load more
+            <button
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors px-3 py-1 rounded-md hover:bg-muted"
+              onClick={onLoadMore}>
+              Load more conversations
             </button>
           </div>
         )}
         {isLoadingMore && (
-          <div className="py-4 flex justify-center">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
+          <div className="py-4 flex justify-center items-center gap-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
+            <span className="text-sm text-muted-foreground">Loading more...</span>
           </div>
         )}
       </div>

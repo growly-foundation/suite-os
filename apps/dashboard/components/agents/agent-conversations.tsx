@@ -6,12 +6,9 @@ import { consumePersona } from '@/core/persona';
 import { useAgentUsersEffect } from '@/hooks/use-agent-effect';
 import { useChatActions } from '@/hooks/use-chat-actions';
 import { useDashboardState } from '@/hooks/use-dashboard';
-import {
-  useConversationsCountQuery,
-  useConversationsWithMessagesQuery,
-} from '@/hooks/use-dashboard-queries';
+import { useInfiniteConversationsWithMessagesQuery } from '@/hooks/use-dashboard-queries';
 import { Sidebar } from 'lucide-react';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 
 import {
   AggregatedAgent,
@@ -45,74 +42,107 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
   const [open, setOpen] = React.useState(false);
   const persona = selectedUser ? consumePersona(selectedUser) : null;
 
-  // React Query hooks for conversations
+  // React Query hooks for conversations with infinite loading
   const {
-    data: conversationsWithMessages = [],
-    isLoading: isLoadingConversations,
-    refetch: refetchConversations,
-  } = useConversationsWithMessagesQuery(agent.id, PAGE_SIZE);
+    data: infiniteConversationsData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteConversationsWithMessagesQuery(agent.id, PAGE_SIZE);
 
-  const { data: totalConversations = 0 } = useConversationsCountQuery(agent.id);
+  // Combine all pages of conversations with memoization
+  const allConversations = useMemo(() => {
+    return infiniteConversationsData?.pages.flatMap(page => page.conversations) || [];
+  }, [infiniteConversationsData]);
 
   // Chat actions with real-time messaging
   const { sendAdminMessage, markAsRead, isConnected, typingUsers, realtimeMessages } =
     useChatActions();
 
-  // Process conversations data when it loads
+  // Process conversations data when it loads with memoization
+  const processedUsersWithMessages = useMemo(() => {
+    if (allConversations.length === 0 || users.length === 0) return [];
+
+    return allConversations
+      .map(
+        (conversation: LatestConversation & { userId: string }): UserWithLatestMessage | null => {
+          const user = users.find(u => u.id === conversation.userId);
+          if (!user) return null;
+
+          return {
+            user,
+            latestMessageDate: conversation.message.created_at || null,
+            latestMessageSender: conversation.message.sender,
+            latestMessageContent: conversation.message.content || null,
+          };
+        }
+      )
+      .filter((item): item is UserWithLatestMessage => item !== null);
+  }, [allConversations, users]);
+
+  // Update state when processed data changes
   useEffect(() => {
-    if (conversationsWithMessages.length > 0 && users.length > 0) {
-      const newUsersWithMessages = conversationsWithMessages
-        .map(
-          (conversation: LatestConversation & { userId: string }): UserWithLatestMessage | null => {
-            const user = users.find(u => u.id === conversation.userId);
-            if (!user) return null;
+    // Only update if the data has actually changed
+    setUsersWithLatestMessage(prev => {
+      if (prev.length !== processedUsersWithMessages.length) {
+        return processedUsersWithMessages;
+      }
 
-            return {
-              user,
-              latestMessageDate: conversation.message.created_at || null,
-              latestMessageSender: conversation.message.sender,
-              latestMessageContent: conversation.message.content || null,
-            };
-          }
-        )
-        .filter((item): item is UserWithLatestMessage => item !== null);
+      // Check if any user data has changed
+      const hasChanged = prev.some((prevUser, index) => {
+        const newUser = processedUsersWithMessages[index];
+        if (!newUser) return true;
 
-      setUsersWithLatestMessage(newUsersWithMessages);
-    }
-  }, [conversationsWithMessages, users]);
+        return (
+          prevUser.user.id !== newUser.user.id ||
+          prevUser.latestMessageDate !== newUser.latestMessageDate ||
+          prevUser.latestMessageContent !== newUser.latestMessageContent ||
+          prevUser.latestMessageSender !== newUser.latestMessageSender
+        );
+      });
+
+      return hasChanged ? processedUsersWithMessages : prev;
+    });
+  }, [processedUsersWithMessages]);
 
   // Update latest messages when real-time messages arrive
   useEffect(() => {
     if (realtimeMessages.length > 0) {
       const latestMessage = realtimeMessages[realtimeMessages.length - 1];
-      setUsersWithLatestMessage(prev =>
-        prev.map(userWithMessage => {
-          if (userWithMessage.user.id === latestMessage.senderId) {
-            return {
-              ...userWithMessage,
-              latestMessageDate: latestMessage.timestamp,
-              latestMessageSender: 'user' as ConversationRoleKey,
-              latestMessageContent: latestMessage.content,
-            };
-          } else if (agent.id === latestMessage.senderId) {
-            return {
-              ...userWithMessage,
-              latestMessageDate: latestMessage.timestamp,
-              latestMessageSender: 'assistant' as ConversationRoleKey,
-              latestMessageContent: latestMessage.content,
-            };
-          }
-          return userWithMessage;
-        })
-      );
-      fetchCurrentConversationMessages(false);
+
+      // Only update if we have a valid message and sender
+      if (latestMessage && latestMessage.senderId && latestMessage.content) {
+        setUsersWithLatestMessage(prev =>
+          prev.map(userWithMessage => {
+            if (userWithMessage.user.id === latestMessage.senderId) {
+              return {
+                ...userWithMessage,
+                latestMessageDate: latestMessage.timestamp,
+                latestMessageSender: 'user' as ConversationRoleKey,
+                latestMessageContent: latestMessage.content,
+              };
+            } else if (agent.id === latestMessage.senderId) {
+              return {
+                ...userWithMessage,
+                latestMessageDate: latestMessage.timestamp,
+                latestMessageSender: 'assistant' as ConversationRoleKey,
+                latestMessageContent: latestMessage.content,
+              };
+            }
+            return userWithMessage;
+          })
+        );
+        fetchCurrentConversationMessages(false);
+      }
     }
   }, [realtimeMessages, agent.id, fetchCurrentConversationMessages]);
 
-  // Handle loading more data - for now, just refetch all conversations
+  // Handle loading more data with infinite loading
   const handleLoadMore = useCallback(() => {
-    refetchConversations();
-  }, [refetchConversations]);
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Send message from admin
   const handleSendMessage = useCallback(
@@ -126,7 +156,7 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
   );
 
   return (
-    <div className="flex w-full overflow-hidden h-screen">
+    <div className="flex w-full overflow-hidden h-[calc(100vh-125px)]">
       {status === 'loading' ? (
         <div className="flex w-full items-center justify-center h-full">
           <AnimatedLoadingSmall />
@@ -138,8 +168,8 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
             selectedUser={selectedUser}
             onSelectUser={setSelectedAgentUser}
             onLoadMore={handleLoadMore}
-            isLoadingMore={isLoadingConversations}
-            hasMore={usersWithLatestMessage.length < totalConversations}
+            isLoadingMore={isFetchingNextPage}
+            hasMore={hasNextPage}
           />
           <div className="flex-1 flex flex-col min-h-0">
             <div className="flex items-center justify-between px-4 py-2 border-b flex-shrink-0">
