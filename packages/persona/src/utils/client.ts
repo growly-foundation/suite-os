@@ -11,12 +11,12 @@ const ETH_RPC_URL = 'https://eth.llamarpc.com';
 function getChainPublicClient(chain: Chain) {
   const apiKey = process.env.ALCHEMY_API_KEY;
 
-  const endpoint = ALCHEMY_CHAIN_ENDPOINT[chain.id as keyof typeof ALCHEMY_CHAIN_ENDPOINT];
-
-  if (endpoint) {
+  if (apiKey) {
+    const endpoint = ALCHEMY_CHAIN_ENDPOINT[chain.id as keyof typeof ALCHEMY_CHAIN_ENDPOINT];
+    const baseUrl = `${endpoint}/${apiKey}`;
     return createPublicClient({
       chain: chain,
-      transport: http(`${endpoint}/${apiKey}`),
+      transport: http(baseUrl),
       batch: {
         multicall: {
           batchSize: BATCH_SIZE,

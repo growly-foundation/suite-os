@@ -78,33 +78,51 @@ export class PersonaService {
       getNames({ addresses, chain: mainnet }),
     ]);
 
-    // Extract valid names for avatar fetching (filter out null values)
-    const baseValidNames = baseNames.filter((name): name is string => Boolean(name));
-    const mainnetValidNames = mainnetNames.filter((name): name is string => Boolean(name));
+    // Collect valid names with their original indices for proper mapping
+    const baseValidNamesWithIndices: Array<{ name: string; originalIndex: number }> = [];
+    const mainnetValidNamesWithIndices: Array<{ name: string; originalIndex: number }> = [];
 
-    // Batch fetch avatars for valid names
-    const [baseAvatars, mainnetAvatars] = await Promise.all([
-      baseValidNames.length > 0
-        ? getAvatars({ ensNames: baseValidNames, chain: base })
-        : Promise.resolve([]),
-      mainnetValidNames.length > 0
-        ? getAvatars({ ensNames: mainnetValidNames, chain: mainnet })
-        : Promise.resolve([]),
-    ]);
-
-    // Create lookup maps for avatars
-    const baseAvatarMap = new Map<string, string>();
-    const mainnetAvatarMap = new Map<string, string>();
-
-    baseValidNames.forEach((name, index) => {
-      if (name && baseAvatars[index]) {
-        baseAvatarMap.set(name, baseAvatars[index]);
+    baseNames.forEach((name, index) => {
+      if (name) {
+        baseValidNamesWithIndices.push({ name, originalIndex: index });
       }
     });
 
-    mainnetValidNames.forEach((name, index) => {
-      if (name && mainnetAvatars[index]) {
-        mainnetAvatarMap.set(name, mainnetAvatars[index]);
+    mainnetNames.forEach((name, index) => {
+      if (name) {
+        mainnetValidNamesWithIndices.push({ name, originalIndex: index });
+      }
+    });
+
+    // Batch fetch avatars for valid names
+    const [baseAvatars, mainnetAvatars] = await Promise.all([
+      baseValidNamesWithIndices.length > 0
+        ? getAvatars({
+            ensNames: baseValidNamesWithIndices.map(item => item.name),
+            chain: base,
+          })
+        : Promise.resolve([]),
+      mainnetValidNamesWithIndices.length > 0
+        ? getAvatars({
+            ensNames: mainnetValidNamesWithIndices.map(item => item.name),
+            chain: mainnet,
+          })
+        : Promise.resolve([]),
+    ]);
+
+    // Create lookup maps for avatars using the correct mapping
+    const baseAvatarMap = new Map<string, string>();
+    const mainnetAvatarMap = new Map<string, string>();
+
+    baseValidNamesWithIndices.forEach(({ name }, avatarIndex) => {
+      if (name && baseAvatars[avatarIndex]) {
+        baseAvatarMap.set(name, baseAvatars[avatarIndex]);
+      }
+    });
+
+    mainnetValidNamesWithIndices.forEach(({ name }, avatarIndex) => {
+      if (name && mainnetAvatars[avatarIndex]) {
+        mainnetAvatarMap.set(name, mainnetAvatars[avatarIndex]);
       }
     });
 
