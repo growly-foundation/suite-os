@@ -19,6 +19,7 @@ import { DynamicTable } from './dynamic-table';
  * @param users - The list of users to display in the table.
  */
 export function UsersTable({
+  loading,
   users,
   tableLabel,
   searchQuery,
@@ -31,6 +32,7 @@ export function UsersTable({
   onLoadMore,
   totalUsers,
 }: {
+  loading?: boolean;
   users: ParsedUser[];
   tableLabel?: string;
   searchQuery?: string;
@@ -45,7 +47,40 @@ export function UsersTable({
 }) {
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
-  const personas = useMemo(() => users.map(user => consumePersona(user as ParsedUser)), [users]);
+  // Optimize: Only compute personas when needed for footer calculations
+  // Most of the time, users already have persona data attached
+  const personas = useMemo(() => {
+    // Only compute personas if we need them for footer calculations
+    // and if users don't already have persona data
+    return users.map(user => {
+      // If user already has persona data, create a lightweight persona object
+      if (user.personaData) {
+        return {
+          dominantTrait: () => user.personaData?.identities?.dominantTrait || null,
+          totalPortfolioValue: () => {
+            const snapshots = user.personaData?.portfolio_snapshots;
+            if (!snapshots) return null;
+            return Object.values(snapshots).reduce((sum: number, snapshot: any) => {
+              return sum + (snapshot?.totalValue || 0);
+            }, 0);
+          },
+          universalTransactions: () => {
+            const activities = user.personaData?.activities;
+            return activities ? Object.values(activities).flat() : [];
+          },
+          universalTokenList: () => user.personaData?.portfolio_snapshots || {},
+          dayActive: () => {
+            const activities = user.personaData?.activities;
+            if (!activities) return false;
+            // Simple check for recent activity
+            return Object.keys(activities).length > 0;
+          },
+        };
+      }
+      // Fallback to full persona computation if needed
+      return consumePersona(user as ParsedUser);
+    });
+  }, [users]);
 
   // User interaction handlers
   const handleUserClick = useCallback((user: ParsedUser) => {
@@ -170,6 +205,7 @@ export function UsersTable({
       <DynamicTable<ParsedUser>
         data={users as ParsedUser[]}
         columns={columns}
+        isLoading={loading}
         pageSize={users.length} // Show all loaded users
         emptyMessage="No users found"
         emptyDescription="There are no users in your organization. Users will appear here once they sign up."

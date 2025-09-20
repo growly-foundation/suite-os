@@ -1,39 +1,50 @@
+import { trpc } from '@/trpc/client';
 import { useEffect } from 'react';
 
 import { useDashboardState } from './use-dashboard';
 
 export const useAgentUsersEffect = (agentId: string) => {
+  const { setSelectedAgentUser: setSelectedUser, selectedAgentUser: selectedUser } =
+    useDashboardState();
+
   const {
-    agentUserStatus,
-    fetchUsersByAgentId,
-    setSelectedAgentUser: setSelectedUser,
-    selectedAgentUser: selectedUser,
-    agentUsers: users,
-  } = useDashboardState();
+    data: users = [],
+    isLoading,
+    error,
+  } = trpc.user.getUsersByAgentId.useQuery(agentId, {
+    enabled: !!agentId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      const users = await fetchUsersByAgentId(agentId);
-      if (users.length > 0) {
-        setSelectedUser(users[0]);
-      }
-    };
-    fetchUsers();
-  }, [agentId]);
+    if (users.length > 0 && !selectedUser) {
+      setSelectedUser(users[0]);
+    }
+  }, [users, selectedUser, setSelectedUser]);
 
-  return { status: agentUserStatus, users, selectedUser };
+  return {
+    status: isLoading ? 'loading' : error ? 'error' : 'idle',
+    users,
+    selectedUser,
+    error,
+  };
 };
 
 export const useSelectedAgentUsersEffect = () => {
-  const { fetchUsersByAgentId, selectedAgent, agentUsers, agentUserStatus } = useDashboardState();
+  const { selectedAgent } = useDashboardState();
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      if (!selectedAgent) return;
-      await fetchUsersByAgentId(selectedAgent.id);
-    };
-    fetchUsers();
-  }, [selectedAgent]);
+  const {
+    data: agentUsers = [],
+    isLoading,
+    error,
+  } = trpc.user.getUsersByAgentId.useQuery(selectedAgent?.id || '', {
+    enabled: !!selectedAgent?.id,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 
-  return { status: agentUserStatus, agentUsers };
+  return {
+    status: isLoading ? 'loading' : error ? 'error' : 'idle',
+    agentUsers,
+    error,
+  };
 };

@@ -86,7 +86,6 @@ export type DashboardAppState = {
   // Agent Users
   organizationUserStatus: StateStatus;
   organizationUsers: ParsedUser[];
-  fetchUsersByOrganizationId: (organizationId: string) => Promise<ParsedUser[]>;
   fetchUserById: (userId: string) => Promise<ParsedUser | null>;
   selectedOrganizationUser: ParsedUser | null;
   setSelectedOrganizationUser: (user: ParsedUser | null) => void;
@@ -112,10 +111,9 @@ export type DashboardAppState = {
   selectedAgent: AggregatedAgent | null;
   setSelectedAgent: (agent: AggregatedAgent | null) => void;
 
-  // Agent Users
+  // Agent Users (deprecated - now using tRPC)
   agentUserStatus: StateStatus;
   agentUsers: ParsedUser[];
-  fetchUsersByAgentId: (agentId: string) => Promise<ParsedUser[]>;
   selectedAgentUser: ParsedUser | null;
   setSelectedAgentUser: (user: ParsedUser | null) => void;
 
@@ -155,12 +153,6 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
   // Organization Users
   organizationUserStatus: 'idle',
   organizationUsers: [],
-  fetchUsersByOrganizationId: async (organizationId: string) => {
-    set({ organizationUserStatus: 'loading' });
-    const users = await suiteCore.users.getUsersByOrganizationId(organizationId);
-    set({ organizationUsers: users, organizationUserStatus: 'idle' });
-    return users;
-  },
   fetchUserById: async (userId: string) => {
     const user = await suiteCore.users.getUserById(userId);
     return user;
@@ -353,18 +345,9 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
     return workflow;
   },
 
-  // Users
+  // Users (deprecated - now using tRPC)
   agentUserStatus: 'idle',
   agentUsers: [],
-  fetchUsersByAgentId: async (agentId: string) => {
-    set({ agentUserStatus: 'loading' });
-    const users = await suiteCore.users.getUsersByAgentId(agentId);
-    set({
-      agentUsers: users,
-      agentUserStatus: 'idle',
-    });
-    return users;
-  },
   selectedAgentUser: null,
   setSelectedAgentUser: (user: ParsedUser | null) => set({ selectedAgentUser: user }),
 

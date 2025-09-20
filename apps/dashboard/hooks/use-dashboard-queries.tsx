@@ -7,9 +7,16 @@ import {
   DASHBOARD_WORKFLOWS_CACHE_TIME,
 } from '@/constants/cache';
 import { suiteCore } from '@/core/suite';
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { trpc } from '@/trpc/client';
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 
-import { MessageContent, ParsedMessage } from '@getgrowly/core';
+import { MessageContent, ParsedMessage, UserImportSource } from '@getgrowly/core';
 
 const MAX_RECENT_MESSAGES = 5;
 
@@ -31,15 +38,10 @@ export function useOrganizationAgentsQuery(organizationId?: string, enabled = tr
 }
 
 /**
- * Custom hook to fetch organization users with React Query
+ * Custom hook to fetch organization users with React Query (using tRPC)
  */
 export function useOrganizationUsersQuery(organizationId?: string, enabled = true) {
-  return useQuery({
-    queryKey: ['organizationUsers', organizationId],
-    queryFn: async () => {
-      if (!organizationId) return [];
-      return suiteCore.users.getUsersByOrganizationId(organizationId);
-    },
+  return trpc.user.getUsersByOrganizationId.useQuery(organizationId || '', {
     enabled: !!organizationId && enabled,
     gcTime: DASHBOARD_USERS_CACHE_TIME,
     staleTime: DASHBOARD_USERS_CACHE_TIME / 2,
@@ -174,12 +176,16 @@ export function useInfiniteConversationsWithMessagesQuery(
         return { conversations: [], hasMore: false, nextPage: null, total: 0 };
       }
     },
+    placeholderData: keepPreviousData,
     getNextPageParam: lastPage => lastPage.nextPage,
     enabled: !!agentId && enabled,
-    gcTime: DASHBOARD_MESSAGES_CACHE_TIME,
-    staleTime: DASHBOARD_MESSAGES_CACHE_TIME / 2,
+    gcTime: DASHBOARD_USERS_CACHE_TIME * 2, // Keep in cache for 6 minutes (3 * 2)
+    staleTime: DASHBOARD_USERS_CACHE_TIME, // Consider stale after 3 minutes
     initialPageParam: 0,
     retry: 1, // Limit retries to prevent infinite loops
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    refetchOnMount: false, // Don't refetch when component mounts if data exists
+    refetchOnReconnect: false, // Don't refetch when reconnecting
   });
 }
 
@@ -200,7 +206,7 @@ export function useConversationsCountQuery(agentId?: string, enabled = true) {
 }
 
 /**
- * Custom hook for infinite loading of organization users with React Query
+ * Custom hook for infinite loading of organization users with React Query (using tRPC)
  */
 export function useInfiniteOrganizationUsersQuery(
   organizationId?: string,
@@ -214,7 +220,7 @@ export function useInfiniteOrganizationUsersQuery(
 
       const offset = pageParam * pageSize;
 
-      // Use server-side pagination
+      // Use suiteCore for server-side pagination (tRPC client not available in queryFn)
       const [users, total] = await Promise.all([
         suiteCore.users.getUsersByOrganizationId(organizationId, pageSize, offset),
         suiteCore.users.getUsersByOrganizationIdCount(organizationId),
@@ -238,7 +244,7 @@ export function useInfiniteOrganizationUsersQuery(
 }
 
 /**
- * Custom hook for infinite loading of agent users with React Query
+ * Custom hook for infinite loading of agent users with React Query (using tRPC)
  */
 export function useInfiniteAgentUsersQuery(agentId?: string, pageSize = 20, enabled = true) {
   return useInfiniteQuery({
@@ -248,7 +254,7 @@ export function useInfiniteAgentUsersQuery(agentId?: string, pageSize = 20, enab
 
       const offset = pageParam * pageSize;
 
-      // Use server-side pagination
+      // Use suiteCore for server-side pagination (tRPC client not available in queryFn)
       const [users, total] = await Promise.all([
         suiteCore.users.getUsersByAgentId(agentId, pageSize, offset),
         suiteCore.users.getUsersByAgentIdCount(agentId),
@@ -268,6 +274,73 @@ export function useInfiniteAgentUsersQuery(agentId?: string, pageSize = 20, enab
     gcTime: DASHBOARD_USERS_CACHE_TIME,
     staleTime: DASHBOARD_USERS_CACHE_TIME / 2,
     initialPageParam: 0,
+  });
+}
+
+/**
+ * Types for user mutations
+ */
+interface UserDeleteData {
+  userIds: string[];
+  organizationId?: string;
+}
+
+interface UserCreateData {
+  walletAddress: string;
+  organizationId: string;
+  importedSourceData?: {
+    source: UserImportSource;
+    sourceData: Record<string, unknown>;
+  };
+}
+
+/**
+ * Custom hook for user deletion mutation with cache invalidation
+ */
+export function useDeleteUsersMutation(organizationId?: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ userIds }: UserDeleteData) => {
+      return suiteCore.users.deleteUsers(userIds);
+    },
+    onSuccess: () => {
+      // Invalidate user queries to refresh the data
+      if (organizationId) {
+        queryClient.invalidateQueries({ queryKey: ['organizationUsers', organizationId] });
+        queryClient.invalidateQueries({ queryKey: ['infiniteOrganizationUsers', organizationId] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['organizationUsers'] });
+        queryClient.invalidateQueries({ queryKey: ['infiniteOrganizationUsers'] });
+      }
+    },
+  });
+}
+
+/**
+ * Custom hook for user creation mutation with cache invalidation
+ */
+export function useCreateUserMutation(organizationId?: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (userData: UserCreateData) => {
+      return suiteCore.users.createUserFromAddressIfNotExist(
+        userData.walletAddress,
+        userData.organizationId,
+        userData.importedSourceData
+      );
+    },
+    onSuccess: () => {
+      // Invalidate user queries to refresh the data
+      if (organizationId) {
+        queryClient.invalidateQueries({ queryKey: ['organizationUsers', organizationId] });
+        queryClient.invalidateQueries({ queryKey: ['infiniteOrganizationUsers', organizationId] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['organizationUsers'] });
+        queryClient.invalidateQueries({ queryKey: ['infiniteOrganizationUsers'] });
+      }
+    },
   });
 }
 
@@ -552,6 +625,10 @@ export function useDashboardDataQueries(organizationId?: string, workflowId?: st
   const updateAgent = useUpdateAgentMutation();
   const deleteAgent = useDeleteAgentMutation();
 
+  // Set up user mutation hooks
+  const createUser = useCreateUserMutation(organizationId);
+  const deleteUsers = useDeleteUsersMutation(organizationId);
+
   // Set up workflow mutation hooks
   const createWorkflow = useCreateWorkflowMutation(organizationId);
   const updateWorkflow = useUpdateWorkflowMutation();
@@ -607,6 +684,9 @@ export function useDashboardDataQueries(organizationId?: string, workflowId?: st
     createAgent,
     updateAgent,
     deleteAgent,
+    // Mutation hooks for users
+    createUser,
+    deleteUsers,
     // Mutation hooks for workflows
     createWorkflow,
     updateWorkflow,

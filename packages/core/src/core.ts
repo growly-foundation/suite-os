@@ -189,7 +189,8 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     userOrganizationDatabaseService,
     userPersonasDatabaseService,
     conversationDatabaseService,
-    userPersonaService
+    userPersonaService,
+    supabaseClientService
   );
   const conversationService = new ConversationService(
     supabaseClientService,

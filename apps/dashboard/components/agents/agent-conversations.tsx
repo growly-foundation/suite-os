@@ -48,6 +48,7 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    refetch: refetchConversations,
   } = useInfiniteConversationsWithMessagesQuery(agent.id, PAGE_SIZE);
 
   // Combine all pages of conversations with memoization
@@ -112,6 +113,7 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
 
       // Only update if we have a valid message and sender
       if (latestMessage && latestMessage.senderId && latestMessage.content) {
+        // Update the UI immediately for better UX
         setUsersWithLatestMessage(prev =>
           prev.map(userWithMessage => {
             if (userWithMessage.user.id === latestMessage.senderId) {
@@ -132,10 +134,13 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
             return userWithMessage;
           })
         );
-        fetchCurrentConversationMessages(false);
+
+        // Refresh conversations data in the background to keep it in sync
+        // This will only refetch the first page to avoid disrupting infinite scroll
+        handleRefetch();
       }
     }
-  }, [realtimeMessages, agent.id, fetchCurrentConversationMessages]);
+  }, [realtimeMessages, agent.id, fetchCurrentConversationMessages, refetchConversations]);
 
   // Handle loading more data with infinite loading
   const handleLoadMore = useCallback(() => {
@@ -148,12 +153,15 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
   const handleSendMessage = useCallback(
     (content: string) => {
       sendAdminMessage(content, () => {
-        // Message sent callback
-        console.log('Admin message sent');
+        handleRefetch();
       });
     },
     [sendAdminMessage]
   );
+
+  const handleRefetch = async () => {
+    await Promise.all([refetchConversations(), fetchCurrentConversationMessages(false)]);
+  };
 
   return (
     <div className="flex w-full overflow-hidden h-[calc(100vh-125px)]">

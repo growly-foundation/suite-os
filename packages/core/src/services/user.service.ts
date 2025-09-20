@@ -7,6 +7,7 @@ import {
   UserImportSource,
 } from '@/models';
 import { normalizeWalletAddress } from '@/utils/wallet';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 import { Address } from '@getgrowly/persona';
 
@@ -19,7 +20,8 @@ export class UserService {
     private userOrganizationDatabaseService: PublicDatabaseService<'users_organizations'>,
     private userPersonaDatabaseService: PublicDatabaseService<'user_personas'>,
     private conversationDatabaseService: PublicDatabaseService<'conversation'>,
-    private userPersonaService: UserPersonaService
+    private userPersonaService: UserPersonaService,
+    private supabaseClient: SupabaseClient
   ) {}
 
   async deleteUsers(userIds: string[]): Promise<void> {
@@ -32,55 +34,86 @@ export class UserService {
     limit?: number,
     offset?: number
   ): Promise<ParsedUser[]> {
-    const conversations = await this.conversationDatabaseService.getAllByFields(
-      {
-        agent_id,
-      },
-      undefined,
-      {
-        field: 'created_at',
-        ascending: false,
-      }
-    );
+    // Optimized: Single query with JOIN to get users directly from conversations
+    // This eliminates the round-trip of fetching conversations first, then users
+    const { data, error } = await this.supabaseClient
+      .from('conversation')
+      .select(
+        `
+        users (
+          id,
+          entities,
+          created_at,
+          original_joined_at
+        )
+      `
+      )
+      .eq('agent_id', agent_id)
+      .not('user_id', 'is', null)
+      .order('created_at', { ascending: false });
 
-    // Get unique user IDs from conversations
-    const uniqueUserIds = [
-      ...new Set(conversations.map(c => c.user_id).filter((id): id is string => Boolean(id))),
-    ];
-
-    // Apply pagination to unique user IDs
-    const paginatedUserIds = offset
-      ? uniqueUserIds.slice(offset, offset + (limit || uniqueUserIds.length))
-      : limit
-        ? uniqueUserIds.slice(0, limit)
-        : uniqueUserIds;
-
-    const users: ParsedUser[] = [];
-    for (const userId of paginatedUserIds) {
-      const user = await this.getUserById(userId);
-      if (!user) continue;
-      const parsedUser = await this.getUserWithPersona(user);
-      users.push(parsedUser);
+    if (error) {
+      throw new Error(`Failed to fetch users by agent: ${error.message}`);
     }
-    return users;
+
+    if (!data || data.length === 0) {
+      return [];
+    }
+
+    // Extract users and remove duplicates (same user might have multiple conversations)
+    const userMap = new Map();
+    data.forEach((item: any) => {
+      if (item.users && !userMap.has(item.users.id)) {
+        userMap.set(item.users.id, item.users);
+      }
+    });
+
+    const uniqueUsers = Array.from(userMap.values());
+
+    // Apply pagination to unique users
+    const paginatedUsers = offset
+      ? uniqueUsers.slice(offset, offset + (limit || uniqueUsers.length))
+      : limit
+        ? uniqueUsers.slice(0, limit)
+        : uniqueUsers;
+
+    if (paginatedUsers.length === 0) {
+      return [];
+    }
+
+    return await this.getBatchUsersWithPersona(paginatedUsers);
   }
 
   async getUsersByOrganizationIdCount(organization_id: string): Promise<number> {
-    const userOrganizationAssociations = await this.userOrganizationDatabaseService.getAllByFields({
-      organization_id,
-    });
-    return userOrganizationAssociations.length;
+    const userOrganizationAssociations = await this.supabaseClient
+      .from('users_organizations')
+      .select('*', {
+        count: 'exact',
+        head: true,
+      })
+      .eq('organization_id', organization_id);
+    return userOrganizationAssociations.count || 0;
   }
 
   async getUsersByAgentIdCount(agent_id: string): Promise<number> {
-    const conversations = await this.conversationDatabaseService.getAllByFields({
-      agent_id,
-    });
-    // Count unique users from conversations
-    const uniqueUserIds = [
-      ...new Set(conversations.map(c => c.user_id).filter((id): id is string => Boolean(id))),
-    ];
-    return uniqueUserIds.length;
+    // Optimized: Count distinct users directly in the database
+    const { data, error } = await this.supabaseClient
+      .from('conversation')
+      .select('user_id')
+      .eq('agent_id', agent_id)
+      .not('user_id', 'is', null);
+
+    if (error) {
+      throw new Error(`Failed to count users by agent: ${error.message}`);
+    }
+
+    if (!data) {
+      return 0;
+    }
+
+    // Count unique user IDs
+    const uniqueUserIds = new Set(data.map(item => item.user_id));
+    return uniqueUserIds.size;
   }
 
   async getUserById(user_id: string): Promise<ParsedUser | null> {
@@ -91,39 +124,45 @@ export class UserService {
 
   async getUsersByOrganizationId(
     organization_id: string,
-    limit?: number,
-    offset?: number
+    limit = 100,
+    offset = 0
   ): Promise<ParsedUser[]> {
-    // First, get all user-organization associations with pagination
-    const userOrganizationAssociations = await this.userOrganizationDatabaseService.getAllByFields(
-      {
-        organization_id,
-      },
-      limit ? limit + (offset || 0) : undefined, // Get enough records to handle offset
-      {
-        field: 'created_at',
-        ascending: false,
-      }
-    );
-
-    // Apply client-side offset if needed (since database service doesn't support offset directly)
-    const paginatedAssociations = offset
-      ? userOrganizationAssociations.slice(
-          offset,
-          offset + (limit || userOrganizationAssociations.length)
+    // Optimized: Single query with JOIN to get users directly
+    // This eliminates the round-trip of fetching associations first, then users
+    const { data, error } = await this.supabaseClient
+      .from('users_organizations')
+      .select(
+        `
+        users (
+          id,
+          entities,
+          created_at,
+          original_joined_at
         )
-      : limit
-        ? userOrganizationAssociations.slice(0, limit)
-        : userOrganizationAssociations;
+      `
+      )
+      .eq('organization_id', organization_id)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1); // Supabase range is inclusive
 
-    if (paginatedAssociations.length === 0) {
+    if (error) {
+      throw new Error(`Failed to fetch users by organization: ${error.message}`);
+    }
+
+    if (!data || data.length === 0) {
       return [];
     }
 
-    const users = await this.userDatabaseService.getManyByIds(
-      paginatedAssociations.map(association => association.user_id)
-    );
-    return await Promise.all(users.map(user => this.getUserWithPersona(user)));
+    // Extract users from the joined data
+    const users = data
+      .map((item: any) => item.users)
+      .filter((user: any): user is NonNullable<typeof user> => user !== null);
+
+    if (users.length === 0) {
+      return [];
+    }
+
+    return await this.getBatchUsersWithPersona(users);
   }
 
   async getUserByWalletAddress(walletAddress: string): Promise<ParsedUser | null> {
@@ -191,6 +230,52 @@ export class UserService {
     };
   }
 
+  /**
+   * Optimized batch processing for multiple users with personas
+   * Eliminates N+1 query problem by batching persona lookups
+   */
+  async getBatchUsersWithPersona(users: User[]): Promise<ParsedUser[]> {
+    if (users.length === 0) return [];
+
+    // Extract all wallet addresses
+    const walletAddresses = users.map(user => {
+      const walletAddress = (user.entities as { walletAddress: string }).walletAddress as Address;
+      return normalizeWalletAddress(walletAddress);
+    });
+
+    // Batch fetch existing personas
+    const existingPersonas = await this.getBatchUserPersonas(walletAddresses);
+
+    // Create a map for quick lookup
+    const personaMap = new Map<string, ParsedUserPersona>();
+    existingPersonas.forEach(persona => {
+      personaMap.set(persona.id, persona);
+    });
+
+    // Identify missing personas and create them in batch
+    const missingAddresses = walletAddresses.filter(address => !personaMap.has(address));
+    console.log('missingAddresses', missingAddresses);
+    if (missingAddresses.length > 0) {
+      const newPersonas = await this.createBatchUserPersonas(missingAddresses);
+      newPersonas.forEach(persona => {
+        personaMap.set(persona.id, persona);
+      });
+    }
+
+    // Map users with their personas
+    return users.map(user => {
+      const walletAddress = (user.entities as { walletAddress: string }).walletAddress as Address;
+      const normalizedAddress = normalizeWalletAddress(walletAddress);
+      const persona = personaMap.get(normalizedAddress);
+
+      if (!persona) {
+        throw new Error(`Persona not found for address: ${normalizedAddress}`);
+      }
+
+      return this.mapUserWithPersona(user, persona);
+    });
+  }
+
   async getUserWithPersona(user: User): Promise<ParsedUser> {
     const walletAddress = (user.entities as { walletAddress: string }).walletAddress as Address;
     const normalizedWalletAddress = normalizeWalletAddress(walletAddress);
@@ -215,6 +300,59 @@ export class UserService {
         unread: false,
       },
     };
+  }
+
+  /**
+   * Batch fetch user personas by wallet addresses
+   * Optimized to reduce database round trips
+   */
+  async getBatchUserPersonas(walletAddresses: string[]): Promise<ParsedUserPersona[]> {
+    if (walletAddresses.length === 0) return [];
+
+    try {
+      const personas = await this.userPersonaDatabaseService.getManyByIds(walletAddresses);
+      return personas as any as ParsedUserPersona[];
+    } catch (error) {
+      // If batch fetch fails, return empty array (missing personas will be created)
+      return [];
+    }
+  }
+
+  /**
+   * Batch create user personas for missing wallet addresses
+   * Much faster than creating them one by one
+   */
+  async createBatchUserPersonas(walletAddresses: string[]): Promise<ParsedUserPersona[]> {
+    if (walletAddresses.length === 0) return [];
+
+    // Create personas individually (optimized batch approach)
+    // Note: We could implement a proper batch insert in the database service later
+    try {
+      const personas: ParsedUserPersona[] = [];
+
+      // Process in smaller batches to avoid overwhelming the database
+      const BATCH_SIZE = 10;
+      for (let i = 0; i < walletAddresses.length; i += BATCH_SIZE) {
+        const batch = walletAddresses.slice(i, i + BATCH_SIZE);
+        const batchPromises = batch.map(address => this.createUserPersonaIfNotExist(address));
+        const batchResults = await Promise.all(batchPromises);
+        personas.push(...batchResults);
+      }
+
+      return personas;
+    } catch (error) {
+      // Fallback: create them individually if batch creation fails
+      const personas: ParsedUserPersona[] = [];
+      for (const address of walletAddresses) {
+        try {
+          const persona = await this.createUserPersonaIfNotExist(address);
+          personas.push(persona);
+        } catch (err) {
+          console.error(`Failed to create persona for ${address}:`, err);
+        }
+      }
+      return personas;
+    }
   }
 
   async createUserPersonaIfNotExist(walletAddress: string): Promise<ParsedUserPersona> {

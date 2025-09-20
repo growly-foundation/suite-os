@@ -28,7 +28,7 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
   const [loading, setLoading] = useState(true);
   const paramsValue = React.use(params);
   const searchParams = useSearchParams();
-
+  const [tab, setTab] = useState(searchParams.get('tab') || 'details');
   // Set up React Query client and mutation hooks
   const queryClient = useQueryClient();
 
@@ -118,10 +118,9 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
   }
 
   const handleTabChange = (tab: string) => {
-    router.push(`/dashboard/agents/${paramsValue.id}?tab=${tab}`);
+    // router.push(`/dashboard/agents/${paramsValue.id}?tab=${tab}`);
+    setTab(tab);
   };
-
-  const tab = searchParams.get('tab') || 'details';
 
   return (
     <div className="flex flex-col">

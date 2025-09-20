@@ -1,14 +1,8 @@
-import { useEffect, useState } from 'react';
-
 import { useDashboardState } from './use-dashboard';
 import { useInfiniteOrganizationUsersQuery } from './use-dashboard-queries';
 
 export const useOrganizationUsersEffect = (organizationId: string, pageSize = 10) => {
-  const [refreshing, setRefreshing] = useState(+new Date());
-  const { fetchUsersByOrganizationId, organizationUsers, organizationUserStatus } =
-    useDashboardState();
-
-  // Use infinite query for organization users
+  // Use infinite query for organization users (no fallback to avoid loading all users)
   const {
     data: infiniteUsersData,
     fetchNextPage,
@@ -18,21 +12,14 @@ export const useOrganizationUsersEffect = (organizationId: string, pageSize = 10
     refetch,
   } = useInfiniteOrganizationUsersQuery(organizationId, pageSize, !!organizationId);
 
-  // Fallback to old method if infinite query is not available
-  useEffect(() => {
-    if (!organizationId) return;
-    fetchUsersByOrganizationId(organizationId);
-  }, [organizationId, refreshing, fetchUsersByOrganizationId]);
-
-  // Combine all pages of users from infinite query
-  const allUsers = infiniteUsersData?.pages.flatMap(page => page.users) || organizationUsers;
-  const totalUsers = infiniteUsersData?.pages[0]?.total || organizationUsers.length;
+  // Only use infinite query data - no fallback to avoid loading all 500 users
+  const allUsers = infiniteUsersData?.pages.flatMap(page => page.users) || [];
+  const totalUsers = infiniteUsersData?.pages[0]?.total || 0;
 
   return {
     organizationUsers: allUsers,
-    organizationUserStatus: isLoading ? 'loading' : organizationUserStatus,
+    organizationUserStatus: isLoading ? 'loading' : 'idle',
     refresh: () => {
-      setRefreshing(+new Date());
       refetch();
     },
     // Infinite loading functions

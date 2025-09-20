@@ -12,17 +12,37 @@ export class ConversationService {
   ) {}
 
   async createConversationIfNotExists(agent_id: string, user_id: string) {
-    const conversation = await this.conversationDatabaseService.getOneByFields({
-      agent_id,
-      user_id,
-    });
-    if (!conversation) {
-      return this.conversationDatabaseService.create({
+    // Optimized: Use upsert to avoid the initial lookup round trip
+    // This uses PostgreSQL's ON CONFLICT to handle the "if not exists" logic at the database level
+    const { data, error } = await this.supabase
+      .schema('public')
+      .from('conversation')
+      .upsert(
+        { agent_id, user_id },
+        {
+          onConflict: 'agent_id,user_id',
+          ignoreDuplicates: false,
+        }
+      )
+      .select()
+      .single();
+
+    if (error) {
+      // Fallback to the original method if upsert fails (e.g., no unique constraint)
+      const conversation = await this.conversationDatabaseService.getOneByFields({
         agent_id,
         user_id,
       });
+      if (!conversation) {
+        return this.conversationDatabaseService.create({
+          agent_id,
+          user_id,
+        });
+      }
+      return conversation;
     }
-    return conversation;
+
+    return data;
   }
 
   async getMessagesOfAgentAndUser(
@@ -30,21 +50,121 @@ export class ConversationService {
     user_id: string,
     ascending = false
   ): Promise<Message[]> {
-    const conversation = await this.conversationDatabaseService.getOneByFields({
-      agent_id,
-      user_id,
-    });
-    if (!conversation) throw new Error('Conversation not found');
-    return this.messageDatabaseService.getAllByFields(
-      {
-        conversation_id: conversation.id,
-      },
-      undefined,
-      {
-        field: 'created_at',
+    // Optimized: Single query using LEFT JOIN to get both conversation existence and messages
+    // This completely eliminates any additional round trips
+    const { data, error } = await this.supabase
+      .schema('public')
+      .from('conversation')
+      .select(
+        `
+        id,
+        messages (
+          id,
+          conversation_id,
+          content,
+          sender,
+          sender_id,
+          embedding,
+          created_at
+        )
+      `
+      )
+      .eq('agent_id', agent_id)
+      .eq('user_id', user_id)
+      .order('created_at', {
         ascending,
-      }
-    );
+        foreignTable: 'messages',
+      });
+
+    if (error) {
+      throw new Error(`Failed to fetch messages: ${error.message}`);
+    }
+
+    if (!data || data.length === 0) {
+      throw new Error('Conversation not found');
+    }
+
+    const conversation = data[0];
+
+    // If conversation exists but has no messages, return empty array
+    if (!conversation.messages || conversation.messages.length === 0) {
+      return [];
+    }
+
+    // Return the messages directly (they're already in the correct format)
+    return conversation.messages;
+  }
+
+  /**
+   * Get messages with cursor-based pagination (latest to oldest)
+   * Optimized for infinite scroll loading
+   */
+  async getMessagesOfAgentAndUserPaginated(
+    agent_id: string,
+    user_id: string,
+    options: {
+      limit?: number;
+      cursor?: string; // created_at timestamp for cursor pagination
+      ascending?: boolean;
+    } = {}
+  ): Promise<{
+    messages: Message[];
+    nextCursor?: string;
+    hasMore: boolean;
+  }> {
+    const { limit = 20, cursor, ascending = false } = options;
+
+    // First, get the conversation ID
+    const { data: conversationData, error: convError } = await this.supabase
+      .schema('public')
+      .from('conversation')
+      .select('id')
+      .eq('agent_id', agent_id)
+      .eq('user_id', user_id)
+      .single();
+
+    if (convError || !conversationData) {
+      throw new Error('Conversation not found');
+    }
+
+    // Build the messages query with proper cursor-based pagination
+    let messagesQuery = this.supabase
+      .schema('public')
+      .from('messages')
+      .select('*')
+      .eq('conversation_id', conversationData.id)
+      .order('created_at', { ascending })
+      .limit(limit + 1); // Fetch one extra to check if there are more
+
+    // Apply cursor pagination if provided
+    if (cursor) {
+      const operator = ascending ? 'gt' : 'lt';
+      messagesQuery = messagesQuery.filter('created_at', operator, cursor);
+    }
+
+    const { data: messagesData, error: messagesError } = await messagesQuery;
+
+    if (messagesError) {
+      throw new Error(`Failed to fetch paginated messages: ${messagesError.message}`);
+    }
+
+    if (!messagesData) {
+      return { messages: [], hasMore: false };
+    }
+
+    // Check if there are more messages
+    const hasMore = messagesData.length > limit;
+    const messages = hasMore ? messagesData.slice(0, limit) : messagesData;
+
+    // Get next cursor from the last message (oldest when descending, newest when ascending)
+    const nextCursor =
+      hasMore && messages.length > 0 ? messages[messages.length - 1].created_at : undefined;
+
+    return {
+      messages,
+      nextCursor,
+      hasMore,
+    };
   }
 
   async addMessageToConversation({
@@ -177,7 +297,7 @@ export class ConversationService {
           const { count, error } = await this.supabase
             .schema('public')
             .from('conversation')
-            .select('id', { count: 'exact', head: true })
+            .select('id', { count: 'estimated', head: true })
             .eq('agent_id', agent_id);
 
           if (error) {

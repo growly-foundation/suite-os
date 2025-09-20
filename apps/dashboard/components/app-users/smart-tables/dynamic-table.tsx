@@ -21,6 +21,133 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { EmptyState } from './empty-state';
 import { TableToolbar } from './table-toolbar';
 
+// Skeleton component for loading cells
+const SkeletonCell = ({
+  width = '100%',
+  height = '1rem',
+  variant = 'text',
+}: {
+  width?: string;
+  height?: string;
+  variant?: 'text' | 'avatar' | 'badge' | 'number';
+}) => {
+  switch (variant) {
+    case 'avatar':
+      return (
+        <div className="flex items-center gap-3">
+          <div className="animate-pulse bg-muted rounded-full w-8 h-8" />
+          <div
+            className="animate-pulse bg-muted rounded"
+            style={{ width: '60%', height: '1rem' }}
+          />
+        </div>
+      );
+    case 'badge':
+      return (
+        <div
+          className="animate-pulse bg-muted rounded-full px-2 py-1"
+          style={{ width: '80px', height: '24px' }}
+        />
+      );
+    case 'number':
+      return <div className="animate-pulse bg-muted rounded" style={{ width: '40%', height }} />;
+    default:
+      return <div className="animate-pulse bg-muted rounded" style={{ width, height }} />;
+  }
+};
+
+// Helper function to determine skeleton variant based on column ID
+const getSkeletonVariant = (columnId: string): 'text' | 'avatar' | 'badge' | 'number' => {
+  if (columnId.includes('identity') || columnId.includes('name') || columnId.includes('user')) {
+    return 'avatar';
+  }
+  if (columnId.includes('trait') || columnId.includes('status') || columnId.includes('activity')) {
+    return 'badge';
+  }
+  if (
+    columnId.includes('value') ||
+    columnId.includes('count') ||
+    columnId.includes('transaction')
+  ) {
+    return 'number';
+  }
+  return 'text';
+};
+
+// Generate skeleton rows that match the table structure
+const SkeletonTableRows = ({
+  columns,
+  rowCount = 10,
+  enableRowSelection = false,
+}: {
+  columns: ColumnDef<any>[];
+  rowCount?: number;
+  enableRowSelection?: boolean;
+}) => {
+  // Create skeleton columns that match the actual table structure
+  const skeletonColumns = enableRowSelection
+    ? [
+        { id: 'select', size: 50, meta: { frozen: true } },
+        ...columns.map(col => ({
+          id: col.id || 'col',
+          size: (col as any).size || 150,
+          meta: (col as any).meta || {},
+        })),
+      ]
+    : columns.map(col => ({
+        id: col.id || 'col',
+        size: (col as any).size || 150,
+        meta: (col as any).meta || {},
+      }));
+
+  return (
+    <>
+      {Array.from({ length: rowCount }).map((_, rowIndex) => (
+        <TableRow key={`skeleton-row-${rowIndex}`} className="border-b">
+          {skeletonColumns.map((col, colIndex) => {
+            const isFrozen = (col.meta as any)?.frozen;
+            const leftPosition = isFrozen
+              ? calculateFrozenColumnPosition(
+                  colIndex,
+                  skeletonColumns.map(c => ({
+                    column: {
+                      columnDef: { meta: c.meta },
+                      getSize: () => c.size,
+                    },
+                  }))
+                )
+              : 'auto';
+
+            return (
+              <TableCell
+                key={`skeleton-cell-${rowIndex}-${colIndex}`}
+                style={{
+                  width: col.size,
+                  position: isFrozen ? ('sticky' as const) : ('relative' as const),
+                  left: leftPosition,
+                  zIndex: isFrozen ? 5 : 'auto',
+                  backgroundColor: isFrozen ? 'hsl(var(--background))' : 'transparent',
+                  boxShadow: isFrozen ? '1px 0 0 0 hsl(var(--border))' : 'none',
+                }}
+                className={cn('overflow-hidden py-3', isFrozen && 'shadow-sm')}>
+                {col.id === 'select' ? (
+                  <SkeletonCell width="16px" height="16px" />
+                ) : (
+                  <SkeletonCell
+                    width={`${Math.random() * 40 + 60}%`} // Random width between 60-100%
+                    height="1rem"
+                    variant={getSkeletonVariant(col.id)}
+                  />
+                )}
+              </TableCell>
+            );
+          })}
+        </TableRow>
+      ))}
+    </>
+  );
+};
+
 function calculateFrozenColumnPosition(
   index: number,
   columns: Array<{ column: { columnDef: { meta?: any }; getSize: () => number } }>
@@ -310,6 +437,61 @@ export function DynamicTable<TData = any>({
           </div>
         )}
 
+        {/* Loading Skeleton */}
+        {isLoading && (
+          <div className="flex-1 overflow-auto relative h-full">
+            <Table className="w-full table-fixed">
+              <TableHeader
+                className="sticky top-0 bg-background shadow-sm"
+                style={{ height: HEADER_HEIGHT }}>
+                {/* Show actual headers even during loading */}
+                {table.getHeaderGroups().map(headerGroup => (
+                  <TableRow key={headerGroup.id} className="border-b">
+                    {headerGroup.headers.map((header, index) => {
+                      const isFrozen = (header.column.columnDef.meta as any)?.frozen;
+                      const isSortable = enableSorting && header.column.getCanSort();
+                      const leftPosition = isFrozen
+                        ? calculateFrozenColumnPosition(index, headerGroup.headers)
+                        : 'auto';
+
+                      return (
+                        <TableHead
+                          key={`${header.id}-${index}`}
+                          style={{
+                            width: header.getSize(),
+                            position: isFrozen ? ('sticky' as const) : ('relative' as const),
+                            left: leftPosition,
+                            zIndex: isFrozen ? 20 : 'auto',
+                            backgroundColor: isFrozen ? 'hsl(var(--background))' : 'transparent',
+                            boxShadow: isFrozen ? '1px 0 0 0 hsl(var(--border))' : 'none',
+                          }}
+                          className={cn(
+                            'relative overflow-hidden py-3',
+                            header.column.getCanResize() && 'cursor-col-resize',
+                            isFrozen && 'shadow-sm'
+                          )}>
+                          {header.isPlaceholder ? null : isSortable ? (
+                            <SortableHeader column={header.column} />
+                          ) : (
+                            flexRender(header.column.columnDef.header, header.getContext())
+                          )}
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                <SkeletonTableRows
+                  columns={tableColumns}
+                  rowCount={pageSize || 10}
+                  enableRowSelection={enableRowSelection}
+                />
+              </TableBody>
+            </Table>
+          </div>
+        )}
+
         {/* Empty State */}
         {!isLoading && data.length === 0 && (
           <div className="flex-1 flex items-center justify-center p-4">
@@ -489,24 +671,6 @@ export function DynamicTable<TData = any>({
                           ? calculateFrozenColumnPosition(index, table.getHeaderGroups()[0].headers)
                           : 'auto';
 
-                        const formatFooterValue = (value: any, columnId: string) => {
-                          if (value === undefined || value === null || value === '') return '';
-                          switch (columnId) {
-                            case 'identity':
-                              return value;
-                            case 'portfolioValue':
-                              return `$${Number(value).toLocaleString()} USD`;
-                            case 'transactions':
-                            case 'tokens':
-                              return Number(value).toLocaleString();
-                            case 'firstSignedIn':
-                            case 'walletCreatedAt':
-                              return value;
-                            default:
-                              return value;
-                          }
-                        };
-
                         return (
                           <TableHead
                             key={`footer-${header.id}-${index}`}
@@ -534,13 +698,24 @@ export function DynamicTable<TData = any>({
           </React.Fragment>
         )}
       </div>
-
-      {/* Loading overlay */}
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-        </div>
-      )}
     </div>
   );
 }
+
+const formatFooterValue = (value: any, columnId: string) => {
+  if (value === undefined || value === null || value === '') return '';
+  switch (columnId) {
+    case 'identity':
+      return value;
+    case 'portfolioValue':
+      return `$${Number(value).toLocaleString()} USD`;
+    case 'transactions':
+    case 'tokens':
+      return Number(value).toLocaleString();
+    case 'firstSignedIn':
+    case 'walletCreatedAt':
+      return value;
+    default:
+      return value;
+  }
+};
