@@ -1,7 +1,11 @@
 import { useDashboardState } from './use-dashboard';
-import { useInfiniteOrganizationUsersQuery } from './use-dashboard-queries';
+import {
+  useInfiniteOrganizationUsersQuery,
+  useOrganizationUsersCountQuery,
+} from './use-dashboard-queries';
 
 export const useOrganizationUsersEffect = (organizationId: string, pageSize = 10) => {
+  const { data: totalUsers } = useOrganizationUsersCountQuery(organizationId);
   // Use infinite query for organization users (no fallback to avoid loading all users)
   const {
     data: infiniteUsersData,
@@ -10,11 +14,10 @@ export const useOrganizationUsersEffect = (organizationId: string, pageSize = 10
     isFetchingNextPage,
     isLoading,
     refetch,
-  } = useInfiniteOrganizationUsersQuery(organizationId, pageSize, !!organizationId);
+  } = useInfiniteOrganizationUsersQuery(organizationId, totalUsers, pageSize, !!organizationId);
 
   // Only use infinite query data - no fallback to avoid loading all 500 users
   const allUsers = infiniteUsersData?.pages.flatMap(page => page.users) || [];
-  const totalUsers = infiniteUsersData?.pages[0]?.total || 0;
 
   return {
     organizationUsers: allUsers,

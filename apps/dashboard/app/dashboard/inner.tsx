@@ -11,14 +11,7 @@ import type { TimeRange } from '@/components/ui/time-range-selector';
 import { TimeRangeSelector } from '@/components/ui/time-range-selector';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { useDashboardDataQueries } from '@/hooks/use-dashboard-queries';
-import {
-  Activity as ActivityIcon,
-  Bot,
-  RefreshCw,
-  Settings2,
-  User2Icon,
-  WorkflowIcon,
-} from 'lucide-react';
+import { Bot, RefreshCw, Settings2, User2Icon, WorkflowIcon } from 'lucide-react';
 import moment from 'moment';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
@@ -119,7 +112,10 @@ export function DashboardInner() {
     });
 
     return {
-      newUsers30d: filteredUsers.length,
+      newNativeUsers30d: filteredUsers.length,
+      newImportedUsers30d: filteredUsers.length,
+      totalNativeUsers: filteredUsers.length,
+      totalImportedUsers: filteredUsers.length,
       totalAgents: agents.length,
       activeAgents: activeAgents.length,
       totalWorkflows: workflows.length,
@@ -133,7 +129,8 @@ export function DashboardInner() {
     agents && users && workflows
       ? calculateMetrics(agents, users, workflows)
       : {
-          newUsers30d: 0,
+          newNativeUsers30d: 0,
+          newImportedUsers30d: 0,
           totalAgents: 0,
           activeAgents: 0,
           totalWorkflows: 0,
@@ -225,15 +222,34 @@ export function DashboardInner() {
                     <IconContainer className={'bg-primary w-6 h-6 border-primary text-white'}>
                       <User2Icon className="h-4 w-4" />
                     </IconContainer>{' '}
-                    New Users ({selectedTimeRange.label})
+                    Native Users ({selectedTimeRange.label})
                   </div>
                 </CardTitle>
                 <Bot className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{metrics.newUsers30d}</div>
+                <div className="text-2xl font-bold">{metrics.newNativeUsers30d}</div>
                 <p className="text-xs text-muted-foreground">
-                  New users in the selected time range
+                  New native users in the selected time range
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">
+                  <div className="flex items-center gap-2">
+                    <IconContainer className={'bg-primary w-6 h-6 border-primary text-white'}>
+                      <User2Icon className="h-4 w-4" />
+                    </IconContainer>{' '}
+                    Imported Users ({selectedTimeRange.label})
+                  </div>
+                </CardTitle>
+                <Bot className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{metrics.newImportedUsers30d}</div>
+                <p className="text-xs text-muted-foreground">
+                  New imported users in the selected time range
                 </p>
               </CardContent>
             </Card>
@@ -256,7 +272,7 @@ export function DashboardInner() {
                 </p>
               </CardContent>
             </Card>
-            <Card>
+            {/* <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">
                   <div className="flex items-center gap-2">
@@ -274,7 +290,7 @@ export function DashboardInner() {
                   {metrics.totalWorkflows - metrics.runningWorkflows} paused
                 </p>
               </CardContent>
-            </Card>
+            </Card> */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">

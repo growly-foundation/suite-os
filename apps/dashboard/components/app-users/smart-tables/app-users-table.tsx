@@ -231,7 +231,7 @@ export function UsersTable({
         tableLabel={tableLabel}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        searchPlaceholder="Search ENS or address"
+        searchPlaceholder="Search users by name or address"
         additionalActions={additionalActions}
         // Infinite loading props
         hasMore={hasMoreUsers}

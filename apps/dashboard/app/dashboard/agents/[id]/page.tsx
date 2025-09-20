@@ -4,14 +4,13 @@ import { AgentConversations } from '@/components/agents/agent-conversations';
 import { AgentDetails } from '@/components/agents/agent-details';
 import { AgentResources } from '@/components/agents/agent-resources';
 import { AgentUsers } from '@/components/agents/agent-users';
-import { AgentWorkflows } from '@/components/agents/agent-workflows';
 import { PrimaryButton } from '@/components/buttons/primary-button';
 import { IntegrationGuideDialog } from '@/components/steps/integration-guide-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { suiteCore } from '@/core/suite';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { useQueryClient } from '@tanstack/react-query';
-import { Book, Code, Loader, MessageCircle, Settings2, Users, Workflow } from 'lucide-react';
+import { Book, Code, Loader, MessageCircle, Settings2, Users } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -144,10 +143,10 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
                 <Book className="mr-2 h-4 w-4" />
                 Resources
               </TabsTrigger>
-              <TabsTrigger value="workflows">
+              {/* <TabsTrigger value="workflows">
                 <Workflow className="mr-2 h-4 w-4" />
                 Workflows
-              </TabsTrigger>
+              </TabsTrigger> */}
             </TabsList>
           )}
           <PrimaryButton className="rounded-full" onClick={() => setIsIntegrationGuideOpen(true)}>
@@ -164,9 +163,9 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
         <TabsContent value="users">
           <AgentUsers />
         </TabsContent>
-        <TabsContent value="workflows">
+        {/* <TabsContent value="workflows">
           <AgentWorkflows agent={agent} onUpdate={handleAgentUpdate} />
-        </TabsContent>
+        </TabsContent> */}
         <TabsContent value="resources">
           <AgentResources agent={agent} onUpdate={handleAgentUpdate} />
         </TabsContent>

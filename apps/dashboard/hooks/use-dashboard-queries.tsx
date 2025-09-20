@@ -57,7 +57,8 @@ export function useOrganizationWorkflowsQuery(organizationId?: string, enabled =
     queryFn: async () => {
       if (!organizationId) return [];
       // Based on the implementation in useDashboardState
-      return await suiteCore.workflows.getWorkflowsByOrganizationId(organizationId);
+      // return await suiteCore.workflows.getWorkflowsByOrganizationId(organizationId);
+      return [];
     },
     enabled: !!organizationId && enabled,
     gcTime: DASHBOARD_WORKFLOWS_CACHE_TIME,
@@ -210,6 +211,7 @@ export function useConversationsCountQuery(agentId?: string, enabled = true) {
  */
 export function useInfiniteOrganizationUsersQuery(
   organizationId?: string,
+  totalUsersCount = 100,
   pageSize = 20,
   enabled = true
 ) {
@@ -221,18 +223,19 @@ export function useInfiniteOrganizationUsersQuery(
       const offset = pageParam * pageSize;
 
       // Use suiteCore for server-side pagination (tRPC client not available in queryFn)
-      const [users, total] = await Promise.all([
-        suiteCore.users.getUsersByOrganizationId(organizationId, pageSize, offset),
-        suiteCore.users.getUsersByOrganizationIdCount(organizationId),
-      ]);
+      const users = await suiteCore.users.getUsersByOrganizationId(
+        organizationId,
+        pageSize,
+        offset
+      );
 
-      const hasMore = offset + pageSize < total;
+      const hasMore = offset + pageSize < totalUsersCount;
 
       return {
         users,
         hasMore,
         nextPage: hasMore ? pageParam + 1 : null,
-        total,
+        total: totalUsersCount,
       };
     },
     getNextPageParam: lastPage => lastPage.nextPage,
@@ -240,33 +243,57 @@ export function useInfiniteOrganizationUsersQuery(
     gcTime: DASHBOARD_USERS_CACHE_TIME,
     staleTime: DASHBOARD_USERS_CACHE_TIME / 2,
     initialPageParam: 0,
+    refetchOnWindowFocus: false,
+  });
+}
+
+/**
+ * Custom hook for loading of organization users count with React Query (using tRPC)
+ */
+export function useOrganizationUsersCountQuery(organizationId?: string) {
+  return useQuery({
+    placeholderData: keepPreviousData,
+    queryKey: ['organizationUsersCount', organizationId],
+    queryFn: async () => {
+      if (!organizationId) return 0;
+      // Use suiteCore for server-side pagination (tRPC client not available in queryFn)
+      const totalCount = await suiteCore.users.getUsersByOrganizationIdCount(organizationId);
+      return totalCount;
+    },
+    enabled: !!organizationId,
+    gcTime: DASHBOARD_USERS_CACHE_TIME,
+    staleTime: DASHBOARD_USERS_CACHE_TIME / 2,
+    refetchOnWindowFocus: false,
   });
 }
 
 /**
  * Custom hook for infinite loading of agent users with React Query (using tRPC)
  */
-export function useInfiniteAgentUsersQuery(agentId?: string, pageSize = 20, enabled = true) {
+export function useInfiniteAgentUsersQuery(
+  agentId?: string,
+  totalUsersCount = 100,
+  pageSize = 20,
+  enabled = true
+) {
   return useInfiniteQuery({
     queryKey: ['infiniteAgentUsers', agentId, pageSize],
+    placeholderData: keepPreviousData,
     queryFn: async ({ pageParam = 0 }) => {
       if (!agentId) return { users: [], hasMore: false, nextPage: null };
 
       const offset = pageParam * pageSize;
 
       // Use suiteCore for server-side pagination (tRPC client not available in queryFn)
-      const [users, total] = await Promise.all([
-        suiteCore.users.getUsersByAgentId(agentId, pageSize, offset),
-        suiteCore.users.getUsersByAgentIdCount(agentId),
-      ]);
+      const users = await suiteCore.users.getUsersByAgentId(agentId, pageSize, offset);
 
-      const hasMore = offset + pageSize < total;
+      const hasMore = offset + pageSize < totalUsersCount;
 
       return {
         users,
         hasMore,
         nextPage: hasMore ? pageParam + 1 : null,
-        total,
+        total: totalUsersCount,
       };
     },
     getNextPageParam: lastPage => lastPage.nextPage,
@@ -274,6 +301,27 @@ export function useInfiniteAgentUsersQuery(agentId?: string, pageSize = 20, enab
     gcTime: DASHBOARD_USERS_CACHE_TIME,
     staleTime: DASHBOARD_USERS_CACHE_TIME / 2,
     initialPageParam: 0,
+    refetchOnWindowFocus: false,
+  });
+}
+
+/**
+ * Custom hook for loading of organization users count with React Query (using tRPC)
+ */
+export function useAgentUsersCountQuery(agentId?: string) {
+  return useQuery({
+    placeholderData: keepPreviousData,
+    queryKey: ['agentUsersCount', agentId],
+    queryFn: async () => {
+      if (!agentId) return 0;
+      // Use suiteCore for server-side pagination (tRPC client not available in queryFn)
+      const totalCount = await suiteCore.users.getUsersByAgentIdCount(agentId);
+      return totalCount;
+    },
+    enabled: !!agentId,
+    gcTime: DASHBOARD_USERS_CACHE_TIME,
+    staleTime: DASHBOARD_USERS_CACHE_TIME / 2,
+    refetchOnWindowFocus: false,
   });
 }
 

@@ -35,7 +35,11 @@ export const PaddingLayout = ({
   children: React.ReactNode;
   className?: string;
 }) => {
-  return <div className={cn('max-w-7xl mx-auto p-4 md:p-6', className)}>{children}</div>;
+  return (
+    <div style={{ maxWidth: '1400px' }} className={cn('mx-auto p-4 md:p-6', className)}>
+      {children}
+    </div>
+  );
 };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

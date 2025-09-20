@@ -204,7 +204,7 @@ export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>
       // Toolbar props
       searchQuery={searchQuery}
       setSearchQuery={setSearchQuery}
-      searchPlaceholder="Search ENS or address"
+      searchPlaceholder="Search users by name or address"
       additionalActions={toolbarActions}
       className={height}
     />
