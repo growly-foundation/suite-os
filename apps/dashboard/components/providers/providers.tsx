@@ -1,10 +1,10 @@
 'use client';
 
 import { OnlineStatusProvider } from '@/contexts/online-status.context';
+import { TRPCProvider } from '@/trpc/client';
 import { PrivyProvider } from '@privy-io/react-auth';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
-import { Suspense, useState } from 'react';
+import { Suspense } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { ReactFlowProvider } from 'reactflow';
 
@@ -24,10 +24,8 @@ const AnimatedLoading = dynamic(
 );
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
-  // Create a new QueryClient instance for React Query
-  const [queryClient] = useState(() => new QueryClient());
   let baseComponent = (
-    <QueryClientProvider client={queryClient}>
+    <TRPCProvider>
       <OnlineStatusProvider>
         <SuiteProviderWrapper>
           <ThemeProvider
@@ -47,7 +45,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           </ThemeProvider>
         </SuiteProviderWrapper>
       </OnlineStatusProvider>
-    </QueryClientProvider>
+    </TRPCProvider>
   );
   // If environment variables for Privy credentials are not set,
   // do not wrap the component with PrivyProvider.

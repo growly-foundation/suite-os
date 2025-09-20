@@ -1,10 +1,4 @@
-export const TalentProtocolCheckmark = ({
-  width = 10,
-  height = 10,
-}: {
-  width?: number;
-  height?: number;
-}) => (
+export const Checkmark = ({ width = 10, height = 10 }: { width?: number; height?: number }) => (
   <svg
     focusable="false"
     aria-hidden="true"

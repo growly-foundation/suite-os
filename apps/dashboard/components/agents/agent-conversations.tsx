@@ -12,7 +12,6 @@ import {
 } from '@/hooks/use-dashboard-queries';
 import { Sidebar } from 'lucide-react';
 import React, { useCallback, useEffect } from 'react';
-import { Address } from 'viem';
 
 import {
   AggregatedAgent,
@@ -147,7 +146,7 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
               <div className="flex items-center gap-3">
                 <AppUserAvatarWithStatus
                   size={35}
-                  walletAddress={selectedUser.personaData.id as Address}
+                  walletAddress={selectedUser.entities.walletAddress}
                   name={selectedUser.name}
                   userId={selectedUser.id}
                 />

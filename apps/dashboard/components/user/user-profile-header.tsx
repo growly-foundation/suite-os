@@ -5,13 +5,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { consumePersona } from '@/core/persona';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { usePeekExplorer } from '@/hooks/use-peek-explorer';
-import { Check, Copy, Share2 } from 'lucide-react';
+import { Check, Copy, ExternalLink } from 'lucide-react';
 
 import { ParsedUser } from '@getgrowly/core';
-import { RandomAvatar } from '@getgrowly/ui';
+
+import { Identity } from '../identity';
+import { BlockscanSvg } from '../svg/blockscan';
+import { OpenSeaColor } from '../svg/opensea';
 
 interface UserProfileHeaderProps {
   user: ParsedUser;
@@ -19,36 +21,33 @@ interface UserProfileHeaderProps {
 
 export function UserProfileHeader({ user }: UserProfileHeaderProps) {
   const walletAddress = user.entities.walletAddress;
-  const persona = consumePersona(user);
-  const shortAddress = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
   const { copyToClipboard, copied } = useCopyToClipboard();
-  const { handlePeekAddressMultichain } = usePeekExplorer();
+  const { handlePeekAddressMultichain, handlePeekNFTMultichain } = usePeekExplorer();
 
   return (
     <div className="flex items-center justify-between">
       {/* Left Side - User Info */}
       <div className="flex items-center gap-4">
-        {/* Profile Picture */}
-        <div className="h-16 w-16">
-          <RandomAvatar
-            address={walletAddress}
-            ensAvatar={persona.nameService().avatar}
-            size={64}
-          />
-        </div>
+        {/* Avatar + Name + Address */}
+        <Identity
+          address={walletAddress}
+          avatarSize={64}
+          showAvatar
+          showName
+          showAddress={true}
+          nameTooltip={false}
+          addressTooltip={false}
+          spacing="normal"
+          nameClassName="text-2xl font-bold"
+          addressClassName="text-sm text-muted-foreground"
+          truncateLength={{ startLength: 6, endLength: 4 }}
+        />
 
-        {/* User Details */}
-        <div className="flex flex-col">
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold">{persona.nameService().name || shortAddress}</h1>
-          </div>
-
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>{shortAddress}</span>
-            <Button variant="ghost" size="sm" onClick={() => copyToClipboard(walletAddress)}>
-              {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-            </Button>
-          </div>
+        {/* Copy button for address */}
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" onClick={() => copyToClipboard(walletAddress)}>
+            {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+          </Button>
         </div>
       </div>
 
@@ -57,12 +56,19 @@ export function UserProfileHeader({ user }: UserProfileHeaderProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm">
-              <Share2 className="h-4 w-4" />
+              <ExternalLink className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handlePeekAddressMultichain(walletAddress)}>
-              View on Explorer
+            <DropdownMenuItem
+              className="hover:cursor-pointer"
+              onClick={() => handlePeekAddressMultichain(walletAddress)}>
+              <BlockscanSvg className="h-4 w-4 mr-2 " /> View on Blockscan
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="hover:cursor-pointer"
+              onClick={() => handlePeekNFTMultichain(walletAddress)}>
+              <OpenSeaColor className="h-4 w-4 mr-2" /> View on OpenSea
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -2,15 +2,12 @@ import { consumePersona } from '@/core/persona';
 import { getBadgeColor } from '@/lib/color.utils';
 import { cn } from '@/lib/utils';
 import moment from 'moment';
-import { Address } from 'viem';
 
 import { ParsedMessage, ParsedUser } from '@getgrowly/core';
-import { truncateAddress } from '@getgrowly/ui';
 
 import { UserWithLatestMessage } from '../agents/agent-conversations';
+import { Identity } from '../identity';
 import { Badge } from '../ui/badge';
-import { TalentProtocolCheckmark } from '../user/talent-protocol-checkmark';
-import { AppUserAvatarWithStatus } from './app-user-avatar-with-status';
 
 export const AppUserConversationItem = ({
   user: { user, latestMessageDate, latestMessageContent, latestMessageSender },
@@ -33,17 +30,20 @@ export const AppUserConversationItem = ({
         isSelected ? 'bg-muted' : 'hover:bg-muted/50'
       }`}
       onClick={() => onSelectUser(user)}>
-      <AppUserAvatarWithStatus
-        size={35}
-        walletAddress={user.personaData.id as Address}
-        name={user.name}
+      <Identity
+        address={user.entities.walletAddress}
+        name={persona.nameService().name}
+        hasCheckmark={persona.getHumanCheckmark()}
+        avatarSize={35}
+        showAddress={!persona.nameService().name}
+        truncateLength={{ startLength: 10, endLength: 4 }}
+        nameClassName="font-medium text-sm"
+        addressClassName="font-medium text-sm"
+        spacing="normal"
       />
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between">
-          <p className="font-medium text-sm truncate flex items-center gap-2">
-            {persona.nameService().name || truncateAddress(user.entities.walletAddress, 10, 4)}
-            {persona.getHumanCheckmark() && <TalentProtocolCheckmark width={12} height={12} />}
-          </p>
+          <div className="flex-1" />
           {latestMessageDate && (
             <span className="text-xs text-muted-foreground">
               {moment(latestMessageDate).fromNow()}

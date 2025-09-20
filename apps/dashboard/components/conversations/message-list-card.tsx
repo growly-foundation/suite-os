@@ -6,7 +6,6 @@ import { cn } from '@/lib/utils';
 import { Bot, Loader2, MessageCircle, User } from 'lucide-react';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import { Address } from 'viem';
 
 import { ParsedMessage, ParsedUser } from '@getgrowly/core';
 import { RenderMessageContent } from '@getgrowly/suite';
@@ -34,7 +33,7 @@ export const MessageListCard = ({ message, selected, className }: MessageListCar
         if (!user) return <User className="h-4 w-4" />;
         return (
           <AppUserAvatarWithStatus
-            walletAddress={user.personaData.id as Address}
+            walletAddress={user.entities.walletAddress}
             name={user.name}
             size={30}
           />

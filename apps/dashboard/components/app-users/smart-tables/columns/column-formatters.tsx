@@ -1,7 +1,6 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { TalentProtocolCheckmark } from '@/components/user/talent-protocol-checkmark';
 import { consumePersona } from '@/core/persona';
 import { getBadgeColor } from '@/lib/color.utils';
 import { formatAssetValue } from '@/lib/number.utils';
@@ -13,8 +12,8 @@ import { TContractToken } from '@getgrowly/chainsmith/types';
 import { ImportPrivyUserOutput, ImportUserOutput, ParsedUser } from '@getgrowly/core';
 import { WalletAddress } from '@getgrowly/ui';
 
+import { Identity } from '../../../identity';
 import { ActivityPreview } from '../../../user/activity-preview';
-import { AppUserAvatarWithStatus } from '../../app-user-avatar-with-status';
 import { TokenStack } from '../../token-stack';
 
 // Type for any user data that can be displayed in the table
@@ -78,8 +77,6 @@ export function createColumnFormatters<T = any>(
         }
         if (nameService?.avatar) {
           avatar = nameService.avatar;
-        } else if (parsedUser.personaData?.identities?.talentProtocol?.profile?.image_url) {
-          avatar = parsedUser.personaData.identities.talentProtocol.profile.image_url;
         }
         hasCheckmark = persona.getHumanCheckmark();
       } else {
@@ -96,32 +93,19 @@ export function createColumnFormatters<T = any>(
       }
 
       return (
-        <div className="flex items-center space-x-3">
-          <div className="flex items-center text-sm space-x-3">
-            <AppUserAvatarWithStatus
-              size={20}
-              walletAddress={walletAddress as Address}
-              avatar={avatar}
-              name={name}
-              withStatus={false}
-            />
-            <div>
-              <div className="flex items-center gap-2">
-                {name ? (
-                  <h3 className="font-bold text-xs">{name}</h3>
-                ) : (
-                  <WalletAddress
-                    className="text-xs hover:underline"
-                    truncate
-                    truncateLength={{ startLength: 12, endLength: 4 }}
-                    address={walletAddress as Address}
-                  />
-                )}
-                {hasCheckmark && <TalentProtocolCheckmark width={12} height={12} />}
-              </div>
-            </div>
-          </div>
-        </div>
+        <Identity
+          address={walletAddress as Address}
+          name={name}
+          avatar={avatar}
+          showAddress={false}
+          hasCheckmark={hasCheckmark}
+          avatarSize={20}
+          withStatus={false}
+          spacing="normal"
+          nameClassName="font-bold text-xs"
+          addressClassName="hover:underline"
+          truncateLength={{ startLength: 12, endLength: 4 }}
+        />
       );
     },
     // First signed in date
@@ -211,7 +195,14 @@ export function createColumnFormatters<T = any>(
       if (accessor.isType(user, 'parsed')) {
         const persona = consumePersona(user as ParsedUser);
         const date = persona.walletCreatedAt();
-        return date ? <span className="text-xs">{moment(date).fromNow()}</span> : null;
+        const firstSignedIn = accessor.hasProperty(user, 'created_at')
+          ? new Date(accessor.getValue(user, 'created_at'))
+          : new Date();
+        return date ? (
+          <span className="text-xs">
+            {moment(Math.min(date.getTime(), firstSignedIn.getTime())).fromNow()}
+          </span>
+        ) : null;
       }
       return null;
     },
