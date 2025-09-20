@@ -5,6 +5,8 @@ import { consumePersona } from '@/core/persona';
 import { getBadgeColor } from '@/lib/color.utils';
 import { formatAssetValue } from '@/lib/number.utils';
 import { cn } from '@/lib/utils';
+import { trpc } from '@/trpc/client';
+import { Loader2 } from 'lucide-react';
 import moment from 'moment';
 import { Address } from 'viem';
 
@@ -144,8 +146,22 @@ export function createColumnFormatters<T = any>(
     // Transaction count
     transactions: (user: T) => {
       if (accessor.isType(user, 'parsed')) {
-        const userPersona = consumePersona(user as ParsedUser);
-        const txCount = userPersona.universalTransactions().length;
+        const parsedUser = user as ParsedUser;
+        const { data: blockscoutData, isLoading } =
+          trpc.blockscout.getCombinedAddressCounters.useQuery({
+            address: parsedUser.entities.walletAddress,
+          });
+
+        if (isLoading) {
+          return (
+            <div className="h-2.5 w-2.5 p-0">
+              <Loader2 className="h-2 w-2 animate-spin text-muted-foreground" />
+            </div>
+          );
+        }
+
+        const txCount = blockscoutData?.totalTransactions || 0;
+
         return <span className="text-xs">{formatAssetValue(txCount)}</span>;
       }
       return null;
@@ -172,11 +188,35 @@ export function createColumnFormatters<T = any>(
     // Activity (latest activity for ParsedUser)
     activity: (user: T) => {
       if (accessor.isType(user, 'parsed')) {
-        const userPersona = consumePersona(user as ParsedUser);
-        const lastActivity = userPersona.getLatestActivity();
+        const parsedUser = user as ParsedUser;
+
+        const { data: blockscoutData, isLoading } =
+          trpc.blockscout.getCombinedTokenTransfers.useQuery({
+            address: parsedUser.entities.walletAddress,
+            type: 'ERC-20',
+          });
+
+        if (isLoading) {
+          return (
+            <div className="h-2.5 w-2.5 p-0">
+              <Loader2 className="h-2 w-2 animate-spin text-muted-foreground" />
+            </div>
+          );
+        }
+
+        const lastTokenTransfer = blockscoutData?.latestTokenTransfer;
+
+        const lastActivity = {
+          from: lastTokenTransfer?.from.hash,
+          to: lastTokenTransfer?.to.hash,
+          value: lastTokenTransfer?.total.value,
+          symbol: lastTokenTransfer?.token.symbol,
+          tokenDecimal: lastTokenTransfer?.token.decimals,
+          timestamp: lastTokenTransfer?.timestamp,
+        };
 
         return (
-          lastActivity && (
+          lastTokenTransfer && (
             <div className="flex items-center gap-2">
               <ActivityPreview
                 activity={lastActivity}
