@@ -1,7 +1,7 @@
 import { UserDirectoryLayout } from '@/app/dashboard/users/inner';
-import { useSelectedAgentUsersEffect } from '@/hooks/use-agent-effect';
+import { useAgentUsersInfinite } from '@/hooks/use-agent-effect';
 
-export function AgentUsers() {
+export function AgentUsers({ agentId }: { agentId: string }) {
   const {
     agentUsers,
     agentUserStatus,
@@ -10,7 +10,8 @@ export function AgentUsers() {
     isLoadingMore,
     totalUsers,
     refresh,
-  } = useSelectedAgentUsersEffect(20);
+  } = useAgentUsersInfinite(agentId, 20);
+
   return (
     <UserDirectoryLayout
       users={agentUsers}

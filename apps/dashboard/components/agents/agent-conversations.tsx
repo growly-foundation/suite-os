@@ -32,14 +32,17 @@ export type UserWithLatestMessage = {
 };
 
 export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
-  const { setSelectedAgentUser, fetchCurrentConversationMessages, selectedAgentUser } =
-    useDashboardState();
+  const { setSelectedAgentUser, fetchCurrentConversationMessages } = useDashboardState();
   const [usersWithLatestMessage, setUsersWithLatestMessage] = React.useState<
     UserWithLatestMessage[]
   >([]);
   const PAGE_SIZE = 10;
 
-  const { agentUsers, agentUserStatus } = useAgentUsersEffect(agent.id);
+  const {
+    users: agentUsers,
+    status: agentUserStatus,
+    selectedUser: selectedAgentUser,
+  } = useAgentUsersEffect(agent.id);
   const [open, setOpen] = React.useState(false);
   const persona = selectedAgentUser ? consumePersona(selectedAgentUser) : null;
 

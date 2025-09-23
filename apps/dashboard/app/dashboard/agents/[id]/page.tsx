@@ -161,7 +161,7 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
           <AgentConversations agent={agent} />
         </TabsContent>
         <TabsContent value="users">
-          <AgentUsers />
+          <AgentUsers agentId={agent.id} />
         </TabsContent>
         {/* <TabsContent value="workflows">
           <AgentWorkflows agent={agent} onUpdate={handleAgentUpdate} />
