@@ -32,15 +32,16 @@ export type UserWithLatestMessage = {
 };
 
 export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
-  const { setSelectedAgentUser, fetchCurrentConversationMessages } = useDashboardState();
+  const { setSelectedAgentUser, fetchCurrentConversationMessages, selectedAgentUser } =
+    useDashboardState();
   const [usersWithLatestMessage, setUsersWithLatestMessage] = React.useState<
     UserWithLatestMessage[]
   >([]);
   const PAGE_SIZE = 10;
 
-  const { selectedUser, users, status } = useAgentUsersEffect(agent.id);
+  const { agentUsers, agentUserStatus } = useAgentUsersEffect(agent.id);
   const [open, setOpen] = React.useState(false);
-  const persona = selectedUser ? consumePersona(selectedUser) : null;
+  const persona = selectedAgentUser ? consumePersona(selectedAgentUser) : null;
 
   // React Query hooks for conversations with infinite loading
   const {
@@ -62,12 +63,12 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
 
   // Process conversations data when it loads with memoization
   const processedUsersWithMessages = useMemo(() => {
-    if (allConversations.length === 0 || users.length === 0) return [];
+    if (allConversations.length === 0 || agentUsers.length === 0) return [];
 
     return allConversations
       .map(
         (conversation: LatestConversation & { userId: string }): UserWithLatestMessage | null => {
-          const user = users.find(u => u.id === conversation.userId);
+          const user = agentUsers.find(u => u.id === conversation.userId);
           if (!user) return null;
 
           return {
@@ -79,7 +80,7 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
         }
       )
       .filter((item): item is UserWithLatestMessage => item !== null);
-  }, [allConversations, users]);
+  }, [allConversations, agentUsers]);
 
   // Update state when processed data changes
   useEffect(() => {
@@ -165,15 +166,15 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
 
   return (
     <div className="flex w-full overflow-hidden h-[calc(100vh-125px)]">
-      {status === 'loading' ? (
+      {agentUserStatus === 'loading' ? (
         <div className="flex w-full items-center justify-center h-full">
           <AnimatedLoadingSmall />
         </div>
-      ) : users.length > 0 && selectedUser ? (
+      ) : agentUsers.length > 0 && selectedAgentUser ? (
         <React.Fragment>
           <UsersConversationSidebar
             users={usersWithLatestMessage}
-            selectedUser={selectedUser}
+            selectedUser={selectedAgentUser}
             onSelectUser={setSelectedAgentUser}
             onLoadMore={handleLoadMore}
             isLoadingMore={isFetchingNextPage}
@@ -184,14 +185,14 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
               <div className="flex items-center gap-3">
                 <AppUserAvatarWithStatus
                   size={35}
-                  walletAddress={selectedUser.entities.walletAddress}
-                  name={selectedUser.name}
-                  userId={selectedUser.id}
+                  walletAddress={selectedAgentUser.entities.walletAddress}
+                  name={selectedAgentUser.name}
+                  userId={selectedAgentUser.id}
                 />
                 <div>
                   <p className="font-medium text-sm">
                     {persona?.nameService().name ||
-                      truncateAddress(selectedUser.entities.walletAddress, 10, 4)}
+                      truncateAddress(selectedAgentUser.entities.walletAddress, 10, 4)}
                   </p>
                 </div>
               </div>
@@ -208,7 +209,7 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
             </div>
             <div className="flex-1 min-h-0">
               <ConversationArea
-                selectedUser={selectedUser}
+                selectedUser={selectedAgentUser}
                 onSendMessage={handleSendMessage}
                 onMarkAsRead={markAsRead}
                 isConnected={isConnected}
@@ -218,7 +219,7 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
           </div>
           {/* User Details Drawer */}
           <ResizableSheet className="w-full" side="right" open={open} onOpenChange={setOpen}>
-            {selectedUser && <UserDetails userId={selectedUser.id} />}
+            {selectedAgentUser && <UserDetails userId={selectedAgentUser.id} />}
           </ResizableSheet>
         </React.Fragment>
       ) : (
