@@ -45,6 +45,7 @@ export function TRPCProvider(
         httpBatchLink({
           transformer: superjson,
           url: getUrl(),
+          maxItems: 10,
         }),
       ],
     })

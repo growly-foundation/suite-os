@@ -5,26 +5,26 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { consumePersona } from '@/core/persona';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { usePeekExplorer } from '@/hooks/use-peek-explorer';
+import { WalletData } from '@/hooks/use-wallet-data';
 import { formatAssetValue } from '@/lib/number.utils';
 import { ColumnDef } from '@tanstack/react-table';
 import { Copy, ExternalLink, MoreHorizontal } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
-import { TContractToken } from '@getgrowly/chainsmith/types';
 import { getChainNameById } from '@getgrowly/chainsmith/utils';
 
 import { ChainIcon } from '../ui/chain-icon';
 import { DynamicTable } from './smart-tables/dynamic-table';
 
 interface PortfolioTokenTableProps {
-  userPersona: ReturnType<typeof consumePersona>;
+  walletData: WalletData;
 }
 
-// Define the token data type
+// Define the token data type based on Zerion API response
 interface TokenData {
+  id: string;
   symbol: string;
   name: string;
   logoURI?: string;
@@ -32,31 +32,52 @@ interface TokenData {
   balance: number;
   chainId: number;
   address?: string;
-  token: TContractToken;
+  value: number; // USD value
+  quantity: any; // Raw quantity data
 }
 
-export function PortfolioTokenTable({ userPersona }: PortfolioTokenTableProps) {
+// Helper function to safely get chain ID from Zerion chain data
+function safeGetChainId(chainData: any): number {
+  if (!chainData) return 1; // Default to Ethereum
+
+  const chainId = chainData.attributes?.external_id;
+  if (typeof chainId === 'string') {
+    const parsed = parseInt(chainId, 10);
+    return isNaN(parsed) ? 1 : parsed;
+  }
+  return typeof chainId === 'number' ? chainId : 1;
+}
+
+export function PortfolioTokenTable({ walletData }: PortfolioTokenTableProps) {
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 20;
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const tokens = useMemo(() => userPersona.universalTokenList(), [userPersona]);
   const { copyToClipboard } = useCopyToClipboard();
   const { handlePeekTokenMultichain } = usePeekExplorer();
 
-  // Transform tokens to the format expected by table
+  // Transform Zerion positions to the format expected by table
   const allTokenData: TokenData[] = useMemo(() => {
-    return tokens.map(token => ({
-      symbol: token.symbol || '',
-      name: token.name || '',
-      logoURI: token.logoURI,
-      marketPrice: token.marketPrice || 0,
-      balance: token.balance || 0,
-      chainId: token.chainId,
-      address: (token as TContractToken).address,
-      token: token as TContractToken,
-    }));
-  }, [tokens]);
+    return walletData.fungiblePositions.map((position: any) => {
+      const attributes = position.attributes || {};
+      const fungibleInfo = attributes.fungible_info || {};
+      const quantity = attributes.quantity || {};
+      const chainData = position.relationships?.chain?.data;
+
+      return {
+        id: position.id || '',
+        symbol: fungibleInfo.symbol || '',
+        name: fungibleInfo.name || '',
+        logoURI: fungibleInfo.icon?.url,
+        marketPrice: parseFloat(attributes.price || '0'),
+        balance: parseFloat(quantity.float || '0'),
+        chainId: safeGetChainId(chainData),
+        address: fungibleInfo.implementations?.[0]?.address,
+        value: parseFloat(attributes.value || '0'),
+        quantity: quantity,
+      };
+    });
+  }, [walletData.fungiblePositions]);
 
   // Filter and paginate tokens
   const filteredTokenData = useMemo(() => {
@@ -93,8 +114,8 @@ export function PortfolioTokenTable({ userPersona }: PortfolioTokenTableProps) {
 
   // Calculate total value
   const totalValue = useMemo(() => {
-    return tokens.reduce((sum, token) => sum + (token.marketPrice || 0) * (token.balance || 0), 0);
-  }, [tokens]);
+    return walletData.fungibleTotalUsd;
+  }, [walletData.fungibleTotalUsd]);
 
   // Define columns for the DynamicTable
   const columns: ColumnDef<TokenData>[] = [
@@ -160,12 +181,12 @@ export function PortfolioTokenTable({ userPersona }: PortfolioTokenTableProps) {
       minSize: 140,
     },
     {
-      accessorKey: 'marketPrice',
+      accessorKey: 'value',
       id: 'value',
       header: 'Value',
       cell: ({ row }) => {
         const token = row.original;
-        const value = token.marketPrice * token.balance;
+        const value = token.value;
         const percentage = totalValue > 0 ? (value / totalValue) * 100 : 0;
 
         return (

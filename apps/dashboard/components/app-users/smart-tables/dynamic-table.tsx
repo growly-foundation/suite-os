@@ -713,7 +713,7 @@ const formatFooterValue = (value: any, columnId: string) => {
     case 'tokens':
       return Number(value).toLocaleString();
     case 'firstSignedIn':
-    case 'walletCreatedAt':
+    case 'walletActiveAt':
       return value;
     default:
       return value;

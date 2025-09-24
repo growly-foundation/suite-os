@@ -5,18 +5,17 @@ import { consumePersona } from '@/core/persona';
 import { getBadgeColor } from '@/lib/color.utils';
 import { formatAssetValue } from '@/lib/number.utils';
 import { cn } from '@/lib/utils';
-import { trpc } from '@/trpc/client';
 import { Loader2 } from 'lucide-react';
 import moment from 'moment';
 import { Address } from 'viem';
 
-import { TContractToken } from '@getgrowly/chainsmith/types';
 import { ImportPrivyUserOutput, ImportUserOutput, ParsedUser } from '@getgrowly/core';
 import { WalletAddress } from '@getgrowly/ui';
 
+import { useWalletData } from '../../../../hooks/use-wallet-data';
 import { Identity } from '../../../identity';
 import { ActivityPreview } from '../../../user/activity-preview';
-import { TokenStack } from '../../token-stack';
+import { TokenPositionsCell } from './token-cell';
 
 // Type for any user data that can be displayed in the table
 export type TableUserData = ParsedUser | ImportUserOutput | ImportPrivyUserOutput;
@@ -54,6 +53,75 @@ export const defaultDataAccessor: DataAccessor<TableUserData> = {
 export const hasProperty = (obj: any, key: string): boolean => {
   return obj !== null && obj !== undefined && typeof obj === 'object' && key in obj;
 };
+
+// Shared cell components that use the wallet data hook
+function PortfolioValueCell({ user }: { user: ParsedUser }) {
+  const { fungibleTotalUsd, fungibleLoading, fungibleError } = useWalletData(user);
+
+  if (fungibleLoading) {
+    return (
+      <div className="h-2.5 w-2.5 p-0">
+        <Loader2 className="h-2 w-2 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (fungibleError) {
+    return <span className="text-xs text-destructive">—</span>;
+  }
+
+  return <span className="text-xs">${formatAssetValue(fungibleTotalUsd)}</span>;
+}
+
+function TransactionCountCell({ user }: { user: ParsedUser }) {
+  const { transactionCount, transactionsLoading, transactionsError } = useWalletData(user);
+
+  if (transactionsLoading) {
+    return (
+      <div className="h-2.5 w-2.5 p-0">
+        <Loader2 className="h-2 w-2 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (transactionsError) {
+    return <span className="text-xs text-destructive">—</span>;
+  }
+
+  return <span className="text-xs">{formatAssetValue(transactionCount)}</span>;
+}
+
+function ActivityCell({ user }: { user: ParsedUser }) {
+  const { latestActivity, activityLoading, activityError } = useWalletData(user);
+  console.log(latestActivity);
+
+  if (activityLoading) {
+    return (
+      <div className="h-2.5 w-2.5 p-0">
+        <Loader2 className="h-2 w-2 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (activityError || !latestActivity) {
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+
+  const lastActivity = {
+    from: latestActivity.from,
+    to: latestActivity.to,
+    value: latestActivity.value,
+    symbol: latestActivity.symbol,
+    tokenDecimal: latestActivity.tokenDecimal,
+    timestamp: latestActivity.timestamp,
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <ActivityPreview activity={lastActivity} userId={user.id} />
+    </div>
+  );
+}
 
 // Generic column formatters factory
 export function createColumnFormatters<T = any>(
@@ -133,393 +201,86 @@ export function createColumnFormatters<T = any>(
       return null;
     },
 
-    // Portfolio value
-    portfolioValue: (user: T) => {
+    // Wallet address column
+    address: (user: T) => {
+      let walletAddress = '';
       if (accessor.isType(user, 'parsed')) {
-        const userPersona = consumePersona(user as ParsedUser);
-        const totalPortfolioValue = userPersona.totalPortfolioValue() || 0;
-        return <span className="text-xs">${formatAssetValue(totalPortfolioValue)}</span>;
+        walletAddress = (user as ParsedUser).entities.walletAddress || '';
+      } else if (accessor.hasProperty(user, 'walletAddress')) {
+        walletAddress = accessor.getValue(user, 'walletAddress') || '';
+      } else if (accessor.hasProperty(user, 'id')) {
+        walletAddress = accessor.getValue(user, 'id') || '';
       }
-      return null;
-    },
-
-    // Transaction count
-    transactions: (user: T) => {
-      if (accessor.isType(user, 'parsed')) {
-        const parsedUser = user as ParsedUser;
-        const { data: blockscoutData, isLoading } =
-          trpc.blockscout.getCombinedAddressCounters.useQuery({
-            address: parsedUser.entities.walletAddress,
-          });
-
-        if (isLoading) {
-          return (
-            <div className="h-2.5 w-2.5 p-0">
-              <Loader2 className="h-2 w-2 animate-spin text-muted-foreground" />
-            </div>
-          );
-        }
-
-        const txCount = blockscoutData?.totalTransactions || 0;
-
-        return <span className="text-xs">{formatAssetValue(txCount)}</span>;
-      }
-      return null;
-    },
-
-    // Tokens (distinct tokens for ParsedUser)
-    tokens: (user: T) => {
-      if (accessor.isType(user, 'parsed')) {
-        const mutlichainTokenPortfolio = (user as ParsedUser).personaData.portfolio_snapshots
-          .tokenPortfolio?.chainRecordsWithTokens;
-        const allTokens = Object.values(mutlichainTokenPortfolio || {}).flatMap(
-          tokenList => tokenList.tokens
-        );
-        const distinctTokens = allTokens.filter(
-          (token, index, self) => index === self.findIndex(t => t.symbol === token.symbol)
-        );
-        return (
-          <TokenStack tokens={distinctTokens as TContractToken[]} maxTokens={5} tokenSize={15} />
-        );
-      }
-      return null;
-    },
-
-    // Activity (latest activity for ParsedUser)
-    activity: (user: T) => {
-      if (accessor.isType(user, 'parsed')) {
-        const parsedUser = user as ParsedUser;
-
-        const { data: blockscoutData, isLoading } =
-          trpc.blockscout.getCombinedTokenTransfers.useQuery({
-            address: parsedUser.entities.walletAddress,
-            type: 'ERC-20',
-          });
-
-        if (isLoading) {
-          return (
-            <div className="h-2.5 w-2.5 p-0">
-              <Loader2 className="h-2 w-2 animate-spin text-muted-foreground" />
-            </div>
-          );
-        }
-
-        const lastTokenTransfer = blockscoutData?.latestTokenTransfer;
-
-        const lastActivity = {
-          from: lastTokenTransfer?.from.hash,
-          to: lastTokenTransfer?.to.hash,
-          value: lastTokenTransfer?.total.value,
-          symbol: lastTokenTransfer?.token.symbol,
-          tokenDecimal: lastTokenTransfer?.token.decimals,
-          timestamp: lastTokenTransfer?.timestamp,
-        };
-
-        return (
-          lastTokenTransfer && (
-            <div className="flex items-center gap-2">
-              <ActivityPreview
-                activity={lastActivity}
-                userId={(user as ParsedUser).id}
-                variant="compact"
-              />
-            </div>
-          )
-        );
-      }
-      return null;
-    },
-
-    // Wallet created at
-    walletCreatedAt: (user: T) => {
-      if (accessor.isType(user, 'parsed')) {
-        const persona = consumePersona(user as ParsedUser);
-        const date = persona.walletCreatedAt();
-        const firstSignedIn = accessor.hasProperty(user, 'created_at')
-          ? new Date(accessor.getValue(user, 'created_at'))
-          : new Date();
-        return date ? (
-          <span className="text-xs">
-            {moment(Math.min(date.getTime(), firstSignedIn.getTime())).fromNow()}
-          </span>
-        ) : null;
-      }
-      return null;
-    },
-
-    // Email (for ImportPrivyUserOutput and ImportUserOutput)
-    email: (user: T) => {
-      const email = accessor.hasProperty(user, 'email')
-        ? accessor.getValue(user, 'email')
-        : undefined;
-      return email ? (
-        <span className="text-sm">{email}</span>
-      ) : (
-        <span className="text-muted-foreground">—</span>
-      );
-    },
-
-    // Contract data (for ImportUserOutput with contract data)
-    contractData: (user: T) => {
-      if (
-        accessor.hasProperty(user, 'extra') &&
-        accessor.getValue(user, 'extra') &&
-        typeof accessor.getValue(user, 'extra') === 'object'
-      ) {
-        const extra = accessor.getValue(user, 'extra') as Record<string, any>;
-        const interactionCount = extra.interactionCount || 0;
-        const lastInteraction = extra.lastInteraction;
-        const tokenBalance = extra.tokenBalance;
-
-        return (
-          <div className="space-y-1">
-            {interactionCount > 0 && (
-              <div className="text-xs">
-                <span className="font-medium">{interactionCount}</span> interactions
-              </div>
-            )}
-            {lastInteraction && (
-              <div className="text-xs text-muted-foreground">
-                Last: {moment(lastInteraction).fromNow()}
-              </div>
-            )}
-            {tokenBalance && (
-              <div className="text-xs">Balance: {formatAssetValue(tokenBalance)}</div>
-            )}
-          </div>
-        );
-      }
-      return null;
-    },
-
-    // Source (for ImportUserOutput and ImportPrivyUserOutput)
-    source: (user: T) => {
-      const source = accessor.hasProperty(user, 'source')
-        ? accessor.getValue(user, 'source')
-        : undefined;
-      if (!source) return <span className="text-muted-foreground">—</span>;
-
-      return (
-        <Badge variant="outline" className="text-xs">
-          {source}
-        </Badge>
-      );
-    },
-
-    // Wallet Address (for ImportUserOutput and ImportPrivyUserOutput)
-    walletAddress: (user: T) => {
-      const walletAddress = accessor.hasProperty(user, 'walletAddress')
-        ? accessor.getValue(user, 'walletAddress')
-        : undefined;
-      if (!walletAddress) return <span className="text-muted-foreground">—</span>;
-
       return <WalletAddress address={walletAddress as Address} className="text-xs" />;
     },
 
-    // Name (for ImportUserOutput and ImportPrivyUserOutput)
-    name: (user: T) => {
-      const name = accessor.hasProperty(user, 'name') ? accessor.getValue(user, 'name') : undefined;
-      if (!name) return <span className="text-muted-foreground">—</span>;
-
-      return <span className="text-sm font-medium">{name}</span>;
+    // Portfolio value (uses shared component)
+    portfolioValue: (user: T) => {
+      if (accessor.isType(user, 'parsed')) {
+        return <PortfolioValueCell user={user as ParsedUser} />;
+      }
+      return null;
     },
 
-    // Extra data (for ImportUserOutput with extra data like contract interactions)
-    extra: (user: T) => {
-      if (
-        accessor.hasProperty(user, 'extra') &&
-        accessor.getValue(user, 'extra') &&
-        typeof accessor.getValue(user, 'extra') === 'object'
-      ) {
-        const extra = accessor.getValue(user, 'extra') as Record<string, any>;
-        const transactionCount = extra.transactionCount || 0;
-        const firstInteraction = extra.firstInteraction;
-        const lastInteraction = extra.lastInteraction;
+    // Transactions count (uses shared component)
+    transactions: (user: T) => {
+      if (accessor.isType(user, 'parsed')) {
+        return <TransactionCountCell user={user as ParsedUser} />;
+      }
+      return null;
+    },
 
+    // Activity preview (uses shared component)
+    activity: (user: T) => {
+      if (accessor.isType(user, 'parsed')) {
+        return <ActivityCell user={user as ParsedUser} />;
+      }
+      return null;
+    },
+
+    // Tokens - generic cell using shared wallet data
+    tokens: (user: T) => {
+      if (accessor.isType(user, 'parsed')) {
+        return <TokenPositionsCell user={user as ParsedUser} />;
+      }
+      return null;
+    },
+
+    // Wallet active at (first funding tx across chains)
+    walletActiveAt: (user: T) => {
+      if (!accessor.isType(user, 'parsed')) return <span className="text-xs">-</span>;
+      const parsed = user as ParsedUser;
+      // Use the real wallet address from entities; persona.address() may be a UUID
+      const walletAddress = parsed.entities.walletAddress || '';
+      const isValidEthAddress = /^0x[a-fA-F0-9]{40}$/.test(walletAddress);
+      const chainIds = [1, 8453];
+
+      if (!isValidEthAddress) {
+        return <span className="text-xs">-</span>;
+      }
+
+      // Lazy import to avoid circulars at module init
+      const { trpc } = require('@/trpc/client');
+      const { data, isLoading, error } = trpc.etherscan.getAddressFundedByAcrossChains.useQuery(
+        { address: walletAddress, chainIds },
+        { enabled: isValidEthAddress }
+      );
+
+      if (isLoading)
         return (
-          <div className="space-y-1">
-            {transactionCount > 0 && (
-              <div className="text-xs">
-                <span className="font-medium">{transactionCount}</span> interactions
-              </div>
-            )}
-            {firstInteraction && (
-              <div className="text-xs text-muted-foreground">
-                First: {moment(firstInteraction).fromNow()}
-              </div>
-            )}
-            {lastInteraction && (
-              <div className="text-xs text-muted-foreground">
-                Last: {moment(lastInteraction).fromNow()}
-              </div>
-            )}
+          <div className="h-2.5 w-2.5 p-0">
+            <Loader2 className="h-2 w-2 animate-spin text-muted-foreground" />
           </div>
         );
-      }
-      return <span className="text-muted-foreground">—</span>;
-    },
+      if (error || !data) return <span className="text-xs">-</span>;
 
-    // Privy-specific formatters
-    privyCreatedAt: (user: T) => {
-      if (
-        accessor.hasProperty(user, 'extra') &&
-        accessor.getValue(user, 'extra') &&
-        typeof accessor.getValue(user, 'extra') === 'object'
-      ) {
-        const extra = accessor.getValue(user, 'extra') as Record<string, any>;
-        const createdAt = extra.createdAt;
-        if (createdAt) {
-          return (
-            <div className="text-xs">
-              <div className="font-medium">{moment(createdAt).format('MMM DD, YYYY')}</div>
-              <div className="text-muted-foreground">{moment(createdAt).fromNow()}</div>
-            </div>
-          );
-        }
-      }
-      return <span className="text-muted-foreground">—</span>;
-    },
+      const timestamps = Object.values(data)
+        .filter(Boolean)
+        .map((info: any) => parseInt(info.timeStamp, 10) * 1000)
+        .filter((n: number) => Number.isFinite(n) && n > 0);
+      const minTs = timestamps.length ? Math.min(...timestamps) : 0;
 
-    privyLinkedAccounts: (user: T) => {
-      if (
-        accessor.hasProperty(user, 'extra') &&
-        accessor.getValue(user, 'extra') &&
-        typeof accessor.getValue(user, 'extra') === 'object'
-      ) {
-        const extra = accessor.getValue(user, 'extra') as Record<string, any>;
-        const linkedAccounts = extra.linkedAccounts || [];
-        const emailAccounts = linkedAccounts.filter((acc: any) => acc.type === 'email');
-        const walletAccounts = linkedAccounts.filter((acc: any) => acc.type === 'wallet');
-
-        return (
-          <div className="space-y-1">
-            <div className="text-xs">
-              <span className="font-medium">{linkedAccounts.length}</span> total
-            </div>
-            {emailAccounts.length > 0 && (
-              <div className="text-xs text-muted-foreground">
-                {emailAccounts.length} email{emailAccounts.length > 1 ? 's' : ''}
-              </div>
-            )}
-            {walletAccounts.length > 0 && (
-              <div className="text-xs text-muted-foreground">
-                {walletAccounts.length} wallet{walletAccounts.length > 1 ? 's' : ''}
-              </div>
-            )}
-          </div>
-        );
-      }
-      return <span className="text-muted-foreground">—</span>;
-    },
-
-    privyGuestStatus: (user: T) => {
-      if (
-        accessor.hasProperty(user, 'extra') &&
-        accessor.getValue(user, 'extra') &&
-        typeof accessor.getValue(user, 'extra') === 'object'
-      ) {
-        const extra = accessor.getValue(user, 'extra') as Record<string, any>;
-        const isGuest = extra.isGuest || false;
-
-        return (
-          <Badge variant={isGuest ? 'secondary' : 'default'} className="text-xs">
-            {isGuest ? 'Guest' : 'User'}
-          </Badge>
-        );
-      }
-      return <span className="text-muted-foreground">—</span>;
-    },
-
-    privyLastVerified: (user: T) => {
-      if (
-        accessor.hasProperty(user, 'extra') &&
-        accessor.getValue(user, 'extra') &&
-        typeof accessor.getValue(user, 'extra') === 'object'
-      ) {
-        const extra = accessor.getValue(user, 'extra') as Record<string, any>;
-        const emailVerified = extra.email?.latestVerifiedAt;
-        const walletVerified = extra.wallet?.latestVerifiedAt;
-
-        let latestVerified = null;
-        if (emailVerified && walletVerified) {
-          latestVerified = new Date(
-            Math.max(new Date(emailVerified).getTime(), new Date(walletVerified).getTime())
-          );
-        } else if (emailVerified) {
-          latestVerified = new Date(emailVerified);
-        } else if (walletVerified) {
-          latestVerified = new Date(walletVerified);
-        }
-
-        if (latestVerified) {
-          return (
-            <div className="text-xs">
-              <div className="font-medium">{moment(latestVerified).format('MMM DD, YYYY')}</div>
-              <div className="text-muted-foreground">{moment(latestVerified).fromNow()}</div>
-            </div>
-          );
-        }
-      }
-      return <span className="text-muted-foreground">—</span>;
-    },
-
-    // Contract-specific formatters
-    contractTransactions: (user: T) => {
-      if (
-        accessor.hasProperty(user, 'extra') &&
-        accessor.getValue(user, 'extra') &&
-        typeof accessor.getValue(user, 'extra') === 'object'
-      ) {
-        const extra = accessor.getValue(user, 'extra') as Record<string, any>;
-        const transactionCount = extra.transactionCount || 0;
-
-        return (
-          <div className="text-xs">
-            <span className="font-medium">{transactionCount}</span> transactions
-          </div>
-        );
-      }
-      return <span className="text-muted-foreground">—</span>;
-    },
-
-    contractFirstInteraction: (user: T) => {
-      if (
-        accessor.hasProperty(user, 'extra') &&
-        accessor.getValue(user, 'extra') &&
-        typeof accessor.getValue(user, 'extra') === 'object'
-      ) {
-        const extra = accessor.getValue(user, 'extra') as Record<string, any>;
-        const firstInteraction = extra.firstInteraction;
-        if (firstInteraction) {
-          return (
-            <div className="text-xs">
-              <div className="font-medium">{moment(firstInteraction).format('MMM DD, YYYY')}</div>
-              <div className="text-muted-foreground">{moment(firstInteraction).fromNow()}</div>
-            </div>
-          );
-        }
-      }
-      return <span className="text-muted-foreground">—</span>;
-    },
-
-    contractLastInteraction: (user: T) => {
-      if (
-        accessor.hasProperty(user, 'extra') &&
-        accessor.getValue(user, 'extra') &&
-        typeof accessor.getValue(user, 'extra') === 'object'
-      ) {
-        const extra = accessor.getValue(user, 'extra') as Record<string, any>;
-        const lastInteraction = extra.lastInteraction;
-        if (lastInteraction) {
-          return (
-            <div className="text-xs">
-              <div className="font-medium">{moment(lastInteraction).format('MMM DD, YYYY')}</div>
-              <div className="text-muted-foreground">{moment(lastInteraction).fromNow()}</div>
-            </div>
-          );
-        }
-      }
-      return <span className="text-muted-foreground">—</span>;
+      return <span className="text-xs">{minTs ? moment(minTs).fromNow() : '—'}</span>;
     },
   };
 }

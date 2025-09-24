@@ -73,7 +73,7 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
   },
 
   transactions: {
-    id: 'transactions',
+    id: 'transactions-30d',
     accessorFn: (row: ParsedUser) => {
       if ('personaData' in row) {
         const persona = consumePersona(row as any);
@@ -81,7 +81,7 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
       }
       return 0;
     },
-    header: 'Transactions',
+    header: 'Transactions (30d)',
     cell: ({ row }: { row: Row<ParsedUser> }) => getFormatter('transactions')(row.original),
     enableSorting: true,
     enableResizing: true,
@@ -120,7 +120,7 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
       }
       return 0;
     },
-    header: 'Activity',
+    header: 'Recent Activity (30d)',
     cell: ({ row }: { row: Row<ParsedUser> }) => getFormatter('activity')(row.original),
     enableSorting: false,
     enableResizing: true,
@@ -128,8 +128,8 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
     minSize: 400,
   },
 
-  walletCreatedAt: {
-    id: 'walletCreatedAt',
+  walletActiveAt: {
+    id: 'walletActiveAt',
     accessorFn: (row: ParsedUser) => {
       if ('personaData' in row) {
         const persona = consumePersona(row as any);
@@ -137,8 +137,8 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
       }
       return 0;
     },
-    header: 'Wallet Created At',
-    cell: ({ row }: { row: Row<ParsedUser> }) => getFormatter('walletCreatedAt')(row.original),
+    header: 'Wallet Active At',
+    cell: ({ row }: { row: Row<ParsedUser> }) => getFormatter('walletActiveAt')(row.original),
     enableSorting: true,
     enableResizing: true,
     size: 200,
@@ -406,7 +406,7 @@ export function createUserColumns(data: ParsedUser[]): ColumnDef<ParsedUser>[] {
       columnUserDefinitions.transactions,
       columnUserDefinitions.tokens,
       columnUserDefinitions.activity,
-      columnUserDefinitions.walletCreatedAt,
+      columnUserDefinitions.walletActiveAt,
       columnUserDefinitions.importSources
     );
 
