@@ -5,45 +5,57 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { consumePersona } from '@/core/persona';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { usePeekExplorer } from '@/hooks/use-peek-explorer';
+import { WalletData } from '@/hooks/use-wallet-data';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   ArrowDownLeft,
+  ArrowDownToLine,
+  ArrowLeftRight,
+  ArrowUpFromLine,
   ArrowUpRight,
   Check,
+  CheckCircle,
   Clock,
   Copy,
   ExternalLink,
+  Flame,
+  Gift,
+  Lock,
+  PlusCircle,
   TrendingUp,
+  Unlock,
+  XCircle,
 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
-
-import { TChainId } from '@getgrowly/chainsmith/types';
-import { getChainIdByName } from '@getgrowly/chainsmith/utils';
-import { ParsedUser } from '@getgrowly/core';
 
 import { ChainIcon } from '../ui/chain-icon';
 import { DynamicTable } from './smart-tables/dynamic-table';
 
 interface ActivityFeedProps {
-  user: ParsedUser;
+  walletData: WalletData;
 }
 
 type ActivityFeedItem = {
-  chainId: TChainId;
-  activity: any;
-  userAddress: string;
+  id: string;
+  chainId: number;
+  hash: string;
+  from: string;
+  to: string;
+  value: number;
+  symbol: string;
+  decimals: number;
+  timestamp: number;
+  operationType: string;
+  isNFT?: boolean;
+  image?: string;
 };
 
-export function ActivityFeed({ user }: ActivityFeedProps) {
+export function ActivityFeed({ walletData }: ActivityFeedProps) {
   const [currentPage, setCurrentPage] = useState(0); // Start from 0 to match DynamicTable's expectation
   const PAGE_SIZE = 20;
 
-  const persona = useMemo(() => consumePersona(user), [user]);
-  const activityFeed = useMemo(() => persona.activityFeed(), [persona]);
-  const userAddress = useMemo(() => persona.address(), [persona]);
   const { copyToClipboard, copied } = useCopyToClipboard();
   const { handlePeekTransactionMultichain } = usePeekExplorer();
 
@@ -51,20 +63,69 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-  const formatValue = (value: string | number, decimals?: string) => {
-    const numValue = typeof value === 'string' ? parseFloat(value) : value;
-    const decimalPlaces = decimals ? parseInt(decimals) : 18;
-    return (numValue / Math.pow(10, decimalPlaces)).toFixed(4);
+  const formatValue = (value: number, decimals?: number) => {
+    if (decimals && decimals > 0) {
+      return (value / Math.pow(10, decimals)).toFixed(4);
+    }
+    return value.toFixed(4);
   };
 
-  const getTransactionIcon = (activity: any, userAddress: string) => {
-    if (activity.from === userAddress) return <ArrowUpRight className="h-4 w-4 text-red-600" />;
-    if (activity.to === userAddress) return <ArrowDownLeft className="h-4 w-4 text-green-600" />;
+  const getTransactionIcon = (
+    from: string,
+    to: string,
+    userAddress: string,
+    operationType?: string
+  ) => {
+    const type = (operationType || '').toLowerCase();
+
+    // Updated mapping aligned with latest Zerion operation types
+    switch (type) {
+      case 'approve':
+        return <CheckCircle className="h-4 w-4 text-blue-600" />;
+      case 'borrow':
+        return <ArrowDownToLine className="h-4 w-4 text-amber-600" />;
+      case 'burn':
+        return <Flame className="h-4 w-4 text-orange-600" />;
+      case 'cancel':
+        return <XCircle className="h-4 w-4 text-gray-500" />;
+      case 'claim':
+        return <Gift className="h-4 w-4 text-violet-600" />;
+      case 'deploy':
+        return <PlusCircle className="h-4 w-4 text-teal-600" />;
+      case 'deposit':
+        return <ArrowDownToLine className="h-4 w-4 text-green-600" />;
+      case 'execute':
+        return <Check className="h-4 w-4 text-green-600" />;
+      case 'mint':
+        return <PlusCircle className="h-4 w-4 text-emerald-600" />;
+      case 'receive':
+        return <ArrowDownLeft className="h-4 w-4 text-green-600" />;
+      case 'repay':
+        return <ArrowUpFromLine className="h-4 w-4 text-rose-600" />;
+      case 'send':
+        return <ArrowUpRight className="h-4 w-4 text-red-600" />;
+      case 'stake':
+        return <Lock className="h-4 w-4 text-indigo-600" />;
+      case 'trade':
+        return <ArrowLeftRight className="h-4 w-4 text-blue-600" />;
+      case 'unstake':
+        return <Unlock className="h-4 w-4 text-indigo-600" />;
+      case 'withdraw':
+        return <ArrowUpFromLine className="h-4 w-4 text-red-600" />;
+      default:
+        break;
+    }
+
+    // Fallback: infer from addresses relative to user
+    if (from?.toLowerCase() === userAddress?.toLowerCase())
+      return <ArrowUpRight className="h-4 w-4 text-red-600" />;
+    if (to?.toLowerCase() === userAddress?.toLowerCase())
+      return <ArrowDownLeft className="h-4 w-4 text-green-600" />;
     return <TrendingUp className="h-4 w-4 text-blue-600" />;
   };
 
-  const formatTimestamp = (timestamp: string) => {
-    return new Date(parseInt(timestamp) * 1000).toLocaleDateString('en-US', {
+  const formatTimestamp = (timestamp: number) => {
+    return new Date(timestamp * 1000).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
@@ -72,49 +133,74 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
     });
   };
 
-  // Transform data for the table
-  const allTableData = useMemo(() => {
-    return activityFeed.map(({ activity, chainName }) => ({
-      chainId: getChainIdByName(chainName),
-      activity,
-      userAddress,
-    }));
-  }, [activityFeed, userAddress]);
+  // Transform Zerion transaction data for the table
+  const allTableData: ActivityFeedItem[] = useMemo(() => {
+    return walletData.transactionItems.map((tx: any) => {
+      // Get the first transfer from the transaction
+      const transfer = tx.transfers?.[0] || {};
+      const chainId = tx.relationships?.chain?.data?.id || 1;
+
+      return {
+        id: tx.id || tx.hash || '',
+        chainId,
+        hash: tx.hash || '',
+        from: transfer.from || tx.from || '',
+        to: transfer.to || tx.to || '',
+        value: transfer.value || 0,
+        symbol: transfer.symbol || 'ETH',
+        decimals: transfer.decimals || 18,
+        timestamp: transfer.timestamp || Math.floor(Date.now() / 1000),
+        operationType: tx.operationType || transfer.operationType || 'transfer',
+        isNFT: transfer.isNFT || false,
+        image: transfer.image,
+      };
+    });
+  }, [walletData.transactionItems]);
 
   // Column definitions
   const columns: ColumnDef<ActivityFeedItem>[] = useMemo(
     () => [
       {
-        accessorKey: 'activity',
+        accessorKey: 'operationType',
         header: 'Type',
         size: 80,
         cell: ({ row }) => {
-          const { activity, userAddress } = row.original;
+          const { from, to, operationType } = row.original;
+          const userAddress = '';
           return (
-            <div className="flex justify-center">{getTransactionIcon(activity, userAddress)}</div>
+            <div className="flex justify-center">
+              {getTransactionIcon(from, to, userAddress, operationType)}{' '}
+            </div>
           );
         },
       },
       {
-        accessorKey: 'activity.symbol',
+        accessorKey: 'symbol',
         header: 'Token',
         size: 120,
         cell: ({ row }) => {
-          const { activity } = row.original;
+          const { symbol, isNFT, image } = row.original;
 
-          return <span className="font-medium">{activity.symbol}</span>;
+          return (
+            <div className="flex items-center gap-2">
+              {image && <img src={image} alt={symbol} className="w-4 h-4 rounded" />}
+              <span className="font-medium">{symbol}</span>
+              {isNFT && <span className="text-xs text-purple-600">NFT</span>}
+            </div>
+          );
         },
       },
       {
-        accessorKey: 'activity.value',
+        accessorKey: 'value',
         header: 'Amount',
         size: 120,
         cell: ({ row }) => {
-          const { activity, userAddress } = row.original;
-          const isReceived = activity.to === userAddress;
-          const isSent = activity.from === userAddress;
+          const { value, decimals, symbol, from, to } = row.original;
+          const userAddress = ''; // TODO: Get from wallet context
+          const isReceived = to.toLowerCase() === userAddress.toLowerCase();
+          const isSent = from.toLowerCase() === userAddress.toLowerCase();
 
-          const formattedValue = formatValue(activity.value, activity.tokenDecimal);
+          const formattedValue = formatValue(value, decimals);
           const textColor = isReceived
             ? 'text-green-700'
             : isSent
@@ -128,31 +214,31 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
                 {prefix}
                 {formattedValue}
               </div>
-              <div className="text-xs text-gray-500">{activity.symbol}</div>
+              <div className="text-xs text-gray-500">{symbol}</div>
             </div>
           );
         },
       },
       {
-        accessorKey: 'activity.from',
+        accessorKey: 'from',
         header: 'From',
         size: 140,
         cell: ({ row }) => {
-          const { activity } = row.original;
-          return <div className="text-sm">{formatAddress(activity.from)}</div>;
+          const { from } = row.original;
+          return <div className="text-sm">{formatAddress(from)}</div>;
         },
       },
       {
-        accessorKey: 'activity.to',
+        accessorKey: 'to',
         header: 'To',
         size: 140,
         cell: ({ row }) => {
-          const { activity } = row.original;
-          return <div className="text-sm">{formatAddress(activity.to)}</div>;
+          const { to } = row.original;
+          return <div className="text-sm">{formatAddress(to)}</div>;
         },
       },
       {
-        accessorKey: 'chainName',
+        accessorKey: 'chainId',
         header: 'Chain',
         size: 100,
         cell: ({ row }) => {
@@ -160,15 +246,15 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
         },
       },
       {
-        accessorKey: 'activity.timeStamp',
+        accessorKey: 'timestamp',
         header: 'Date',
         size: 140,
         cell: ({ row }) => {
-          const { activity } = row.original;
+          const { timestamp } = row.original;
           return (
             <div className="flex items-center gap-1 text-sm text-gray-600">
               <Clock className="h-3 w-3" />
-              {formatTimestamp(activity.timeStamp)}
+              {formatTimestamp(timestamp)}
             </div>
           );
         },
@@ -178,7 +264,7 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
         header: '',
         size: 80,
         cell: ({ row }) => {
-          const { activity } = row.original;
+          const { hash } = row.original;
           return (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -189,11 +275,11 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   onClick={() => {
-                    handlePeekTransactionMultichain(activity.hash);
+                    handlePeekTransactionMultichain(hash);
                   }}>
                   View Transaction
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => copyToClipboard(activity.hash)}>
+                <DropdownMenuItem onClick={() => copyToClipboard(hash)}>
                   {copied ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
                   Copy Hash
                 </DropdownMenuItem>
@@ -203,7 +289,7 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
         },
       },
     ],
-    []
+    [copyToClipboard, copied, handlePeekTransactionMultichain]
   );
 
   const filteredData = useMemo(() => {
@@ -234,13 +320,13 @@ export function ActivityFeed({ user }: ActivityFeedProps) {
           pageSize={PAGE_SIZE}
           getFooterValue={key => {
             switch (key) {
-              case 'activity':
+              case 'operationType':
                 return 'Total';
-              case 'activity.value':
+              case 'value':
                 // Calculate total value across all transactions
                 return allTableData
                   .reduce((sum, item) => {
-                    const value = formatValue(item.activity.value, item.activity.tokenDecimal);
+                    const value = formatValue(item.value, item.decimals);
                     return sum + parseFloat(value);
                   }, 0)
                   .toFixed(4);

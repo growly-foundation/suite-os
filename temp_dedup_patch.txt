@@ -1,0 +1,43 @@
+  /**
+   * Fetch all pages of transactions with deduplication
+   * Uses hash + chain_id as unique key to prevent duplicates across pages
+   */
+  private async fetchAllTransactionsWithDedup(
+    initialPath: string,
+    params: Record<string, any> | undefined,
+    pageLimit?: number
+  ): Promise<ZerionTransaction[]> {
+    const seenTransactions = new Set<string>();
+    const collected: ZerionTransaction[] = [];
+    let nextPath: string | undefined = initialPath;
+    let pages = 0;
+
+    while (nextPath) {
+      const response: { data: ZerionTransactionsResponse } = await this.client.get<ZerionTransactionsResponse>(nextPath, { params });
+      
+      // Deduplicate transactions based on hash + chain_id
+      for (const tx of response.data.data) {
+        const hash = tx.attributes?.hash;
+        const chainId = tx.relationships?.chain?.data?.id;
+        
+        if (!hash) continue; // Skip transactions without hash
+        
+        const uniqueKey = `${hash}-${chainId || 'unknown'}`;
+        
+        if (!seenTransactions.has(uniqueKey)) {
+          seenTransactions.add(uniqueKey);
+          collected.push(tx);
+        }
+      }
+      
+      nextPath = response.data.links?.next;
+      console.log('nextPath', nextPath);
+      params = undefined; // use absolute next URL, params no longer apply
+      pages += 1;
+      if (pageLimit && pages >= pageLimit) break;
+
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    return collected;
+  }

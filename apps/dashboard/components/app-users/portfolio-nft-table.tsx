@@ -5,35 +5,48 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { consumePersona } from '@/core/persona';
 import { usePeekExplorer } from '@/hooks/use-peek-explorer';
+import { WalletData } from '@/hooks/use-wallet-data';
 import { formatAssetValue } from '@/lib/number.utils';
 import { ColumnDef } from '@tanstack/react-table';
 import { Copy, ExternalLink, ImageIcon, MoreHorizontal } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
-import { TMarketNft } from '@getgrowly/chainsmith/types';
 import { getChainNameById } from '@getgrowly/chainsmith/utils';
 
 import { ChainIcon } from '../ui/chain-icon';
 import { DynamicTable } from './smart-tables/dynamic-table';
 
 interface PortfolioNftTableProps {
-  userPersona: ReturnType<typeof consumePersona>;
+  walletData: WalletData;
 }
 
-// Define the NFT data type
+// Define the NFT data type based on Zerion API response
 interface NftData {
+  id: string;
   name: string;
   tokenID: string;
   imageUrl?: string;
   chainId: number;
   usdValue?: number;
-  nft: TMarketNft; // Original NFT object
+  contractAddress?: string;
+  collection?: string;
+  attributes: any; // Raw attributes data
 }
 
-export function PortfolioNftTable({ userPersona }: PortfolioNftTableProps) {
-  const nfts = userPersona.universalNftList();
+// Helper function to safely get chain ID from Zerion chain data
+function safeGetChainId(chainData: any): number {
+  if (!chainData) return 1; // Default to Ethereum
+
+  const chainId = chainData.attributes?.external_id;
+  if (typeof chainId === 'string') {
+    const parsed = parseInt(chainId, 10);
+    return isNaN(parsed) ? 1 : parsed;
+  }
+  return typeof chainId === 'number' ? chainId : 1;
+}
+
+export function PortfolioNftTable({ walletData }: PortfolioNftTableProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 20;
@@ -43,17 +56,26 @@ export function PortfolioNftTable({ userPersona }: PortfolioNftTableProps) {
     navigator.clipboard.writeText(text);
   };
 
-  // Transform NFTs to the format expected by table
+  // Transform Zerion NFT positions to the format expected by table
   const nftData: NftData[] = useMemo(() => {
-    return nfts.map(nft => ({
-      name: nft.name || '',
-      tokenID: nft.tokenID || '',
-      imageUrl: nft.imageUrl,
-      chainId: nft.chainId,
-      usdValue: nft.usdValue || 0,
-      nft: nft,
-    }));
-  }, [nfts]);
+    return walletData.nftPositions.map((position: any) => {
+      const attributes = position.attributes || {};
+      const nftInfo = attributes.nft_info || {};
+      const chainData = position.relationships?.chain?.data;
+
+      return {
+        id: position.id || '',
+        name: nftInfo.name || 'Unnamed NFT',
+        tokenID: nftInfo.token_id || '',
+        imageUrl: nftInfo.content?.preview?.url || nftInfo.content?.detail?.url,
+        chainId: safeGetChainId(chainData),
+        usdValue: parseFloat(attributes.value || '0'),
+        contractAddress: nftInfo.contract_address,
+        collection: nftInfo.collection?.name,
+        attributes: attributes,
+      };
+    });
+  }, [walletData.nftPositions]);
 
   // Filter and paginate NFTs
   const filteredNfts = useMemo(() => {
@@ -64,6 +86,7 @@ export function PortfolioNftTable({ userPersona }: PortfolioNftTableProps) {
       filtered = nftData.filter(
         nft =>
           nft.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (nft.collection && nft.collection.toLowerCase().includes(searchQuery.toLowerCase())) ||
           getChainNameById(nft.chainId)?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
@@ -78,6 +101,7 @@ export function PortfolioNftTable({ userPersona }: PortfolioNftTableProps) {
       ? nftData.filter(
           nft =>
             nft.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (nft.collection && nft.collection.toLowerCase().includes(searchQuery.toLowerCase())) ||
             getChainNameById(nft.chainId)?.toLowerCase().includes(searchQuery.toLowerCase())
         )
       : nftData;
@@ -91,8 +115,8 @@ export function PortfolioNftTable({ userPersona }: PortfolioNftTableProps) {
 
   // Calculate total value
   const totalValue = useMemo(() => {
-    return nfts.reduce((sum, nft) => sum + (nft.usdValue || 0), 0);
-  }, [nfts]);
+    return walletData.nftTotalUsd;
+  }, [walletData.nftTotalUsd]);
 
   // Define columns for the DynamicTable
   const columns: ColumnDef<NftData>[] = [
@@ -166,11 +190,12 @@ export function PortfolioNftTable({ userPersona }: PortfolioNftTableProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => copyToClipboard(nft.nft.address || '')}>
+              <DropdownMenuItem onClick={() => copyToClipboard(nft.contractAddress || '')}>
                 <Copy className="h-4 w-4 mr-2" />
                 Copy Contract
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handlePeekTokenMultichain(nft.nft.address || '')}>
+              <DropdownMenuItem
+                onClick={() => handlePeekTokenMultichain(nft.contractAddress || '')}>
                 <ExternalLink className="h-4 w-4 mr-2" />
                 View on Explorer
               </DropdownMenuItem>
