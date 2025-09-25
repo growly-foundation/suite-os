@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { blockscoutServices } from '../../lib/services/blockscount.service';
 import { baseProcedure, createTRPCRouter } from '../init';
+import { minutes, withRedisCache } from '../redis-cache';
 
 export const blockscoutRouter = createTRPCRouter({
   // Get address counters for a single network
@@ -27,50 +28,56 @@ export const blockscoutRouter = createTRPCRouter({
           .default(['ethereum', 'base']),
       })
     )
-    .query(async ({ input: { address, networks } }) => {
-      const results = await Promise.allSettled(
-        networks.map(async network => {
-          const service = blockscoutServices[network];
-          const counters = await service.getAddressCounters(address);
-          return {
-            network,
-            counters,
-          };
-        })
-      );
+    .query(
+      withRedisCache(
+        'blockscout:combined-address-counters',
+        minutes(5),
+        async ({ input: { address, networks } }) => {
+          const results = await Promise.allSettled(
+            networks.map(async network => {
+              const service = blockscoutServices[network];
+              const counters = await service.getAddressCounters(address);
+              return {
+                network,
+                counters,
+              };
+            })
+          );
 
-      const combined = {
-        totalTransactions: 0,
-        totalTokenTransfers: 0,
-        totalGasUsage: 0,
-        totalValidations: 0,
-        networkData: {} as Record<string, any>,
-      };
+          const combined = {
+            totalTransactions: 0,
+            totalTokenTransfers: 0,
+            totalGasUsage: 0,
+            totalValidations: 0,
+            networkData: {} as Record<string, any>,
+          };
 
-      results.forEach((result, index) => {
-        const network = networks[index];
-        if (result.status === 'fulfilled') {
-          const { counters } = result.value;
-          combined.totalTransactions += parseInt(counters.transactions_count);
-          combined.totalTokenTransfers += parseInt(counters.token_transfers_count);
-          combined.totalGasUsage += parseInt(counters.gas_usage_count);
-          combined.totalValidations += parseInt(counters.validations_count);
-          combined.networkData[network] = {
-            transactions: parseInt(counters.transactions_count),
-            tokenTransfers: parseInt(counters.token_transfers_count),
-            gasUsage: parseInt(counters.gas_usage_count),
-            validations: parseInt(counters.validations_count),
-          };
-        } else {
-          console.error(`Failed to fetch data for ${network}:`, result.reason);
-          combined.networkData[network] = {
-            error: result.reason?.message || 'Failed to fetch data',
-          };
+          results.forEach((result, index) => {
+            const network = networks[index];
+            if (result.status === 'fulfilled') {
+              const { counters } = result.value;
+              combined.totalTransactions += parseInt(counters.transactions_count);
+              combined.totalTokenTransfers += parseInt(counters.token_transfers_count);
+              combined.totalGasUsage += parseInt(counters.gas_usage_count);
+              combined.totalValidations += parseInt(counters.validations_count);
+              combined.networkData[network] = {
+                transactions: parseInt(counters.transactions_count),
+                tokenTransfers: parseInt(counters.token_transfers_count),
+                gasUsage: parseInt(counters.gas_usage_count),
+                validations: parseInt(counters.validations_count),
+              };
+            } else {
+              console.error(`Failed to fetch data for ${network}:`, (result as any).reason);
+              combined.networkData[network] = {
+                error: (result as any).reason?.message || 'Failed to fetch data',
+              };
+            }
+          });
+
+          return combined;
         }
-      });
-
-      return combined;
-    }),
+      )
+    ),
 
   // Get recent transactions for an address
   getRecentTransactions: baseProcedure
@@ -123,9 +130,9 @@ export const blockscoutRouter = createTRPCRouter({
           };
           combined.allTransactions.push(...transactions.map(tx => ({ ...tx, network })));
         } else {
-          console.error(`Failed to fetch transactions for ${network}:`, result.reason);
+          console.error(`Failed to fetch transactions for ${network}:`, (result as any).reason);
           combined.networkData[network] = {
-            error: result.reason?.message || 'Failed to fetch transactions',
+            error: (result as any).reason?.message || 'Failed to fetch transactions',
           };
         }
       });
@@ -198,9 +205,9 @@ export const blockscoutRouter = createTRPCRouter({
           };
           combined.allTokenTransfers.push(...tokenTransfers.map(tt => ({ ...tt, network })));
         } else {
-          console.error(`Failed to fetch token transfers for ${network}:`, result.reason);
+          console.error(`Failed to fetch token transfers for ${network}:`, (result as any).reason);
           combined.networkData[network] = {
-            error: result.reason?.message || 'Failed to fetch token transfers',
+            error: (result as any).reason?.message || 'Failed to fetch token transfers',
           };
         }
       });

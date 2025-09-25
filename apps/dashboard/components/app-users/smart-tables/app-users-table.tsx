@@ -180,7 +180,7 @@ export function UsersTable({
         }, 0);
         return `${activeUsers} active`;
       }
-      case 'walletCreatedAt': {
+      case 'walletFundedAt': {
         if (users.length === 0) return '';
         const walletDates = users
           .filter(user => user.personaData?.identities.walletMetrics?.walletCreationDate)
@@ -242,7 +242,9 @@ export function UsersTable({
         side="right"
         className="w-full"
         open={open}
-        onOpenChange={handleCloseUserDetails}>
+        onOpenChange={handleCloseUserDetails}
+        title="User Details"
+        hideTitle={true}>
         {selectedUser && <UserDetails userId={selectedUser} />}
       </ResizableSheet>
     </>

@@ -146,12 +146,21 @@ export const Identity = ({
                   className={cn('font-bold text-xs', nameClassName)}
                   showTooltip={nameTooltip}
                 />
-              ) : (
+              ) : !showAddress ? (
                 <IdentityWalletAddress
                   address={address}
                   truncate={truncateAddress}
                   truncateLength={truncateLength}
                   className={cn('text-xs hover:underline', addressClassName)}
+                  showTooltip={addressTooltip}
+                />
+              ) : (
+                // Show wallet address with bold font
+                <IdentityWalletAddress
+                  address={address}
+                  truncate={truncateAddress}
+                  truncateLength={truncateLength}
+                  className={cn('text-foreground font-bold text-xs', nameClassName)}
                   showTooltip={addressTooltip}
                 />
               )}

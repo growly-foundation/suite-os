@@ -30,10 +30,18 @@ export const IdentityAvatar = ({
   const [isOnline, setIsOnline] = useState(false);
 
   // Only fetch avatar if not provided as prop
-  const { data: avatarData } = trpc.persona.getAvatar.useQuery(address, {
-    enabled: !avatarProp && !!address,
-    staleTime: 5 * 60 * 1000,
-  });
+  const { data: avatarData } = trpc.persona.getAvatar.useQuery(
+    { address: address as Address },
+    {
+      enabled: !avatarProp && !!address,
+      staleTime: 5 * 60 * 1000,
+      trpc: {
+        context: {
+          useBatch: true,
+        },
+      },
+    }
+  );
 
   const finalAvatar = avatarProp || avatarData;
 

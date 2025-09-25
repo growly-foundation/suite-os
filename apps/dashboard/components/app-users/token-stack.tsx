@@ -13,6 +13,8 @@ import { Copy, ExternalLink } from 'lucide-react';
 import { TContractToken } from '@getgrowly/chainsmith/types';
 import { getChainNameById } from '@getgrowly/chainsmith/utils';
 
+import { ChainIcon } from '../ui/chain-icon';
+
 interface TokenStackProps {
   tokens: TContractToken[];
   tokenSize?: number;
@@ -28,7 +30,7 @@ export function TokenStack({ tokens, tokenSize = 8, maxTokens = 3 }: TokenStackP
       {/* Token Stack */}
       <div className="flex -space-x-1 relative">
         {tokens.slice(0, maxTokens).map((token, index) => (
-          <DropdownMenu key={token.symbol}>
+          <DropdownMenu key={`${token.symbol}-${token.chainId}-${index}`}>
             <DropdownMenuTrigger className="focus:outline-none">
               <div
                 className={`rounded-full ${
@@ -81,9 +83,10 @@ export function TokenStack({ tokens, tokenSize = 8, maxTokens = 3 }: TokenStackP
                   </div>
                   <div>
                     <div className="text-sm text-gray-600">Chain</div>
-                    <Badge variant="outline" className="mt-1">
-                      {getChainNameById(token.chainId)}
-                    </Badge>
+                    <div className="flex items-center gap-1">
+                      <ChainIcon chainIds={[token.chainId]} />
+                      <span className="text-xs">{getChainNameById(token.chainId)}</span>
+                    </div>
                   </div>
                 </div>
 

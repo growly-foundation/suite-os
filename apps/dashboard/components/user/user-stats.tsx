@@ -1,7 +1,5 @@
-import { consumePersona } from '@/core/persona';
+import { WalletData } from '@/hooks/use-wallet-data';
 import { formatAssetValue } from '@/lib/number.utils';
-
-import { ParsedUser } from '@getgrowly/core';
 
 interface StatItemProps {
   label: string;
@@ -23,17 +21,27 @@ function StatItem({ label, value }: StatItemProps) {
 /**
  * User statistics panel component
  */
-export function UserStats({ user }: { user: ParsedUser }) {
-  const userPersona = consumePersona(user);
-  const totalNftCount = parseInt(userPersona.totalNftCount().toString());
-  const totalTransactions = parseInt(userPersona.totalMultichainTransactions().toString());
-  const daysActive = userPersona.dayActive() || 0;
+export function UserStats({ walletData }: { walletData: WalletData }) {
+  const totalNftCount = walletData.nftPositions.length;
+  const totalTransactions = walletData.transactionItems.length;
+  // Calculate unique days active based on transactionItems' timestamps
+  const uniqueActiveDays = new Set(
+    walletData.transactionItems
+      .map((tx: any) => {
+        // Use transfer timestamp if available, else fallback to tx.timestamp
+        const ts = tx.transfers?.[0]?.timestamp || tx.timestamp;
+        // Convert to date string (YYYY-MM-DD) for uniqueness
+        return ts ? new Date(ts * 1000).toISOString().slice(0, 10) : null;
+      })
+      .filter(Boolean)
+  );
+  const daysActive = Array.from(uniqueActiveDays).length;
 
   return (
     <div className="grid grid-cols-3 gap-3 text-sm">
-      <StatItem label="Transactions" value={totalTransactions} />
+      <StatItem label="Transactions (90d)" value={totalTransactions} />
       <StatItem label="NFTs" value={totalNftCount} />
-      <StatItem label="Days Active" value={daysActive} />
+      <StatItem label="Days Active (90d)" value={`${daysActive}/90`} />
     </div>
   );
 }

@@ -52,8 +52,8 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
     cell: ({ row }: { row: Row<ParsedUser> }) => getFormatter('trait')(row.original),
     enableSorting: false,
     enableResizing: true,
-    size: 120,
-    minSize: 120,
+    size: 150,
+    minSize: 150,
   },
 
   portfolioValue: {
@@ -73,7 +73,7 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
   },
 
   transactions: {
-    id: 'transactions',
+    id: 'transactions-30d',
     accessorFn: (row: ParsedUser) => {
       if ('personaData' in row) {
         const persona = consumePersona(row as any);
@@ -81,7 +81,7 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
       }
       return 0;
     },
-    header: 'Transactions',
+    header: 'Transactions (90d)',
     cell: ({ row }: { row: Row<ParsedUser> }) => getFormatter('transactions')(row.original),
     enableSorting: true,
     enableResizing: true,
@@ -120,7 +120,7 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
       }
       return 0;
     },
-    header: 'Activity',
+    header: 'Recent Activity (90d)',
     cell: ({ row }: { row: Row<ParsedUser> }) => getFormatter('activity')(row.original),
     enableSorting: false,
     enableResizing: true,
@@ -128,8 +128,8 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
     minSize: 400,
   },
 
-  walletCreatedAt: {
-    id: 'walletCreatedAt',
+  walletFundedAt: {
+    id: 'walletFundedAt',
     accessorFn: (row: ParsedUser) => {
       if ('personaData' in row) {
         const persona = consumePersona(row as any);
@@ -137,8 +137,8 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
       }
       return 0;
     },
-    header: 'Wallet Created At',
-    cell: ({ row }: { row: Row<ParsedUser> }) => getFormatter('walletCreatedAt')(row.original),
+    header: 'Wallet Funded At',
+    cell: ({ row }: { row: Row<ParsedUser> }) => getFormatter('walletFundedAt')(row.original),
     enableSorting: true,
     enableResizing: true,
     size: 200,
@@ -406,7 +406,7 @@ export function createUserColumns(data: ParsedUser[]): ColumnDef<ParsedUser>[] {
       columnUserDefinitions.transactions,
       columnUserDefinitions.tokens,
       columnUserDefinitions.activity,
-      columnUserDefinitions.walletCreatedAt,
+      columnUserDefinitions.walletFundedAt,
       columnUserDefinitions.importSources
     );
 

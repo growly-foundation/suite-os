@@ -1,11 +1,9 @@
-import { consumePersona } from '@/core/persona';
 import { useDashboardState } from '@/hooks/use-dashboard';
+import { useWalletData } from '@/hooks/use-wallet-data';
 import { formatAssetValue } from '@/lib/number.utils';
+import { PersonaTrait } from '@/types/persona';
 import { useQuery } from '@tanstack/react-query';
 import { TrendingUp, Trophy, Wallet } from 'lucide-react';
-import { useMemo } from 'react';
-
-import { TMarketNft, TMarketToken } from '@getgrowly/chainsmith/types';
 
 import { Separator } from '../ui/separator';
 import { UserProfileHeader } from '../user/user-profile-header';
@@ -26,24 +24,14 @@ export function UserDetails({ userId }: UserDetailsProps) {
     queryFn: () => fetchUserById(userId),
     enabled: !!userId,
   });
-  const userPersona = useMemo(() => (user ? consumePersona(user) : null), [user]);
 
-  const totalTokenValue = useMemo(() => {
-    if (!userPersona) return 0;
-    return userPersona
-      .universalTokenList()
-      .reduce(
-        (sum: number, token: TMarketToken) => sum + (token.marketPrice || 0) * (token.balance || 0),
-        0
-      );
-  }, [userPersona]);
+  // Use optimized wallet data hook when user is available
+  const walletData = useWalletData(user || ({} as any));
 
-  const totalNftValue = useMemo(() => {
-    if (!userPersona) return 0;
-    return userPersona
-      .universalNftList()
-      .reduce((sum: number, nft: TMarketNft) => sum + (nft.usdValue || 0), 0);
-  }, [userPersona]);
+  // Use wallet data from API instead of persona calculations
+  const totalValue = walletData.fungibleTotalUsd;
+
+  const dominantTrait = walletData.personaAnalysis?.dominantTrait || 'Newbie';
 
   if (isLoading) {
     // Default skeleton configuration
@@ -61,15 +49,15 @@ export function UserDetails({ userId }: UserDetailsProps) {
     });
   }
   if (!user) return <div>User not found</div>;
+
   return (
     <div className="min-h-screen w-full">
       <div className="relative container mx-auto px-6 py-4">
         <UserProfileHeader user={user} />
         <div className="mt-4">
-          <UserBadges
-            showAll
-            badges={[user.personaData.identities.dominantTrait?.toString() || '']}
-          />
+          <div className="flex items-center gap-2">
+            <UserBadges showAll badges={[dominantTrait as PersonaTrait]} />
+          </div>
         </div>
       </div>
       {/* Main Content */}
@@ -92,7 +80,7 @@ export function UserDetails({ userId }: UserDetailsProps) {
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-bold text-gray-900">
-                          ${formatAssetValue(totalTokenValue + totalNftValue || 0)}
+                          ${formatAssetValue(totalValue)}
                         </div>
                       </div>
                     </div>
@@ -107,7 +95,7 @@ export function UserDetails({ userId }: UserDetailsProps) {
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-bold text-gray-900">
-                          {formatAssetValue(userPersona?.universalTokenList().length || 0)}
+                          {formatAssetValue(walletData.fungiblePositions.length)}
                         </div>
                         <div className="text-sm text-purple-600 font-medium">Active</div>
                       </div>
@@ -133,7 +121,7 @@ export function UserDetails({ userId }: UserDetailsProps) {
                   </div>
                 </div>
                 <div className="mt-4">
-                  <UserStats user={user} />
+                  <UserStats walletData={walletData} />
                 </div>
               </div>
             </div>
@@ -145,16 +133,16 @@ export function UserDetails({ userId }: UserDetailsProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-md font-bold text-gray-900">Token Holdings</h2>
-                  <p className="text-sm text-gray-600">Your current portfolio assets</p>
+                  <p className="text-sm text-gray-600">User's current portfolio assets</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-                    {userPersona?.universalTokenList().length.toLocaleString() || 0} tokens
+                    {walletData.fungiblePositions.length.toLocaleString()} tokens
                   </div>
                 </div>
               </div>
               <div className="py-6 max-h-[600px] overflow-y-auto">
-                {userPersona && <PortfolioTokenTable userPersona={userPersona} />}
+                <PortfolioTokenTable walletData={walletData} />
               </div>
             </div>
 
@@ -165,14 +153,14 @@ export function UserDetails({ userId }: UserDetailsProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-md font-bold text-gray-900">NFT Holdings</h2>
-                  <p className="text-sm text-gray-600">Your digital collectibles</p>
+                  <p className="text-sm text-gray-600">User's digital collectibles</p>
                 </div>
                 <div className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm font-medium">
-                  {userPersona?.universalNftList().length.toLocaleString() || 0} items
+                  {walletData.nftPositions.length.toLocaleString()} items
                 </div>
               </div>
               <div className="py-6 max-h-[600px] overflow-y-auto">
-                {userPersona && <PortfolioNftTable userPersona={userPersona} />}
+                <PortfolioNftTable walletData={walletData} />
               </div>
             </div>
           </div>
@@ -183,12 +171,12 @@ export function UserDetails({ userId }: UserDetailsProps) {
             <div className="overflow-hidden">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-md font-bold text-gray-900">Recent Activity</h2>
-                  <p className="text-sm text-gray-600">Your latest transactions</p>
+                  <h2 className="text-md font-bold text-gray-900">Recent Activity (90d)</h2>
+                  <p className="text-sm text-gray-600">User's latest transactions</p>
                 </div>
               </div>
               <div className="py-6">
-                <ActivityFeed user={user} />
+                <ActivityFeed walletData={walletData} />
               </div>
             </div>
           </div>

@@ -1,6 +1,7 @@
-import { consumePersona } from '@/core/persona';
-import { getBadgeColor } from '@/lib/color.utils';
+import { useWalletData } from '@/hooks/use-wallet-data';
+import { getTraitColor } from '@/lib/color.utils';
 import { cn } from '@/lib/utils';
+import { PersonaTrait } from '@/types/persona';
 import moment from 'moment';
 
 import { ParsedMessage, ParsedUser } from '@getgrowly/core';
@@ -8,6 +9,7 @@ import { ParsedMessage, ParsedUser } from '@getgrowly/core';
 import { UserWithLatestMessage } from '../agents/agent-conversations';
 import { Identity } from '../identity';
 import { Badge } from '../ui/badge';
+import { Skeleton } from '../ui/skeleton';
 
 export const AppUserConversationItem = ({
   user: { user, latestMessageDate, latestMessageContent, latestMessageSender },
@@ -18,8 +20,12 @@ export const AppUserConversationItem = ({
   selectedUser: ParsedUser;
   onSelectUser: (user: ParsedUser) => void;
 }) => {
-  const persona = consumePersona(user);
   const isSelected = selectedUser.id === user.id;
+
+  // Hooks must be called before any early returns
+  const { personaAnalysis, isLoading } = useWalletData(user);
+  const dominantTrait = personaAnalysis?.dominantTrait || 'Newbie';
+
   if (!latestMessageContent) return null;
   const intentMessageParsed = JSON.parse(latestMessageContent) as unknown as ParsedMessage;
 
@@ -34,10 +40,8 @@ export const AppUserConversationItem = ({
         <div className="flex items-center justify-between">
           <Identity
             address={user.entities.walletAddress}
-            name={persona.nameService().name}
-            hasCheckmark={persona.getHumanCheckmark()}
             avatarSize={25}
-            showAddress={!persona.nameService().name}
+            showAddress={false}
             truncateLength={{ startLength: 10, endLength: 4 }}
             nameClassName="font-medium text-sm"
             addressClassName="font-medium text-sm"
@@ -57,15 +61,19 @@ export const AppUserConversationItem = ({
             </p>
           )}
           <div className="flex items-center gap-2 mt-2">
-            {persona.dominantTrait() && (
-              <Badge
-                className={cn(
-                  getBadgeColor(persona.dominantTrait() || ''),
-                  'rounded-full',
-                  'text-xs'
-                )}>
-                {persona.dominantTrait()}
-              </Badge>
+            {isLoading ? (
+              <Skeleton className="h-4 w-[50px] rounded-full" />
+            ) : (
+              dominantTrait && (
+                <Badge
+                  className={cn(
+                    getTraitColor(dominantTrait as PersonaTrait),
+                    'rounded-full',
+                    'text-xs'
+                  )}>
+                  {dominantTrait}
+                </Badge>
+              )
             )}
           </div>
         </div>

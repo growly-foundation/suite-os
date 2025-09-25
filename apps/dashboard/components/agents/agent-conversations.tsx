@@ -2,7 +2,6 @@
 
 import { UsersConversationSidebar } from '@/components/app-users/app-user-conversation-sidebar';
 import { ConversationArea } from '@/components/conversations/conversation-area';
-import { consumePersona } from '@/core/persona';
 import { useAgentUsersEffect } from '@/hooks/use-agent-effect';
 import { useChatActions } from '@/hooks/use-chat-actions';
 import { useDashboardState } from '@/hooks/use-dashboard';
@@ -16,11 +15,11 @@ import {
   LatestConversation,
   ParsedUser,
 } from '@getgrowly/core';
-import { truncateAddress } from '@getgrowly/ui';
 
 import { AnimatedLoadingSmall } from '../animated-components/animated-loading-small';
 import { AppUserAvatarWithStatus } from '../app-users/app-user-avatar-with-status';
 import { UserDetails } from '../app-users/app-user-details';
+import { Identity } from '../identity';
 import { InteractableIcon } from '../ui/interactable-icon';
 import { ResizableSheet } from '../ui/resizable-sheet';
 
@@ -44,7 +43,6 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
     selectedUser: selectedAgentUser,
   } = useAgentUsersEffect(agent.id);
   const [open, setOpen] = React.useState(false);
-  const persona = selectedAgentUser ? consumePersona(selectedAgentUser) : null;
 
   // React Query hooks for conversations with infinite loading
   const {
@@ -194,8 +192,15 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
                 />
                 <div>
                   <p className="font-medium text-sm">
-                    {persona?.nameService().name ||
-                      truncateAddress(selectedAgentUser.entities.walletAddress, 10, 4)}
+                    {
+                      <Identity
+                        address={selectedAgentUser.entities.walletAddress}
+                        showAddress={false}
+                        showAvatar={false}
+                        nameClassName="text-xs font-medium"
+                        truncateLength={{ startLength: 6, endLength: 4 }}
+                      />
+                    }
                   </p>
                 </div>
               </div>
