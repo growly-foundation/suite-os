@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { consumePersona } from '@/core/persona';
+import { SUPPORTED_CHAINS, consumePersona } from '@/core/persona';
 import { getTraitColor } from '@/lib/color.utils';
 import { formatAssetValue } from '@/lib/number.utils';
 import { cn } from '@/lib/utils';
@@ -10,6 +10,7 @@ import { PersonaTrait } from '@/types/persona';
 import moment from 'moment';
 import { Address } from 'viem';
 
+import { getChainIdByName } from '@getgrowly/chainsmith/utils';
 import { ImportPrivyUserOutput, ImportUserOutput, ParsedUser } from '@getgrowly/core';
 import { WalletAddress } from '@getgrowly/ui';
 
@@ -247,7 +248,7 @@ export function createColumnFormatters<T = any>(
       // Use the real wallet address from entities; persona.address() may be a UUID
       const walletAddress = parsed.entities.walletAddress || '';
       const isValidEthAddress = /^0x[a-fA-F0-9]{40}$/.test(walletAddress);
-      const chainIds = [1, 8453];
+      const chainIds = SUPPORTED_CHAINS.map(chain => getChainIdByName(chain));
 
       if (!isValidEthAddress) {
         return <span className="text-xs">-</span>;

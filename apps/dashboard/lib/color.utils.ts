@@ -40,7 +40,7 @@ export const getTraitColor = (trait: PersonaTrait) => {
     case PersonaTrait.DEFI_EXPERT:
       return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800';
     case PersonaTrait.RISK_TAKER:
-      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800';
+      return 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800';
     case PersonaTrait.NEWBIE:
       return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-800';
     case PersonaTrait.IDLE:
