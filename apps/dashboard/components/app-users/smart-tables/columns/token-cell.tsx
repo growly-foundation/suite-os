@@ -1,6 +1,6 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 import { TChainName, TContractToken } from '@getgrowly/chainsmith/types';
 import { getChainIdByName } from '@getgrowly/chainsmith/utils';
@@ -17,11 +17,7 @@ export function TokenPositionsCell({ user }: TokenPositionsCellProps) {
   const { fungiblePositions, fungibleLoading, fungibleError } = useWalletData(user);
 
   if (fungibleLoading) {
-    return (
-      <div className="h-2.5 w-2.5 p-0">
-        <Loader2 className="h-2 w-2 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <Skeleton className="h-4 w-[100px] rounded-full" />;
   }
 
   if (fungibleError || !fungiblePositions) {

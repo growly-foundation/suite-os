@@ -1,12 +1,12 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { consumePersona } from '@/core/persona';
 import { getTraitColor } from '@/lib/color.utils';
 import { formatAssetValue } from '@/lib/number.utils';
 import { cn } from '@/lib/utils';
 import { PersonaTrait } from '@/types/persona';
-import { Loader2 } from 'lucide-react';
 import moment from 'moment';
 import { Address } from 'viem';
 
@@ -60,11 +60,7 @@ function PortfolioValueCell({ user }: { user: ParsedUser }) {
   const { fungibleTotalUsd, fungibleLoading, fungibleError } = useWalletData(user);
 
   if (fungibleLoading) {
-    return (
-      <div className="h-2.5 w-2.5 p-0">
-        <Loader2 className="h-2 w-2 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <Skeleton className="h-4 w-[100px] rounded-full" />;
   }
 
   if (fungibleError) {
@@ -78,11 +74,7 @@ function TransactionCountCell({ user }: { user: ParsedUser }) {
   const { transactionCount, transactionsLoading, transactionsError } = useWalletData(user);
 
   if (transactionsLoading) {
-    return (
-      <div className="h-2.5 w-2.5 p-0">
-        <Loader2 className="h-2 w-2 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <Skeleton className="h-4 w-[100px] rounded-full" />;
   }
 
   if (transactionsError) {
@@ -96,11 +88,7 @@ function ActivityCell({ user }: { user: ParsedUser }) {
   const { latestActivity, activityLoading, activityError } = useWalletData(user);
 
   if (activityLoading) {
-    return (
-      <div className="h-2.5 w-2.5 p-0">
-        <Loader2 className="h-2 w-2 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <Skeleton className="h-4 w-[150px] rounded-full" />;
   }
 
   if (activityError || !latestActivity) {
@@ -126,11 +114,7 @@ function ActivityCell({ user }: { user: ParsedUser }) {
 function TraitBadgeCell({ user }: { user: ParsedUser }) {
   const { personaAnalysis, isLoading, hasError } = useWalletData(user);
   if (isLoading) {
-    return (
-      <div className="h-2.5 w-2.5 p-0">
-        <Loader2 className="h-2 w-2 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <Skeleton className="h-4 w-[50px] rounded-full" />;
   }
   const dominantTrait = !hasError ? personaAnalysis?.dominantTrait?.toString() || '' : '';
   return (
@@ -276,12 +260,7 @@ export function createColumnFormatters<T = any>(
         { enabled: isValidEthAddress }
       );
 
-      if (isLoading)
-        return (
-          <div className="h-2.5 w-2.5 p-0">
-            <Loader2 className="h-2 w-2 animate-spin text-muted-foreground" />
-          </div>
-        );
+      if (isLoading) return <Skeleton className="h-4 w-[100px] rounded-full" />;
       if (error || !data) return <span className="text-xs">-</span>;
 
       const timestamps = Object.values(data)

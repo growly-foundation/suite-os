@@ -1,10 +1,10 @@
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { useWalletData } from '@/hooks/use-wallet-data';
 import { formatAssetValue } from '@/lib/number.utils';
+import { PersonaTrait } from '@/types/persona';
 import { useQuery } from '@tanstack/react-query';
 import { TrendingUp, Trophy, Wallet } from 'lucide-react';
 
-import { Badge } from '../ui/badge';
 import { Separator } from '../ui/separator';
 import { UserProfileHeader } from '../user/user-profile-header';
 import { UserStats } from '../user/user-stats';
@@ -31,12 +31,7 @@ export function UserDetails({ userId }: UserDetailsProps) {
   // Use wallet data from API instead of persona calculations
   const totalValue = walletData.fungibleTotalUsd;
 
-  const dominantTraitFromHook = walletData.personaAnalysis?.dominantTrait;
-  const dominantTraitFallback = user?.personaData?.identities?.dominantTrait?.toString();
-  const dominantTrait = dominantTraitFromHook || dominantTraitFallback || '';
-  const dominantTraitScore = walletData.personaAnalysis?.traitScores?.find(
-    t => t.trait === dominantTraitFromHook
-  )?.score;
+  const dominantTrait = walletData.personaAnalysis?.dominantTrait || 'Newbie';
 
   if (isLoading) {
     // Default skeleton configuration
@@ -61,12 +56,7 @@ export function UserDetails({ userId }: UserDetailsProps) {
         <UserProfileHeader user={user} />
         <div className="mt-4">
           <div className="flex items-center gap-2">
-            <UserBadges showAll badges={[dominantTrait]} />
-            {typeof dominantTraitScore === 'number' && (
-              <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
-                Score: {dominantTraitScore}
-              </Badge>
-            )}
+            <UserBadges showAll badges={[dominantTrait as PersonaTrait]} />
           </div>
         </div>
       </div>
