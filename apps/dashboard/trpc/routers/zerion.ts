@@ -352,7 +352,7 @@ export const zerionRouter = createTRPCRouter({
         const paramsBase: any = {
           currency,
           ...(chainIds ? { 'filter[chain_ids]': chainIds } : {}),
-          // 'filter[positions]': 'no_filter',
+          'filter[positions]': 'only_simple',
           ...(pageSize ? { 'page[size]': pageSize } : {}),
         };
 

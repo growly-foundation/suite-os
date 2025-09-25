@@ -13,7 +13,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Copy, ExternalLink, MoreHorizontal } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
-import { getChainNameById } from '@getgrowly/chainsmith/utils';
+import { getChainIdByName, getChainNameById } from '@getgrowly/chainsmith/utils';
 
 import { ChainIcon } from '../ui/chain-icon';
 import { DynamicTable } from './smart-tables/dynamic-table';
@@ -34,18 +34,6 @@ interface TokenData {
   address?: string;
   value: number; // USD value
   quantity: any; // Raw quantity data
-}
-
-// Helper function to safely get chain ID from Zerion chain data
-function safeGetChainId(chainData: any): number {
-  if (!chainData) return 1; // Default to Ethereum
-
-  const chainId = chainData.attributes?.external_id;
-  if (typeof chainId === 'string') {
-    const parsed = parseInt(chainId, 10);
-    return isNaN(parsed) ? 1 : parsed;
-  }
-  return typeof chainId === 'number' ? chainId : 1;
 }
 
 export function PortfolioTokenTable({ walletData }: PortfolioTokenTableProps) {
@@ -71,7 +59,7 @@ export function PortfolioTokenTable({ walletData }: PortfolioTokenTableProps) {
         logoURI: fungibleInfo.icon?.url,
         marketPrice: parseFloat(attributes.price || '0'),
         balance: parseFloat(quantity.float || '0'),
-        chainId: safeGetChainId(chainData),
+        chainId: getChainIdByName(chainData.id === 'ethereum' ? 'mainnet' : chainData.id),
         address: fungibleInfo.implementations?.[0]?.address,
         value: parseFloat(attributes.value || '0'),
         quantity: quantity,
@@ -100,13 +88,13 @@ export function PortfolioTokenTable({ walletData }: PortfolioTokenTableProps) {
     return page * PAGE_SIZE < filteredTokenData.length;
   }, [filteredTokenData.length, page]);
 
-  // Handle loading more items
-  const handleLoadMore = useCallback(async ({ page }: { page: number; pageSize: number }) => {
+  // Update handleLoadMore
+  const handleLoadMore = useCallback(async () => {
     try {
       setIsLoading(true);
       // Simulate loading delay
       await new Promise(resolve => setTimeout(resolve, 500));
-      setPage(page);
+      setPage(prev => prev + 1);
     } finally {
       setIsLoading(false);
     }

@@ -51,6 +51,7 @@ export function PortfolioNftTable({ walletData }: PortfolioNftTableProps) {
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 20;
   const { handlePeekTokenMultichain } = usePeekExplorer();
+  const [isLoading, setIsLoading] = useState(false);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -109,8 +110,15 @@ export function PortfolioNftTable({ walletData }: PortfolioNftTableProps) {
   }, [nftData, searchQuery, page, PAGE_SIZE]);
 
   // Handle loading more items
-  const handleLoadMore = useCallback(({ page }: { page: number; pageSize: number }) => {
-    setPage(page);
+  const handleLoadMore = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      // Simulate loading delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setPage(prev => prev + 1);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   // Calculate total value
@@ -239,6 +247,7 @@ export function PortfolioNftTable({ walletData }: PortfolioNftTableProps) {
           onLoadMore={handleLoadMore}
           hasMore={hasMore}
           pageSize={PAGE_SIZE}
+          loadingMore={isLoading}
         />
       </div>
     </div>

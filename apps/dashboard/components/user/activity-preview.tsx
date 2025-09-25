@@ -1,5 +1,4 @@
 import { ActivityIcon, TxActivityType } from '@/components/transactions/activity-icon';
-import { formatUnits } from 'viem';
 
 export interface ActivityData {
   from: string;
@@ -27,19 +26,8 @@ function shorten(addr?: string) {
 
 export function ActivityPreview({ activity, userId }: ActivityPreviewProps) {
   const isOutgoing = activity.from?.toLowerCase() === userId?.toLowerCase();
-  const decimals = parseInt(activity.tokenDecimal || '18');
-  console.log(activity);
 
-  let formattedValue = '0.00';
-  const raw = activity.value;
-  if (typeof raw === 'string' && /^\d+$/.test(raw)) {
-    formattedValue = parseFloat(formatUnits(BigInt(raw), decimals)).toFixed(4);
-  } else if (typeof raw === 'number') {
-    formattedValue = Number(raw).toFixed(4);
-  } else {
-    const n = Number(String(raw));
-    formattedValue = isNaN(n) ? '0.00' : n.toFixed(4);
-  }
+  const formattedValue = activity.value;
 
   const mapOperationToType = (op?: string): TxActivityType => {
     switch (op) {

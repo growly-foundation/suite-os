@@ -1,10 +1,8 @@
-import { consumePersona } from '@/core/persona';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { useWalletData } from '@/hooks/use-wallet-data';
 import { formatAssetValue } from '@/lib/number.utils';
 import { useQuery } from '@tanstack/react-query';
 import { TrendingUp, Trophy, Wallet } from 'lucide-react';
-import { useMemo } from 'react';
 
 import { Separator } from '../ui/separator';
 import { UserProfileHeader } from '../user/user-profile-header';
@@ -28,12 +26,9 @@ export function UserDetails({ userId }: UserDetailsProps) {
 
   // Use optimized wallet data hook when user is available
   const walletData = useWalletData(user || ({} as any));
-  const userPersona = useMemo(() => (user ? consumePersona(user) : null), [user]);
 
   // Use wallet data from API instead of persona calculations
-  const totalTokenValue = walletData.fungibleTotalUsd;
-  const totalNftValue = walletData.nftTotalUsd;
-  const totalValue = totalTokenValue + totalNftValue;
+  const totalValue = walletData.fungibleTotalUsd;
 
   if (isLoading) {
     // Default skeleton configuration
@@ -124,7 +119,7 @@ export function UserDetails({ userId }: UserDetailsProps) {
                   </div>
                 </div>
                 <div className="mt-4">
-                  <UserStats user={user} />
+                  <UserStats walletData={walletData} />
                 </div>
               </div>
             </div>
@@ -136,7 +131,7 @@ export function UserDetails({ userId }: UserDetailsProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-md font-bold text-gray-900">Token Holdings</h2>
-                  <p className="text-sm text-gray-600">Your current portfolio assets</p>
+                  <p className="text-sm text-gray-600">User's current portfolio assets</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
@@ -156,7 +151,7 @@ export function UserDetails({ userId }: UserDetailsProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-md font-bold text-gray-900">NFT Holdings</h2>
-                  <p className="text-sm text-gray-600">Your digital collectibles</p>
+                  <p className="text-sm text-gray-600">User's digital collectibles</p>
                 </div>
                 <div className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm font-medium">
                   {walletData.nftPositions.length.toLocaleString()} items
@@ -174,8 +169,8 @@ export function UserDetails({ userId }: UserDetailsProps) {
             <div className="overflow-hidden">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-md font-bold text-gray-900">Recent Activity</h2>
-                  <p className="text-sm text-gray-600">Your latest transactions</p>
+                  <h2 className="text-md font-bold text-gray-900">Recent Activity (30d)</h2>
+                  <p className="text-sm text-gray-600">User's latest transactions</p>
                 </div>
               </div>
               <div className="py-6">

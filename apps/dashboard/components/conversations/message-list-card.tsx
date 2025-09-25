@@ -1,6 +1,5 @@
 'use client';
 
-import { consumePersona } from '@/core/persona';
 import { suiteCore } from '@/core/suite';
 import { cn } from '@/lib/utils';
 import { Bot, Loader2, MessageCircle, User } from 'lucide-react';
@@ -9,10 +8,10 @@ import React, { useEffect, useState } from 'react';
 
 import { ParsedMessage, ParsedUser } from '@getgrowly/core';
 import { RenderMessageContent } from '@getgrowly/suite';
-import { truncateAddress } from '@getgrowly/ui';
 
 import { AppUserAvatarWithStatus } from '../app-users/app-user-avatar-with-status';
 import { UserDetails } from '../app-users/app-user-details';
+import { Identity } from '../identity';
 import { useComponent } from '../providers/component-provider';
 import { ResizableSheet } from '../ui/resizable-sheet';
 
@@ -48,10 +47,17 @@ export const MessageListCard = ({ message, selected, className }: MessageListCar
   const renderSender = () => {
     if (message.sender === 'user') {
       if (loadingUser) return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
-      return user
-        ? consumePersona(user)?.nameService().name ||
-            truncateAddress(user.entities.walletAddress, 10, 6)
-        : 'Unknown User';
+      return user ? (
+        <Identity
+          address={user.entities.walletAddress}
+          showAddress={false}
+          showAvatar={false}
+          nameClassName="text-xs font-medium"
+          truncateLength={{ startLength: 6, endLength: 4 }}
+        />
+      ) : (
+        'Unknown User'
+      );
     }
     return 'Agent';
   };

@@ -93,7 +93,6 @@ function TransactionCountCell({ user }: { user: ParsedUser }) {
 
 function ActivityCell({ user }: { user: ParsedUser }) {
   const { latestActivity, activityLoading, activityError } = useWalletData(user);
-  console.log(latestActivity);
 
   if (activityLoading) {
     return (

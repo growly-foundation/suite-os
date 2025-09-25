@@ -110,7 +110,19 @@ export interface ZerionFungiblePosition {
     pool_address?: string;
     group_id?: string;
     name: string;
-    position_type: 'deposit' | 'reward' | 'staked' | 'wallet';
+    position_type:
+      | 'deposit'
+      | 'reward'
+      | 'staked'
+      | 'wallet'
+      | 'deposit'
+      | 'loan'
+      | 'locked'
+      | 'staked'
+      | 'reward'
+      | 'wallet'
+      | 'airdrop'
+      | 'margin';
     quantity: {
       int: string;
       decimals: number;

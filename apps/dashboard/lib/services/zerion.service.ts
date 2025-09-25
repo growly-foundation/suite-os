@@ -68,7 +68,7 @@ export class ZerionService {
       pages += 1;
       if (pageLimit && pages >= pageLimit) break;
 
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
     return collected;
@@ -112,7 +112,7 @@ export class ZerionService {
       pages += 1;
       if (pageLimit && pages >= pageLimit) break;
 
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
     return collected;
