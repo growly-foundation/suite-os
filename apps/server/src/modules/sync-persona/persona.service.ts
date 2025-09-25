@@ -1,6 +1,5 @@
 import { InjectQueue } from '@nestjs/bull';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression, Interval } from '@nestjs/schedule';
 import { Queue } from 'bull';
 
 import {
@@ -8,7 +7,6 @@ import {
   SuiteDatabaseCore,
   UserPersonaService,
   UserPersonaStatus,
-  hour,
   second,
 } from '@getgrowly/core';
 
@@ -40,7 +38,7 @@ export class SyncPersonaService {
    * Daily sync - Check for missing personas and create default records
    * Runs every day at midnight
    */
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async syncMissingPersonas() {
     this.logger.log('Starting daily persona sync...');
 
@@ -60,7 +58,7 @@ export class SyncPersonaService {
    * Process pending and failed personas
    * Runs every 1 hour
    */
-  @Interval(hour(1))
+  // @Interval(hour(1))
   async processPendingPersonas() {
     this.logger.debug('Processing pending/failed personas...');
     try {
@@ -81,7 +79,7 @@ export class SyncPersonaService {
    * Rebuild all completed personas
    * Runs every 12 hours
    */
-  @Cron(CronExpression.EVERY_12_HOURS)
+  // @Cron(CronExpression.EVERY_12_HOURS)
   async rebuildAllPersonas() {
     this.logger.log('Starting persona rebuild for all completed personas...');
     try {
