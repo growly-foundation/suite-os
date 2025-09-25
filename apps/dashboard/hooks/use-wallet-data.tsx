@@ -1,27 +1,32 @@
 'use client';
 
 import { SUPPORTED_CHAINS } from '@/core/persona';
+import { analyzePersonaFromZerion } from '@/lib/persona-classifier';
 import { trpc } from '@/trpc/client';
+import { EtherscanFundingInfo } from '@/types/etherscan';
+import { PersonaAnalysis } from '@/types/persona';
+import { ZerionFungiblePosition, ZerionNftPosition, ZerionTransaction } from '@/types/zerion';
 import { useMemo } from 'react';
 
+import { getChainIdByName } from '@getgrowly/chainsmith/utils';
 import { ParsedUser } from '@getgrowly/core';
 
 export interface WalletData {
   // Fungible token positions (with precomputed total)
   fungibleTotalUsd: number;
-  fungiblePositions: any[];
+  fungiblePositions: ZerionFungiblePosition[];
   fungibleLoading: boolean;
   fungibleError: boolean;
 
   // NFT positions (with precomputed total)
   nftTotalUsd: number;
-  nftPositions: any[];
+  nftPositions: ZerionNftPosition[];
   nftLoading: boolean;
   nftError: boolean;
 
   // Transactions (last 30d via Zerion)
   transactionCount: number;
-  transactionItems: any[];
+  transactionItems: ZerionTransaction[];
   transactionsLoading: boolean;
   transactionsError: boolean;
 
@@ -29,6 +34,14 @@ export interface WalletData {
   latestActivity: any;
   activityLoading: boolean;
   activityError: boolean;
+
+  // Funding info across chains (for activation date)
+  walletFundedInfo?: Record<number, EtherscanFundingInfo>;
+  walletFundedInfoLoading: boolean;
+  walletFundedInfoError: boolean;
+
+  // Persona analysis derived from wallet metrics
+  personaAnalysis?: PersonaAnalysis;
 
   // Combined loading state
   isLoading: boolean;
@@ -92,7 +105,7 @@ export function useWalletData(user: ParsedUser): WalletData {
     }
   );
 
-  // Fetch recent transactions (30d) via unified Zerion endpoint
+  // Get recent 3 months of transactions
   const {
     data: transactions,
     isLoading: txsLoading,
@@ -102,7 +115,7 @@ export function useWalletData(user: ParsedUser): WalletData {
       address: walletAddress || '',
       currency: 'usd',
       chainIds,
-      days: 30,
+      days: 90,
       pageSize: 50,
     },
     {
@@ -114,14 +127,64 @@ export function useWalletData(user: ParsedUser): WalletData {
     }
   );
 
+  // Etherscan funding info across chains (mainnet, base, optimism)
+  const {
+    data: fundingInfo,
+    isLoading: fundingLoading,
+    error: fundingError,
+  } = trpc.etherscan.getAddressFundedByAcrossChains.useQuery(
+    {
+      address: walletAddress || '',
+      chainIds: SUPPORTED_CHAINS.map(chain => getChainIdByName(chain)),
+    },
+    {
+      enabled: !!walletAddress && walletAddress.length > 0,
+      staleTime: 60 * 60 * 1000,
+      refetchOnWindowFocus: false,
+    }
+  );
+
   return useMemo(() => {
     const transactionsLoading = !!txsLoading;
     const transactionsError = !!txsError;
     const activityLoading = !!txsLoading;
     const activityError = !!txsError;
 
-    const isLoading = fungibleLoading || nftLoading || transactionsLoading || activityLoading;
-    const hasError = !!fungibleError || !!nftError || transactionsError || activityError;
+    const isLoading =
+      fungibleLoading || nftLoading || transactionsLoading || activityLoading || fundingLoading;
+    const hasError =
+      !!fungibleError || !!nftError || transactionsError || activityError || !!fundingError;
+
+    // Compute wallet age (days) and activation date from earliest funded timestamp across chains
+    let walletAgeDays: number | undefined;
+    let walletActivationAt: Date | undefined;
+    if (fundingInfo) {
+      const timestamps = Object.values(fundingInfo)
+        .filter(Boolean)
+        .map((info: any) => parseInt(info.timeStamp, 10) * 1000)
+        .filter((n: number) => Number.isFinite(n) && n > 0);
+      const minTs = timestamps.length ? Math.min(...timestamps) : 0;
+      walletActivationAt = minTs > 0 ? new Date(minTs) : undefined;
+      walletAgeDays =
+        minTs > 0 ? Math.floor((Date.now() - minTs) / (24 * 60 * 60 * 1000)) : undefined;
+    }
+
+    // Last active date from latest Zerion tx
+    const lastActiveAt = transactions?.items?.[0]?.minedAt
+      ? new Date((transactions as any).items[0].minedAt)
+      : undefined;
+
+    const personaAnalysis =
+      !isLoading && !hasError
+        ? analyzePersonaFromZerion(
+            fungibleData?.totalUsdValue ?? 0,
+            fungibleData?.positions ?? [],
+            nftData?.totalUsdValue ?? 0,
+            nftData?.nftPositions ?? [],
+            transactions,
+            { walletAgeDays, lastActiveAt, walletActivationAt }
+          )
+        : undefined;
 
     return {
       fungibleTotalUsd: fungibleData?.totalUsdValue ?? 0,
@@ -143,6 +206,13 @@ export function useWalletData(user: ParsedUser): WalletData {
       activityLoading,
       activityError,
 
+      // funded info exposure
+      walletFundedInfo: fundingInfo as any,
+      walletFundedInfoLoading: !!fundingLoading,
+      walletFundedInfoError: !!fundingError,
+
+      personaAnalysis,
+
       isLoading,
       hasError,
     };
@@ -156,5 +226,8 @@ export function useWalletData(user: ParsedUser): WalletData {
     transactions,
     txsLoading,
     txsError,
+    fundingInfo,
+    fundingLoading,
+    fundingError,
   ]);
 }

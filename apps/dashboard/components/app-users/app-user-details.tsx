@@ -4,6 +4,7 @@ import { formatAssetValue } from '@/lib/number.utils';
 import { useQuery } from '@tanstack/react-query';
 import { TrendingUp, Trophy, Wallet } from 'lucide-react';
 
+import { Badge } from '../ui/badge';
 import { Separator } from '../ui/separator';
 import { UserProfileHeader } from '../user/user-profile-header';
 import { UserStats } from '../user/user-stats';
@@ -30,6 +31,13 @@ export function UserDetails({ userId }: UserDetailsProps) {
   // Use wallet data from API instead of persona calculations
   const totalValue = walletData.fungibleTotalUsd;
 
+  const dominantTraitFromHook = walletData.personaAnalysis?.dominantTrait;
+  const dominantTraitFallback = user?.personaData?.identities?.dominantTrait?.toString();
+  const dominantTrait = dominantTraitFromHook || dominantTraitFallback || '';
+  const dominantTraitScore = walletData.personaAnalysis?.traitScores?.find(
+    t => t.trait === dominantTraitFromHook
+  )?.score;
+
   if (isLoading) {
     // Default skeleton configuration
     return generateSkeleton({
@@ -52,10 +60,14 @@ export function UserDetails({ userId }: UserDetailsProps) {
       <div className="relative container mx-auto px-6 py-4">
         <UserProfileHeader user={user} />
         <div className="mt-4">
-          <UserBadges
-            showAll
-            badges={[user.personaData.identities.dominantTrait?.toString() || '']}
-          />
+          <div className="flex items-center gap-2">
+            <UserBadges showAll badges={[dominantTrait]} />
+            {typeof dominantTraitScore === 'number' && (
+              <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                Score: {dominantTraitScore}
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
       {/* Main Content */}
@@ -169,7 +181,7 @@ export function UserDetails({ userId }: UserDetailsProps) {
             <div className="overflow-hidden">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-md font-bold text-gray-900">Recent Activity (30d)</h2>
+                  <h2 className="text-md font-bold text-gray-900">Recent Activity (90d)</h2>
                   <p className="text-sm text-gray-600">User's latest transactions</p>
                 </div>
               </div>

@@ -39,9 +39,9 @@ export function UserStats({ walletData }: { walletData: WalletData }) {
 
   return (
     <div className="grid grid-cols-3 gap-3 text-sm">
-      <StatItem label="Transactions (30d)" value={totalTransactions} />
+      <StatItem label="Transactions (90d)" value={totalTransactions} />
       <StatItem label="NFTs" value={totalNftCount} />
-      <StatItem label="Days Active (30d)" value={`${daysActive}/30`} />
+      <StatItem label="Days Active (90d)" value={`${daysActive}/90`} />
     </div>
   );
 }

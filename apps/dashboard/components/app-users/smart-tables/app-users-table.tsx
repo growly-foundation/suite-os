@@ -180,7 +180,7 @@ export function UsersTable({
         }, 0);
         return `${activeUsers} active`;
       }
-      case 'walletActiveAt': {
+      case 'walletFundedAt': {
         if (users.length === 0) return '';
         const walletDates = users
           .filter(user => user.personaData?.identities.walletMetrics?.walletCreationDate)

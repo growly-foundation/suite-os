@@ -2,9 +2,10 @@
 
 import { Badge } from '@/components/ui/badge';
 import { consumePersona } from '@/core/persona';
-import { getBadgeColor } from '@/lib/color.utils';
+import { getTraitColor } from '@/lib/color.utils';
 import { formatAssetValue } from '@/lib/number.utils';
 import { cn } from '@/lib/utils';
+import { PersonaTrait } from '@/types/persona';
 import { Loader2 } from 'lucide-react';
 import moment from 'moment';
 import { Address } from 'viem';
@@ -122,6 +123,23 @@ function ActivityCell({ user }: { user: ParsedUser }) {
   );
 }
 
+function TraitBadgeCell({ user }: { user: ParsedUser }) {
+  const { personaAnalysis, isLoading, hasError } = useWalletData(user);
+  if (isLoading) {
+    return (
+      <div className="h-2.5 w-2.5 p-0">
+        <Loader2 className="h-2 w-2 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+  const dominantTrait = !hasError ? personaAnalysis?.dominantTrait?.toString() || '' : '';
+  return (
+    <Badge className={cn(getTraitColor(dominantTrait as PersonaTrait), 'rounded-full')}>
+      {dominantTrait || '—'}
+    </Badge>
+  );
+}
+
 // Generic column formatters factory
 export function createColumnFormatters<T = any>(
   accessor: DataAccessor<T> = defaultDataAccessor as any
@@ -188,14 +206,7 @@ export function createColumnFormatters<T = any>(
     // Trait (dominant trait for ParsedUser)
     trait: (user: T) => {
       if (accessor.isType(user, 'parsed')) {
-        const userPersona = consumePersona(user as ParsedUser);
-        const dominantTrait = userPersona.dominantTrait()?.toString() || '';
-
-        return (
-          <Badge className={cn(getBadgeColor(dominantTrait), 'rounded-full')}>
-            {dominantTrait}
-          </Badge>
-        );
+        return <TraitBadgeCell user={user as ParsedUser} />;
       }
       return null;
     },
@@ -246,7 +257,7 @@ export function createColumnFormatters<T = any>(
     },
 
     // Wallet active at (first funding tx across chains)
-    walletActiveAt: (user: T) => {
+    walletFundedAt: (user: T) => {
       if (!accessor.isType(user, 'parsed')) return <span className="text-xs">-</span>;
       const parsed = user as ParsedUser;
       // Use the real wallet address from entities; persona.address() may be a UUID
