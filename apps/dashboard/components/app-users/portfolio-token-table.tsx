@@ -13,7 +13,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Copy, ExternalLink, MoreHorizontal } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
-import { getChainIdByName, getChainNameById } from '@getgrowly/chainsmith/utils';
+import { getChainIdByName } from '@getgrowly/chainsmith/utils';
 
 import { ChainIcon } from '../ui/chain-icon';
 import { DynamicTable } from './smart-tables/dynamic-table';
@@ -73,8 +73,7 @@ export function PortfolioTokenTable({ walletData }: PortfolioTokenTableProps) {
     return allTokenData.filter(
       token =>
         token.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        getChainNameById(token.chainId)?.toLowerCase().includes(searchQuery.toLowerCase())
+        token.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [allTokenData, searchQuery]);
 

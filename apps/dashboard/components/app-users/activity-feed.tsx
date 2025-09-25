@@ -1,4 +1,10 @@
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { usePeekExplorer } from '@/hooks/use-peek-explorer';
 import { WalletData } from '@/hooks/use-wallet-data';
@@ -24,16 +30,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
-import { getChainIdByName } from '@getgrowly/chainsmith/utils';
-
 import { ChainIcon } from '../ui/chain-icon';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { DynamicTable } from './smart-tables/dynamic-table';
 
 interface ActivityFeedProps {
@@ -56,16 +53,21 @@ type ActivityFeedItem = {
 };
 
 export function ActivityFeed({ walletData }: ActivityFeedProps) {
-  const [currentPage, setCurrentPage] = useState(0);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0); // Start from 0 to match DynamicTable's expectation
   const PAGE_SIZE = 20;
 
   const { copyToClipboard, copied } = useCopyToClipboard();
   const { handlePeekTransactionMultichain } = usePeekExplorer();
 
   const formatAddress = (address: string) => {
-    if (!address) return '';
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  const formatValue = (value: number, decimals?: number) => {
+    if (decimals && decimals > 0) {
+      return (value / Math.pow(10, decimals)).toFixed(4);
+    }
+    return value.toFixed(4);
   };
 
   const getTransactionIcon = (
@@ -133,52 +135,27 @@ export function ActivityFeed({ walletData }: ActivityFeedProps) {
 
   // Transform Zerion transaction data for the table
   const allTableData: ActivityFeedItem[] = useMemo(() => {
-    return walletData.transactionItems
-      .map((tx: any) => {
-        // Get the first transfer from the transaction
-        const transfer = tx.transfers?.[0] || {};
-        const chainName = tx.chainName || 'base';
-        const chainId = getChainIdByName(chainName === 'ethereum' ? 'mainnet' : chainName);
-        return {
-          id: tx.hash || Math.random().toString(),
-          chainId,
-          hash: tx.hash || '',
-          from: transfer.from || tx.from || '',
-          to: transfer.to || tx.to || '',
-          value: transfer.value || 0,
-          symbol: transfer.symbol || 'ETH',
-          decimals: transfer.decimals || 18,
-          timestamp: transfer.timestamp || tx.timestamp || Math.floor(Date.now() / 1000),
-          operationType: tx.operationType || transfer.operationType || 'transfer',
-          isNFT: transfer.isNFT || false,
-          image: transfer.image,
-        };
-      })
-      .sort((a, b) => b.timestamp - a.timestamp);
+    return walletData.transactionItems.map((tx: any) => {
+      // Get the first transfer from the transaction
+      const transfer = tx.transfers?.[0] || {};
+      const chainId = tx.relationships?.chain?.data?.id || 1;
+
+      return {
+        id: tx.id || tx.hash || '',
+        chainId,
+        hash: tx.hash || '',
+        from: transfer.from || tx.from || '',
+        to: transfer.to || tx.to || '',
+        value: transfer.value || 0,
+        symbol: transfer.symbol || 'ETH',
+        decimals: transfer.decimals || 18,
+        timestamp: transfer.timestamp || Math.floor(Date.now() / 1000),
+        operationType: tx.operationType || transfer.operationType || 'transfer',
+        isNFT: transfer.isNFT || false,
+        image: transfer.image,
+      };
+    });
   }, [walletData.transactionItems]);
-
-  // Get paginated data for current page
-  const paginatedData = useMemo(() => {
-    const startIndex = currentPage * PAGE_SIZE;
-    const endIndex = startIndex + PAGE_SIZE;
-    return allTableData.slice(0, endIndex); // Show all items up to current page
-  }, [allTableData, currentPage]);
-
-  // Check if there are more items to load
-  const hasMore = useMemo(() => {
-    return (currentPage + 1) * PAGE_SIZE < allTableData.length;
-  }, [currentPage, allTableData.length]);
-
-  // Handle loading more data
-  const handleLoadMore = useCallback(({ page }: { page: number; pageSize: number }) => {
-    setLoadingMore(true);
-
-    // Simulate loading delay
-    setTimeout(() => {
-      setCurrentPage(page);
-      setLoadingMore(false);
-    }, 500);
-  }, []);
 
   // Column definitions
   const columns: ColumnDef<ActivityFeedItem>[] = useMemo(
@@ -190,21 +167,9 @@ export function ActivityFeed({ walletData }: ActivityFeedProps) {
         cell: ({ row }) => {
           const { from, to, operationType } = row.original;
           const userAddress = '';
-          const actionType = operationType || 'transfer';
-          const camelCaseAction = actionType.charAt(0).toLowerCase() + actionType.slice(1);
-
           return (
             <div className="flex justify-center">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    {getTransactionIcon(from, to, userAddress, operationType)}
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{camelCaseAction}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              {getTransactionIcon(from, to, userAddress, operationType)}{' '}
             </div>
           );
         },
@@ -230,11 +195,12 @@ export function ActivityFeed({ walletData }: ActivityFeedProps) {
         header: 'Amount',
         size: 120,
         cell: ({ row }) => {
-          const { value, symbol, from, to } = row.original;
+          const { value, decimals, symbol, from, to } = row.original;
           const userAddress = ''; // TODO: Get from wallet context
           const isReceived = to.toLowerCase() === userAddress.toLowerCase();
           const isSent = from.toLowerCase() === userAddress.toLowerCase();
 
+          const formattedValue = formatValue(value, decimals);
           const textColor = isReceived
             ? 'text-green-700'
             : isSent
@@ -246,7 +212,7 @@ export function ActivityFeed({ walletData }: ActivityFeedProps) {
             <div className="text-right">
               <div className={`font-semibold ${textColor}`}>
                 {prefix}
-                {value.toFixed(6)}
+                {formattedValue}
               </div>
               <div className="text-xs text-gray-500">{symbol}</div>
             </div>
@@ -276,27 +242,29 @@ export function ActivityFeed({ walletData }: ActivityFeedProps) {
         header: 'Chain',
         size: 100,
         cell: ({ row }) => {
-          const { chainId } = row.original;
-          return <ChainIcon chainIds={[chainId]} />;
+          return <ChainIcon chainIds={[row.original.chainId]} />;
         },
       },
       {
         accessorKey: 'timestamp',
         header: 'Date',
-        size: 120,
+        size: 140,
         cell: ({ row }) => {
+          const { timestamp } = row.original;
           return (
-            <div className="text-sm text-gray-500">{formatTimestamp(row.original.timestamp)}</div>
+            <div className="flex items-center gap-1 text-sm text-gray-600">
+              <Clock className="h-3 w-3" />
+              {formatTimestamp(timestamp)}
+            </div>
           );
         },
       },
       {
         id: 'actions',
-        header: 'Actions',
-        size: 100,
+        header: '',
+        size: 80,
         cell: ({ row }) => {
           const { hash } = row.original;
-
           return (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -324,54 +292,55 @@ export function ActivityFeed({ walletData }: ActivityFeedProps) {
     [copyToClipboard, copied, handlePeekTransactionMultichain]
   );
 
-  if (walletData.transactionsLoading) {
-    return (
-      <div className="flex items-center justify-center h-32">
-        <div className="flex items-center gap-2 text-gray-500">
-          <Clock className="h-4 w-4 animate-spin" />
-          <span>Loading transactions...</span>
-        </div>
-      </div>
-    );
-  }
+  const filteredData = useMemo(() => {
+    const startIndex = 0;
+    const endIndex = (currentPage + 1) * PAGE_SIZE;
+    return allTableData.slice(startIndex, endIndex);
+  }, [allTableData, currentPage, PAGE_SIZE]);
 
-  if (walletData.transactionsError) {
-    return (
-      <div className="flex items-center justify-center h-32">
-        <div className="text-red-500 text-center">
-          <p>Failed to load transactions</p>
-          <p className="text-sm text-gray-500 mt-1">Please try refreshing the page</p>
-        </div>
-      </div>
-    );
-  }
+  const hasMore = useMemo(() => {
+    return (currentPage + 1) * PAGE_SIZE < allTableData.length;
+  }, [allTableData, currentPage, PAGE_SIZE]);
 
-  if (allTableData.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-32">
-        <div className="text-gray-500 text-center">
-          <p>No transactions found</p>
-          <p className="text-sm mt-1">This user hasn't made any transactions yet</p>
-        </div>
-      </div>
-    );
-  }
+  const handleLoadMore = useCallback(({ page }: { page: number; pageSize: number }) => {
+    setCurrentPage(page);
+  }, []);
 
   return (
     <div className="space-y-4">
       <div className="border border-gray-200 rounded-lg overflow-hidden h-[400px]">
         <DynamicTable
-          data={paginatedData}
+          data={filteredData}
           columns={columns}
+          enableSorting={true}
+          enableColumnResizing={true}
+          enableColumnReordering={true}
+          enableFooter={false}
           currentPage={currentPage}
           pageSize={PAGE_SIZE}
-          totalItems={allTableData.length}
+          getFooterValue={key => {
+            switch (key) {
+              case 'operationType':
+                return 'Total';
+              case 'value':
+                // Calculate total value across all transactions
+                return allTableData
+                  .reduce((sum, item) => {
+                    const value = formatValue(item.value, item.decimals);
+                    return sum + parseFloat(value);
+                  }, 0)
+                  .toFixed(4);
+              default:
+                return '';
+            }
+          }}
+          emptyMessage="No transactions found"
+          emptyDescription="No transactions match your current filter."
+          className="h-[400px]"
+          tableLabel="Transaction History"
+          searchPlaceholder="Search transactions..."
           onLoadMore={handleLoadMore}
           hasMore={hasMore}
-          loadingMore={loadingMore}
-          isLoading={walletData.transactionsLoading}
-          emptyMessage="No transactions found"
-          emptyDescription="This user hasn't made any transactions yet"
         />
       </div>
     </div>
