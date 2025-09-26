@@ -1,6 +1,6 @@
 /**
- * Etherscan API Service
- * Comprehensive service for interacting with Etherscan APIs across multiple chains
+ * Talent Protocol API Service
+ * Service for interacting with Talent Protocol APIs
  */
 import {
   TalentAccountSource,
@@ -8,13 +8,13 @@ import {
   TalentProfile,
   TalentQueryParams,
 } from '@/types/talent';
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import { AxiosRequestConfig } from 'axios';
 
-export class TalentService {
-  private client: AxiosInstance;
+import { BaseHttpService, RetryConfig, linearBackoff } from './base-http.service';
 
+export class TalentService extends BaseHttpService {
   constructor(config: TalentConfig) {
-    this.client = axios.create({
+    super({
       baseURL: 'https://api.talentprotocol.com',
       timeout: config.timeout ?? 15000,
       headers: {
@@ -22,6 +22,19 @@ export class TalentService {
         'X-API-KEY': config.apiKey,
       },
     });
+  }
+
+  private get notFoundRetryConfig(): RetryConfig {
+    return {
+      maxRetries: 3,
+      shouldRetry: error => !!error?.response && error.response.status === 404,
+      getRetryDelay: retryCount => linearBackoff(retryCount, 1000),
+      onRetry: (retryCount, maxRetries, endpoint) => {
+        console.warn(
+          `Talent Protocol 404. Retrying ${retryCount}/${maxRetries}${endpoint ? ` ${endpoint}` : ''}`
+        );
+      },
+    };
   }
 
   async getProfile(params: TalentQueryParams): Promise<TalentProfile> {
@@ -46,7 +59,11 @@ export class TalentService {
     const requestConfig: AxiosRequestConfig = { params: query };
 
     try {
-      const { data } = await this.client.get('/profile', requestConfig);
+      const data = await this.requestWithRetry<any>(
+        '/profile',
+        requestConfig,
+        this.notFoundRetryConfig
+      );
 
       const profile = (data?.profile ?? data) as TalentProfile;
       return profile;
