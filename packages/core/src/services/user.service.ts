@@ -266,7 +266,6 @@ export class UserService {
 
     // Identify missing personas and create them in batch
     const missingAddresses = walletAddresses.filter(address => !personaMap.has(address));
-    console.log('missingAddresses', missingAddresses);
     if (missingAddresses.length > 0) {
       const newPersonas = await this.createBatchUserPersonas(missingAddresses);
       newPersonas.forEach(persona => {
