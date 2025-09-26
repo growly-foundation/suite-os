@@ -192,6 +192,18 @@ export class UserService {
     const isNative = importedSourceData.source === UserImportSource.Native;
     const now = new Date().toISOString();
     if (user) {
+      // Check & update organization association
+      const existingAssociation = await this.userOrganizationDatabaseService.getOneByFields({
+        user_id: user.id,
+        organization_id: organizationId,
+      });
+      if (!existingAssociation) {
+        await this.userOrganizationDatabaseService.create({
+          user_id: user.id,
+          organization_id: organizationId,
+        });
+      }
+
       // If existing user is native and original_joined_at is not set, set it to now.
       if (isNative && !user.original_joined_at) {
         const updatedUser = await this.userDatabaseService.update(user.id, {
