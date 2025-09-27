@@ -81,7 +81,7 @@ export default function RootLayout({
           GeistSans.variable,
           GeistMono.variable
         )}>
-        <div className="overflow-auto h-screen">
+        <div className="overflow-auto h-screen main-scroll-container">
           <Providers>{children}</Providers>
         </div>
       </body>

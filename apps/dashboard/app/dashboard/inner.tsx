@@ -329,7 +329,7 @@ export function DashboardInner() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4 max-h-[300px] overflow-y-auto">
+                <div className="space-y-4 max-h-[300px] overflow-y-auto scrollbar-hidden">
                   {recentActivity.map(activity => (
                     <div key={activity.timestamp} className="flex items-center gap-4">
                       <div

@@ -439,7 +439,7 @@ export function DynamicTable<TData = any>({
 
         {/* Loading Skeleton */}
         {isLoading && (
-          <div className="flex-1 overflow-auto relative h-full">
+          <div className="flex-1 overflow-auto scrollbar-hidden relative h-full">
             <Table className="w-full table-fixed">
               <TableHeader
                 className="sticky top-0 bg-background shadow-sm"
@@ -516,7 +516,7 @@ export function DynamicTable<TData = any>({
           <React.Fragment>
             {/* Table with sticky header */}
             <div
-              className="flex-1 overflow-auto relative h-full"
+              className="flex-1 overflow-auto scrollbar-hidden relative h-full"
               onScroll={event => {
                 const target = event.currentTarget;
                 const { scrollTop, scrollHeight, clientHeight } = target;

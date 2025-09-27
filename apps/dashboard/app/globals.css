@@ -91,6 +91,36 @@ body {
   overflow: hidden;
 }
 
+/* Hide all scrollbars by default, but keep functionality */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Keep the main body scrollbar visible */
+html {
+  scrollbar-width: auto;
+  -ms-overflow-style: auto;
+}
+
+html::-webkit-scrollbar {
+  display: block;
+}
+
+/* Allow the main app container to show scrollbar */
+.main-scroll-container {
+  scrollbar-width: auto !important;
+  -ms-overflow-style: auto !important;
+}
+
+.main-scroll-container::-webkit-scrollbar {
+  display: block !important;
+}
+
 .growly-card {
   @apply bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200;
 }

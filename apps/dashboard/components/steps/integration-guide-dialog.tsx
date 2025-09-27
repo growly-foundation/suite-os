@@ -69,7 +69,7 @@ export default function IntegrationWidget() {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[800px] max-h-[800px] overflow-y-auto">
+      <DialogContent className="sm:max-w-[800px] max-h-[800px] overflow-y-auto scrollbar-hidden">
         <DialogHeader>
           <DialogTitle>Integration Guide</DialogTitle>
           <DialogDescription>

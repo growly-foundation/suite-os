@@ -22,7 +22,7 @@ export function UsersConversationSidebar({
 }) {
   return (
     <div
-      className="w-[400px] border-r flex-shrink-0 overflow-y-auto h-full"
+      className="w-[400px] border-r flex-shrink-0 overflow-y-auto scrollbar-hidden h-full"
       onScroll={event => {
         if (!onLoadMore || !hasMore || isLoadingMore) return;
 
