@@ -67,9 +67,6 @@ export interface SuiteDatabaseCore {
     /** Manages user personas. */
     user_personas: PublicDatabaseService<'user_personas'>;
 
-    /** Manages user organizations relationship. */
-    users_organizations: PublicDatabaseService<'users_organizations'>;
-
     /** Manages workflows. */
     workflows: PublicDatabaseService<'workflows'>;
   };
@@ -152,10 +149,6 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     supabaseClientService,
     'user_personas'
   );
-  const userOrganizationDatabaseService = new PublicDatabaseService<'users_organizations'>(
-    supabaseClientService,
-    'users_organizations'
-  );
 
   // Edge functions.
   const functionService = new FunctionService(supabaseClientService);
@@ -186,9 +179,7 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
   );
   const userService = new UserService(
     userDatabaseService,
-    userOrganizationDatabaseService,
     userPersonasDatabaseService,
-    conversationDatabaseService,
     userPersonaService,
     supabaseClientService
   );
@@ -213,7 +204,6 @@ export const createSuiteCore = (supabaseUrl: string, supabaseKey: string): Suite
     step_sessions: stepSessionsDatabaseService,
     users: userDatabaseService,
     user_personas: userPersonasDatabaseService,
-    users_organizations: userOrganizationDatabaseService,
     workflows: workflowDatabaseService,
   };
 

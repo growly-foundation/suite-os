@@ -9,17 +9,13 @@ import {
 import { normalizeWalletAddress } from '@/utils/wallet';
 import { SupabaseClient } from '@supabase/supabase-js';
 
-import { Address } from '@getgrowly/persona';
-
 import { PublicDatabaseService } from './database.service';
 import { UserPersonaService } from './user-persona.service';
 
 export class UserService {
   constructor(
     private userDatabaseService: PublicDatabaseService<'users'>,
-    private userOrganizationDatabaseService: PublicDatabaseService<'users_organizations'>,
     private userPersonaDatabaseService: PublicDatabaseService<'user_personas'>,
-    private conversationDatabaseService: PublicDatabaseService<'conversation'>,
     private userPersonaService: UserPersonaService,
     private supabaseClient: SupabaseClient
   ) {}
@@ -85,35 +81,44 @@ export class UserService {
   }
 
   async getUsersByOrganizationIdCount(organization_id: string): Promise<number> {
-    const userOrganizationAssociations = await this.supabaseClient
-      .from('users_organizations')
-      .select('*', {
-        count: 'exact',
-        head: true,
-      })
-      .eq('organization_id', organization_id);
-    return userOrganizationAssociations.count || 0;
+    try {
+      const userOrganizationAssociations = await this.supabaseClient
+        .from('users')
+        .select('*', {
+          count: 'exact',
+          head: true,
+        })
+        .eq('organization_id', organization_id)
+        .not('wallet_address', 'is', null);
+      return userOrganizationAssociations.count || 0;
+    } catch (error) {
+      console.error(`Failed to count users by organization: ${error}`);
+      return 0;
+    }
   }
 
   async getUsersByAgentIdCount(agent_id: string): Promise<number> {
-    // Optimized: Count distinct users directly in the database
-    const { data, error } = await this.supabaseClient
-      .from('conversation')
-      .select('user_id')
-      .eq('agent_id', agent_id)
-      .not('user_id', 'is', null);
+    try {
+      // Optimized: Count distinct users directly in the database
+      const { data, error } = await this.supabaseClient
+        .from('conversation')
+        .select('user_id')
+        .eq('agent_id', agent_id)
+        .not('user_id', 'is', null);
 
-    if (error) {
-      throw new Error(`Failed to count users by agent: ${error.message}`);
-    }
-
-    if (!data) {
+      if (error) {
+        throw new Error(`Failed to count users by agent: ${error.message}`);
+      }
+      if (!data) {
+        return 0;
+      }
+      // Count unique user IDs
+      const uniqueUserIds = new Set(data.map(item => item.user_id));
+      return uniqueUserIds.size;
+    } catch (error) {
+      console.error(`Failed to count users by agent: ${error}`);
       return 0;
     }
-
-    // Count unique user IDs
-    const uniqueUserIds = new Set(data.map(item => item.user_id));
-    return uniqueUserIds.size;
   }
 
   async getUserById(user_id: string): Promise<ParsedUser | null> {
@@ -127,23 +132,12 @@ export class UserService {
     limit = 100,
     offset = 0
   ): Promise<ParsedUser[]> {
-    // Optimized: Single query with JOIN to get users directly
-    // This eliminates the round-trip of fetching associations first, then users
     const { data, error } = await this.supabaseClient
-      .from('users_organizations')
-      .select(
-        `
-        users (
-          id,
-          entities,
-          created_at,
-          original_joined_at
-        )
-      `
-      )
+      .from('users')
+      .select('*')
       .eq('organization_id', organization_id)
       .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1); // Supabase range is inclusive
+      .range(offset, offset + limit - 1);
 
     if (error) {
       throw new Error(`Failed to fetch users by organization: ${error.message}`);
@@ -153,27 +147,19 @@ export class UserService {
       return [];
     }
 
-    // Extract users from the joined data
-    const users = data
-      .map((item: any) => item.users)
-      .filter((user: any): user is NonNullable<typeof user> => user !== null);
-
-    if (users.length === 0) {
+    if (data.length === 0) {
       return [];
     }
-
-    return await this.getBatchUsersWithPersona(users);
+    return this.getBatchUsersWithPersona(data as any as User[]);
   }
 
   async getUserByWalletAddress(walletAddress: string): Promise<ParsedUser | null> {
     const normalizedWalletAddress = normalizeWalletAddress(walletAddress);
-    const users = await this.userDatabaseService.getAll();
-    const parsedUser = users.find(user => {
-      const userWalletAddress = (user.entities as { walletAddress: string }).walletAddress;
-      return normalizeWalletAddress(userWalletAddress) === normalizedWalletAddress;
+    const user = await this.userDatabaseService.getOneByFields({
+      wallet_address: normalizedWalletAddress,
     });
-    if (!parsedUser) return null;
-    return this.getUserWithPersona(parsedUser);
+    if (!user) return null;
+    return this.getUserWithPersona(user);
   }
 
   /**
@@ -192,18 +178,6 @@ export class UserService {
     const isNative = importedSourceData.source === UserImportSource.Native;
     const now = new Date().toISOString();
     if (user) {
-      // Check & update organization association
-      const existingAssociation = await this.userOrganizationDatabaseService.getOneByFields({
-        user_id: user.id,
-        organization_id: organizationId,
-      });
-      if (!existingAssociation) {
-        await this.userOrganizationDatabaseService.create({
-          user_id: user.id,
-          organization_id: organizationId,
-        });
-      }
-
       // If existing user is native and original_joined_at is not set, set it to now.
       if (isNative && !user.original_joined_at) {
         const updatedUser = await this.userDatabaseService.update(user.id, {
@@ -215,24 +189,12 @@ export class UserService {
     }
     // If user is not found, create a new user and add it to the organization.
     const newUser = await this.userDatabaseService.create({
-      entities: {
-        walletAddress: normalizedWalletAddress,
-      },
+      wallet_address: normalizedWalletAddress,
       original_joined_at: isNative ? now : null,
-    });
-    const existingAssociation = await this.userOrganizationDatabaseService.getOneByFields({
-      user_id: newUser.id,
       organization_id: organizationId,
     });
-    if (!existingAssociation) {
-      // If the user is not associated with the organization, add it to the organization.
-      await this.userOrganizationDatabaseService.create({
-        user_id: newUser.id,
-        organization_id: organizationId,
-      });
-    }
     // Create a new persona for the user.
-    const persona = await this.createUserPersonaIfNotExist(walletAddress);
+    const persona = await this.createUserPersonaIfNotExist(normalizedWalletAddress);
     const personaWithSource: ParsedUserPersona =
       await this.userPersonaService.updateImportedSourceData(persona.id, importedSourceData);
     return {
@@ -251,7 +213,7 @@ export class UserService {
 
     // Extract all wallet addresses
     const walletAddresses = users.map(user => {
-      const walletAddress = (user.entities as { walletAddress: string }).walletAddress as Address;
+      const walletAddress = user.wallet_address as string;
       return normalizeWalletAddress(walletAddress);
     });
 
@@ -264,44 +226,29 @@ export class UserService {
       personaMap.set(persona.id, persona);
     });
 
-    // Identify missing personas and create them in batch
-    const missingAddresses = walletAddresses.filter(address => !personaMap.has(address));
-    console.log('missingAddresses', missingAddresses);
-    if (missingAddresses.length > 0) {
-      const newPersonas = await this.createBatchUserPersonas(missingAddresses);
-      newPersonas.forEach(persona => {
-        personaMap.set(persona.id, persona);
-      });
-    }
-
     // Map users with their personas
     return users.map(user => {
-      const walletAddress = (user.entities as { walletAddress: string }).walletAddress as Address;
+      const walletAddress = user.wallet_address as string;
       const normalizedAddress = normalizeWalletAddress(walletAddress);
       const persona = personaMap.get(normalizedAddress);
 
       if (!persona) {
         throw new Error(`Persona not found for address: ${normalizedAddress}`);
       }
-
       return this.mapUserWithPersona(user, persona);
     });
   }
 
   async getUserWithPersona(user: User): Promise<ParsedUser> {
-    const walletAddress = (user.entities as { walletAddress: string }).walletAddress as Address;
+    const walletAddress = user.wallet_address as string;
     const normalizedWalletAddress = normalizeWalletAddress(walletAddress);
     const userPersona = await this.createUserPersonaIfNotExist(normalizedWalletAddress);
     return this.mapUserWithPersona(user, userPersona);
   }
 
   mapUserWithPersona(user: User, persona: ParsedUserPersona): ParsedUser {
-    const walletAddress = (user.entities as { walletAddress: string }).walletAddress as Address;
     return {
       ...user,
-      entities: {
-        walletAddress,
-      },
       personaData: persona,
       offchainData: {
         company: '',

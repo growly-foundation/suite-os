@@ -81,14 +81,14 @@ export class AgentService {
     this.logger.log(`Processing chat request for agent ${agentId} and user ${userId}`);
 
     const user = await this.suiteCore.db.users.getById(userId);
-    const walletAddress = user?.entities?.['walletAddress'] || '';
+    const walletAddress = user?.wallet_address;
 
     const agentDetails = await this.suiteCore.db.agents.getById(agentId);
     const organization = await this.suiteCore.db.organizations.getById(
       agentDetails?.organization_id || ''
     );
 
-    if (!agentDetails || user?.entities?.['walletAddress'] === null) {
+    if (!agentDetails || !walletAddress) {
       throw new Error('Agent or wallet address not found');
     }
 

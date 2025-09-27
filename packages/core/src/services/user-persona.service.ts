@@ -28,14 +28,14 @@ export class UserPersonaService {
 
       // Find missing personas
       const missingUsers = users.filter(user => {
-        const walletAddress = (user.entities as { walletAddress: string }).walletAddress;
+        const walletAddress = user.wallet_address as string;
         const normalizedWalletAddress = normalizeWalletAddress(walletAddress);
         return normalizedWalletAddress && !existingWallets.has(normalizedWalletAddress);
       });
 
       // Create missing personas
       for (const user of missingUsers) {
-        const walletAddress = (user.entities as { walletAddress: string }).walletAddress;
+        const walletAddress = user.wallet_address as string;
         const normalizedWalletAddress = normalizeWalletAddress(walletAddress);
         try {
           await this.userPersonaDatabaseService.create({

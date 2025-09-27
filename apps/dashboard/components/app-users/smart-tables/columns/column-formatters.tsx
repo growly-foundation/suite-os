@@ -141,7 +141,7 @@ export function createColumnFormatters<T = any>(
       if (accessor.isType(user, 'parsed')) {
         const parsedUser = user as ParsedUser;
         const persona = consumePersona(parsedUser);
-        walletAddress = parsedUser.entities.walletAddress || '';
+        walletAddress = parsedUser.wallet_address! as `0x${string}`;
         // Try to get name from various sources
         const nameService = persona.nameService();
         if (nameService?.name) {
@@ -153,8 +153,8 @@ export function createColumnFormatters<T = any>(
         hasCheckmark = persona.getHumanCheckmark();
       } else {
         // Handle other user types (ImportUserOutput, ImportPrivyUserOutput)
-        walletAddress = accessor.hasProperty(user, 'walletAddress')
-          ? accessor.getValue(user, 'walletAddress') || ''
+        walletAddress = accessor.hasProperty(user, 'wallet_address')
+          ? accessor.getValue(user, 'wallet_address') || ''
           : accessor.hasProperty(user, 'id')
             ? accessor.getValue(user, 'id')
             : '';
@@ -200,7 +200,7 @@ export function createColumnFormatters<T = any>(
     address: (user: T) => {
       let walletAddress = '';
       if (accessor.isType(user, 'parsed')) {
-        walletAddress = (user as ParsedUser).entities.walletAddress || '';
+        walletAddress = (user as ParsedUser).wallet_address! as `0x${string}`;
       } else if (accessor.hasProperty(user, 'walletAddress')) {
         walletAddress = accessor.getValue(user, 'walletAddress') || '';
       } else if (accessor.hasProperty(user, 'id')) {
@@ -246,7 +246,7 @@ export function createColumnFormatters<T = any>(
       if (!accessor.isType(user, 'parsed')) return <span className="text-xs">-</span>;
       const parsed = user as ParsedUser;
       // Use the real wallet address from entities; persona.address() may be a UUID
-      const walletAddress = parsed.entities.walletAddress || '';
+      const walletAddress = parsed.wallet_address! as `0x${string}`;
       const isValidEthAddress = /^0x[a-fA-F0-9]{40}$/.test(walletAddress);
       const chainIds = SUPPORTED_CHAINS.map(chain => getChainIdByName(chain));
 

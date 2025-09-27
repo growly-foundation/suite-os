@@ -10,7 +10,12 @@ export const userRouter = createTRPCRouter({
   getUsersByOrganizationId: baseProcedure
     .input(z.string())
     .query(async ({ input: organizationId }) => {
-      return suiteCore.users.getUsersByOrganizationId(organizationId);
+      try {
+        return suiteCore.users.getUsersByOrganizationId(organizationId);
+      } catch (error) {
+        console.error('Failed to fetch users by organization:', error);
+        throw error;
+      }
     }),
 
   // Get users by organization ID with pagination

@@ -186,7 +186,7 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
               <div className="flex items-center gap-3">
                 <AppUserAvatarWithStatus
                   size={35}
-                  walletAddress={selectedAgentUser.entities.walletAddress}
+                  walletAddress={selectedAgentUser.wallet_address! as `0x${string}`}
                   name={selectedAgentUser.name}
                   userId={selectedAgentUser.id}
                 />
@@ -194,7 +194,7 @@ export function AgentConversations({ agent }: { agent: AggregatedAgent }) {
                   <p className="font-medium text-sm">
                     {
                       <Identity
-                        address={selectedAgentUser.entities.walletAddress}
+                        address={selectedAgentUser.wallet_address! as `0x${string}`}
                         showAddress={false}
                         showAvatar={false}
                         nameClassName="text-xs font-medium"

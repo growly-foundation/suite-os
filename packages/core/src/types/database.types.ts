@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -99,6 +99,13 @@ export type Database = {
             columns: ["agent_id"]
             isOneToOne: false
             referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_resources_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
             referencedColumns: ["id"]
           },
         ]
@@ -461,67 +468,37 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
-          entities: Json
           id: string
           image_url: string | null
           is_anonymous: boolean | null
           name: string | null
+          organization_id: string
           original_joined_at: string | null
+          wallet_address: string | null
         }
         Insert: {
           created_at?: string
           description?: string | null
-          entities: Json
           id?: string
           image_url?: string | null
           is_anonymous?: boolean | null
           name?: string | null
+          organization_id: string
           original_joined_at?: string | null
+          wallet_address?: string | null
         }
         Update: {
           created_at?: string
           description?: string | null
-          entities?: Json
           id?: string
           image_url?: string | null
           is_anonymous?: boolean | null
           name?: string | null
+          organization_id?: string
           original_joined_at?: string | null
+          wallet_address?: string | null
         }
         Relationships: []
-      }
-      users_organizations: {
-        Row: {
-          created_at: string
-          organization_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          organization_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          organization_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "users_organizations_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "users_organizations_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       workflows: {
         Row: {
@@ -570,17 +547,17 @@ export type Database = {
       get_admin_aggregated_organizations: {
         Args: { p_admin_id: string }
         Returns: {
+          agents: Json
           organization_id: string
           organization_name: string
-          agents: Json
         }[]
       }
       get_admin_organization_with_agents_and_workflows: {
         Args: { p_admin_id: string }
         Returns: {
+          agents: Json
           organization_id: string
           organization_name: string
-          agents: Json
         }[]
       }
       get_admin_organizations: {
@@ -594,25 +571,25 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: {
           agent_id: string
-          organization_id: string
-          name: string
+          created_at: string
           description: string
           model: string
+          name: string
+          organization_id: string
           resources: string[]
           status: Database["public"]["Enums"]["status"]
-          created_at: string
           workflows: string[]
         }[]
       }
       get_recent_messages: {
-        Args: { p_user_id: string; p_agent_id: string; p_limit?: number }
+        Args: { p_agent_id: string; p_limit?: number; p_user_id: string }
         Returns: {
-          id: string
-          content: string
-          user_id: string
           agent_id: string
-          sender: string
+          content: string
           created_at: string
+          id: string
+          sender: string
+          user_id: string
         }[]
       }
       halfvec_avg: {
@@ -665,24 +642,24 @@ export type Database = {
       }
       l2_normalize: {
         Args: { "": string } | { "": unknown } | { "": unknown }
-        Returns: string
+        Returns: unknown
       }
       match_messages: {
         Args: {
-          query_embedding: string
-          match_threshold: number
-          match_count: number
-          in_user_id: string
           in_agent_id: string
+          in_user_id: string
+          match_count: number
+          match_threshold: number
+          query_embedding: string
         }
         Returns: {
-          id: string
-          content: string
-          user_id: string
           agent_id: string
-          sender: string
+          content: string
           created_at: string
+          id: string
+          sender: string
           similarity: number
+          user_id: string
         }[]
       }
       sparsevec_out: {
@@ -698,13 +675,13 @@ export type Database = {
         Returns: number
       }
       summarize_conversation: {
-        Args: { p_user_id: string; p_agent_id: string }
+        Args: { p_agent_id: string; p_user_id: string }
         Returns: {
-          total_messages: number
-          user_messages: number
           assistant_messages: number
           first_message_at: string
           last_message_at: string
+          total_messages: number
+          user_messages: number
         }[]
       }
       vector_avg: {
