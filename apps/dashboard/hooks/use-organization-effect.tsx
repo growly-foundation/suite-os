@@ -21,7 +21,7 @@ export const useOrganizationUsersEffect = (organizationId: string, pageSize = 10
 
   return {
     organizationUsers: allUsers,
-    organizationUserStatus: isLoading ? 'loading' : 'idle',
+    organizationUserStatus: !infiniteUsersData ? 'loading' : isLoading ? 'loading' : 'idle',
     refresh: () => {
       refetch();
     },
