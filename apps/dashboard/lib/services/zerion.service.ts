@@ -45,7 +45,7 @@ export class ZerionService extends BaseHttpService {
 
   private get rateLimitRetryConfig(): RetryConfig {
     return {
-      maxRetries: 3,
+      maxRetries: 5,
       shouldRetry: error => axios.isAxiosError(error) && error.response?.status === 429,
       getRetryDelay: retryCount => exponentialBackoff(retryCount, 1000),
       onRetry: (retryCount, maxRetries, endpoint) => {

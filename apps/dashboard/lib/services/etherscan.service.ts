@@ -47,14 +47,10 @@ export class EtherscanService extends BaseHttpService {
 
   private get retryConfig(): RetryConfig {
     return {
-      maxRetries: 3,
+      maxRetries: 5,
       shouldRetry: error => {
-        const data = (error?.response?.data as any) || (error?.data as any);
-        return (
-          !!data &&
-          typeof data.result === 'string' &&
-          data.result.toLowerCase().includes('rate limit')
-        );
+        // Check if it's a rate limit error from our custom method
+        return error?.message === 'Etherscan rate limited';
       },
       getRetryDelay: retryCount => exponentialBackoff(retryCount, 2000),
       onRetry: (retryCount, maxRetries, endpoint) => {
@@ -65,17 +61,44 @@ export class EtherscanService extends BaseHttpService {
     };
   }
 
-  private ensureNotRateLimited<T extends { status?: string; message?: string; result?: any }>(
-    data: T
-  ): void {
-    const resultText = typeof data?.result === 'string' ? data.result : '';
-    if (resultText && resultText.toLowerCase().includes('rate limit')) {
-      // Throw a synthetic error shaped like an AxiosError response so shouldRetry can detect it
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const synthetic: any = new Error('Etherscan rate limited');
-      synthetic.data = data;
-      synthetic.response = { data };
-      throw synthetic;
+  /**
+   * Custom request method that inspects Etherscan responses for rate limit messages
+   */
+  private async requestWithEtherscanRetry<T>(
+    endpoint: string,
+    config: any,
+    retryConfig: RetryConfig
+  ): Promise<T> {
+    let retries = 0;
+
+    while (true) {
+      try {
+        const response = await this.client.request<T>({ url: endpoint, ...config });
+        const data = (response as any).data ?? response;
+
+        // Check if the response contains rate limit information
+        if (typeof data?.result === 'string' && data.result.toLowerCase().includes('rate limit')) {
+          // console.log('Etherscan rate limit detected in result:', data.result);
+
+          // Throw a retryable error
+          const rateLimitError = new Error('Etherscan rate limited');
+          throw rateLimitError;
+        }
+
+        return data as T;
+      } catch (error: any) {
+        const shouldRetry = retryConfig.shouldRetry(error);
+
+        if (shouldRetry && retries < retryConfig.maxRetries) {
+          retries += 1;
+          retryConfig.onRetry?.(retries, retryConfig.maxRetries, endpoint);
+          const delay = retryConfig.getRetryDelay(retries);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue;
+        }
+
+        throw error;
+      }
     }
   }
 
@@ -117,7 +140,7 @@ export class EtherscanService extends BaseHttpService {
    */
   async getNormalTransactions(params: EtherscanTransactionParams): Promise<EtherscanTransaction[]> {
     try {
-      const response = await this.requestWithRetry<EtherscanNormalTransactionsResponse>(
+      const response = await this.requestWithEtherscanRetry<EtherscanNormalTransactionsResponse>(
         '',
         {
           method: 'GET',
@@ -137,8 +160,6 @@ export class EtherscanService extends BaseHttpService {
         this.retryConfig
       );
 
-      this.ensureNotRateLimited(response);
-
       if (response.status !== '1') {
         throw new Error(`API Error: ${response.message}`);
       }
@@ -156,7 +177,7 @@ export class EtherscanService extends BaseHttpService {
    */
   async getERC20Transfers(params: EtherscanTokenTransferParams): Promise<EtherscanTokenTransfer[]> {
     try {
-      const response = await this.requestWithRetry<EtherscanTokenTransfersResponse>(
+      const response = await this.requestWithEtherscanRetry<EtherscanTokenTransfersResponse>(
         '',
         {
           method: 'GET',
@@ -177,8 +198,6 @@ export class EtherscanService extends BaseHttpService {
         this.retryConfig
       );
 
-      this.ensureNotRateLimited(response);
-
       if (response.status !== '1') {
         throw new Error(`API Error: ${response.message}`);
       }
@@ -198,7 +217,7 @@ export class EtherscanService extends BaseHttpService {
     params: EtherscanTokenTransferParams
   ): Promise<EtherscanTokenTransfer[]> {
     try {
-      const response = await this.requestWithRetry<EtherscanTokenTransfersResponse>(
+      const response = await this.requestWithEtherscanRetry<EtherscanTokenTransfersResponse>(
         '',
         {
           method: 'GET',
@@ -219,8 +238,6 @@ export class EtherscanService extends BaseHttpService {
         this.retryConfig
       );
 
-      this.ensureNotRateLimited(response);
-
       if (response.status !== '1') {
         throw new Error(`API Error: ${response.message}`);
       }
@@ -240,7 +257,7 @@ export class EtherscanService extends BaseHttpService {
     params: EtherscanTokenTransferParams
   ): Promise<EtherscanTokenTransfer[]> {
     try {
-      const response = await this.requestWithRetry<EtherscanTokenTransfersResponse>(
+      const response = await this.requestWithEtherscanRetry<EtherscanTokenTransfersResponse>(
         '',
         {
           method: 'GET',
@@ -260,8 +277,6 @@ export class EtherscanService extends BaseHttpService {
         },
         this.retryConfig
       );
-
-      this.ensureNotRateLimited(response);
 
       if (response.status !== '1') {
         throw new Error(`API Error: ${response.message}`);
@@ -302,7 +317,7 @@ export class EtherscanService extends BaseHttpService {
    */
   async getAddressFundedBy(params: EtherscanFundingParams): Promise<EtherscanFundingInfo | null> {
     try {
-      const response = await this.requestWithRetry<EtherscanFundingResponse>(
+      const response = await this.requestWithEtherscanRetry<EtherscanFundingResponse>(
         '',
         {
           method: 'GET',
@@ -316,8 +331,6 @@ export class EtherscanService extends BaseHttpService {
         },
         this.retryConfig
       );
-
-      this.ensureNotRateLimited(response);
 
       return response.result;
     } catch (error: any) {
