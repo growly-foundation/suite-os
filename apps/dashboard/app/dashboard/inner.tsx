@@ -154,21 +154,23 @@ export function DashboardInner() {
     });
 
     return [
-      ...filteredUsers.map(user => ({
-        type: 'user' as const,
-        title: `New user "${truncateAddress(user.entities.walletAddress, 8, 6)}" added`,
-        user: user, // Pass the user data for Identity component
-        timestamp: user.created_at,
-        icon: (
-          <IdentityAvatar
-            address={user.entities.walletAddress}
-            userId={user.id}
-            size={25}
-            withStatus={true}
-          />
-        ),
-        color: '',
-      })),
+      ...filteredUsers
+        .filter(user => user.wallet_address)
+        .map(user => ({
+          type: 'user' as const,
+          title: `New user "${truncateAddress(user.wallet_address!, 8, 6)}" added`,
+          user: user, // Pass the user data for Identity component
+          timestamp: user.created_at,
+          icon: (
+            <IdentityAvatar
+              address={user.wallet_address! as `0x${string}`}
+              userId={user.id}
+              size={25}
+              withStatus={true}
+            />
+          ),
+          color: '',
+        })),
       ...agents.map((agent: Agent) => ({
         type: 'agent' as const,
         title: `Agent "${agent.name}" ${agent.status === Status.Active ? 'activated' : 'deactivated'}`,
@@ -344,7 +346,7 @@ export function DashboardInner() {
                             <span className="text-xs font-normal">New user</span>
                             <span className="text-xs font-normal">
                               <Identity
-                                address={activity.user.entities.walletAddress}
+                                address={activity.user.wallet_address! as `0x${string}`}
                                 showAddress={false}
                                 showAvatar={false}
                                 nameClassName="text-xs font-medium"

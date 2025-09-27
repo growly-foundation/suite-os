@@ -47,7 +47,7 @@ export function UserDirectoryLayout({
 
     // Search in wallet address and available identity data
     return (
-      user.entities.walletAddress?.toLowerCase().includes(searchLower) ||
+      user.wallet_address?.toLowerCase().includes(searchLower) ||
       (identities &&
         Object.values(identities).some(
           identity =>

@@ -32,7 +32,7 @@ export const MessageListCard = ({ message, selected, className }: MessageListCar
         if (!user) return <User className="h-4 w-4" />;
         return (
           <AppUserAvatarWithStatus
-            walletAddress={user.entities.walletAddress}
+            walletAddress={user.wallet_address! as `0x${string}`}
             name={user.name}
             size={30}
           />
@@ -49,7 +49,7 @@ export const MessageListCard = ({ message, selected, className }: MessageListCar
       if (loadingUser) return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
       return user ? (
         <Identity
-          address={user.entities.walletAddress}
+          address={user.wallet_address! as `0x${string}`}
           showAddress={false}
           showAvatar={false}
           nameClassName="text-xs font-medium"

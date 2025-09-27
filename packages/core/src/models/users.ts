@@ -1,7 +1,5 @@
 import { Tables } from '@/types/database.types';
 
-import { Address } from '@getgrowly/persona';
-
 import { Message } from './messages';
 import { ParsedUserPersona } from './user_personas';
 
@@ -16,12 +14,7 @@ export enum UserSource {
   GUILD_IMPORT = 'guild_import',
 }
 
-export type ParsedUser = Omit<User, 'entities'> & {
-  // TODO: Need to be associated table.
-  entities: {
-    walletAddress: Address;
-  };
-} & {
+export type ParsedUser = User & {
   personaData: ParsedUserPersona;
   offchainData: UserOffchainData;
   chatSession: UserChatSession;

@@ -1,6 +1,5 @@
 'use client';
 
-import { generateMockUsers } from '@/constants/mockUsers';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
@@ -8,7 +7,7 @@ import { ParsedUser } from '@getgrowly/core';
 import { RandomAvatar, WalletAddress } from '@getgrowly/ui';
 
 // Sample user personas for the floating avatars
-const userPersonas: ParsedUser[] = generateMockUsers(8);
+const userPersonas: ParsedUser[] = [];
 
 // Absolute positions in pixels to ensure visibility
 const avatarPositions = [
@@ -64,19 +63,19 @@ function FloatingAvatar({ user, position, delay }: FloatingAvatarProps) {
           className={cn(
             'rounded-md overflow-hidden bg-white backdrop-blur-md ring-2 ring-white/40 shadow-lg'
           )}>
-          <RandomAvatar address={user.entities.walletAddress} size={65} />
+          <RandomAvatar address={user.wallet_address! as `0x${string}`} size={65} />
         </div>
         <motion.div
           className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 backdrop-blur-md p-3 rounded-lg shadow-xl z-50 w-fit"
           initial={{ opacity: 0, y: 10 }}
           whileHover={{ opacity: 1, y: 0 }}>
           <WalletAddress
-            address={user.entities.walletAddress}
+            address={user.wallet_address! as `0x${string}`}
             truncate
             truncateLength={{ startLength: 10, endLength: 4 }}
           />
           <p className="text-xs text-black/80">{user.description}</p>
-          <p className="text-xs text-primary mb-1">{user.reputation.level}</p>
+          {/* <p className="text-xs text-primary mb-1">{user.reputation.level}</p> */}
         </motion.div>
       </motion.div>
     </motion.div>

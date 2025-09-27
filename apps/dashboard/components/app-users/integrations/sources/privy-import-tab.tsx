@@ -115,7 +115,7 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
   const handleFetchUsers = async () => {
     setLoading(true);
     try {
-      const userMap = new Map(userData?.map(user => [user.entities?.['walletAddress'], user]));
+      const userMap = new Map(userData?.map(user => [user.wallet_address, user]));
       const response = await UserImportService.importPrivyUsers(appId, appSecret);
       setAllPrivyUsers(
         response.map(user => ({

@@ -20,7 +20,6 @@ interface UserProfileHeaderProps {
 }
 
 export function UserProfileHeader({ user }: UserProfileHeaderProps) {
-  const walletAddress = user.entities.walletAddress;
   const { copyToClipboard, copied } = useCopyToClipboard();
   const { handlePeekAddressMultichain, handlePeekNFTMultichain } = usePeekExplorer();
 
@@ -30,7 +29,7 @@ export function UserProfileHeader({ user }: UserProfileHeaderProps) {
       <div className="flex items-center gap-4">
         {/* Avatar + Name + Address */}
         <Identity
-          address={walletAddress}
+          address={user.wallet_address! as `0x${string}`}
           avatarSize={64}
           showAvatar
           showName
@@ -45,7 +44,10 @@ export function UserProfileHeader({ user }: UserProfileHeaderProps) {
 
         {/* Copy button for address */}
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={() => copyToClipboard(walletAddress)}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => copyToClipboard(user.wallet_address! as `0x${string}`)}>
             {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
           </Button>
         </div>
@@ -62,12 +64,12 @@ export function UserProfileHeader({ user }: UserProfileHeaderProps) {
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               className="hover:cursor-pointer"
-              onClick={() => handlePeekAddressMultichain(walletAddress)}>
+              onClick={() => handlePeekAddressMultichain(user.wallet_address! as `0x${string}`)}>
               <BlockscanSvg className="h-4 w-4 mr-2 " /> View on Blockscan
             </DropdownMenuItem>
             <DropdownMenuItem
               className="hover:cursor-pointer"
-              onClick={() => handlePeekNFTMultichain(walletAddress)}>
+              onClick={() => handlePeekNFTMultichain(user.wallet_address! as `0x${string}`)}>
               <OpenSeaColor className="h-4 w-4 mr-2" /> View on OpenSea
             </DropdownMenuItem>
           </DropdownMenuContent>

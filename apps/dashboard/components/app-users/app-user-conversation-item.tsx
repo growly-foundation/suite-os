@@ -39,7 +39,7 @@ export const AppUserConversationItem = ({
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between">
           <Identity
-            address={user.entities.walletAddress}
+            address={user.wallet_address! as `0x${string}`}
             avatarSize={25}
             showAddress={false}
             truncateLength={{ startLength: 10, endLength: 4 }}
