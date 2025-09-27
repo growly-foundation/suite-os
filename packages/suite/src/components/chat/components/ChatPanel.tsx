@@ -56,7 +56,7 @@ export function ChatPanelContainer({
 }) {
   return (
     <div className="flex flex-col h-full min-h-0">
-      {user?.entities.walletAddress ? (
+      {user?.wallet_address ? (
         <>
           <div className="flex-1 min-h-0">
             <PanelLayout>

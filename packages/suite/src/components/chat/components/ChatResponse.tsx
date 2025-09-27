@@ -275,7 +275,7 @@ const ChatResponse = ({
         <div ref={ref} className="gas-w-full gas-font-family">
           <UserResponse
             key={message.id}
-            address={user?.entities.walletAddress}
+            address={user?.wallet_address as string}
             message={message}
             noAvatar={viewAs === ConversationRole.User}
             showAvatar={showAvatar && viewAs !== ConversationRole.User}

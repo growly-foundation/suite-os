@@ -26,7 +26,7 @@ export const ConnectWallet = () => {
   return (
     <div className="gas-h-full gas-flex gas-items-center gas-justify-center">
       <div className="gas-flex gas-flex-col gas-items-center gas-justify-center gas-gap-2">
-        {!user?.entities.walletAddress && (
+        {!user?.wallet_address && (
           <div
             className="gas-font-family gas-text-center"
             style={{ marginBottom: 10, color: theme.text.muted }}>
