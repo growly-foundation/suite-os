@@ -498,7 +498,15 @@ export type Database = {
           original_joined_at?: string | null
           wallet_address?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "users_organization_fk"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       workflows: {
         Row: {
