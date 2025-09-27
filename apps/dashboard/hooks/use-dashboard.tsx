@@ -96,11 +96,29 @@ export type DashboardAppState = {
   fetchCurrentAgentResources: () => Promise<Resource[]>;
 
   // Workflows
+  /**
+   * @deprecated not released in Suite MVP
+   */
   workflowStatus: StateStatus;
+  /**
+   * @deprecated not released in Suite MVP
+   */
   organizationWorkflows: AggregatedWorkflow[];
+  /**
+   * @deprecated not released in Suite MVP
+   */
   getOrganizationWorkflows: (workflowId: WorkflowId) => AggregatedWorkflow | undefined;
+  /**
+   * @deprecated not released in Suite MVP
+   */
   setOrganizationWorkflows: (workflows: AggregatedWorkflow[]) => void;
+  /**
+   * @deprecated not released in Suite MVP
+   */
   fetchOrganizationWorkflows: () => Promise<AggregatedWorkflow[]>;
+  /**
+   * @deprecated not released in Suite MVP
+   */
   fetchOrganizationWorkflowById: (workflowId: WorkflowId) => Promise<AggregatedWorkflow | null>;
 
   // Agents
@@ -318,31 +336,33 @@ export const useDashboardState = create<DashboardAppState>((set, get) => ({
   setOrganizationWorkflows: (workflows: AggregatedWorkflow[]) =>
     set({ organizationWorkflows: workflows }),
   fetchOrganizationWorkflows: async () => {
-    set({ workflowStatus: 'loading' });
-    const selectedOrganization = get().selectedOrganization;
-    if (!selectedOrganization) throw new Error('No organization selected');
+    // set({ workflowStatus: 'loading' });
+    // const selectedOrganization = get().selectedOrganization;
+    // if (!selectedOrganization) throw new Error('No organization selected');
 
-    const aggregatedWorkflows: AggregatedWorkflow[] =
-      await suiteCore.workflows.getWorkflowsByOrganizationId(selectedOrganization.id);
-    set({ organizationWorkflows: aggregatedWorkflows, workflowStatus: 'idle' });
-    return aggregatedWorkflows;
+    // const aggregatedWorkflows: AggregatedWorkflow[] =
+    //   await suiteCore.workflows.getWorkflowsByOrganizationId(selectedOrganization.id);
+    // set({ organizationWorkflows: aggregatedWorkflows, workflowStatus: 'idle' });
+    // return aggregatedWorkflows;
+    return [];
   },
 
   // Steps
-  fetchOrganizationWorkflowById: async (workflowId: string) => {
-    set({ workflowStatus: 'loading' });
-    const selectedOrganization = get().selectedOrganization;
-    if (!selectedOrganization) throw new Error('No organization selected');
+  fetchOrganizationWorkflowById: async (_workflowId: string) => {
+    // set({ workflowStatus: 'loading' });
+    // const selectedOrganization = get().selectedOrganization;
+    // if (!selectedOrganization) throw new Error('No organization selected');
 
-    const workflow = await suiteCore.workflows.getWorkflowWithSteps(workflowId);
-    if (!workflow) throw new Error('Workflow not found');
-    set(state => ({
-      organizationWorkflows: state.organizationWorkflows.map(w =>
-        w.id === workflowId ? workflow : w
-      ),
-      workflowStatus: 'idle',
-    }));
-    return workflow;
+    // const workflow = await suiteCore.workflows.getWorkflowWithSteps(workflowId);
+    // if (!workflow) throw new Error('Workflow not found');
+    // set(state => ({
+    //   organizationWorkflows: state.organizationWorkflows.map(w =>
+    //     w.id === workflowId ? workflow : w
+    //   ),
+    //   workflowStatus: 'idle',
+    // }));
+    // return workflow;
+    return null;
   },
 
   // Users (deprecated - now using tRPC)

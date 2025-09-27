@@ -31,7 +31,7 @@ export default function PlaygroundPage() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="chat" className="space-y-4">
-              <div className="bg-muted/30 rounded-xl p-6 h-[400px] overflow-y-auto">
+              <div className="bg-muted/30 rounded-xl p-6 h-[400px] overflow-y-auto scrollbar-hidden">
                 <div className="space-y-4">
                   <div className="flex gap-3">
                     <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
@@ -78,7 +78,7 @@ export default function PlaygroundPage() {
               </div>
             </TabsContent>
             <TabsContent value="code" className="space-y-4">
-              <div className="bg-muted/30 rounded-xl p-6 h-[400px] overflow-y-auto">
+              <div className="bg-muted/30 rounded-xl p-6 h-[400px] overflow-y-auto scrollbar-hidden">
                 <div className="space-y-4">
                   <div className="flex gap-3">
                     <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">

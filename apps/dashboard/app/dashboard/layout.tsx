@@ -77,7 +77,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </Breadcrumb>
           </div>
         </header>
-        <div className="h-full overflow-auto">
+        <div className="h-full overflow-auto main-scroll-container">
           <Suspense fallback={<AnimatedLoading />}>
             <ProtectedAuthProvider>{children}</ProtectedAuthProvider>
           </Suspense>

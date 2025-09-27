@@ -141,7 +141,7 @@ export function UserDetails({ userId }: UserDetailsProps) {
                   </div>
                 </div>
               </div>
-              <div className="py-6 max-h-[600px] overflow-y-auto">
+              <div className="py-6 max-h-[600px] overflow-y-auto scrollbar-hidden">
                 <PortfolioTokenTable walletData={walletData} />
               </div>
             </div>
@@ -159,7 +159,7 @@ export function UserDetails({ userId }: UserDetailsProps) {
                   {walletData.nftPositions.length.toLocaleString()} items
                 </div>
               </div>
-              <div className="py-6 max-h-[600px] overflow-y-auto">
+              <div className="py-6 max-h-[600px] overflow-y-auto scrollbar-hidden">
                 <PortfolioNftTable walletData={walletData} />
               </div>
             </div>
