@@ -42,8 +42,5 @@ export const RenderMessageContent = ({ message }: { message: ParsedMessage }) =>
   if (message.type === 'uniswap:swap') {
     return buildUniswapSwapMessage(message.content);
   }
-  if (message.type.startsWith('onchainkit:')) {
-    return buildSystemErrorMessage('⚠️ OnchainKit messages are no longer supported.');
-  }
   return null;
 };
