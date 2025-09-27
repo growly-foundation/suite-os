@@ -226,6 +226,15 @@ export class UserService {
       personaMap.set(persona.id, persona);
     });
 
+    // Identify missing personas and create them in batch
+    const missingAddresses = walletAddresses.filter(address => !personaMap.has(address));
+    if (missingAddresses.length > 0) {
+      const newPersonas = await this.createBatchUserPersonas(missingAddresses);
+      newPersonas.forEach(persona => {
+        personaMap.set(persona.id, persona);
+      });
+    }
+
     // Map users with their personas
     return users.map(user => {
       const walletAddress = user.wallet_address as string;
@@ -235,6 +244,7 @@ export class UserService {
       if (!persona) {
         throw new Error(`Persona not found for address: ${normalizedAddress}`);
       }
+
       return this.mapUserWithPersona(user, persona);
     });
   }
