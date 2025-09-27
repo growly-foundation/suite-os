@@ -196,6 +196,31 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
     minSize: 100,
   },
 
+  privyEmail: {
+    id: 'privyEmail',
+    accessorFn: (row: ParsedUser) => {
+      const importedSourceData = row.personaData?.imported_source_data as ImportedUserSourceData[];
+      const privyData = importedSourceData?.find(data => data.source === UserImportSource.Privy);
+      return (privyData?.sourceData as any)?.email?.address || '';
+    },
+    header: 'Email',
+    cell: ({ row }: { row: Row<ParsedUser> }) => {
+      const importedSourceData = row.original.personaData
+        ?.imported_source_data as ImportedUserSourceData[];
+      const privyData = importedSourceData?.find(data => data.source === UserImportSource.Privy);
+      const email = (privyData?.sourceData as any)?.email?.address || '';
+      return email ? (
+        <span className="text-xs">{email}</span>
+      ) : (
+        <span className="text-xs text-muted-foreground">-</span>
+      );
+    },
+    enableSorting: true,
+    enableResizing: true,
+    size: 180,
+    minSize: 150,
+  },
+
   privyTwitter: {
     id: 'privyTwitter',
     accessorFn: (row: ParsedUser) => {
@@ -414,6 +439,7 @@ export function createUserColumns(data: ParsedUser[]): ColumnDef<ParsedUser>[] {
     if (hasImportedSourceDataInAnyRow(data, UserImportSource.Privy)) {
       columns.push(
         columnUserDefinitions.privyCreatedAt,
+        columnUserDefinitions.privyEmail,
         columnUserDefinitions.privyGithub,
         columnUserDefinitions.privyTwitter
       );

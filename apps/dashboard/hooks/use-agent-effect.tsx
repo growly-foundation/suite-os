@@ -67,7 +67,7 @@ export const useAgentUsersInfinite = (agentId: string, pageSize = 10) => {
 
   return {
     agentUsers: allUsers,
-    agentUserStatus: isLoading ? 'loading' : 'idle',
+    agentUserStatus: !infiniteUsersData ? 'loading' : isLoading ? 'loading' : 'idle',
     refresh: () => {
       refetch();
     },

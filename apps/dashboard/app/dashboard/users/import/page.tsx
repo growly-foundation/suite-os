@@ -7,6 +7,7 @@ import { NftHoldersImportTab } from '@/components/app-users/integrations/sources
 import { PrivyImportTab } from '@/components/app-users/integrations/sources/privy-import-tab';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useSelectedOrganizationUsersEffect } from '@/hooks/use-organization-effect';
 import { cn } from '@/lib/utils';
 import { ArrowLeft, Code, ImageIcon, Upload } from 'lucide-react';
 import Image from 'next/image';
@@ -29,6 +30,8 @@ export default function ImportUsersPage() {
   const [activeIntegration, setActiveIntegration] = useState<UserImportSource>(
     UserImportSource.Privy
   );
+
+  const { refresh } = useSelectedOrganizationUsersEffect(20);
 
   // Available integration options
   const integrationOptions: IntegrationOption[] = [
@@ -158,10 +161,18 @@ export default function ImportUsersPage() {
         <div className="lg:col-span-3">
           <Card>
             <CardContent style={{ padding: '20px 0px' }}>
-              {activeIntegration === UserImportSource.Manual && <ManualImportTab />}
-              {activeIntegration === UserImportSource.Privy && <PrivyImportTab />}
-              {activeIntegration === UserImportSource.Contract && <ContractImportTab />}
-              {activeIntegration === UserImportSource.NftHolders && <NftHoldersImportTab />}
+              {activeIntegration === UserImportSource.Manual && (
+                <ManualImportTab onImportComplete={refresh} />
+              )}
+              {activeIntegration === UserImportSource.Privy && (
+                <PrivyImportTab onImportComplete={refresh} />
+              )}
+              {activeIntegration === UserImportSource.Contract && (
+                <ContractImportTab onImportComplete={refresh} />
+              )}
+              {activeIntegration === UserImportSource.NftHolders && (
+                <NftHoldersImportTab onImportComplete={refresh} />
+              )}
               {!integrationOptions.find(opt => opt.id === activeIntegration && !opt.disabled) && (
                 <div className="p-4 text-center text-muted-foreground">
                   This integration is not yet available. Please select a different source.
