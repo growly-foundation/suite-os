@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from 'axios';
+import axios from 'axios';
 
 import type {
   ZerionBalanceChart,
@@ -24,16 +24,12 @@ import type {
   ZerionTransactionsResponse,
   ZerionWalletParams,
 } from '../../types/zerion';
+import { BaseHttpService, RetryConfig, exponentialBackoff } from './base-http.service';
 
-export class ZerionService {
-  private client: AxiosInstance;
+export class ZerionService extends BaseHttpService {
   private readonly baseURL = 'https://api.zerion.io/v1';
 
   constructor(apiKey: string) {
-    this.client = this.createAxiosInstance(apiKey);
-  }
-
-  private createAxiosInstance(apiKey: string): AxiosInstance {
     const headers: Record<string, string> = {
       Accept: 'application/json',
       'Content-Type': 'application/json',
@@ -44,11 +40,20 @@ export class ZerionService {
       headers['Authorization'] = `Basic ${encodedKey}`;
     }
 
-    return axios.create({
-      baseURL: this.baseURL,
-      headers,
-      timeout: 30000,
-    });
+    super({ baseURL: 'https://api.zerion.io/v1', headers, timeout: 30000 });
+  }
+
+  private get rateLimitRetryConfig(): RetryConfig {
+    return {
+      maxRetries: 5,
+      shouldRetry: error => axios.isAxiosError(error) && error.response?.status === 429,
+      getRetryDelay: retryCount => exponentialBackoff(retryCount, 1000),
+      onRetry: (retryCount, maxRetries, endpoint) => {
+        console.warn(
+          `Zerion API rate limit (429). Retrying ${retryCount}/${maxRetries} for ${endpoint || ''}`
+        );
+      },
+    };
   }
 
   private async fetchAllPages<TData, TResponse extends { links: { next?: string }; data: TData[] }>(
@@ -61,9 +66,13 @@ export class ZerionService {
     let pages = 0;
 
     while (nextPath) {
-      const response: { data: TResponse } = await this.client.get<TResponse>(nextPath, { params });
-      collected.push(...response.data.data);
-      nextPath = response.data.links?.next;
+      const response: TResponse = await this.requestWithRetry<TResponse>(
+        nextPath,
+        { method: 'GET', params },
+        this.rateLimitRetryConfig
+      );
+      collected.push(...response.data);
+      nextPath = response.links?.next;
       params = undefined; // use absolute next URL, params no longer apply
       pages += 1;
       if (pageLimit && pages >= pageLimit) break;
@@ -89,25 +98,25 @@ export class ZerionService {
     let pages = 0;
 
     while (nextPath) {
-      const response: { data: ZerionTransactionsResponse } =
-        await this.client.get<ZerionTransactionsResponse>(nextPath, { params });
+      const response: ZerionTransactionsResponse =
+        await this.requestWithRetry<ZerionTransactionsResponse>(
+          nextPath,
+          { method: 'GET', params },
+          this.rateLimitRetryConfig
+        );
 
-      // Deduplicate transactions based on hash + chain_id
-      for (const tx of response.data.data) {
+      for (const tx of response.data) {
         const hash = tx.attributes?.hash;
         const chainId = tx.relationships?.chain?.data?.id;
-
-        if (!hash) continue; // Skip transactions without hash
-
+        if (!hash) continue;
         const uniqueKey = `${hash}-${chainId || 'unknown'}`;
-
         if (!seenTransactions.has(uniqueKey)) {
           seenTransactions.add(uniqueKey);
           collected.push(tx);
         }
       }
 
-      nextPath = response.data.links?.next;
+      nextPath = response.links?.next;
       params = undefined; // use absolute next URL, params no longer apply
       pages += 1;
       if (pageLimit && pages >= pageLimit) break;
@@ -123,11 +132,12 @@ export class ZerionService {
    */
   async getBalanceChart(address: string, params?: ZerionWalletParams): Promise<ZerionBalanceChart> {
     try {
-      const response = await this.client.get<ZerionBalanceChartResponse>(
+      const data = await this.requestWithRetry<ZerionBalanceChartResponse>(
         `/wallets/${address}/balance-chart/`,
-        { params }
+        { method: 'GET', params },
+        this.rateLimitRetryConfig
       );
-      return response.data.data;
+      return data.data;
     } catch (error: any) {
       console.error(`Failed to get balance chart for ${address}:`, error?.message || error);
       throw error;
@@ -140,11 +150,12 @@ export class ZerionService {
    */
   async getPortfolio(address: string, params?: ZerionPortfolioParams): Promise<ZerionPortfolio> {
     try {
-      const response = await this.client.get<ZerionPortfolioResponse>(
+      const data = await this.requestWithRetry<ZerionPortfolioResponse>(
         `/wallets/${address}/portfolio/`,
-        { params }
+        { method: 'GET', params },
+        this.rateLimitRetryConfig
       );
-      return response.data.data;
+      return data.data;
     } catch (error: any) {
       console.error(`Failed to get portfolio for ${address}:`, error?.message || error);
       throw error;
@@ -160,11 +171,12 @@ export class ZerionService {
     params?: ZerionPositionParams
   ): Promise<ZerionFungiblePosition[]> {
     try {
-      const response = await this.client.get<ZerionFungiblePositionsResponse>(
+      const data = await this.requestWithRetry<ZerionFungiblePositionsResponse>(
         `/wallets/${address}/positions/`,
-        { params }
+        { method: 'GET', params },
+        this.rateLimitRetryConfig
       );
-      return response.data.data;
+      return data.data;
     } catch (error: any) {
       console.error(`Failed to get fungible positions for ${address}:`, error?.message || error);
       throw error;
@@ -192,12 +204,12 @@ export class ZerionService {
     params?: ZerionTransactionParams
   ): Promise<ZerionTransaction[]> {
     try {
-      const response = await this.client.get<ZerionTransactionsResponse>(
+      const data = await this.requestWithRetry<ZerionTransactionsResponse>(
         `/wallets/${address}/transactions/`,
-        { params }
+        { method: 'GET', params },
+        this.rateLimitRetryConfig
       );
-
-      return response.data.data;
+      return data.data;
     } catch (error: any) {
       console.error(`Failed to get transactions for ${address}:`, error?.message || error);
       throw error;
@@ -221,11 +233,12 @@ export class ZerionService {
    */
   async getNftPositions(address: string, params?: ZerionNftParams): Promise<ZerionNftPosition[]> {
     try {
-      const response = await this.client.get<ZerionNftPositionsResponse>(
+      const data = await this.requestWithRetry<ZerionNftPositionsResponse>(
         `/wallets/${address}/nft-positions/`,
-        { params }
+        { method: 'GET', params },
+        this.rateLimitRetryConfig
       );
-      return response.data.data;
+      return data.data;
     } catch (error: any) {
       console.error(`Failed to get NFT positions for ${address}:`, error?.message || error);
       throw error;
@@ -253,11 +266,12 @@ export class ZerionService {
     params?: ZerionNftParams
   ): Promise<ZerionNftCollection[]> {
     try {
-      const response = await this.client.get<ZerionNftCollectionsResponse>(
+      const data = await this.requestWithRetry<ZerionNftCollectionsResponse>(
         `/wallets/${address}/nft-collections/`,
-        { params }
+        { method: 'GET', params },
+        this.rateLimitRetryConfig
       );
-      return response.data.data;
+      return data.data;
     } catch (error: any) {
       console.error(`Failed to get NFT collections for ${address}:`, error?.message || error);
       throw error;
@@ -282,11 +296,12 @@ export class ZerionService {
    */
   async getNftPortfolio(address: string, params?: ZerionNftParams): Promise<ZerionNftPortfolio> {
     try {
-      const response = await this.client.get<ZerionNftPortfolioResponse>(
+      const data = await this.requestWithRetry<ZerionNftPortfolioResponse>(
         `/wallets/${address}/nft-portfolio/`,
-        { params }
+        { method: 'GET', params },
+        this.rateLimitRetryConfig
       );
-      return response.data.data;
+      return data.data;
     } catch (error: any) {
       console.error(`Failed to get NFT portfolio for ${address}:`, error?.message || error);
       throw error;
@@ -299,10 +314,12 @@ export class ZerionService {
    */
   async getPnL(address: string, params?: ZerionPnLParams): Promise<ZerionPnL> {
     try {
-      const response = await this.client.get<ZerionPnLResponse>(`/wallets/${address}/pnl/`, {
-        params,
-      });
-      return response.data.data;
+      const data = await this.requestWithRetry<ZerionPnLResponse>(
+        `/wallets/${address}/pnl/`,
+        { method: 'GET', params },
+        this.rateLimitRetryConfig
+      );
+      return data.data;
     } catch (error: any) {
       console.error(`Failed to get PnL for ${address}:`, error?.message || error);
       throw error;

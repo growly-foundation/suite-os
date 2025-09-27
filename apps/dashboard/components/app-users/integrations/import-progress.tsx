@@ -223,7 +223,7 @@ export function ImportProgress({
             <summary className="cursor-pointer hover:text-gray-800">
               View errors ({jobStatus.result.errors.length})
             </summary>
-            <div className="mt-2 space-y-1 max-h-32 overflow-y-auto">
+            <div className="mt-2 space-y-1 max-h-32 overflow-y-auto scrollbar-hidden">
               {jobStatus.result.errors.slice(0, 5).map((error, index) => (
                 <div key={index} className="text-red-600 text-xs">
                   {error}

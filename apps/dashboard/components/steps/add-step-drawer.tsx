@@ -84,7 +84,7 @@ export function AddStepDrawer({
           </SheetDescription>
         </SheetHeader>
         <br />
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto scrollbar-hidden">
           <div className="flex flex-col space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Step Name</Label>

@@ -17,8 +17,8 @@ export function OrganizationForm() {
   }
 
   return (
-    <Card className="overflow-hidden md:overflow-auto position-relative rounded-2xl flex max-h-[85vh] max-sm:h-[100vh] justify-between">
-      <CardContent className="py-6 px-10 md:p-8 w-full max-h-full overflow-auto">
+    <Card className="overflow-hidden md:overflow-auto scrollbar-hidden position-relative rounded-2xl flex max-h-[85vh] max-sm:h-[100vh] justify-between">
+      <CardContent className="py-6 px-10 md:p-8 w-full max-h-full overflow-auto scrollbar-hidden">
         <OrganizationEditForm />
       </CardContent>
       <img

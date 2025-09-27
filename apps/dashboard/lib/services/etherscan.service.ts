@@ -2,7 +2,7 @@
  * Etherscan API Service
  * Comprehensive service for interacting with Etherscan APIs across multiple chains
  */
-import axios, { AxiosError, AxiosInstance } from 'axios';
+import { AxiosError } from 'axios';
 
 import {
   EtherscanConfig,
@@ -16,30 +16,26 @@ import {
   EtherscanTransaction,
   EtherscanTransactionParams,
 } from '../../types/etherscan';
+import { BaseHttpService, RetryConfig, exponentialBackoff } from './base-http.service';
 
-export class EtherscanService {
-  private client: AxiosInstance;
+export class EtherscanService extends BaseHttpService {
   private config: EtherscanConfig;
-  private rateLimitDelay = 200; // 5 calls per second default
+  private rateLimitDelay = 200; // legacy per-request guard (kept)
   private lastCallTime = 0;
 
   constructor(config: EtherscanConfig) {
-    this.config = config;
-    this.client = axios.create({
+    super({
       baseURL: 'https://api.etherscan.io/v2/api',
       timeout: config.timeout || 10000,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
     });
+    this.config = config;
 
-    // Add request interceptor for rate limiting
-    this.client.interceptors.request.use(async config => {
+    this.client.interceptors.request.use(async cfg => {
       await this.enforceRateLimit();
-      return config;
+      return cfg;
     });
 
-    // Add response interceptor for error handling
     this.client.interceptors.response.use(
       response => response,
       (error: AxiosError) => {
@@ -47,6 +43,63 @@ export class EtherscanService {
         throw this.handleApiError(error);
       }
     );
+  }
+
+  private get retryConfig(): RetryConfig {
+    return {
+      maxRetries: 5,
+      shouldRetry: error => {
+        // Check if it's a rate limit error from our custom method
+        return error?.message === 'Etherscan rate limited';
+      },
+      getRetryDelay: retryCount => exponentialBackoff(retryCount, 2000),
+      onRetry: (retryCount, maxRetries, endpoint) => {
+        console.warn(
+          `Etherscan rate limit. Retrying ${retryCount}/${maxRetries}${endpoint ? ` ${endpoint}` : ''}`
+        );
+      },
+    };
+  }
+
+  /**
+   * Custom request method that inspects Etherscan responses for rate limit messages
+   */
+  private async requestWithEtherscanRetry<T>(
+    endpoint: string,
+    config: any,
+    retryConfig: RetryConfig
+  ): Promise<T> {
+    let retries = 0;
+
+    while (true) {
+      try {
+        const response = await this.client.request<T>({ url: endpoint, ...config });
+        const data = (response as any).data ?? response;
+
+        // Check if the response contains rate limit information
+        if (typeof data?.result === 'string' && data.result.toLowerCase().includes('rate limit')) {
+          // console.log('Etherscan rate limit detected in result:', data.result);
+
+          // Throw a retryable error
+          const rateLimitError = new Error('Etherscan rate limited');
+          throw rateLimitError;
+        }
+
+        return data as T;
+      } catch (error: any) {
+        const shouldRetry = retryConfig.shouldRetry(error);
+
+        if (shouldRetry && retries < retryConfig.maxRetries) {
+          retries += 1;
+          retryConfig.onRetry?.(retries, retryConfig.maxRetries, endpoint);
+          const delay = retryConfig.getRetryDelay(retries);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue;
+        }
+
+        throw error;
+      }
+    }
   }
 
   /**
@@ -74,7 +127,7 @@ export class EtherscanService {
       return new Error(`Etherscan API Error: ${response.message}`);
     }
 
-    if (error.code === 'ECONNABORTED') {
+    if ((error as any).code === 'ECONNABORTED') {
       return new Error('Etherscan API timeout');
     }
 
@@ -87,26 +140,31 @@ export class EtherscanService {
    */
   async getNormalTransactions(params: EtherscanTransactionParams): Promise<EtherscanTransaction[]> {
     try {
-      const response = await this.client.get<EtherscanNormalTransactionsResponse>('', {
-        params: {
-          module: 'account',
-          action: 'txlist',
-          address: params.address,
-          chainId: params.chainId,
-          startblock: params.startblock || 0,
-          endblock: params.endblock || 99999999,
-          page: params.page || 1,
-          offset: params.offset || 10000,
-          sort: params.sort || 'desc',
-          apikey: this.config.apiKey,
+      const response = await this.requestWithEtherscanRetry<EtherscanNormalTransactionsResponse>(
+        '',
+        {
+          method: 'GET',
+          params: {
+            module: 'account',
+            action: 'txlist',
+            address: params.address,
+            chainId: params.chainId,
+            startblock: params.startblock || 0,
+            endblock: params.endblock || 99999999,
+            page: params.page || 1,
+            offset: params.offset || 10000,
+            sort: params.sort || 'desc',
+            apikey: this.config.apiKey,
+          },
         },
-      });
+        this.retryConfig
+      );
 
-      if (response.data.status !== '1') {
-        throw new Error(`API Error: ${response.data.message}`);
+      if (response.status !== '1') {
+        throw new Error(`API Error: ${response.message}`);
       }
 
-      return response.data.result || [];
+      return response.result || [];
     } catch (error: any) {
       console.error(`Failed to get normal transactions for ${params.address}:`, error.message);
       throw error;
@@ -119,27 +177,32 @@ export class EtherscanService {
    */
   async getERC20Transfers(params: EtherscanTokenTransferParams): Promise<EtherscanTokenTransfer[]> {
     try {
-      const response = await this.client.get<EtherscanTokenTransfersResponse>('', {
-        params: {
-          module: 'account',
-          action: 'tokentx',
-          address: params.address,
-          chainId: params.chainId,
-          contractaddress: params.contractaddress,
-          startblock: params.startblock || 0,
-          endblock: params.endblock || 99999999,
-          page: params.page || 1,
-          offset: params.offset || 10000,
-          sort: params.sort || 'desc',
-          apikey: this.config.apiKey,
+      const response = await this.requestWithEtherscanRetry<EtherscanTokenTransfersResponse>(
+        '',
+        {
+          method: 'GET',
+          params: {
+            module: 'account',
+            action: 'tokentx',
+            address: params.address,
+            chainId: params.chainId,
+            contractaddress: params.contractaddress,
+            startblock: params.startblock || 0,
+            endblock: params.endblock || 99999999,
+            page: params.page || 1,
+            offset: params.offset || 10000,
+            sort: params.sort || 'desc',
+            apikey: this.config.apiKey,
+          },
         },
-      });
+        this.retryConfig
+      );
 
-      if (response.data.status !== '1') {
-        throw new Error(`API Error: ${response.data.message}`);
+      if (response.status !== '1') {
+        throw new Error(`API Error: ${response.message}`);
       }
 
-      return response.data.result || [];
+      return response.result || [];
     } catch (error: any) {
       console.error(`Failed to get ERC20 transfers for ${params.address}:`, error.message);
       throw error;
@@ -154,27 +217,32 @@ export class EtherscanService {
     params: EtherscanTokenTransferParams
   ): Promise<EtherscanTokenTransfer[]> {
     try {
-      const response = await this.client.get<EtherscanTokenTransfersResponse>('', {
-        params: {
-          module: 'account',
-          action: 'tokennfttx',
-          address: params.address,
-          chainId: params.chainId,
-          contractaddress: params.contractaddress,
-          startblock: params.startblock || 0,
-          endblock: params.endblock || 99999999,
-          page: params.page || 1,
-          offset: params.offset || 10000,
-          sort: params.sort || 'desc',
-          apikey: this.config.apiKey,
+      const response = await this.requestWithEtherscanRetry<EtherscanTokenTransfersResponse>(
+        '',
+        {
+          method: 'GET',
+          params: {
+            module: 'account',
+            action: 'tokennfttx',
+            address: params.address,
+            chainId: params.chainId,
+            contractaddress: params.contractaddress,
+            startblock: params.startblock || 0,
+            endblock: params.endblock || 99999999,
+            page: params.page || 1,
+            offset: params.offset || 10000,
+            sort: params.sort || 'desc',
+            apikey: this.config.apiKey,
+          },
         },
-      });
+        this.retryConfig
+      );
 
-      if (response.data.status !== '1') {
-        throw new Error(`API Error: ${response.data.message}`);
+      if (response.status !== '1') {
+        throw new Error(`API Error: ${response.message}`);
       }
 
-      return response.data.result || [];
+      return response.result || [];
     } catch (error: any) {
       console.error(`Failed to get ERC721 transfers for ${params.address}:`, error.message);
       throw error;
@@ -189,27 +257,32 @@ export class EtherscanService {
     params: EtherscanTokenTransferParams
   ): Promise<EtherscanTokenTransfer[]> {
     try {
-      const response = await this.client.get<EtherscanTokenTransfersResponse>('', {
-        params: {
-          module: 'account',
-          action: 'token1155tx',
-          address: params.address,
-          chainId: params.chainId,
-          contractaddress: params.contractaddress,
-          startblock: params.startblock || 0,
-          endblock: params.endblock || 99999999,
-          page: params.page || 1,
-          offset: params.offset || 10000,
-          sort: params.sort || 'desc',
-          apikey: this.config.apiKey,
+      const response = await this.requestWithEtherscanRetry<EtherscanTokenTransfersResponse>(
+        '',
+        {
+          method: 'GET',
+          params: {
+            module: 'account',
+            action: 'token1155tx',
+            address: params.address,
+            chainId: params.chainId,
+            contractaddress: params.contractaddress,
+            startblock: params.startblock || 0,
+            endblock: params.endblock || 99999999,
+            page: params.page || 1,
+            offset: params.offset || 10000,
+            sort: params.sort || 'desc',
+            apikey: this.config.apiKey,
+          },
         },
-      });
+        this.retryConfig
+      );
 
-      if (response.data.status !== '1') {
-        throw new Error(`API Error: ${response.data.message}`);
+      if (response.status !== '1') {
+        throw new Error(`API Error: ${response.message}`);
       }
 
-      return response.data.result || [];
+      return response.result || [];
     } catch (error: any) {
       console.error(`Failed to get ERC1155 transfers for ${params.address}:`, error.message);
       throw error;
@@ -244,22 +317,22 @@ export class EtherscanService {
    */
   async getAddressFundedBy(params: EtherscanFundingParams): Promise<EtherscanFundingInfo | null> {
     try {
-      const response = await this.client.get<EtherscanFundingResponse>('', {
-        params: {
-          module: 'account',
-          action: 'fundedby',
-          address: params.address,
-          chainId: params.chainId,
-          apikey: this.config.apiKey,
+      const response = await this.requestWithEtherscanRetry<EtherscanFundingResponse>(
+        '',
+        {
+          method: 'GET',
+          params: {
+            module: 'account',
+            action: 'fundedby',
+            address: params.address,
+            chainId: params.chainId,
+            apikey: this.config.apiKey,
+          },
         },
-      });
+        this.retryConfig
+      );
 
-      if (response.data.status !== '1') {
-        // Address might not have funding info
-        return null;
-      }
-
-      return response.data.result;
+      return response.result;
     } catch (error: any) {
       console.error(`Failed to get funding info for ${params.address}:`, error.message);
       return null;
@@ -282,7 +355,6 @@ export class EtherscanService {
   }
 }
 
-// Export singleton instance for Ethereum mainnet
 export const getEtherscanService = (apiKey: string): EtherscanService => {
   return new EtherscanService({ apiKey });
 };

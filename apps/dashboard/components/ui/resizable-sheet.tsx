@@ -23,7 +23,10 @@ export const ResizableSheet = ({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side={side}
-        className={cn('w-[650px] sm:max-w-[800px] h-full overflow-auto p-6', className)}>
+        className={cn(
+          'w-[650px] sm:max-w-[800px] h-full overflow-auto scrollbar-hidden p-6',
+          className
+        )}>
         <SheetTitle className={hideTitle ? 'sr-only' : undefined}>{title}</SheetTitle>
         {children}
       </SheetContent>

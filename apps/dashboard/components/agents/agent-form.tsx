@@ -27,7 +27,6 @@ import {
   ResourceType,
   Status,
   TypedResource,
-  Workflow,
 } from '@getgrowly/core';
 
 import { EmptyState } from '../app-users/smart-tables/empty-state';
@@ -42,8 +41,7 @@ interface AgentFormProps {
 }
 
 export function AgentForm({ formData, setFormData, onSave }: AgentFormProps) {
-  const { organizationResources, fetchOrganizationWorkflows, fetchCurrentOrganizationResources } =
-    useDashboardState();
+  const { organizationResources, fetchCurrentOrganizationResources } = useDashboardState();
   const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
 
@@ -63,21 +61,24 @@ export function AgentForm({ formData, setFormData, onSave }: AgentFormProps) {
     setFormData(prev => ({ ...prev, model: value }));
   };
 
-  const toggleWorkflow = (workflow: Workflow) => {
-    setFormData(prev => {
-      if (prev.workflows.some(w => w.id === workflow.id)) {
-        return {
-          ...prev,
-          workflows: prev.workflows.filter(w => w.id !== workflow.id),
-        };
-      } else {
-        return {
-          ...prev,
-          workflows: [...prev.workflows, workflow],
-        };
-      }
-    });
-  };
+  /**
+   * @deprecated not released in Suite MVP
+   */
+  // const toggleWorkflow = (workflow: Workflow) => {
+  //   setFormData(prev => {
+  //     if (prev.workflows.some(w => w.id === workflow.id)) {
+  //       return {
+  //         ...prev,
+  //         workflows: prev.workflows.filter(w => w.id !== workflow.id),
+  //       };
+  //     } else {
+  //       return {
+  //         ...prev,
+  //         workflows: [...prev.workflows, workflow],
+  //       };
+  //     }
+  //   });
+  // };
 
   const toggleResource = (resource: TypedResource<ResourceType>) => {
     setFormData(prev => {
@@ -111,7 +112,7 @@ export function AgentForm({ formData, setFormData, onSave }: AgentFormProps) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await Promise.all([fetchOrganizationWorkflows(), fetchCurrentOrganizationResources()]);
+        await Promise.all([fetchCurrentOrganizationResources()]);
       } catch (error) {
         console.error('Failed to fetch organization data:', error);
       }

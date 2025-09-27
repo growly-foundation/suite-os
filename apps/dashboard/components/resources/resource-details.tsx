@@ -339,7 +339,7 @@ export function ResourceDetails({ resource, onSave, onClose }: ResourceDetailsPr
                     <CodeIcon className="h-3 w-3" /> JSON
                   </div>
                 </div>
-                <div className="max-h-[500px] overflow-auto rounded-md border">
+                <div className="max-h-[500px] overflow-auto scrollbar-hidden rounded-md border">
                   <SyntaxHighlighter
                     language="json"
                     style={oneLight}
