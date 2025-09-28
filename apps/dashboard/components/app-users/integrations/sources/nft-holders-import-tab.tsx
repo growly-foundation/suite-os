@@ -28,7 +28,7 @@ import { useDashboardState } from '@/hooks/use-dashboard';
 import { UserImportService } from '@/lib/services/user-import.service';
 import { debounce } from '@/lib/utils';
 import { detectAddressType } from '@/utils/contract';
-import { InfoIcon } from 'lucide-react';
+import { InfoIcon, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -389,7 +389,7 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
                     setConfiguring(false);
                     setChainId(base.id);
                   }}>
-                  Stop and Reset
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Stop and Reset
                 </Button>
               ) : (
                 <Button

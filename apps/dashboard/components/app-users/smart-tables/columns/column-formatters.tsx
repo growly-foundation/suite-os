@@ -1,7 +1,7 @@
 'use client';
 
 import { Skeleton } from '@/components/ui/skeleton';
-import { SUPPORTED_CHAINS, consumePersona } from '@/core/persona';
+import { SUPPORTED_CHAINS } from '@/core/persona';
 import { api } from '@/trpc/react';
 import moment from 'moment';
 import { Address } from 'viem';
@@ -66,26 +66,15 @@ export function createColumnFormatters<T = any>(
       let walletAddress = '';
       let name: string | undefined = undefined;
       let avatar: string | undefined = undefined;
-      let hasCheckmark = false;
 
       // Handle ParsedUser type
       if (accessor.isType(user, 'parsed')) {
         const parsedUser = user as ParsedUser;
-        const persona = consumePersona(parsedUser);
         walletAddress = parsedUser.wallet_address! as `0x${string}`;
-        // Try to get name from various sources
-        const nameService = persona.nameService();
-        if (nameService?.name) {
-          name = nameService.name;
-        }
-        if (nameService?.avatar) {
-          avatar = nameService.avatar;
-        }
-        hasCheckmark = persona.getHumanCheckmark();
       } else {
         // Handle other user types (ImportUserOutput, ImportPrivyUserOutput)
-        walletAddress = accessor.hasProperty(user, 'wallet_address')
-          ? accessor.getValue(user, 'wallet_address') || ''
+        walletAddress = accessor.hasProperty(user, 'walletAddress')
+          ? accessor.getValue(user, 'walletAddress') || ''
           : accessor.hasProperty(user, 'id')
             ? accessor.getValue(user, 'id')
             : '';
@@ -101,7 +90,7 @@ export function createColumnFormatters<T = any>(
           name={name}
           avatar={avatar}
           showAddress={false}
-          hasCheckmark={hasCheckmark}
+          hasCheckmark={false}
           avatarSize={20}
           withStatus={false}
           spacing="normal"

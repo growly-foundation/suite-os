@@ -15,6 +15,7 @@
     "clean:node_modules": "rm -rf node_modules apps/*/node_modules packages/*/node_modules",
     "commitlint": "commitlint --edit",
     "dev": "pnpm -r dev --parallel",
+    "dev:core": "PACKAGES=core,suite,ui pnpm run dev:custom",
     "dev:custom": "sh -c 'for pkg in $(echo $PACKAGES | tr \",\" \" \"); do cd packages/$pkg && pnpm dev && cd -; done' || sh -c 'for pkg in $(echo $APPS | tr \",\" \" \"); do cd apps/$pkg && pnpm dev && cd -; done'",
     "dev:suite": "PACKAGES=ui,suite pnpm run dev:custom",
     "dev:website": "cd apps/website && pnpm dev && cd -",

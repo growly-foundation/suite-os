@@ -1,6 +1,5 @@
 'use client';
 
-import { AnimatedLoadingSmall } from '@/components/animated-components/animated-loading-small';
 import { ImportConfirmationDialog } from '@/components/app-users/integrations/import-confirmation-dialog';
 import { ImportProgress } from '@/components/app-users/integrations/import-progress';
 import { UserLimitWarning } from '@/components/app-users/integrations/user-limit-warning';
@@ -16,11 +15,10 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loadable } from '@/components/ui/loadable';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { useOrganizationUsersQuery } from '@/hooks/use-dashboard-queries';
 import { UserImportService } from '@/lib/services/user-import.service';
-import { InfoIcon } from 'lucide-react';
+import { InfoIcon, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -54,9 +52,7 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
   const PAGE_SIZE = 50; // Show 50 users per page for imports
 
   const { selectedOrganization } = useDashboardState();
-  const { data: userData, isLoading: isLoadingUsers } = useOrganizationUsersQuery(
-    selectedOrganization?.id
-  );
+  const { data: userData } = useOrganizationUsersQuery(selectedOrganization?.id);
 
   // Check organization limits when users are selected
   const checkOrganizationLimits = useCallback(async () => {
@@ -288,111 +284,109 @@ export function PrivyImportTab({ onImportComplete }: PrivyImportTabProps) {
           </div>
         )}
 
-        <Loadable loading={isLoadingUsers} fallback={<AnimatedLoadingSmall />}>
-          <div className="space-y-6">
-            {!configured ? (
-              <div className="space-y-4 px-4">
-                <div className="grid gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="app-id">
-                      Privy App ID <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="app-id"
-                      value={appId}
-                      required
-                      aria-describedby="app-id-error"
-                      onChange={e => setAppId(e.target.value)}
-                      placeholder="Enter your Privy App ID"
-                    />
-                    {!appId && (
-                      <span id="app-id-error" className="text-xs text-red-500">
-                        App ID is required
-                      </span>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="app-secret">
-                      Privy App Secret <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="app-secret"
-                      type="password"
-                      value={appSecret}
-                      required
-                      aria-describedby="app-secret-error"
-                      onChange={e => setAppSecret(e.target.value)}
-                      placeholder="Enter your Privy App Secret"
-                    />
-                    {!appSecret && (
-                      <span id="app-secret-error" className="text-xs text-red-500">
-                        App Secret is required
-                      </span>
-                    )}
-                  </div>
-                </div>
-                {configuring ? (
-                  <Button
-                    onClick={() => {
-                      setConfigured(false);
-                      setAppId('');
-                      setAppSecret('');
-                      setConfiguring(false);
-                    }}>
-                    Stop and Reset
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={handleConfigure}
-                    disabled={!appId || !appSecret || loading || configuring}>
-                    Configure Privy
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <>
-                <div className="h-[600px] overflow-hidden">
-                  <UserSelectionList
-                    users={displayedUsers}
-                    importButtonText={importing ? 'Starting Import...' : `Import Selected Users`}
-                    isImporting={importing}
-                    limits={limits}
-                    // Pagination props
-                    pageSize={PAGE_SIZE}
-                    currentPage={currentPage + 1} // Convert to 1-based for DynamicTable
-                    totalItems={allPrivyUsers.length}
-                    onLoadMore={handleLoadMore}
-                    hasMore={hasMore}
-                    loadingMore={loadingMore}
-                    // Container height for proper scrolling
-                    height="h-[600px]"
-                    onImport={async (selectedUserIds: string[]) => {
-                      const usersToImport = allPrivyUsers.filter(
-                        user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
-                      );
-                      await handleImport(usersToImport);
-                    }}
-                    onSelectionChange={handleUserSelectionChange}
-                    additionalActions={
-                      <div className="space-x-2">
-                        <Button variant="outline" size="sm" onClick={handleReset}>
-                          Reset Configuration
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handleFetchUsers}
-                          disabled={loading}>
-                          {loading ? 'Refreshing...' : 'Refresh Privy Users'}
-                        </Button>
-                      </div>
-                    }
+        <div className="space-y-6">
+          {!configured ? (
+            <div className="space-y-4 px-4">
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="app-id">
+                    Privy App ID <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="app-id"
+                    value={appId}
+                    required
+                    aria-describedby="app-id-error"
+                    onChange={e => setAppId(e.target.value)}
+                    placeholder="Enter your Privy App ID"
                   />
+                  {!appId && (
+                    <span id="app-id-error" className="text-xs text-red-500">
+                      App ID is required
+                    </span>
+                  )}
                 </div>
-              </>
-            )}
-          </div>
-        </Loadable>
+                <div className="space-y-2">
+                  <Label htmlFor="app-secret">
+                    Privy App Secret <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="app-secret"
+                    type="password"
+                    value={appSecret}
+                    required
+                    aria-describedby="app-secret-error"
+                    onChange={e => setAppSecret(e.target.value)}
+                    placeholder="Enter your Privy App Secret"
+                  />
+                  {!appSecret && (
+                    <span id="app-secret-error" className="text-xs text-red-500">
+                      App Secret is required
+                    </span>
+                  )}
+                </div>
+              </div>
+              {configuring ? (
+                <Button
+                  onClick={() => {
+                    setConfigured(false);
+                    setAppId('');
+                    setAppSecret('');
+                    setConfiguring(false);
+                  }}>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Stop and Reset
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleConfigure}
+                  disabled={!appId || !appSecret || loading || configuring}>
+                  Configure Privy
+                </Button>
+              )}
+            </div>
+          ) : (
+            <>
+              <div className="h-[600px] overflow-hidden">
+                <UserSelectionList
+                  users={displayedUsers}
+                  importButtonText={importing ? 'Starting Import...' : `Import Selected Users`}
+                  isImporting={importing}
+                  limits={limits}
+                  // Pagination props
+                  pageSize={PAGE_SIZE}
+                  currentPage={currentPage + 1} // Convert to 1-based for DynamicTable
+                  totalItems={allPrivyUsers.length}
+                  onLoadMore={handleLoadMore}
+                  hasMore={hasMore}
+                  loadingMore={loadingMore}
+                  // Container height for proper scrolling
+                  height="h-[600px]"
+                  onImport={async (selectedUserIds: string[]) => {
+                    const usersToImport = allPrivyUsers.filter(
+                      user => user.walletAddress && selectedUserIds.includes(user.walletAddress)
+                    );
+                    await handleImport(usersToImport);
+                  }}
+                  onSelectionChange={handleUserSelectionChange}
+                  additionalActions={
+                    <div className="space-x-2">
+                      <Button variant="outline" size="sm" onClick={handleReset}>
+                        Reset Configuration
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleFetchUsers}
+                        disabled={loading}>
+                        {loading ? 'Refreshing...' : 'Refresh Privy Users'}
+                      </Button>
+                    </div>
+                  }
+                />
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Import Confirmation Dialog */}

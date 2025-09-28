@@ -19,7 +19,7 @@ interface TableToolbarProps<TData> {
   onSearch?: (value: string) => void;
   searchQuery?: string;
   setSearchQuery?: (value: string) => void;
-  tableLabel?: string;
+  tableLabel?: string | ReactNode;
   additionalActions?: ReactNode;
   enablePagination?: boolean;
 }

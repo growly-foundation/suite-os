@@ -2,20 +2,17 @@ import { AggregatedOrganization } from '@/models/organizations';
 import slugify from 'slugify';
 
 import { PublicDatabaseService } from './database.service';
-import { WorkflowService } from './workflow.service';
 
 export class OrganizationService {
   constructor(
     private organizationDatabaseService: PublicDatabaseService<'organizations'>,
     private adminOrganizationDatabaseService: PublicDatabaseService<'admin_organizations'>,
-    private agentDatabaseService: PublicDatabaseService<'agents'>,
-    private workflowService: WorkflowService
+    private agentDatabaseService: PublicDatabaseService<'agents'>
   ) {}
 
   async getOrganizationById(id: string): Promise<AggregatedOrganization | null> {
     const organization = await this.organizationDatabaseService.getById(id);
     if (!organization) return null;
-    const workflows = await this.workflowService.getWorkflowsByOrganizationId(id);
     const agents = await this.agentDatabaseService.getAllByFields(
       {
         organization_id: id,
@@ -26,7 +23,7 @@ export class OrganizationService {
         ascending: false,
       }
     );
-    return { ...organization, workflows, agents };
+    return { ...organization, workflows: [], agents };
   }
 
   async getOrganizationsByAdminId(admin_id: string): Promise<AggregatedOrganization[]> {

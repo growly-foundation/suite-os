@@ -67,9 +67,9 @@ export const userRouter = createTRPCRouter({
 
   // Get user by wallet address
   getUserByWalletAddress: publicProcedure
-    .input(z.string())
-    .query(async ({ input: walletAddress }) => {
-      return suiteCore.users.getUserByWalletAddress(walletAddress);
+    .input(z.object({ walletAddress: z.string(), organizationId: z.string() }))
+    .query(async ({ input: { walletAddress, organizationId } }) => {
+      return suiteCore.users.getUserByWalletAddress(walletAddress, organizationId);
     }),
 
   // Delete users (batch operation)
