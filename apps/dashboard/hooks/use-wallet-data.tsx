@@ -16,10 +16,12 @@ import { api } from '@/trpc/react';
 import { EtherscanFundingInfo } from '@/types/etherscan';
 import { PersonaAnalysis } from '@/types/persona';
 import { ZerionFungiblePosition, ZerionNftPosition, ZerionTransaction } from '@/types/zerion';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { getChainIdByName } from '@getgrowly/chainsmith/utils';
 import { ParsedUser } from '@getgrowly/core';
+
+import { useWalletTableContext } from './use-wallet-table-context';
 
 export interface WalletData {
   // Fungible token positions (with precomputed total)
@@ -59,6 +61,7 @@ export interface WalletData {
 }
 
 export function useWalletData(user: ParsedUser): WalletData {
+  const { updateWalletData } = useWalletTableContext();
   const walletAddress = user.wallet_address;
 
   // Common chain mapping for consistency
@@ -160,7 +163,7 @@ export function useWalletData(user: ParsedUser): WalletData {
     }
   );
 
-  return useMemo(() => {
+  const walletData = useMemo(() => {
     const transactionsLoading = !!txsLoading;
     const transactionsError = !!txsError;
     const activityLoading = !!txsLoading;
@@ -246,4 +249,12 @@ export function useWalletData(user: ParsedUser): WalletData {
     fundingLoading,
     fundingError,
   ]);
+
+  useEffect(() => {
+    if (walletAddress) {
+      updateWalletData(walletAddress, walletData);
+    }
+  }, [walletAddress, walletData]);
+
+  return walletData;
 }

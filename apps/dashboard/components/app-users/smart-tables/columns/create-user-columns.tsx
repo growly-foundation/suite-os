@@ -7,8 +7,10 @@ import { ImportedUserSourceData, ParsedUser, UserImportSource } from '@getgrowly
 
 import { getFormatter, hasData } from './column-formatters';
 
+export type ColumnUserDefinitions = keyof typeof columnUserDefinitions;
+
 // Hard-coded column definitions for special cases that need custom logic
-export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
+export const columnUserDefinitions = {
   identity: {
     id: 'identity',
     accessorFn: (row: ParsedUser) => {
@@ -59,10 +61,8 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
   portfolioValue: {
     id: 'portfolioValue',
     accessorFn: (row: ParsedUser) => {
-      if ('personaData' in row) {
-        return (row as any).personaData?.portfolio_snapshots?.totalValue || 0;
-      }
-      return 0;
+      // Return wallet address as identifier for context lookup
+      return row.wallet_address || '';
     },
     header: 'Portfolio Value',
     cell: ({ row }: { row: Row<ParsedUser> }) => getFormatter('portfolioValue')(row.original),
@@ -73,13 +73,10 @@ export const columnUserDefinitions: Record<string, ColumnDef<ParsedUser>> = {
   },
 
   transactions: {
-    id: 'transactions-30d',
+    id: 'transactions',
     accessorFn: (row: ParsedUser) => {
-      if ('personaData' in row) {
-        const persona = consumePersona(row as any);
-        return persona.universalTransactions()?.length || 0;
-      }
-      return 0;
+      // Return wallet address as identifier for context lookup
+      return row.wallet_address || '';
     },
     header: 'Transactions (90d)',
     cell: ({ row }: { row: Row<ParsedUser> }) => getFormatter('transactions')(row.original),
