@@ -40,8 +40,8 @@ export class UserService {
     return this.suiteCore.users.getUsersByAgentId('all');
   }
 
-  async getUserByAddress(address: string): Promise<ParsedUser | null> {
-    return this.suiteCore.users.getUserByWalletAddress(address);
+  async getUserByAddress(address: string, organizationId: string): Promise<ParsedUser | null> {
+    return this.suiteCore.users.getUserByWalletAddress(address, organizationId);
   }
 
   async getUserPersona(address: string): Promise<ParsedUserPersona | null> {

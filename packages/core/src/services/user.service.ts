@@ -153,10 +153,14 @@ export class UserService {
     return this.getBatchUsersWithPersona(data as any as User[]);
   }
 
-  async getUserByWalletAddress(walletAddress: string): Promise<ParsedUser | null> {
+  async getUserByWalletAddress(
+    walletAddress: string,
+    organizationId: string
+  ): Promise<ParsedUser | null> {
     const normalizedWalletAddress = normalizeWalletAddress(walletAddress);
     const user = await this.userDatabaseService.getOneByFields({
       wallet_address: normalizedWalletAddress,
+      organization_id: organizationId,
     });
     if (!user) return null;
     return this.getUserWithPersona(user);
@@ -174,7 +178,7 @@ export class UserService {
     importedSourceData: ImportedUserSourceData = { source: UserImportSource.Native, sourceData: {} }
   ): Promise<{ user: ParsedUser; persona: ParsedUserPersona | null; new: boolean }> {
     const normalizedWalletAddress = normalizeWalletAddress(walletAddress);
-    const user = await this.getUserByWalletAddress(normalizedWalletAddress);
+    const user = await this.getUserByWalletAddress(normalizedWalletAddress, organizationId);
     const isNative = importedSourceData.source === UserImportSource.Native;
     const now = new Date().toISOString();
     if (user) {
