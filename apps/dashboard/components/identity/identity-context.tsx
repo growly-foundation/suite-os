@@ -1,6 +1,6 @@
 'use client';
 
-import { trpc } from '@/trpc/client';
+import { api } from '@/trpc/react';
 import { createContext, useContext, useMemo } from 'react';
 import { Address } from 'viem';
 
@@ -35,7 +35,7 @@ export const IdentityProvider = ({
   children: React.ReactNode;
   addresses: Address[];
 }) => {
-  const { data: identitiesData, isLoading } = trpc.persona.getAggregatedIdentities.useQuery(
+  const { data: identitiesData, isLoading } = api.persona.getAggregatedIdentities.useQuery(
     addresses,
     {
       enabled: addresses.length > 0,
@@ -75,7 +75,7 @@ export const IdentityProvider = ({
 
 // Hook for individual identity data (ENS only)
 export const useIdentity = (address: Address) => {
-  return trpc.persona.getAggregatedIdentity.useQuery(address, {
+  return api.persona.getAggregatedIdentity.useQuery(address, {
     enabled: !!address,
     staleTime: 5 * 60 * 1000,
   });

@@ -2,6 +2,7 @@
 
 import { Checkbox } from '@/components/ui/checkbox';
 import { IconContainer } from '@/components/ui/icon-container';
+import { WalletTableContext, useWalletTableContext } from '@/hooks/use-wallet-table-context';
 import { cn } from '@/lib/utils';
 import {
   ColumnDef,
@@ -18,6 +19,7 @@ import { ArrowUpDown, ChevronDown, ChevronUp } from 'lucide-react';
 import React, { ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/table';
+import { ColumnUserDefinitions } from './columns/create-user-columns';
 import { EmptyState } from './empty-state';
 import { TableToolbar } from './table-toolbar';
 
@@ -203,6 +205,93 @@ export interface DynamicTableProps<TData = any> {
   additionalActions?: ReactNode;
 }
 
+// Custom sorting functions for different data types
+const createCustomSortingFns = (walletContext: WalletTableContext) => ({
+  // Portfolio value sorting - uses wallet context data
+  portfolioSorting: (rowA: any, rowB: any, columnId: string) => {
+    const walletAddressA = rowA.getValue(columnId);
+    const walletAddressB = rowB.getValue(columnId);
+
+    const walletDataA = walletContext?.getWalletData?.(walletAddressA);
+    const walletDataB = walletContext?.getWalletData?.(walletAddressB);
+
+    const valueA = walletDataA?.fungibleTotalUsd || 0;
+    const valueB = walletDataB?.fungibleTotalUsd || 0;
+
+    return valueA - valueB;
+  },
+
+  // Transaction count sorting - uses wallet context data
+  transactionSorting: (rowA: any, rowB: any, columnId: string) => {
+    const walletAddressA = rowA.getValue(columnId);
+    const walletAddressB = rowB.getValue(columnId);
+
+    const walletDataA = walletContext?.getWalletData?.(walletAddressA);
+    const walletDataB = walletContext?.getWalletData?.(walletAddressB);
+
+    const countA = walletDataA?.transactionCount || 0;
+    const countB = walletDataB?.transactionCount || 0;
+
+    return countA - countB;
+  },
+
+  // Date sorting - handles timestamps and date strings
+  dateSorting: (rowA: any, rowB: any, columnId: string) => {
+    const a = rowA.getValue(columnId);
+    const b = rowB.getValue(columnId);
+
+    // Convert to timestamps for comparison
+    const timeA = typeof a === 'string' ? new Date(a).getTime() : typeof a === 'number' ? a : 0;
+    const timeB = typeof b === 'string' ? new Date(b).getTime() : typeof b === 'number' ? b : 0;
+
+    return timeA - timeB;
+  },
+
+  // Numeric sorting - handles numbers, currency, and numeric strings
+  numericSorting: (rowA: any, rowB: any, columnId: string) => {
+    const a = rowA.getValue(columnId);
+    const b = rowB.getValue(columnId);
+
+    // Convert to numbers for comparison
+    const numA =
+      typeof a === 'string'
+        ? parseFloat(a.replace(/[^0-9.-]/g, '')) || 0
+        : typeof a === 'number'
+          ? a
+          : 0;
+    const numB =
+      typeof b === 'string'
+        ? parseFloat(b.replace(/[^0-9.-]/g, '')) || 0
+        : typeof b === 'number'
+          ? b
+          : 0;
+
+    return numA - numB;
+  },
+
+  // String sorting - case insensitive
+  stringSorting: (rowA: any, rowB: any, columnId: string) => {
+    const a = String(rowA.getValue(columnId) || '').toLowerCase();
+    const b = String(rowB.getValue(columnId) || '').toLowerCase();
+
+    return a.localeCompare(b);
+  },
+
+  tokensSorting: (rowA: any, rowB: any, columnId: string) => {
+    const walletAddressA = rowA.getValue(columnId);
+    const walletAddressB = rowB.getValue(columnId);
+
+    const aFungiblePositions =
+      walletContext.getWalletData(walletAddressA)?.fungiblePositions.length || 0;
+    const bFungiblePositions =
+      walletContext.getWalletData(walletAddressB)?.fungiblePositions.length || 0;
+
+    return aFungiblePositions - bFungiblePositions;
+  },
+});
+
+type CustomSortingFns = ReturnType<typeof createCustomSortingFns>;
+
 // CSS variables for layout calculations
 const TOOLBAR_HEIGHT = '4rem';
 const FOOTER_HEIGHT = '3rem';
@@ -246,6 +335,9 @@ export function DynamicTable<TData = any>({
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>([]);
   const [columnSizing, setColumnSizing] = useState({});
 
+  // Get wallet context for custom sorting
+  const walletContext = useWalletTableContext();
+
   // Use external row selection state if provided, otherwise use internal state
   const [internalRowSelection, setInternalRowSelection] = useState({});
   const rowSelection = selectedRows || internalRowSelection;
@@ -270,9 +362,33 @@ export function DynamicTable<TData = any>({
     [onRowSelectionChange, rowSelection]
   );
 
+  // Update columns with custom sorting functions
+  const updatedColumns = useMemo(() => {
+    return columns.map(column => {
+      const columnId = column.id as ColumnUserDefinitions;
+      // Apply custom sorting functions to specific columns
+      if (columnId === 'portfolioValue') {
+        return { ...column, sortingFn: 'portfolioSorting' as keyof CustomSortingFns };
+      }
+      if (columnId === 'transactions') {
+        return { ...column, sortingFn: 'transactionSorting' as keyof CustomSortingFns };
+      }
+      if (columnId === 'tokens') {
+        return { ...column, sortingFn: 'tokensSorting' as keyof CustomSortingFns };
+      }
+      if (columnId === 'activity') {
+        return { ...column, sortingFn: 'activitySorting' as keyof CustomSortingFns };
+      }
+      if (columnId === 'walletFundedAt' || columnId === 'privyCreatedAt') {
+        return { ...column, sortingFn: 'dateSorting' as keyof CustomSortingFns };
+      }
+      return column;
+    });
+  }, [columns]);
+
   // Create selection column if enabled
   const tableColumns = useMemo(() => {
-    if (!enableRowSelection) return columns;
+    if (!enableRowSelection) return updatedColumns;
 
     const selectionColumn: ColumnDef<TData> = {
       id: 'select',
@@ -322,12 +438,12 @@ export function DynamicTable<TData = any>({
       meta: { frozen: true },
     };
 
-    return [selectionColumn, ...columns];
-  }, [columns, enableRowSelection, rowSelection, handleRowSelectionChange]);
+    return [selectionColumn, ...updatedColumns];
+  }, [updatedColumns, enableRowSelection, rowSelection, handleRowSelectionChange]);
 
   const table = useReactTable({
     data,
-    columns: tableColumns,
+    columns: tableColumns as any,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
@@ -345,6 +461,8 @@ export function DynamicTable<TData = any>({
     },
     enableSorting,
     enableColumnResizing,
+    // Add custom sorting functions with wallet context
+    sortingFns: createCustomSortingFns(walletContext) as CustomSortingFns,
     // Ensure columns respect their minimum sizes
     columnResizeDirection: 'ltr',
     // Prevent columns from being resized below their minimum width
@@ -483,7 +601,7 @@ export function DynamicTable<TData = any>({
               </TableHeader>
               <TableBody>
                 <SkeletonTableRows
-                  columns={tableColumns}
+                  columns={tableColumns as any}
                   rowCount={pageSize || 10}
                   enableRowSelection={enableRowSelection}
                 />

@@ -1,12 +1,8 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SUPPORTED_CHAINS, consumePersona } from '@/core/persona';
-import { getTraitColor } from '@/lib/color.utils';
-import { formatAssetValue } from '@/lib/number.utils';
-import { cn } from '@/lib/utils';
-import { PersonaTrait } from '@/types/persona';
+import { api } from '@/trpc/react';
 import moment from 'moment';
 import { Address } from 'viem';
 
@@ -14,9 +10,13 @@ import { getChainIdByName } from '@getgrowly/chainsmith/utils';
 import { ImportPrivyUserOutput, ImportUserOutput, ParsedUser } from '@getgrowly/core';
 import { WalletAddress } from '@getgrowly/ui';
 
-import { useWalletData } from '../../../../hooks/use-wallet-data';
 import { Identity } from '../../../identity';
-import { ActivityPreview } from '../../../user/activity-preview';
+import {
+  ActivityCell,
+  PortfolioValueCell,
+  TraitBadgeCell,
+  TransactionCountCell,
+} from './column-cell-renderer';
 import { TokenPositionsCell } from './token-cell';
 
 // Type for any user data that can be displayed in the table
@@ -55,75 +55,6 @@ export const defaultDataAccessor: DataAccessor<TableUserData> = {
 export const hasProperty = (obj: any, key: string): boolean => {
   return obj !== null && obj !== undefined && typeof obj === 'object' && key in obj;
 };
-
-// Shared cell components that use the wallet data hook
-function PortfolioValueCell({ user }: { user: ParsedUser }) {
-  const { fungibleTotalUsd, fungibleLoading, fungibleError } = useWalletData(user);
-
-  if (fungibleLoading) {
-    return <Skeleton className="h-4 w-[100px] rounded-full" />;
-  }
-
-  if (fungibleError) {
-    return <span className="text-xs text-destructive">—</span>;
-  }
-
-  return <span className="text-xs">${formatAssetValue(fungibleTotalUsd)}</span>;
-}
-
-function TransactionCountCell({ user }: { user: ParsedUser }) {
-  const { transactionCount, transactionsLoading, transactionsError } = useWalletData(user);
-
-  if (transactionsLoading) {
-    return <Skeleton className="h-4 w-[100px] rounded-full" />;
-  }
-
-  if (transactionsError) {
-    return <span className="text-xs text-destructive">—</span>;
-  }
-
-  return <span className="text-xs">{formatAssetValue(transactionCount)}</span>;
-}
-
-function ActivityCell({ user }: { user: ParsedUser }) {
-  const { latestActivity, activityLoading, activityError } = useWalletData(user);
-
-  if (activityLoading) {
-    return <Skeleton className="h-4 w-[150px] rounded-full" />;
-  }
-
-  if (activityError || !latestActivity) {
-    return <span className="text-xs text-muted-foreground">—</span>;
-  }
-
-  const lastActivity = {
-    from: latestActivity.from,
-    to: latestActivity.to,
-    value: latestActivity.value,
-    symbol: latestActivity.symbol,
-    tokenDecimal: latestActivity.tokenDecimal,
-    timestamp: latestActivity.timestamp,
-  };
-
-  return (
-    <div className="flex items-center gap-2">
-      <ActivityPreview activity={lastActivity} userId={user.id} />
-    </div>
-  );
-}
-
-function TraitBadgeCell({ user }: { user: ParsedUser }) {
-  const { personaAnalysis, isLoading, hasError } = useWalletData(user);
-  if (isLoading) {
-    return <Skeleton className="h-4 w-[50px] rounded-full" />;
-  }
-  const dominantTrait = !hasError ? personaAnalysis?.dominantTrait?.toString() || '' : '';
-  return (
-    <Badge className={cn(getTraitColor(dominantTrait as PersonaTrait), 'rounded-full')}>
-      {dominantTrait || '—'}
-    </Badge>
-  );
-}
 
 // Generic column formatters factory
 export function createColumnFormatters<T = any>(
@@ -255,8 +186,7 @@ export function createColumnFormatters<T = any>(
       }
 
       // Lazy import to avoid circulars at module init
-      const { trpc } = require('@/trpc/client');
-      const { data, isLoading, error } = trpc.etherscan.getAddressFundedByAcrossChains.useQuery(
+      const { data, isLoading, error } = api.etherscan.getAddressFundedByAcrossChains.useQuery(
         { address: walletAddress, chainIds },
         { enabled: isValidEthAddress }
       );

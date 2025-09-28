@@ -1,6 +1,6 @@
 import { Redis } from '@upstash/redis';
 
-export type TRPCContext = Awaited<ReturnType<typeof import('./init').createTRPCContext>>;
+export type TRPCContext = Awaited<ReturnType<typeof import('./trpc').createTRPCContext>>;
 
 export function isTRPCDebugging() {
   return process.env.TRPC_DEBUG === '1' || process.env.TRPC_DEBUG === 'true';

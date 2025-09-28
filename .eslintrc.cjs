@@ -22,5 +22,6 @@ module.exports = {
     'no-constant-condition': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
     'react-hooks/exhaustive-deps': 'off',
+    'react-refresh/only-export-components': 'off',
   },
 };

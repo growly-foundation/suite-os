@@ -1,15 +1,27 @@
 'use client';
 
+import {
+  GET_FUNDED_INFO_CACHE_TIME,
+  GET_FUNDED_INFO_GC_TIME,
+  GET_FUNGIBLE_POSITIONS_CACHE_TIME,
+  GET_FUNGIBLE_POSITIONS_GC_TIME,
+  GET_NFT_POSITIONS_CACHE_TIME,
+  GET_NFT_POSITIONS_GC_TIME,
+  GET_TRANSACTIONS_CACHE_TIME,
+  GET_TRANSACTIONS_GC_TIME,
+} from '@/constants/cache';
 import { SUPPORTED_CHAINS } from '@/core/persona';
 import { analyzePersonaFromZerion } from '@/lib/persona-classifier';
-import { trpc } from '@/trpc/client';
+import { api } from '@/trpc/react';
 import { EtherscanFundingInfo } from '@/types/etherscan';
 import { PersonaAnalysis } from '@/types/persona';
 import { ZerionFungiblePosition, ZerionNftPosition, ZerionTransaction } from '@/types/zerion';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { getChainIdByName } from '@getgrowly/chainsmith/utils';
 import { ParsedUser } from '@getgrowly/core';
+
+import { useWalletTableContext } from './use-wallet-table-context';
 
 export interface WalletData {
   // Fungible token positions (with precomputed total)
@@ -49,6 +61,7 @@ export interface WalletData {
 }
 
 export function useWalletData(user: ParsedUser): WalletData {
+  const { updateWalletData } = useWalletTableContext();
   const walletAddress = user.wallet_address;
 
   // Common chain mapping for consistency
@@ -63,7 +76,7 @@ export function useWalletData(user: ParsedUser): WalletData {
     data: fungibleData,
     isLoading: fungibleLoading,
     error: fungibleError,
-  } = trpc.zerion.fungiblePositionsWithTotal.useQuery(
+  } = api.zerion.fungiblePositionsWithTotal.useQuery(
     {
       address: walletAddress || '',
       chainIds,
@@ -72,11 +85,12 @@ export function useWalletData(user: ParsedUser): WalletData {
       pageSize: 200,
     },
     {
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: GET_FUNGIBLE_POSITIONS_CACHE_TIME,
+      gcTime: GET_FUNGIBLE_POSITIONS_GC_TIME,
       refetchOnWindowFocus: false,
       enabled: !!walletAddress && walletAddress.length > 0,
       retry: 2,
-      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+      retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
     }
   );
 
@@ -85,7 +99,7 @@ export function useWalletData(user: ParsedUser): WalletData {
     data: nftData,
     isLoading: nftLoading,
     error: nftError,
-  } = trpc.zerion.nftPositionsWithTotal.useQuery(
+  } = api.zerion.nftPositionsWithTotal.useQuery(
     {
       address: walletAddress || '',
       chainIds,
@@ -94,10 +108,11 @@ export function useWalletData(user: ParsedUser): WalletData {
       pageSize: 50, // Reduced page size to avoid API limits
     },
     {
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: GET_NFT_POSITIONS_CACHE_TIME,
+      gcTime: GET_NFT_POSITIONS_GC_TIME,
       refetchOnWindowFocus: false,
       enabled: !!walletAddress,
-      retry: (failureCount, error) => {
+      retry: (failureCount: number, error: any) => {
         // Don't retry on 400 errors (bad request)
         if ((error as any)?.message?.includes('400')) return false;
         return failureCount < 2;
@@ -110,7 +125,7 @@ export function useWalletData(user: ParsedUser): WalletData {
     data: transactions,
     isLoading: txsLoading,
     error: txsError,
-  } = trpc.zerion.transactions.useQuery(
+  } = api.zerion.transactions.useQuery(
     {
       address: walletAddress || '',
       currency: 'usd',
@@ -119,11 +134,12 @@ export function useWalletData(user: ParsedUser): WalletData {
       pageSize: 50,
     },
     {
-      staleTime: 2 * 60 * 1000, // 2 minutes for transactions
+      staleTime: GET_TRANSACTIONS_CACHE_TIME,
+      gcTime: GET_TRANSACTIONS_GC_TIME,
       refetchOnWindowFocus: false,
       enabled: !!walletAddress && walletAddress.length > 0,
       retry: 2,
-      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+      retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
     }
   );
 
@@ -132,21 +148,22 @@ export function useWalletData(user: ParsedUser): WalletData {
     data: fundingInfo,
     isLoading: fundingLoading,
     error: fundingError,
-  } = trpc.etherscan.getAddressFundedByAcrossChains.useQuery(
+  } = api.etherscan.getAddressFundedByAcrossChains.useQuery(
     {
       address: walletAddress || '',
       chainIds: SUPPORTED_CHAINS.map(chain => getChainIdByName(chain)),
     },
     {
-      staleTime: 2 * 60 * 1000,
+      staleTime: GET_FUNDED_INFO_CACHE_TIME,
+      gcTime: GET_FUNDED_INFO_GC_TIME,
       refetchOnWindowFocus: false,
       enabled: !!walletAddress && walletAddress.length > 0,
       retry: 2,
-      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+      retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
     }
   );
 
-  return useMemo(() => {
+  const walletData = useMemo(() => {
     const transactionsLoading = !!txsLoading;
     const transactionsError = !!txsError;
     const activityLoading = !!txsLoading;
@@ -232,4 +249,12 @@ export function useWalletData(user: ParsedUser): WalletData {
     fundingLoading,
     fundingError,
   ]);
+
+  useEffect(() => {
+    if (walletAddress) {
+      updateWalletData(walletAddress, walletData);
+    }
+  }, [walletAddress, walletData]);
+
+  return walletData;
 }

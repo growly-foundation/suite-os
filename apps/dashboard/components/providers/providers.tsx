@@ -1,7 +1,7 @@
 'use client';
 
 import { OnlineStatusProvider } from '@/contexts/online-status.context';
-import { TRPCProvider } from '@/trpc/client';
+import { TRPCReactProvider } from '@/trpc/react';
 import { PrivyProvider } from '@privy-io/react-auth';
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
@@ -25,7 +25,7 @@ const AnimatedLoading = dynamic(
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   let baseComponent = (
-    <TRPCProvider>
+    <TRPCReactProvider>
       <OnlineStatusProvider>
         <SuiteProviderWrapper>
           <ThemeProvider
@@ -45,7 +45,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           </ThemeProvider>
         </SuiteProviderWrapper>
       </OnlineStatusProvider>
-    </TRPCProvider>
+    </TRPCReactProvider>
   );
   // If environment variables for Privy credentials are not set,
   // do not wrap the component with PrivyProvider.

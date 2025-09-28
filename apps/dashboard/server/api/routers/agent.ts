@@ -1,16 +1,15 @@
 import { suiteCore } from '@/core/suite';
+import { createTRPCRouter, publicProcedure } from '@/server/trpc';
 import { z } from 'zod';
-
-import { baseProcedure, createTRPCRouter } from '../init';
 
 export const agentRouter = createTRPCRouter({
   // Get users by agent ID
-  getUsersByAgentId: baseProcedure.input(z.string()).query(async ({ input: agentId }) => {
+  getUsersByAgentId: publicProcedure.input(z.string()).query(async ({ input: agentId }) => {
     return suiteCore.users.getUsersByAgentId(agentId);
   }),
 
   // Get users by agent ID with pagination
-  getUsersByAgentIdPaginated: baseProcedure
+  getUsersByAgentIdPaginated: publicProcedure
     .input(
       z.object({
         agentId: z.string(),
@@ -23,7 +22,7 @@ export const agentRouter = createTRPCRouter({
     }),
 
   // Get user count by agent ID
-  getUsersByAgentIdCount: baseProcedure.input(z.string()).query(async ({ input: agentId }) => {
+  getUsersByAgentIdCount: publicProcedure.input(z.string()).query(async ({ input: agentId }) => {
     return suiteCore.users.getUsersByAgentIdCount(agentId);
   }),
 });
