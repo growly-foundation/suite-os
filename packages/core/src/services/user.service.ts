@@ -92,7 +92,7 @@ export class UserService {
         .not('wallet_address', 'is', null);
       return userOrganizationAssociations.count || 0;
     } catch (error) {
-      console.error(`Failed to count users by organization: ${error}`);
+      console.error(`Failed to count users by organization: ${error}!`);
       return 0;
     }
   }
