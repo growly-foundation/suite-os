@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { base, mainnet, optimism } from 'viem/chains';
+import { base, berachain, mainnet, optimism } from 'viem/chains';
 
 import { TChainId } from '@getgrowly/chainsmith/types';
 import { getChainNameById } from '@getgrowly/chainsmith/utils';
@@ -105,8 +105,17 @@ const mapChainIdToIcon = (chainId: TChainId, iconPixel = 18): React.ReactNode =>
     case optimism.id:
       return (
         <Image
-          src="/logos/chains/optimism-logo.png"
+          src="/logos/chains/optimism-logo.svg"
           alt="Optimism"
+          width={iconPixel}
+          height={iconPixel}
+        />
+      );
+    case berachain.id:
+      return (
+        <Image
+          src="/logos/chains/berachain-logo.svg"
+          alt="Berachain"
           width={iconPixel}
           height={iconPixel}
         />

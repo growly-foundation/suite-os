@@ -1,6 +1,7 @@
 'use client';
 
 import { PrimaryButton } from '@/components/buttons/primary-button';
+import { WalletTableProvider } from '@/hooks/use-wallet-table-context';
 import { ColumnDef } from '@tanstack/react-table';
 import { ImportIcon, Loader2 } from 'lucide-react';
 import { useState } from 'react';
@@ -178,35 +179,37 @@ export function UserSelectionList<T extends ImportUserOutput = ImportUserOutput>
   );
 
   return (
-    <DynamicTable<ImportUserOutput>
-      data={users as ImportUserOutput[]}
-      columns={columns as ColumnDef<ImportUserOutput>[]}
-      tableLabel={`${selectedCount} of ${totalItems || users.length} selected`}
-      emptyMessage="No users found"
-      emptyDescription="No users to import. Please refresh your credentials."
-      enableColumnResizing={true}
-      enableColumnReordering={true}
-      enableSorting={true}
-      enableRowSelection={true}
-      selectedRows={selectedUsers}
-      onRowSelectionChange={handleRowSelectionChange}
-      getRowId={getRowId}
-      enableFooter={true}
-      getFooterValue={getFooterValue}
-      initialSorting={[{ id: 'identity', desc: true }]}
-      // Pagination props
-      pageSize={pageSize}
-      currentPage={currentPage}
-      totalItems={totalItems || users.length}
-      onLoadMore={onLoadMore}
-      hasMore={hasMore}
-      loadingMore={loadingMore}
-      // Toolbar props
-      searchQuery={searchQuery}
-      setSearchQuery={setSearchQuery}
-      searchPlaceholder="Search users by name or address"
-      additionalActions={toolbarActions}
-      className={height}
-    />
+    <WalletTableProvider>
+      <DynamicTable<ImportUserOutput>
+        data={users as ImportUserOutput[]}
+        columns={columns as ColumnDef<ImportUserOutput>[]}
+        tableLabel={`${selectedCount} of ${totalItems || users.length} selected`}
+        emptyMessage="No users found"
+        emptyDescription="No users to import. Please refresh your credentials."
+        enableColumnResizing={true}
+        enableColumnReordering={true}
+        enableSorting={true}
+        enableRowSelection={true}
+        selectedRows={selectedUsers}
+        onRowSelectionChange={handleRowSelectionChange}
+        getRowId={getRowId}
+        enableFooter={true}
+        getFooterValue={getFooterValue}
+        initialSorting={[{ id: 'identity', desc: true }]}
+        // Pagination props
+        pageSize={pageSize}
+        currentPage={currentPage}
+        totalItems={totalItems || users.length}
+        onLoadMore={onLoadMore}
+        hasMore={hasMore}
+        loadingMore={loadingMore}
+        // Toolbar props
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        searchPlaceholder="Search users by name or address"
+        additionalActions={toolbarActions}
+        className={height}
+      />
+    </WalletTableProvider>
   );
 }
