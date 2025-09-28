@@ -1,8 +1,8 @@
+import { createTRPCRouter, publicProcedure } from '@/server/trpc';
 import { z } from 'zod';
 
-import { ZerionService } from '../../lib/services/zerion.service';
-import { baseProcedure, createTRPCRouter } from '../init';
-import { minutes, withRedisCache } from '../redis-cache';
+import { ZerionService } from '../../../lib/services/zerion.service';
+import { minutes, withRedisCache } from '../../redis-cache';
 
 const getZerionService = () => {
   const apiKey = process.env.ZERION_API_KEY || '';
@@ -117,7 +117,7 @@ function transformZerionTransactions(data: any[]) {
 }
 
 export const zerionRouter = createTRPCRouter({
-  balanceChart: baseProcedure
+  balanceChart: publicProcedure
     .input(
       z.object({
         address: z.string(),
@@ -135,7 +135,7 @@ export const zerionRouter = createTRPCRouter({
       return svc.getBalanceChart(address, params);
     }),
 
-  portfolio: baseProcedure
+  portfolio: publicProcedure
     .input(
       z.object({
         address: z.string(),
@@ -154,7 +154,7 @@ export const zerionRouter = createTRPCRouter({
       return svc.getPortfolio(address, params);
     }),
 
-  positions: baseProcedure
+  positions: publicProcedure
     .input(
       z.object({
         address: z.string(),
@@ -179,7 +179,7 @@ export const zerionRouter = createTRPCRouter({
       return svc.getFungiblePositions(address, params);
     }),
 
-  transactions: baseProcedure
+  transactions: publicProcedure
     .input(
       z.object({
         address: z.string(),
@@ -203,7 +203,7 @@ export const zerionRouter = createTRPCRouter({
       })
     ),
 
-  nftPositions: baseProcedure
+  nftPositions: publicProcedure
     .input(
       z.object({
         address: z.string(),
@@ -225,7 +225,7 @@ export const zerionRouter = createTRPCRouter({
       return svc.getNftPositions(address, params);
     }),
 
-  nftCollections: baseProcedure
+  nftCollections: publicProcedure
     .input(
       z.object({
         address: z.string(),
@@ -245,7 +245,7 @@ export const zerionRouter = createTRPCRouter({
       return svc.getNftCollections(address, params);
     }),
 
-  nftPortfolio: baseProcedure
+  nftPortfolio: publicProcedure
     .input(
       z.object({
         address: z.string(),
@@ -262,7 +262,7 @@ export const zerionRouter = createTRPCRouter({
       return svc.getNftPortfolio(address, params);
     }),
 
-  pnl: baseProcedure
+  pnl: publicProcedure
     .input(
       z.object({
         address: z.string(),
@@ -282,7 +282,7 @@ export const zerionRouter = createTRPCRouter({
       return svc.getPnL(address, params);
     }),
 
-  nftPositionsWithTotal: baseProcedure
+  nftPositionsWithTotal: publicProcedure
     .input(
       z.object({
         address: z.string(),
@@ -333,7 +333,7 @@ export const zerionRouter = createTRPCRouter({
       })
     ),
 
-  fungiblePositionsWithTotal: baseProcedure
+  fungiblePositionsWithTotal: publicProcedure
     .input(
       z.object({
         address: z.string(),

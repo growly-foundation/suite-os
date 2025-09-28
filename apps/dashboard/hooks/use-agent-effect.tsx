@@ -1,4 +1,4 @@
-import { trpc } from '@/trpc/client';
+import { api } from '@/trpc/react';
 import { useEffect } from 'react';
 
 import { useDashboardState } from './use-dashboard';
@@ -12,7 +12,7 @@ export const useAgentUsersEffect = (agentId: string) => {
     data: users = [],
     isLoading,
     error,
-  } = trpc.user.getUsersByAgentId.useQuery(agentId, {
+  } = api.user.getUsersByAgentId.useQuery(agentId, {
     enabled: !!agentId,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -38,7 +38,7 @@ export const useSelectedAgentUsersEffect = () => {
     data: agentUsers = [],
     isLoading,
     error,
-  } = trpc.user.getUsersByAgentId.useQuery(selectedAgent?.id || '', {
+  } = api.user.getUsersByAgentId.useQuery(selectedAgent?.id || '', {
     enabled: !!selectedAgent?.id,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });

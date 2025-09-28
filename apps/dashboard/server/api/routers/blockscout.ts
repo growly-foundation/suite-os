@@ -1,12 +1,12 @@
+import { createTRPCRouter, publicProcedure } from '@/server/trpc';
 import { z } from 'zod';
 
-import { blockscoutServices } from '../../lib/services/blockscount.service';
-import { baseProcedure, createTRPCRouter } from '../init';
-import { minutes, withRedisCache } from '../redis-cache';
+import { blockscoutServices } from '../../../lib/services/blockscount.service';
+import { minutes, withRedisCache } from '../../redis-cache';
 
 export const blockscoutRouter = createTRPCRouter({
   // Get address counters for a single network
-  getAddressCounters: baseProcedure
+  getAddressCounters: publicProcedure
     .input(
       z.object({
         address: z.string(),
@@ -19,7 +19,7 @@ export const blockscoutRouter = createTRPCRouter({
     }),
 
   // Get combined address counters across multiple networks
-  getCombinedAddressCounters: baseProcedure
+  getCombinedAddressCounters: publicProcedure
     .input(
       z.object({
         address: z.string(),
@@ -80,7 +80,7 @@ export const blockscoutRouter = createTRPCRouter({
     ),
 
   // Get recent transactions for an address
-  getRecentTransactions: baseProcedure
+  getRecentTransactions: publicProcedure
     .input(
       z.object({
         address: z.string(),
@@ -93,7 +93,7 @@ export const blockscoutRouter = createTRPCRouter({
     }),
 
   // Get combined recent activity across networks
-  getCombinedRecentActivity: baseProcedure
+  getCombinedRecentActivity: publicProcedure
     .input(
       z.object({
         address: z.string(),
@@ -147,7 +147,7 @@ export const blockscoutRouter = createTRPCRouter({
     }),
 
   // Get token transfers for an address
-  getAddressTokenTransfers: baseProcedure
+  getAddressTokenTransfers: publicProcedure
     .input(
       z.object({
         address: z.string(),
@@ -164,7 +164,7 @@ export const blockscoutRouter = createTRPCRouter({
     }),
 
   // Get combined token transfers across networks
-  getCombinedTokenTransfers: baseProcedure
+  getCombinedTokenTransfers: publicProcedure
     .input(
       z.object({
         address: z.string(),

@@ -1,7 +1,7 @@
+import { createTRPCRouter, publicProcedure } from '@/server/trpc';
 import { z } from 'zod';
 
-import { AlchemyPortfolioService } from '../../lib/services/alchemy.service';
-import { baseProcedure, createTRPCRouter } from '../init';
+import { AlchemyPortfolioService } from '../../../lib/services/alchemy.service';
 
 const getAlchemyService = () => {
   const apiKey = process.env.ALCHEMY_API_KEY || '';
@@ -9,7 +9,7 @@ const getAlchemyService = () => {
 };
 
 export const alchemyRouter = createTRPCRouter({
-  tokensByAddress: baseProcedure
+  tokensByAddress: publicProcedure
     .input(
       z.object({
         addresses: z.array(z.object({ address: z.string(), networks: z.array(z.string()) })),
@@ -25,7 +25,7 @@ export const alchemyRouter = createTRPCRouter({
       return svc.getTokensByAddress(input);
     }),
 
-  tokenBalancesByAddress: baseProcedure
+  tokenBalancesByAddress: publicProcedure
     .input(
       z.object({
         addresses: z.array(z.object({ address: z.string(), networks: z.array(z.string()) })),
@@ -39,7 +39,7 @@ export const alchemyRouter = createTRPCRouter({
       return svc.getTokenBalancesByAddress(input);
     }),
 
-  nftsByAddress: baseProcedure
+  nftsByAddress: publicProcedure
     .input(
       z.object({
         addresses: z.array(z.object({ address: z.string(), networks: z.array(z.string()) })),
@@ -55,7 +55,7 @@ export const alchemyRouter = createTRPCRouter({
       return svc.getNftsByAddress(input);
     }),
 
-  nftContractsByAddress: baseProcedure
+  nftContractsByAddress: publicProcedure
     .input(
       z.object({
         addresses: z.array(z.object({ address: z.string(), networks: z.array(z.string()) })),

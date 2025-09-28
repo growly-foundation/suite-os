@@ -1,7 +1,7 @@
 'use client';
 
 import { useOnlineStatus } from '@/hooks/use-online-status';
-import { trpc } from '@/trpc/client';
+import { api } from '@/trpc/react';
 import { useEffect, useState } from 'react';
 import { Address } from 'viem';
 
@@ -30,7 +30,7 @@ export const IdentityAvatar = ({
   const [isOnline, setIsOnline] = useState(false);
 
   // Only fetch avatar if not provided as prop
-  const { data: avatarData } = trpc.persona.getAvatar.useQuery(
+  const { data: avatarData } = api.persona.getAvatar.useQuery(
     { address: address as Address },
     {
       enabled: !avatarProp && !!address,

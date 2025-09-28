@@ -2,7 +2,7 @@
 
 import { CopyTooltip } from '@/components/ui/copy-tooltip';
 import { cn } from '@/lib/utils';
-import { trpc } from '@/trpc/client';
+import { api } from '@/trpc/react';
 import { Address } from 'viem';
 
 export interface IdentityNameProps {
@@ -24,7 +24,7 @@ export const IdentityName = ({
   ...props
 }: IdentityNameProps & React.HTMLAttributes<HTMLSpanElement>) => {
   // Only fetch name if not provided as prop
-  const { data: identityData, isLoading } = trpc.persona.getAggregatedIdentity.useQuery(address, {
+  const { data: identityData, isLoading } = api.persona.getAggregatedIdentity.useQuery(address, {
     enabled: !nameProp && !!address,
     staleTime: 5 * 60 * 1000,
   });

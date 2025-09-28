@@ -63,3 +63,19 @@ export const formatBytes = (bytes: number): string => {
 
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
+
+export const isDevelopment = () => process.env.NODE_ENV === 'development';
+
+/**
+ * Get the base URL for the current environment.
+ *
+ * Works across client/server and different deployment environments:
+ * - Client-side: uses window.location.origin
+ * - Vercel deployment: uses VERCEL_URL environment variable
+ * - Local development: uses localhost with PORT or defaults to 3000
+ */
+export function getBaseUrl(): string {
+  if (typeof window !== 'undefined') return window.location.origin;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return `http://localhost:${process.env.PORT ?? 3000}`;
+}

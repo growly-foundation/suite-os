@@ -2,12 +2,12 @@
  * Etherscan tRPC Router
  * Provides cached access to Etherscan API endpoints
  */
+import { publicProcedure } from '@/server/trpc';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
-import { getEtherscanService } from '../../lib/services/etherscan.service';
-import { baseProcedure } from '../init';
-import { minutes, withRedisCache } from '../redis-cache';
+import { getEtherscanService } from '../../../lib/services/etherscan.service';
+import { minutes, withRedisCache } from '../../redis-cache';
 
 // Input validation schemas
 const addressSchema = z.string().regex(/^0x[a-fA-F0-9]{40}$/, 'Invalid Ethereum address');
@@ -25,7 +25,7 @@ export const etherscanRouter = {
   /**
    * Get normal transactions for an address
    */
-  getNormalTransactions: baseProcedure
+  getNormalTransactions: publicProcedure
     .input(
       z.object({
         address: addressSchema,
@@ -67,7 +67,7 @@ export const etherscanRouter = {
   /**
    * Get ERC20 token transfers for an address
    */
-  getERC20Transfers: baseProcedure
+  getERC20Transfers: publicProcedure
     .input(
       z.object({
         address: addressSchema,
@@ -112,7 +112,7 @@ export const etherscanRouter = {
   /**
    * Get ERC721 token transfers for an address
    */
-  getERC721Transfers: baseProcedure
+  getERC721Transfers: publicProcedure
     .input(
       z.object({
         address: addressSchema,
@@ -157,7 +157,7 @@ export const etherscanRouter = {
   /**
    * Get ERC1155 token transfers for an address
    */
-  getERC1155Transfers: baseProcedure
+  getERC1155Transfers: publicProcedure
     .input(
       z.object({
         address: addressSchema,
@@ -202,7 +202,7 @@ export const etherscanRouter = {
   /**
    * Get all token transfers (ERC20, ERC721, ERC1155) for an address
    */
-  getAllTokenTransfers: baseProcedure
+  getAllTokenTransfers: publicProcedure
     .input(
       z.object({
         address: addressSchema,
@@ -257,7 +257,7 @@ export const etherscanRouter = {
   /**
    * Get address funding information (single chain)
    */
-  getAddressFundedBy: baseProcedure
+  getAddressFundedBy: publicProcedure
     .input(
       z.object({
         address: addressSchema,
@@ -288,7 +288,7 @@ export const etherscanRouter = {
   /**
    * Get address funding information across multiple chains
    */
-  getAddressFundedByAcrossChains: baseProcedure
+  getAddressFundedByAcrossChains: publicProcedure
     .input(
       z.object({
         address: addressSchema,

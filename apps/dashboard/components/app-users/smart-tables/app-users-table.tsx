@@ -1,6 +1,7 @@
 'use client';
 
 import { consumePersona } from '@/core/persona';
+import { WalletTableProvider } from '@/hooks/use-wallet-table-context';
 import { ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { ParsedUser } from '@getgrowly/core';
@@ -201,7 +202,7 @@ export function UsersTable({
   const columns = useMemo(() => createUserColumns(users as ParsedUser[]), [users]);
 
   return (
-    <>
+    <WalletTableProvider>
       <DynamicTable<ParsedUser>
         data={users as ParsedUser[]}
         columns={columns}
@@ -247,6 +248,6 @@ export function UsersTable({
         hideTitle={true}>
         {selectedUser && <UserDetails userId={selectedUser} />}
       </ResizableSheet>
-    </>
+    </WalletTableProvider>
   );
 }

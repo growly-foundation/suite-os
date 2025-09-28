@@ -7,7 +7,7 @@ import {
   DASHBOARD_WORKFLOWS_CACHE_TIME,
 } from '@/constants/cache';
 import { suiteCore } from '@/core/suite';
-import { trpc } from '@/trpc/client';
+import { api } from '@/trpc/react';
 import {
   keepPreviousData,
   useInfiniteQuery,
@@ -41,7 +41,7 @@ export function useOrganizationAgentsQuery(organizationId?: string, enabled = tr
  * Custom hook to fetch organization users with React Query (using tRPC)
  */
 export function useOrganizationUsersQuery(organizationId?: string, enabled = true) {
-  return trpc.user.getUsersByOrganizationId.useQuery(organizationId || '', {
+  return api.user.getUsersByOrganizationId.useQuery(organizationId || '', {
     enabled: !!organizationId && enabled,
     gcTime: DASHBOARD_USERS_CACHE_TIME,
     staleTime: DASHBOARD_USERS_CACHE_TIME / 2,
