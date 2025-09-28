@@ -190,6 +190,8 @@ export interface DynamicTableProps<TData = any> {
   selectedRows?: Record<string, boolean>;
   onRowSelectionChange?: (selectedRows: Record<string, boolean>) => void;
   getRowId?: (row: TData) => string;
+  // All data identifiers for "select all pages" functionality
+  allDataIdentifiers?: string[];
   // Generic data type support
   getRowDisplayValue?: (row: TData, key: string) => any;
   // Footer props
@@ -198,7 +200,7 @@ export interface DynamicTableProps<TData = any> {
   // Initial sorting
   initialSorting?: SortingState;
   // Toolbar props
-  tableLabel?: string;
+  tableLabel?: string | ReactNode;
   searchQuery?: string;
   setSearchQuery?: (value: string) => void;
   searchPlaceholder?: string;

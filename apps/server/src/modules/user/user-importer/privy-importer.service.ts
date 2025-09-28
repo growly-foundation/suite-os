@@ -8,7 +8,7 @@ export class PrivyImporterService {
   // Must be careful with storing the app id and app secret from the customer account (encrypted).
   async getUsers(appId: string, appSecret: string): Promise<PrivyUser[]> {
     this.logger.log('Fetching users from Privy');
-    const users = await new PrivyClient(appId, appSecret).getUsers();
+    const users = await new PrivyClient(appId.trim(), appSecret.trim()).getUsers();
     this.logger.log(`Fetched ${users.length} users from Privy`);
     return users;
   }
