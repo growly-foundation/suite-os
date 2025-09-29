@@ -51,7 +51,6 @@ export class UserImporterService {
       source: UserImportSource.Privy,
     }));
   }
-
   /**
    * Imports users from a contract address
    */
@@ -59,7 +58,7 @@ export class UserImporterService {
     contractAddress: string,
     chainId: number
   ): Promise<ImportContractUserOutput[]> {
-    this.logger.log(`Starting contract user import for ${contractAddress} on chain ${chainId}!`);
+    this.logger.log(`Starting contract user import for ${contractAddress} on chain ${chainId}`);
     return this.contractProcessingService.importContractUsers(contractAddress, chainId);
   }
 

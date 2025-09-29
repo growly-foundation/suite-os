@@ -56,7 +56,7 @@ export class UserService {
       return [];
     }
 
-    // Extract users and remove duplicates (same user might have multiple conversations)
+    // Extract users and remove duplicates (same user might have multiple conversations).
     const userMap = new Map();
     data.forEach((item: any) => {
       if (item.users && !userMap.has(item.users.id)) {
