@@ -84,9 +84,10 @@ export const SuiteProvider: React.FC<{
         if (!context.agentId || !context.organizationApiKey) {
           throw new Error('Agent ID and Organization API Key are required');
         }
-        const agent = await fetchOrganizationAgentById(context.agentId, context.organizationApiKey);
+        const organizationId = context.organizationApiKey;
+        const agent = await fetchOrganizationAgentById(context.agentId, organizationId);
         if (walletAddress && agent) {
-          await createUserFromAddressIfNotExist(walletAddress, agent.id);
+          await createUserFromAddressIfNotExist(walletAddress, organizationId);
         }
       } catch (error) {
         console.error(`Growly Suite Error: ${error}`);
