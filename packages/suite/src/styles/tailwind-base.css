@@ -173,11 +173,11 @@
     cursor: pointer;
   }
 
-  .gas-theme * {
+  .gas-theme .gas-style-container * {
     @apply gas-border-border;
   }
 
-  .gas-theme body {
+  .gas-theme .gas-style-container body {
     @apply gas-bg-background gas-text-foreground;
   }
 }

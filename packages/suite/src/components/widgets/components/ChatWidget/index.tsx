@@ -35,7 +35,7 @@ function ChatWidgetContainer() {
 
   const content = (
     <>
-      <FloatingButton onClick={togglePanel} iconLoading={false} />
+      <FloatingButton onClick={togglePanel} />
       <PanelContainer />
     </>
   );

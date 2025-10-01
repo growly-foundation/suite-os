@@ -1,3 +1,4 @@
+import { UnreadCount } from '@/types/realtime';
 import { Redis } from '@upstash/redis';
 
 export interface PresenceData {
@@ -11,12 +12,6 @@ export interface MessageEvent {
   content: string;
   timestamp: string;
   messageId: string;
-}
-
-export interface UnreadCount {
-  conversationId: string;
-  userId: string;
-  count: number;
 }
 
 export class RedisService {

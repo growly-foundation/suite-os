@@ -10,9 +10,7 @@ import { useState } from 'react';
 
 import { BRAND_NAME_CAPITALIZED, LazyAnimatedBuster } from '@getgrowly/ui';
 
-export function FloatingButton(
-  props: React.ButtonHTMLAttributes<HTMLButtonElement> & { iconLoading?: boolean }
-) {
+export function FloatingButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   const { agent } = useSuiteSession();
   const { config } = useSuite();
   const [isHovered, setIsHovered] = useState(false);
