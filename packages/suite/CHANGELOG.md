@@ -1,5 +1,13 @@
 # @getgrowly/suite
 
+## 1.0.16
+
+### Patch Changes
+
+- feat: enable realtime messaging
+- Updated dependencies
+  - @getgrowly/core@0.1.3
+
 ## 1.0.15
 
 ### Patch Changes
