@@ -38,7 +38,7 @@ export class UserService {
         `
         users (
           id,
-          entities,
+          wallet_address,
           created_at,
           original_joined_at
         )
