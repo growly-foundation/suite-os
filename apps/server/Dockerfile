@@ -19,6 +19,9 @@ COPY apps/server ./apps/server
 # Install dependencies
 RUN pnpm install --frozen-lockfile
 
+# Clean and rebuild everything fresh
+RUN pnpm --recursive run clean
+
 # Build libraries & packages
 RUN pnpm --filter @getgrowly/chainsmith build
 RUN pnpm --filter @getgrowly/persona build

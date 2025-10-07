@@ -34,7 +34,7 @@ jobs:
 
       - name: Build container image with latest tag
         run: |
-          docker buildx build --platform linux/amd64 \
+          docker buildx build --no-cache --platform linux/amd64 \
           -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) \
           -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):latest \
           --file apps/server/Dockerfile .
