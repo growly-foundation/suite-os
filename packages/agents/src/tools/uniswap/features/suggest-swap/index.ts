@@ -37,8 +37,8 @@ export function makeSuggestSwapTool() {
           description: 'A swap recommendation with reasoning and a pre-filled Uniswap link.',
         },
         {
-          type: 'onchainkit:swap',
-          description: 'Payload for swap intent to be used with OnchainKit.',
+          type: 'uniswap:swap',
+          description: 'Payload for swap intent to be used with Uniswap.',
         },
       ],
     }),
