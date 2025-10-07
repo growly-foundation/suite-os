@@ -1,15 +1,9 @@
-import { useWalletData } from '@/hooks/use-wallet-data';
-import { getTraitColor } from '@/lib/color.utils';
-import { cn } from '@/lib/utils';
-import { PersonaTrait } from '@/types/persona';
 import moment from 'moment';
 
 import { ParsedMessage, ParsedUser } from '@getgrowly/core';
 
 import { UserWithLatestMessage } from '../agents/agent-conversations';
 import { Identity } from '../identity';
-import { Badge } from '../ui/badge';
-import { Skeleton } from '../ui/skeleton';
 
 export const AppUserConversationItem = ({
   user: { user, latestMessageDate, latestMessageContent, latestMessageSender },
@@ -21,10 +15,6 @@ export const AppUserConversationItem = ({
   onSelectUser: (user: ParsedUser) => void;
 }) => {
   const isSelected = selectedUser.id === user.id;
-
-  // Hooks must be called before any early returns
-  const { personaAnalysis, isLoading } = useWalletData(user);
-  const dominantTrait = personaAnalysis?.dominantTrait || 'Newbie';
 
   if (!latestMessageContent) return null;
   const intentMessageParsed = JSON.parse(latestMessageContent) as unknown as ParsedMessage;
@@ -60,22 +50,6 @@ export const AppUserConversationItem = ({
               {renderPreviewMessageContent(intentMessageParsed)}
             </p>
           )}
-          <div className="flex items-center gap-2 mt-2">
-            {isLoading ? (
-              <Skeleton className="h-4 w-[50px] rounded-full" />
-            ) : (
-              dominantTrait && (
-                <Badge
-                  className={cn(
-                    getTraitColor(dominantTrait as PersonaTrait),
-                    'rounded-full',
-                    'text-xs'
-                  )}>
-                  {dominantTrait}
-                </Badge>
-              )
-            )}
-          </div>
         </div>
       </div>
     </div>

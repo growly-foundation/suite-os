@@ -92,9 +92,9 @@ export function AgentDetails({
             </div>
             {formData.resources.map((resource, index) => (
               <div key={index} className="flex justify-between items-center gap-2 text-sm">
-                <p className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
                   <ResourceIcon type={resource.type} /> {resource.name}
-                </p>
+                </div>
                 <p>{formatBytes(calculateResourceSize(resource))}</p>
               </div>
             ))}
