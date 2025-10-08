@@ -1,5 +1,11 @@
 # @getgrowly/suite
 
+## 1.0.17
+
+### Patch Changes
+
+- fix: scoped global tailwindcss variables
+
 ## 1.0.16
 
 ### Patch Changes
