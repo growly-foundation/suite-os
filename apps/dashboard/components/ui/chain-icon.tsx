@@ -1,11 +1,11 @@
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { base, berachain, mainnet, optimism } from 'viem/chains';
+import { base, berachain, celo, mainnet, optimism } from 'viem/chains';
 
 import { TChainId } from '@getgrowly/chainsmith/types';
 import { getChainNameById } from '@getgrowly/chainsmith/utils';
 
-import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip';
 
 export function ChainIcon({
   chainIds,
@@ -21,20 +21,24 @@ export function ChainIcon({
   return (
     <div className="flex items-center gap-2">
       {chainIds.map(chainId => (
-        <Tooltip key={chainId}>
-          <TooltipTrigger>
-            <div
-              className={cn(
-                'flex items-center justify-center rounded-[5px] bg-[var(--color-bob-tag-neutral)] w-6 h-6',
-                className
-              )}>
-              {mapChainIdToIcon(chainId, iconPixel)}
-            </div>
-          </TooltipTrigger>
-          {showTooltip && (
-            <TooltipContent className="text-foreground">{getChainNameById(chainId)}</TooltipContent>
-          )}
-        </Tooltip>
+        <TooltipProvider key={chainId}>
+          <Tooltip>
+            <TooltipTrigger>
+              <div
+                className={cn(
+                  'flex items-center justify-center rounded-[5px] bg-[var(--color-bob-tag-neutral)] w-6 h-6',
+                  className
+                )}>
+                {mapChainIdToIcon(chainId, iconPixel)}
+              </div>
+            </TooltipTrigger>
+            {showTooltip && (
+              <TooltipContent className="text-foreground">
+                {getChainNameById(chainId)}
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       ))}
     </div>
   );
@@ -119,6 +123,20 @@ const mapChainIdToIcon = (chainId: TChainId, iconPixel = 18): React.ReactNode =>
           width={iconPixel}
           height={iconPixel}
         />
+      );
+    case 999: // HyperEVM
+      return (
+        <Image
+          src="/logos/chains/hyperliquid-logo.svg"
+          alt="HyperEVM"
+          width={iconPixel}
+          height={iconPixel}
+        />
+      );
+
+    case celo.id:
+      return (
+        <Image src="/logos/chains/celo-logo.svg" alt="Celo" width={iconPixel} height={iconPixel} />
       );
   }
 };

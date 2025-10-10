@@ -1,7 +1,5 @@
+import { SUPPORTED_CHAINS } from '@/core/chains';
 import { createPublicClient, getContract, http } from 'viem';
-import { base, mainnet } from 'viem/chains';
-
-const SUPPORTED_CHAINS = [base, mainnet];
 
 // ERC165 ABI (for ERC721 / ERC1155)
 const ERC165_ABI = [

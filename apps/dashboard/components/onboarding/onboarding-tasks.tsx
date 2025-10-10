@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
+import { useDashboardState } from '@/hooks/use-dashboard';
 import { cn } from '@/lib/utils';
 import {
   ArrowRight,
@@ -46,8 +47,20 @@ export function OnboardingTasks({
   hasUsers,
 }: OnboardingTasksProps) {
   const router = useRouter();
+  const { selectedOrganization } = useDashboardState();
+  const hasChainsConfigured =
+    !!selectedOrganization?.supported_chain_ids &&
+    selectedOrganization.supported_chain_ids.length > 0;
 
   const tasks: OnboardingTask[] = [
+    {
+      id: 'configure-chains',
+      title: 'Configure chains',
+      description: 'Select up to 2 blockchain networks for your workspace',
+      icon: Globe,
+      completed: hasChainsConfigured,
+      action: () => router.push('/onboarding/chains'),
+    },
     {
       id: 'create-agent',
       title: 'Create new agent',

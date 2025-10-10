@@ -1,4 +1,4 @@
-import { EvmChainList } from '../data/chains';
+import { EvmChainList, hyperevm } from '../data/chains';
 import type { GetChainRpcEndpoint } from '../rpc';
 import type {
   TBaseChain,
@@ -27,6 +27,8 @@ export function getChainIdByName(name: TChainName): number {
 }
 
 export function getChainNameById(id: number): TChainName {
+  if (id === 999) return hyperevm.name;
+
   const chain = Object.values(EvmChainList).find(c => c.id === id);
   if (!chain) throw new Error('No chain found');
   return chain.name as TChainName;

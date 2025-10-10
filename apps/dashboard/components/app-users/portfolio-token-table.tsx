@@ -190,7 +190,7 @@ export function PortfolioTokenTable({ walletData }: PortfolioTokenTableProps) {
       accessorKey: 'chainId',
       header: 'Chain',
       cell: ({ row }) => {
-        return <ChainIcon chainIds={[row.original.chainId]} />;
+        return <ChainIcon chainIds={[row.original.chainId]} showTooltip />;
       },
       size: 100,
       minSize: 100,

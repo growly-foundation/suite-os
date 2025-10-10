@@ -3,14 +3,19 @@ import moment from 'moment';
 import { types } from '@getgrowly/chainsmith';
 import { ParsedUser } from '@getgrowly/core';
 
+import { SUPPORTED_CHAINS, SUPPORTED_CHAIN_NAMES } from './chains';
+
 export type TActivityFeed = {
   chainName: types.TChainName;
   activity: types.TTokenTransferActivity;
 };
 
-export const SUPPORTED_CHAINS: types.TChainName[] = ['mainnet', 'base', 'optimism'];
-
-export const consumePersona = (user: ParsedUser) => {
+/**
+ * Consumes persona data and provides utilities to access it
+ * @param user - The parsed user object
+ * @param chainIds - Optional array of chain IDs to filter data by (defaults to all supported chains)
+ */
+export const consumePersona = (user: ParsedUser, chainIds?: number[]) => {
   const personaData = user.personaData;
   const [identities, activities, portfolioSnapshots] = [
     personaData.identities,
@@ -18,42 +23,49 @@ export const consumePersona = (user: ParsedUser) => {
     personaData.portfolio_snapshots,
   ];
 
+  // Filter chain names based on provided chain IDs
+  const activeChainNames =
+    chainIds && chainIds.length > 0
+      ? SUPPORTED_CHAINS.filter(chain => chainIds.includes(chain.id)).map(
+          chain => chain.name.toLowerCase() as types.TChainName
+        )
+      : SUPPORTED_CHAIN_NAMES;
+
   return {
     address: () => user.id,
     nameService: () =>
-      SUPPORTED_CHAINS.map(chainName => identities?.nameService?.[chainName]).find(
-        nameService => !!nameService?.name
-      ) || { name: '', avatar: '' },
+      activeChainNames
+        .map(chainName => identities?.nameService?.[chainName])
+        .find(nameService => !!nameService?.name) || { name: '', avatar: '' },
     dominantTrait: () => identities?.dominantTrait,
     totalPortfolioValue: () => portfolioSnapshots?.totalValue,
     multichainTransactions: () => activities?.tokenActivity,
     universalTransactions: () =>
-      SUPPORTED_CHAINS.map(chainName => activities?.tokenActivity?.[chainName])
+      activeChainNames
+        .map(chainName => activities?.tokenActivity?.[chainName])
         .filter(txs => !!txs)
         .flat(),
     totalMultichainTransactions: () =>
-      SUPPORTED_CHAINS.reduce((total, chainName) => {
+      activeChainNames.reduce((total, chainName) => {
         const chainTransactions = activities?.tokenActivity?.[chainName] || [];
         return total + chainTransactions.length;
       }, 0),
     dayActive: () => activities?.daysActive,
     totalNftCount: () =>
-      SUPPORTED_CHAINS.reduce((total, chainName) => {
+      activeChainNames.reduce((total, chainName) => {
         const nftList =
           portfolioSnapshots?.nftPortfolio?.chainRecordsWithNfts?.[chainName]?.nfts || [];
         return total + nftList.length;
       }, 0),
     universalTokenList: () =>
-      SUPPORTED_CHAINS.map(
-        chainName => portfolioSnapshots?.tokenPortfolio?.chainRecordsWithTokens?.[chainName]
-      )
+      activeChainNames
+        .map(chainName => portfolioSnapshots?.tokenPortfolio?.chainRecordsWithTokens?.[chainName])
         .filter(tokenList => !!tokenList)
         .map(tokenList => tokenList.tokens)
         .flat(),
     universalNftList: () =>
-      SUPPORTED_CHAINS.map(
-        chainName => portfolioSnapshots?.nftPortfolio?.chainRecordsWithNfts?.[chainName]
-      )
+      activeChainNames
+        .map(chainName => portfolioSnapshots?.nftPortfolio?.chainRecordsWithNfts?.[chainName])
         .filter(nftList => !!nftList)
         .map(nftList => nftList.nfts)
         .flat(),
@@ -62,7 +74,7 @@ export const consumePersona = (user: ParsedUser) => {
         ?.score,
     activityFeed: () => {
       const multichainActivities: TActivityFeed[] = [];
-      for (const chainName of SUPPORTED_CHAINS) {
+      for (const chainName of activeChainNames) {
         const chainActivities = activities?.tokenActivity?.[chainName];
         if (chainActivities) {
           multichainActivities.push(
@@ -77,7 +89,7 @@ export const consumePersona = (user: ParsedUser) => {
     },
     getLatestActivity: () => {
       let lastActivity: types.TTokenTransferActivity | null = null;
-      for (const chainName of SUPPORTED_CHAINS) {
+      for (const chainName of activeChainNames) {
         const activity = activities?.tokenActivity?.[chainName]?.[0];
         if (!lastActivity && activity) {
           lastActivity = activity;

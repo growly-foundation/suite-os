@@ -30,6 +30,8 @@ import {
 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
+import { getChainIdByName } from '@getgrowly/chainsmith/utils';
+
 import { ChainIcon } from '../ui/chain-icon';
 import { DynamicTable } from './smart-tables/dynamic-table';
 
@@ -138,7 +140,7 @@ export function ActivityFeed({ walletData }: ActivityFeedProps) {
     return walletData.transactionItems.map((tx: any) => {
       // Get the first transfer from the transaction
       const transfer = tx.transfers?.[0] || {};
-      const chainId = tx.relationships?.chain?.data?.id || 1;
+      const chainId = tx.relationships?.chain?.data?.id || getChainIdByName(tx.chainId) || 1;
 
       return {
         id: tx.id || tx.hash || '',
@@ -242,7 +244,7 @@ export function ActivityFeed({ walletData }: ActivityFeedProps) {
         header: 'Chain',
         size: 100,
         cell: ({ row }) => {
-          return <ChainIcon chainIds={[row.original.chainId]} />;
+          return <ChainIcon chainIds={[row.original.chainId]} showTooltip />;
         },
       },
       {

@@ -1,5 +1,6 @@
-import type { Address as EvmAddress } from 'viem';
-import type * as EvmChainList from 'viem/chains';
+import type { Chain, Address as EvmAddress } from 'viem';
+
+import { EvmChainList } from '../../data/chains';
 
 // Constant type aliases for chain ecosystems.
 export type ETHEREUM_VIRTUAL_MACHINE = 'evm';
@@ -12,7 +13,7 @@ export type MOVE_VIRTUAL_MACHINE = 'mvm';
 export type TAddress = EvmAddress | THexString;
 
 /** Abstracted chain type. */
-export type TChainType = EvmChainList.Chain;
+export type TChainType = Chain;
 
 /** Abstracted chain type with partial metadata. */
 export type TBaseChain = TChainType & Partial<TChainMetadata>;

@@ -267,6 +267,7 @@ export type Database = {
           logo_url: string | null
           name: string
           referral_source: string | null
+          supported_chain_ids: number[] | null
         }
         Insert: {
           created_at?: string
@@ -276,6 +277,7 @@ export type Database = {
           logo_url?: string | null
           name: string
           referral_source?: string | null
+          supported_chain_ids?: number[] | null
         }
         Update: {
           created_at?: string
@@ -285,6 +287,7 @@ export type Database = {
           logo_url?: string | null
           name?: string
           referral_source?: string | null
+          supported_chain_ids?: number[] | null
         }
         Relationships: []
       }

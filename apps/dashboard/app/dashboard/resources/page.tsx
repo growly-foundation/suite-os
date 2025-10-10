@@ -3,12 +3,15 @@
 import { ResourcePageLayout } from '@/components/layouts/resource-page-layout';
 import { useComponent } from '@/components/providers/component-provider';
 import { ADD_RESOURCE_DRAWER } from '@/constants/component-registry';
+import { useRequireChainConfig } from '@/hooks/use-chain-config';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { useOrganizationResourceActions } from '@/hooks/use-resource-actions';
 
 import { ParsedResource, ResourceType, TypedResource } from '@getgrowly/core';
 
 export default function ResourcePage() {
+  // Require chain configuration for contract resources
+  useRequireChainConfig();
   const { fetchCurrentOrganizationResources } = useDashboardState();
   const {
     organizationResources,
