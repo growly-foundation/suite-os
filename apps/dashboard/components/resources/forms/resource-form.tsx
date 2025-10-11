@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Code, FileText, Link as LinkIcon, Loader2, Plus, Text as TextIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { ResourceType, ResourceValue } from '@getgrowly/core';
 
@@ -49,12 +49,12 @@ export function ResourceForm({ onSubmit, isSubmitting }: ResourceFormProps) {
     }));
   };
 
-  const handleFormDataChange = (formData: any) => {
+  const handleFormDataChange = useCallback((formData: any) => {
     setState(prev => ({
       ...prev,
       formData,
     }));
-  };
+  }, []);
 
   const renderForm = () => {
     switch (state.type) {

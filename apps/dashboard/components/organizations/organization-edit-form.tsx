@@ -156,6 +156,12 @@ export function OrganizationEditForm({
       return;
     }
 
+    // Validate chainIds
+    if (!Array.isArray(chainIds) || chainIds.length === 0) {
+      toast.error('Please select at least one chain');
+      return;
+    }
+
     try {
       await suiteCore.db.organizations.update(existingOrganization.id, {
         supported_chain_ids: chainIds,
@@ -165,11 +171,12 @@ export function OrganizationEditForm({
       const updatedOrg = await suiteCore.organizations.getOrganizationById(existingOrganization.id);
       if (updatedOrg) {
         setSelectedOrganization(updatedOrg);
+      } else {
+        throw new Error('Failed to fetch updated organization');
       }
     } catch (error) {
       console.error('Error updating chain config:', error);
       toast.error('Failed to update chain configuration');
-      throw error;
     }
   };
 

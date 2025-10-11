@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useChainConfig } from '@/hooks/use-chain-config';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { UserImportService } from '@/lib/services/user-import.service';
 import { debounce } from '@/lib/utils';
@@ -34,6 +35,7 @@ interface ContractImportTabProps {
 
 export function ContractImportTab({ onImportComplete }: ContractImportTabProps) {
   const router = useRouter();
+  const { hasChainsConfigured } = useChainConfig();
   const [contractAddress, setContractAddress] = useState('');
   const [chainId, setChainId] = useState<number>(mainnet.id);
   const [loading, setLoading] = useState(false);
@@ -364,8 +366,21 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
                   <ChainSelector
                     value={chainId}
                     onChange={setChainId}
-                    supportedChainIds={selectedOrganization?.supported_chain_ids || []}
+                    supportedChainIds={selectedOrganization?.supported_chain_ids || undefined}
                   />
+                  {!hasChainsConfigured && (
+                    <p className="text-sm text-muted-foreground">
+                      Please configure your blockchain networks in{' '}
+                      <a
+                        href="/dashboard/settings"
+                        className="text-primary hover:underline"
+                        target="_blank"
+                        rel="noopener noreferrer">
+                        Settings
+                      </a>{' '}
+                      to select a network.
+                    </p>
+                  )}
                 </div>
               </div>
               {configuring ? (
@@ -374,7 +389,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
                     setConfigured(false);
                     setContractAddress('');
                     setConfiguring(false);
-                    setChainId(mainnet.id);
+                    setChainId(selectedOrganization?.supported_chain_ids?.[0] ?? mainnet.id);
                   }}>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Stop and Reset
                 </Button>

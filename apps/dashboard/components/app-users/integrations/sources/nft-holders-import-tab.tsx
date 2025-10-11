@@ -17,6 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SUPPORT_EMAIL } from '@/constants/text';
+import { useChainConfig } from '@/hooks/use-chain-config';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { UserImportService } from '@/lib/services/user-import.service';
 import { debounce } from '@/lib/utils';
@@ -35,8 +36,8 @@ interface NftHoldersImportTabProps {
 
 export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabProps) {
   const router = useRouter();
+  const { hasChainsConfigured } = useChainConfig();
   const [contractAddress, setContractAddress] = useState('');
-  const [chainId, setChainId] = useState<number>(mainnet.id);
   const [loading, setLoading] = useState(false);
   const [configuring, setConfiguring] = useState(false);
   const [configured, setConfigured] = useState(false);
@@ -55,6 +56,7 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
   const PAGE_SIZE = 50; // Show 50 users per page for imports
 
   const { selectedOrganization } = useDashboardState();
+  const [chainId, setChainId] = useState<number>(mainnet.id);
   const [contractType, setContractType] = useState<string | null>(null);
   const [addressError, setAddressError] = useState<string | null>(null);
 
@@ -97,6 +99,9 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
 
   useEffect(() => {
     setChainId(selectedOrganization?.supported_chain_ids?.[0] ?? mainnet.id);
+  }, [selectedOrganization?.supported_chain_ids]);
+
+  useEffect(() => {
     debouncedValidateContractAddress(contractAddress, chainId);
   }, [contractAddress, chainId, debouncedValidateContractAddress]);
 
@@ -355,8 +360,21 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
                   <ChainSelector
                     value={chainId}
                     onChange={setChainId}
-                    supportedChainIds={selectedOrganization?.supported_chain_ids || []}
+                    supportedChainIds={selectedOrganization?.supported_chain_ids || undefined}
                   />
+                  {!hasChainsConfigured && (
+                    <p className="text-sm text-muted-foreground">
+                      Please configure your blockchain networks in{' '}
+                      <a
+                        href="/dashboard/settings"
+                        className="text-primary hover:underline"
+                        target="_blank"
+                        rel="noopener noreferrer">
+                        Settings
+                      </a>{' '}
+                      to select a network.
+                    </p>
+                  )}
                 </div>
               </div>
               {configuring ? (
@@ -365,7 +383,7 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
                     setConfigured(false);
                     setContractAddress('');
                     setConfiguring(false);
-                    setChainId(mainnet.id);
+                    setChainId(selectedOrganization?.supported_chain_ids?.[0] ?? mainnet.id);
                   }}>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Stop and Reset
                 </Button>

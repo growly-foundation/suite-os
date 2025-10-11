@@ -10,9 +10,7 @@ import { toast } from 'react-toastify';
 export function useChainConfig() {
   const { selectedOrganization } = useDashboardState();
 
-  const hasChainsConfigured =
-    selectedOrganization?.supported_chain_ids &&
-    selectedOrganization.supported_chain_ids.length > 0;
+  const hasChainsConfigured = !!selectedOrganization?.supported_chain_ids?.length;
 
   return {
     hasChainsConfigured,
