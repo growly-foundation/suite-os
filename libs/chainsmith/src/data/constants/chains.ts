@@ -1,14 +1,15 @@
-import * as EvmChainList from 'viem/chains';
+import { Chain } from 'viem';
 
 import type { TChainEcosystem } from '../../types';
 import { iterateObject } from '../../utils';
+import { EvmChainList } from '../chains';
 
 /** Registry of all supported ecosystems */
 export const EcosystemRegistry: Record<
   TChainEcosystem,
   {
     name: string;
-    chains: EvmChainList.Chain[];
+    chains: Chain[];
   }
 > = {
   evm: {

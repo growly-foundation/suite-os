@@ -7,6 +7,7 @@ import { NftHoldersImportTab } from '@/components/app-users/integrations/sources
 import { PrivyImportTab } from '@/components/app-users/integrations/sources/privy-import-tab';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useRequireChainConfig } from '@/hooks/use-chain-config';
 import { useSelectedOrganizationUsersEffect } from '@/hooks/use-organization-effect';
 import { cn } from '@/lib/utils';
 import { ArrowLeft, Code, ImageIcon, Upload } from 'lucide-react';
@@ -27,6 +28,9 @@ type IntegrationOption = {
 };
 
 export default function ImportUsersPage() {
+  // Require chain configuration for contract and NFT imports
+  useRequireChainConfig();
+
   const [activeIntegration, setActiveIntegration] = useState<UserImportSource>(
     UserImportSource.Privy
   );

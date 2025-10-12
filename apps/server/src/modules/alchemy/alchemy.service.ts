@@ -50,22 +50,16 @@ export class AlchemyService {
     switch (chainId) {
       case 1:
         return Network.ETH_MAINNET;
-      case 11155111:
-        return Network.ETH_SEPOLIA;
-      case 137:
-        return Network.MATIC_MAINNET;
+      case 999:
+        return Network.HYPERLIQUID_MAINNET;
       case 42161:
         return Network.ARB_MAINNET;
-      case 421614:
-        return Network.ARB_SEPOLIA;
+      case 80094:
+        return Network.BERACHAIN_MAINNET;
       case 10:
         return Network.OPT_MAINNET;
-      case 11155420:
-        return Network.OPT_SEPOLIA;
       case 8453:
         return Network.BASE_MAINNET;
-      case 84532:
-        return Network.BASE_SEPOLIA;
       default:
         this.logger.warn(`Unsupported chainId: ${chainId}, defaulting to Ethereum mainnet`);
         return Network.ETH_MAINNET;

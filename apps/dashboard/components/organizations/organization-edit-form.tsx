@@ -1,5 +1,6 @@
 'use client';
 
+import { ChainConfigForm } from '@/components/chains/chain-config-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { suiteCore } from '@/core/suite';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { cn } from '@/lib/utils';
 import { ArrowLeft, Loader2 } from 'lucide-react';
@@ -123,7 +126,8 @@ export function OrganizationEditForm({
         );
         setSelectedOrganization(organization);
         toast.success('Organization created successfully!');
-        router.push('/dashboard');
+        // Redirect to chain selection for new organizations
+        router.push('/onboarding/chains');
       }
     } catch (error) {
       console.error('Error creating organization:', error);
@@ -143,6 +147,37 @@ export function OrganizationEditForm({
   const handleCompanyDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const description = e.target.value;
     setCompanyDescription(description);
+  };
+
+  const handleChainConfigSave = async (chainIds: number[]) => {
+    if (!existingOrganization) {
+      // For new organizations, we'll handle this in the submit
+      toast.info('Chain configuration will be saved with your organization');
+      return;
+    }
+
+    // Validate chainIds
+    if (!Array.isArray(chainIds) || chainIds.length === 0) {
+      toast.error('Please select at least one chain');
+      return;
+    }
+
+    try {
+      await suiteCore.db.organizations.update(existingOrganization.id, {
+        supported_chain_ids: chainIds,
+      });
+      toast.success('Chain configuration updated successfully!');
+      // Refresh the selected organization
+      const updatedOrg = await suiteCore.organizations.getOrganizationById(existingOrganization.id);
+      if (updatedOrg) {
+        setSelectedOrganization(updatedOrg);
+      } else {
+        throw new Error('Failed to fetch updated organization');
+      }
+    } catch (error) {
+      console.error('Error updating chain config:', error);
+      toast.error('Failed to update chain configuration');
+    }
   };
 
   if (!admin) {
@@ -290,6 +325,17 @@ export function OrganizationEditForm({
             </Link>
           )}
         </div>
+
+        {existingOrganization && (
+          <>
+            <Separator className="my-8" />
+            <ChainConfigForm
+              selectedChainIds={existingOrganization.supported_chain_ids || []}
+              onSave={handleChainConfigSave}
+              maxChains={2}
+            />
+          </>
+        )}
       </div>
     </React.Fragment>
   );

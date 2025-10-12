@@ -1,7 +1,7 @@
 'use client';
 
 import { Skeleton } from '@/components/ui/skeleton';
-import { SUPPORTED_CHAINS } from '@/core/persona';
+import { SUPPORTED_CHAIN_NAMES } from '@/core/chains';
 import { api } from '@/trpc/react';
 import moment from 'moment';
 import { Address } from 'viem';
@@ -168,7 +168,7 @@ export function createColumnFormatters<T = any>(
       // Use the real wallet address from entities; persona.address() may be a UUID
       const walletAddress = parsed.wallet_address! as `0x${string}`;
       const isValidEthAddress = /^0x[a-fA-F0-9]{40}$/.test(walletAddress);
-      const chainIds = SUPPORTED_CHAINS.map(chain => getChainIdByName(chain));
+      const chainIds = SUPPORTED_CHAIN_NAMES.map(chain => getChainIdByName(chain));
 
       if (!isValidEthAddress) {
         return <span className="text-xs">-</span>;

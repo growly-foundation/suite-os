@@ -4,9 +4,9 @@ import { ImportConfirmationDialog } from '@/components/app-users/integrations/im
 import { ImportProgress } from '@/components/app-users/integrations/import-progress';
 import { UserLimitWarning } from '@/components/app-users/integrations/user-limit-warning';
 import { UserSelectionList } from '@/components/app-users/integrations/user-selection-list';
+import { ChainSelector } from '@/components/chains/chain-selecter';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { ChainIcon } from '@/components/ui/chain-icon';
 import {
   Dialog,
   DialogContent,
@@ -16,14 +16,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { SUPPORT_EMAIL } from '@/constants/text';
+import { useChainConfig } from '@/hooks/use-chain-config';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { UserImportService } from '@/lib/services/user-import.service';
 import { debounce } from '@/lib/utils';
@@ -32,7 +26,7 @@ import { InfoIcon, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
-import { base } from 'viem/chains';
+import { mainnet } from 'viem/chains';
 
 import { ImportLimitCheckResult, ImportNftHoldersOutput } from '@getgrowly/core';
 
@@ -42,8 +36,8 @@ interface NftHoldersImportTabProps {
 
 export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabProps) {
   const router = useRouter();
+  const { hasChainsConfigured } = useChainConfig();
   const [contractAddress, setContractAddress] = useState('');
-  const [chainId, setChainId] = useState<number>(base.id);
   const [loading, setLoading] = useState(false);
   const [configuring, setConfiguring] = useState(false);
   const [configured, setConfigured] = useState(false);
@@ -62,6 +56,7 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
   const PAGE_SIZE = 50; // Show 50 users per page for imports
 
   const { selectedOrganization } = useDashboardState();
+  const [chainId, setChainId] = useState<number>(mainnet.id);
   const [contractType, setContractType] = useState<string | null>(null);
   const [addressError, setAddressError] = useState<string | null>(null);
 
@@ -101,6 +96,10 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
     }, 500),
     []
   );
+
+  useEffect(() => {
+    setChainId(selectedOrganization?.supported_chain_ids?.[0] ?? mainnet.id);
+  }, [selectedOrganization?.supported_chain_ids]);
 
   useEffect(() => {
     debouncedValidateContractAddress(contractAddress, chainId);
@@ -358,27 +357,24 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
                   <Label htmlFor="chain-id">
                     Chain ID <span className="text-red-500">*</span>
                   </Label>
-                  <Select
-                    value={chainId.toString()}
-                    onValueChange={(value: string) => setChainId(Number(value))}>
-                    <SelectTrigger id="chainId">
-                      <SelectValue placeholder="Select a chain" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">
-                        <div className="flex items-center gap-2">
-                          <ChainIcon chainIds={[1]} />
-                          Ethereum Mainnet
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="8453">
-                        <div className="flex items-center gap-2">
-                          <ChainIcon chainIds={[8453]} />
-                          Base
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <ChainSelector
+                    value={chainId}
+                    onChange={setChainId}
+                    supportedChainIds={selectedOrganization?.supported_chain_ids || undefined}
+                  />
+                  {!hasChainsConfigured && (
+                    <p className="text-sm text-muted-foreground">
+                      Please configure your blockchain networks in{' '}
+                      <a
+                        href="/dashboard/settings"
+                        className="text-primary hover:underline"
+                        target="_blank"
+                        rel="noopener noreferrer">
+                        Settings
+                      </a>{' '}
+                      to select a network.
+                    </p>
+                  )}
                 </div>
               </div>
               {configuring ? (
@@ -387,7 +383,7 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
                     setConfigured(false);
                     setContractAddress('');
                     setConfiguring(false);
-                    setChainId(base.id);
+                    setChainId(selectedOrganization?.supported_chain_ids?.[0] ?? mainnet.id);
                   }}>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Stop and Reset
                 </Button>

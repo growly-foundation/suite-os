@@ -10,15 +10,16 @@ import {
   GET_TRANSACTIONS_CACHE_TIME,
   GET_TRANSACTIONS_GC_TIME,
 } from '@/constants/cache';
-import { SUPPORTED_CHAINS } from '@/core/persona';
+import { SUPPORTED_CHAINS } from '@/core/chains';
+import { useDashboardState } from '@/hooks/use-dashboard';
 import { analyzePersonaFromZerion } from '@/lib/persona-classifier';
 import { api } from '@/trpc/react';
 import { EtherscanFundingInfo } from '@/types/etherscan';
 import { PersonaAnalysis } from '@/types/persona';
 import { ZerionFungiblePosition, ZerionNftPosition, ZerionTransaction } from '@/types/zerion';
 import { useEffect, useMemo } from 'react';
+import { mainnet } from 'viem/chains';
 
-import { getChainIdByName } from '@getgrowly/chainsmith/utils';
 import { ParsedUser } from '@getgrowly/core';
 
 import { useWalletTableContext } from './use-wallet-table-context';
@@ -63,13 +64,24 @@ export interface WalletData {
 export function useWalletData(user: ParsedUser): WalletData {
   const { updateWalletData } = useWalletTableContext();
   const walletAddress = user.wallet_address;
+  const { selectedOrganization } = useDashboardState();
 
   // Common chain mapping for consistency
   const chainIds = useMemo(() => {
-    return SUPPORTED_CHAINS.map(chain => chain.toLowerCase())
-      .map(chain => (chain === 'mainnet' ? 'ethereum' : chain))
+    // Prefer organization-configured chain IDs; fallback to all supported
+    const configuredIds = selectedOrganization?.supported_chain_ids;
+    const activeNames =
+      configuredIds && configuredIds.length > 0
+        ? configuredIds
+            .map(id => SUPPORTED_CHAINS.find(c => c.id === id)?.name)
+            .filter((n): n is string => !!n)
+        : ['mainnet'];
+
+    return activeNames
+      .map(name => name.toLowerCase())
+      .map(name => (name === 'mainnet' ? 'ethereum' : name))
       .join(',');
-  }, []);
+  }, [selectedOrganization?.supported_chain_ids]);
 
   // Fetch fungible positions with total (zerion)
   const {
@@ -151,7 +163,11 @@ export function useWalletData(user: ParsedUser): WalletData {
   } = api.etherscan.getAddressFundedByAcrossChains.useQuery(
     {
       address: walletAddress || '',
-      chainIds: SUPPORTED_CHAINS.map(chain => getChainIdByName(chain)),
+      chainIds:
+        selectedOrganization?.supported_chain_ids &&
+        selectedOrganization.supported_chain_ids.length > 0
+          ? selectedOrganization.supported_chain_ids
+          : [mainnet.id],
     },
     {
       staleTime: GET_FUNDED_INFO_CACHE_TIME,
