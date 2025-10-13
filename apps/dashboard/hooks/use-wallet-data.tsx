@@ -80,6 +80,7 @@ export function useWalletData(user: ParsedUser): WalletData {
     return activeNames
       .map(name => name.toLowerCase())
       .map(name => (name === 'mainnet' ? 'ethereum' : name))
+      .map(name => (name === 'op mainnet' ? 'optimism' : name)) // TODO: handle proper name mapping for API services
       .join(',');
   }, [selectedOrganization?.supported_chain_ids]);
 
