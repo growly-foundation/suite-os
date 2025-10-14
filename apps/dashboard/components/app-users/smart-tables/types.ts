@@ -58,6 +58,12 @@ export interface DynamicTableProps<TData = any> {
       row: TData;
     }>
   ) => void;
+  // Custom columns support
+  enableCustomColumns?: boolean;
+  customColumns?: import('./add-column-dialog').CustomColumn[];
+  onCustomColumnsChange?: (columns: import('./add-column-dialog').CustomColumn[]) => void;
+  customColumnData?: Record<string, Record<string, any>>;
+  onCustomColumnDataChange?: (data: Record<string, Record<string, any>>) => void;
 }
 
 export interface CellEditState {

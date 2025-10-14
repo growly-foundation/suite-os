@@ -4,7 +4,7 @@ services:
     image: supabase/postgres:15.1.0.117
     container_name: supabase-db
     ports:
-      - '54322:5432'
+      - "54322:5432"
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
@@ -17,7 +17,7 @@ services:
     image: supabase/gotrue:v2.132.3
     container_name: supabase-auth
     ports:
-      - '9999:9999'
+      - "9999:9999"
     environment:
       GOTRUE_API_HOST: 0.0.0.0
       GOTRUE_API_PORT: 9999
@@ -43,7 +43,7 @@ services:
     image: postgrest/postgrest:v11.2.0
     container_name: supabase-rest
     ports:
-      - '3000:3000'
+      - "3003:3000"
     environment:
       PGRST_DB_URI: postgres://postgres:postgres@supabase-db:5432/postgres
       PGRST_DB_SCHEMAS: public,storage,graphql_public
@@ -83,7 +83,7 @@ services:
     image: supabase/storage-api:v0.40.4
     container_name: supabase-storage
     ports:
-      - '5001:5001'
+      - "5001:5001"
     environment:
       ANON_KEY: ${SUPABASE_ANON_KEY}
       SERVICE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
@@ -109,7 +109,7 @@ services:
     image: supabase/studio:latest
     container_name: supabase-dashboard
     ports:
-      - '54323:3000'
+      - "54323:3000"
     environment:
       STUDIO_PG_META_URL: http://supabase-meta:8080
       POSTGRES_PASSWORD: postgres
@@ -127,7 +127,7 @@ services:
     image: supabase/postgres-meta:v0.68.0
     container_name: supabase-meta
     ports:
-      - '8080:8080'
+      - "8080:8080"
     environment:
       PG_META_PORT: 8080
       PG_META_DB_HOST: supabase-db
@@ -144,8 +144,8 @@ services:
     image: kong:2.8.1
     container_name: supabase-kong
     ports:
-      - '54321:8000'
-      - '54324:8443'
+      - "54321:8000"
+      - "54324:8443"
     environment:
       KONG_DATABASE: off
       KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml

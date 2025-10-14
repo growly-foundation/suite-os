@@ -16,7 +16,7 @@ export function SEOHead({
   title = 'Suite | AI-Powered Web3 Growth Platform | GetSuite.io',
   description = 'Suite is the leading AI-powered platform for Web3 growth. Understand user personas, get actionable insights, and scale your DeFi or NFT project with enterprise-grade analytics and AI agents.',
   keywords = 'Web3 AI platform, DeFi analytics, NFT user insights, blockchain analytics, crypto user personas, onchain data analysis, Web3 growth platform, AI agents for crypto',
-  image = '/banners/suite-preview-banner.png',
+  image = '/banners/suite-banner-oil.png',
   url = 'https://getsuite.io',
   type = 'website',
   publishedTime,

@@ -11,7 +11,7 @@ export function constructMetadata({
   title = 'Suite | AI-Powered Web3 Growth Platform | GetSuite.io',
   description = 'Suite is the leading AI-powered platform for Web3 growth. Understand user personas, get actionable insights, and scale your DeFi or NFT project with enterprise-grade analytics and AI agents.',
   path = '',
-  image = '/banners/suite-preview-banner.png',
+  image = '/banners/suite-banner-oil.png',
 }: MetadataProps = {}): Metadata {
   const url = `https://getsuite.io${path}`;
   const imageUrl = image.startsWith('http') ? image : `https://getsuite.io${image}`;

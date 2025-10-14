@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { IconContainer } from '@/components/ui/icon-container';
 import { useWalletTableContext } from '@/hooks/use-wallet-table-context';
@@ -16,6 +17,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { ArrowUpDown, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import React, {
   memo,
   useCallback,
@@ -27,11 +29,13 @@ import React, {
 } from 'react';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/table';
+import { AddColumnDialog } from './add-column-dialog';
 import { ColumnUserDefinitions } from './columns/create-user-columns';
 import { CustomSortingFns, createCustomSortingFns } from './constants';
 import { EmptyState } from './empty-state';
 import { TableToolbar } from './table-toolbar';
 import { DynamicTableProps } from './types';
+import { useCustomColumns } from './use-custom-columns';
 
 // Skeleton component for loading cells - memoized for performance
 const SkeletonCell = memo(
@@ -221,6 +225,12 @@ export function DynamicTable<TData = any>({
   enableCellEditing = false,
   onCellChange,
   onCellsChange, // Reserved for batch cell changes in future
+  // Custom columns
+  enableCustomColumns = false,
+  customColumns: externalCustomColumns,
+  onCustomColumnsChange,
+  customColumnData: externalCustomColumnData,
+  onCustomColumnDataChange,
 }: DynamicTableProps<TData>) {
   // Suppress unused warning - onCellsChange is reserved for future batch operations
   void onCellsChange;
@@ -229,6 +239,9 @@ export function DynamicTable<TData = any>({
   const [isPending, startTransition] = useTransition();
   // isPending can be used in the future to show loading indicators during transitions
   void isPending;
+
+  // Add column dialog state
+  const [isAddColumnDialogOpen, setIsAddColumnDialogOpen] = useState(false);
 
   const [sorting, setSorting] = useState<SortingState>(initialSorting);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -255,6 +268,34 @@ export function DynamicTable<TData = any>({
 
   // Get wallet context for custom sorting
   const walletContext = useWalletTableContext();
+
+  // Custom columns hook
+  const {
+    customColumns: internalCustomColumns,
+    addColumn,
+    generateColumnDefs: generateCustomColumnDefs,
+  } = useCustomColumns<TData>({
+    initialColumns: externalCustomColumns || [],
+    initialData: externalCustomColumnData || {},
+    onDataChange: onCustomColumnDataChange,
+    getRowId:
+      getRowId ||
+      ((row: TData) => {
+        if (getRowDisplayValue) {
+          return (
+            getRowDisplayValue(row, 'walletAddress') || getRowDisplayValue(row, 'id') || String(row)
+          );
+        }
+        return String(row);
+      }),
+  });
+
+  // Notify parent of custom column changes
+  useEffect(() => {
+    if (!externalCustomColumns && onCustomColumnsChange) {
+      onCustomColumnsChange(internalCustomColumns);
+    }
+  }, [internalCustomColumns, externalCustomColumns, onCustomColumnsChange]);
 
   // Use external row selection state if provided, otherwise use internal state
   const [internalRowSelection, setInternalRowSelection] = useState<Record<string, boolean>>({});
@@ -738,6 +779,47 @@ export function DynamicTable<TData = any>({
     return [selectionColumn, ...updatedColumns];
   }, [updatedColumns, enableRowSelection, rowSelection, handleRowSelectionChange]);
 
+  // Generate custom column definitions
+  const customColumnDefs = useMemo(() => {
+    if (!enableCustomColumns) return [];
+    return generateCustomColumnDefs(data);
+  }, [enableCustomColumns, generateCustomColumnDefs, data]);
+
+  // Add "+ Add" button column if custom columns are enabled
+  const addButtonColumn = useMemo((): ColumnDef<TData> | null => {
+    if (!enableCustomColumns) return null;
+
+    return {
+      id: '__add_column__',
+      header: () => (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsAddColumnDialogOpen(true)}
+          className="h-8 w-full flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground">
+          <Plus className="h-4 w-4" />
+          <span>Add</span>
+        </Button>
+      ),
+      cell: () => <div />,
+      enableSorting: false,
+      enableHiding: false,
+      enableResizing: false,
+      size: 100,
+      minSize: 100,
+      maxSize: 100,
+    };
+  }, [enableCustomColumns]);
+
+  // Combine all columns: selection + regular + custom + add button
+  const finalColumns = useMemo(() => {
+    const cols = [...tableColumns, ...customColumnDefs];
+    if (addButtonColumn) {
+      cols.push(addButtonColumn);
+    }
+    return cols;
+  }, [tableColumns, customColumnDefs, addButtonColumn]);
+
   // Memoize sorting functions to prevent recreation on every render
   const sortingFns = useMemo(
     () => createCustomSortingFns(walletContext) as CustomSortingFns,
@@ -746,7 +828,7 @@ export function DynamicTable<TData = any>({
 
   const table = useReactTable({
     data,
-    columns: tableColumns as any,
+    columns: finalColumns as any,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
@@ -1181,6 +1263,15 @@ export function DynamicTable<TData = any>({
           </React.Fragment>
         )}
       </div>
+
+      {/* Add Column Dialog */}
+      {enableCustomColumns && (
+        <AddColumnDialog
+          open={isAddColumnDialogOpen}
+          onOpenChange={setIsAddColumnDialogOpen}
+          onAdd={addColumn}
+        />
+      )}
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { ParsedUser } from '@getgrowly/core';
 
 import { ResizableSheet } from '../../ui/resizable-sheet';
 import { UserDetails } from '../app-user-details';
+import { CustomColumn } from './add-column-dialog';
 import { TableUserData } from './columns/column-formatters';
 import { createUserColumns } from './columns/create-user-columns';
 import { DynamicTable } from './dynamic-table';
@@ -32,6 +33,10 @@ export function UsersTable({
   isLoadingMore,
   onLoadMore,
   totalUsers,
+  customColumns,
+  onCustomColumnsChange,
+  customColumnData,
+  onCustomColumnDataChange,
 }: {
   loading?: boolean;
   users: ParsedUser[];
@@ -45,6 +50,10 @@ export function UsersTable({
   isLoadingMore?: boolean;
   onLoadMore?: () => void;
   totalUsers?: number;
+  customColumns?: CustomColumn[];
+  onCustomColumnsChange?: (columns: CustomColumn[]) => void;
+  customColumnData?: Record<string, Record<string, any>>;
+  onCustomColumnDataChange?: (data: Record<string, Record<string, any>>) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
@@ -201,6 +210,57 @@ export function UsersTable({
   // Create columns for the dynamic table
   const columns = useMemo(() => createUserColumns(users as ParsedUser[]), [users]);
 
+  // Handle individual cell changes
+  const handleCellChange = useCallback(
+    (change: {
+      rowIndex: number;
+      columnId: string;
+      oldValue: any;
+      newValue: any;
+      row: ParsedUser;
+    }) => {
+      console.log('Cell change:', change);
+      // You can add custom logic here to persist cell changes
+      // For example, update the backend or local state
+    },
+    []
+  );
+
+  // Handle batch cell changes
+  const handleCellsChange = useCallback(
+    (
+      changes: {
+        rowIndex: number;
+        columnId: string;
+        oldValue: any;
+        newValue: any;
+        row: ParsedUser;
+      }[]
+    ) => {
+      console.log('Batch cells change:', changes);
+      // You can add custom logic here to persist batch changes
+    },
+    []
+  );
+
+  // Handle custom column changes (add, rename, delete)
+  const handleCustomColumnsChange = useCallback(
+    (columns: CustomColumn[]) => {
+      console.log('Custom columns changed:', columns);
+      onCustomColumnsChange?.(columns);
+    },
+    [onCustomColumnsChange]
+  );
+
+  // Handle custom column data changes (cell edits in custom columns)
+  const handleCustomColumnDataChange = useCallback(
+    (data: Record<string, Record<string, any>>) => {
+      console.log('Custom column data changed:', data);
+      onCustomColumnDataChange?.(data);
+    },
+    [onCustomColumnDataChange]
+  );
+
   return (
     <WalletTableProvider>
       <DynamicTable<ParsedUser>
@@ -238,6 +298,14 @@ export function UsersTable({
         hasMore={hasMoreUsers}
         loadingMore={isLoadingMore}
         onLoadMore={onLoadMore ? () => onLoadMore() : undefined}
+        enableCellEditing={true}
+        onCellChange={handleCellChange}
+        onCellsChange={handleCellsChange}
+        enableCustomColumns={true}
+        customColumns={customColumns}
+        onCustomColumnsChange={handleCustomColumnsChange}
+        customColumnData={customColumnData}
+        onCustomColumnDataChange={handleCustomColumnDataChange}
       />
       <ResizableSheet
         side="right"
