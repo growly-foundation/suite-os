@@ -15,11 +15,26 @@ export function getChainEcosystem(name: TChainName): TChainEcosystem {
   return 'other';
 }
 
+export function isChainSupported(name: string): name is TChainName {
+  return (EvmChainList as any)[name] !== undefined;
+}
+
 export function getChainByName(name: TChainName): TChain {
   const chain = (EvmChainList as any)[name];
-  if (!chain) throw new Error('No chain found');
+  if (!chain) {
+    throw new Error(
+      `Chain not found: "${name}". Available chains: ${Object.keys(EvmChainList).slice(0, 10).join(', ')}...`
+    );
+  }
   const ecosystem = getChainEcosystem(name);
   return new ChainTypeBuilder(chain).withChainName(name).withEcosystem(ecosystem).build();
+}
+
+export function getChainByNameSafe(name: string): TChain | null {
+  if (!isChainSupported(name)) {
+    return null;
+  }
+  return getChainByName(name);
 }
 
 export function getChainIdByName(name: TChainName): number {
@@ -30,7 +45,9 @@ export function getChainNameById(id: number): TChainName {
   if (id === 999) return hyperevm.name;
 
   const chain = Object.values(EvmChainList).find(c => c.id === id);
-  if (!chain) throw new Error('No chain found');
+  if (!chain) {
+    throw new Error(`Chain not found for ID: ${id}. Please check if this chain ID is supported.`);
+  }
   return chain.name as TChainName;
 }
 
