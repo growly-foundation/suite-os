@@ -12,6 +12,8 @@ import { Table } from '@tanstack/react-table';
 import { ChevronDown, ChevronUp, GripVertical, Search, Settings2 } from 'lucide-react';
 import { ReactNode, useEffect, useState } from 'react';
 
+import { SortingRules } from './sorting-rules';
+
 interface TableToolbarProps<TData> {
   table: Table<TData>;
   enableColumnVisibility?: boolean;
@@ -170,6 +172,9 @@ export function TableToolbar<TData>({
             </Button>
           </div>
         )}
+
+        {/* Sorting Rules */}
+        <SortingRules table={table} />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

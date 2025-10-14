@@ -2,7 +2,7 @@
 
 import { Checkbox } from '@/components/ui/checkbox';
 import { IconContainer } from '@/components/ui/icon-container';
-import { WalletTableContext, useWalletTableContext } from '@/hooks/use-wallet-table-context';
+import { useWalletTableContext } from '@/hooks/use-wallet-table-context';
 import { cn } from '@/lib/utils';
 import {
   ColumnDef,
@@ -16,47 +16,59 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { ArrowUpDown, ChevronDown, ChevronUp } from 'lucide-react';
-import React, { ReactNode, useCallback, useMemo, useState } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from 'react';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/table';
 import { ColumnUserDefinitions } from './columns/create-user-columns';
+import { CustomSortingFns, createCustomSortingFns } from './constants';
 import { EmptyState } from './empty-state';
 import { TableToolbar } from './table-toolbar';
+import { DynamicTableProps } from './types';
 
-// Skeleton component for loading cells
-const SkeletonCell = ({
-  width = '100%',
-  height = '1rem',
-  variant = 'text',
-}: {
-  width?: string;
-  height?: string;
-  variant?: 'text' | 'avatar' | 'badge' | 'number';
-}) => {
-  switch (variant) {
-    case 'avatar':
-      return (
-        <div className="flex items-center gap-3">
-          <div className="animate-pulse bg-muted rounded-full w-8 h-8" />
+// Skeleton component for loading cells - memoized for performance
+const SkeletonCell = memo(
+  ({
+    width = '100%',
+    height = '1rem',
+    variant = 'text',
+  }: {
+    width?: string;
+    height?: string;
+    variant?: 'text' | 'avatar' | 'badge' | 'number';
+  }) => {
+    switch (variant) {
+      case 'avatar':
+        return (
+          <div className="flex items-center gap-3">
+            <div className="animate-pulse bg-muted rounded-full w-8 h-8" />
+            <div
+              className="animate-pulse bg-muted rounded"
+              style={{ width: '60%', height: '1rem' }}
+            />
+          </div>
+        );
+      case 'badge':
+        return (
           <div
-            className="animate-pulse bg-muted rounded"
-            style={{ width: '60%', height: '1rem' }}
+            className="animate-pulse bg-muted rounded-full px-2 py-1"
+            style={{ width: '80px', height: '24px' }}
           />
-        </div>
-      );
-    case 'badge':
-      return (
-        <div
-          className="animate-pulse bg-muted rounded-full px-2 py-1"
-          style={{ width: '80px', height: '24px' }}
-        />
-      );
-    case 'number':
-      return <div className="animate-pulse bg-muted rounded" style={{ width: '40%', height }} />;
-    default:
-      return <div className="animate-pulse bg-muted rounded" style={{ width, height }} />;
+        );
+      case 'number':
+        return <div className="animate-pulse bg-muted rounded" style={{ width: '40%', height }} />;
+      default:
+        return <div className="animate-pulse bg-muted rounded" style={{ width, height }} />;
+    }
   }
-};
+);
 
 // Helper function to determine skeleton variant based on column ID
 const getSkeletonVariant = (columnId: string): 'text' | 'avatar' | 'badge' | 'number' => {
@@ -76,79 +88,81 @@ const getSkeletonVariant = (columnId: string): 'text' | 'avatar' | 'badge' | 'nu
   return 'text';
 };
 
-// Generate skeleton rows that match the table structure
-const SkeletonTableRows = ({
-  columns,
-  rowCount = 10,
-  enableRowSelection = false,
-}: {
-  columns: ColumnDef<any>[];
-  rowCount?: number;
-  enableRowSelection?: boolean;
-}) => {
-  // Create skeleton columns that match the actual table structure
-  const skeletonColumns = enableRowSelection
-    ? [
-        { id: 'select', size: 50, meta: { frozen: true } },
-        ...columns.map(col => ({
+// Generate skeleton rows that match the table structure - memoized for performance
+const SkeletonTableRows = memo(
+  ({
+    columns,
+    rowCount = 10,
+    enableRowSelection = false,
+  }: {
+    columns: ColumnDef<any>[];
+    rowCount?: number;
+    enableRowSelection?: boolean;
+  }) => {
+    // Create skeleton columns that match the actual table structure
+    const skeletonColumns = enableRowSelection
+      ? [
+          { id: 'select', size: 50, meta: { frozen: true } },
+          ...columns.map(col => ({
+            id: col.id || 'col',
+            size: (col as any).size || 150,
+            meta: (col as any).meta || {},
+          })),
+        ]
+      : columns.map(col => ({
           id: col.id || 'col',
           size: (col as any).size || 150,
           meta: (col as any).meta || {},
-        })),
-      ]
-    : columns.map(col => ({
-        id: col.id || 'col',
-        size: (col as any).size || 150,
-        meta: (col as any).meta || {},
-      }));
+        }));
 
-  return (
-    <>
-      {Array.from({ length: rowCount }).map((_, rowIndex) => (
-        <TableRow key={`skeleton-row-${rowIndex}`} className="border-b">
-          {skeletonColumns.map((col, colIndex) => {
-            const isFrozen = (col.meta as any)?.frozen;
-            const leftPosition = isFrozen
-              ? calculateFrozenColumnPosition(
-                  colIndex,
-                  skeletonColumns.map(c => ({
-                    column: {
-                      columnDef: { meta: c.meta },
-                      getSize: () => c.size,
-                    },
-                  }))
-                )
-              : 'auto';
+    return (
+      <>
+        {Array.from({ length: rowCount }).map((_, rowIndex) => (
+          <TableRow key={`skeleton-row-${rowIndex}`} className="border-b">
+            {skeletonColumns.map((col, colIndex) => {
+              const isFrozen = (col.meta as any)?.frozen;
+              const leftPosition = isFrozen
+                ? calculateFrozenColumnPosition(
+                    colIndex,
+                    skeletonColumns.map(c => ({
+                      column: {
+                        columnDef: { meta: c.meta },
+                        getSize: () => c.size,
+                      },
+                    }))
+                  )
+                : 'auto';
 
-            return (
-              <TableCell
-                key={`skeleton-cell-${rowIndex}-${colIndex}`}
-                style={{
-                  width: col.size,
-                  position: isFrozen ? ('sticky' as const) : ('relative' as const),
-                  left: leftPosition,
-                  zIndex: isFrozen ? 5 : 'auto',
-                  backgroundColor: isFrozen ? 'hsl(var(--background))' : 'transparent',
-                  boxShadow: isFrozen ? '1px 0 0 0 hsl(var(--border))' : 'none',
-                }}
-                className={cn('overflow-hidden py-3', isFrozen && 'shadow-sm')}>
-                {col.id === 'select' ? (
-                  <SkeletonCell width="16px" height="16px" />
-                ) : (
-                  <SkeletonCell
-                    width={`${Math.random() * 40 + 60}%`} // Random width between 60-100%
-                    height="1rem"
-                    variant={getSkeletonVariant(col.id)}
-                  />
-                )}
-              </TableCell>
-            );
-          })}
-        </TableRow>
-      ))}
-    </>
-  );
-};
+              return (
+                <TableCell
+                  key={`skeleton-cell-${rowIndex}-${colIndex}`}
+                  style={{
+                    width: col.size,
+                    position: isFrozen ? ('sticky' as const) : ('relative' as const),
+                    left: leftPosition,
+                    zIndex: isFrozen ? 5 : 'auto',
+                    backgroundColor: isFrozen ? 'hsl(var(--background))' : 'transparent',
+                    boxShadow: isFrozen ? '1px 0 0 0 hsl(var(--border))' : 'none',
+                  }}
+                  className={cn('overflow-hidden py-3', isFrozen && 'shadow-sm')}>
+                  {col.id === 'select' ? (
+                    <SkeletonCell width="16px" height="16px" />
+                  ) : (
+                    <SkeletonCell
+                      width={`${Math.random() * 40 + 60}%`} // Random width between 60-100%
+                      height="1rem"
+                      variant={getSkeletonVariant(col.id)}
+                    />
+                  )}
+                </TableCell>
+              );
+            })}
+          </TableRow>
+        ))}
+      </>
+    );
+  }
+);
 
 function calculateFrozenColumnPosition(
   index: number,
@@ -165,134 +179,6 @@ function calculateFrozenColumnPosition(
   }
   return `${cumulativeWidth}px`;
 }
-
-export interface DynamicTableProps<TData = any> {
-  data: TData[];
-  columns: ColumnDef<TData>[];
-  isLoading?: boolean;
-  emptyMessage?: string;
-  emptyDescription?: string;
-  onRowClick?: (row: TData) => void;
-  className?: string;
-  enableColumnResizing?: boolean;
-  enableColumnReordering?: boolean;
-  enableSorting?: boolean;
-  // Pagination and infinite loading props
-  pageSize?: number;
-  currentPage?: number;
-  totalItems?: number;
-  onLoadMore?: (pageInfo: { page: number; pageSize: number }) => void;
-  hasMore?: boolean;
-  loadingMore?: boolean;
-  onError?: (error: Error) => void;
-  // Selection props
-  enableRowSelection?: boolean;
-  selectedRows?: Record<string, boolean>;
-  onRowSelectionChange?: (selectedRows: Record<string, boolean>) => void;
-  getRowId?: (row: TData) => string;
-  // All data identifiers for "select all pages" functionality
-  allDataIdentifiers?: string[];
-  // Generic data type support
-  getRowDisplayValue?: (row: TData, key: string) => any;
-  // Footer props
-  enableFooter?: boolean;
-  getFooterValue?: (key: string) => any;
-  // Initial sorting
-  initialSorting?: SortingState;
-  // Toolbar props
-  tableLabel?: string | ReactNode;
-  searchQuery?: string;
-  setSearchQuery?: (value: string) => void;
-  searchPlaceholder?: string;
-  additionalActions?: ReactNode;
-}
-
-// Custom sorting functions for different data types
-const createCustomSortingFns = (walletContext: WalletTableContext) => ({
-  // Portfolio value sorting - uses wallet context data
-  portfolioSorting: (rowA: any, rowB: any, columnId: string) => {
-    const walletAddressA = rowA.getValue(columnId);
-    const walletAddressB = rowB.getValue(columnId);
-
-    const walletDataA = walletContext?.getWalletData?.(walletAddressA);
-    const walletDataB = walletContext?.getWalletData?.(walletAddressB);
-
-    const valueA = walletDataA?.fungibleTotalUsd || 0;
-    const valueB = walletDataB?.fungibleTotalUsd || 0;
-
-    return valueA - valueB;
-  },
-
-  // Transaction count sorting - uses wallet context data
-  transactionSorting: (rowA: any, rowB: any, columnId: string) => {
-    const walletAddressA = rowA.getValue(columnId);
-    const walletAddressB = rowB.getValue(columnId);
-
-    const walletDataA = walletContext?.getWalletData?.(walletAddressA);
-    const walletDataB = walletContext?.getWalletData?.(walletAddressB);
-
-    const countA = walletDataA?.transactionCount || 0;
-    const countB = walletDataB?.transactionCount || 0;
-
-    return countA - countB;
-  },
-
-  // Date sorting - handles timestamps and date strings
-  dateSorting: (rowA: any, rowB: any, columnId: string) => {
-    const a = rowA.getValue(columnId);
-    const b = rowB.getValue(columnId);
-
-    // Convert to timestamps for comparison
-    const timeA = typeof a === 'string' ? new Date(a).getTime() : typeof a === 'number' ? a : 0;
-    const timeB = typeof b === 'string' ? new Date(b).getTime() : typeof b === 'number' ? b : 0;
-
-    return timeA - timeB;
-  },
-
-  // Numeric sorting - handles numbers, currency, and numeric strings
-  numericSorting: (rowA: any, rowB: any, columnId: string) => {
-    const a = rowA.getValue(columnId);
-    const b = rowB.getValue(columnId);
-
-    // Convert to numbers for comparison
-    const numA =
-      typeof a === 'string'
-        ? parseFloat(a.replace(/[^0-9.-]/g, '')) || 0
-        : typeof a === 'number'
-          ? a
-          : 0;
-    const numB =
-      typeof b === 'string'
-        ? parseFloat(b.replace(/[^0-9.-]/g, '')) || 0
-        : typeof b === 'number'
-          ? b
-          : 0;
-
-    return numA - numB;
-  },
-
-  // String sorting - case insensitive
-  stringSorting: (rowA: any, rowB: any, columnId: string) => {
-    const a = String(rowA.getValue(columnId) || '').toLowerCase();
-    const b = String(rowB.getValue(columnId) || '').toLowerCase();
-
-    return a.localeCompare(b);
-  },
-
-  tokensSorting: (rowA: any, rowB: any, columnId: string) => {
-    const walletAddressA = rowA.getValue(columnId);
-    const walletAddressB = rowB.getValue(columnId);
-
-    const aFungiblePositions =
-      walletContext.getWalletData(walletAddressA)?.fungiblePositions.length || 0;
-    const bFungiblePositions =
-      walletContext.getWalletData(walletAddressB)?.fungiblePositions.length || 0;
-
-    return aFungiblePositions - bFungiblePositions;
-  },
-});
-
-type CustomSortingFns = ReturnType<typeof createCustomSortingFns>;
 
 // CSS variables for layout calculations
 const TOOLBAR_HEIGHT = '4rem';
@@ -331,38 +217,447 @@ export function DynamicTable<TData = any>({
   setSearchQuery,
   searchPlaceholder = 'Search...',
   additionalActions,
+  // Spreadsheet functionality
+  enableCellEditing = false,
+  onCellChange,
+  onCellsChange, // Reserved for batch cell changes in future
 }: DynamicTableProps<TData>) {
+  // Suppress unused warning - onCellsChange is reserved for future batch operations
+  void onCellsChange;
+
+  // Performance optimization: useTransition for non-urgent updates
+  const [isPending, startTransition] = useTransition();
+  // isPending can be used in the future to show loading indicators during transitions
+  void isPending;
+
   const [sorting, setSorting] = useState<SortingState>(initialSorting);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>([]);
   const [columnSizing, setColumnSizing] = useState({});
 
+  // Drag-to-select state
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStartRowIndex, setDragStartRowIndex] = useState<number | null>(null);
+  const [dragAction, setDragAction] = useState<'select' | 'deselect'>('select');
+  const dragScrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const tableContainerRef = useRef<HTMLDivElement | null>(null);
+
+  // Cell editing state for spreadsheet functionality
+  const [editingCell, setEditingCell] = useState<{ rowIndex: number; columnId: string } | null>(
+    null
+  );
+  const [cellValue, setCellValue] = useState<string>('');
+  const [selectedCell, setSelectedCell] = useState<{ rowIndex: number; columnId: string } | null>(
+    null
+  );
+  const cellInputRef = useRef<HTMLInputElement | null>(null);
+  const tableRef = useRef<any>(null);
+
   // Get wallet context for custom sorting
   const walletContext = useWalletTableContext();
 
   // Use external row selection state if provided, otherwise use internal state
-  const [internalRowSelection, setInternalRowSelection] = useState({});
-  const rowSelection = selectedRows || internalRowSelection;
+  const [internalRowSelection, setInternalRowSelection] = useState<Record<string, boolean>>({});
 
-  // Handle row selection change with proper type conversion
+  // Memoize row selection to prevent unnecessary re-renders
+  const rowSelection = useMemo(
+    () => selectedRows || internalRowSelection,
+    [selectedRows, internalRowSelection]
+  );
+
+  // Memoize the selection change handler to prevent recreation on every render
+  const onRowSelectionChangeRef = useRef(onRowSelectionChange);
+  useEffect(() => {
+    onRowSelectionChangeRef.current = onRowSelectionChange;
+  }, [onRowSelectionChange]);
+
+  // Optimized row selection change handler with deferred updates
   const handleRowSelectionChange = useCallback(
     (updaterOrValue: any) => {
-      let newSelection: Record<string, boolean>;
+      startTransition(() => {
+        const currentSelection = selectedRows || internalRowSelection;
+        let newSelection: Record<string, boolean>;
 
-      if (typeof updaterOrValue === 'function') {
-        newSelection = updaterOrValue(rowSelection);
+        if (typeof updaterOrValue === 'function') {
+          newSelection = updaterOrValue(currentSelection);
+        } else {
+          newSelection = updaterOrValue;
+        }
+
+        if (onRowSelectionChangeRef.current) {
+          onRowSelectionChangeRef.current(newSelection);
+        } else {
+          setInternalRowSelection(newSelection);
+        }
+      });
+    },
+    [selectedRows, internalRowSelection]
+  );
+
+  // Drag-to-select handlers
+  const handleRowMouseDown = useCallback(
+    (rowIndex: number, rowId: string, e: React.MouseEvent) => {
+      // Only enable drag selection if row selection is enabled and not clicking on checkbox or input
+      if (!enableRowSelection || (e.target as HTMLElement).tagName === 'INPUT') return;
+
+      // Prevent text selection during drag
+      e.preventDefault();
+
+      setIsDragging(true);
+      setDragStartRowIndex(rowIndex);
+
+      // Determine action based on current selection state
+      const isCurrentlySelected = (rowSelection as Record<string, boolean>)[rowId];
+      setDragAction(isCurrentlySelected ? 'deselect' : 'select');
+
+      // Toggle the clicked row
+      const newSelection: Record<string, boolean> = { ...rowSelection };
+      if (isCurrentlySelected) {
+        delete newSelection[rowId];
       } else {
-        newSelection = updaterOrValue;
+        newSelection[rowId] = true;
+      }
+      handleRowSelectionChange(newSelection);
+    },
+    [enableRowSelection, rowSelection, handleRowSelectionChange]
+  );
+
+  const handleRowMouseEnter = useCallback(
+    (rowIndex: number, rowId: string, allRows: any[]) => {
+      if (!isDragging || dragStartRowIndex === null) return;
+
+      // Calculate the range of rows to select/deselect
+      const startIndex = Math.min(dragStartRowIndex, rowIndex);
+      const endIndex = Math.max(dragStartRowIndex, rowIndex);
+
+      const newSelection: Record<string, boolean> = { ...rowSelection };
+
+      for (let i = startIndex; i <= endIndex; i++) {
+        if (i < allRows.length) {
+          const row = allRows[i];
+          if (dragAction === 'select') {
+            newSelection[row.id] = true;
+          } else {
+            delete newSelection[row.id];
+          }
+        }
       }
 
-      if (onRowSelectionChange) {
-        onRowSelectionChange(newSelection);
-      } else {
-        setInternalRowSelection(newSelection);
+      handleRowSelectionChange(newSelection);
+    },
+    [isDragging, dragStartRowIndex, dragAction, rowSelection, handleRowSelectionChange]
+  );
+
+  const handleMouseUp = useCallback(() => {
+    if (isDragging) {
+      setIsDragging(false);
+      setDragStartRowIndex(null);
+      if (dragScrollIntervalRef.current) {
+        clearInterval(dragScrollIntervalRef.current);
+        dragScrollIntervalRef.current = null;
+      }
+    }
+  }, [isDragging]);
+
+  // Handle auto-scroll during drag
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging || !tableContainerRef.current) return;
+
+      const container = tableContainerRef.current;
+      const rect = container.getBoundingClientRect();
+      const mouseY = e.clientY - rect.top;
+      const scrollThreshold = 50;
+
+      // Clear existing interval
+      if (dragScrollIntervalRef.current) {
+        clearInterval(dragScrollIntervalRef.current);
+        dragScrollIntervalRef.current = null;
+      }
+
+      // Scroll up
+      if (mouseY < scrollThreshold && container.scrollTop > 0) {
+        dragScrollIntervalRef.current = setInterval(() => {
+          container.scrollTop -= 10;
+        }, 16);
+      }
+      // Scroll down
+      else if (
+        mouseY > rect.height - scrollThreshold &&
+        container.scrollTop < container.scrollHeight - container.clientHeight
+      ) {
+        dragScrollIntervalRef.current = setInterval(() => {
+          container.scrollTop += 10;
+        }, 16);
       }
     },
-    [onRowSelectionChange, rowSelection]
+    [isDragging]
   );
+
+  // Global event listeners for drag selection
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('mousemove', handleMouseMove);
+      return () => {
+        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('mousemove', handleMouseMove);
+      };
+    }
+  }, [isDragging, handleMouseUp, handleMouseMove]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (dragScrollIntervalRef.current) {
+        clearInterval(dragScrollIntervalRef.current);
+      }
+    };
+  }, []);
+
+  // Cell editing handlers
+  const handleCellDoubleClick = useCallback(
+    (rowIndex: number, columnId: string, currentValue: any) => {
+      if (!enableCellEditing) return;
+      setEditingCell({ rowIndex, columnId });
+      setSelectedCell({ rowIndex, columnId });
+      setCellValue(String(currentValue || ''));
+    },
+    [enableCellEditing]
+  );
+
+  const handleCellClick = useCallback(
+    (rowIndex: number, columnId: string, e: React.MouseEvent) => {
+      // Don't interfere with drag selection
+      if (isDragging) return;
+      // Don't select cell if clicking on checkbox
+      if ((e.target as HTMLElement).tagName === 'INPUT') return;
+
+      setSelectedCell({ rowIndex, columnId });
+    },
+    [isDragging]
+  );
+
+  const handleCellKeyDown = useCallback(
+    (e: React.KeyboardEvent, rowIndex: number, columnId: string, currentValue: any) => {
+      if (!enableCellEditing) return;
+
+      // Start editing on printable character
+      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !editingCell) {
+        e.preventDefault();
+        setEditingCell({ rowIndex, columnId });
+        setSelectedCell({ rowIndex, columnId });
+        setCellValue(e.key);
+      }
+      // Enter to edit
+      else if (e.key === 'Enter' && !editingCell) {
+        e.preventDefault();
+        setEditingCell({ rowIndex, columnId });
+        setSelectedCell({ rowIndex, columnId });
+        setCellValue(String(currentValue || ''));
+      }
+    },
+    [editingCell, enableCellEditing]
+  );
+
+  const commitCellEdit = useCallback(() => {
+    if (!editingCell || !tableRef.current) return;
+
+    const rows = tableRef.current.getRowModel().rows;
+    const row = rows[editingCell.rowIndex];
+    if (!row) {
+      setEditingCell(null);
+      return;
+    }
+
+    const cell = row.getVisibleCells().find((c: any) => c.column.id === editingCell.columnId);
+    const oldValue = cell ? cell.getValue() : undefined;
+
+    // Only call callback if value actually changed
+    if (String(oldValue) !== cellValue && onCellChange) {
+      onCellChange({
+        rowIndex: editingCell.rowIndex,
+        columnId: editingCell.columnId,
+        oldValue,
+        newValue: cellValue,
+        row: row.original,
+      });
+    }
+
+    setEditingCell(null);
+  }, [editingCell, cellValue, onCellChange]);
+
+  const cancelCellEdit = useCallback(() => {
+    setEditingCell(null);
+    setCellValue('');
+  }, []);
+
+  const handleEditingCellKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        commitCellEdit();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        cancelCellEdit();
+      }
+    },
+    [commitCellEdit, cancelCellEdit]
+  );
+
+  // Focus the input when editing starts
+  useEffect(() => {
+    if (editingCell && cellInputRef.current) {
+      cellInputRef.current.focus();
+      cellInputRef.current.select();
+    }
+  }, [editingCell]);
+
+  // Copy/Paste functionality
+  useEffect(() => {
+    const handleCopy = async (e: ClipboardEvent) => {
+      if (!selectedCell || editingCell || !tableRef.current) return;
+
+      const rows = tableRef.current.getRowModel().rows;
+      const columns = tableRef.current.getVisibleFlatColumns();
+
+      // Get selected rows
+      const selectedRowIds = Object.keys(rowSelection);
+      if (selectedRowIds.length > 0) {
+        // Copy multiple rows
+        e.preventDefault();
+        const rowSelectionMap = rowSelection as Record<string, boolean>;
+        const selectedRowsData = rows.filter((row: any) => rowSelectionMap[row.id]);
+        const columnsToInclude = columns.filter((col: any) => col.id !== 'select');
+
+        const copyData = selectedRowsData
+          .map((row: any) =>
+            columnsToInclude
+              .map((col: any) => {
+                const cell = row.getVisibleCells().find((c: any) => c.column.id === col.id);
+                return cell ? String(cell.getValue() || '') : '';
+              })
+              .join('\t')
+          )
+          .join('\n');
+
+        await navigator.clipboard.writeText(copyData);
+        console.log('Copied rows to clipboard');
+      } else if (selectedCell) {
+        // Copy single cell
+        e.preventDefault();
+        const row = rows[selectedCell.rowIndex];
+        if (row) {
+          const cell = row
+            .getVisibleCells()
+            .find((c: any) => c.column.id === selectedCell.columnId);
+          if (cell) {
+            await navigator.clipboard.writeText(String(cell.getValue() || ''));
+            console.log('Copied cell to clipboard');
+          }
+        }
+      }
+    };
+
+    const handlePaste = async (e: ClipboardEvent) => {
+      if (!selectedCell || editingCell) return;
+
+      e.preventDefault();
+      const clipboardData = e.clipboardData?.getData('text');
+      if (!clipboardData) return;
+
+      console.log('Pasted data:', clipboardData);
+      // Here you would typically parse the clipboard data and update cells
+      // For now, we'll just log it
+    };
+
+    const handleCopyKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+        handleCopy(e as any);
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+        handlePaste(e as any);
+      }
+    };
+
+    document.addEventListener('copy', handleCopy);
+    document.addEventListener('paste', handlePaste);
+    document.addEventListener('keydown', handleCopyKeyDown);
+
+    return () => {
+      document.removeEventListener('copy', handleCopy);
+      document.removeEventListener('paste', handlePaste);
+      document.removeEventListener('keydown', handleCopyKeyDown);
+    };
+  }, [selectedCell, editingCell, rowSelection]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!selectedCell || editingCell || !tableRef.current) return;
+
+      const rows = tableRef.current.getRowModel().rows;
+      const columns = tableRef.current.getVisibleFlatColumns();
+      const currentRowIndex = selectedCell.rowIndex;
+      const currentColIndex = columns.findIndex((col: any) => col.id === selectedCell.columnId);
+
+      let newRowIndex = currentRowIndex;
+      let newColIndex = currentColIndex;
+
+      switch (e.key) {
+        case 'ArrowUp':
+          e.preventDefault();
+          newRowIndex = Math.max(0, currentRowIndex - 1);
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          newRowIndex = Math.min(rows.length - 1, currentRowIndex + 1);
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          newColIndex = Math.max(0, currentColIndex - 1);
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          newColIndex = Math.min(columns.length - 1, currentColIndex + 1);
+          break;
+        case 'Tab':
+          e.preventDefault();
+          if (e.shiftKey) {
+            newColIndex = currentColIndex - 1;
+            if (newColIndex < 0 && currentRowIndex > 0) {
+              newRowIndex = currentRowIndex - 1;
+              newColIndex = columns.length - 1;
+            }
+          } else {
+            newColIndex = currentColIndex + 1;
+            if (newColIndex >= columns.length && currentRowIndex < rows.length - 1) {
+              newRowIndex = currentRowIndex + 1;
+              newColIndex = 0;
+            }
+          }
+          newColIndex = Math.max(0, Math.min(columns.length - 1, newColIndex));
+          break;
+        case 'Delete':
+        case 'Backspace':
+          e.preventDefault();
+          // Clear cell content
+          console.log('Clear cell:', {
+            rowIndex: currentRowIndex,
+            columnId: selectedCell.columnId,
+          });
+          break;
+        default:
+          return;
+      }
+
+      if (newRowIndex !== currentRowIndex || newColIndex !== currentColIndex) {
+        setSelectedCell({ rowIndex: newRowIndex, columnId: columns[newColIndex].id });
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [selectedCell, editingCell]);
 
   // Update columns with custom sorting functions
   const updatedColumns = useMemo(() => {
@@ -443,6 +738,12 @@ export function DynamicTable<TData = any>({
     return [selectionColumn, ...updatedColumns];
   }, [updatedColumns, enableRowSelection, rowSelection, handleRowSelectionChange]);
 
+  // Memoize sorting functions to prevent recreation on every render
+  const sortingFns = useMemo(
+    () => createCustomSortingFns(walletContext) as CustomSortingFns,
+    [walletContext]
+  );
+
   const table = useReactTable({
     data,
     columns: tableColumns as any,
@@ -464,7 +765,7 @@ export function DynamicTable<TData = any>({
     enableSorting,
     enableColumnResizing,
     // Add custom sorting functions with wallet context
-    sortingFns: createCustomSortingFns(walletContext) as CustomSortingFns,
+    sortingFns,
     // Ensure columns respect their minimum sizes
     columnResizeDirection: 'ltr',
     // Prevent columns from being resized below their minimum width
@@ -501,8 +802,11 @@ export function DynamicTable<TData = any>({
       }),
   });
 
-  // Sortable header component
-  const SortableHeader = ({ column }: { column: any }) => {
+  // Store table reference for use in effects
+  tableRef.current = table;
+
+  // Sortable header component - memoized to prevent unnecessary re-renders
+  const SortableHeader = memo(({ column }: { column: any }) => {
     if (!column.getCanSort()) {
       return flexRender(column.columnDef.header, { column });
     }
@@ -534,7 +838,7 @@ export function DynamicTable<TData = any>({
         </div>
       </div>
     );
-  };
+  });
 
   return (
     <div className={cn('w-full h-full flex flex-col', className)}>
@@ -636,6 +940,7 @@ export function DynamicTable<TData = any>({
           <React.Fragment>
             {/* Table with sticky header */}
             <div
+              ref={tableContainerRef}
               className="flex-1 overflow-auto scrollbar-hidden relative h-full"
               onScroll={event => {
                 const target = event.currentTarget;
@@ -707,13 +1012,22 @@ export function DynamicTable<TData = any>({
                         className={cn(
                           onRowClick && 'cursor-pointer hover:bg-muted/50',
                           'transition-all duration-200 ease-out animate-row-in border-b',
-                          row.getIsSelected() && 'bg-muted/30'
+                          row.getIsSelected() && 'bg-muted/30',
+                          isDragging && 'select-none'
                         )}
                         style={{
                           animationDelay: `${index * 30}ms`,
                           animationFillMode: 'both',
+                          userSelect: isDragging ? 'none' : 'auto',
+                        }}
+                        onMouseDown={e => {
+                          handleRowMouseDown(index, row.id, e);
+                        }}
+                        onMouseEnter={() => {
+                          handleRowMouseEnter(index, row.id, table.getRowModel().rows);
                         }}
                         onClick={e => {
+                          if (isDragging) return;
                           if ((e.target as HTMLElement).tagName === 'INPUT') return;
                           // Prevent multiple rapid clicks
                           if (e.detail > 1) return;
@@ -722,15 +1036,26 @@ export function DynamicTable<TData = any>({
                             onRowClick?.(row.original);
                           });
                         }}>
-                        {row.getVisibleCells().map((cell, index) => {
+                        {row.getVisibleCells().map((cell, cellIndex) => {
                           const isFrozen = (cell.column.columnDef.meta as any)?.frozen;
                           const leftPosition = isFrozen
-                            ? calculateFrozenColumnPosition(index, row.getVisibleCells())
+                            ? calculateFrozenColumnPosition(cellIndex, row.getVisibleCells())
                             : 'auto';
+
+                          const rowIndex = index;
+                          const columnId = cell.column.id;
+                          const isEditing =
+                            editingCell?.rowIndex === rowIndex &&
+                            editingCell?.columnId === columnId;
+                          const isSelected =
+                            selectedCell?.rowIndex === rowIndex &&
+                            selectedCell?.columnId === columnId;
+                          const isSelectColumn = columnId === 'select';
 
                           return (
                             <TableCell
                               key={cell.id}
+                              tabIndex={isSelectColumn ? -1 : 0}
                               style={{
                                 width: cell.column.getSize(),
                                 position: isFrozen ? ('sticky' as const) : ('relative' as const),
@@ -739,10 +1064,48 @@ export function DynamicTable<TData = any>({
                                 backgroundColor: isFrozen
                                   ? 'hsl(var(--background))'
                                   : 'transparent',
-                                boxShadow: isFrozen ? '1px 0 0 0 hsl(var(--border))' : 'none',
+                                boxShadow: isFrozen
+                                  ? '1px 0 0 0 hsl(var(--border))'
+                                  : isSelected
+                                    ? '0 0 0 2px hsl(var(--primary))'
+                                    : 'none',
+                                outline: 'none',
                               }}
-                              className={cn('overflow-hidden py-3', isFrozen && 'shadow-sm')}>
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              className={cn(
+                                'overflow-hidden py-3 relative',
+                                isFrozen && 'shadow-sm',
+                                isSelected && 'ring-2 ring-primary ring-inset',
+                                !isSelectColumn && 'cursor-cell'
+                              )}
+                              onClick={e => {
+                                if (!isSelectColumn) {
+                                  handleCellClick(rowIndex, columnId, e);
+                                }
+                              }}
+                              onDoubleClick={() => {
+                                if (!isSelectColumn) {
+                                  handleCellDoubleClick(rowIndex, columnId, cell.getValue());
+                                }
+                              }}
+                              onKeyDown={e => {
+                                if (!isSelectColumn) {
+                                  handleCellKeyDown(e, rowIndex, columnId, cell.getValue());
+                                }
+                              }}>
+                              {isEditing && !isSelectColumn ? (
+                                <input
+                                  ref={cellInputRef}
+                                  type="text"
+                                  value={cellValue}
+                                  onChange={e => setCellValue(e.target.value)}
+                                  onKeyDown={handleEditingCellKeyDown}
+                                  onBlur={commitCellEdit}
+                                  className="w-full h-full px-2 py-1 border-0 bg-background focus:outline-none focus:ring-2 focus:ring-primary rounded"
+                                  onClick={e => e.stopPropagation()}
+                                />
+                              ) : (
+                                flexRender(cell.column.columnDef.cell, cell.getContext())
+                              )}
                             </TableCell>
                           );
                         })}
