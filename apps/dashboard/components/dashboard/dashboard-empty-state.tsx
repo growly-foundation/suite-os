@@ -1,10 +1,9 @@
+import { DocumentationFeed } from '@/components/dashboard/documentation-feed';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { ArrowRight, Bot, FileStack, Plus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-
-import { AnimatedBuster } from '@getgrowly/ui';
 
 interface DashboardEmptyStateProps {
   className?: string;
@@ -60,18 +59,6 @@ export function DashboardEmptyState({
 
   return (
     <div className={cn('flex flex-col gap-6 p-6 md:gap-8 md:p-8', className)}>
-      {/* Welcome Header */}
-      <div className="text-center">
-        <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600">
-          <AnimatedBuster state="idle" />
-        </div>
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">Welcome to Suite!</h1>
-        <p className="mt-2 text-lg text-gray-600 max-w-2xl mx-auto">
-          You're just a few steps away from having intelligent AI agents helping your users. Let's
-          get you set up!
-        </p>
-      </div>
-
       {/* Quick Actions Grid */}
       <div className="grid gap-4 md:grid-cols-4 max-w-6xl mx-auto">
         {quickActions.map(action => (
@@ -154,6 +141,11 @@ export function DashboardEmptyState({
             <p className="text-xs text-gray-400">Coming soon</p>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Documentation Feed for new users */}
+      <div className="max-w-6xl mx-auto">
+        <DocumentationFeed showHeader={true} />
       </div>
     </div>
   );

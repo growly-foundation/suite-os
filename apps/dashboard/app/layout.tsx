@@ -10,8 +10,8 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Suite Dashboard | Create Growth That Lasts.',
-  description: 'Manage your AI agents for Growly Suite and workflows with ease.',
-  keywords: 'Growly, DeFi, AI, LLM, MCP, knowledge base, AI agents, MCP server',
+  description: 'Manage your AI agents for Suite and workflows with ease.',
+  keywords: 'Suite, DeFi, AI, LLM, MCP, knowledge base, AI agents, MCP server',
   icons: {
     icon: [
       { url: '/favicon.ico' },

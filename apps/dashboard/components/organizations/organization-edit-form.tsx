@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { Organization, generateHandle } from '@getgrowly/core';
@@ -57,15 +57,39 @@ export function OrganizationEditForm({
   const { createOrganization, updateOrganization, setSelectedOrganization } = useDashboardState();
   const { admin } = useDashboardState();
   const [companyName, setCompanyName] = useState(existingOrganization?.name || '');
-  const [companyDescription, setCompanyDescription] = useState(
+  const [organizationDescription, setOrganizationDescription] = useState(
     existingOrganization?.description || ''
   );
   const [organizationHandle, setOrganizationHandle] = useState(existingOrganization?.handle || '');
   const [referralSource, setReferralSource] = useState(existingOrganization?.referral_source || '');
   const [role, setRole] = useState('');
+  const [isLoadingRole, setIsLoadingRole] = useState(false);
   // const [companyLogo, setCompanyLogo] = useState<string | null>(null);
   // const [logoFile, setLogoFile] = useState<File | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch the current admin's role for existing organization
+  useEffect(() => {
+    const fetchAdminRole = async () => {
+      if (existingOrganization && admin?.id) {
+        setIsLoadingRole(true);
+        try {
+          const adminOrganization = await suiteCore.db.admin_organizations.getOneByFields({
+            admin_id: admin.id,
+            organization_id: existingOrganization.id,
+          });
+          if (adminOrganization?.role) {
+            setRole(adminOrganization.role);
+          }
+        } catch (error) {
+          console.error('Error fetching admin role:', error);
+        } finally {
+          setIsLoadingRole(false);
+        }
+      }
+    };
+    fetchAdminRole();
+  }, [existingOrganization, admin?.id]);
 
   // const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
   //   if (event.target.files?.[0]) {
@@ -99,26 +123,44 @@ export function OrganizationEditForm({
       return;
     }
 
+    if (!role) {
+      toast.error('Please select your role at the organization');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       if (admin) {
         if (existingOrganization) {
+          // Update organization details
           const organization = await updateOrganization(
             existingOrganization.id,
             companyName,
-            companyDescription,
+            organizationDescription,
             organizationHandle,
             undefined,
             referralSource
           );
+
+          // Update admin role in admin_organizations table using upsert
+          await suiteCore.db.admin_organizations.upsert(
+            {
+              admin_id: admin.id,
+              organization_id: existingOrganization.id,
+              role,
+            },
+            ['admin_id', 'organization_id']
+          );
+
           setSelectedOrganization(organization);
           toast.success('Organization updated successfully!');
           router.push('/dashboard');
           return;
         }
+        // Create new organization with role
         const organization = await createOrganization(
           companyName,
-          companyDescription,
+          organizationDescription,
           role,
           organizationHandle,
           undefined,
@@ -130,8 +172,8 @@ export function OrganizationEditForm({
         router.push('/onboarding/chains');
       }
     } catch (error) {
-      console.error('Error creating organization:', error);
-      toast.error('Failed to create organization. Please try again.');
+      console.error('Error creating/updating organization:', error);
+      toast.error('Failed to save organization. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -144,9 +186,9 @@ export function OrganizationEditForm({
     setOrganizationHandle(generateHandle(name));
   };
 
-  const handleCompanyDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleOrganizationDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const description = e.target.value;
-    setCompanyDescription(description);
+    setOrganizationDescription(description);
   };
 
   const handleChainConfigSave = async (chainIds: number[]) => {
@@ -233,7 +275,7 @@ export function OrganizationEditForm({
         <div className="grid gap-6">
           <div className="space-y-2">
             <Label className="text-sm" htmlFor="companyName">
-              Company name
+              Name
             </Label>
             <Input
               id="companyName"
@@ -244,24 +286,25 @@ export function OrganizationEditForm({
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-sm" htmlFor="companyDescription">
-              Company description
+            <Label className="text-sm" htmlFor="organizationDescription">
+              Description
             </Label>
             <Input
-              id="companyDescription"
-              placeholder="Enter your company description..."
-              value={companyDescription}
-              onChange={handleCompanyDescriptionChange}
+              id="organizationDescription"
+              placeholder="Enter your organization description..."
+              value={organizationDescription}
+              onChange={handleOrganizationDescriptionChange}
               required
             />
           </div>
           <div className="space-y-2">
             <Label className="text-sm" htmlFor="organizationHandle">
-              Organization handle
+              Handle
             </Label>
             <div className="flex items-center">
               <span className="text-muted-foreground text-sm mr-2">app.getsuite.io/</span>
               <Input
+                disabled
                 id="organizationHandle"
                 placeholder="my-organization"
                 value={organizationHandle}
@@ -273,11 +316,12 @@ export function OrganizationEditForm({
           </div>
           <div className="space-y-2">
             <Label className="text-sm" htmlFor="role">
-              Your role at the company
+              Your role at the organization
+              {!existingOrganization && <span className="text-red-500 ml-1">*</span>}
             </Label>
-            <Select value={role} onValueChange={setRole}>
+            <Select value={role} onValueChange={setRole} disabled={isLoadingRole}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select your role" />
+                <SelectValue placeholder={isLoadingRole ? 'Loading...' : 'Select your role'} />
               </SelectTrigger>
               <SelectContent>
                 {ROLES.map(r => (
@@ -290,7 +334,7 @@ export function OrganizationEditForm({
           </div>
           <div className="space-y-2">
             <Label className="text-sm" htmlFor="referralSource">
-              How did you hear about us?
+              How did you hear about Suite?
             </Label>
             <Select value={referralSource} onValueChange={setReferralSource}>
               <SelectTrigger className="w-full">
@@ -312,13 +356,15 @@ export function OrganizationEditForm({
               'w-full mt-2 bg-gradient-to-r from-primary to-brand-accent',
               existingOrganization && 'max-w-[300px]'
             )}
-            disabled={isSubmitting || !companyName || !organizationHandle}>
+            disabled={
+              isSubmitting || !companyName || !organizationHandle || !role || isLoadingRole
+            }>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Continue
           </Button>
           {!existingOrganization && (
             <Link href="/onboarding/profile" className="block text-center">
-              <Button variant="ghost" type="button" className="mt-2 w-full">
+              <Button variant="ghost" type="button" className="mt-1 w-full">
                 <ArrowLeft size={16} className="mr-2" />
                 Back to profile
               </Button>

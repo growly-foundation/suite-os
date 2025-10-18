@@ -7,9 +7,10 @@ import { Label } from '@/components/ui/label';
 import { suiteCore } from '@/core/suite';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { uploadToSupabase } from '@/utils/supabase-storage';
-import { Loader2 } from 'lucide-react';
+import { usePrivy } from '@privy-io/react-auth';
+import { ArrowLeft, Loader2, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { SuiteLogoFull } from '@getgrowly/ui';
@@ -94,7 +95,7 @@ export function ProfileForm() {
   }
 
   return (
-    <Card className="overflow-hidden md:overflow-auto scrollbar-hidden position-relative rounded-2xl flex max-h-[85vh] max-sm:h-[100vh] justify-between">
+    <Card className="overflow-hidden md:overflow-auto scrollbar-hidden position-relative rounded-2xl flex max-h-[85vh] max-sm:h-[100vh]">
       <CardContent className="py-6 px-10 md:p-8 w-full max-h-full overflow-auto scrollbar-hidden">
         <div className="text-left mb-8">
           <h1 className="text-xl font-bold">Let&apos;s get to know you</h1>
@@ -103,7 +104,7 @@ export function ProfileForm() {
           </p>
         </div>
 
-        <div>
+        <div className="space-y-4">
           {/* <div className="flex space-x-6 max-sm:flex-col max-sm:space-x-0 items-center space-y-4 md:space-y-0 mb-6">
             <div className="relative w-24 h-24 mb-2">
               {profileImage ? (
@@ -137,72 +138,108 @@ export function ProfileForm() {
             </div>
           </div> */}
 
-          <div className="grid gap-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm" htmlFor="firstName">
-                  First name
-                </Label>
-                <Input
-                  id="firstName"
-                  placeholder="First name"
-                  value={firstName}
-                  onChange={e => setFirstName(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm" htmlFor="lastName">
-                  Last name
-                </Label>
-                <Input
-                  id="lastName"
-                  placeholder="Last name"
-                  value={lastName}
-                  onChange={e => setLastName(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-            {admin?.email && (
-              <div className="space-y-2">
-                <Label className="text-sm" htmlFor="email">
-                  Email
-                </Label>
-                <Input id="email" type="email" value={admin?.email} disabled className="bg-muted" />
-              </div>
-            )}
-            <Button
-              size="lg"
-              onClick={handleSubmit}
-              className="w-full mt-2 bg-gradient-to-r from-primary to-brand-accent"
-              disabled={isSubmitting || !firstName || !lastName}>
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Continue
-            </Button>
+          <div className="space-y-2">
+            <Label className="text-sm" htmlFor="firstName">
+              First name
+            </Label>
+            <Input
+              id="firstName"
+              placeholder="First name"
+              value={firstName}
+              onChange={e => setFirstName(e.target.value)}
+              required
+            />
           </div>
+          <div className="space-y-2">
+            <Label className="text-sm" htmlFor="lastName">
+              Last name
+            </Label>
+            <Input
+              id="lastName"
+              placeholder="Last name"
+              value={lastName}
+              onChange={e => setLastName(e.target.value)}
+              required
+            />
+          </div>
+          {admin?.email && (
+            <div className="space-y-2">
+              <Label className="text-sm" htmlFor="email">
+                Email
+              </Label>
+              <Input id="email" type="email" value={admin?.email} disabled className="bg-muted" />
+            </div>
+          )}
+          <Button
+            size="lg"
+            onClick={handleSubmit}
+            className="w-full mt-2 bg-gradient-to-r from-primary to-brand-accent"
+            disabled={isSubmitting || !firstName || !lastName}>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Continue
+          </Button>
         </div>
       </CardContent>
-      <img
-        src="/banners/onboarding-profile-banner.png"
-        alt="Banner"
-        style={{ width: '50%', height: '90vh', objectFit: 'cover' }}
-        className="dark:brightness-[0.2] dark:grayscale max-md:hidden"
-      />
     </Card>
   );
 }
 
 export default function ProfilePage() {
+  const router = useRouter();
+  const { logout } = usePrivy();
+  const { fetchOrganizations } = useDashboardState();
+  const [hasOrganizations, setHasOrganizations] = useState(false);
+  const [isLoadingOrganizations, setIsLoadingOrganizations] = useState(true);
+
+  useEffect(() => {
+    const checkOrganizations = async () => {
+      setIsLoadingOrganizations(true);
+      try {
+        const orgs = await fetchOrganizations();
+        setHasOrganizations(orgs.length > 0);
+      } catch (error) {
+        console.error('Error fetching organizations:', error);
+      } finally {
+        setIsLoadingOrganizations(false);
+      }
+    };
+    checkOrganizations();
+  }, []);
+
   return (
-    <div className="bg-muted p-6 py-10 md:p-10 h-[100vh]">
+    <div className="bg-muted p-6 py-10 md:p-10 h-[100vh] relative">
+      {/* Action buttons in top-right corner */}
+      <div className="absolute top-4 right-4 flex gap-2">
+        {!isLoadingOrganizations && hasOrganizations && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push('/dashboard')}
+            className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Dashboard
+          </Button>
+        )}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={async () => {
+            await logout();
+            router.push('/auth');
+          }}
+          className="gap-2">
+          <LogOut className="h-4 w-4" />
+          Logout
+        </Button>
+      </div>
+
       <div className="w-full max-w-[80%] max-sm:max-w-full flex flex-col items-center mx-auto">
         <SuiteLogoFull className="w-24 object-contain mb-6" />
         <ProfileForm />
-        <div className="text-balance text-center text-xs text-muted-foreground mt-6 max-sm:m-4 [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
+        {/* <div className="text-balance text-center text-xs text-muted-foreground mt-6 max-sm:m-4 [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
           By continuing, you agree to our <a href="#">Terms of Service</a> and{' '}
           <a href="#">Privacy Policy</a>.
-        </div>
+        </div> */}
       </div>
     </div>
   );

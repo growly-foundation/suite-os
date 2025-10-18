@@ -2,6 +2,7 @@
 
 import { MessageListCard } from '@/components/conversations/message-list-card';
 import { DashboardEmptyState } from '@/components/dashboard/dashboard-empty-state';
+import { DocumentationFeed } from '@/components/dashboard/documentation-feed';
 import { GrowthRetentionChart } from '@/components/dashboard/growth-retention-chart';
 import { Identity, IdentityAvatar } from '@/components/identity';
 import { Button } from '@/components/ui/button';
@@ -399,6 +400,11 @@ export function DashboardInner() {
                 ))}
               </CardContent>
             </Card>
+          </div>
+
+          {/* Documentation Feed */}
+          <div className="grid gap-4 md:grid-cols-1">
+            <DocumentationFeed />
           </div>
         </div>
       )}
