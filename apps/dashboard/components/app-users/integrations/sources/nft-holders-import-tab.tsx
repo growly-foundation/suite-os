@@ -59,49 +59,70 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
   const [chainId, setChainId] = useState<number>(mainnet.id);
   const [contractType, setContractType] = useState<string | null>(null);
   const [addressError, setAddressError] = useState<string | null>(null);
+  const [validationCompleted, setValidationCompleted] = useState(false);
 
-  const debouncedValidateContractAddress = useCallback(
-    debounce(async (address: string, chain: number) => {
-      setLoading(true);
+  const debouncedValidateContractAddress = useMemo(
+    () =>
+      debounce(async (address: string, chain: number) => {
+        setLoading(true);
 
-      if (address) {
-        if (!address.startsWith('0x')) {
-          setAddressError('Address must start with 0x');
-          setContractType(null);
-          setLoading(false);
-          return;
+        if (address) {
+          if (!address.startsWith('0x')) {
+            setAddressError('Address must start with 0x');
+            setContractType(null);
+            setValidationCompleted(true);
+            setLoading(false);
+            return;
+          } else {
+            setAddressError(null);
+          }
+          try {
+            const type = await detectAddressType(address as `0x${string}`, chain);
+            if (type === 'Wallet (EOA)') {
+              setAddressError(
+                'Invalid contract address: Address not found or is an EOA (Externally Owned Account)'
+              );
+              setContractType(null);
+              setValidationCompleted(true);
+            } else if (type === 'ERC721' || type === 'ERC1155') {
+              setContractType(type);
+              setAddressError(null);
+              setValidationCompleted(true);
+            } else {
+              setAddressError(
+                'Invalid contract address: Address not found or is not an ERC721 or ERC1155 contract'
+              );
+              setContractType(null);
+              setValidationCompleted(true);
+            }
+          } catch (error) {
+            console.error('Error detecting address type:', error);
+            setAddressError(
+              'Error validating contract address. Please check the address and try again.'
+            );
+            setContractType(null);
+            setValidationCompleted(true);
+          }
         } else {
-          setAddressError(null);
-        }
-        const type = await detectAddressType(address as `0x${string}`, chain);
-        if (type === 'Wallet (EOA)') {
-          setAddressError(
-            'Invalid contract address: Address not found or is an EOA (Externally Owned Account)'
-          );
           setContractType(null);
-        } else if (type === 'ERC721' || type === 'ERC1155') {
-          setContractType(type);
           setAddressError(null);
-        } else {
-          setAddressError(
-            'Invalid contract address: Address not found or is not an ERC721 or ERC1155 contract'
-          );
-          setContractType(null);
+          setValidationCompleted(true);
         }
-      } else {
-        setContractType(null);
-        setAddressError(null);
-      }
-      setLoading(false);
-    }, 500),
-    []
+        setLoading(false);
+      }, 500),
+    [setLoading, setAddressError, setContractType, setValidationCompleted]
   );
 
   useEffect(() => {
     setChainId(selectedOrganization?.supported_chain_ids?.[0] ?? mainnet.id);
-  }, [selectedOrganization?.supported_chain_ids]);
+  }, [selectedOrganization?.supported_chain_ids, mainnet.id]);
 
   useEffect(() => {
+    if (contractAddress) {
+      setValidationCompleted(false);
+      setAddressError(null);
+      setContractType(null);
+    }
     debouncedValidateContractAddress(contractAddress, chainId);
   }, [contractAddress, chainId, debouncedValidateContractAddress]);
 
@@ -125,7 +146,7 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
       console.error('Error checking organization limits:', error);
       toast.error('Failed to check organization limits');
     }
-  }, [selectedOrganization?.id, selectedUserIds.length]);
+  }, [selectedOrganization?.id, selectedUserIds]);
 
   // Check limits when selected users change
   useEffect(() => {
@@ -337,12 +358,21 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
                   <Label htmlFor="contract-address">
                     Contract Address <span className="text-red-500">*</span>
                   </Label>
-                  <Input
-                    id="contract-address"
-                    value={contractAddress}
-                    onChange={e => setContractAddress(e.target.value)}
-                    placeholder="0x..."
-                  />
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      id="contract-address"
+                      value={contractAddress}
+                      onChange={e => setContractAddress(e.target.value)}
+                      placeholder="0x..."
+                      className="flex-1"
+                    />
+                    {loading && (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">Validating...</span>
+                      </>
+                    )}
+                  </div>
                   {addressError ? (
                     <p className="text-red-500 text-sm">{addressError}</p>
                   ) : (
@@ -384,13 +414,22 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
                     setContractAddress('');
                     setConfiguring(false);
                     setChainId(selectedOrganization?.supported_chain_ids?.[0] ?? mainnet.id);
+                    setValidationCompleted(false);
+                    setAddressError(null);
+                    setContractType(null);
                   }}>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Stop and Reset
                 </Button>
               ) : (
                 <Button
                   onClick={handleConfigure}
-                  disabled={!contractAddress || !chainId || !!addressError || loading}>
+                  disabled={
+                    !contractAddress ||
+                    !chainId ||
+                    !!addressError ||
+                    loading ||
+                    !validationCompleted
+                  }>
                   Configure NFT Contract
                 </Button>
               )}
@@ -430,6 +469,9 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
                           setSelectedUserIds([]);
                           setLimits(null);
                           setCurrentPage(0);
+                          setValidationCompleted(false);
+                          setAddressError(null);
+                          setContractType(null);
                         }}>
                         Change NFT Contract
                       </Button>

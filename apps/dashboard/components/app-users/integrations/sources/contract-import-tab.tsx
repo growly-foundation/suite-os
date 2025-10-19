@@ -58,43 +58,63 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   const { selectedOrganization } = useDashboardState();
   const [contractType, setContractType] = useState<string | null>(null);
   const [addressError, setAddressError] = useState<string | null>(null);
+  const [validationCompleted, setValidationCompleted] = useState(false);
 
-  const debouncedValidateContractAddress = useCallback(
-    debounce(async (address: string, chain: number) => {
-      setLoading(true);
+  const debouncedValidateContractAddress = useMemo(
+    () =>
+      debounce(async (address: string, chain: number) => {
+        setLoading(true);
 
-      if (address) {
-        if (!address.startsWith('0x')) {
-          setAddressError('Address must start with 0x');
-          setContractType(null);
-          setLoading(false);
-          return;
+        if (address) {
+          if (!address.startsWith('0x')) {
+            setAddressError('Address must start with 0x');
+            setContractType(null);
+            setValidationCompleted(true);
+            setLoading(false);
+            return;
+          } else {
+            setAddressError(null);
+          }
+          try {
+            const type = await detectAddressType(address as `0x${string}`, chain);
+            if (type === 'Wallet (EOA)') {
+              setAddressError(
+                'Invalid contract address: Address not found or is an EOA (Externally Owned Account)'
+              );
+              setContractType(null);
+              setValidationCompleted(true);
+            } else {
+              setContractType(type);
+              setValidationCompleted(true);
+            }
+          } catch (error) {
+            console.error('Error detecting address type:', error);
+            setAddressError(
+              'Error validating contract address. Please check the address and try again.'
+            );
+            setContractType(null);
+            setValidationCompleted(true);
+          }
         } else {
+          setContractType(null);
           setAddressError(null);
+          setValidationCompleted(true);
         }
-        const type = await detectAddressType(address as `0x${string}`, chain);
-        if (type === 'Wallet (EOA)') {
-          setAddressError(
-            'Invalid contract address: Address not found or is an EOA (Externally Owned Account)'
-          );
-          setContractType(null);
-        } else {
-          setContractType(type);
-        }
-      } else {
-        setContractType(null);
-        setAddressError(null);
-      }
-      setLoading(false);
-    }, 500),
-    []
+        setLoading(false);
+      }, 500),
+    [setLoading, setAddressError, setContractType, setValidationCompleted]
   );
 
   useEffect(() => {
     setChainId(selectedOrganization?.supported_chain_ids?.[0] ?? mainnet.id);
-  }, [selectedOrganization?.supported_chain_ids]);
+  }, [selectedOrganization?.supported_chain_ids, mainnet.id]);
 
   useEffect(() => {
+    if (contractAddress) {
+      setValidationCompleted(false);
+      setAddressError(null);
+      setContractType(null);
+    }
     debouncedValidateContractAddress(contractAddress, chainId);
   }, [contractAddress, chainId, debouncedValidateContractAddress]);
 
@@ -122,7 +142,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
 
   const checkOrganizationLimits = useCallback(debounce(checkOrganizationLimitsInternal, 500), [
     selectedOrganization?.id,
-    selectedUserIds.length,
+    selectedUserIds,
   ]);
 
   // Check limits when selected users change
@@ -343,12 +363,21 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
                   <Label htmlFor="contract-address">
                     Contract Address <span className="text-red-500">*</span>
                   </Label>
-                  <Input
-                    id="contract-address"
-                    value={contractAddress}
-                    onChange={e => setContractAddress(e.target.value)}
-                    placeholder="0x..."
-                  />
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      id="contract-address"
+                      value={contractAddress}
+                      onChange={e => setContractAddress(e.target.value)}
+                      placeholder="0x..."
+                      className="flex-1"
+                    />
+                    {loading && (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">Validating...</span>
+                      </>
+                    )}
+                  </div>
                   {addressError ? (
                     <p className="text-red-500 text-sm">{addressError}</p>
                   ) : (
@@ -390,13 +419,22 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
                     setContractAddress('');
                     setConfiguring(false);
                     setChainId(selectedOrganization?.supported_chain_ids?.[0] ?? mainnet.id);
+                    setValidationCompleted(false);
+                    setAddressError(null);
+                    setContractType(null);
                   }}>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Stop and Reset
                 </Button>
               ) : (
                 <Button
                   onClick={handleConfigure}
-                  disabled={!contractAddress || !chainId || !!addressError || loading}>
+                  disabled={
+                    !contractAddress ||
+                    !chainId ||
+                    !!addressError ||
+                    loading ||
+                    !validationCompleted
+                  }>
                   Configure Contract
                 </Button>
               )}
@@ -436,6 +474,9 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
                           setSelectedUserIds([]);
                           setLimits(null);
                           setCurrentPage(0);
+                          setValidationCompleted(false);
+                          setAddressError(null);
+                          setContractType(null);
                         }}>
                         Change Contract
                       </Button>
