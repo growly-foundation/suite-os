@@ -10,14 +10,17 @@ import { PersonaTrait } from '@/types/persona';
 import { ParsedUser } from '@getgrowly/core';
 
 export function TraitBadgeCell({ user }: { user: ParsedUser }) {
-  const { personaAnalysis, isLoading, hasError } = useWalletData(user);
+  const { personaAnalysis, isLoading } = useWalletData(user);
   if (isLoading) {
     return <Skeleton className="h-4 w-[50px] rounded-full" />;
   }
-  const dominantTrait = !hasError ? personaAnalysis?.dominantTrait?.toString() || '' : '';
+
+  // Persona analysis is always calculated now, but may be based on incomplete data
+  const dominantTrait = personaAnalysis?.dominantTrait?.toString() || PersonaTrait.IDLE;
+
   return (
     <Badge className={cn(getTraitColor(dominantTrait as PersonaTrait), 'rounded-full')}>
-      {dominantTrait || '—'}
+      {dominantTrait}
     </Badge>
   );
 }

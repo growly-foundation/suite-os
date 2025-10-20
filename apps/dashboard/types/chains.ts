@@ -5,6 +5,7 @@ export enum ChainFeatureKey {
   SUPPORTS_NFTS = 'supportsNFTs',
   SUPPORTS_CONTRACT_IMPORTS = 'supportsContractImports',
   SUPPORTS_RESOURCES = 'supportsResources',
+  SUPPORTS_NFT_POSITIONS = 'supportsNftPositions',
 }
 
 /**
@@ -40,6 +41,7 @@ export interface ChainFeatures {
   [ChainFeatureKey.SUPPORTS_NFTS]: boolean;
   [ChainFeatureKey.SUPPORTS_CONTRACT_IMPORTS]: boolean;
   [ChainFeatureKey.SUPPORTS_RESOURCES]: boolean;
+  [ChainFeatureKey.SUPPORTS_NFT_POSITIONS]: boolean;
 }
 
 /**

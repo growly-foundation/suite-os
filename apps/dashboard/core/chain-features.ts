@@ -37,6 +37,15 @@ export const CHAIN_FEATURE_REGISTRY: ChainFeatureRegistry = {
       textColor: 'text-purple-800',
     },
   },
+  [ChainFeatureKey.SUPPORTS_NFT_POSITIONS]: {
+    key: ChainFeatureKey.SUPPORTS_NFT_POSITIONS,
+    title: 'NFT Position Data',
+    description: 'Access to NFT position and portfolio data via Zerion API',
+    badgeStyle: {
+      backgroundColor: 'bg-orange-100',
+      textColor: 'text-orange-800',
+    },
+  },
 } as const;
 
 /**
@@ -49,6 +58,7 @@ export const CHAIN_FEATURES: Record<number, ChainFeatures> = {
     [ChainFeatureKey.SUPPORTS_NFTS]: true,
     [ChainFeatureKey.SUPPORTS_CONTRACT_IMPORTS]: true,
     [ChainFeatureKey.SUPPORTS_RESOURCES]: true,
+    [ChainFeatureKey.SUPPORTS_NFT_POSITIONS]: true,
   },
 
   // Optimism - full support
@@ -56,6 +66,7 @@ export const CHAIN_FEATURES: Record<number, ChainFeatures> = {
     [ChainFeatureKey.SUPPORTS_NFTS]: true,
     [ChainFeatureKey.SUPPORTS_CONTRACT_IMPORTS]: true,
     [ChainFeatureKey.SUPPORTS_RESOURCES]: true,
+    [ChainFeatureKey.SUPPORTS_NFT_POSITIONS]: true,
   },
 
   // Base - full support
@@ -63,6 +74,7 @@ export const CHAIN_FEATURES: Record<number, ChainFeatures> = {
     [ChainFeatureKey.SUPPORTS_NFTS]: true,
     [ChainFeatureKey.SUPPORTS_CONTRACT_IMPORTS]: true,
     [ChainFeatureKey.SUPPORTS_RESOURCES]: true,
+    [ChainFeatureKey.SUPPORTS_NFT_POSITIONS]: true,
   },
 
   // Celo - full support
@@ -70,6 +82,7 @@ export const CHAIN_FEATURES: Record<number, ChainFeatures> = {
     [ChainFeatureKey.SUPPORTS_NFTS]: true,
     [ChainFeatureKey.SUPPORTS_CONTRACT_IMPORTS]: true,
     [ChainFeatureKey.SUPPORTS_RESOURCES]: true,
+    [ChainFeatureKey.SUPPORTS_NFT_POSITIONS]: true,
   },
 
   // HyperEVM - limited support (no NFTs)
@@ -77,6 +90,7 @@ export const CHAIN_FEATURES: Record<number, ChainFeatures> = {
     [ChainFeatureKey.SUPPORTS_NFTS]: false,
     [ChainFeatureKey.SUPPORTS_CONTRACT_IMPORTS]: true,
     [ChainFeatureKey.SUPPORTS_RESOURCES]: true,
+    [ChainFeatureKey.SUPPORTS_NFT_POSITIONS]: false,
   },
 
   // Berachain - limited support (no NFTs)
@@ -84,6 +98,7 @@ export const CHAIN_FEATURES: Record<number, ChainFeatures> = {
     [ChainFeatureKey.SUPPORTS_NFTS]: false,
     [ChainFeatureKey.SUPPORTS_CONTRACT_IMPORTS]: true,
     [ChainFeatureKey.SUPPORTS_RESOURCES]: true,
+    [ChainFeatureKey.SUPPORTS_NFT_POSITIONS]: false,
   },
 };
 

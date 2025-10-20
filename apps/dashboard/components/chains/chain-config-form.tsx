@@ -115,17 +115,25 @@ export function ChainConfigForm({
                   const isDisabled = !isSelected && (currentSelected || []).length >= maxChains;
 
                   return (
-                    <button
+                    <div
                       key={chain.id}
-                      type="button"
                       onClick={() => !isDisabled && toggleChain(chain.id)}
-                      disabled={isDisabled}
                       className={cn(
-                        'relative flex items-center gap-3 p-4 rounded-lg border-2 transition-all',
+                        'relative flex items-center gap-3 p-4 rounded-lg border-2 transition-all cursor-pointer',
                         'hover:bg-muted/50',
                         isSelected ? 'border-primary bg-primary/5' : 'border-border',
                         isDisabled && 'opacity-50 cursor-not-allowed hover:bg-transparent'
-                      )}>
+                      )}
+                      role="button"
+                      tabIndex={isDisabled ? -1 : 0}
+                      onKeyDown={e => {
+                        if ((e.key === 'Enter' || e.key === ' ') && !isDisabled) {
+                          e.preventDefault();
+                          toggleChain(chain.id);
+                        }
+                      }}
+                      aria-pressed={isSelected}
+                      aria-disabled={isDisabled}>
                       <ChainIcon chainIds={[chain.id]} />
                       <div className="flex-1 text-left">
                         <div className="font-medium">{chain.name}</div>
@@ -137,7 +145,7 @@ export function ChainConfigForm({
                           <Check className="w-3 h-3 text-primary-foreground" />
                         </div>
                       )}
-                    </button>
+                    </div>
                   );
                 })}
               </div>
