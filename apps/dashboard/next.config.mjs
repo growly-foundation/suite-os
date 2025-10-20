@@ -9,7 +9,15 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Turbopack configuration (moved from experimental)
+  // Transpile workspace packages for Turbopack and Webpack
+  transpilePackages: [
+    '@getgrowly/chainsmith',
+    '@getgrowly/core',
+    '@getgrowly/persona',
+    '@getgrowly/suite',
+    '@getgrowly/ui',
+  ],
+  // Turbopack configuration
   turbopack: {
     rules: {
       '*.svg': {
@@ -18,7 +26,7 @@ const nextConfig = {
       },
     },
   },
-  // Bundle pages router dependencies (moved from experimental)
+  // Bundle pages router dependencies
   bundlePagesRouterDependencies: true,
   // Webpack optimizations for development
   webpack: (config, { dev, isServer }) => {
@@ -32,9 +40,6 @@ const nextConfig = {
         removeEmptyChunks: false,
         splitChunks: false,
       };
-
-      // Disable source maps in development for faster builds
-      config.devtool = 'eval-cheap-module-source-map';
     }
 
     return config;

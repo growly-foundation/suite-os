@@ -1,10 +1,5 @@
-import withTM from 'next-transpile-modules';
-
-// const workspaceDependencies = ['@getgrowly/ui', '@getgrowly/suite'];
-const workspaceDependencies = [];
-
 /** @type {import('next').NextConfig} */
-const nextConfig = withTM(workspaceDependencies)({
+const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -14,14 +9,19 @@ const nextConfig = withTM(workspaceDependencies)({
   images: {
     unoptimized: true,
   },
-  // webpack: (config) => {
-  //   // This fixes the CSS loader issue
-  //   config.module.rules.push({
-  //     test: /\.css$/,
-  //     use: ['style-loader', 'css-loader', 'postcss-loader'],
-  //   });
-  //   return config;
-  // },
-});
+  // Transpile workspace packages for Turbopack and Webpack
+  transpilePackages: ['@getgrowly/core', '@getgrowly/suite', '@getgrowly/ui'],
+  // Turbopack configuration
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
+      },
+    },
+  },
+  // Bundle pages router dependencies
+  bundlePagesRouterDependencies: true,
+};
 
 export default nextConfig;
