@@ -6,6 +6,7 @@ import {
   WalletMetrics,
   WeightLevel,
 } from '@/types/persona';
+import { TokenPortfolioPosition } from '@/types/token-portfolio';
 import { ZerionFungiblePosition, ZerionNftPosition, ZerionTransaction } from '@/types/zerion';
 
 function toDateOnlyKey(date: Date): string {
@@ -21,9 +22,31 @@ function getNumber(value: unknown, fallback = 0): number {
   return Number.isFinite(n) ? n : fallback;
 }
 
+function getPositionValue(position: ZerionFungiblePosition | TokenPortfolioPosition): number {
+  if ('attributes' in position) {
+    // Zerion format
+    return getNumber(position.attributes?.value);
+  } else {
+    // Unified format
+    return getNumber(position.value);
+  }
+}
+
+function getPositionSymbol(
+  position: ZerionFungiblePosition | TokenPortfolioPosition
+): string | undefined {
+  if ('attributes' in position) {
+    // Zerion format
+    return position.attributes?.fungible_info?.symbol;
+  } else {
+    // Unified format
+    return position.symbol;
+  }
+}
+
 export function buildWalletMetrics(params: {
   fungibleTotalUsd: number;
-  fungiblePositions: ZerionFungiblePosition[];
+  fungiblePositions: TokenPortfolioPosition[];
   nftTotalUsd: number;
   nftPositions: ZerionNftPosition[];
   transactions:
@@ -88,11 +111,11 @@ export function buildWalletMetrics(params: {
 
   // From fungible positions by USD value
   for (const p of fungiblePositions || []) {
-    const value = getNumber(p.attributes?.value);
+    const value = getPositionValue(p);
     if (value > topAssetValue) {
       topAssetValue = value;
       topAssetType = 'token';
-      topTokenSymbol = p.attributes?.fungible_info?.symbol;
+      topTokenSymbol = getPositionSymbol(p);
     }
   }
 
@@ -109,9 +132,9 @@ export function buildWalletMetrics(params: {
   // ETH holding from fungible positions quantity where symbol === 'ETH'
   let ethHolding = 0;
   for (const p of fungiblePositions || []) {
-    const symbol = p.attributes?.fungible_info?.symbol;
+    const symbol = getPositionSymbol(p);
     if (symbol === 'ETH') {
-      ethHolding += getNumber(p.attributes?.quantity?.float, 0);
+      ethHolding += getNumber(p.tokenBalanceFloat, 0);
     }
   }
 
@@ -257,7 +280,7 @@ function calcIdle(metrics: WalletMetrics, opts?: { lastActiveDaysAgo?: number })
 
 export function analyzePersonaFromZerion(
   fungibleTotalUsd: number,
-  fungiblePositions: ZerionFungiblePosition[],
+  fungiblePositions: TokenPortfolioPosition[],
   nftTotalUsd: number,
   nftPositions: ZerionNftPosition[],
   transactions: { items: ZerionTransaction[]; totalCount: number } | undefined,

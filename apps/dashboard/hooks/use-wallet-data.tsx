@@ -18,7 +18,8 @@ import { api } from '@/trpc/react';
 import { ChainFeatureKey } from '@/types/chains';
 import { EtherscanFundingInfo } from '@/types/etherscan';
 import { PersonaAnalysis } from '@/types/persona';
-import { ZerionFungiblePosition, ZerionNftPosition, ZerionTransaction } from '@/types/zerion';
+import { TokenPortfolioPosition } from '@/types/token-portfolio';
+import { ZerionNftPosition, ZerionTransaction } from '@/types/zerion';
 import { useEffect, useMemo } from 'react';
 import { mainnet } from 'viem/chains';
 
@@ -29,7 +30,7 @@ import { useWalletTableContext } from './use-wallet-table-context';
 export interface WalletData {
   // Fungible token positions (with precomputed total)
   fungibleTotalUsd: number;
-  fungiblePositions: ZerionFungiblePosition[];
+  fungiblePositions: TokenPortfolioPosition[];
   fungibleLoading: boolean;
   fungibleError: boolean;
 
@@ -77,13 +78,9 @@ export function useWalletData(user: ParsedUser): WalletData {
         ? configuredIds
             .map(id => SUPPORTED_CHAINS.find(c => c.id === id)?.name)
             .filter((n): n is string => !!n)
-        : ['mainnet'];
+        : [];
 
-    return activeNames
-      .map(name => name.toLowerCase())
-      .map(name => (name === 'mainnet' ? 'ethereum' : name))
-      .map(name => (name === 'op mainnet' ? 'optimism' : name)) // TODO: handle proper name mapping for API services
-      .join(',');
+    return activeNames.map(name => name.toLowerCase()).join(',');
   }, [selectedOrganization?.supported_chain_ids]);
 
   // Check if any configured chains support NFT positions
@@ -115,7 +112,6 @@ export function useWalletData(user: ParsedUser): WalletData {
         .map(id => SUPPORTED_CHAINS.find(c => c.id === id)?.name)
         .filter((n): n is string => !!n)
         .map(name => name.toLowerCase())
-        .map(name => (name === 'mainnet' ? 'ethereum' : name))
         .map(name => (name === 'op mainnet' ? 'optimism' : name))
         .join(',');
     }
@@ -131,17 +127,16 @@ export function useWalletData(user: ParsedUser): WalletData {
       .map(id => SUPPORTED_CHAINS.find(c => c.id === id)?.name)
       .filter((n): n is string => !!n)
       .map(name => name.toLowerCase())
-      .map(name => (name === 'mainnet' ? 'ethereum' : name))
       .map(name => (name === 'op mainnet' ? 'optimism' : name))
       .join(',');
   }, [selectedOrganization?.supported_chain_ids, hasNftSupportedChains]);
 
-  // Fetch fungible positions with total (zerion)
+  // Fetch fungible positions with total (unified - switches between Zerion and Alchemy based on chain config)
   const {
     data: fungibleData,
     isLoading: fungibleLoading,
     error: fungibleError,
-  } = api.zerion.fungiblePositionsWithTotal.useQuery(
+  } = api.tokenPortfolio.positions.useQuery(
     {
       address: walletAddress || '',
       chainIds,
@@ -154,7 +149,7 @@ export function useWalletData(user: ParsedUser): WalletData {
       gcTime: GET_FUNGIBLE_POSITIONS_GC_TIME,
       refetchOnWindowFocus: false,
       enabled: !!walletAddress && walletAddress.length > 0,
-      retry: (failureCount, error) => {
+      retry: (failureCount: number, error: any) => {
         // Don't retry on client errors (4xx) but retry on server errors (5xx)
         if (error && typeof error === 'object' && 'status' in error) {
           const status = (error as any).status;
@@ -188,7 +183,7 @@ export function useWalletData(user: ParsedUser): WalletData {
       gcTime: GET_NFT_POSITIONS_GC_TIME,
       refetchOnWindowFocus: false,
       enabled: !!walletAddress && hasNftSupportedChains && nftSupportedChainIds.length > 0,
-      retry: (failureCount, error) => {
+      retry: (failureCount: number, error: any) => {
         // Don't retry on client errors (4xx) but retry on server errors (5xx)
         if (error && typeof error === 'object' && 'status' in error) {
           const status = (error as any).status;
@@ -222,7 +217,7 @@ export function useWalletData(user: ParsedUser): WalletData {
       gcTime: GET_TRANSACTIONS_GC_TIME,
       refetchOnWindowFocus: false,
       enabled: !!walletAddress && walletAddress.length > 0,
-      retry: (failureCount, error) => {
+      retry: (failureCount: number, error: any) => {
         // Don't retry on client errors (4xx) but retry on server errors (5xx)
         if (error && typeof error === 'object' && 'status' in error) {
           const status = (error as any).status;
@@ -257,7 +252,7 @@ export function useWalletData(user: ParsedUser): WalletData {
       gcTime: GET_FUNDED_INFO_GC_TIME,
       refetchOnWindowFocus: false,
       enabled: !!walletAddress && walletAddress.length > 0,
-      retry: (failureCount, error) => {
+      retry: (failureCount: number, error: any) => {
         // Don't retry on rate limit errors (429) or other client errors
         if (error && typeof error === 'object' && 'status' in error) {
           const status = (error as any).status;

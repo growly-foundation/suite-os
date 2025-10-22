@@ -36,8 +36,8 @@ export interface AlchemyTokenWithPrice {
   network: string; // network id
   tokenAddress: string | null; // null for native
   tokenBalance: string; // raw string balance
-  tokenMetadata?: AlchemyTokenMetadata;
-  tokenPrices?: AlchemyTokenPrice[];
+  tokenMetadata: AlchemyTokenMetadata;
+  tokenPrices: AlchemyTokenPrice[];
   error?: string | null;
 }
 

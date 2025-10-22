@@ -33,6 +33,10 @@ export class AlchemyPortfolioService {
 
     while (true) {
       const res = await this.client.post<TRes>(path, currentPayload);
+      if (!res.data) {
+        console.error('Alchemy API response missing data:', res);
+        break;
+      }
       pages.push(res.data);
       const next = res.data?.data?.pageKey;
       count += 1;
@@ -53,6 +57,9 @@ export class AlchemyPortfolioService {
         '/assets/tokens/by-address',
         payload
       );
+      if (!res.data) {
+        throw new Error('Alchemy API response missing data');
+      }
       return res.data;
     } catch (error: any) {
       console.error('Failed to fetch tokens by address:', (error as any)?.message || error);
@@ -79,6 +86,9 @@ export class AlchemyPortfolioService {
         '/assets/tokens/balances/by-address',
         payload
       );
+      if (!res.data) {
+        throw new Error('Alchemy API response missing data');
+      }
       return res.data;
     } catch (error: any) {
       console.error('Failed to fetch token balances by address:', (error as any)?.message || error);
@@ -110,6 +120,9 @@ export class AlchemyPortfolioService {
         '/assets/nfts/by-address',
         payload
       );
+      if (!res.data) {
+        throw new Error('Alchemy API response missing data');
+      }
       return res.data;
     } catch (error: any) {
       console.error('Failed to fetch NFTs by address:', (error as any)?.message || error);
@@ -142,6 +155,9 @@ export class AlchemyPortfolioService {
         '/assets/nft-contracts/by-address',
         payload
       );
+      if (!res.data) {
+        throw new Error('Alchemy API response missing data');
+      }
       return res.data;
     } catch (error: any) {
       console.error('Failed to fetch NFT contracts by address:', (error as any)?.message || error);

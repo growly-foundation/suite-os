@@ -2,8 +2,7 @@
 
 import { Skeleton } from '@/components/ui/skeleton';
 
-import { TChainName, TContractToken } from '@getgrowly/chainsmith/types';
-import { getChainIdByName } from '@getgrowly/chainsmith/utils';
+import { TContractToken } from '@getgrowly/chainsmith/types';
 import { ParsedUser } from '@getgrowly/core';
 
 import { useWalletData } from '../../../../hooks/use-wallet-data';
@@ -26,46 +25,30 @@ export function TokenPositionsCell({ user }: TokenPositionsCellProps) {
 
   const tokens: TContractToken[] = [];
   for (const position of fungiblePositions) {
-    const attrs = position?.attributes;
-    const fungibleInfo = attrs?.fungible_info;
-    const zerionChainId = position?.relationships?.chain?.data?.id;
-    let chainName: TChainName = 'mainnet';
-    switch (zerionChainId) {
-      case 'ethereum':
-        chainName = 'mainnet';
-        break;
-      case 'binance-smart-chain':
-        chainName = 'bsc';
-        break;
-      default:
-        chainName = zerionChainId as TChainName;
-    }
+    // Unified format (new standard)
+    const value = position.value || 0;
+    const symbol = position.symbol || '';
+    const name = position.name || '';
+    const logoURI = position.logo || undefined;
+    const tokenAddress = position.tokenAddress;
+    const decimals = position.decimals || 18;
+    const balance = position.tokenBalanceFloat || 0;
+    const chainId = parseInt(position.chainId) || 1;
 
     // Skip positions with no value
-    if (!attrs?.value || attrs.value <= 0) continue;
-
-    // Get token address from implementations
-    let tokenAddress: string | null = null;
-    const implementation = fungibleInfo?.implementations?.find(
-      (impl: any) => impl.chain_id === zerionChainId
-    );
-    if (implementation?.address) {
-      tokenAddress = implementation.address;
-    }
+    if (!value || value <= 0) continue;
 
     const address = tokenAddress as `0x${string}`;
-
-    const chainId = getChainIdByName(chainName);
 
     tokens.push({
       address,
       type: undefined,
       chainId,
-      name: fungibleInfo.name || '',
-      symbol: fungibleInfo.symbol || '',
-      decimals: implementation?.decimals || 18,
-      logoURI: fungibleInfo.icon?.url,
-      balance: Number(attrs?.quantity?.float || 0),
+      name,
+      symbol,
+      decimals,
+      logoURI,
+      balance,
     });
   }
 
