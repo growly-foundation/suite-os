@@ -16,10 +16,12 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { getChainsWithFeature } from '@/core/chain-features';
 import { useChainConfig } from '@/hooks/use-chain-config';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { UserImportService } from '@/lib/services/user-import.service';
 import { debounce } from '@/lib/utils';
+import { ChainFeatureKey } from '@/types/chains';
 import { detectAddressType } from '@/utils/contract';
 import { InfoIcon, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -59,6 +61,20 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   const [contractType, setContractType] = useState<string | null>(null);
   const [addressError, setAddressError] = useState<string | null>(null);
   const [validationCompleted, setValidationCompleted] = useState(false);
+
+  // Filter supported chains to only include those that support contract imports
+  const contractImportSupportedChainIds = useMemo(() => {
+    const configuredIds = selectedOrganization?.supported_chain_ids;
+    if (!configuredIds || configuredIds.length === 0) {
+      // If no organization config, use chains that support contract imports
+      return getChainsWithFeature(ChainFeatureKey.SUPPORTS_CONTRACT_IMPORTS);
+    }
+
+    // Filter configured chains to only include those that support contract imports
+    return configuredIds.filter(id =>
+      getChainsWithFeature(ChainFeatureKey.SUPPORTS_CONTRACT_IMPORTS).includes(id)
+    );
+  }, [selectedOrganization?.supported_chain_ids]);
 
   const debouncedValidateContractAddress = useMemo(
     () =>
@@ -106,8 +122,10 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
   );
 
   useEffect(() => {
-    setChainId(selectedOrganization?.supported_chain_ids?.[0] ?? mainnet.id);
-  }, [selectedOrganization?.supported_chain_ids, mainnet.id]);
+    // Set initial chain to the first contract import supported chain or mainnet
+    const firstContractChain = contractImportSupportedChainIds?.[0] ?? mainnet.id;
+    setChainId(firstContractChain);
+  }, [contractImportSupportedChainIds]);
 
   useEffect(() => {
     if (contractAddress) {
@@ -395,7 +413,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
                   <ChainSelector
                     value={chainId}
                     onChange={setChainId}
-                    supportedChainIds={selectedOrganization?.supported_chain_ids || undefined}
+                    supportedChainIds={contractImportSupportedChainIds}
                   />
                   {!hasChainsConfigured && (
                     <p className="text-sm text-muted-foreground">
@@ -418,7 +436,7 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
                     setConfigured(false);
                     setContractAddress('');
                     setConfiguring(false);
-                    setChainId(selectedOrganization?.supported_chain_ids?.[0] ?? mainnet.id);
+                    setChainId(contractImportSupportedChainIds?.[0] ?? mainnet.id);
                     setValidationCompleted(false);
                     setAddressError(null);
                     setContractType(null);

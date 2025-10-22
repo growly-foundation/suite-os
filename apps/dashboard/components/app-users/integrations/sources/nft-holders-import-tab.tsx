@@ -17,10 +17,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SUPPORT_EMAIL } from '@/constants/text';
+import { getChainsWithFeature } from '@/core/chain-features';
 import { useChainConfig } from '@/hooks/use-chain-config';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { UserImportService } from '@/lib/services/user-import.service';
 import { debounce } from '@/lib/utils';
+import { ChainFeatureKey } from '@/types/chains';
 import { detectAddressType } from '@/utils/contract';
 import { InfoIcon, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -60,6 +62,20 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
   const [contractType, setContractType] = useState<string | null>(null);
   const [addressError, setAddressError] = useState<string | null>(null);
   const [validationCompleted, setValidationCompleted] = useState(false);
+
+  // Filter supported chains to only include those that support NFT positions
+  const nftSupportedChainIds = useMemo(() => {
+    const configuredIds = selectedOrganization?.supported_chain_ids;
+    if (!configuredIds || configuredIds.length === 0) {
+      // If no organization config, use chains that support NFT positions
+      return getChainsWithFeature(ChainFeatureKey.SUPPORTS_NFT_POSITIONS);
+    }
+
+    // Filter configured chains to only include those that support NFT positions
+    return configuredIds.filter(id =>
+      getChainsWithFeature(ChainFeatureKey.SUPPORTS_NFT_POSITIONS).includes(id)
+    );
+  }, [selectedOrganization?.supported_chain_ids]);
 
   const debouncedValidateContractAddress = useMemo(
     () =>
@@ -114,8 +130,10 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
   );
 
   useEffect(() => {
-    setChainId(selectedOrganization?.supported_chain_ids?.[0] ?? mainnet.id);
-  }, [selectedOrganization?.supported_chain_ids, mainnet.id]);
+    // Set initial chain to the first NFT-supported chain or mainnet
+    const firstNftChain = nftSupportedChainIds?.[0] ?? mainnet.id;
+    setChainId(firstNftChain);
+  }, [nftSupportedChainIds]);
 
   useEffect(() => {
     if (contractAddress) {
@@ -390,7 +408,7 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
                   <ChainSelector
                     value={chainId}
                     onChange={setChainId}
-                    supportedChainIds={selectedOrganization?.supported_chain_ids || undefined}
+                    supportedChainIds={nftSupportedChainIds}
                   />
                   {!hasChainsConfigured && (
                     <p className="text-sm text-muted-foreground">
@@ -413,7 +431,7 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
                     setConfigured(false);
                     setContractAddress('');
                     setConfiguring(false);
-                    setChainId(selectedOrganization?.supported_chain_ids?.[0] ?? mainnet.id);
+                    setChainId(nftSupportedChainIds?.[0] ?? mainnet.id);
                     setValidationCompleted(false);
                     setAddressError(null);
                     setContractType(null);
