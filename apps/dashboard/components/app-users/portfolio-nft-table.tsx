@@ -12,7 +12,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Copy, ExternalLink, ImageIcon, MoreHorizontal } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
-import { getChainNameById } from '@getgrowly/chainsmith/utils';
+import { getChainIdByName, getChainNameById } from '@getgrowly/chainsmith/utils';
 
 import { ChainIcon } from '../ui/chain-icon';
 import { DynamicTable } from './smart-tables/dynamic-table';
@@ -32,18 +32,6 @@ interface NftData {
   contractAddress?: string;
   collection?: string;
   attributes: any; // Raw attributes data
-}
-
-// Helper function to safely get chain ID from Zerion chain data
-function safeGetChainId(chainData: any): number {
-  if (!chainData) return 1; // Default to Ethereum
-
-  const chainId = chainData.attributes?.external_id;
-  if (typeof chainId === 'string') {
-    const parsed = parseInt(chainId, 10);
-    return isNaN(parsed) ? 1 : parsed;
-  }
-  return typeof chainId === 'number' ? chainId : 1;
 }
 
 export function PortfolioNftTable({ walletData }: PortfolioNftTableProps) {
@@ -69,7 +57,7 @@ export function PortfolioNftTable({ walletData }: PortfolioNftTableProps) {
         name: nftInfo.name || 'Unnamed NFT',
         tokenID: nftInfo.token_id || '',
         imageUrl: nftInfo.content?.preview?.url || nftInfo.content?.detail?.url,
-        chainId: safeGetChainId(chainData),
+        chainId: getChainIdByName(chainData.id === 'ethereum' ? 'mainnet' : chainData.id),
         usdValue: parseFloat(attributes.value || '0'),
         contractAddress: nftInfo.contract_address,
         collection: nftInfo.collection?.name,
