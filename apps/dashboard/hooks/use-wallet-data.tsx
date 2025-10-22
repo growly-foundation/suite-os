@@ -10,7 +10,7 @@ import {
   GET_TRANSACTIONS_CACHE_TIME,
   GET_TRANSACTIONS_GC_TIME,
 } from '@/constants/cache';
-import { getChainsWithFeature } from '@/core/chain-features';
+import { CHAIN_FEATURES, getChainsWithFeature } from '@/core/chain-features';
 import { SUPPORTED_CHAINS } from '@/core/chains';
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { analyzePersonaFromZerion } from '@/lib/persona-classifier';
@@ -86,8 +86,28 @@ export function useWalletData(user: ParsedUser): WalletData {
       .join(',');
   }, [selectedOrganization?.supported_chain_ids]);
 
-  // Chain IDs that support NFT positions (for Zerion NFT API)
+  // Check if any configured chains support NFT positions
+  const hasNftSupportedChains = useMemo(() => {
+    const configuredIds = selectedOrganization?.supported_chain_ids;
+    if (!configuredIds || configuredIds.length === 0) {
+      // If no organization config, check if any supported chains support NFT positions
+      return SUPPORTED_CHAINS.some(chain => {
+        const features = CHAIN_FEATURES[chain.id];
+        return features?.[ChainFeatureKey.SUPPORTS_NFT_POSITIONS] === true;
+      });
+    }
+
+    // Check if any configured chains support NFT positions
+    return configuredIds.some(id => {
+      const features = CHAIN_FEATURES[id];
+      return features?.[ChainFeatureKey.SUPPORTS_NFT_POSITIONS] === true;
+    });
+  }, [selectedOrganization?.supported_chain_ids]);
+
+  // Chain IDs that support NFT positions (for Zerion NFT API) - only if NFT chains are available
   const nftSupportedChainIds = useMemo(() => {
+    if (!hasNftSupportedChains) return ''; // Empty string disables the query
+
     const configuredIds = selectedOrganization?.supported_chain_ids;
     if (!configuredIds || configuredIds.length === 0) {
       // If no organization config, use chains that support NFT positions
@@ -114,7 +134,7 @@ export function useWalletData(user: ParsedUser): WalletData {
       .map(name => (name === 'mainnet' ? 'ethereum' : name))
       .map(name => (name === 'op mainnet' ? 'optimism' : name))
       .join(',');
-  }, [selectedOrganization?.supported_chain_ids]);
+  }, [selectedOrganization?.supported_chain_ids, hasNftSupportedChains]);
 
   // Fetch fungible positions with total (zerion)
   const {
@@ -158,7 +178,7 @@ export function useWalletData(user: ParsedUser): WalletData {
   } = api.zerion.nftPositionsWithTotal.useQuery(
     {
       address: walletAddress || '',
-      chainIds: nftSupportedChainIds || 'ethereum', // Fallback to ethereum if no NFT-supported chains
+      chainIds: nftSupportedChainIds, // Empty string disables the query if no NFT-supported chains
       currency: 'usd',
       pageLimit: 10,
       pageSize: 50, // Reduced page size to avoid API limits
@@ -167,7 +187,7 @@ export function useWalletData(user: ParsedUser): WalletData {
       staleTime: GET_NFT_POSITIONS_CACHE_TIME,
       gcTime: GET_NFT_POSITIONS_GC_TIME,
       refetchOnWindowFocus: false,
-      enabled: !!walletAddress,
+      enabled: !!walletAddress && hasNftSupportedChains && nftSupportedChainIds.length > 0,
       retry: (failureCount, error) => {
         // Don't retry on client errors (4xx) but retry on server errors (5xx)
         if (error && typeof error === 'object' && 'status' in error) {
@@ -284,11 +304,15 @@ export function useWalletData(user: ParsedUser): WalletData {
       : undefined;
 
     // Always calculate persona analysis with fallback values for failed APIs
+    // If no NFT-supported chains, use empty NFT data
+    const nftTotalUsd = nftData?.totalUsdValue ?? 0;
+    const nftPositions = nftData?.nftPositions ?? [];
+
     const personaAnalysis = analyzePersonaFromZerion(
       fungibleData?.totalUsdValue ?? 0,
       fungibleData?.positions ?? [],
-      nftData?.totalUsdValue ?? 0,
-      nftData?.nftPositions ?? [],
+      nftTotalUsd,
+      nftPositions,
       // For transactions, use available data or fallback to minimal data
       hasError && !transactions ? undefined : transactions,
       { walletAgeDays, lastActiveAt, walletActivationAt }
@@ -300,8 +324,8 @@ export function useWalletData(user: ParsedUser): WalletData {
       fungibleLoading,
       fungibleError: !!fungibleError,
 
-      nftTotalUsd: nftData?.totalUsdValue ?? 0,
-      nftPositions: nftData?.nftPositions ?? [],
+      nftTotalUsd,
+      nftPositions,
       nftLoading,
       nftError: !!nftError,
 
@@ -337,6 +361,7 @@ export function useWalletData(user: ParsedUser): WalletData {
     fundingInfo,
     fundingLoading,
     fundingError,
+    hasNftSupportedChains,
   ]);
 
   useEffect(() => {
