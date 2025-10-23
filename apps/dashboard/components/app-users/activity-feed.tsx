@@ -138,9 +138,10 @@ export function ActivityFeed({ walletData }: ActivityFeedProps) {
   // Transform Zerion transaction data for the table
   const allTableData: ActivityFeedItem[] = useMemo(() => {
     return walletData.transactionItems.map((tx: any) => {
+      const chainName = tx.chainId === 'ethereum' ? 'mainnet' : tx.chainId;
       // Get the first transfer from the transaction
       const transfer = tx.transfers?.[0] || {};
-      const chainId = tx.relationships?.chain?.data?.id || getChainIdByName(tx.chainId) || 1;
+      const chainId = tx.relationships?.chain?.data?.id || getChainIdByName(chainName) || 1;
 
       return {
         id: tx.id || tx.hash || '',

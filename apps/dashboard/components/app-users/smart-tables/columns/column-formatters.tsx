@@ -1,12 +1,8 @@
 'use client';
 
-import { Skeleton } from '@/components/ui/skeleton';
-import { SUPPORTED_CHAIN_NAMES } from '@/core/chains';
-import { api } from '@/trpc/react';
 import moment from 'moment';
 import { Address } from 'viem';
 
-import { getChainIdByName } from '@getgrowly/chainsmith/utils';
 import { ImportPrivyUserOutput, ImportUserOutput, ParsedUser } from '@getgrowly/core';
 import { WalletAddress } from '@getgrowly/ui';
 
@@ -16,6 +12,7 @@ import {
   PortfolioValueCell,
   TraitBadgeCell,
   TransactionCountCell,
+  WalletFundedAtCell,
 } from './column-cell-renderer';
 import { TokenPositionsCell } from './token-cell';
 
@@ -163,33 +160,10 @@ export function createColumnFormatters<T = any>(
 
     // Wallet active at (first funding tx across chains)
     walletFundedAt: (user: T) => {
-      if (!accessor.isType(user, 'parsed')) return <span className="text-xs">-</span>;
-      const parsed = user as ParsedUser;
-      // Use the real wallet address from entities; persona.address() may be a UUID
-      const walletAddress = parsed.wallet_address! as `0x${string}`;
-      const isValidEthAddress = /^0x[a-fA-F0-9]{40}$/.test(walletAddress);
-      const chainIds = SUPPORTED_CHAIN_NAMES.map(chain => getChainIdByName(chain));
-
-      if (!isValidEthAddress) {
-        return <span className="text-xs">-</span>;
+      if (accessor.isType(user, 'parsed')) {
+        return <WalletFundedAtCell user={user as ParsedUser} />;
       }
-
-      // Lazy import to avoid circulars at module init
-      const { data, isLoading, error } = api.etherscan.getAddressFundedByAcrossChains.useQuery(
-        { address: walletAddress, chainIds },
-        { enabled: isValidEthAddress }
-      );
-
-      if (isLoading) return <Skeleton className="h-4 w-[100px] rounded-full" />;
-      if (error || !data) return <span className="text-xs">-</span>;
-
-      const timestamps = Object.values(data)
-        .filter(Boolean)
-        .map((info: any) => parseInt(info.timeStamp, 10) * 1000)
-        .filter((n: number) => Number.isFinite(n) && n > 0);
-      const minTs = timestamps.length ? Math.min(...timestamps) : 0;
-
-      return <span className="text-xs">{minTs ? moment(minTs).fromNow() : '—'}</span>;
+      return null;
     },
   };
 }

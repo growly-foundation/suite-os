@@ -30,3 +30,39 @@ export const SUPPORTED_CHAIN_NAMES: TChainName[] = [
   'berachain',
   'celo',
 ];
+
+/**
+ * Network name mapping for external API compatibility
+ * Maps internal chain names to API-specific network identifiers
+ */
+export const NETWORK_NAME_MAPPINGS = {
+  // Internal name -> Alchemy network name
+  alchemy: {
+    ethereum: 'eth-mainnet',
+    optimism: 'opt-mainnet',
+    base: 'base-mainnet',
+    berachain: 'berachain-mainnet',
+    celo: 'celo-mainnet',
+    hyperevm: 'hyperliquid-mainnet',
+  } as Record<string, string>,
+
+  // Internal name -> Zerion chain id
+  zerion: {
+    ethereum: 'ethereum',
+    optimism: 'optimism',
+    base: 'base',
+    berachain: 'berachain',
+    celo: 'celo',
+    hyperevm: 'hyperevm',
+  } as Record<string, string>,
+} as const;
+
+/**
+ * Get the network name for a specific API provider
+ */
+export function getNetworkNameForApi(chainName: string, api: 'alchemy' | 'zerion'): string {
+  if (!chainName) return '';
+  const mapping = NETWORK_NAME_MAPPINGS[api];
+  if (!mapping) return chainName.toLowerCase();
+  return mapping[chainName.toLowerCase()] || chainName.toLowerCase();
+}

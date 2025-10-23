@@ -1,15 +1,17 @@
 import { useDashboardState } from '@/hooks/use-dashboard';
 import { useWalletData } from '@/hooks/use-wallet-data';
+import { getTraitColor } from '@/lib/color.utils';
 import { formatAssetValue } from '@/lib/number.utils';
+import { cn } from '@/lib/utils';
 import { PersonaTrait } from '@/types/persona';
 import { useQuery } from '@tanstack/react-query';
 import { TrendingUp, Trophy, Wallet } from 'lucide-react';
 
+import { Badge } from '../ui/badge';
 import { Separator } from '../ui/separator';
 import { UserProfileHeader } from '../user/user-profile-header';
 import { UserStats } from '../user/user-stats';
 import { ActivityFeed } from './activity-feed';
-import { UserBadges } from './app-user-badges';
 import { PortfolioNftTable } from './portfolio-nft-table';
 import { PortfolioTokenTable } from './portfolio-token-table';
 
@@ -31,7 +33,8 @@ export function UserDetails({ userId }: UserDetailsProps) {
   // Use wallet data from API instead of persona calculations
   const totalValue = walletData.fungibleTotalUsd;
 
-  const dominantTrait = walletData.personaAnalysis?.dominantTrait || 'Newbie';
+  const dominantTrait: PersonaTrait =
+    walletData.personaAnalysis?.dominantTrait || PersonaTrait.NEWBIE;
 
   if (isLoading) {
     // Default skeleton configuration
@@ -56,7 +59,9 @@ export function UserDetails({ userId }: UserDetailsProps) {
         <UserProfileHeader user={user} />
         <div className="mt-4">
           <div className="flex items-center gap-2">
-            <UserBadges showAll badges={[dominantTrait as PersonaTrait]} />
+            <Badge className={cn(getTraitColor(dominantTrait as PersonaTrait), 'rounded-full')}>
+              {dominantTrait}
+            </Badge>
           </div>
         </div>
       </div>
@@ -80,7 +85,7 @@ export function UserDetails({ userId }: UserDetailsProps) {
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-bold text-gray-900">
-                          ${formatAssetValue(totalValue)}
+                          ${formatAssetValue(totalValue || 0)}
                         </div>
                       </div>
                     </div>
@@ -95,7 +100,7 @@ export function UserDetails({ userId }: UserDetailsProps) {
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-bold text-gray-900">
-                          {formatAssetValue(walletData.fungiblePositions.length)}
+                          {formatAssetValue(walletData.fungiblePositions?.length || 0)}
                         </div>
                         <div className="text-sm text-purple-600 font-medium">Active</div>
                       </div>
@@ -111,7 +116,9 @@ export function UserDetails({ userId }: UserDetailsProps) {
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-bold text-gray-900">
-                          {user.personaData.identities.traitScores?.length.toLocaleString() || 0}
+                          {(
+                            user.personaData?.identities?.traitScores?.length ?? 0
+                          ).toLocaleString()}
                         </div>
                         <div className="text-sm text-green-600 font-medium">Earned</div>
                       </div>
@@ -137,7 +144,7 @@ export function UserDetails({ userId }: UserDetailsProps) {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-                    {walletData.fungiblePositions.length.toLocaleString()} tokens
+                    {(walletData.fungiblePositions?.length ?? 0).toLocaleString()} tokens
                   </div>
                 </div>
               </div>
@@ -156,7 +163,7 @@ export function UserDetails({ userId }: UserDetailsProps) {
                   <p className="text-sm text-gray-600">User's digital collectibles</p>
                 </div>
                 <div className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm font-medium">
-                  {walletData.nftPositions.length.toLocaleString()} items
+                  {(walletData.nftPositions?.length ?? 0).toLocaleString()} items
                 </div>
               </div>
               <div className="py-6 max-h-[600px] overflow-y-auto scrollbar-hidden">

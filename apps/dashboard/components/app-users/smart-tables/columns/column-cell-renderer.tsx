@@ -6,18 +6,23 @@ import { getTraitColor } from '@/lib/color.utils';
 import { formatAssetValue } from '@/lib/number.utils';
 import { cn } from '@/lib/utils';
 import { PersonaTrait } from '@/types/persona';
+import moment from 'moment';
 
 import { ParsedUser } from '@getgrowly/core';
 
 export function TraitBadgeCell({ user }: { user: ParsedUser }) {
-  const { personaAnalysis, isLoading, hasError } = useWalletData(user);
+  const { personaAnalysis, isLoading } = useWalletData(user);
   if (isLoading) {
     return <Skeleton className="h-4 w-[50px] rounded-full" />;
   }
-  const dominantTrait = !hasError ? personaAnalysis?.dominantTrait?.toString() || '' : '';
+
+  // Persona analysis is always calculated now, but may be based on incomplete data
+  const dominantTrait: PersonaTrait = personaAnalysis?.dominantTrait ?? PersonaTrait.IDLE;
+
   return (
-    <Badge className={cn(getTraitColor(dominantTrait as PersonaTrait), 'rounded-full')}>
-      {dominantTrait || '—'}
+    <Badge
+      className={cn(getTraitColor(dominantTrait) ?? 'bg-muted text-foreground', 'rounded-full')}>
+      {dominantTrait}
     </Badge>
   );
 }
@@ -49,6 +54,21 @@ export function TransactionCountCell({ user }: { user: ParsedUser }) {
   }
 
   return <span className="text-xs">{formatAssetValue(transactionCount)}</span>;
+}
+
+export function WalletFundedAtCell({ user }: { user: ParsedUser }) {
+  const { walletFundedInfo, walletFundedInfoLoading, walletFundedInfoError } = useWalletData(user);
+
+  if (walletFundedInfoLoading) return <Skeleton className="h-4 w-[100px] rounded-full" />;
+  if (walletFundedInfoError || !walletFundedInfo) return <span className="text-xs">-</span>;
+
+  const timestamps = Object.values(walletFundedInfo)
+    .filter(Boolean)
+    .map((info: any) => parseInt(info.timeStamp, 10) * 1000)
+    .filter((n: number) => Number.isFinite(n) && n > 0);
+  const minTs = timestamps.length ? Math.min(...timestamps) : 0;
+
+  return <span className="text-xs">{minTs ? moment(minTs).fromNow() : '—'}</span>;
 }
 
 export function ActivityCell({ user }: { user: ParsedUser }) {

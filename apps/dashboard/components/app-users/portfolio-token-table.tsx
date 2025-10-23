@@ -13,8 +13,6 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Copy, ExternalLink, MoreHorizontal } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
-import { getChainIdByName } from '@getgrowly/chainsmith/utils';
-
 import { ChainIcon } from '../ui/chain-icon';
 import { DynamicTable } from './smart-tables/dynamic-table';
 
@@ -22,7 +20,7 @@ interface PortfolioTokenTableProps {
   walletData: WalletData;
 }
 
-// Define the token data type based on Zerion API response
+// Define the token data type based on unified TokenPortfolioPosition format
 interface TokenData {
   id: string;
   symbol: string;
@@ -44,25 +42,20 @@ export function PortfolioTokenTable({ walletData }: PortfolioTokenTableProps) {
   const { copyToClipboard } = useCopyToClipboard();
   const { handlePeekTokenMultichain } = usePeekExplorer();
 
-  // Transform Zerion positions to the format expected by table
+  // Transform unified TokenPortfolioPosition to the format expected by table
   const allTokenData: TokenData[] = useMemo(() => {
-    return walletData.fungiblePositions.map((position: any) => {
-      const attributes = position.attributes || {};
-      const fungibleInfo = attributes.fungible_info || {};
-      const quantity = attributes.quantity || {};
-      const chainData = position.relationships?.chain?.data;
-
+    return walletData.fungiblePositions.map(position => {
       return {
         id: position.id || '',
-        symbol: fungibleInfo.symbol || '',
-        name: fungibleInfo.name || '',
-        logoURI: fungibleInfo.icon?.url,
-        marketPrice: parseFloat(attributes.price || '0'),
-        balance: parseFloat(quantity.float || '0'),
-        chainId: getChainIdByName(chainData.id === 'ethereum' ? 'mainnet' : chainData.id),
-        address: fungibleInfo.implementations?.[0]?.address,
-        value: parseFloat(attributes.value || '0'),
-        quantity: quantity,
+        symbol: position.symbol || '',
+        name: position.name || '',
+        logoURI: position.logo || undefined,
+        marketPrice: position.price || 0,
+        balance: position.tokenBalanceFloat || 0,
+        chainId: parseInt(position.chainId) || 1,
+        address: position.tokenAddress || undefined,
+        value: position.value || 0,
+        quantity: position.tokenBalance || '', // Raw balance string
       };
     });
   }, [walletData.fungiblePositions]);

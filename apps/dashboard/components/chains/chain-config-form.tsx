@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Form, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { getChainFeaturesWithMetadata } from '@/core/chain-features';
 import { SUPPORTED_CHAINS } from '@/core/chains';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
@@ -15,6 +16,26 @@ interface ChainConfigFormProps {
   onSave: (chainIds: number[]) => Promise<void>;
   maxChains?: number;
   showTitle?: boolean;
+}
+
+// Component to display feature support badges
+function ChainFeatureBadges({ chainId }: { chainId: number }) {
+  const enabledFeatures = getChainFeaturesWithMetadata(chainId);
+
+  if (enabledFeatures.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-1 mt-1">
+      {enabledFeatures.map(feature => (
+        <span
+          key={feature.key}
+          className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${feature.badgeStyle.backgroundColor} ${feature.badgeStyle.textColor}`}
+          title={feature.description}>
+          {feature.title}
+        </span>
+      ))}
+    </div>
+  );
 }
 
 type ChainConfigFormValues = {
@@ -74,8 +95,8 @@ export function ChainConfigForm({
           <div>
             <h3 className="text-lg font-medium">Chain Configuration</h3>
             <p className="text-sm text-muted-foreground">
-              Select up to {maxChains} blockchain networks for your organization. These chains will
-              be available for contract imports, NFT holders, resources, and persona features.
+              Select up to {maxChains} blockchain networks for your organization. Feature support
+              varies by chain.
             </p>
           </div>
         )}
@@ -94,28 +115,37 @@ export function ChainConfigForm({
                   const isDisabled = !isSelected && (currentSelected || []).length >= maxChains;
 
                   return (
-                    <button
+                    <div
                       key={chain.id}
-                      type="button"
                       onClick={() => !isDisabled && toggleChain(chain.id)}
-                      disabled={isDisabled}
                       className={cn(
-                        'relative flex items-center gap-3 p-4 rounded-lg border-2 transition-all',
+                        'relative flex items-center gap-3 p-4 rounded-lg border-2 transition-all cursor-pointer',
                         'hover:bg-muted/50',
                         isSelected ? 'border-primary bg-primary/5' : 'border-border',
                         isDisabled && 'opacity-50 cursor-not-allowed hover:bg-transparent'
-                      )}>
+                      )}
+                      role="button"
+                      tabIndex={isDisabled ? -1 : 0}
+                      onKeyDown={e => {
+                        if ((e.key === 'Enter' || e.key === ' ') && !isDisabled) {
+                          e.preventDefault();
+                          toggleChain(chain.id);
+                        }
+                      }}
+                      aria-pressed={isSelected}
+                      aria-disabled={isDisabled}>
                       <ChainIcon chainIds={[chain.id]} />
                       <div className="flex-1 text-left">
                         <div className="font-medium">{chain.name}</div>
                         <div className="text-xs text-muted-foreground">Chain ID: {chain.id}</div>
+                        <ChainFeatureBadges chainId={chain.id} />
                       </div>
                       {isSelected && (
                         <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                           <Check className="w-3 h-3 text-primary-foreground" />
                         </div>
                       )}
-                    </button>
+                    </div>
                   );
                 })}
               </div>

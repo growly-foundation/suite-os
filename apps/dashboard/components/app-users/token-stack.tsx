@@ -9,6 +9,7 @@ import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { usePeekExplorer } from '@/hooks/use-peek-explorer';
 import { formatAssetValue } from '@/lib/number.utils';
 import { Copy, ExternalLink } from 'lucide-react';
+import Image from 'next/image';
 
 import { TContractToken } from '@getgrowly/chainsmith/types';
 import { getChainNameById } from '@getgrowly/chainsmith/utils';
@@ -38,9 +39,11 @@ export function TokenStack({ tokens, tokenSize = 8, maxTokens = 3 }: TokenStackP
                 }`}
                 style={{ zIndex: maxTokens - index, width: tokenSize, height: tokenSize }}>
                 {token.logoURI ? (
-                  <img
+                  <Image
                     src={token.logoURI}
                     alt={token.symbol}
+                    width={tokenSize}
+                    height={tokenSize}
                     className="w-full h-full rounded-full object-cover"
                   />
                 ) : (
@@ -56,9 +59,11 @@ export function TokenStack({ tokens, tokenSize = 8, maxTokens = 3 }: TokenStackP
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full">
                     {token.logoURI ? (
-                      <img
+                      <Image
                         src={token.logoURI}
                         alt={token.symbol}
+                        width={40}
+                        height={40}
                         className="w-full h-full rounded-full object-cover"
                       />
                     ) : (

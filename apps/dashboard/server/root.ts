@@ -4,6 +4,7 @@ import { blockscoutRouter } from './api/routers/blockscout';
 import { etherscanRouter } from './api/routers/etherscan';
 import { personaRouter } from './api/routers/persona';
 import { talentRouter } from './api/routers/talent';
+import { tokenPortfolioRouter } from './api/routers/token-portfolio';
 import { userRouter } from './api/routers/user';
 import { zerionRouter } from './api/routers/zerion';
 import { createCallerFactory, createTRPCRouter } from './trpc';
@@ -22,6 +23,7 @@ export const appRouter = createTRPCRouter({
   talent: talentRouter,
   persona: personaRouter,
   alchemy: alchemyRouter,
+  tokenPortfolio: tokenPortfolioRouter,
 });
 
 // export type definition of API
