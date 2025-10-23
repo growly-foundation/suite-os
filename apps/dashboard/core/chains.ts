@@ -40,6 +40,7 @@ export const NETWORK_NAME_MAPPINGS = {
   alchemy: {
     ethereum: 'eth-mainnet',
     optimism: 'opt-mainnet',
+    'op mainnet': 'opt-mainnet',
     base: 'base-mainnet',
     berachain: 'berachain-mainnet',
     celo: 'celo-mainnet',
@@ -50,6 +51,7 @@ export const NETWORK_NAME_MAPPINGS = {
   zerion: {
     ethereum: 'ethereum',
     optimism: 'optimism',
+    'op mainnet': 'optimism',
     base: 'base',
     berachain: 'berachain',
     celo: 'celo',

@@ -78,6 +78,9 @@ export function useWalletData(user: ParsedUser): WalletData {
         ? configuredIds
             .map(id => SUPPORTED_CHAINS.find(c => c.id === id)?.name)
             .filter((n): n is string => !!n)
+            .map(name => name.toLowerCase())
+            .map(name => (name === 'op mainnet' ? 'optimism' : name))
+            .filter((n): n is string => !!n)
         : [];
 
     return activeNames.map(name => name.toLowerCase()).join(',');
