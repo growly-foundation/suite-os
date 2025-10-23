@@ -146,16 +146,13 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
     debouncedValidateContractAddress(contractAddress, chainId);
   }, [contractAddress, chainId, debouncedValidateContractAddress]);
 
-  // Check organization limits when users are fetched or selected users change
-  const checkOrganizationLimitsInternal = async () => {
+  const checkOrganizationLimitsInternal = useCallback(async () => {
     if (!selectedOrganization?.id) return;
-
     const usersToImport = selectedUserIds.length;
     if (usersToImport === 0) {
       setLimits(null);
       return;
     }
-
     try {
       const limitsResult = await UserImportService.checkOrganizationLimits(
         selectedOrganization.id,
@@ -166,17 +163,17 @@ export function ContractImportTab({ onImportComplete }: ContractImportTabProps) 
       console.error('Error checking organization limits:', error);
       toast.error('Failed to check organization limits');
     }
-  };
+  }, [selectedOrganization?.id, selectedUserIds.length]);
 
-  const checkOrganizationLimits = useCallback(debounce(checkOrganizationLimitsInternal, 500), [
-    selectedOrganization?.id,
-    selectedUserIds,
-  ]);
+  const checkOrganizationLimits = useMemo(
+    () => debounce(checkOrganizationLimitsInternal, 500),
+    [checkOrganizationLimitsInternal]
+  );
 
   // Check limits when selected users change
   useEffect(() => {
     checkOrganizationLimits();
-  }, [checkOrganizationLimits]);
+  }, [checkOrganizationLimits, selectedUserIds.length]);
 
   // Handle configuration
   const handleConfigure = async () => {

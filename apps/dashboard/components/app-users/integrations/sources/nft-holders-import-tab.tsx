@@ -92,7 +92,9 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
 
         if (address) {
           if (!/^0x[0-9a-fA-F]{40}$/.test(address)) {
-            setAddressError('Address must start with 0x');
+            setAddressError(
+              'Invalid address format. Must be 0x followed by 40 hexadecimal characters.'
+            );
             setContractType(null);
             setValidationCompleted(true);
             setLoading(false);
@@ -154,16 +156,13 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
     debouncedValidateContractAddress(contractAddress, chainId);
   }, [contractAddress, chainId, debouncedValidateContractAddress]);
 
-  // Check organization limits when users are fetched or selected users change
-  const checkOrganizationLimits = useCallback(async () => {
+  const checkOrganizationLimitsInternal = useCallback(async () => {
     if (!selectedOrganization?.id) return;
-
     const usersToImport = selectedUserIds.length;
     if (usersToImport === 0) {
       setLimits(null);
       return;
     }
-
     try {
       const limitsResult = await UserImportService.checkOrganizationLimits(
         selectedOrganization.id,
@@ -174,12 +173,17 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
       console.error('Error checking organization limits:', error);
       toast.error('Failed to check organization limits');
     }
-  }, [selectedOrganization?.id, selectedUserIds]);
+  }, [selectedOrganization?.id, selectedUserIds.length]);
+
+  const checkOrganizationLimits = useMemo(
+    () => debounce(checkOrganizationLimitsInternal, 500),
+    [checkOrganizationLimitsInternal]
+  );
 
   // Check limits when selected users change
   useEffect(() => {
     checkOrganizationLimits();
-  }, [checkOrganizationLimits]);
+  }, [checkOrganizationLimits, selectedUserIds.length]);
 
   // Handle configuration
   const handleConfigure = async () => {
