@@ -42,8 +42,8 @@ export function TokenStack({ tokens, tokenSize = 8, maxTokens = 3 }: TokenStackP
                   <Image
                     src={token.logoURI}
                     alt={token.symbol}
-                    width={18}
-                    height={18}
+                    width={tokenSize}
+                    height={tokenSize}
                     className="w-full h-full rounded-full object-cover"
                   />
                 ) : (
@@ -62,8 +62,8 @@ export function TokenStack({ tokens, tokenSize = 8, maxTokens = 3 }: TokenStackP
                       <Image
                         src={token.logoURI}
                         alt={token.symbol}
-                        width={18}
-                        height={18}
+                        width={40}
+                        height={40}
                         className="w-full h-full rounded-full object-cover"
                       />
                     ) : (

@@ -12,6 +12,16 @@ import {
 import { ZerionFungiblePosition } from '../../types/zerion';
 import { TokenListService } from './token-list.service';
 
+const CHAIN_NATIVE_META: Record<string, { symbol: string; name: string; logo: string }> = {
+  ethereum: { symbol: 'ETH', name: 'Ethereum', logo: '/logos/chains/ethereum-logo.svg' },
+  optimism: { symbol: 'ETH', name: 'Ethereum', logo: '/logos/chains/ethereum-logo.svg' },
+  base: { symbol: 'ETH', name: 'Ethereum', logo: '/logos/chains/ethereum-logo.svg' },
+  // None ETH native tokens
+  berachain: { symbol: 'BERA', name: 'Berachain', logo: '/logos/chains/berachain-logo.svg' },
+  celo: { symbol: 'CELO', name: 'Celo', logo: '/logos/chains/celo-logo.svg' },
+  hyperevm: { symbol: 'HYPER', name: 'HyperEVM', logo: '/logos/chains/hyperevm-logo.svg' },
+};
+
 /**
  * Service for adapting different fungible token API responses to a unified format
  */
@@ -149,19 +159,26 @@ export class FungibleAdapterService {
         chainId,
         chainName,
         address: walletAddress,
-        tokenAddress: token.tokenAddress,
-        tokenBalance: balanceFloat.toString(),
+        tokenAddress: token.tokenAddress ? token.tokenAddress.toLowerCase() : null,
+        tokenBalance: token.tokenBalance, // raw (hex) balance
         tokenBalanceFloat: balanceFloat,
         value,
         price,
-        decimals: token.tokenMetadata.decimals || 18,
-        symbol: token.tokenMetadata.symbol || (isNativeToken ? 'ETH' : ''),
-        name: token.tokenMetadata.name || (isNativeToken ? 'Ethereum' : ''),
+        decimals: token.tokenMetadata?.decimals || 18,
+        symbol:
+          token.tokenMetadata?.symbol ||
+          (isNativeToken ? (CHAIN_NATIVE_META[chainName]?.symbol ?? 'ETH') : ''),
+        name:
+          token.tokenMetadata?.name ||
+          (isNativeToken ? (CHAIN_NATIVE_META[chainName]?.name ?? 'Ethereum') : ''),
         logo:
-          token.tokenMetadata.logo || (isNativeToken ? '/logos/chains/ethereum-logo.svg' : null),
+          token.tokenMetadata?.logo ||
+          (isNativeToken
+            ? (CHAIN_NATIVE_META[chainName]?.logo ?? '/logos/chains/ethereum-logo.svg')
+            : null),
         positionType,
         protocol: null, // Alchemy doesn't provide protocol info
-        isVerified: true, // Assume verified for now, Alchemy doesn't provide this
+        isVerified: undefined,
         isDisplayable: true,
         isNativeToken,
         changes: null, // Alchemy doesn't provide price change data

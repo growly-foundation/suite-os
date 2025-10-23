@@ -150,12 +150,17 @@ export function useWalletData(user: ParsedUser): WalletData {
       refetchOnWindowFocus: false,
       enabled: !!walletAddress && walletAddress.length > 0,
       retry: (failureCount: number, error: any) => {
-        // Don't retry on client errors (4xx) but retry on server errors (5xx)
-        if (error && typeof error === 'object' && 'status' in error) {
-          const status = (error as any).status;
+        const status =
+          (error?.status as number | undefined) ??
+          (error?.data?.httpStatus as number | undefined) ??
+          (error?.shape?.data?.httpStatus as number | undefined);
+        if (typeof status === 'number') {
+          if (status === 429) return false;
           if (status >= 400 && status < 500) return false;
+          if (status >= 500 && status < 600) return failureCount < 3;
         }
-        return failureCount < 3; // Retry up to 3 times for server errors
+        // Unknown: be conservative but bounded
+        return failureCount < 2;
       },
       retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
       // Don't cache errors - failed requests should always retry
@@ -184,12 +189,17 @@ export function useWalletData(user: ParsedUser): WalletData {
       refetchOnWindowFocus: false,
       enabled: !!walletAddress && hasNftSupportedChains && nftSupportedChainIds.length > 0,
       retry: (failureCount: number, error: any) => {
-        // Don't retry on client errors (4xx) but retry on server errors (5xx)
-        if (error && typeof error === 'object' && 'status' in error) {
-          const status = (error as any).status;
+        const status =
+          (error?.status as number | undefined) ??
+          (error?.data?.httpStatus as number | undefined) ??
+          (error?.shape?.data?.httpStatus as number | undefined);
+        if (typeof status === 'number') {
+          if (status === 429) return false;
           if (status >= 400 && status < 500) return false;
+          if (status >= 500 && status < 600) return failureCount < 3;
         }
-        return failureCount < 3; // Retry up to 3 times for server errors
+        // Unknown: be conservative but bounded
+        return failureCount < 2;
       },
       retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
       // Don't cache errors - failed requests should always retry
@@ -218,12 +228,17 @@ export function useWalletData(user: ParsedUser): WalletData {
       refetchOnWindowFocus: false,
       enabled: !!walletAddress && walletAddress.length > 0,
       retry: (failureCount: number, error: any) => {
-        // Don't retry on client errors (4xx) but retry on server errors (5xx)
-        if (error && typeof error === 'object' && 'status' in error) {
-          const status = (error as any).status;
+        const status =
+          (error?.status as number | undefined) ??
+          (error?.data?.httpStatus as number | undefined) ??
+          (error?.shape?.data?.httpStatus as number | undefined);
+        if (typeof status === 'number') {
+          if (status === 429) return false;
           if (status >= 400 && status < 500) return false;
+          if (status >= 500 && status < 600) return failureCount < 3;
         }
-        return failureCount < 3; // Retry up to 3 times for server errors
+        // Unknown: be conservative but bounded
+        return failureCount < 2;
       },
       retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
       // Don't cache errors - failed requests should always retry
@@ -253,12 +268,17 @@ export function useWalletData(user: ParsedUser): WalletData {
       refetchOnWindowFocus: false,
       enabled: !!walletAddress && walletAddress.length > 0,
       retry: (failureCount: number, error: any) => {
-        // Don't retry on rate limit errors (429) or other client errors
-        if (error && typeof error === 'object' && 'status' in error) {
-          const status = (error as any).status;
-          if (status === 429 || (status >= 400 && status < 500)) return false;
+        const status =
+          (error?.status as number | undefined) ??
+          (error?.data?.httpStatus as number | undefined) ??
+          (error?.shape?.data?.httpStatus as number | undefined);
+        if (typeof status === 'number') {
+          if (status === 429) return false;
+          if (status >= 400 && status < 500) return false;
+          if (status >= 500 && status < 600) return failureCount < 3;
         }
-        return failureCount < 2; // Only retry once for server errors
+        // Unknown: be conservative but bounded
+        return failureCount < 2;
       },
       retryDelay: (attemptIndex: number) => Math.min(5000 * 2 ** attemptIndex, 30000), // Longer delay for Etherscan
       // Don't cache errors - failed requests should always retry (but not rate limited ones)

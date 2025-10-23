@@ -38,7 +38,10 @@ export function TokenPositionsCell({ user }: TokenPositionsCellProps) {
     // Skip positions with no value
     if (!value || value <= 0) continue;
 
-    const address = tokenAddress as `0x${string}`;
+    // Skip if no address and not a native token
+    if (!tokenAddress && !position.isNativeToken) continue;
+
+    const address = (tokenAddress ?? '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee') as `0x${string}`;
 
     tokens.push({
       address,

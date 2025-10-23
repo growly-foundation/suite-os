@@ -26,7 +26,7 @@ import { ChainFeatureKey } from '@/types/chains';
 import { detectAddressType } from '@/utils/contract';
 import { InfoIcon, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { mainnet } from 'viem/chains';
 
@@ -77,13 +77,21 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
     );
   }, [selectedOrganization?.supported_chain_ids]);
 
+  const validationSeq = useRef(0);
+  useEffect(
+    () => () => {
+      validationSeq.current++;
+    },
+    []
+  );
   const debouncedValidateContractAddress = useMemo(
     () =>
       debounce(async (address: string, chain: number) => {
+        const seq = ++validationSeq.current;
         setLoading(true);
 
         if (address) {
-          if (!address.startsWith('0x')) {
+          if (!/^0x[0-9a-fA-F]{40}$/.test(address)) {
             setAddressError('Address must start with 0x');
             setContractType(null);
             setValidationCompleted(true);
@@ -94,6 +102,7 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
           }
           try {
             const type = await detectAddressType(address as `0x${string}`, chain);
+            if (seq !== validationSeq.current) return;
             if (type === 'Wallet (EOA)') {
               setAddressError(
                 'Invalid contract address: Address not found or is an EOA (Externally Owned Account)'
@@ -113,6 +122,7 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
             }
           } catch (error) {
             console.error('Error detecting address type:', error);
+            if (seq !== validationSeq.current) return;
             setAddressError(
               'Error validating contract address. Please check the address and try again.'
             );
@@ -124,7 +134,7 @@ export function NftHoldersImportTab({ onImportComplete }: NftHoldersImportTabPro
           setAddressError(null);
           setValidationCompleted(true);
         }
-        setLoading(false);
+        if (seq === validationSeq.current) setLoading(false);
       }, 500),
     [setLoading, setAddressError, setContractType, setValidationCompleted]
   );

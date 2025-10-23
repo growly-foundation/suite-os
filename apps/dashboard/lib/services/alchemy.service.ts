@@ -34,8 +34,7 @@ export class AlchemyPortfolioService {
     while (true) {
       const res = await this.client.post<TRes>(path, currentPayload);
       if (!res.data) {
-        console.error('Alchemy API response missing data:', res);
-        break;
+        throw new Error('Alchemy API pagination failed: response missing data');
       }
       pages.push(res.data);
       const next = res.data?.data?.pageKey;

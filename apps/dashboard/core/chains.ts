@@ -43,7 +43,7 @@ export const NETWORK_NAME_MAPPINGS = {
     base: 'base-mainnet',
     berachain: 'berachain-mainnet',
     celo: 'celo-mainnet',
-    hyperevm: 'hyperevm-mainnet',
+    hyperevm: 'hyperliquid-mainnet',
   } as Record<string, string>,
 
   // Internal name -> Zerion chain id

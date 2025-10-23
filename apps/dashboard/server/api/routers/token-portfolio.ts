@@ -19,7 +19,7 @@ const getAlchemyService = () => {
   return new AlchemyPortfolioService(apiKey);
 };
 
-// Simple RPS limiter: allow max 2 calls per 1000ms (shared in-memory)
+// Simple RPS limiter: allow max 10 calls per 500ms (shared in-memory, per-instance)
 const CALL_WINDOW_MS = 500;
 const MAX_CALLS_PER_WINDOW = 10;
 let callTimestamps: number[] = [];
@@ -41,7 +41,7 @@ export const tokenPortfolioRouter = createTRPCRouter({
   positions: publicProcedure
     .input(
       z.object({
-        address: z.string(),
+        address: z.string().regex(/^0x[0-9a-fA-F]{40}$/, 'Invalid EVM address'),
         chainIds: z.string().optional(),
         currency: z.string().optional().default('usd'),
         useAllPages: z.boolean().optional().default(false),
@@ -57,34 +57,28 @@ export const tokenPortfolioRouter = createTRPCRouter({
         const chainNameList = chainIds
           ? chainIds
               .split(',')
-              .map(name => name.trim())
-              .filter(name => name.length > 0)
-          : []; // Default to ethereum if no chains specified
-
-        // Map chain names to numeric IDs for feature lookup
-        const chainIdList = chainNameList
+              .map(n => n.trim())
+              .filter(Boolean)
+          : [];
+        // Preserve name<->id pairing
+        const parsedChains = chainNameList
           .map(name => {
-            // Try multiple ways to find the chain
-            const foundChain = SUPPORTED_CHAINS.find(
+            const found = SUPPORTED_CHAINS.find(
               c =>
                 c.name.toLowerCase() === name.toLowerCase() ||
-                c.name.toLowerCase().replace(' ', '') === name.toLowerCase()
+                c.name.toLowerCase().replace(/\s+/g, '') === name.toLowerCase()
             );
-            return foundChain?.id;
+            return found ? { name, id: found.id } : null;
           })
-          .filter((id): id is number => id !== undefined);
-
+          .filter((x): x is { name: string; id: number } => !!x);
+        const chainIdList = parsedChains.map(c => c.id);
         const providerByChain = FungibleAdapterService.getApiProviderByChain(chainIdList);
 
         // Group chains by preferred provider
         const zerionChainNames: string[] = [];
         const alchemyChainNames: string[] = [];
 
-        for (let i = 0; i < chainNameList.length; i++) {
-          const chainName = chainNameList[i];
-          const chainId = chainIdList[i];
-          if (!chainId) continue;
-
+        for (const { name: chainName, id: chainId } of parsedChains) {
           const provider = providerByChain[chainId];
           if (provider === PreferredFungibleApiProvider.ALCHEMY) {
             alchemyChainNames.push(chainName);
