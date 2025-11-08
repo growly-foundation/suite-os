@@ -7,7 +7,6 @@ export * from './tools/zerion';
 
 // Export utils
 export * from './utils/agent.factory';
-export * from './utils/checkpointer';
 export * from './utils/model.factory';
 
 // Export services

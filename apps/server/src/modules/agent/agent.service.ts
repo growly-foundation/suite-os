@@ -1,6 +1,6 @@
-import { AIMessageChunk } from '@langchain/core/messages';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { AIMessageChunk } from 'langchain';
 
 import {
   AgentOptions,
@@ -9,12 +9,12 @@ import {
   ResourceContext,
   agentPromptTemplate,
   beastModeDescription,
-  createAgent,
 } from '@getgrowly/agents';
 import { MessageContent, SuiteDatabaseCore } from '@getgrowly/core';
 
 import { SUITE_CORE } from '../../constants/services';
 import { FirecrawlService } from '../firecrawl/firecrawl.service';
+import { AgentFactoryService } from './agent-factory.service';
 
 const buildThreadId = (agentId: string, userId: string) => `${agentId}-${userId}`;
 
@@ -36,7 +36,8 @@ export class AgentService {
   constructor(
     private readonly configService: ConfigService,
     @Inject(SUITE_CORE) private readonly suiteCore: SuiteDatabaseCore,
-    private readonly firecrawlService: FirecrawlService
+    private readonly firecrawlService: FirecrawlService,
+    private readonly agentFactoryService: AgentFactoryService
   ) {}
 
   // Use Langchain PromptTemplate for dynamic prompt construction
@@ -119,6 +120,10 @@ export class AgentService {
     const provider: ChatProvider =
       (this.configService.get('MODEL_PROVIDER') as ChatProvider) || 'openai';
 
+    // Determine beast mode from agent settings or default to true
+    // Check if agent has a settings field with beast_mode, otherwise default to true
+    const isBeastMode = (agentDetails as any)?.settings?.beast_mode ?? true;
+
     // Get system prompt
     const systemPrompt = await this.getSystemPrompt(
       walletAddress,
@@ -126,7 +131,7 @@ export class AgentService {
       organizationName,
       organizationDescription,
       resourceContext,
-      true // TODO: Make this dynamic
+      isBeastMode
     );
 
     // this.logger.debug(`🔍 [System prompt]: ${systemPrompt}`);
@@ -147,8 +152,8 @@ export class AgentService {
       firecrawlService: this.firecrawlService,
     };
 
-    // Get or create agent with persistence
-    const agent = await createAgent(agentOptions);
+    // Get or create agent with caching and persistence
+    const agent = await this.agentFactoryService.getOrCreateAgent(agentOptions);
 
     // Stream the response with thread persistence
     const stream = await agent.stream(

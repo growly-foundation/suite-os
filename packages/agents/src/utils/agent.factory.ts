@@ -1,4 +1,5 @@
 import { DynamicStructuredTool } from '@langchain/core/tools';
+import { BaseCheckpointSaver } from '@langchain/langgraph';
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
 
 import { getProtocolTool } from '../tools/defillama';
@@ -11,7 +12,6 @@ import {
 import { makeTavilyTools } from '../tools/tavily';
 import { makeUniswapTools } from '../tools/uniswap';
 import { makeZerionTools } from '../tools/zerion';
-import { getCheckpointer } from './checkpointer';
 import { ChatModelFactory, ChatProvider } from './model.factory';
 import { collectTools } from './tools';
 
@@ -36,6 +36,13 @@ export interface AgentOptions {
   verbose?: boolean;
   resources?: ResourceContext[];
   firecrawlService?: FirecrawlService;
+  checkpointer?: BaseCheckpointSaver;
+  logger?: {
+    log: (message: string) => void;
+    warn: (message: string) => void;
+    error: (message: string, error?: any) => void;
+    debug?: (message: string) => void;
+  };
 }
 
 /**
@@ -45,7 +52,6 @@ function validateResources(resources: ResourceContext[]): ResourceContext[] {
   return resources.filter(resource => {
     // Basic validation
     if (!resource.id || !resource.name || !resource.type || !resource.value) {
-      console.warn(`Invalid resource detected: ${JSON.stringify(resource)}`);
       return false;
     }
 
@@ -53,30 +59,25 @@ function validateResources(resources: ResourceContext[]): ResourceContext[] {
     switch (resource.type) {
       case 'link':
         if (!resource.value.url) {
-          console.warn(`Link resource "${resource.name}" missing URL`);
           return false;
         }
         break;
       case 'contract':
         if (!resource.value.address || typeof resource.value.chainId !== 'number') {
-          console.warn(`Contract resource "${resource.name}" missing address or chainId`);
           return false;
         }
         break;
       case 'document':
         if (!resource.value.documentName || !resource.value.documentType) {
-          console.warn(`Document resource "${resource.name}" missing document name or type`);
           return false;
         }
         break;
       case 'text':
         if (!resource.value.content) {
-          console.warn(`Text resource "${resource.name}" missing content`);
           return false;
         }
         break;
       default:
-        console.warn(`Unknown resource type: ${resource.type}`);
         return false;
     }
 
@@ -84,13 +85,41 @@ function validateResources(resources: ResourceContext[]): ResourceContext[] {
   });
 }
 
-const initializeTools = ({ zerion, uniswap, tavily, resources }: Partial<ToolsRegistry>) => {
+const initializeTools = ({
+  zerion,
+  uniswap,
+  tavily,
+  resources,
+}: Partial<ToolsRegistry>): DynamicStructuredTool[] => {
   const tools: DynamicStructuredTool[] = [getProtocolTool];
-  if (zerion) tools.push(...collectTools(makeZerionTools()));
-  if (uniswap) tools.push(...collectTools(makeUniswapTools()));
-  if (tavily) tools.push(...collectTools(makeTavilyTools()));
-  if (resources) tools.push(...collectTools(makeResourceTools()));
+
+  if (zerion) {
+    tools.push(...collectTools(makeZerionTools()));
+  }
+
+  if (uniswap) {
+    tools.push(...collectTools(makeUniswapTools()));
+  }
+
+  if (tavily) {
+    tools.push(...collectTools(makeTavilyTools()));
+  }
+
+  if (resources) {
+    tools.push(...collectTools(makeResourceTools()));
+  }
+
   return tools;
+};
+
+/**
+ * Default logger implementation
+ */
+const defaultLogger = {
+  log: (message: string) => console.log(message),
+  warn: (message: string) => console.warn(message),
+  error: (message: string, error?: any) => console.error(message, error),
+  debug: (message: string) => console.debug(message),
 };
 
 /**
@@ -102,8 +131,18 @@ const initializeTools = ({ zerion, uniswap, tavily, resources }: Partial<ToolsRe
 export async function createAgent(
   options: AgentOptions
 ): Promise<ReturnType<typeof createReactAgent>> {
+  const logger = options.logger || defaultLogger;
+
   try {
-    const { provider = 'openai', systemPrompt, verbose, resources, firecrawlService } = options;
+    const {
+      provider = 'openai',
+      systemPrompt,
+      verbose,
+      resources,
+      firecrawlService,
+      checkpointer,
+      agentId,
+    } = options;
 
     // Validate and set up resource context if provided
     let validatedResources: ResourceContext[] = [];
@@ -111,26 +150,24 @@ export async function createAgent(
       validatedResources = validateResources(resources);
 
       if (validatedResources.length !== resources.length) {
-        console.warn(
+        logger.warn(
           `${resources.length - validatedResources.length} invalid resources were filtered out`
         );
       }
 
       if (validatedResources.length > 0) {
         // Use agent ID as context ID for better isolation
-        const contextId = options.agentId || 'default';
+        const contextId = agentId || 'default';
         setResourceContext(validatedResources, contextId);
-
-        console.log(
-          `✅ Loaded ${validatedResources.length} valid resources for agent ${options.agentId}`
-        );
+        logger.log(`✅ Loaded ${validatedResources.length} valid resources for agent ${agentId}`);
       }
     }
 
-    // Set up Firecrawl service if provided
+    // Set up Firecrawl service if provided (still using global state for now)
+    // TODO: Refactor tools to accept context via parameters
     if (firecrawlService) {
       setFirecrawlService(firecrawlService);
-      console.log('✅ Firecrawl service configured for website content extraction');
+      logger.log('✅ Firecrawl service configured for website content extraction');
     }
 
     const llm = ChatModelFactory.create({ provider, verbose });
@@ -143,22 +180,23 @@ export async function createAgent(
 
     const tools = initializeTools(toolsConfig);
 
-    console.log(
-      `🛠️ Initialized ${tools.length} tools for agent ${options.agentId}:`,
-      tools.map(t => t.name).join(', ')
+    logger.log(
+      `🛠️ Initialized ${tools.length} tools for agent ${agentId}: ${tools.map(t => t.name).join(', ')}`
     );
 
-    const checkpointer = await getCheckpointer();
+    if (!checkpointer) {
+      throw new Error('Checkpointer is required but not provided');
+    }
 
-    // Initialize Agent with optional checkpointer
+    // Initialize Agent with checkpointer
     return createReactAgent({
       llm,
       tools,
       prompt: systemPrompt,
-      checkpointer: checkpointer as any,
+      checkpointer,
     });
   } catch (error) {
-    console.error(`Error initializing agent ${options.agentId}:`, error);
+    logger.error(`Error initializing agent ${options.agentId}:`, error);
     throw error;
   }
 }
